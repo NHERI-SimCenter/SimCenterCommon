@@ -20,7 +20,8 @@ SOURCES += main.cpp\
     BeamInputWidget.cpp \
     FloorInputWidget.cpp \
     BraceInputWidget.cpp \
-    ColumnInputWidget.cpp
+    ColumnInputWidget.cpp \
+    SteelInputWidget.cpp
 
 HEADERS  += MainWindow.h\
         InputWidgetSheetBM.h \
@@ -29,7 +30,8 @@ HEADERS  += MainWindow.h\
     BeamInputWidget.h \
     FloorInputWidget.h \
     BraceInputWidget.h \
-    ColumnInputWidget.h
+    ColumnInputWidget.h \
+    SteelInputWidget.h
 
 
 #FORMS    += mainwindow.ui

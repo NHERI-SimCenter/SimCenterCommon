@@ -1,5 +1,5 @@
-#ifndef INPUTWIDGETSHEETBM_H
-#define INPUTWIDGETSHEETBM_H
+#ifndef STEELINPUTWIDGET_H
+#define STEELINPUTWIDGET_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -40,50 +40,30 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include <QWidget>
-
-#include <QItemSelection>
-#include <QTreeView>
-#include <QStandardItemModel>
+#include "SimpleSpreadsheetWidget.h"
+#include <QStringList>
 #include <QHBoxLayout>
 
-class ClineInputWidget;
-class FloorInputWidget;
-class BeamInputWidget;
-class ColumnInputWidget;
-class BraceInputWidget;
-class WallInputWidget;
-class SteelInputWidget;
-
-class InputWidgetSheetBM : public QWidget
+class SteelInputWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit InputWidgetSheetBM(QWidget *parent = 0);
-    ~InputWidgetSheetBM();
+    explicit SteelInputWidget(QWidget *parent = 0);
+    ~SteelInputWidget();
 
-    void outputToJSON(QJsonObject &rvObject);
+    void outputToJSON(QJsonArray &rvObject);
     void inputFromJSON(QJsonObject &rvObject);
     void clear(void);
 
 signals:
 
-public slots:  
-    void selectionChangedSlot(const QItemSelection &, const QItemSelection &);
+public slots:
 
 private:
-    QHBoxLayout *horizontalLayout;
-    QTreeView *treeView;
-    QStandardItemModel *standardModel;
-
-    ClineInputWidget *theClineInput;
-    FloorInputWidget *theFloorInput;
-    BeamInputWidget *theBeamInput;
-    ColumnInputWidget *theColumnInput;
-    BraceInputWidget *theBraceInput;
-    WallInputWidget *theWallInput;
-    SteelInputWidget *theSteelInput;
-
-    QWidget *currentWidget;
+    QHBoxLayout *theLayout;
+    SimpleSpreadsheetWidget* theSpreadsheet;
+    QStringList   tableHeader;
+    int currentRow;
 };
 
-#endif // INPUTWIDGETBMSHEET_H
+#endif // STEELINPUTWIDGET_H

@@ -69,19 +69,21 @@ ClineInputWidget::~ClineInputWidget()
 void
 ClineInputWidget::outputToJSON(QJsonObject &jsonObj){
 
+     // create a json array and for each row add a json object to it
     QJsonArray  jsonArrayCline;
-   // theSpreadsheet->outputToJSON(jsonArray);
     int numRows = theSpreadsheet->getNumRows();
     for (int i=0; i<numRows; i++) {
 
             QJsonObject obj;
             QString name;
             double xLoc, yLoc;
+
+             // obtain info from spreadsheet
             if (theSpreadsheet->getString(i,0,name) == false)
                 break;
             if (theSpreadsheet->getDouble(i,1,xLoc) == false)
                 break;
-            if (theSpreadsheet->getDouble(i,1,yLoc) == false)
+            if (theSpreadsheet->getDouble(i,2,yLoc) == false)
                 break;
             obj["name"]=name;
             QJsonArray coords;
@@ -89,21 +91,50 @@ ClineInputWidget::outputToJSON(QJsonObject &jsonObj){
             coords.append(yLoc);
             obj["location"]=coords;
 
+            // add the object to the array
              jsonArrayCline.append(obj);
         }
 
+    // finally add the array to the input arg
     jsonObj["clines"]=jsonArrayCline;
 
 }
 
 void
-ClineInputWidget::inputFromJSON(QJsonObject &jsonObject){
+ClineInputWidget::inputFromJSON(QJsonObject &jsonObject)
+{
+    int currentRow = 0;
+    QString name;
+    double xLoc, yLoc;
 
+    //
+    // get the cline data (a json array) from the object, and for every
+    // object in the array, get the values and add to the spreadsheet
+    //
+
+    QJsonArray theArray = jsonObject["clines"].toArray();
+    foreach (const QJsonValue &theValue, theArray) {
+        // get values
+        QJsonObject theObject = theValue.toObject();
+        QJsonValue theMeanValue = theObject["name"];
+        name = theMeanValue.toString();
+        QJsonArray theArray = theObject["location"].toArray();
+        QJsonValue xValue = theArray.at(0);
+        QJsonValue yValue = theArray.at(1);
+        xLoc = xValue.toDouble();
+        yLoc = yValue.toDouble();
+
+        // add to the spreadsheet
+        theSpreadsheet->setString(currentRow, 0, name);
+        theSpreadsheet->setDouble(currentRow, 1, xLoc);
+        theSpreadsheet->setDouble(currentRow, 2, yLoc);
+
+        currentRow++;
+    }
 }
 
 void
 ClineInputWidget::clear(void)
 {
-
-
+    theSpreadsheet->clear();
 }

@@ -29,6 +29,9 @@ public:
     bool getString(int row, int col, QString &);
     bool getDouble(int row, int col, double &);
     bool getInt(int row, int col, int &);
+    int  setString(int row,int col, QString &);
+    int  setDouble(int row, int col, double);
+    int  setInt(int row, int col, int);
     
 protected:
     void keyPressEvent( QKeyEvent *event );
@@ -36,12 +39,14 @@ protected:
 signals:
 
 public slots:
+    void clear(void);
 
 private:
     void copy();
     void paste();
     int numRow;
     int numCol;
+
     QStringList theHeadings;
     QList<int>  dataTypes;
 };

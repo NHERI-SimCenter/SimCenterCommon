@@ -21,8 +21,12 @@ SimpleSpreadsheetWidget::~SimpleSpreadsheetWidget()
 
 }
 
-int 
+void SimpleSpreadsheetWidget::clear()
+{
+    QTableWidget::clearContents();
+}
 
+int 
 SimpleSpreadsheetWidget::getNumRows(){
   return numRow;
 }
@@ -56,6 +60,39 @@ bool SimpleSpreadsheetWidget::getInt(int row, int col, int &res){
   QString textData = theItem->text();
   res = textData.toInt();
   return true;  
+}
+
+int  SimpleSpreadsheetWidget::setString(int row,int col, QString &data)
+{
+    QTableWidgetItem *theCell = this->item(row, col);
+    if(!theCell)
+    {
+        theCell = new QTableWidgetItem;
+        this->setItem(row, col, theCell);
+    }
+    theCell->setText(data);
+}
+
+int  SimpleSpreadsheetWidget::setDouble(int row, int col, double data)
+{
+    QTableWidgetItem *theCell = this->item(row, col);
+    if(!theCell)
+    {
+        theCell = new QTableWidgetItem;
+        this->setItem(row, col, theCell);
+    }
+    theCell->setText(QString::number(data));
+}
+
+int  SimpleSpreadsheetWidget::setInt(int row, int col, int data)
+{
+    QTableWidgetItem *theCell = this->item(row, col);
+    if(!theCell)
+    {
+        theCell = new QTableWidgetItem;
+        this->setItem(row, col, theCell);
+    }
+    theCell->setText(QString::number(data));
 }
 
 void
@@ -105,13 +142,11 @@ void SimpleSpreadsheetWidget::keyPressEvent( QKeyEvent *event )
 
          QApplication::clipboard()->setText( this->currentIndex().data().toString() );
         //this->copy();
-
     }
     else if (event->modifiers() & Qt::ControlModifier && event->key() == Qt::Key_V) {
 
       model()->setData( currentIndex(), QApplication::clipboard()->text() );
         //this->paste();
-
     }
     else {
 

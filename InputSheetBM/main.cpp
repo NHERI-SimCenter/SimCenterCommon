@@ -1,3 +1,7 @@
+// Written: fmckenna
+
+// Purpose: the typical Qt main for running a QMainWindow
+
 #include "MainWindow.h"
 #include <QApplication>
 

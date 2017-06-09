@@ -36,13 +36,13 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include "FloorInputWidget.h"
+#include "SteelInputWidget.h"
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QDebug>
 #include <QList>
 
-FloorInputWidget::FloorInputWidget(QWidget *parent) : QWidget(parent)
+SteelInputWidget::SteelInputWidget(QWidget *parent) : QWidget(parent)
 {
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
@@ -50,79 +50,103 @@ FloorInputWidget::FloorInputWidget(QWidget *parent) : QWidget(parent)
     QStringList headings;
     QList<int> dataTypes;
     headings << tr("Name");
-    headings << tr("elevation");
+    headings << tr("E");
+    headings << tr("Fy");
+    headings << tr("Fu");
+    headings << tr("nu");
+    headings << tr("rho");
     dataTypes << SIMPLESPREADSHEET_QString;
     dataTypes << SIMPLESPREADSHEET_QDouble;
-    theSpreadsheet = new SimpleSpreadsheetWidget(2, 1000, headings, dataTypes, this);
+    dataTypes << SIMPLESPREADSHEET_QDouble;
+    dataTypes << SIMPLESPREADSHEET_QDouble;
+    dataTypes << SIMPLESPREADSHEET_QDouble;
+    dataTypes << SIMPLESPREADSHEET_QDouble;
+    theSpreadsheet = new SimpleSpreadsheetWidget(6, 1000, headings, dataTypes, this);
 
     theLayout->addWidget(theSpreadsheet);
     this->setMinimumWidth(200);
 }
 
-FloorInputWidget::~FloorInputWidget()
+SteelInputWidget::~SteelInputWidget()
 {
 
 }
 
 void
-FloorInputWidget::outputToJSON(QJsonObject &jsonObj){
+SteelInputWidget::outputToJSON(QJsonArray &jsonArray){
 
-      // create a json array and for each row add a json object to it
-    QJsonArray  jsonArray;
+    // create a json array and for each row add a json object to it
+
     int numRows = theSpreadsheet->getNumRows();
     for (int i=0; i<numRows; i++) {
 
         QJsonObject obj;
         QString name;
-        double zLoc;
+        double E, Fy, Fu, rho, nu;
 
-        // parse the arguments
+        // obtain info from spreadsheet
         if (theSpreadsheet->getString(i,0,name) == false)
             break;
-        if (theSpreadsheet->getDouble(i,1,zLoc) == false)
+        if (theSpreadsheet->getDouble(i,1,E) == false)
+            break;
+        if (theSpreadsheet->getDouble(i,2,Fy) == false)
+            break;
+        if (theSpreadsheet->getDouble(i,3,Fu) == false)
+            break;
+        if (theSpreadsheet->getDouble(i,4,nu) == false)
+            break;
+        if (theSpreadsheet->getDouble(i,5,rho) == false)
             break;
 
-        // add the components to the object
+        // now add the items to object
         obj["name"]=name;
-        obj["elevation"]=zLoc;
+        obj["type"]=QString(tr("steel"));
+        obj["fy"]=Fy;
+        obj["fu"]=Fu;
+        obj["E"]=E;
+        obj["nu"]=nu;
+        obj["rho"]=rho;
 
         // add the object to the array
         jsonArray.append(obj);
     }
-
-    // finally add the array to the input arg
-    jsonObj["floors"]=jsonArray;
 }
 
 void
-FloorInputWidget::inputFromJSON(QJsonObject &jsonObject)
+SteelInputWidget::inputFromJSON(QJsonObject &theObject)
 {
-    int currentRow = 0;
-    QString name;
-    double zLoc;
+    // this has to be called one object at a time for efficiency
+    // could use the rVarray above. This array will contain multiple
+    // object types and could parse each to to see if corect type.
+    //  BUT too slow if multiple material types,
+    //  int currentRow = 0;
 
-    //
-    // get the cline data (a json array) from the object, and for every
-    // object in the array, get the values and add to the spreadsheet
-    //
-
-    QJsonArray theArray = jsonObject["floors"].toArray();
-    foreach (const QJsonValue &theValue, theArray) {
-        // get values
-        QJsonObject theObject = theValue.toObject();
+    QString name, type;
+    double E, Fy, Fu, rho, nu;
+    type = theObject["type"].toString();
+    if (type == QString(tr("steel"))) {
         name = theObject["name"].toString();
-        zLoc = theObject["elevation"].toDouble();
+        E = theObject["E"].toDouble();
+        Fy = theObject["fy"].toDouble();
+        Fu = theObject["fu"].toDouble();
+        nu = theObject["nu"].toDouble();
+        rho = theObject["rho"].toDouble();
 
         // add to the spreadsheet
         theSpreadsheet->setString(currentRow, 0, name);
-        theSpreadsheet->setDouble(currentRow, 1, zLoc);
+        theSpreadsheet->setDouble(currentRow, 1, E);
+        theSpreadsheet->setDouble(currentRow, 2, Fy);
+        theSpreadsheet->setDouble(currentRow, 3, Fu);
+        theSpreadsheet->setDouble(currentRow, 4, nu);
+        theSpreadsheet->setDouble(currentRow, 5, rho);
 
         currentRow++;
     }
 }
 
 void
-FloorInputWidget::clear(void)
+SteelInputWidget::clear(void)
 {
+    currentRow = 0;
     theSpreadsheet->clear();
 }

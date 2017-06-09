@@ -96,8 +96,9 @@ ColumnInputWidget::~ColumnInputWidget()
 void
 ColumnInputWidget::outputToJSON(QJsonObject &jsonObj){
 
+     // create a json array and for each row add a json object to it
     QJsonArray  jsonArray;
-    // theSpreadsheet->outputToJSON(jsonArray);
+
     int numRows = theSpreadsheet->getNumRows();
     for (int i=0; i<numRows; i++) {
 
@@ -181,10 +182,12 @@ ColumnInputWidget::outputToJSON(QJsonObject &jsonObj){
 
         obj["segment"]=segments;
 
+        // add the object to the array
         jsonArray.append(obj);
 
     }
 
+    // finally add the array to the input arg
     jsonObj["beams"]=jsonArray;
 }
 
@@ -196,6 +199,5 @@ ColumnInputWidget::inputFromJSON(QJsonObject &jsonObject){
 void
 ColumnInputWidget::clear(void)
 {
-
-
+    theSpreadsheet->clear();
 }

@@ -96,9 +96,10 @@ BeamInputWidget::~BeamInputWidget()
 void
 BeamInputWidget::outputToJSON(QJsonObject &jsonObj){
 
+    // create a json array and for each row add a json object to it
     QJsonArray  jsonArray;
-    // theSpreadsheet->outputToJSON(jsonArray);
     int numRows = theSpreadsheet->getNumRows();
+
     for (int i=0; i<numRows; i++) {
 
         QJsonObject obj;
@@ -107,6 +108,8 @@ BeamInputWidget::outputToJSON(QJsonObject &jsonObj){
         QString cline1, cline2;
         QString section1, section2, section3;
         double ang, ratS, ratE;
+
+        // obtain info from spreadsheet
         if (theSpreadsheet->getString(i,0,name) == false)
             break;
         if (theSpreadsheet->getString(i,1,floor) == false)
@@ -124,6 +127,7 @@ BeamInputWidget::outputToJSON(QJsonObject &jsonObj){
         if (theSpreadsheet->getDouble(i,7,ang) == false)
             break;
 
+        // now add the items to object, some of which are arrays
         obj["name"]=name;
         obj["floor"]=floor;
         QJsonArray clines;
@@ -143,6 +147,9 @@ BeamInputWidget::outputToJSON(QJsonObject &jsonObj){
 
         segments.append(segment1);
 
+        //
+        // parse for more segments
+        //
         if ((theSpreadsheet->getString(i,8,section1) == true) &&
                 (theSpreadsheet->getDouble(i,9,ratS) == true) &&
                 (theSpreadsheet->getDouble(i,10,ratE) == true) &&
@@ -177,13 +184,14 @@ BeamInputWidget::outputToJSON(QJsonObject &jsonObj){
             segments.append(segment3);
         }
 
-
         obj["segment"]=segments;
 
+         // add the object to the array
         jsonArray.append(obj);
 
     }
 
+    // finally add the array to the input arg
     jsonObj["beams"]=jsonArray;
 }
 
@@ -195,6 +203,5 @@ BeamInputWidget::inputFromJSON(QJsonObject &jsonObject){
 void
 BeamInputWidget::clear(void)
 {
-
-
+    theSpreadsheet->clear();
 }

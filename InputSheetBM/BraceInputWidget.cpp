@@ -98,8 +98,9 @@ BraceInputWidget::~BraceInputWidget()
 void
 BraceInputWidget::outputToJSON(QJsonObject &jsonObj){
 
+    // create a json array and for each row add a json object to it
     QJsonArray  jsonArray;
-    // theSpreadsheet->outputToJSON(jsonArray);
+
     int numRows = theSpreadsheet->getNumRows();
     for (int i=0; i<numRows; i++) {
 
@@ -108,8 +109,9 @@ BraceInputWidget::outputToJSON(QJsonObject &jsonObj){
         QString floor1, floor2;
         QString cline1, cline2;
         QString section1, section2, section3;
-        double ang1, ang2, ang3;
-        double ratS1, ratS2, ratS3, ratE1, ratE2, ratE3;
+        double ang, ratS, ratE;
+
+        // obtain info from spreadsheet
         if (theSpreadsheet->getString(i,0,name) == false)
             break;
         if (theSpreadsheet->getString(i,1,floor1) == false)
@@ -122,17 +124,18 @@ BraceInputWidget::outputToJSON(QJsonObject &jsonObj){
             break;
         if (theSpreadsheet->getString(i,5,section1) == false)
             break;
-        if (theSpreadsheet->getDouble(i,6,ratS1) == false)
+        if (theSpreadsheet->getDouble(i,6,ratS) == false)
             break;
-        if (theSpreadsheet->getDouble(i,7,ratE1) == false)
+        if (theSpreadsheet->getDouble(i,7,ratE) == false)
             break;
-        if (theSpreadsheet->getDouble(i,8,ang1) == false)
+        if (theSpreadsheet->getDouble(i,8,ang) == false)
             break;
 
+        // now add the items to object
         obj["name"]=name;
         QJsonArray floors;
-	floors.append(floor1);
-	floors.append(floor2);
+        floors.append(floor1);
+        floors.append(floor2);
         obj["floor"]=floors;
 
         QJsonArray clines;
@@ -145,42 +148,43 @@ BraceInputWidget::outputToJSON(QJsonObject &jsonObj){
         QJsonArray ratios1;
 
         segment1["section"]=section1;
-        segment1["angle"]=ang1;
-        ratios1.append(ratS1);
-        ratios1.append(ratS2);
+        segment1["angle"]=ang;
+        ratios1.append(ratS);
+        ratios1.append(ratS);
         segment1["ratio"] = ratios1;
 
         segments.append(segment1);
 
+        // parse for addional segmments & add to object
         if ((theSpreadsheet->getString(i,9,section1) == true) &&
-                (theSpreadsheet->getDouble(i,10,ratS1) == true) &&
-                (theSpreadsheet->getDouble(i,11,ratE1) == true) &&
-                (theSpreadsheet->getDouble(i,12,ang1) == true))  {
+                (theSpreadsheet->getDouble(i,10,ratS) == true) &&
+                (theSpreadsheet->getDouble(i,11,ratE) == true) &&
+                (theSpreadsheet->getDouble(i,12,ang) == true))  {
 
             QJsonObject segment2;
             QJsonArray ratios2;
 
             segment2["section"]=section1;
-            segment2["angle"]=ang1;
-            ratios2.append(ratS1);
-            ratios2.append(ratS2);
+            segment2["angle"]=ang;
+            ratios2.append(ratS);
+            ratios2.append(ratE);
             segment2["ratio"] = ratios2;
 
             segments.append(segment2);
         }
 
         if ((theSpreadsheet->getString(i,13,section1) == true) &&
-                (theSpreadsheet->getDouble(i,14,ratS1) == true) &&
-                (theSpreadsheet->getDouble(i,15,ratE1) == true) &&
-                (theSpreadsheet->getDouble(i,16,ang1) == true))  {
+                (theSpreadsheet->getDouble(i,14,ratS) == true) &&
+                (theSpreadsheet->getDouble(i,15,ratE) == true) &&
+                (theSpreadsheet->getDouble(i,16,ang) == true))  {
 
             QJsonObject segment3;
             QJsonArray ratios3;
 
             segment3["section"]=section1;
-            segment3["angle"]=ang1;
-            ratios3.append(ratS1);
-            ratios3.append(ratS2);
+            segment3["angle"]=ang;
+            ratios3.append(ratS);
+            ratios3.append(ratS);
             segment3["ratio"] = ratios3;
 
             segments.append(segment3);
@@ -189,10 +193,12 @@ BraceInputWidget::outputToJSON(QJsonObject &jsonObj){
 
         obj["segment"]=segments;
 
+        // add the object to the array
         jsonArray.append(obj);
 
     }
 
+    // finally add the array to the input arg
     jsonObj["beams"]=jsonArray;
 }
 
@@ -204,6 +210,5 @@ BraceInputWidget::inputFromJSON(QJsonObject &jsonObject){
 void
 BraceInputWidget::clear(void)
 {
-
-
+    theSpreadsheet->clear();
 }

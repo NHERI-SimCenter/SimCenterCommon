@@ -1,3 +1,7 @@
+
+// Written: fmckenna
+// Purpose: to test the INputWidgetSheetBM widget
+
 #include <QTreeView>
 #include <QStandardItemModel>
 #include <QItemSelectionModel>
@@ -196,18 +200,3 @@ void MainWindow::createActions() {
  fileMenu->addAction(exitAction);
 }
 
-/*
-void MainWindow::selectionChangedSlot(const QItemSelection & newSelection, const QItemSelection & oldSelection)
-{
-  //get the text of the selected item
-  const QModelIndex index = treeView->selectionModel()->currentIndex();
-  QString selectedText = index.data(Qt::DisplayRole).toString();
-  qDebug() << selectedText;
-  if (selectedText == tr("Units")) {
-    qDebug() << "DOING UNITS";
-  }
-
-
-
-}
-*/

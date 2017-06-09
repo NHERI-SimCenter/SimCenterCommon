@@ -55,17 +55,22 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "BeamInputWidget.h"
 #include "ColumnInputWidget.h"
 #include "BraceInputWidget.h"
+#include "SteelInputWidget.h";
 
 InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), currentWidget(0)
 {
   horizontalLayout = new QHBoxLayout();
   this->setLayout(horizontalLayout);
 
+  //
+  // create a tree widget, assign it a mode and add to layout
+  //
+
   treeView = new QTreeView(this);
   standardModel = new QStandardItemModel ;
   QStandardItem *rootNode = standardModel->invisibleRootItem();
 
-  //defining a couple of items
+  //defining bunch of items for inclusion in model
   QStandardItem *unitsItem    = new QStandardItem("Units");
   QStandardItem *layoutItem   = new QStandardItem("Layout");
   QStandardItem *floorsItem   = new QStandardItem("Floors");
@@ -83,7 +88,7 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
   QStandardItem *concTBeamItem  = new QStandardItem("ConcreteTBeam");
   QStandardItem *concRectColItem  = new QStandardItem("ConcreteRectangularColumn");
 
-  //building up the hierarchy
+  //building up the hierarchy of the model
   rootNode->appendRow(unitsItem);
   rootNode->appendRow(layoutItem);
   layoutItem->appendRow(floorsItem);
@@ -106,24 +111,27 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
   treeView->expandAll();
   treeView->setHeaderHidden(true);
   treeView->setMaximumWidth(200);
-  //QModelIndex index=treeView->index(k,0);
-  // treeView->setCurrentIndex(index);
 
-  //selection changes trigger a slot
+  // set up so that a slection change triggers yje selectionChanged slot
   QItemSelectionModel *selectionModel= treeView->selectionModel();
   connect(selectionModel,
           SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
           this,
           SLOT(selectionChangedSlot(const QItemSelection &, const QItemSelection &)));
 
+  // add the TreeView widget to the layout
   horizontalLayout->addWidget(treeView);
   horizontalLayout->addStretch();
 
+  //
+  // create the input widgets for the different types
+  //
   theClineInput = new ClineInputWidget(this);
   theFloorInput = new FloorInputWidget(this);
   theBeamInput = new BeamInputWidget(this);
-    theBraceInput = new BraceInputWidget(this);
-       theColumnInput = new ColumnInputWidget(this);
+  theBraceInput = new BraceInputWidget(this);
+  theColumnInput = new ColumnInputWidget(this);
+  theSteelInput = new SteelInputWidget(this);
 
 }
 
@@ -135,6 +143,7 @@ InputWidgetSheetBM::~InputWidgetSheetBM()
 
 void InputWidgetSheetBM::selectionChangedSlot(const QItemSelection & /*newSelection*/, const QItemSelection & /*oldSelection*/)
 {
+    // remove current widget from layout
     if (currentWidget != 0) {
         horizontalLayout->removeWidget(currentWidget);
         currentWidget->setParent(0);
@@ -144,7 +153,7 @@ void InputWidgetSheetBM::selectionChangedSlot(const QItemSelection & /*newSelect
     const QModelIndex index = treeView->selectionModel()->currentIndex();
     QString selectedText = index.data(Qt::DisplayRole).toString();
 
-    // do something based on the text
+    // add the user slected widget for editing
     if (selectedText == tr("Clines")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theClineInput, 1);
         currentWidget = theClineInput;
@@ -160,8 +169,10 @@ void InputWidgetSheetBM::selectionChangedSlot(const QItemSelection & /*newSelect
     } else if (selectedText == tr("Braces")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theBraceInput, 1);
          currentWidget = theBraceInput;
+    } else if (selectedText == tr("Steel")) {
+        horizontalLayout->insertWidget(horizontalLayout->count()-1, theSteelInput, 1);
+         currentWidget = theSteelInput;
     }
-
 }
 
 
@@ -177,21 +188,62 @@ InputWidgetSheetBM::outputToJSON(QJsonObject &jsonObject)
     // add geometry
     QJsonObject jsonObjGeometry;
     theBeamInput->outputToJSON(jsonObjGeometry);
+    theColumnInput->outputToJSON(jsonObjGeometry);
+    theBraceInput->outputToJSON(jsonObjGeometry);
 
     jsonObject["geometry"]=jsonObjGeometry;
 
+    // add properties
+    QJsonObject jsonObjProperties;
 
+    //
+    // create a json array and get all material inputs to enter their data
+    //
+    QJsonArray theMaterialsArray;
+    theSteelInput->outputToJSON(theMaterialsArray);
+
+    jsonObjProperties["materials"]=theMaterialsArray;
+
+    jsonObject["properties"]=jsonObjProperties;
 }
 
 void
 InputWidgetSheetBM::clear(void)
 {
-
     theClineInput->clear();
+    theFloorInput->clear();
+    theColumnInput->clear();
+    theBeamInput->clear();
+    theBraceInput->clear();
+    theSteelInput->clear();
 }
 
 void
-InputWidgetSheetBM::inputFromJSON(QJsonObject &rvObject)
+InputWidgetSheetBM::inputFromJSON(QJsonObject &jsonObject)
 {
-    theClineInput->inputFromJSON(rvObject);
+   QJsonObject jsonObjLayout = jsonObject["layout"].toObject();
+   theClineInput->inputFromJSON(jsonObjLayout);
+   theFloorInput->inputFromJSON(jsonObjLayout);
+
+   //
+   // parse the properties
+   //
+
+   QJsonObject jsonObjProperties = jsonObject["properties"].toObject();
+
+   // first the materials
+   // get the array and for every object in array determine it's type and get
+   // the approprate inputwidget to parse the data
+   //
+
+   QJsonArray theMaterialArray = jsonObjProperties["materials"].toArray();
+   foreach (const QJsonValue &theValue, theMaterialArray) {
+
+       QJsonObject theObject = theValue.toObject();
+       QString theType = theObject["type"].toString();
+
+       if (theType == QString(tr("steel"))) {
+            theSteelInput->inputFromJSON(theObject);
+       }
+   }
 }
