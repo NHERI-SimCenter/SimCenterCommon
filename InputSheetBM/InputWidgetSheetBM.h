@@ -53,6 +53,7 @@ class ColumnInputWidget;
 class BraceInputWidget;
 class WallInputWidget;
 class SteelInputWidget;
+class ConcreteInputWidget;
 
 class InputWidgetSheetBM : public QWidget
 {
@@ -82,6 +83,7 @@ private:
     BraceInputWidget *theBraceInput;
     WallInputWidget *theWallInput;
     SteelInputWidget *theSteelInput;
+    ConcreteInputWidget *theConcreteInput;
 
     QWidget *currentWidget;
 };

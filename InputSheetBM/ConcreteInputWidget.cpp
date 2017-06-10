@@ -47,19 +47,6 @@ ConcreteInputWidget::ConcreteInputWidget(QWidget *parent) : QWidget(parent)
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
 
-        theSpreadsheet->setString(currentRow, 0, name);
-        theSpreadsheet->setDouble(currentRow, 1, fc);
-        theSpreadsheet->setDouble(currentRow, 2, fcu);
-        theSpreadsheet->setDouble(currentRow, 3, ft);
-        theSpreadsheet->setDouble(currentRow, 4, Ec);
-        theSpreadsheet->setDouble(currentRow, 5, Et);
-        theSpreadsheet->setDouble(currentRow, 6, epsc);
-        theSpreadsheet->setDouble(currentRow, 7, epscu);
-        theSpreadsheet->setDouble(currentRow, 8, nu);
-        theSpreadsheet->setDouble(currentRow, 9, rho);
-
-
-
     QStringList headings;
     QList<int> dataTypes;
     headings << tr("Name");
@@ -82,7 +69,7 @@ ConcreteInputWidget::ConcreteInputWidget(QWidget *parent) : QWidget(parent)
     dataTypes << SIMPLESPREADSHEET_QDouble;
     dataTypes << SIMPLESPREADSHEET_QDouble;
     dataTypes << SIMPLESPREADSHEET_QDouble;
-    theSpreadsheet = new SimpleSpreadsheetWidget(9, 1000, headings, dataTypes, this);
+    theSpreadsheet = new SimpleSpreadsheetWidget(10, 1000, headings, dataTypes, this);
 
     theLayout->addWidget(theSpreadsheet);
     this->setMinimumWidth(200);
@@ -103,10 +90,10 @@ ConcreteInputWidget::outputToJSON(QJsonArray &jsonArray){
 
         QJsonObject obj;
         QString name;
-	double Ec, Et, fc, fcu, epsc, epscu, ft, rho, nu;
+        double Ec, Et, fc, fcu, epsc, epscu, ft, rho, nu;
 
         // obtain info from spreadsheet
-        if (theSpreadsheet->getString(i,0,name) == false)
+        if (theSpreadsheet->getString(i,0,name) == false || name.isEmpty())
             break;
         if (theSpreadsheet->getDouble(i,1,fc) == false)
             break;
@@ -129,10 +116,14 @@ ConcreteInputWidget::outputToJSON(QJsonArray &jsonArray){
 
         // now add the items to object
         obj["name"]=name;
-        obj["type"]=QString(tr("steel"));
-        obj["fy"]=Fy;
-        obj["fu"]=Fu;
-        obj["E"]=E;
+        obj["type"]=QString(tr("concrete"));
+        obj["fc"]=fc;
+        obj["fcu"]=fcu;
+        obj["ft"]=ft;
+        obj["Ec"]=Ec;
+        obj["Et"]=Et;
+        obj["epsc"]=epsc;
+        obj["epscu"]=epscu;
         obj["nu"]=nu;
         obj["rho"]=rho;
 

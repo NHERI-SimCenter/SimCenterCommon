@@ -85,7 +85,7 @@ SteelInputWidget::outputToJSON(QJsonArray &jsonArray){
         double E, Fy, Fu, rho, nu;
 
         // obtain info from spreadsheet
-        if (theSpreadsheet->getString(i,0,name) == false)
+        if (theSpreadsheet->getString(i,0,name) == false || name.isEmpty())
             break;
         if (theSpreadsheet->getDouble(i,1,E) == false)
             break;

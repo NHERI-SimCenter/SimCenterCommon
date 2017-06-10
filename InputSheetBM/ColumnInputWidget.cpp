@@ -107,9 +107,8 @@ ColumnInputWidget::outputToJSON(QJsonObject &jsonObj){
         QString floor1, floor2;
         QString cline;
         QString section1, section2, section3;
-        double ang1, ang2, ang3;
-        double ratS1, ratS2, ratS3, ratE1, ratE2, ratE3;
-        if (theSpreadsheet->getString(i,0,name) == false)
+        double ang, ratS, ratE;
+        if (theSpreadsheet->getString(i,0,name) == false || name.isEmpty())
             break;
         if (theSpreadsheet->getString(i,1,cline) == false)
             break;
@@ -119,11 +118,11 @@ ColumnInputWidget::outputToJSON(QJsonObject &jsonObj){
             break;
         if (theSpreadsheet->getString(i,4,section1) == false)
             break;
-        if (theSpreadsheet->getDouble(i,5,ratS1) == false)
+        if (theSpreadsheet->getDouble(i,5,ratS) == false)
             break;
-        if (theSpreadsheet->getDouble(i,6,ratE1) == false)
+        if (theSpreadsheet->getDouble(i,6,ratE) == false)
             break;
-        if (theSpreadsheet->getDouble(i,7,ang1) == false)
+        if (theSpreadsheet->getDouble(i,7,ang) == false)
             break;
 
         obj["name"]=name;
@@ -138,42 +137,42 @@ ColumnInputWidget::outputToJSON(QJsonObject &jsonObj){
         QJsonArray ratios1;
 
         segment1["section"]=section1;
-        segment1["angle"]=ang1;
-        ratios1.append(ratS1);
-        ratios1.append(ratS2);
+        segment1["angle"]=ang;
+        ratios1.append(ratS);
+        ratios1.append(ratE);
         segment1["ratio"] = ratios1;
 
         segments.append(segment1);
 
         if ((theSpreadsheet->getString(i,8,section1) == true) &&
-                (theSpreadsheet->getDouble(i,9,ratS1) == true) &&
-                (theSpreadsheet->getDouble(i,10,ratE1) == true) &&
-                (theSpreadsheet->getDouble(i,11,ang1) == true))  {
+                (theSpreadsheet->getDouble(i,9,ratS) == true) &&
+                (theSpreadsheet->getDouble(i,10,ratE) == true) &&
+                (theSpreadsheet->getDouble(i,11,ang) == true))  {
 
             QJsonObject segment2;
             QJsonArray ratios2;
 
             segment2["section"]=section1;
-            segment2["angle"]=ang1;
-            ratios2.append(ratS1);
-            ratios2.append(ratS2);
+            segment2["angle"]=ang;
+            ratios2.append(ratS);
+            ratios2.append(ratE);
             segment2["ratio"] = ratios2;
 
             segments.append(segment2);
         }
 
         if ((theSpreadsheet->getString(i,12,section1) == true) &&
-                (theSpreadsheet->getDouble(i,13,ratS1) == true) &&
-                (theSpreadsheet->getDouble(i,14,ratE1) == true) &&
-                (theSpreadsheet->getDouble(i,15,ang1) == true))  {
+                (theSpreadsheet->getDouble(i,13,ratS) == true) &&
+                (theSpreadsheet->getDouble(i,14,ratE) == true) &&
+                (theSpreadsheet->getDouble(i,15,ang) == true))  {
 
             QJsonObject segment3;
             QJsonArray ratios3;
 
             segment3["section"]=section1;
-            segment3["angle"]=ang1;
-            ratios3.append(ratS1);
-            ratios3.append(ratS2);
+            segment3["angle"]=ang;
+            ratios3.append(ratS);
+            ratios3.append(ratE);
             segment3["ratio"] = ratios3;
 
             segments.append(segment3);

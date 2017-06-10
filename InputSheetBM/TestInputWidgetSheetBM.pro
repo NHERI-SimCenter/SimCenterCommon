@@ -21,7 +21,8 @@ SOURCES += main.cpp\
     FloorInputWidget.cpp \
     BraceInputWidget.cpp \
     ColumnInputWidget.cpp \
-    SteelInputWidget.cpp
+    SteelInputWidget.cpp \
+    ConcreteInputWidget.cpp
 
 HEADERS  += MainWindow.h\
         InputWidgetSheetBM.h \
@@ -31,7 +32,8 @@ HEADERS  += MainWindow.h\
     FloorInputWidget.h \
     BraceInputWidget.h \
     ColumnInputWidget.h \
-    SteelInputWidget.h
+    SteelInputWidget.h \
+    ConcreteInputWidget.h
 
 
 #FORMS    += mainwindow.ui

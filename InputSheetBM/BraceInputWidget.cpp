@@ -112,7 +112,7 @@ BraceInputWidget::outputToJSON(QJsonObject &jsonObj){
         double ang, ratS, ratE;
 
         // obtain info from spreadsheet
-        if (theSpreadsheet->getString(i,0,name) == false)
+        if (theSpreadsheet->getString(i,0,name) == false || name.isEmpty())
             break;
         if (theSpreadsheet->getString(i,1,floor1) == false)
             break;

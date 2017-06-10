@@ -79,7 +79,7 @@ ClineInputWidget::outputToJSON(QJsonObject &jsonObj){
             double xLoc, yLoc;
 
              // obtain info from spreadsheet
-            if (theSpreadsheet->getString(i,0,name) == false)
+            if (theSpreadsheet->getString(i,0,name) == false || name.isEmpty())
                 break;
             if (theSpreadsheet->getDouble(i,1,xLoc) == false)
                 break;

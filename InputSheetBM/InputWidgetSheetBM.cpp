@@ -56,6 +56,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "ColumnInputWidget.h"
 #include "BraceInputWidget.h"
 #include "SteelInputWidget.h";
+#include "ConcreteInputWidget.h"
+
 
 InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), currentWidget(0)
 {
@@ -66,7 +68,7 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
   // create a tree widget, assign it a mode and add to layout
   //
 
-  treeView = new QTreeView(this);
+  treeView = new QTreeView();
   standardModel = new QStandardItemModel ;
   QStandardItem *rootNode = standardModel->invisibleRootItem();
 
@@ -83,6 +85,7 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
   QStandardItem *propertiesItem = new QStandardItem("Properties");
   QStandardItem *materialsItem = new QStandardItem("Materials");
   QStandardItem *steelItem = new QStandardItem("Steel");
+  QStandardItem *concreteItem = new QStandardItem("Concrete");
   QStandardItem *sectionsItem  = new QStandardItem("Sections");
   QStandardItem *concRectBeamItem  = new QStandardItem("ConcreteRectangularBeam");
   QStandardItem *concTBeamItem  = new QStandardItem("ConcreteTBeam");
@@ -100,6 +103,7 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
   geometryItem->appendRow(wallsItem);
   rootNode->appendRow(propertiesItem);
   propertiesItem->appendRow(materialsItem);
+  materialsItem->appendRow(concreteItem);
   materialsItem->appendRow(steelItem);
   propertiesItem->appendRow(sectionsItem);
   sectionsItem->appendRow(concRectBeamItem);
@@ -120,18 +124,19 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
           SLOT(selectionChangedSlot(const QItemSelection &, const QItemSelection &)));
 
   // add the TreeView widget to the layout
-  horizontalLayout->addWidget(treeView);
+ horizontalLayout->addWidget(treeView);
   horizontalLayout->addStretch();
 
   //
   // create the input widgets for the different types
   //
-  theClineInput = new ClineInputWidget(this);
-  theFloorInput = new FloorInputWidget(this);
-  theBeamInput = new BeamInputWidget(this);
-  theBraceInput = new BraceInputWidget(this);
-  theColumnInput = new ColumnInputWidget(this);
-  theSteelInput = new SteelInputWidget(this);
+  theClineInput = new ClineInputWidget();
+  theFloorInput = new FloorInputWidget();
+  theBeamInput = new BeamInputWidget();
+  theBraceInput = new BraceInputWidget();
+  theColumnInput = new ColumnInputWidget();
+  theSteelInput = new SteelInputWidget();
+  theConcreteInput = new ConcreteInputWidget();
 
 }
 
@@ -162,16 +167,19 @@ void InputWidgetSheetBM::selectionChangedSlot(const QItemSelection & /*newSelect
         currentWidget = theFloorInput;
     } else if (selectedText == tr("Beams")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theBeamInput, 1);
-         currentWidget = theBeamInput;
+        currentWidget = theBeamInput;
     } else if (selectedText == tr("Columns")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theColumnInput, 1);
-         currentWidget = theColumnInput;
+        currentWidget = theColumnInput;
     } else if (selectedText == tr("Braces")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theBraceInput, 1);
-         currentWidget = theBraceInput;
+        currentWidget = theBraceInput;
     } else if (selectedText == tr("Steel")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theSteelInput, 1);
-         currentWidget = theSteelInput;
+        currentWidget = theSteelInput;
+    } else if (selectedText == tr("Concrete")) {
+        horizontalLayout->insertWidget(horizontalLayout->count()-1, theConcreteInput, 1);
+        currentWidget = theConcreteInput;
     }
 }
 
@@ -201,6 +209,7 @@ InputWidgetSheetBM::outputToJSON(QJsonObject &jsonObject)
     //
     QJsonArray theMaterialsArray;
     theSteelInput->outputToJSON(theMaterialsArray);
+    theConcreteInput->outputToJSON(theMaterialsArray);
 
     jsonObjProperties["materials"]=theMaterialsArray;
 
@@ -216,6 +225,7 @@ InputWidgetSheetBM::clear(void)
     theBeamInput->clear();
     theBraceInput->clear();
     theSteelInput->clear();
+    theConcreteInput->clear();
 }
 
 void
@@ -244,6 +254,8 @@ InputWidgetSheetBM::inputFromJSON(QJsonObject &jsonObject)
 
        if (theType == QString(tr("steel"))) {
             theSteelInput->inputFromJSON(theObject);
-       }
+       } else if (theType == QString(tr("concrete"))) {
+           theConcreteInput->inputFromJSON(theObject);
+      }
    }
 }
