@@ -71,6 +71,7 @@ int  SimpleSpreadsheetWidget::setString(int row,int col, QString &data)
         this->setItem(row, col, theCell);
     }
     theCell->setText(data);
+    return 0;
 }
 
 int  SimpleSpreadsheetWidget::setDouble(int row, int col, double data)
@@ -82,6 +83,7 @@ int  SimpleSpreadsheetWidget::setDouble(int row, int col, double data)
         this->setItem(row, col, theCell);
     }
     theCell->setText(QString::number(data));
+    return 0;
 }
 
 int  SimpleSpreadsheetWidget::setInt(int row, int col, int data)
@@ -93,6 +95,7 @@ int  SimpleSpreadsheetWidget::setInt(int row, int col, int data)
         this->setItem(row, col, theCell);
     }
     theCell->setText(QString::number(data));
+    return 0;
 }
 
 void
