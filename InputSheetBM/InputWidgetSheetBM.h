@@ -54,6 +54,7 @@ class BraceInputWidget;
 class WallInputWidget;
 class SteelInputWidget;
 class ConcreteInputWidget;
+class RandomVariableInputWidget;
 
 class InputWidgetSheetBM : public QWidget
 {
@@ -84,6 +85,7 @@ private:
     WallInputWidget *theWallInput;
     SteelInputWidget *theSteelInput;
     ConcreteInputWidget *theConcreteInput;
+    RandomVariableInputWidget *theRVs;
 
     QWidget *currentWidget;
 };
