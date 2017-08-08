@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/images">
         <file>nsf.gif</file>
+        <file>sim_logo_footer.png</file>
     </qresource>
 </RCC>

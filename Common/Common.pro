@@ -25,7 +25,8 @@ FORMS    += mainwindow.ui
 
 RESOURCES += \
     images.qrc \
-    style.qss
+    style.qss \
+    sim_logo_footer.png
 
 DISTFILES += \
     style.qss

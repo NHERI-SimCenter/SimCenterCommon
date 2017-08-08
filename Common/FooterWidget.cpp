@@ -61,13 +61,21 @@ FooterWidget::FooterWidget(QWidget *parent)
   // putting some text in another
   QLabel *nsfText = new QLabel();
   nsfText->setObjectName(QString::fromUtf8("nsfText"));
-  nsfText->setText(tr("This work is based on material supported by the National Science Foundation under grant 1612843-2"));
+  nsfText->setText(tr("This work is based on material supported by the National Science Foundation under grant 1612843"));
+
+  //simcenter logo in label
+  QLabel *simLogo = new QLabel();
+  QPixmap pixmap2(":/sim_logo_footer.png");
+  QPixmap newPixmap2 = pixmap2;
+  simLogo->setPixmap(newPixmap2);
+  simLogo->show();
   
   // adding both to a layout
   QHBoxLayout *footerLayout = new QHBoxLayout;
   footerLayout->setAlignment(Qt::AlignCenter); //can this be done in CSS???
   footerLayout->addWidget(nsfLogo);
   footerLayout->addWidget(nsfText);
+  footerLayout->addWidget(simLogo);
 
   // putting these inside a QGroupBox for styling purposes
   QGroupBox *footerBox =new QGroupBox();
