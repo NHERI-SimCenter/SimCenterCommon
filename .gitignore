@@ -40,3 +40,4 @@ build*
 
 # QT
 *.pro.user
+*.#
