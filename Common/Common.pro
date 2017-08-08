@@ -24,7 +24,8 @@ HEADERS  += mainwindow.h \
 FORMS    += mainwindow.ui
 
 RESOURCES += \
-    images.qrc
+    images.qrc \
+    style.qss
 
 DISTFILES += \
     style.qss
