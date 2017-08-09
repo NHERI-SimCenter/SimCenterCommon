@@ -48,7 +48,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 FooterWidget::FooterWidget(QWidget *parent)
-    :QWidget(parent)
+    :QGroupBox(parent)
 {
   // putting NSF logo in label
   QLabel *nsfLogo = new QLabel();
@@ -71,19 +71,11 @@ FooterWidget::FooterWidget(QWidget *parent)
   simLogo->show();
   
   // adding both to a layout
-  QHBoxLayout *footerLayout = new QHBoxLayout;
-  footerLayout->setAlignment(Qt::AlignCenter); //can this be done in CSS???
-  footerLayout->addWidget(nsfLogo);
-  footerLayout->addWidget(nsfText);
-  footerLayout->addWidget(simLogo);
-
-  // putting these inside a QGroupBox for styling purposes
-  QGroupBox *footerBox =new QGroupBox();
-  footerBox->setLayout(footerLayout);
-
-  // finally put this in layout and set this widgets layout to be new layout
   QHBoxLayout *layout = new QHBoxLayout;
-  layout->addWidget(footerBox);
+  layout->setAlignment(Qt::AlignCenter); //can this be done in CSS???
+  layout->addWidget(nsfLogo);
+  layout->addWidget(nsfText);
+  layout->addWidget(simLogo);
 
   this->setLayout(layout);
   this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);  

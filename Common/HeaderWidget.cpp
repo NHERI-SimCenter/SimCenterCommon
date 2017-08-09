@@ -47,7 +47,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 
 HeaderWidget::HeaderWidget(QWidget *parent)
-    :QWidget(parent)
+    :QGroupBox(parent)
 {
     layout = new QHBoxLayout();
 
@@ -58,15 +58,7 @@ HeaderWidget::HeaderWidget(QWidget *parent)
     layout->setAlignment(Qt::AlignLeft); //can this be done in CSS???
     layout->addWidget(titleText);
 
-    // putting these inside a QGroupBox for styling purposes
-    QGroupBox *headerBox =new QGroupBox();
-    headerBox->setLayout(layout);
-
-    // finally put this in layout and set this widgets layout to be new layout
-    QHBoxLayout *headerLayout = new QHBoxLayout;
-    headerLayout->addWidget(headerBox);
-
-    this->setLayout(headerLayout);
+    this->setLayout(layout);
     this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 }
 

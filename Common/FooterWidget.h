@@ -39,12 +39,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <QWidget>
-#include <QString>
-class QHBoxLayout;
-class QLabel;
+#include <QGroupBox>
 
-class FooterWidget : public QWidget
+class FooterWidget : public QGroupBox
 {
     Q_OBJECT
 public:

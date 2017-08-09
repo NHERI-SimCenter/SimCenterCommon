@@ -39,12 +39,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <QWidget>
+#include <QGroupBox>
 #include <QString>
 class QHBoxLayout;
 class QLabel;
 
-class HeaderWidget : public QWidget
+class HeaderWidget : public QGroupBox
 {
     Q_OBJECT
 public:
