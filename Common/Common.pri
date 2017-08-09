@@ -18,7 +18,4 @@ HEADERS += $$PWD/HeaderWidget.h \
 
 RESOURCES += \
     $$PWD/images1.qrc \
-    $$PWD/style.qss
 
-DISTFILES += \
-    $$PWD/style.qss

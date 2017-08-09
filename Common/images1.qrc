@@ -3,4 +3,7 @@
         <file>./nsf.gif</file>
         <file>./sim_logo_footer.png</file>
     </qresource>
+    <qresource prefix="/styleCommon">
+        <file>./style.qss</file>
+    </qresource>
 </RCC>
