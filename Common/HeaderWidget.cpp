@@ -52,6 +52,7 @@ HeaderWidget::HeaderWidget(QWidget *parent)
     layout = new QHBoxLayout();
 
     titleText = new QLabel();
+    titleText->setObjectName(QString::fromUtf8("titleText"));
     titleText->setText(tr("A SimCenter Application"));
 
     layout->setAlignment(Qt::AlignLeft); //can this be done in CSS???

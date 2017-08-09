@@ -52,7 +52,7 @@ FooterWidget::FooterWidget(QWidget *parent)
 {
   // putting NSF logo in label
   QLabel *nsfLogo = new QLabel();
-  QPixmap pixmap(":/images/nsf.gif");
+  QPixmap pixmap(":/imagesCommon/nsf.gif");
   QPixmap newPixmap = pixmap.scaled(QSize(40,40),  Qt::KeepAspectRatio);
   nsfLogo->setPixmap(newPixmap);
   nsfLogo->setMask(newPixmap.mask());
@@ -65,7 +65,7 @@ FooterWidget::FooterWidget(QWidget *parent)
 
   //simcenter logo in label
   QLabel *simLogo = new QLabel();
-  QPixmap pixmap2(":/sim_logo_footer.png");
+  QPixmap pixmap2(":/imagesCommon/sim_logo_footer.png");
   QPixmap newPixmap2 = pixmap2;
   simLogo->setPixmap(newPixmap2);
   simLogo->show();
