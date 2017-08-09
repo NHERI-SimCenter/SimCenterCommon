@@ -34,7 +34,7 @@ class MainWindow : public QMainWindow
     //Ui::MainWindow *ui;
 
     QString currentFile;
-  InputWidgetSheetBM *inputWidget;
+    InputWidgetSheetBM *inputWidget;
 
 };
 
