@@ -13,6 +13,7 @@ class SectionTitle : public QFrame
 public:
     explicit SectionTitle(QWidget *parent = 0);
     void setTitle(QString);
+    void setText(QString s) {this->setTitle(s);};
 
 signals:
 
