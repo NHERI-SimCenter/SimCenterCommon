@@ -41,9 +41,11 @@ SectionTitle::SectionTitle(QWidget *parent) : QFrame(parent)
     //Create Frame and Section Title
     sectionLabel = new QLabel(this);
     sectionLabel->setText(tr("Test Section"));
+    sectionLabel->setObjectName(QString::fromUtf8("sectionTitle")); //styleSheet
 
     // Create a section line
-    line = new QFrame(); //use line instead -- needs to scale
+    line = new QFrame();
+    line->setObjectName(QString::fromUtf8("line"));
     line->setMaximumHeight(3);
     line->setMinimumHeight(3);
     line->setFrameShape(QFrame::HLine);
@@ -53,8 +55,11 @@ SectionTitle::SectionTitle(QWidget *parent) : QFrame(parent)
     sectionLayout = new QVBoxLayout();
     sectionLayout->addWidget(sectionLabel);
     sectionLayout->addWidget(line);
+    //sectionLayout->setSpacing(0);
+    sectionLayout->setMargin(0);
 
     this->setLayout(sectionLayout);
+    this->setContentsMargins(0,0,0,0);
 }
 
 void SectionTitle::setTitle(QString s)
