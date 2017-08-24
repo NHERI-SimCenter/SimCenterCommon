@@ -105,7 +105,6 @@ QLabel#nsfText {
 */
 
 QLabel#sectionTitle {
-    font-size: 12px;
     font-weight: bold;
 }
 
