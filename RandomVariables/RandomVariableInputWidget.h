@@ -39,14 +39,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <QWidget>
+#include <SimCenterWidget.h>
 
 #include "RandomVariable.h"
 #include <QGroupBox>
 #include <QVector>
 #include <QVBoxLayout>
 
-class RandomVariableInputWidget : public QWidget
+class RandomVariableInputWidget : public SimCenterWidget
 {
     Q_OBJECT
 public:
@@ -60,13 +60,14 @@ signals:
 
 public slots:
    void addRandomVariable(void);
+   void removeRandomVariable(void);
    void clear(void);
 
 private:
     void makeRV(void);
     QVBoxLayout *verticalLayout;
     QVBoxLayout *rvLayout;
-    QGroupBox *rv;
+    QWidget *rv;
 
     QVector<RandomVariable *>theRandomVariables;
 };
