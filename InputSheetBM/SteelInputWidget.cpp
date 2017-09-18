@@ -42,7 +42,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QList>
 
-SteelInputWidget::SteelInputWidget(QWidget *parent) : QWidget(parent)
+SteelInputWidget::SteelInputWidget(QWidget *parent) 
+: SimCenterWidget(parent)
 {
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
