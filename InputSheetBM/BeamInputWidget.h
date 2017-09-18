@@ -39,16 +39,16 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <QWidget>
+#include <SimCenterWidget>
 #include "SimpleSpreadsheetWidget.h"
 #include <QStringList>
 #include <QHBoxLayout>
 
-class BeamInputWidget : public QWidget
+class BeamInputWidget : public SimCenterWidget
 {
     Q_OBJECT
 public:
-    explicit BeamInputWidget(QWidget *parent = 0);
+    explicit BeamInputWidget(SimCenterWidget *parent = 0);
     ~BeamInputWidget();
 
     void outputToJSON(QJsonObject &rvObject);
