@@ -71,15 +71,15 @@ LognormalDistribution::~LognormalDistribution()
 
 void
 LognormalDistribution::outputToJSON(QJsonObject &rvObject){
-    rvObject["mean"]=mean->text();
-    rvObject["stdDev"]=standardDev->text();
+    rvObject["mean"]=mean->text().toDouble();
+    rvObject["stdDev"]=standardDev->text().toDouble();
 }
 
 void
 LognormalDistribution::inputFromJSON(QJsonObject &rvObject){
     QJsonValue theMeanValue = rvObject["mean"];
-    mean->setText(theMeanValue.toString());
+    mean->setText(QString::number(theMeanValue.toDouble()));
 
     QJsonValue theStdDevValue = rvObject["stdDev"];
-    standardDev->setText(theStdDevValue.toString());
+    standardDev->setText(QString::number(theStdDevValue.toDouble()));
 }

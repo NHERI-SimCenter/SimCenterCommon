@@ -42,7 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QList>
 
-BraceInputWidget::BraceInputWidget(QWidget *parent) : QWidget(parent)
+BraceInputWidget::BraceInputWidget(QWidget *parent) : SimCenterWidget(parent)
 {
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);

@@ -44,7 +44,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLabel>
 #include <QDebug>
 
-RandomVariableInputWidget::RandomVariableInputWidget(QWidget *parent) : QWidget(parent)
+RandomVariableInputWidget::RandomVariableInputWidget(QWidget *parent) 
+: SimCenterWidget(parent)
 {
     verticalLayout = new QVBoxLayout();
     this->setLayout(verticalLayout);

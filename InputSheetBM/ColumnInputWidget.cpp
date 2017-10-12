@@ -42,7 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QList>
 
-ColumnInputWidget::ColumnInputWidget(QWidget *parent) : QWidget(parent)
+ColumnInputWidget::ColumnInputWidget(QWidget *parent) : SimCenterWidget(parent)
 {
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);

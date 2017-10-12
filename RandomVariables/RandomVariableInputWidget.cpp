@@ -43,8 +43,11 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 #include <QLabel>
 #include <QDebug>
+#include <sectiontitle.h>
+#include <QLineEdit>
 
-RandomVariableInputWidget::RandomVariableInputWidget(QWidget *parent) : QWidget(parent)
+
+RandomVariableInputWidget::RandomVariableInputWidget(QWidget *parent) : SimCenterWidget(parent)
 {
     verticalLayout = new QVBoxLayout();
     this->setLayout(verticalLayout);
@@ -59,12 +62,14 @@ RandomVariableInputWidget::~RandomVariableInputWidget()
 void
 RandomVariableInputWidget::makeRV(void)
 {
-    // text and add button at top
-    QHBoxLayout *textRandom = new QHBoxLayout();
-    QLabel *textRV = new QLabel();
-    textRV->setText(tr("Random Variables"));
-    textRV->setMinimumWidth(250);
-    textRV->setMaximumWidth(250);
+    // title & add button
+    QHBoxLayout *titleLayout = new QHBoxLayout();
+
+    SectionTitle *title=new SectionTitle();
+    title->setText(tr("Input Random Variables"));
+    title->setMinimumWidth(250);
+    QSpacerItem *spacer1 = new QSpacerItem(50,10);
+    QSpacerItem *spacer2 = new QSpacerItem(20,10);
 
     QPushButton *addRV = new QPushButton();
     addRV->setMinimumWidth(75);
@@ -72,16 +77,29 @@ RandomVariableInputWidget::makeRV(void)
     addRV->setText(tr("Add"));
     connect(addRV,SIGNAL(clicked()),this,SLOT(addRandomVariable()));
 
-    textRandom->addWidget(textRV);
-    textRandom->addWidget(addRV);
-    textRandom->addStretch();
+    QPushButton *removeRV = new QPushButton();
+    removeRV->setMinimumWidth(75);
+    removeRV->setMaximumWidth(75);
+    removeRV->setText(tr("Remove"));
+    connect(removeRV,SIGNAL(clicked()),this,SLOT(removeRandomVariable()));
 
-    verticalLayout->addLayout(textRandom);
+    titleLayout->addWidget(title);
+    titleLayout->addItem(spacer1);
+    titleLayout->addWidget(addRV);
+    titleLayout->addItem(spacer2);
+    titleLayout->addWidget(removeRV);
+    titleLayout->addStretch();
+
+    verticalLayout->addLayout(titleLayout);
 
     QScrollArea *sa = new QScrollArea;
     sa->setWidgetResizable(true);
+    sa->setLineWidth(0);
+    sa->setFrameShape(QFrame::NoFrame);
 
-    rv = new QGroupBox(tr(""));
+    //rv = new QGroupBox(tr(""));
+    rv = new QWidget;
+  //  rv->setStyleSheet("QGroupBox {background: #E0E0E0}");
 
     rvLayout = new QVBoxLayout;
     rvLayout->addStretch();
@@ -104,10 +122,26 @@ void RandomVariableInputWidget::addRandomVariable(void)
    rvLayout->insertWidget(rvLayout->count()-1, theRV);
 }
 
+void RandomVariableInputWidget::removeRandomVariable(void)
+{
+    // find the ones selected & remove them
+    int numRandomVariables = theRandomVariables.size();
+    for (int i = numRandomVariables-1; i >= 0; i--) {
+      RandomVariable *theRV = theRandomVariables.at(i);
+      if (theRV->isSelectedForRemoval()) {
+          theRV->close();
+          rvLayout->removeWidget(theRV);
+          theRandomVariables.remove(i);
+          theRV->setParent(0);
+          delete theRV;
+      }
+    }
+}
+
+
 void RandomVariableInputWidget::clear(void)
 {
   // loop over random variables, removing from layout & deleting
-
   for (int i = 0; i <theRandomVariables.size(); ++i) {
     RandomVariable *theRV = theRandomVariables.at(i);
     rvLayout->removeWidget(theRV);

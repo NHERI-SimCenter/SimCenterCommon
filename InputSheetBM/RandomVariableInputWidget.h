@@ -39,14 +39,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <QWidget>
+#include <SimCenterWidget>
 
 #include "RandomVariable.h"
 #include <QGroupBox>
 #include <QVector>
 #include <QVBoxLayout>
 
-class RandomVariableInputWidget : public QWidget
+class RandomVariableInputWidget : public SimCenterWidget
 {
     Q_OBJECT
 public:

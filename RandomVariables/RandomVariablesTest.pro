@@ -12,6 +12,7 @@ TARGET = RandomVariablesGen
 TEMPLATE = app
 
 include(RandomVariables.pri)
+include(../Common/Common.pri)
 
 SOURCES += main.cpp \
         MainWindow.cpp

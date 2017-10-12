@@ -52,8 +52,8 @@ NormalDistribution::NormalDistribution(QWidget *parent) :RandomVariableDistribut
 
     QHBoxLayout *mainLayout = new QHBoxLayout();
 
-    mean = this->createTextEntry(tr("mean"), mainLayout);
-    standardDev = this->createTextEntry(tr("standardDev"), mainLayout);
+    mean = this->createTextEntry(tr("Mean"), mainLayout);
+    standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout);
 
     mainLayout->addStretch();
 
@@ -69,16 +69,16 @@ NormalDistribution::~NormalDistribution()
 
 void
 NormalDistribution::outputToJSON(QJsonObject &rvObject){
-
-       rvObject["mean"]=mean->text();
-       rvObject["stdDev"]=standardDev->text();
+       rvObject["mean"]=mean->text().toDouble();
+       rvObject["stdDev"]=standardDev->text().toDouble();
 }
 
 void
 NormalDistribution::inputFromJSON(QJsonObject &rvObject){
     QJsonValue theMeanValue = rvObject["mean"];
-    mean->setText(theMeanValue.toString());
+    mean->setText(QString::number(theMeanValue.toDouble()));
 
     QJsonValue theStdDevValue = rvObject["stdDev"];
-    standardDev->setText(theStdDevValue.toString());
+    standardDev->setText(QString::number(theStdDevValue.toDouble()));
+
 }

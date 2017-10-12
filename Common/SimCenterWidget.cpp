@@ -1,6 +1,3 @@
-#ifndef CLINEINPUTWIDGET_H
-#define CLINEINPUTWIDGET_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -39,30 +36,15 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterWidget>
-#include "SimpleSpreadsheetWidget.h"
-#include <QStringList>
-#include <QHBoxLayout>
-
-class ClineInputWidget : public SimCenterWidget
+#include <SimCenterWidget.h>
+SimCenterWidget::SimCenterWidget(QWidget *parent)
+    :QWidget(parent)
 {
-    Q_OBJECT
-public:
-    explicit ClineInputWidget(QWidget *parent = 0);
-    ~ClineInputWidget();
 
-    void outputToJSON(QJsonObject &rvObject);
-    void inputFromJSON(QJsonObject &rvObject);
-    void clear(void);
+}
 
-signals:
+SimCenterWidget::~SimCenterWidget()
+{
 
-public slots:
+}
 
-private:
-    QHBoxLayout *theLayout;
-    SimpleSpreadsheetWidget* theSpreadsheet;
-    QStringList   tableHeader;
-};
-
-#endif // CLINEINPUTWIDGET_H

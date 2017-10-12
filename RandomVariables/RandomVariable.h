@@ -39,13 +39,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <QWidget>
+#include <SimCenterWidget.h>
 
 class QComboBox;
 class QLineEdit;
 class QLabel;
 class QHBoxLayout;
 class RandomVariableDistribution;
+class QRadioButton;
 
 class RandomVariable : public QWidget
 {
@@ -54,9 +55,11 @@ public:
     explicit RandomVariable(QWidget *parent = 0);
     ~RandomVariable();
 
-    void outputToJSON(QJsonObject &rvObject);
-    void inputFromJSON(QJsonObject &rvObject);
+    virtual void outputToJSON(QJsonObject &rvObject);
+    virtual void inputFromJSON(QJsonObject &rvObject);
 
+    bool isSelectedForRemoval(void);
+  QLineEdit *variableName;
 signals:
 
 public slots:
@@ -67,9 +70,10 @@ private:
 
     QLabel *variableLabel;
     QLabel *distributionLabel;
-    QLineEdit *variableName;
+  // QRadioButton *button;
+  //  QLineEdit *variableName;
     QComboBox *distributionComboBox;
-
+    QRadioButton *button;
     QHBoxLayout *mainLayout;
 };
 
