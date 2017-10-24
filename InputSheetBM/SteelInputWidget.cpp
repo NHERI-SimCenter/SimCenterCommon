@@ -73,11 +73,16 @@ SteelInputWidget::~SteelInputWidget()
 
 }
 
+
+void
+SteelInputWidget::outputToJSON(QJsonObject &jsonObj){
+    return;
+}
+
 void
 SteelInputWidget::outputToJSON(QJsonArray &jsonArray){
 
-    // create a json array and for each row add a json object to it
-
+     // create a json array and for each row add a json object to it
     int numRows = theSpreadsheet->getNumRows();
     for (int i=0; i<numRows; i++) {
 

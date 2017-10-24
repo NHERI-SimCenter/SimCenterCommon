@@ -215,12 +215,17 @@ InputWidgetSheetBM::outputToJSON(QJsonObject &jsonObject)
     // create a json array and get all material inputs to enter their data
     //
     QJsonArray theMaterialsArray;
-    theSteelInput->outputToJSON(theMaterialsArray);
-    theConcreteInput->outputToJSON(theMaterialsArray);
-
     jsonObjProperties["materials"]=theMaterialsArray;
 
+    theSteelInput->outputToJSON(theMaterialsArray);
+    theConcreteInput->outputToJSON(theMaterialsArray);
+    jsonObjProperties["materials"]=theMaterialsArray;
+
+
     jsonObject["properties"]=jsonObjProperties;
+
+
+    theRVs->outputToJSON(jsonObject);
 }
 
 void

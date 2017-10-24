@@ -51,7 +51,8 @@ public:
     explicit SteelInputWidget(QWidget *parent = 0);
     ~SteelInputWidget();
 
-    void outputToJSON(QJsonArray &rvObject);
+    void outputToJSON(QJsonObject &rvObject);
+    void outputToJSON(QJsonArray &arrayObject);
     void inputFromJSON(QJsonObject &rvObject);
     void clear(void);
 
