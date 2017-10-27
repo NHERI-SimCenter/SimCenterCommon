@@ -193,6 +193,85 @@ ColumnInputWidget::outputToJSON(QJsonObject &jsonObj){
 void
 ColumnInputWidget::inputFromJSON(QJsonObject &jsonObject){
 
+    QString name;
+    QJsonArray clineArray;
+    QJsonArray floorArray;
+    QString clineValue, floor1Value, floor2Value;
+    int currentRow = 0;
+
+    //
+    // get the cline data (a json array) from the object, and for every
+    // object in the array, get the values and add to the spreadsheet
+    //
+
+    QJsonArray theArray = jsonObject["columns"].toArray();
+    foreach (const QJsonValue &theValue, theArray) {
+        // get values
+        QJsonObject theObject = theValue.toObject();
+        QJsonValue theColumnValue = theObject["name"];
+        name = theColumnValue.toString();
+
+        QJsonValue theClineValue = theObject["cline"];
+        clineArray = theClineValue.toArray();
+        QJsonValue cValue = clineArray.at(0);
+        clineValue = cValue.toString();
+
+        QJsonValue theFloorValue = theObject["floor"];
+        floorArray = theFloorValue.toArray();
+        QJsonValue f1Value = floorArray.at(0);
+        QJsonValue f2Value = floorArray.at(1);
+        floor1Value = f1Value.toString();
+        floor2Value = f2Value.toString();
+
+        QJsonArray theSegmentArray = theObject["segment"].toArray();
+
+        // add to the spreadsheet
+        theSpreadsheet->setString(currentRow, 0, name);
+        theSpreadsheet->setString(currentRow, 1, clineValue);
+        theSpreadsheet->setString(currentRow, 2, floor1Value);
+        theSpreadsheet->setString(currentRow, 3, floor2Value);
+
+        QString section;
+        double angle;
+        double ratio1Value, ratio2Value;
+        int currentSection = 0;
+        int offset = 0;
+
+        foreach (const QJsonValue &theValue, theSegmentArray) {
+
+            // get values
+            QJsonObject theObject = theValue.toObject();
+
+            section = theObject["section"].toString();
+            angle = theObject["angle"].toDouble();
+
+            // ratio can be a two member array or single value
+            if ( theObject["ratio"].isArray() ) {
+                QJsonArray theRatioArray = theObject["ratio"].toArray();
+                QJsonValue r1Value = theRatioArray.at(0);
+                QJsonValue r2Value = theRatioArray.at(1);
+                ratio1Value = r1Value.toDouble();
+                ratio2Value = r2Value.toDouble();
+            }
+            else {
+                QJsonValue r1Value = theObject["ratio"];
+                ratio1Value = r1Value.toDouble();
+                // TODO: correect default for ratio2?????
+                ratio2Value = 0.0;
+            }
+
+            // all segment sections on the same row so must shift for each new set
+            offset = (currentSection * 4) + 4;
+            theSpreadsheet->setString(currentRow, offset, section);
+            theSpreadsheet->setDouble(currentRow, (offset + 1), ratio1Value);
+            theSpreadsheet->setDouble(currentRow, (offset + 2), ratio2Value);
+            theSpreadsheet->setDouble(currentRow, (offset + 3), angle);
+
+            currentSection++;
+        }
+        currentRow++;
+    }
+
 }
 
 void

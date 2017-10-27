@@ -232,7 +232,8 @@ InputWidgetSheetBM::clear(void)
 void
 InputWidgetSheetBM::inputFromJSON(QJsonObject &jsonObject)
 {
-   QJsonObject jsonObjLayout = jsonObject["layout"].toObject();
+   QJsonObject jsonObjStructuralInformation = jsonObject["StructuralInformation"].toObject();
+   QJsonObject jsonObjLayout = jsonObjStructuralInformation["layout"].toObject();
    theClineInput->inputFromJSON(jsonObjLayout);
    theFloorInput->inputFromJSON(jsonObjLayout);
 
@@ -240,7 +241,7 @@ InputWidgetSheetBM::inputFromJSON(QJsonObject &jsonObject)
    // parse the properties
    //
 
-   QJsonObject jsonObjProperties = jsonObject["properties"].toObject();
+   QJsonObject jsonObjProperties = jsonObjStructuralInformation["properties"].toObject();
 
    // first the materials
    // get the array and for every object in array determine it's type and get
@@ -259,4 +260,18 @@ InputWidgetSheetBM::inputFromJSON(QJsonObject &jsonObject)
            theConcreteInput->inputFromJSON(theObject);
       }
    }
+
+
+   //
+   // parse the geometry
+   //
+
+   QJsonObject jsonObjGeometry = jsonObjStructuralInformation["geometry"].toObject();
+   theColumnInput->inputFromJSON(jsonObjGeometry);
+   theBeamInput->inputFromJSON(jsonObjGeometry);
+   theBraceInput->inputFromJSON(jsonObjGeometry);
+
+
+
+
 }
