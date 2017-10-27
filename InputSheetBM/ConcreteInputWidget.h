@@ -39,7 +39,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterWidget>
+#include <SimCenterWidget.h>
 #include "SimpleSpreadsheetWidget.h"
 #include <QStringList>
 #include <QHBoxLayout>
@@ -51,7 +51,8 @@ public:
     explicit ConcreteInputWidget(QWidget *parent = 0);
     ~ConcreteInputWidget();
 
-    void outputToJSON(QJsonArray &rvObject);
+    void outputToJSON(QJsonObject &rvObject);
+     void outputToJSON(QJsonArray &arrayObject);
     void inputFromJSON(QJsonObject &rvObject);
     void clear(void);
 

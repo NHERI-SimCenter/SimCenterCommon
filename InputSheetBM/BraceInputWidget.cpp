@@ -199,7 +199,7 @@ BraceInputWidget::outputToJSON(QJsonObject &jsonObj){
     }
 
     // finally add the array to the input arg
-    jsonObj["beams"]=jsonArray;
+    jsonObj["braces"]=jsonArray;
 }
 
 void

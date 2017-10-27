@@ -81,10 +81,13 @@ ConcreteInputWidget::~ConcreteInputWidget()
 }
 
 void
+ConcreteInputWidget::outputToJSON(QJsonObject &jsonObj){
+    return;
+}
+
+void
 ConcreteInputWidget::outputToJSON(QJsonArray &jsonArray){
-
-    // create a json array and for each row add a json object to it
-
+\
     int numRows = theSpreadsheet->getNumRows();
     for (int i=0; i<numRows; i++) {
 

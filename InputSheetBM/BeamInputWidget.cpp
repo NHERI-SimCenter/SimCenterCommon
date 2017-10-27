@@ -42,7 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QList>
 
-BeamInputWidget::BeamInputWidget(QWidget *parent) : SimCenterWidget(parent)
+BeamInputWidget::BeamInputWidget(SimCenterWidget *parent) : SimCenterWidget(parent)
 {
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
@@ -103,6 +103,7 @@ BeamInputWidget::outputToJSON(QJsonObject &jsonObj){
     for (int i=0; i<numRows; i++) {
 
         QJsonObject obj;
+
         QString name;
         QString floor;
         QString cline1, cline2;
@@ -189,6 +190,8 @@ BeamInputWidget::outputToJSON(QJsonObject &jsonObj){
          // add the object to the array
         jsonArray.append(obj);
 
+        int length = jsonArray.size();
+         qDebug() << "ADDED BEAM " << length;
     }
 
     // finally add the array to the input arg
