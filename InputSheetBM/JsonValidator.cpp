@@ -55,7 +55,6 @@ JsonValidator::JsonValidator()
 
 void JsonValidator::validate(SCHEMA schema, const QString &fileName)
 {
-    printf("Current dir '%s'\n", schemaFilepath.toStdString().c_str() );
 
     QString schemaFilepath = "";
     if (schema == BIM) {

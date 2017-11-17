@@ -148,7 +148,7 @@ void MainWindow::loadFile(const QString &fileName)
     QString val;
     val=file.readAll();
     QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
-    jsonObj = doc.object();
+    QJsonObject jsonObj = doc.object();
 
     // close file
     file.close();

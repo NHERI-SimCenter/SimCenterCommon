@@ -186,6 +186,10 @@ void InputWidgetSheetBM::selectionChangedSlot(const QItemSelection & /*newSelect
 void
 InputWidgetSheetBM::outputToJSON(QJsonObject &jsonObject)
 {
+    // add GeneralInformation
+    QJsonObject jsonObjGenInfo;
+    outputGeneralInformationToJSON(jsonObjGenInfo);
+
     // add layout
     QJsonObject jsonObjLayout;
     theClineInput->outputToJSON(jsonObjLayout);
@@ -227,11 +231,16 @@ InputWidgetSheetBM::clear(void)
     theBraceInput->clear();
     theSteelInput->clear();
     theConcreteInput->clear();
+    if (jsonObj) {
+        delete jsonObj;
+    }
 }
 
 void
 InputWidgetSheetBM::inputFromJSON(QJsonObject &jsonObject)
 {
+   jsonObj = new QJsonObject(jsonObject);
+
    QJsonObject jsonObjStructuralInformation = jsonObject["StructuralInformation"].toObject();
    QJsonObject jsonObjLayout = jsonObjStructuralInformation["layout"].toObject();
    theClineInput->inputFromJSON(jsonObjLayout);
@@ -272,6 +281,11 @@ InputWidgetSheetBM::inputFromJSON(QJsonObject &jsonObject)
    theBraceInput->inputFromJSON(jsonObjGeometry);
 
 
-
-
 }
+
+
+void
+InputWidgetSheetBM::outputGeneralInformationToJSON(QJsonObject &jsonObject)
+{
+}
+

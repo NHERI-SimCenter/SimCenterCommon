@@ -42,6 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QItemSelection>
 #include <QTreeView>
 #include <QStandardItemModel>
+#include <QJsonObject>
 #include "../rapidjson/schema.h"
 #include "../rapidjson/document.h"
 

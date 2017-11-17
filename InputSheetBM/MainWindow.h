@@ -35,7 +35,6 @@ class MainWindow : public QMainWindow
     //Ui::MainWindow *ui;
 
     QString currentFile;
-    QJsonObject jsonObj;
     InputWidgetSheetBM *inputWidget;
 
 };

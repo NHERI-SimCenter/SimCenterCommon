@@ -73,6 +73,8 @@ public slots:
     void selectionChangedSlot(const QItemSelection &, const QItemSelection &);
 
 private:
+    void outputGeneralInformationToJSON(QJsonObject &rvObject);
+
     QHBoxLayout *horizontalLayout;
     QTreeView *treeView;
     QStandardItemModel *standardModel;
@@ -88,6 +90,8 @@ private:
     RandomVariableInputWidget *theRVs;
 
     QWidget *currentWidget;
+
+    QJsonObject *jsonObj;
 };
 
 #endif // INPUTWIDGETBMSHEET_H
