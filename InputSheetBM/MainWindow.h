@@ -5,6 +5,7 @@
 #include <QItemSelection>
 #include <QTreeView>
 #include <QStandardItemModel>
+#include <QJsonObject>
 
 class InputWidgetSheetBM;
 
@@ -34,6 +35,7 @@ class MainWindow : public QMainWindow
     //Ui::MainWindow *ui;
 
     QString currentFile;
+    QJsonObject jsonObj;
     InputWidgetSheetBM *inputWidget;
 
 };

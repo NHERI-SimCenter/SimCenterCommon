@@ -15,7 +15,6 @@ include(../RandomVariables/RandomVariables.pri)
 
 INCLUDEPATH+="Users/fmk/NHERI/widgets/Common"
 
-
 SOURCES += main.cpp\
         MainWindow.cpp\
         InputWidgetSheetBM.cpp \
@@ -28,7 +27,8 @@ SOURCES += main.cpp\
     SteelInputWidget.cpp \
     ConcreteInputWidget.cpp \
     ../Common/SimCenterWidget.cpp \
-    ../Common/sectiontitle.cpp
+    ../Common/sectiontitle.cpp \
+    JsonValidator.cpp
 
 HEADERS  += MainWindow.h\
         InputWidgetSheetBM.h \
@@ -41,7 +41,11 @@ HEADERS  += MainWindow.h\
     SteelInputWidget.h \
     ConcreteInputWidget.h \
     ../Common/SimCenterWidget.h \
-    ../Common/sectiontitle.h
+    ../Common/sectiontitle.h \
+    JsonValidator.h
 
 
 #FORMS    += mainwindow.ui
+
+DISTFILES += \
+    ../schema/BIM.schema.json

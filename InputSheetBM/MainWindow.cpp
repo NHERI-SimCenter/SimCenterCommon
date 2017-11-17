@@ -18,6 +18,7 @@
 #include <QApplication>
 
 #include "InputWidgetSheetBM.h"
+#include "JsonValidator.h"
 
 MainWindow::MainWindow(QWidget *parent)
   : QMainWindow(parent)
@@ -138,11 +139,16 @@ void MainWindow::loadFile(const QString &fileName)
         return;
     }
 
+    // validate the document
+    JsonValidator *jval = new JsonValidator();
+    jval->validate(BIM, fileName);
+
+
     // place contents of file into json object
     QString val;
     val=file.readAll();
     QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
-    QJsonObject jsonObj = doc.object();
+    jsonObj = doc.object();
 
     // close file
     file.close();
@@ -184,10 +190,9 @@ void MainWindow::createActions() {
  connect(saveAction, &QAction::triggered, this, &MainWindow::save);
  fileMenu->addAction(saveAction);
 
-
  QAction *saveAsAction = new QAction(tr("&Save As"), this);
- saveAction->setStatusTip(tr("Save the document with new filename to disk"));
- connect(saveAction, &QAction::triggered, this, &MainWindow::save);
+ saveAsAction->setStatusTip(tr("Save the document with new filename to disk"));
+ connect(saveAsAction, &QAction::triggered, this, &MainWindow::saveAs);
  fileMenu->addAction(saveAsAction);
 
  // strangely, this does not appear in menu (at least on a mac)!! ..
