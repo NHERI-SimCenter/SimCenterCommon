@@ -91,7 +91,7 @@ private:
 
     QWidget *currentWidget;
 
-    QJsonObject *jsonObj;
+    QJsonObject *jsonObjOrig;
 };
 
 #endif // INPUTWIDGETBMSHEET_H

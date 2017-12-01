@@ -141,8 +141,7 @@ void MainWindow::loadFile(const QString &fileName)
 
     // validate the document
     JsonValidator *jval = new JsonValidator();
-    jval->validate(BIM, fileName);
-
+    jval->validate(this, BIM, fileName);
 
     // place contents of file into json object
     QString val;

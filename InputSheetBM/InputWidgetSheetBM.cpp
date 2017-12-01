@@ -184,11 +184,12 @@ void InputWidgetSheetBM::selectionChangedSlot(const QItemSelection & /*newSelect
 
 
 void
-InputWidgetSheetBM::outputToJSON(QJsonObject &jsonObject)
+InputWidgetSheetBM::outputToJSON(QJsonObject &jsonObjectTop)
 {
     // add GeneralInformation
-    QJsonObject jsonObjGenInfo;
-    outputGeneralInformationToJSON(jsonObjGenInfo);
+    outputGeneralInformationToJSON(jsonObjectTop);
+
+    QJsonObject jsonObject;
 
     // add layout
     QJsonObject jsonObjLayout;
@@ -219,6 +220,12 @@ InputWidgetSheetBM::outputToJSON(QJsonObject &jsonObject)
 
 
     jsonObject["properties"]=jsonObjProperties;
+
+    QJsonObject jsonObjStructInfo = (*jsonObjOrig)["StructuralInformation"].toObject();
+
+    jsonObject["type"] = jsonObjStructInfo["type"];
+    jsonObjectTop["StructuralInformation"] = jsonObject;
+
 }
 
 void
@@ -231,15 +238,15 @@ InputWidgetSheetBM::clear(void)
     theBraceInput->clear();
     theSteelInput->clear();
     theConcreteInput->clear();
-    if (jsonObj) {
-        delete jsonObj;
+    if (jsonObjOrig) {
+        delete jsonObjOrig;
     }
 }
 
 void
 InputWidgetSheetBM::inputFromJSON(QJsonObject &jsonObject)
 {
-   jsonObj = new QJsonObject(jsonObject);
+   jsonObjOrig = new QJsonObject(jsonObject);
 
    QJsonObject jsonObjStructuralInformation = jsonObject["StructuralInformation"].toObject();
    QJsonObject jsonObjLayout = jsonObjStructuralInformation["layout"].toObject();
@@ -287,5 +294,13 @@ InputWidgetSheetBM::inputFromJSON(QJsonObject &jsonObject)
 void
 InputWidgetSheetBM::outputGeneralInformationToJSON(QJsonObject &jsonObject)
 {
+    // start with the general information that is stil in jsonObj
+
+    QJsonObject jsonObjGenInfo = (*jsonObjOrig)["GeneralInformation"].toObject();
+
+
+
+    jsonObject["GeneralInformation"] = jsonObjGenInfo;
+
 }
 

@@ -43,6 +43,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QTreeView>
 #include <QStandardItemModel>
 #include <QJsonObject>
+#include <QErrorMessage>
 #include "../rapidjson/schema.h"
 #include "../rapidjson/document.h"
 
@@ -55,7 +56,7 @@ public:
     explicit JsonValidator();
     ~JsonValidator();
 
-    void validate(SCHEMA schema, const QString &fileName);
+    void validate(QWidget *parent, SCHEMA schema, const QString &fileName);
 
 
 signals:
@@ -64,6 +65,7 @@ public slots:
 
 private:
     QString bimSchemaFilepath = "../schema/BIM.schema.json";
+    QErrorMessage msg;
 
 };
 

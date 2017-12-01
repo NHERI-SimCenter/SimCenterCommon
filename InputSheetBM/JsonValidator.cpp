@@ -45,7 +45,12 @@
 #include <iostream>
 #include <stdio.h>
 #include <QDir.h>
+#include <QMessageBox>
+#include <QAction>
+#include <QTranslator>
+
 using namespace rapidjson;
+
 
 
 JsonValidator::JsonValidator()
@@ -53,7 +58,7 @@ JsonValidator::JsonValidator()
 
 }
 
-void JsonValidator::validate(SCHEMA schema, const QString &fileName)
+void JsonValidator::validate(QWidget *parent, SCHEMA schema, const QString &fileName)
 {
 
     QString schemaFilepath = "";
@@ -61,6 +66,7 @@ void JsonValidator::validate(SCHEMA schema, const QString &fileName)
         //schemaFilepath = bimSchemaFilepath;
         //schemaFilepath = QDir().absoluteFilePath(bimSchemaFilepath);
         schemaFilepath = QDir().absoluteFilePath("/Users/mmmanning/Documents/Dev/code/simcenter/widgets/schema/BIM.schema.json");
+        //schemaFilepath = QDir().absoluteFilePath("/Users/mmmanning/Documents/Dev/code/simcenter/BIM.schema.json");
     }
 
     //
@@ -71,12 +77,21 @@ void JsonValidator::validate(SCHEMA schema, const QString &fileName)
     char buffer[4096];
 
     FILE *fp = fopen(schemaFilepath.toStdString().c_str(), "r");
+
+    //QFile schemaFile("qrc:/BIM.schema.json");
+    //schemaFile.open(QIODevice::ReadOnly);
+
+    //int FileDescriptor = schemaFile.handle();
+    //FILE *fp = fopen(FileDescriptor, "r");
+
+    // !schemaFile.exists()
     if (!fp) {
         printf("Schema file '%s' not found\n", schemaFilepath.toStdString().c_str() );
         return;
     }
 
     // read the schema document file
+
     FileReadStream fs(fp, buffer, sizeof(buffer));
     d.ParseStream(fs);
 
@@ -92,11 +107,17 @@ void JsonValidator::validate(SCHEMA schema, const QString &fileName)
 
     if (d.HasParseError()) {
         fprintf(stderr, "Schema file '%s' is not a valid JSON\n", schemaFilepath.toStdString().c_str() );
-        fprintf(stderr, "Error(offset %u): %s\n",
-            static_cast<unsigned>(d.GetErrorOffset()),
-            GetParseError_En(d.GetParseError()));
+        fprintf(stderr, "Error(offset %u): %s\n",  static_cast<unsigned>(d.GetErrorOffset()), GetParseError_En(d.GetParseError()));
         fclose(fp);
-        return;
+       // return;
+
+        QMessageBox::warning(
+            parent,
+            QMessageBox::tr("Validation"),
+            QMessageBox::tr("Invalid Schema Document")
+        );
+
+
     }
     fclose(fp);
 
@@ -121,6 +142,20 @@ void JsonValidator::validate(SCHEMA schema, const QString &fileName)
         fprintf(stderr, "Error(offset %u): %s\n",
             static_cast<unsigned>(reader.GetErrorOffset()),
             GetParseError_En(reader.GetParseErrorCode()));
+
+
+        QMessageBox::warning(
+            parent,
+            QMessageBox::tr("Validation"),
+            QMessageBox::tr("Input is not valid JSON: %1:\n%2.")
+                    .arg(reader.GetErrorOffset())
+                    .arg(reader.GetErrorOffset())
+        );
+
+        //QErrorMessage* errorMessage = new QErrorMessage( parent );
+        //std::string var = "Input is not valid JSON. \noffset: " +  std::to_string(reader.GetErrorOffset()) + "\nparse error: " + std::to_string(reader.GetParseErrorCode());
+        //errorMessage->message(var);
+
     }
 
     // Check the validation result
@@ -137,6 +172,17 @@ void JsonValidator::validate(SCHEMA schema, const QString &fileName)
         sb.Clear();
         validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
         fprintf(stderr, "Invalid document: %s\n", sb.GetString());
+
+        QMessageBox::warning(
+            parent,
+            QMessageBox::tr("Validation"),
+            QMessageBox::tr("Validation errors.\n schema: %1:\n keyword: %2.")
+                    .arg(sb.GetString())
+                    .arg(validator.GetInvalidSchemaKeyword())
+        );
+
+
+
         return;
     }
 

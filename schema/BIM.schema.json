@@ -4,6 +4,14 @@
     "_comment": "initial draft based on 3Bay6StoryRCFrame_BIM.json",
     "_comment": "added from 1Bay2StoryNCBF_B1_BIM.json, , 1Bay2StoryNCBF_B2_BIM.json, RCSideColumn_BIM.json, 18-Story_Steel_High-Rise_at_E-Defense-BIM.json, 1Bay2StoryNCBF_B1_BIM.json",
 
+    "description": "schema for a BIM data set",
+    "type": "object",
+    "required": [ "GeneralInformation", "StructuralInformation" ],
+    "properties": {
+        "GeneralInformation": {"$ref": "#/definitions/generalinformation" },
+        "StructuralInformation": {"$ref": "#/definitions/structuralinformation" }
+     },
+
   "definitions": {
     "longitudinal rebar": {
         "type": "object",
@@ -19,6 +27,7 @@
             "cover top": { "type": "number" },
             "cover bottom": { "type": "number" }
         },
+        "additionalProperties": false,
         "required": ["material top", "material bottom", "num bars top", "num bars bottom", "bar area top", "bar area bottom", "cover top", "cover bottom"]
     },
     "transverse rebar": {
@@ -30,6 +39,7 @@
             "num bars depth": { "type": "integer" },
             "num bars width": { "type": "integer" }
         },
+        "additionalProperties": false,
         "required": ["material", "bar area", "spacing"]
     },
 
@@ -39,6 +49,7 @@
             "name":  { "type": "string" },
             "elevation": { "type": "number" }
         },
+        "additionalProperties": false,
         "required": ["name", "elevation"]
     },
     "cline": {
@@ -47,6 +58,7 @@
             "name":  { "type": "string" },
             "location": { "type": "array",  "items": {"type": "number" } }
         },
+        "additionalProperties": false,
         "required": ["name", "location"]
     },
     "material": {
@@ -63,6 +75,7 @@
             "fu": { "type": "number" },
             "espr": { "type": "number" }
         },
+        "additionalProperties": false,
         "required": ["name", "type", "masspervolume"]
     },
     "framesection": {
@@ -94,6 +107,7 @@
             "corner radius": { "type": "number" }
 
         },
+        "additionalProperties": false,
         "required": ["name", "type" ]
     },
 
@@ -104,6 +118,7 @@
             "ratio": { "type": "array",  "items": {"type": "number" } },
             "angle": { "type": "number" }
         },
+        "additionalProperties": false,
         "required": ["section", "ratio", "angle"]
     },
 
@@ -115,6 +130,7 @@
             "name":  { "type": "string" },
             "section": { "type": "string" }
         },
+        "additionalProperties": false,
         "required": ["clines", "floor", "name", "section"]
     },
 
@@ -126,70 +142,75 @@
             "floor": { "type": "array",  "items": {"type": "number" } },
             "segment": { "type": "array",  "items": { "$ref": "#/definitions/segment"  } }
         },
+        "additionalProperties": false,
         "required": ["name", "cline", "floor", "segment"]
+    },
+
+    "generalinformation": {
+        "type": "object",
+        "properties": {
+            "name": { "type": "string" },
+            "revision": { "type": "number" },
+            "type": { "type": "string" },
+            "year": { "type": "integer" },
+            "stories": { "type": "integer" },
+            "height": { "type": "number" },
+            "area": {"type": ["number", "null"]},
+            "location": {
+                "name": { "type": "string" },
+                "latitude": { "type": "number" },
+                "longitude":{ "type": "number" }
+            },
+            "units": {
+                "force": { "type": "string" },
+                "length": { "type": "string" },
+                "time": { "type": "string" },
+                "temperature": { "type": "string" }
+            },
+            "engineer": { "type": "string" },
+            "URL": {"type": ["string", "null"]},
+            "DOI": {"type": ["string", "null"]}
+        },
+        "additionalProperties": false
+    },
+
+    "structuralinformation": {
+        "type": "object",
+        "properties": {
+            "type": { "type": "string" },
+            "layout": {
+                "floors":  { "type": "array",  "items": { "$ref": "#/definitions/floor"  } },
+                 "clines":  { "type": "array",  "items": { "$ref": "#/definitions/clines"  } }
+            },
+            "properties": {
+                "materials":  { "type": "array",  "items": { "$ref": "#/definitions/material"  } },
+                "framesections":  { "type": "array",  "items": { "$ref": "#/definitions/framesection"  } },
+
+                 "_comment": "TBD !!!!!!!!!!!!!!!!",
+                "braces":  { "type": "array",  "items": { "$ref": "#/definitions/???"  } },
+                "floors":  { "type": "array",  "items": { "$ref": "#/definitions/???"  } },
+                "walls":  { "type": "array",  "items": { "$ref": "#/definitions/???"  } },
+                "panelzones":  { "type": "array",  "items": { "$ref": "#/definitions/???"  } },
+                "links":  { "type": "array",  "items": { "$ref": "#/definitions/???"  } },
+                "points":  { "type": "array",  "items": { "$ref": "#/definitions/???"  } }
+            },
+            "geometry": {
+                "columns": { "type": "array",  "items": { "$ref": "#/definitions/geom"  }  },
+                "beams": { "type": "array",  "items": { "$ref": "#/definitions/geom"  }  },
+                "braces": { "type": "array",  "items": { "$ref": "#/definitions/geom"  }  },
+                "slabs": { "type": "array",  "items": { "$ref": "#/definitions/slab"  }  }
+
+            },
+            "ExteriorInformation": {
+               "_comment": "TBD !!!!!!!!!!!!!!!!"
+            },
+            "ContentInformation": {
+                "_comment": "TBD !!!!!!!!!!!!!!!!"
+            }
+        },
+        "additionalProperties": false
     }
 
-  },
-
-  "_comment": "definitions completed, now the structure of the document",
-
-  "GeneralInformation": {
-      "name": { "type": "string" },
-      "revision": { "type": "number" },
-      "type": { "type": "string" },
-      "year": { "type": "integer" },
-      "stories": { "type": "integer" },
-      "height": { "type": "number" },
-      "area": {"type": ["number", "null"]},
-      "location": {
-          "name": { "type": "string" },
-          "latitude": { "type": "number" },
-          "longitude":{ "type": "number" }
-      },
-      "units": {
-          "force": { "type": "string" },
-          "length": { "type": "string" },
-          "time": { "type": "string" },
-          "temperature": { "type": "string" }
-      },
-      "engineer": { "type": "string" },
-      "URL": {"type": ["string", "null"]},
-      "DOI": {"type": ["string", "null"]}
-  },
-
-  "StructuralInformation": {
-      "type": { "type": "string" },
-      "layout": {
-          "floors":  { "type": "array",  "items": { "$ref": "#/definitions/floor"  } },
-           "clines":  { "type": "array",  "items": { "$ref": "#/definitions/clines"  } }
-      },
-      "properties": {
-          "materials":  { "type": "array",  "items": { "$ref": "#/definitions/material"  } },
-          "framesections":  { "type": "array",  "items": { "$ref": "#/definitions/framesection"  } },
-
-           "_comment": "TBD !!!!!!!!!!!!!!!!",
-          "braces":  { "type": "array",  "items": { "$ref": "#/definitions/???"  } },
-          "floors":  { "type": "array",  "items": { "$ref": "#/definitions/???"  } },
-          "walls":  { "type": "array",  "items": { "$ref": "#/definitions/???"  } },
-          "panelzones":  { "type": "array",  "items": { "$ref": "#/definitions/???"  } },
-          "links":  { "type": "array",  "items": { "$ref": "#/definitions/???"  } },
-          "points":  { "type": "array",  "items": { "$ref": "#/definitions/???"  } }
-      },
-      "geometry": {
-          "columns": { "type": "array",  "items": { "$ref": "#/definitions/geom"  }  },
-          "beams": { "type": "array",  "items": { "$ref": "#/definitions/geom"  }  },
-          "braces": { "type": "array",  "items": { "$ref": "#/definitions/geom"  }  },
-          "slabs": { "type": "array",  "items": { "$ref": "#/definitions/slab"  }  }
-
-      },
-      "ExteriorInformation": {
-         "_comment": "TBD !!!!!!!!!!!!!!!!"
-      },
-      "ContentInformation": {
-          "_comment": "TBD !!!!!!!!!!!!!!!!"
-      }
   }
-
-
 
 }

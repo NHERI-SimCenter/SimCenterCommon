@@ -48,4 +48,7 @@ HEADERS  += MainWindow.h\
 #FORMS    += mainwindow.ui
 
 DISTFILES += \
-    ../schema/BIM.schema.json
+    ../schema/bim.schema.json
+
+RESOURCES += \
+    schemas.qrc
