@@ -42,7 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QList>
 
-BraceInputWidget::BraceInputWidget(QWidget *parent) : SimCenterWidget(parent)
+BraceInputWidget::BraceInputWidget(QWidget *parent) : SimCenterTableWidget(parent)
 {
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
@@ -83,7 +83,7 @@ BraceInputWidget::BraceInputWidget(QWidget *parent) : SimCenterWidget(parent)
     dataTypes << SIMPLESPREADSHEET_QDouble;
     dataTypes << SIMPLESPREADSHEET_QDouble;
     dataTypes << SIMPLESPREADSHEET_QDouble;
-    theSpreadsheet = new SimpleSpreadsheetWidget(17, 1000, headings, dataTypes, this);
+    theSpreadsheet = new SpreadsheetWidget(17, 1000, headings, dataTypes, this);
 
     theLayout->addWidget(theSpreadsheet);
 

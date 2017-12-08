@@ -39,12 +39,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterWidget.h>
+#include <SimCenterTableWidget.h>
 #include "SimpleSpreadsheetWidget.h"
 #include <QStringList>
 #include <QHBoxLayout>
 
-class ConcreteInputWidget : public SimCenterWidget
+class ConcreteInputWidget : public SimCenterTableWidget
 {
     Q_OBJECT
 public:
@@ -62,7 +62,6 @@ public slots:
 
 private:
     QHBoxLayout *theLayout;
-    SimpleSpreadsheetWidget* theSpreadsheet;
     QStringList   tableHeader;
     int currentRow;
 };

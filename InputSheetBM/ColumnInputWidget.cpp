@@ -42,7 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QList>
 
-ColumnInputWidget::ColumnInputWidget(QWidget *parent) : SimCenterWidget(parent)
+ColumnInputWidget::ColumnInputWidget(QWidget *parent) : SimCenterTableWidget(parent)
 {
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
@@ -81,7 +81,7 @@ ColumnInputWidget::ColumnInputWidget(QWidget *parent) : SimCenterWidget(parent)
     dataTypes << SIMPLESPREADSHEET_QDouble;
     dataTypes << SIMPLESPREADSHEET_QDouble;
     dataTypes << SIMPLESPREADSHEET_QDouble;
-    theSpreadsheet = new SimpleSpreadsheetWidget(16, 1000, headings, dataTypes, this);
+    theSpreadsheet = new SpreadsheetWidget(16, 1000, headings, dataTypes, this);
 
     theLayout->addWidget(theSpreadsheet);
 

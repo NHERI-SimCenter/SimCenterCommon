@@ -45,6 +45,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QTreeView>
 #include <QStandardItemModel>
 #include <QHBoxLayout>
+#include "MainWindow.h"
 
 class ClineInputWidget;
 class FloorInputWidget;
@@ -55,6 +56,8 @@ class WallInputWidget;
 class SteelInputWidget;
 class ConcreteInputWidget;
 class RandomVariableInputWidget;
+class SpreadsheetWidget;
+class MainWindow;
 
 class InputWidgetSheetBM : public QWidget
 {
@@ -67,6 +70,10 @@ public:
     void inputFromJSON(QJsonObject &rvObject);
     void clear(void);
 
+    void setMainWindow(MainWindow* window);
+
+    const SpreadsheetWidget * getActiveSpreadsheet();
+
 signals:
 
 public slots:  
@@ -74,6 +81,8 @@ public slots:
 
 private:
     void outputGeneralInformationToJSON(QJsonObject &rvObject);
+
+    MainWindow* window;
 
     QHBoxLayout *horizontalLayout;
     QTreeView *treeView;
@@ -89,7 +98,8 @@ private:
     ConcreteInputWidget *theConcreteInput;
     RandomVariableInputWidget *theRVs;
 
-    QWidget *currentWidget;
+    //QWidget *currentWidget;
+    SimCenterTableWidget  *currentWidget;
 
     QJsonObject *jsonObjOrig;
 };

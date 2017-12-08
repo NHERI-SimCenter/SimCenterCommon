@@ -28,7 +28,10 @@ SOURCES += main.cpp\
     ConcreteInputWidget.cpp \
     ../Common/SimCenterWidget.cpp \
     ../Common/sectiontitle.cpp \
-    JsonValidator.cpp
+    JsonValidator.cpp \
+    SpreadsheetWidget.cpp \
+    SimCenterTableWidget.cpp \
+    Cell.cpp
 
 HEADERS  += MainWindow.h\
         InputWidgetSheetBM.h \
@@ -42,7 +45,10 @@ HEADERS  += MainWindow.h\
     ConcreteInputWidget.h \
     ../Common/SimCenterWidget.h \
     ../Common/sectiontitle.h \
-    JsonValidator.h
+    JsonValidator.h \
+    SpreadsheetWidget.h \
+    SimCenterTableWidget.h \
+    Cell.h
 
 
 #FORMS    += mainwindow.ui
@@ -50,5 +56,5 @@ HEADERS  += MainWindow.h\
 DISTFILES += \
     ../schema/bim.schema.json
 
-RESOURCES += \
-    schemas.qrc
+#RESOURCES += \
+#    schemas.qrc
