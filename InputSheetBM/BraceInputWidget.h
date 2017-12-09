@@ -39,12 +39,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <QWidget>
+#include <SimCenterWidget.h>
 #include "SimpleSpreadsheetWidget.h"
 #include <QStringList>
 #include <QHBoxLayout>
 
-class BraceInputWidget : public QWidget
+class BraceInputWidget : public SimCenterWidget
 {
     Q_OBJECT
 public:

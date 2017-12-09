@@ -58,10 +58,8 @@ signals:
 public slots:
 
 private:
-
     QLineEdit *mean;
     QLineEdit *standardDev;
-
 };
 
 #endif // NORMALDISTRIBUTION_H

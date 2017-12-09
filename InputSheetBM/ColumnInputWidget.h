@@ -39,12 +39,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <QWidget>
+#include <SimCenterWidget.h>
 #include "SimpleSpreadsheetWidget.h"
 #include <QStringList>
 #include <QHBoxLayout>
 
-class ColumnInputWidget : public QWidget
+class ColumnInputWidget : public SimCenterWidget
 {
     Q_OBJECT
 public:

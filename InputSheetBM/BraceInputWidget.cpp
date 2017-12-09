@@ -42,7 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QList>
 
-BraceInputWidget::BraceInputWidget(QWidget *parent) : QWidget(parent)
+BraceInputWidget::BraceInputWidget(QWidget *parent) : SimCenterWidget(parent)
 {
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
@@ -199,7 +199,7 @@ BraceInputWidget::outputToJSON(QJsonObject &jsonObj){
     }
 
     // finally add the array to the input arg
-    jsonObj["beams"]=jsonArray;
+    jsonObj["braces"]=jsonArray;
 }
 
 void

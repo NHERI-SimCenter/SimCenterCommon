@@ -57,8 +57,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "BraceInputWidget.h"
 #include "SteelInputWidget.h";
 #include "ConcreteInputWidget.h"
-#include "../RandomVariables/RandomVariableInputWidget.h"
-
 
 InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), currentWidget(0)
 {
@@ -74,7 +72,6 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
   QStandardItem *rootNode = standardModel->invisibleRootItem();
 
   //defining bunch of items for inclusion in model
-  QStandardItem *rvsItem    = new QStandardItem("Random Variables");
   QStandardItem *unitsItem    = new QStandardItem("Units");
   QStandardItem *layoutItem   = new QStandardItem("Layout");
   QStandardItem *floorsItem   = new QStandardItem("Floors");
@@ -94,7 +91,6 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
   QStandardItem *concRectColItem  = new QStandardItem("ConcreteRectangularColumn");
 
   //building up the hierarchy of the model
-  rootNode->appendRow(rvsItem);
   rootNode->appendRow(unitsItem);
   rootNode->appendRow(layoutItem);
   layoutItem->appendRow(floorsItem);
@@ -140,8 +136,6 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
   theColumnInput = new ColumnInputWidget();
   theSteelInput = new SteelInputWidget();
   theConcreteInput = new ConcreteInputWidget();
-  theRVs = new RandomVariableInputWidget();
-
 }
 
 InputWidgetSheetBM::~InputWidgetSheetBM()
@@ -184,11 +178,9 @@ void InputWidgetSheetBM::selectionChangedSlot(const QItemSelection & /*newSelect
     } else if (selectedText == tr("Concrete")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theConcreteInput, 1);
         currentWidget = theConcreteInput;
-    } else if (selectedText == tr("Random Variables")) {
-    horizontalLayout->insertWidget(horizontalLayout->count()-1, theRVs, 1);
-    currentWidget = theRVs;
-}
-}
+    }
+  }
+
 
 
 void
@@ -215,10 +207,12 @@ InputWidgetSheetBM::outputToJSON(QJsonObject &jsonObject)
     // create a json array and get all material inputs to enter their data
     //
     QJsonArray theMaterialsArray;
+    jsonObjProperties["materials"]=theMaterialsArray;
+
     theSteelInput->outputToJSON(theMaterialsArray);
     theConcreteInput->outputToJSON(theMaterialsArray);
-
     jsonObjProperties["materials"]=theMaterialsArray;
+
 
     jsonObject["properties"]=jsonObjProperties;
 }

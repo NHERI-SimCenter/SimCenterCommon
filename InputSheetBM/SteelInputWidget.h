@@ -39,19 +39,20 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <QWidget>
+#include <SimCenterWidget.h>
 #include "SimpleSpreadsheetWidget.h"
 #include <QStringList>
 #include <QHBoxLayout>
 
-class SteelInputWidget : public QWidget
+class SteelInputWidget : public SimCenterWidget
 {
     Q_OBJECT
 public:
     explicit SteelInputWidget(QWidget *parent = 0);
     ~SteelInputWidget();
 
-    void outputToJSON(QJsonArray &rvObject);
+    void outputToJSON(QJsonObject &rvObject);
+    void outputToJSON(QJsonArray &arrayObject);
     void inputFromJSON(QJsonObject &rvObject);
     void clear(void);
 

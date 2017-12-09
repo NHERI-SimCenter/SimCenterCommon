@@ -13,6 +13,9 @@ TEMPLATE = app
 
 include(../RandomVariables/RandomVariables.pri)
 
+INCLUDEPATH+="Users/fmk/NHERI/widgets/Common"
+
+
 SOURCES += main.cpp\
         MainWindow.cpp\
         InputWidgetSheetBM.cpp \
@@ -23,7 +26,9 @@ SOURCES += main.cpp\
     BraceInputWidget.cpp \
     ColumnInputWidget.cpp \
     SteelInputWidget.cpp \
-    ConcreteInputWidget.cpp
+    ConcreteInputWidget.cpp \
+    ../Common/SimCenterWidget.cpp \
+    ../Common/sectiontitle.cpp
 
 HEADERS  += MainWindow.h\
         InputWidgetSheetBM.h \
@@ -34,7 +39,9 @@ HEADERS  += MainWindow.h\
     BraceInputWidget.h \
     ColumnInputWidget.h \
     SteelInputWidget.h \
-    ConcreteInputWidget.h
+    ConcreteInputWidget.h \
+    ../Common/SimCenterWidget.h \
+    ../Common/sectiontitle.h
 
 
 #FORMS    += mainwindow.ui

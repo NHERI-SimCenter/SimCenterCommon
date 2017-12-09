@@ -42,7 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QList>
 
-ColumnInputWidget::ColumnInputWidget(QWidget *parent) : QWidget(parent)
+ColumnInputWidget::ColumnInputWidget(QWidget *parent) : SimCenterWidget(parent)
 {
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
@@ -187,7 +187,7 @@ ColumnInputWidget::outputToJSON(QJsonObject &jsonObj){
     }
 
     // finally add the array to the input arg
-    jsonObj["beams"]=jsonArray;
+    jsonObj["columns"]=jsonArray;
 }
 
 void

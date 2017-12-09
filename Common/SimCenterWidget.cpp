@@ -1,6 +1,3 @@
-#ifndef FLOORINPUTWIDGET_H
-#define FLOORINPUTWIDGET_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -40,30 +37,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include <SimCenterWidget.h>
-
-#include "SimpleSpreadsheetWidget.h"
-#include <QStringList>
-#include <QHBoxLayout>
-
-class FloorInputWidget : public SimCenterWidget
+SimCenterWidget::SimCenterWidget(QWidget *parent)
+    :QWidget(parent)
 {
-    Q_OBJECT
-public:
-    explicit FloorInputWidget(QWidget *parent = 0);
-    ~FloorInputWidget();
 
-    void outputToJSON(QJsonObject &rvObject);
-    void inputFromJSON(QJsonObject &rvObject);
-    void clear(void);
+}
 
-signals:
+SimCenterWidget::~SimCenterWidget()
+{
 
-public slots:
+}
 
-private:
-    QHBoxLayout *theLayout;
-    SimpleSpreadsheetWidget* theSpreadsheet;
-    QStringList   tableHeader;
-};
-
-#endif // FLOORINPUTWIDGET_H

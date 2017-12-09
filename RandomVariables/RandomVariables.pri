@@ -7,6 +7,8 @@
 #message($$_PRO_FILE_PWD_)
 #message($$PWD)
 
+INCLUDEPATH+=../Common
+
 SOURCES += $$PWD/RandomVariableDistribution.cpp \
     $$PWD/NormalDistribution.cpp \
     $$PWD/RandomVariable.cpp \

@@ -42,7 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QList>
 
-ConcreteInputWidget::ConcreteInputWidget(QWidget *parent) : QWidget(parent)
+ConcreteInputWidget::ConcreteInputWidget(QWidget *parent) : SimCenterWidget(parent)
 {
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
@@ -81,10 +81,13 @@ ConcreteInputWidget::~ConcreteInputWidget()
 }
 
 void
+ConcreteInputWidget::outputToJSON(QJsonObject &jsonObj){
+    return;
+}
+
+void
 ConcreteInputWidget::outputToJSON(QJsonArray &jsonArray){
-
-    // create a json array and for each row add a json object to it
-
+\
     int numRows = theSpreadsheet->getNumRows();
     for (int i=0; i<numRows; i++) {
 

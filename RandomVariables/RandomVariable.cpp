@@ -42,6 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QComboBox>
 #include <QLabel>
 #include <QLineEdit>
+#include <QRadioButton>
 
 //
 // headers for RandomVariableDistribution subclasses that user can select
@@ -64,10 +65,13 @@ RandomVariable::RandomVariable(QWidget *parent)
     variableName = new QLineEdit();
     variableName->setMaximumWidth(100);
     variableName->setMinimumWidth(100);
+   // variableLabel->setContentsMargins(1,1,1,1);
+   // variableName->setContentsMargins(1,1,1,1);
     nameLayout->addWidget(variableLabel);
     nameLayout->addWidget(variableName);
-    nameLayout->setSpacing(10);
+    nameLayout->setSpacing(1);
     nameLayout->setMargin(0);
+  //nameLayout->addStretch();
 
     //
     // another vertical layout to deal with distribution selection
@@ -81,8 +85,9 @@ RandomVariable::RandomVariable(QWidget *parent)
     distributionComboBox->setMinimumWidth(100);
     distributionLayout->addWidget(distributionLabel);
     distributionLayout->addWidget(distributionComboBox);
-    distributionLayout->setSpacing(10);
+    distributionLayout->setSpacing(0);
     distributionLayout->setMargin(0);
+    //distributionLayout->addStretch();
 
     //
     // provide the user selectable options & connect the combo boxes selection
@@ -103,12 +108,15 @@ RandomVariable::RandomVariable(QWidget *parent)
 
     // create this widget & a hozizontal layout and place our 2 verticaal layouts inside
     QWidget *theWidget = new QWidget();
-    QHBoxLayout *widgetLayout = new QHBoxLayout;
+    //QHBoxLayout *widgetLayout = new QHBoxLayout;
 
     // create the main layout inside which we place a spacer & main widget
     // implementation note: spacer added first to ensure it always lines up on left
 
     mainLayout = new QHBoxLayout;
+
+    button = new QRadioButton();
+    mainLayout->addWidget(button);
 
     mainLayout->addLayout(nameLayout);
     mainLayout->addLayout(distributionLayout);
@@ -121,6 +129,8 @@ RandomVariable::RandomVariable(QWidget *parent)
     mainLayout->setMargin(0);
 
     this->setLayout(mainLayout);
+  //  this->setStyleSheet("border: 1px solid red");
+  // mainLayout->setSizeConstraint(QLayout::SetMaximumSize);
 
 }
 
@@ -128,6 +138,12 @@ RandomVariable::~RandomVariable()
 {
 
 }
+
+ bool
+ RandomVariable::isSelectedForRemoval(void)
+{
+  return button->isChecked();
+ }
 
 void RandomVariable::outputToJSON(QJsonObject &rvObject){
     if (!variableName->text().isEmpty()) {

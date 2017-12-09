@@ -39,12 +39,13 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <QWidget>
+
+#include <SimCenterWidget.h>
 #include "SimpleSpreadsheetWidget.h"
 #include <QStringList>
 #include <QHBoxLayout>
 
-class ClineInputWidget : public QWidget
+class ClineInputWidget : public SimCenterWidget
 {
     Q_OBJECT
 public:
@@ -53,6 +54,9 @@ public:
 
     void outputToJSON(QJsonObject &rvObject);
     void inputFromJSON(QJsonObject &rvObject);
+    void outputToJSON(QJsonArray &arrayObject);
+    void inputFromJSON(QJsonArray &arrayObject);
+
     void clear(void);
 
 signals:
