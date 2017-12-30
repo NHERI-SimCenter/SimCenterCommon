@@ -67,6 +67,24 @@ public slots:
 private:
     QHBoxLayout *theLayout;
     QStringList   tableHeader;
+
+    QLineEdit *nameEdit;
+    QLineEdit *revEdit;
+    QLineEdit *typeEdit;
+    QLineEdit *yearEdit;
+    QLineEdit *storiesEdit;
+    QLineEdit *heightEdit;
+
+    QLineEdit *locationNameEdit;
+    QLineEdit *locationLatEdit;
+    QLineEdit *locationLonEdit;
+
+    QLineEdit *unitsForceEdit;
+    QLineEdit *unitsLengthEdit;
+    QLineEdit *unitsTemperatureEdit;
+    QLineEdit *unitsTimeEdit;
+
+
 };
 
 

@@ -34,7 +34,7 @@
 //    Maurice Manning, University of California at Berkeley, CA, United States
 
 
-#include "jsonvalidator.h"
+#include "JsonValidator.h"
 
 #include "../rapidjson/error/en.h"
 #include "../rapidjson/filereadstream.h"
@@ -48,6 +48,8 @@
 #include <QMessageBox>
 #include <QAction>
 #include <QTranslator>
+#include <QDebug>
+#include <QCoreApplication>
 
 using namespace rapidjson;
 
@@ -63,9 +65,28 @@ void JsonValidator::validate(QWidget *parent, SCHEMA schema, const QString &file
 
     QString schemaFilepath = "";
     if (schema == BIM) {
+
+
+        //qDebug() << "homePath: " << QDir::homePath();
+        //qDebug() << "applicationDirPath: " << QCoreApplication::applicationDirPath();
+        //qDebug() << "applicationFilePath: " << QCoreApplication::applicationFilePath();
+
+        //QDir::setSearchPaths("schema", QStringList(QDir::homePath() + "/schema"));
+
+        const QString fileName = QStringLiteral(":schema/BIM.schema.json");
+        QFile schemaFile(fileName);
+
+        if (!schemaFile.open(QIODevice::ReadOnly)) {
+            qWarning() << "Cannot open" << QDir::toNativeSeparators(fileName)
+                << ':' << schemaFile.errorString();
+            return;
+        }
+
+        const QString schemaText(QString::fromUtf8(schemaFile.readAll()));
+
         //schemaFilepath = bimSchemaFilepath;
         //schemaFilepath = QDir().absoluteFilePath(bimSchemaFilepath);
-        schemaFilepath = QDir().absoluteFilePath("/Users/mmmanning/Documents/Dev/code/simcenter/widgets/schema/BIM.schema.json");
+        schemaFilepath = QDir().absoluteFilePath("/Users/mauricemanning/Dev/code/simcenter/widgets/schema/BIM.schema.json");
         //schemaFilepath = QDir().absoluteFilePath("/Users/mmmanning/Documents/Dev/code/simcenter/BIM.schema.json");
     }
 

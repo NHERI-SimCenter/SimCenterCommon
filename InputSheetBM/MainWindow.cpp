@@ -31,6 +31,8 @@ MainWindow::MainWindow(QWidget *parent)
     this->setCentralWidget(inputWidget);
 
     this->createActions();
+
+
 }
 
 MainWindow::~MainWindow()

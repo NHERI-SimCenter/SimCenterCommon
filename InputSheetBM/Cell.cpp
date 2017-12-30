@@ -1,6 +1,6 @@
 #include <QtGui>
 
-#include "cell.h"
+#include "Cell.h"
 
 Cell::Cell()
 {

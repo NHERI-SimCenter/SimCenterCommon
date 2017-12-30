@@ -283,6 +283,9 @@ InputWidgetSheetBM::inputFromJSON(QJsonObject &jsonObject)
 {
    jsonObjOrig = new QJsonObject(jsonObject);
 
+   QJsonObject jsonObjGeneralInformation = jsonObject["GeneralInformation"].toObject();
+   theGeneralInformationInput->inputFromJSON(jsonObjGeneralInformation);
+
    QJsonObject jsonObjStructuralInformation = jsonObject["StructuralInformation"].toObject();
    QJsonObject jsonObjLayout = jsonObjStructuralInformation["layout"].toObject();
    theClineInput->inputFromJSON(jsonObjLayout);

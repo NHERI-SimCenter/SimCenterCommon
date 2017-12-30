@@ -65,7 +65,7 @@ public slots:
 
 private:
     QString bimSchemaFilepath = "../schema/BIM.schema.json";
-    QErrorMessage msg;
+    QErrorMessage msg;    
 
 };
 

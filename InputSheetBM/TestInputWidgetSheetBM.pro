@@ -14,12 +14,12 @@ TEMPLATE = app
 include(../RandomVariables/RandomVariables.pri)
 
 INCLUDEPATH+="Users/fmk/NHERI/widgets/Common"
+#INCLUDEPATH+="/Users/mauricemanning/Dev/code/simcenter/widgets/Common"
 
 SOURCES += main.cpp\
         MainWindow.cpp\
         InputWidgetSheetBM.cpp \
     ClineInputWidget.cpp \
-    SimpleSpreadsheetWidget.cpp \
     BeamInputWidget.cpp \
     FloorInputWidget.cpp \
     BraceInputWidget.cpp \
@@ -37,7 +37,6 @@ SOURCES += main.cpp\
 HEADERS  += MainWindow.h\
         InputWidgetSheetBM.h \
     ClineInputWidget.h \
-    SimpleSpreadsheetWidget.h \
     BeamInputWidget.h \
     FloorInputWidget.h \
     BraceInputWidget.h \
@@ -55,8 +54,5 @@ HEADERS  += MainWindow.h\
 
 #FORMS    += mainwindow.ui
 
-DISTFILES += \
-    ../schema/bim.schema.json
 
-#RESOURCES += \
-#    schemas.qrc
+

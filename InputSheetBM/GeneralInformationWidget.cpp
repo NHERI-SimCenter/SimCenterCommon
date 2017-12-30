@@ -49,32 +49,26 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent) : SimCenterW
 {
     QLabel *nameLabel = new QLabel(this);
     nameLabel->setText("Name");
-    QLineEdit *nameEdit;
     nameEdit = new QLineEdit;
 
     QLabel *revLabel = new QLabel(this);
     revLabel->setText("Revision");
-    QLineEdit *revEdit;
     revEdit = new QLineEdit;
 
     QLabel *typeLabel = new QLabel(this);
     typeLabel->setText("Type");
-    QLineEdit *typeEdit;
     typeEdit = new QLineEdit;
 
     QLabel *yearLabel = new QLabel(this);
     yearLabel->setText("Year");
-    QLineEdit *yearEdit;
     yearEdit = new QLineEdit;
 
     QLabel *storiesLabel = new QLabel(this);
     storiesLabel->setText("Stories");
-    QLineEdit *storiesEdit;
     storiesEdit = new QLineEdit;
 
     QLabel *heightLabel = new QLabel(this);
     heightLabel->setText("Height");
-    QLineEdit *heightEdit;
     heightEdit = new QLineEdit;
 
     QLabel *locationLabel = new QLabel(this);
@@ -85,17 +79,14 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent) : SimCenterW
 
     QLabel *locationNameLabel = new QLabel(this);
     locationNameLabel->setText("Name");
-    QLineEdit *locationNameEdit;
     locationNameEdit = new QLineEdit;
 
     QLabel *locationLatLabel = new QLabel(this);
     locationLatLabel->setText("Latitude");
-    QLineEdit *locationLatEdit;
     locationLatEdit = new QLineEdit;
 
     QLabel *locationLonLabel = new QLabel(this);
     locationLonLabel->setText("Longitude");
-    QLineEdit *locationLonEdit;
     locationLonEdit = new QLineEdit;
 
     // Units
@@ -105,25 +96,19 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent) : SimCenterW
 
     QLabel *unitsForceLabel = new QLabel(this);
     unitsForceLabel->setText("Force");
-    QLineEdit *unitsForceEdit;
     unitsForceEdit = new QLineEdit;
 
     QLabel *unitsLengthLabel = new QLabel(this);
     unitsLengthLabel->setText("Length");
-    QLineEdit *unitsLengthEdit;
     unitsLengthEdit = new QLineEdit;
 
     QLabel *unitsTemperatureLabel = new QLabel(this);
     unitsTemperatureLabel->setText("Temperature");
-    QLineEdit *unitsTemperatureEdit;
     unitsTemperatureEdit = new QLineEdit;
 
     QLabel *unitsTimeLabel = new QLabel(this);
     unitsTimeLabel->setText("Time");
-    QLineEdit *unitsTimeEdit;
     unitsTimeEdit = new QLineEdit;
-
-    //QSpacerItem *item = new QSpacerItem(1,1);
 
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
@@ -184,6 +169,47 @@ GeneralInformationWidget::outputToJSON(QJsonObject &jsonObj){
 
 void
 GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
+
+    QString name;
+    double rev;
+    QString type;
+    QString year;
+    QString stories;
+    QString height;
+    QString locationName;
+
+
+    QJsonValue nameValue = jsonObject["name"];
+    name = nameValue.toString();
+    nameEdit->setText(name);
+
+    QJsonValue revValue = jsonObject["revision"];
+    rev = revValue.toDouble();
+    qDebug() << "revValue: " + QString::number(rev);
+    //revEdit->setText( QString::number(rev) );
+
+    QJsonValue typeValue = jsonObject["type"];
+    type = typeValue.toString();
+    typeEdit->setText(type);
+
+    QJsonValue yearValue = jsonObject["year"];
+    year = yearValue.toString();
+    yearEdit->setText(year);
+
+    QJsonValue storiesValue = jsonObject["stories"];
+    stories = storiesValue.toString();
+    storiesEdit->setText(stories);
+
+    QJsonValue heightValue = jsonObject["height"];
+    height = heightValue.toString();
+    heightEdit->setText(height);
+
+    //QJsonValue locationValue = jsonObject["location"];
+    //QJsonObject locationObj = locationValue.toObject();
+    //QJsonValue locationNameValue = locationObj["name"];
+    //locationName = locationNameValue.toString();
+    //locationNameEdit->setText(locationName);
+
 
 
 }
