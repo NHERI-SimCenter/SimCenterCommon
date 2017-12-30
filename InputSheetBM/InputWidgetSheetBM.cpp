@@ -51,7 +51,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QModelIndex>
 
 
-
+#include "GeneralInformationWidget.h"
 #include "ClineInputWidget.h"
 #include "FloorInputWidget.h"
 #include "BeamInputWidget.h"
@@ -75,7 +75,8 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
   QStandardItem *rootNode = standardModel->invisibleRootItem();
 
   //defining bunch of items for inclusion in model
-  QStandardItem *unitsItem    = new QStandardItem("Units");
+  QStandardItem *infoItem    = new QStandardItem("GeneralInformation");
+  //QStandardItem *unitsItem    = new QStandardItem("Units");
   QStandardItem *layoutItem   = new QStandardItem("Layout");
   QStandardItem *floorsItem   = new QStandardItem("Floors");
   QStandardItem *clinesItem   = new QStandardItem("Clines");
@@ -94,7 +95,8 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
   QStandardItem *concRectColItem  = new QStandardItem("ConcreteRectangularColumn");
 
   //building up the hierarchy of the model
-  rootNode->appendRow(unitsItem);
+  rootNode->appendRow(infoItem);
+  //rootNode->appendRow(unitsItem);
   rootNode->appendRow(layoutItem);
   layoutItem->appendRow(floorsItem);
   layoutItem->appendRow(clinesItem);
@@ -132,6 +134,7 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
   //
   // create the input widgets for the different types
   //
+  theGeneralInformationInput = new GeneralInformationWidget();
   theClineInput = new ClineInputWidget();
   theFloorInput = new FloorInputWidget();
   theBeamInput = new BeamInputWidget();
@@ -155,20 +158,34 @@ const SpreadsheetWidget * InputWidgetSheetBM::getActiveSpreadsheet()
     return currentWidget->getSpreadsheetWidget();
 }
 
+
 void InputWidgetSheetBM::selectionChangedSlot(const QItemSelection & /*newSelection*/, const QItemSelection & /*oldSelection*/)
 {
+
+    //get the text of the selected item
+    const QModelIndex index = treeView->selectionModel()->currentIndex();
+    QString selectedText = index.data(Qt::DisplayRole).toString();
+    qDebug() << "new tree selection: " + selectedText;
+
     // remove current widget from layout
     if (currentWidget != 0) {
+        if (currentWidget != (SimCenterTableWidget *) theGeneralInformationInput ) {
+            qDebug() << "disconnect edit menu items ";
+            window->disconnectMenuItems(currentWidget);
+        }
         horizontalLayout->removeWidget(currentWidget);
         currentWidget->setParent(0);
     }
 
     //get the text of the selected item
-    const QModelIndex index = treeView->selectionModel()->currentIndex();
-    QString selectedText = index.data(Qt::DisplayRole).toString();
+    //const QModelIndex index = treeView->selectionModel()->currentIndex();
+    //QString selectedText = index.data(Qt::DisplayRole).toString();
 
-    // add the user slected widget for editing
-    if (selectedText == tr("Clines")) {
+    // add the user selected widget for editing
+    if (selectedText == tr("GeneralInformation")) {
+        horizontalLayout->insertWidget(horizontalLayout->count()-1, theGeneralInformationInput, 1);
+        currentWidget = (SimCenterTableWidget *) theGeneralInformationInput;
+    } else if (selectedText == tr("Clines")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theClineInput, 1);
         currentWidget = theClineInput;
         window->connectMenuItems(currentWidget);
@@ -321,4 +338,3 @@ InputWidgetSheetBM::outputGeneralInformationToJSON(QJsonObject &jsonObject)
     jsonObject["GeneralInformation"] = jsonObjGenInfo;
 
 }
-

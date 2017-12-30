@@ -27,6 +27,7 @@ class MainWindow : public QMainWindow
 
   //void selectionChangedSlot(const QItemSelection &, const QItemSelection &);
     void connectMenuItems(SimCenterTableWidget  *widget);
+    void disconnectMenuItems(SimCenterTableWidget  *widget);
 
 
  private:

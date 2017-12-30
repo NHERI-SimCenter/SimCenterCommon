@@ -1,11 +1,13 @@
-#ifndef INPUTWIDGETSHEETBM_H
-#define INPUTWIDGETSHEETBM_H
+#ifndef GENERALINFORMATIONWIDGET_H
+#define GENERALINFORMATIONWIDGET_H
+
+
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -29,81 +31,43 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
 // Written: fmckenna
 
-#include <QWidget>
 
-#include <QItemSelection>
-#include <QTreeView>
-#include <QStandardItemModel>
+#include <QStringList>
 #include <QHBoxLayout>
-#include "MainWindow.h"
+#include <SimCenterTableWidget.h>
 
-class GeneralInformationWidget;
-class ClineInputWidget;
-class FloorInputWidget;
-class BeamInputWidget;
-class ColumnInputWidget;
-class BraceInputWidget;
-class WallInputWidget;
-class SteelInputWidget;
-class ConcreteInputWidget;
-class RandomVariableInputWidget;
-class SpreadsheetWidget;
-class MainWindow;
-
-class InputWidgetSheetBM : public QWidget
+class GeneralInformationWidget : public SimCenterWidget
 {
     Q_OBJECT
 public:
-    explicit InputWidgetSheetBM(QWidget *parent = 0);
-    ~InputWidgetSheetBM();
+    explicit GeneralInformationWidget(QWidget *parent = 0);
+    ~GeneralInformationWidget();
 
     void outputToJSON(QJsonObject &rvObject);
     void inputFromJSON(QJsonObject &rvObject);
+    void outputToJSON(QJsonArray &arrayObject);
+    void inputFromJSON(QJsonArray &arrayObject);
+
     void clear(void);
-
-    void setMainWindow(MainWindow* window);
-
-    const SpreadsheetWidget * getActiveSpreadsheet();
 
 signals:
 
-public slots:  
-    void selectionChangedSlot(const QItemSelection &, const QItemSelection &);
+public slots:
 
 private:
-    void outputGeneralInformationToJSON(QJsonObject &rvObject);
-
-    MainWindow* window;
-
-    QHBoxLayout *horizontalLayout;
-    QTreeView *treeView;
-    QStandardItemModel *standardModel;
-
-    GeneralInformationWidget *theGeneralInformationInput;
-    ClineInputWidget *theClineInput;
-    FloorInputWidget *theFloorInput;
-    BeamInputWidget *theBeamInput;
-    ColumnInputWidget *theColumnInput;
-    BraceInputWidget *theBraceInput;
-    WallInputWidget *theWallInput;
-    SteelInputWidget *theSteelInput;
-    ConcreteInputWidget *theConcreteInput;
-    RandomVariableInputWidget *theRVs;
-
-    //QWidget *currentWidget;
-    SimCenterTableWidget  *currentWidget;
-
-    QJsonObject *jsonObjOrig;
+    QHBoxLayout *theLayout;
+    QStringList   tableHeader;
 };
 
-#endif // INPUTWIDGETBMSHEET_H
+
+#endif // GENERALINFORMATIONWIDGET_H

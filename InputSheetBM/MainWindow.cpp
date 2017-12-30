@@ -267,17 +267,32 @@ void MainWindow::createActions() {
 
 }
 
+void MainWindow::disconnectMenuItems(SimCenterTableWidget  *inputwidget)
+{
+
+    disconnect(cutAction, SIGNAL(triggered()), (const QObject *)inputwidget->getSpreadsheetWidget(), SLOT(cut()));
+    disconnect(copyAction, SIGNAL(triggered()), (const QObject *)inputwidget->getSpreadsheetWidget(), SLOT(copy()));
+    disconnect(pasteAction, SIGNAL(triggered()), (const QObject *)inputwidget->getSpreadsheetWidget(), SLOT(paste()));
+    disconnect(deleteAction, SIGNAL(triggered()), (const QObject *)inputwidget->getSpreadsheetWidget(), SLOT(del()));
+
+    disconnect(selectRowAction, SIGNAL(triggered()), (const QObject *)inputwidget->getSpreadsheetWidget(), SLOT(selectCurrentRow()));
+    disconnect(selectColumnAction, SIGNAL(triggered()), (const QObject *)inputwidget->getSpreadsheetWidget(), SLOT(selectCurrentColumn()));
+    disconnect(selectAllAction, SIGNAL(triggered()), (const QObject *)inputwidget->getSpreadsheetWidget(), SLOT(selectAll()));
+
+}
+
 void MainWindow::connectMenuItems(SimCenterTableWidget  *inputwidget)
 {
 
     connect(cutAction, SIGNAL(triggered()), (const QObject *)inputwidget->getSpreadsheetWidget(), SLOT(cut()));
     connect(copyAction, SIGNAL(triggered()), (const QObject *)inputwidget->getSpreadsheetWidget(), SLOT(copy()));
     connect(pasteAction, SIGNAL(triggered()), (const QObject *)inputwidget->getSpreadsheetWidget(), SLOT(paste()));
-    connect(pasteAction, SIGNAL(triggered()), (const QObject *)inputwidget->getSpreadsheetWidget(), SLOT(paste()));
     connect(deleteAction, SIGNAL(triggered()), (const QObject *)inputwidget->getSpreadsheetWidget(), SLOT(del()));
 
     connect(selectRowAction, SIGNAL(triggered()), (const QObject *)inputwidget->getSpreadsheetWidget(), SLOT(selectCurrentRow()));
     connect(selectColumnAction, SIGNAL(triggered()), (const QObject *)inputwidget->getSpreadsheetWidget(), SLOT(selectCurrentColumn()));
     connect(selectAllAction, SIGNAL(triggered()), (const QObject *)inputwidget->getSpreadsheetWidget(), SLOT(selectAll()));
+
+
 
 }

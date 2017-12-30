@@ -1,6 +1,6 @@
 #include <QtGui>
 
-#include "cell.h"
+#include "Cell.h"
 #include "SpreadsheetWidget.h"
 #include <QMessageBox>
 #include <QApplication>
@@ -8,7 +8,7 @@
 SpreadsheetWidget::SpreadsheetWidget(int colCount, int rowCount, QStringList head, QList<int>types, QWidget *parent)
     : QTableWidget(parent), numRow(rowCount), numCol(colCount), theHeadings(head), dataTypes(types)
 {
-    //clear();
+    clear();
 
     this->setRowCount(rowCount);
     this->setColumnCount(colCount);
@@ -40,6 +40,8 @@ QTableWidgetSelectionRange SpreadsheetWidget::selectedRange() const
     QList<QTableWidgetSelectionRange> ranges = selectedRanges();
     if (ranges.isEmpty())
         return QTableWidgetSelectionRange();
+
+    qDebug() << "ranges size: " + QString::number(ranges.count()) ;
     return ranges.first();
 }
 
@@ -158,8 +160,13 @@ void SpreadsheetWidget::cut()
 
 void SpreadsheetWidget::copy()
 {
+    qDebug() << "";
+    qDebug() << "";
+    qDebug() << "--------- NEW COPY ------------";
     QTableWidgetSelectionRange range = selectedRange();
     QString str;
+
+    qDebug() << "range rows: " + QString::number(range.rowCount()) + "cols: " + QString::number(range.columnCount()) ;
 
     for (int i = 0; i < range.rowCount(); ++i) {
         if (i > 0)
@@ -170,16 +177,28 @@ void SpreadsheetWidget::copy()
             str += formula(range.topRow() + i, range.leftColumn() + j);
         }
     }
+    qDebug() << "copied: " + str;
     QApplication::clipboard()->setText(str);
 }
 
 void SpreadsheetWidget::paste()
 {
+    qDebug() << "--------------------------";
     QTableWidgetSelectionRange range = selectedRange();
+
+
+    qDebug() << "paste range rows: " + QString::number(range.rowCount()) + "cols: " + QString::number(range.columnCount()) ;
+
     QString str = QApplication::clipboard()->text();
+    qDebug() << "paste : " + str;
+
+
+
     QStringList rows = str.split('\n');
     int numRows = rows.count();
     int numColumns = rows.first().count('\t') + 1;
+
+    qDebug() << "clipboard rows: " + QString::number(numRows) + "cols: " + QString::number(numColumns) ;
 
     if (range.rowCount() * range.columnCount() != 1
             && (range.rowCount() != numRows

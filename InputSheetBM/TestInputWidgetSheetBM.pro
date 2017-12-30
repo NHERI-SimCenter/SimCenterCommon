@@ -31,7 +31,8 @@ SOURCES += main.cpp\
     JsonValidator.cpp \
     SpreadsheetWidget.cpp \
     SimCenterTableWidget.cpp \
-    Cell.cpp
+    Cell.cpp \
+    GeneralInformationWidget.cpp
 
 HEADERS  += MainWindow.h\
         InputWidgetSheetBM.h \
@@ -48,7 +49,8 @@ HEADERS  += MainWindow.h\
     JsonValidator.h \
     SpreadsheetWidget.h \
     SimCenterTableWidget.h \
-    Cell.h
+    Cell.h \
+    GeneralInformationWidget.h
 
 
 #FORMS    += mainwindow.ui
