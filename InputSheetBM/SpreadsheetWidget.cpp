@@ -8,7 +8,7 @@
 SpreadsheetWidget::SpreadsheetWidget(int colCount, int rowCount, QStringList head, QList<int>types, QWidget *parent)
     : QTableWidget(parent), numRow(rowCount), numCol(colCount), theHeadings(head), dataTypes(types)
 {
-    clear();
+    //clear();
 
     this->setRowCount(rowCount);
     this->setColumnCount(colCount);
@@ -22,6 +22,7 @@ SpreadsheetWidget::SpreadsheetWidget(int colCount, int rowCount, QStringList hea
     connect(this, SIGNAL(itemChanged(QTableWidgetItem *)),
             this, SLOT(somethingChanged()));
 
+    this->setHorizontalHeaderLabels(head);
 }
 
 QString SpreadsheetWidget::currentLocation() const

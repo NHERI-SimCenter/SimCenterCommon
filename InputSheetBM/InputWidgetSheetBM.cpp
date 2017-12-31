@@ -47,7 +47,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QTreeView>
 #include <QStandardItemModel>
 #include <QItemSelectionModel>
-#include <QDebug>
 #include <QModelIndex>
 
 
@@ -165,12 +164,12 @@ void InputWidgetSheetBM::selectionChangedSlot(const QItemSelection & /*newSelect
     //get the text of the selected item
     const QModelIndex index = treeView->selectionModel()->currentIndex();
     QString selectedText = index.data(Qt::DisplayRole).toString();
-    qDebug() << "new tree selection: " + selectedText;
+    //qDebug() << "new tree selection: " + selectedText;
 
     // remove current widget from layout
     if (currentWidget != 0) {
         if (currentWidget != (SimCenterTableWidget *) theGeneralInformationInput ) {
-            qDebug() << "disconnect edit menu items ";
+            //qDebug() << "disconnect edit menu items ";
             window->disconnectMenuItems(currentWidget);
         }
         horizontalLayout->removeWidget(currentWidget);
@@ -226,7 +225,7 @@ InputWidgetSheetBM::outputToJSON(QJsonObject &jsonObjectTop)
     // add GeneralInformation
     QJsonObject jsonObjGenInfo;
     theGeneralInformationInput->outputToJSON(jsonObjGenInfo);
-    jsonObject["GeneralInformation"] = jsonObjGenInfo;
+    jsonObjectTop["GeneralInformation"] = jsonObjGenInfo;
 
     // add layout
     QJsonObject jsonObjLayout;
@@ -290,6 +289,7 @@ InputWidgetSheetBM::inputFromJSON(QJsonObject &jsonObject)
    theGeneralInformationInput->inputFromJSON(jsonObjGeneralInformation);
 
    QJsonObject jsonObjStructuralInformation = jsonObject["StructuralInformation"].toObject();
+
    QJsonObject jsonObjLayout = jsonObjStructuralInformation["layout"].toObject();
    theClineInput->inputFromJSON(jsonObjLayout);
    theFloorInput->inputFromJSON(jsonObjLayout);

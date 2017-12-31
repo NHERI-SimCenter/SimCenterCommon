@@ -158,6 +158,9 @@ void MainWindow::loadFile(const QString &fileName)
     file.close();
 
     // given the json object, create the C++ objects
+    if ( ! (fileName.isNull() || fileName.isEmpty()) ) {
+        inputWidget->clear();
+    }
     inputWidget->inputFromJSON(jsonObj);
 
     setCurrentFile(fileName);

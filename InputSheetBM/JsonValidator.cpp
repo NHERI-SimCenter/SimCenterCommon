@@ -44,7 +44,7 @@
 #include "../rapidjson/stringbuffer.h"
 #include <iostream>
 #include <stdio.h>
-#include <QDir.h>
+#include <qdir.h>
 #include <QMessageBox>
 #include <QAction>
 #include <QTranslator>
@@ -64,31 +64,25 @@ void JsonValidator::validate(QWidget *parent, SCHEMA schema, const QString &file
 {
 
     QString schemaFilepath = "";
+    /*
     if (schema == BIM) {
 
-
-        //qDebug() << "homePath: " << QDir::homePath();
-        //qDebug() << "applicationDirPath: " << QCoreApplication::applicationDirPath();
-        //qDebug() << "applicationFilePath: " << QCoreApplication::applicationFilePath();
-
-        //QDir::setSearchPaths("schema", QStringList(QDir::homePath() + "/schema"));
 
         const QString fileName = QStringLiteral(":schema/BIM.schema.json");
         QFile schemaFile(fileName);
 
-        if (!schemaFile.open(QIODevice::ReadOnly)) {
+        if (!schemaFile.open(QIODevice::ReadOnly) ) {
             qWarning() << "Cannot open" << QDir::toNativeSeparators(fileName)
                 << ':' << schemaFile.errorString();
             return;
         }
 
         const QString schemaText(QString::fromUtf8(schemaFile.readAll()));
+        qDebug() << "schemaText: " + schemaText;
 
-        //schemaFilepath = bimSchemaFilepath;
-        //schemaFilepath = QDir().absoluteFilePath(bimSchemaFilepath);
-        schemaFilepath = QDir().absoluteFilePath("/Users/mauricemanning/Dev/code/simcenter/widgets/schema/BIM.schema.json");
-        //schemaFilepath = QDir().absoluteFilePath("/Users/mmmanning/Documents/Dev/code/simcenter/BIM.schema.json");
+        //schemaFilepath = QDir().absoluteFilePath("/Users/mauricemanning/Dev/code/simcenter/widgets/schema/BIM.schema.json");
     }
+    */
 
     //
     // open the BIM schema file
@@ -97,39 +91,25 @@ void JsonValidator::validate(QWidget *parent, SCHEMA schema, const QString &file
     Document d;
     char buffer[4096];
 
-    FILE *fp = fopen(schemaFilepath.toStdString().c_str(), "r");
+    QString sfile = QStringLiteral(":schema/BIM.schema.json");
+    QFile schemaFile(sfile);
 
-    //QFile schemaFile("qrc:/BIM.schema.json");
-    //schemaFile.open(QIODevice::ReadOnly);
-
-    //int FileDescriptor = schemaFile.handle();
-    //FILE *fp = fopen(FileDescriptor, "r");
-
-    // !schemaFile.exists()
-    if (!fp) {
+    if (!schemaFile.open(QIODevice::ReadOnly | QIODevice::Text)){
         printf("Schema file '%s' not found\n", schemaFilepath.toStdString().c_str() );
         return;
     }
 
     // read the schema document file
+    const QString schemaText(QString::fromUtf8(schemaFile.readAll()));
+    d.Parse(schemaText.toUtf8());
+    if (d.HasParseError()) {
+        fprintf(stderr, "Schema file '%s' is not a valid JSON\n", schemaFilepath.toStdString().c_str() );
 
-    FileReadStream fs(fp, buffer, sizeof(buffer));
-    d.ParseStream(fs);
-
-
-    //convert document to string
-    StringBuffer strbuf;
-    strbuf.Clear();
-    Writer<StringBuffer> writer(strbuf);
-    d.Accept(writer);
-    std::string ownShipRadarString = strbuf.GetString();
-    std::cout << "**********************************************" << ownShipRadarString << std::endl;
-
+    }
 
     if (d.HasParseError()) {
         fprintf(stderr, "Schema file '%s' is not a valid JSON\n", schemaFilepath.toStdString().c_str() );
         fprintf(stderr, "Error(offset %u): %s\n",  static_cast<unsigned>(d.GetErrorOffset()), GetParseError_En(d.GetParseError()));
-        fclose(fp);
        // return;
 
         QMessageBox::warning(
@@ -140,7 +120,6 @@ void JsonValidator::validate(QWidget *parent, SCHEMA schema, const QString &file
 
 
     }
-    fclose(fp);
 
     // Then convert the Document into SchemaDocument
     SchemaDocument sd(d);
@@ -201,12 +180,7 @@ void JsonValidator::validate(QWidget *parent, SCHEMA schema, const QString &file
                     .arg(sb.GetString())
                     .arg(validator.GetInvalidSchemaKeyword())
         );
-
-
-
         return;
     }
-
-
 
 }
