@@ -8,7 +8,7 @@
 SpreadsheetWidget::SpreadsheetWidget(int colCount, int rowCount, QStringList head, QList<int>types, QWidget *parent)
     : QTableWidget(parent), numRow(rowCount), numCol(colCount), theHeadings(head), dataTypes(types)
 {
-    //clear();
+    clear();
 
     this->setRowCount(rowCount);
     this->setColumnCount(colCount);
@@ -53,11 +53,13 @@ void SpreadsheetWidget::clear()
     setRowCount(RowCount);
     setColumnCount(ColumnCount);
 
+    /*
     for (int i = 0; i < ColumnCount; ++i) {
         Cell *item = new Cell;
         item->setText(QString(QChar('A' + i)));
         setHorizontalHeaderItem(i, item);
     }
+    */
 
     setCurrentCell(0, 0);
 }
