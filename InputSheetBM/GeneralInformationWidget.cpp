@@ -137,7 +137,6 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent) : SimCenterW
     rightLayout->addWidget(yearEdit, 3, 1);
     rightLayout->addWidget(storiesEdit, 4, 1);
     rightLayout->addWidget(heightEdit, 5, 1);
-    rightLayout->addWidget(heightEdit, 5, 1);
     rightLayout->addWidget(emptyLabel, 6, 1);
     rightLayout->addWidget(locationNameEdit, 7, 1);
     rightLayout->addWidget(locationLatEdit, 8, 1);
@@ -164,57 +163,117 @@ GeneralInformationWidget::~GeneralInformationWidget()
 void
 GeneralInformationWidget::outputToJSON(QJsonObject &jsonObj){
 
+    jsonObj["name"] = nameEdit->text().trimmed();
+
+    QString revVal = revEdit->text();
+    jsonObj["revision"] = revVal.toDouble();
+
+    jsonObj["type"] = typeEdit->text().trimmed();
+
+    QString intVal = yearEdit->text();
+    jsonObj["year"] = intVal.toInt();
+
+    intVal = storiesEdit->text();
+    jsonObj["stories"] = intVal.toInt();
+
+    intVal = heightEdit->text();
+    jsonObj["height"] = intVal.toInt();
+
+
+    QJsonObject location;
+    location["name"] = locationNameEdit->text().trimmed();
+
+    QString dblVal = locationLatEdit->text();
+    location["latitude"] = dblVal.toDouble();
+
+    dblVal = locationLonEdit->text();
+    location["longitude"] = dblVal.toDouble();
+
+    jsonObj["location"] = location;
+
+    QJsonObject units;
+    units["force"] = unitsForceEdit->text().trimmed();
+    units["length"] = unitsLengthEdit->text().trimmed();
+    units["time"] = unitsTimeEdit->text().trimmed();
+    units["temperature"] = unitsTemperatureEdit->text().trimmed();
+
+    jsonObj["units"] = units;
 
 }
 
 void
 GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
 
-    QString name;
     double rev;
-    QString type;
-    QString year;
-    QString stories;
-    QString height;
-    QString locationName;
-
 
     QJsonValue nameValue = jsonObject["name"];
-    name = nameValue.toString();
-    nameEdit->setText(name);
+    nameEdit->setText(nameValue.toString());
 
     QJsonValue revValue = jsonObject["revision"];
     rev = revValue.toDouble();
-    qDebug() << "revValue: " + QString::number(rev);
-    //revEdit->setText( QString::number(rev) );
+    revEdit->setText( QString::number(rev) );
 
     QJsonValue typeValue = jsonObject["type"];
-    type = typeValue.toString();
-    typeEdit->setText(type);
+    typeEdit->setText(typeValue.toString());
 
     QJsonValue yearValue = jsonObject["year"];
-    year = yearValue.toString();
-    yearEdit->setText(year);
+    yearEdit->setText( QString::number(yearValue.toInt()) );
 
     QJsonValue storiesValue = jsonObject["stories"];
-    stories = storiesValue.toString();
-    storiesEdit->setText(stories);
+    storiesEdit->setText(  QString::number(storiesValue.toInt()));
 
     QJsonValue heightValue = jsonObject["height"];
-    height = heightValue.toString();
-    heightEdit->setText(height);
+    heightEdit->setText(  QString::number(heightValue.toInt()) );
 
-    //QJsonValue locationValue = jsonObject["location"];
-    //QJsonObject locationObj = locationValue.toObject();
-    //QJsonValue locationNameValue = locationObj["name"];
-    //locationName = locationNameValue.toString();
-    //locationNameEdit->setText(locationName);
+    // Location Object
+    QJsonValue locationValue = jsonObject["location"];
+    QJsonObject locationObj = locationValue.toObject();
+
+    QJsonValue locationNameValue = locationObj["name"];
+    locationNameEdit->setText(locationNameValue.toString());
+
+    QJsonValue locationLatitudeValue = locationObj["latitude"];
+    locationLatEdit->setText( QString::number(locationLatitudeValue.toDouble()) );
+
+    QJsonValue locationLongitudeValue = locationObj["longitude"];
+    locationLonEdit->setText( QString::number(locationLongitudeValue.toDouble()) );
 
 
+    // Units Object
+    QJsonValue unitsValue = jsonObject["units"];
+    QJsonObject unitsObj = unitsValue.toObject();
+
+    QJsonValue unitsForceValue = unitsObj["force"];
+    unitsForceEdit->setText(unitsForceValue.toString());
+
+    QJsonValue unitsLengthValue = unitsObj["length"];
+    unitsLengthEdit->setText(unitsLengthValue.toString());
+
+    QJsonValue unitsTimeValue = unitsObj["time"];
+    unitsTimeEdit->setText(unitsTimeValue.toString());
+
+    QJsonValue unitsTempValue = unitsObj["temperature"];
+    unitsTemperatureEdit->setText(unitsTempValue.toString());
 
 }
 
 void
 GeneralInformationWidget::clear(void)
 {
+    nameEdit->clear();
+    revEdit->clear();
+    typeEdit->clear();
+    yearEdit->clear();
+    storiesEdit->clear();
+    heightEdit->clear();
+
+    locationNameEdit->clear();
+    locationLatEdit->clear();
+    locationLonEdit->clear();
+
+    unitsForceEdit->clear();
+    unitsLengthEdit->clear();
+    unitsTemperatureEdit->clear();
+    unitsTimeEdit->clear();
+
 }

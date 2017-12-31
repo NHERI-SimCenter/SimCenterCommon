@@ -221,10 +221,12 @@ void InputWidgetSheetBM::selectionChangedSlot(const QItemSelection & /*newSelect
 void
 InputWidgetSheetBM::outputToJSON(QJsonObject &jsonObjectTop)
 {
-    // add GeneralInformation
-    outputGeneralInformationToJSON(jsonObjectTop);
-
     QJsonObject jsonObject;
+
+    // add GeneralInformation
+    QJsonObject jsonObjGenInfo;
+    theGeneralInformationInput->outputToJSON(jsonObjGenInfo);
+    jsonObject["GeneralInformation"] = jsonObjGenInfo;
 
     // add layout
     QJsonObject jsonObjLayout;
@@ -266,6 +268,7 @@ InputWidgetSheetBM::outputToJSON(QJsonObject &jsonObjectTop)
 void
 InputWidgetSheetBM::clear(void)
 {
+    theGeneralInformationInput->clear();
     theClineInput->clear();
     theFloorInput->clear();
     theColumnInput->clear();
@@ -329,15 +332,3 @@ InputWidgetSheetBM::inputFromJSON(QJsonObject &jsonObject)
 }
 
 
-void
-InputWidgetSheetBM::outputGeneralInformationToJSON(QJsonObject &jsonObject)
-{
-    // start with the general information that is stil in jsonObj
-
-    QJsonObject jsonObjGenInfo = (*jsonObjOrig)["GeneralInformation"].toObject();
-
-
-
-    jsonObject["GeneralInformation"] = jsonObjGenInfo;
-
-}
