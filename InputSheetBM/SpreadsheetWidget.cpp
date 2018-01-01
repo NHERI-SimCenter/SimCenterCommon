@@ -48,19 +48,7 @@ QTableWidgetSelectionRange SpreadsheetWidget::selectedRange() const
 
 void SpreadsheetWidget::clear()
 {
-    setRowCount(0);
-    setColumnCount(0);
-    setRowCount(RowCount);
-    setColumnCount(ColumnCount);
-
-    /*
-    for (int i = 0; i < ColumnCount; ++i) {
-        Cell *item = new Cell;
-        item->setText(QString(QChar('A' + i)));
-        setHorizontalHeaderItem(i, item);
-    }
-    */
-
+    this->clearContents();
     setCurrentCell(0, 0);
 }
 
