@@ -42,7 +42,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QList>
 
-BeamInputWidget::BeamInputWidget(SimCenterWidget *parent) : SimCenterWidget(parent)
+
+BeamInputWidget::BeamInputWidget(SimCenterWidget *parent) : SimCenterTableWidget(parent)
 {
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
@@ -81,7 +82,7 @@ BeamInputWidget::BeamInputWidget(SimCenterWidget *parent) : SimCenterWidget(pare
     dataTypes << SIMPLESPREADSHEET_QDouble;
     dataTypes << SIMPLESPREADSHEET_QDouble;
     dataTypes << SIMPLESPREADSHEET_QDouble;
-    theSpreadsheet = new SimpleSpreadsheetWidget(16, 1000, headings, dataTypes, this);
+    theSpreadsheet = new SpreadsheetWidget(16, 1000, headings, dataTypes, this);
 
     theLayout->addWidget(theSpreadsheet);
 
@@ -200,6 +201,88 @@ BeamInputWidget::outputToJSON(QJsonObject &jsonObj){
 
 void
 BeamInputWidget::inputFromJSON(QJsonObject &jsonObject){
+
+
+    QString name;
+    QJsonArray clineArray;
+    QJsonArray floorArray;
+    QString cline1Value, cline2Value, floorValue;
+    int currentRow = 0;
+
+    //
+    // get the cline data (a json array) from the object, and for every
+    // object in the array, get the values and add to the spreadsheet
+    //
+
+    QJsonArray theArray = jsonObject["beams"].toArray();
+    foreach (const QJsonValue &theValue, theArray) {
+        // get values
+        QJsonObject theObject = theValue.toObject();
+        QJsonValue theColumnValue = theObject["name"];
+        name = theColumnValue.toString();
+
+        QJsonValue theClineValue = theObject["cline"];
+        clineArray = theClineValue.toArray();
+        QJsonValue c1Value = clineArray.at(0);
+        QJsonValue c2Value = clineArray.at(1);
+        cline1Value = c1Value.toString();
+        cline2Value = c2Value.toString();
+
+        QJsonValue theFloorValue = theObject["floor"];
+        floorArray = theFloorValue.toArray();
+        QJsonValue fValue = floorArray.at(0);
+        floorValue = fValue.toString();
+
+        QJsonArray theSegmentArray = theObject["segment"].toArray();
+
+        // add to the spreadsheet
+        theSpreadsheet->setString(currentRow, 0, name);
+        theSpreadsheet->setString(currentRow, 1, floorValue);
+        theSpreadsheet->setString(currentRow, 2, cline1Value);
+        theSpreadsheet->setString(currentRow, 3, cline2Value);
+
+
+        QString section;
+        double angle;
+        double ratio1Value, ratio2Value;
+        int currentSection = 0;
+        int offset = 0;
+
+        foreach (const QJsonValue &theValue, theSegmentArray) {
+
+            // get values
+            QJsonObject theObject = theValue.toObject();
+
+            section = theObject["section"].toString();
+            angle = theObject["angle"].toDouble();
+
+            // ratio can be a two member array or single value
+            if ( theObject["ratio"].isArray() ) {
+                QJsonArray theRatioArray = theObject["ratio"].toArray();
+                QJsonValue r1Value = theRatioArray.at(0);
+                QJsonValue r2Value = theRatioArray.at(1);
+                ratio1Value = r1Value.toDouble();
+                ratio2Value = r2Value.toDouble();
+            }
+            else {
+                QJsonValue r1Value = theObject["ratio"];
+                ratio1Value = r1Value.toDouble();
+                // TODO: correect default for ratio2?????
+                ratio2Value = 0.0;
+            }
+
+            // all segment sections on the same row so must shift for each new set
+            offset = (currentSection * 4) + 4;
+            theSpreadsheet->setString(currentRow, offset, section);
+            theSpreadsheet->setDouble(currentRow, (offset + 1), ratio1Value);
+            theSpreadsheet->setDouble(currentRow, (offset + 2), ratio2Value);
+            theSpreadsheet->setDouble(currentRow, (offset + 3), angle);
+
+            currentSection++;
+        }
+        currentRow++;
+    }
+
 
 }
 
