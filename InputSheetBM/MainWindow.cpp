@@ -24,6 +24,9 @@
 MainWindow::MainWindow(QWidget *parent)
   : QMainWindow(parent)
 {
+
+    // to add additional model types: determine model type and instantiate coorect widget sheet type
+
     inputWidget = new InputWidgetSheetBM();
     inputWidget->setMinimumWidth(800);
     inputWidget->setMainWindow(this);
@@ -145,6 +148,9 @@ void MainWindow::loadFile(const QString &fileName)
     }
 
     // validate the document
+
+    //
+
     JsonValidator *jval = new JsonValidator();
     jval->validate(this, BIM, fileName);
 
@@ -272,6 +278,8 @@ void MainWindow::createActions() {
 
 }
 
+
+// called from InputWidgetSheet on selectionChangedEvent to disconnect Edit menu from current sheet
 void MainWindow::disconnectMenuItems(SimCenterTableWidget  *inputwidget)
 {
 
@@ -286,6 +294,7 @@ void MainWindow::disconnectMenuItems(SimCenterTableWidget  *inputwidget)
 
 }
 
+// called from InputWidgetSheet on selectionChangedEvent to dconnect Edit menu to newly selected sheet
 void MainWindow::connectMenuItems(SimCenterTableWidget  *inputwidget)
 {
 

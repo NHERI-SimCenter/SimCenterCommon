@@ -1,9 +1,6 @@
 #ifndef SPREADSHEETWIDGET_H
 #define SPREADSHEETWIDGET_H
 
-
-// http://www-cs.ccny.cuny.edu/~wolberg/cs221/qt/books/C++-GUI-Programming-with-Qt-4-1st-ed.pdf
-
 #include <QTableWidget>
 
 

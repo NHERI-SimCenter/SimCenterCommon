@@ -157,7 +157,6 @@ const SpreadsheetWidget * InputWidgetSheetBM::getActiveSpreadsheet()
     return currentWidget->getSpreadsheetWidget();
 }
 
-
 void InputWidgetSheetBM::selectionChangedSlot(const QItemSelection & /*newSelection*/, const QItemSelection & /*oldSelection*/)
 {
 
@@ -170,6 +169,7 @@ void InputWidgetSheetBM::selectionChangedSlot(const QItemSelection & /*newSelect
     if (currentWidget != 0) {
         if (currentWidget != (SimCenterTableWidget *) theGeneralInformationInput ) {
             //qDebug() << "disconnect edit menu items ";
+            // up call to detach the MainWindow Edit menun from this sheet
             window->disconnectMenuItems(currentWidget);
         }
         horizontalLayout->removeWidget(currentWidget);
@@ -187,30 +187,28 @@ void InputWidgetSheetBM::selectionChangedSlot(const QItemSelection & /*newSelect
     } else if (selectedText == tr("Clines")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theClineInput, 1);
         currentWidget = theClineInput;
-        window->connectMenuItems(currentWidget);
     } else if (selectedText == tr("Floors")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theFloorInput, 1);
         currentWidget = theFloorInput;
-        window->connectMenuItems(currentWidget);
     } else if (selectedText == tr("Beams")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theBeamInput, 1);
         currentWidget = theBeamInput;
-        window->connectMenuItems(currentWidget);
     } else if (selectedText == tr("Columns")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theColumnInput, 1);
         currentWidget = theColumnInput;
-        window->connectMenuItems(currentWidget);
     } else if (selectedText == tr("Braces")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theBraceInput, 1);
         currentWidget = theBraceInput;
-        window->connectMenuItems(currentWidget);
     } else if (selectedText == tr("Steel")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theSteelInput, 1);
         currentWidget = theSteelInput;
-        window->connectMenuItems(currentWidget);
     } else if (selectedText == tr("Concrete")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theConcreteInput, 1);
         currentWidget = theConcreteInput;
+    }
+
+    if (currentWidget != 0) {
+        // up call to connect the MainWindow Edit menu to this sheet
         window->connectMenuItems(currentWidget);
     }
   }
