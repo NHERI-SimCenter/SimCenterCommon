@@ -51,6 +51,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "NormalDistribution.h"
 #include "LognormalDistribution.h"
 #include "BetaDistribution.h"
+#include "UniformDistribution.h"
+#include "Constant.h"
 
 RandomVariable::RandomVariable(QWidget *parent)
     :QWidget(parent)
@@ -97,6 +99,8 @@ RandomVariable::RandomVariable(QWidget *parent)
     distributionComboBox->addItem(tr("Normal"));
     distributionComboBox->addItem(tr("Lognormal"));
     distributionComboBox->addItem(tr("Beta"));
+    distributionComboBox->addItem(tr("Uniform"));
+    distributionComboBox->addItem(tr("Constant"));
 
     connect(distributionComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(distributionChanged(QString)));
 
@@ -173,6 +177,16 @@ void RandomVariable::inputFromJSON(QJsonObject &rvObject){
         int index = distributionComboBox->findText(tr("Beta"));
         distributionComboBox->setCurrentIndex(index);
         theDistribution->inputFromJSON(rvObject);
+
+    } else if (distributionType == QString("Uniform")) {
+        int index = distributionComboBox->findText(tr("Uniform"));
+        distributionComboBox->setCurrentIndex(index);
+        theDistribution->inputFromJSON(rvObject);
+
+    } else if (distributionType == QString("Constant")) {
+        int index = distributionComboBox->findText(tr("Constant"));
+        distributionComboBox->setCurrentIndex(index);
+        theDistribution->inputFromJSON(rvObject);
     }
 
    // rvObject["distribution"]=distributionComboBox->currentText();
@@ -193,11 +207,21 @@ void RandomVariable::distributionChanged(const QString &arg1)
     if (arg1 == QString("Normal")) {
         theDistribution = new NormalDistribution();
         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+
     } else if (arg1 == QString("Lognormal")) {
         theDistribution = new LognormalDistribution();
         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+
     } else if (arg1 == QString("Beta")) {
          theDistribution = new BetaDistribution();
          mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
-    }
+
+    } else if (arg1 == QString("Uniform")) {
+         theDistribution = new UniformDistribution();
+         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+
+    } else if (arg1 == QString("Constant")) {
+         theDistribution = new Constant();
+         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+    }    
 }
