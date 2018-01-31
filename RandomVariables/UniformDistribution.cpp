@@ -54,7 +54,7 @@ UniformDistribution::UniformDistribution(QWidget *parent) :RandomVariableDistrib
 
     min = this->createTextEntry(tr("Min."), mainLayout);
     max = this->createTextEntry(tr("Max."), mainLayout);
-    initialPoint = this->createTextEntry(tr("Initial Point"), mainLayout);
+   // initialPoint = this->createTextEntry(tr("Initial Point"), mainLayout);
 
     mainLayout->addStretch();
 
@@ -70,19 +70,24 @@ UniformDistribution::~UniformDistribution()
 
 void
 UniformDistribution::outputToJSON(QJsonObject &rvObject){
-       rvObject["min"]=min->text().toDouble();
-       rvObject["max"]=max->text().toDouble();
-       rvObject["initialPoint"]=initialPoint->text().toDouble();
+       rvObject["lower_bounds"]=min->text().toDouble();
+       rvObject["upper_bounds"]=max->text().toDouble();
+//       rvObject["initialPoint"]=initialPoint->text().toDouble();
 }
 
 void
 UniformDistribution::inputFromJSON(QJsonObject &rvObject){
-    QJsonValue theMinValue = rvObject["min"];
+    QJsonValue theMinValue = rvObject["lower_bounds"];
     min->setText(QString::number(theMinValue.toDouble()));
 
-    QJsonValue theMaxValue = rvObject["max"];
+    QJsonValue theMaxValue = rvObject["upper_bounds"];
     max->setText(QString::number(theMaxValue.toDouble()));
 
-    QJsonValue theIPValue = rvObject["initialPoint"];
-    initialPoint->setText(QString::number(theIPValue.toDouble()));
+  //  QJsonValue theIPValue = rvObject["initialPoint"];
+  // initialPoint->setText(QString::number(theIPValue.toDouble()));
+}
+
+QString 
+UniformDistribution::getAbbreviatedName(void) {
+  return QString("Uniform");
 }

@@ -52,14 +52,20 @@ class RandomVariable : public QWidget
 {
     Q_OBJECT
 public:
-    explicit RandomVariable(QWidget *parent = 0);
+    explicit RandomVariable();
+    explicit RandomVariable(const QString &variableClass, QWidget *parent = 0);
+    explicit RandomVariable(const QString &variableClass, 
+			    const QString &name, 
+                RandomVariableDistribution &theDistribution,
+			    QWidget *parent = 0);
     ~RandomVariable();
 
     virtual void outputToJSON(QJsonObject &rvObject);
     virtual void inputFromJSON(QJsonObject &rvObject);
 
     bool isSelectedForRemoval(void);
-  QLineEdit *variableName;
+    QString getVariableName(void);
+    QLineEdit *variableName;
 signals:
 
 public slots:
@@ -68,8 +74,10 @@ public slots:
 private:
     RandomVariableDistribution *theDistribution;
 
+    QString variableClass;
     QLabel *variableLabel;
     QLabel *distributionLabel;
+
   // QRadioButton *button;
   //  QLineEdit *variableName;
     QComboBox *distributionComboBox;

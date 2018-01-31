@@ -37,6 +37,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include "RandomVariableInputWidget.h"
+#include "ConstantDistribution.h"
 #include <QPushButton>
 #include <QScrollArea>
 #include <QJsonArray>
@@ -47,11 +48,43 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLineEdit>
 
 
-RandomVariableInputWidget::RandomVariableInputWidget(QWidget *parent) : SimCenterWidget(parent)
+RandomVariableInputWidget::RandomVariableInputWidget(QWidget *parent)
+    : SimCenterWidget(parent)
 {
+    randomVariableClass = QString("Uncertain");
     verticalLayout = new QVBoxLayout();
     this->setLayout(verticalLayout);
     this->makeRV();
+}
+
+RandomVariableInputWidget::RandomVariableInputWidget(QString &theClass, QWidget *parent)
+    : SimCenterWidget(parent)
+{
+    randomVariableClass = theClass;
+    verticalLayout = new QVBoxLayout();
+    this->setLayout(verticalLayout);
+    this->makeRV();
+}
+
+void
+RandomVariableInputWidget::setInitialConstantRVs(QStringList &varNamesAndValues)
+{
+    theRandomVariables.clear();
+    delete rvLayout;
+    rvLayout = new QVBoxLayout;
+    rvLayout->addStretch();
+    rv->setLayout(rvLayout);
+
+    int numVar = varNamesAndValues.count();
+    for (int i=0; i<numVar; i+= 2) {
+        QString varName = varNamesAndValues.at(i);
+        QString value = varNamesAndValues.at(i+1);
+        double dValue = value.toDouble();
+        ConstantDistribution *theDistribution = new ConstantDistribution(dValue, 0);
+        RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution);
+        theRandomVariables.append(theRV);
+        rvLayout->insertWidget(rvLayout->count()-1, theRV);
+    }
 }
 
 RandomVariableInputWidget::~RandomVariableInputWidget()
@@ -103,10 +136,9 @@ RandomVariableInputWidget::makeRV(void)
 
     rvLayout = new QVBoxLayout;
     rvLayout->addStretch();
-    //setLayout(layout);
     rv->setLayout(rvLayout);
 
-    this->addRandomVariable();
+   // this->addRandomVariable();
 
      sa->setWidget(rv);
      verticalLayout->addWidget(sa);
@@ -117,7 +149,7 @@ RandomVariableInputWidget::makeRV(void)
 
 void RandomVariableInputWidget::addRandomVariable(void)
 {
-   RandomVariable *theRV = new RandomVariable();
+   RandomVariable *theRV = new RandomVariable(randomVariableClass);
    theRandomVariables.append(theRV);
    rvLayout->insertWidget(rvLayout->count()-1, theRV);
 }
@@ -164,6 +196,16 @@ RandomVariableInputWidget::outputToJSON(QJsonObject &rvObject)
 }
 
 
+QStringList
+RandomVariableInputWidget::getRandomVariableNames(void)
+{
+    QStringList results;
+    for (int i = 0; i <theRandomVariables.size(); ++i) {
+        results.append(theRandomVariables.at(i)->getVariableName());
+    }
+    return results;
+}
+
 void
 RandomVariableInputWidget::inputFromJSON(QJsonObject &rvObject)
 {
@@ -173,7 +215,15 @@ RandomVariableInputWidget::inputFromJSON(QJsonObject &rvObject)
     QJsonArray rvArray = rvObject["randomVariables"].toArray();
     foreach (const QJsonValue &rvValue, rvArray) {
         QJsonObject rvObject = rvValue.toObject();
-        RandomVariable *theRV = new RandomVariable();
+        QJsonValue typeRV = rvObject["variableClass"];
+        RandomVariable *theRV = 0;
+        if (typeRV.isUndefined() || typeRV.isNull())
+             theRV = new RandomVariable(QString("Uncertain"));
+        else {
+            QString classType = typeRV.toString();
+             theRV = new RandomVariable(classType);
+        }
+
         theRV->inputFromJSON(rvObject);
         theRandomVariables.append(theRV);
         rvLayout->insertWidget(rvLayout->count()-1, theRV);

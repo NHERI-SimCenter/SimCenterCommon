@@ -52,13 +52,15 @@ public:
     explicit RandomVariableDistribution(QWidget *parent = 0);
     ~RandomVariableDistribution();
 
-    QLineEdit * createTextEntry(QString text,
-                                QHBoxLayout *theLayout,
-                                int minL=100,
-                                int maxL=100);
+    QLineEdit *createTextEntry(QString text,
+			       QHBoxLayout *theLayout,
+			       int minL=100,
+			       int maxL=100);
 
     virtual void outputToJSON(QJsonObject &rvObject) =0;
     virtual void inputFromJSON(QJsonObject &rvObject) =0;
+
+    virtual QString getAbbreviatedName(void) = 0;
 
 signals:
 
