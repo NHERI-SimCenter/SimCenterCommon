@@ -160,6 +160,7 @@ void SimpleSpreadsheetWidget::keyPressEvent( QKeyEvent *event )
 
 void SimpleSpreadsheetWidget::copy()
 {
+    qDebug() << "pSimpleSpreadsheetWidget::copy() ";
     QItemSelectionModel * selection = selectionModel();
     QModelIndexList indexes = selection->selectedIndexes();
 qDebug() << "COPY";
@@ -220,6 +221,7 @@ QApplication::clipboard()->setText(selected_text);
 
 void SimpleSpreadsheetWidget::paste()
 {
+    qDebug() << "pSimpleSpreadsheetWidget::paste() ";
     qDebug() << "PASTE";
     if(qApp->clipboard()->mimeData()->hasHtml())
     {

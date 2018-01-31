@@ -42,7 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QList>
 
-FloorInputWidget::FloorInputWidget(QWidget *parent) : SimCenterWidget(parent)
+FloorInputWidget::FloorInputWidget(QWidget *parent) : SimCenterTableWidget(parent)
 {
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
@@ -53,7 +53,7 @@ FloorInputWidget::FloorInputWidget(QWidget *parent) : SimCenterWidget(parent)
     headings << tr("elevation");
     dataTypes << SIMPLESPREADSHEET_QString;
     dataTypes << SIMPLESPREADSHEET_QDouble;
-    theSpreadsheet = new SimpleSpreadsheetWidget(2, 1000, headings, dataTypes, this);
+    theSpreadsheet = new SpreadsheetWidget(2, 1000, headings, dataTypes, this);
 
     theLayout->addWidget(theSpreadsheet);
     this->setMinimumWidth(200);

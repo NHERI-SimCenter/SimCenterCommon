@@ -39,7 +39,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include "RandomVariabledistribution.h"
+#include "RandomVariableDistribution.h"
 class QLineEdit;
 class QLabel;
 

@@ -42,7 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QList>
 
-ClineInputWidget::ClineInputWidget(QWidget *parent) : SimCenterWidget(parent)
+ClineInputWidget::ClineInputWidget(QWidget *parent) : SimCenterTableWidget(parent)
 {
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
@@ -55,7 +55,7 @@ ClineInputWidget::ClineInputWidget(QWidget *parent) : SimCenterWidget(parent)
     dataTypes << SIMPLESPREADSHEET_QString;
     dataTypes << SIMPLESPREADSHEET_QDouble;
     dataTypes << SIMPLESPREADSHEET_QDouble;
-    theSpreadsheet = new SimpleSpreadsheetWidget(3, 1000, headings, dataTypes, this);
+    theSpreadsheet = new SpreadsheetWidget(3, 1000, headings, dataTypes, this);
 
     theLayout->addWidget(theSpreadsheet);
     this->setMinimumWidth(400);
