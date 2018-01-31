@@ -49,8 +49,8 @@ public:
     explicit SimCenterWidget(QWidget *parent = 0);
     virtual ~SimCenterWidget();
 
-    virtual void outputToJSON(QJsonObject &rvObject) =0;
-    virtual void inputFromJSON(QJsonObject &rvObject) =0;
+    virtual void outputToJSON(QJsonObject &rvObject);
+    virtual void inputFromJSON(QJsonObject &rvObject);
 
 signals:
 
