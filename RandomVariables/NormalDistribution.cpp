@@ -82,3 +82,8 @@ NormalDistribution::inputFromJSON(QJsonObject &rvObject){
     standardDev->setText(QString::number(theStdDevValue.toDouble()));
 
 }
+
+QString 
+NormalDistribution::getAbbreviatedName(void) {
+  return QString("Normal");
+}

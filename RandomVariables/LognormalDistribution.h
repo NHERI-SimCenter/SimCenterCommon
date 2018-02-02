@@ -54,6 +54,8 @@ public:
     void outputToJSON(QJsonObject &rvObject);
     void inputFromJSON(QJsonObject &rvObject);
 
+    QString getAbbreviatedName(void);
+
 signals:
 
 public slots:

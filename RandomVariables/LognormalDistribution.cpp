@@ -83,3 +83,8 @@ LognormalDistribution::inputFromJSON(QJsonObject &rvObject){
     QJsonValue theStdDevValue = rvObject["stdDev"];
     standardDev->setText(QString::number(theStdDevValue.toDouble()));
 }
+
+QString 
+LognormalDistribution::getAbbreviatedName(void) {
+  return QString("Lognormal");
+}

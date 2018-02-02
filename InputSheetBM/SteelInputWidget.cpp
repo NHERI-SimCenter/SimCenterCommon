@@ -42,8 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QList>
 
-SteelInputWidget::SteelInputWidget(QWidget *parent) 
-: SimCenterWidget(parent)
+SteelInputWidget::SteelInputWidget(QWidget *parent) : SimCenterTableWidget(parent)
 {
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
@@ -62,7 +61,7 @@ SteelInputWidget::SteelInputWidget(QWidget *parent)
     dataTypes << SIMPLESPREADSHEET_QDouble;
     dataTypes << SIMPLESPREADSHEET_QDouble;
     dataTypes << SIMPLESPREADSHEET_QDouble;
-    theSpreadsheet = new SimpleSpreadsheetWidget(6, 1000, headings, dataTypes, this);
+    theSpreadsheet = new SpreadsheetWidget(6, 1000, headings, dataTypes, this);
 
     theLayout->addWidget(theSpreadsheet);
     this->setMinimumWidth(200);

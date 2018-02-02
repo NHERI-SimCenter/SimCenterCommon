@@ -87,3 +87,8 @@ void BetaDistribution::inputFromJSON(QJsonObject &rvObject){
   val = rvObject["upperbound"];
   upperBound->setText(val.toString());
 }
+
+QString 
+BetaDistribution::getAbbreviatedName(void) {
+  return QString("Beta");
+}

@@ -39,7 +39,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include "RandomVariabledistribution.h"
+#include "RandomVariableDistribution.h"
 class QLineEdit;
 class QLabel;
 
@@ -52,6 +52,8 @@ public:
 
     void outputToJSON(QJsonObject &rvObject);
     void inputFromJSON(QJsonObject &rvObject);
+
+    QString getAbbreviatedName(void);
 
 signals:
 
