@@ -27,7 +27,7 @@ HEADERS += $$PWD/RandomVariableDistribution.h \
     $$PWD/BetaDistribution.h \
     $$PWD/RandomVariableInputWidget.h \
     $$PWD/UniformDistribution.h \
-    $$PWD/ConstantDustribution.h \
+    $$PWD/ConstantDistribution.h \
     $$PWD/ContinuousDesignDistribution.h \
     $$PWD/ConstantDistribution.h
 
