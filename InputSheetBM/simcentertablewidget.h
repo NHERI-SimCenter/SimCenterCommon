@@ -8,6 +8,8 @@
 
 class QJsonObject;
 
+// Common class for all input widget sheets
+
 class SimCenterTableWidget : public SimCenterWidget
 {
     Q_OBJECT

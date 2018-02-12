@@ -32,7 +32,10 @@ SOURCES += main.cpp\
     SpreadsheetWidget.cpp \
     SimCenterTableWidget.cpp \
     Cell.cpp \
-    GeneralInformationWidget.cpp
+    GeneralInformationWidget.cpp \
+    FramesectionInputWidget.cpp \
+    SlabsectionInputWidget.cpp \
+    WallsectionInputWidget.cpp
 
 HEADERS  += MainWindow.h\
         InputWidgetSheetBM.h \
@@ -49,7 +52,10 @@ HEADERS  += MainWindow.h\
     SpreadsheetWidget.h \
     SimCenterTableWidget.h \
     Cell.h \
-    GeneralInformationWidget.h
+    GeneralInformationWidget.h \
+    FramesectionInputWidget.h \
+    SlabsectionInputWidget.h \
+    WallsectionInputWidget.h
 
 
 #FORMS    += mainwindow.ui

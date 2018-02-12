@@ -3,6 +3,9 @@
 
 #include <QTableWidgetItem>
 
+// Abstraction class for a spreadsheet cell.
+// Implemented to support formulas
+
 class Cell : public QTableWidgetItem
 {
 public:
