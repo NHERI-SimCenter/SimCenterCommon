@@ -35,7 +35,9 @@ SOURCES += main.cpp\
     GeneralInformationWidget.cpp \
     FramesectionInputWidget.cpp \
     SlabsectionInputWidget.cpp \
-    WallsectionInputWidget.cpp
+    WallsectionInputWidget.cpp \
+    ConnectionInputWidget.cpp \
+    PointInputWidget.cpp
 
 HEADERS  += MainWindow.h\
         InputWidgetSheetBM.h \
@@ -55,7 +57,9 @@ HEADERS  += MainWindow.h\
     GeneralInformationWidget.h \
     FramesectionInputWidget.h \
     SlabsectionInputWidget.h \
-    WallsectionInputWidget.h
+    WallsectionInputWidget.h \
+    ConnectionInputWidget.h \
+    PointInputWidget.h
 
 
 #FORMS    += mainwindow.ui

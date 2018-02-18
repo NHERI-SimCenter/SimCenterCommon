@@ -61,6 +61,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "FramesectionInputWidget.h"
 #include "SlabsectionInputWidget.h"
 #include "WallsectionInputWidget.h"
+#include "ConnectionInputWidget.h"
+#include "PointInputWidget.h"
 #include "SpreadsheetWidget.h"
 
 InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), currentWidget(0)
@@ -93,11 +95,8 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
   QStandardItem *framesectionsItem = new QStandardItem("Framesections");
   QStandardItem *slabsectionsItem = new QStandardItem("Slabsections");
   QStandardItem *wallsectionsItem = new QStandardItem("Wallsections");
-
-  //QStandardItem *sectionsItem  = new QStandardItem("Sections");
-  //QStandardItem *concRectBeamItem  = new QStandardItem("ConcreteRectangularBeam");
-  //QStandardItem *concTBeamItem  = new QStandardItem("ConcreteTBeam");
-  //QStandardItem *concRectColItem  = new QStandardItem("ConcreteRectangularColumn");
+  QStandardItem *connectionsItem = new QStandardItem("Connections");
+  QStandardItem *pointsItem = new QStandardItem("Points");
 
   //building up the hierarchy of the model
   rootNode->appendRow(infoItem);
@@ -117,13 +116,12 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
   propertiesItem->appendRow(framesectionsItem);
   propertiesItem->appendRow(slabsectionsItem);
   propertiesItem->appendRow(wallsectionsItem);
+  propertiesItem->appendRow(connectionsItem);
+  propertiesItem->appendRow(pointsItem);
 
   materialsItem->appendRow(concreteItem);
   materialsItem->appendRow(steelItem);
-  //propertiesItem->appendRow(sectionsItem);
-  //sectionsItem->appendRow(concRectBeamItem);
-  //sectionsItem->appendRow(concTBeamItem);
-  //sectionsItem->appendRow(concRectColItem);
+
 
   //register the model
   treeView->setModel(standardModel);
@@ -156,6 +154,8 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
   theFramesectionInput = new FramesectionInputWidget();
   theSlabsectionInput = new SlabsectionInputWidget();
   theWallsectionInput = new WallsectionInputWidget();
+  theConnectionInput = new ConnectionInputWidget();
+  thePointInput = new PointInputWidget();
 
 
   treeView->setCurrentIndex( infoItemIdx );
@@ -240,7 +240,15 @@ void InputWidgetSheetBM::selectionChangedSlot(const QItemSelection & /*newSelect
     } else if (selectedText == tr("Wallsections")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theWallsectionInput, 1);
         currentWidget = theWallsectionInput;
+    } else if (selectedText == tr("Connections")) {
+        horizontalLayout->insertWidget(horizontalLayout->count()-1, theConnectionInput, 1);
+        currentWidget = theConnectionInput;
+
+    } else if (selectedText == tr("Points")) {
+        horizontalLayout->insertWidget(horizontalLayout->count()-1, thePointInput, 1);
+        currentWidget = thePointInput;
     }
+
     if (currentWidget != 0) {
         // up call to connect the MainWindow Edit menu to this sheet
         window->connectMenuItems(currentWidget);
@@ -279,6 +287,9 @@ InputWidgetSheetBM::outputToJSON(QJsonObject &jsonObjectTop)
     theSlabsectionInput->outputToJSON(jsonObjProperties);
     theWallsectionInput->outputToJSON(jsonObjProperties);
 
+    theConnectionInput->outputToJSON(jsonObjProperties);
+    thePointInput->outputToJSON(jsonObjProperties);
+
     //
     // create a json array and get all material inputs to enter their data
     //
@@ -314,6 +325,8 @@ InputWidgetSheetBM::clear(void)
     theFramesectionInput->clear();
     theSlabsectionInput->clear();
     theWallsectionInput->clear();
+    theConnectionInput->clear();
+    thePointInput->clear();
 
     if (jsonObjOrig) {
         delete jsonObjOrig;
@@ -339,9 +352,11 @@ InputWidgetSheetBM::inputFromJSON(QJsonObject &jsonObject)
    //
 
    QJsonObject jsonObjProperties = jsonObjStructuralInformation["properties"].toObject();
-   theFramesectionInput->inputFromJSON(jsonObjLayout);
-   theSlabsectionInput->inputFromJSON(jsonObjLayout);
-   theWallsectionInput->inputFromJSON(jsonObjLayout);
+   theFramesectionInput->inputFromJSON(jsonObjProperties);
+   theSlabsectionInput->inputFromJSON(jsonObjProperties);
+   theWallsectionInput->inputFromJSON(jsonObjProperties);
+   theConnectionInput->inputFromJSON(jsonObjProperties);
+   thePointInput->inputFromJSON(jsonObjProperties);
 
    // first the materials
    // get the array and for every object in array determine it's type and get

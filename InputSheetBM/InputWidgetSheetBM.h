@@ -59,6 +59,8 @@ class ConcreteInputWidget;
 class FramesectionInputWidget;
 class SlabsectionInputWidget;
 class WallsectionInputWidget;
+class ConnectionInputWidget;
+class PointInputWidget;
 class RandomVariableInputWidget;
 class SpreadsheetWidget;
 class MainWindow;
@@ -104,6 +106,8 @@ private:
     FramesectionInputWidget *theFramesectionInput;
     SlabsectionInputWidget *theSlabsectionInput;
     WallsectionInputWidget *theWallsectionInput;
+    ConnectionInputWidget *theConnectionInput;
+    PointInputWidget *thePointInput;
     RandomVariableInputWidget *theRVs;
 
     QModelIndex infoItemIdx;
