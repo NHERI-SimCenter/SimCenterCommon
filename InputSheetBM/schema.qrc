@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>../schema/BIM.schema.json</file>
+    </qresource>
+</RCC>
