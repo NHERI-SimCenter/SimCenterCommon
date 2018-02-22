@@ -56,6 +56,11 @@ class BraceInputWidget;
 class WallInputWidget;
 class SteelInputWidget;
 class ConcreteInputWidget;
+class FramesectionInputWidget;
+class SlabsectionInputWidget;
+class WallsectionInputWidget;
+class ConnectionInputWidget;
+class PointInputWidget;
 class RandomVariableInputWidget;
 class SpreadsheetWidget;
 class MainWindow;
@@ -98,9 +103,14 @@ private:
     WallInputWidget *theWallInput;
     SteelInputWidget *theSteelInput;
     ConcreteInputWidget *theConcreteInput;
+    FramesectionInputWidget *theFramesectionInput;
+    SlabsectionInputWidget *theSlabsectionInput;
+    WallsectionInputWidget *theWallsectionInput;
+    ConnectionInputWidget *theConnectionInput;
+    PointInputWidget *thePointInput;
     RandomVariableInputWidget *theRVs;
 
-    //QWidget *currentWidget;
+    QModelIndex infoItemIdx;
     SimCenterTableWidget  *currentWidget;
 
     QJsonObject *jsonObjOrig;
