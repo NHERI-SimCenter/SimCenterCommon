@@ -64,8 +64,8 @@ HEADERS  += MainWindow.h\
 
 #FORMS    += mainwindow.ui
 
-RESOURCES += \
-    schema.qrc
+#RESOURCES += \
+#    schema.qrc
 
 
 
