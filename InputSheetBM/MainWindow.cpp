@@ -24,13 +24,21 @@
 MainWindow::MainWindow(QWidget *parent)
   : QMainWindow(parent)
 {
+
+    // todo: add additional model types such as SAM or EVT
+    // Currently there is only one type (BIM) all the 'pages' for BIM types are collected inside the InputWidgetSheetBM
+    // additional model types will require additional sheet containers InputWidgetSheetXX
+    // to add additional model types: determine model type and instantiate coorect widget sheet type
+    // UI provides the Model menu that allows the user to select the input model type
+
     inputWidget = new InputWidgetSheetBM();
     inputWidget->setMinimumWidth(800);
-    inputWidget->setMainWindow(this);
 
     this->setCentralWidget(inputWidget);
 
     this->createActions();
+
+    inputWidget->setMainWindow(this);
 
 
 }
@@ -145,6 +153,9 @@ void MainWindow::loadFile(const QString &fileName)
     }
 
     // validate the document
+    // JsonValidator class already takes a model type param, add additional model types as required
+
+
     JsonValidator *jval = new JsonValidator();
     jval->validate(this, BIM, fileName);
 
@@ -213,6 +224,27 @@ void MainWindow::createActions() {
 
 
 
+ // the Model Menu cotains is a check list of which model type is currently being edited
+ // to get the current value check each menu item
+ // only one menu item should be selected at a time, the dafault on startup is BIM
+ QMenu *modelMenu = menuBar()->addMenu(tr("&Model"));
+
+ QAction *bimAction = new QAction(tr("&BIM"), this);
+ bimAction->setCheckable(true);
+ bimAction->setChecked(true);
+ bimAction->setStatusTip(tr("Create a Building Information Model"));
+ modelMenu->addAction(bimAction);
+ //todo: the menu should connect to a funcation that presents a confirmation dialog, saves the current model to file,
+ // unchecks the previous value, reloads thhe main withdow with the appropriate InputWIdetSheetXX class
+
+ QAction *samAction = new QAction(tr("&SAM"), this);
+ samAction->setCheckable(true);
+ samAction->setStatusTip(tr("Create a Structure Information Model"));
+ modelMenu->addAction(samAction);
+ //todo: the menu should connect to a funcation that presents a confirmation dialog, saves the current model to file,
+ // unchecks the previous value, reloads thhe main withdow with the appropriate InputWIdetSheetXX class
+
+
  cutAction = new QAction(tr("Cu&t"), this);
  cutAction->setIcon(QIcon(":/images/cut.png"));
  cutAction->setShortcut(QKeySequence::Cut);
@@ -272,6 +304,8 @@ void MainWindow::createActions() {
 
 }
 
+
+// called from InputWidgetSheet on selectionChangedEvent to disconnect Edit menu from current sheet
 void MainWindow::disconnectMenuItems(SimCenterTableWidget  *inputwidget)
 {
 
@@ -286,6 +320,7 @@ void MainWindow::disconnectMenuItems(SimCenterTableWidget  *inputwidget)
 
 }
 
+// called from InputWidgetSheet on selectionChangedEvent to dconnect Edit menu to newly selected sheet
 void MainWindow::connectMenuItems(SimCenterTableWidget  *inputwidget)
 {
 

@@ -64,6 +64,8 @@ void JsonValidator::validate(QWidget *parent, SCHEMA schema, const QString &file
 {
 
     QString schemaFilepath = "";
+
+    //todo:  placeholder code for when multiple model types are supported. Switch here based on the schema enum param.
     /*
     if (schema == BIM) {
 
@@ -91,6 +93,7 @@ void JsonValidator::validate(QWidget *parent, SCHEMA schema, const QString &file
     Document d;
     char buffer[4096];
 
+    // schemas are currently configureed to be stored with the code in a folder called 'schema' that is at the same folder level as InoutSheetBM
     QString sfile = QStringLiteral(":schema/BIM.schema.json");
     QFile schemaFile(sfile);
 
@@ -98,6 +101,8 @@ void JsonValidator::validate(QWidget *parent, SCHEMA schema, const QString &file
         printf("Schema file '%s' not found\n", schemaFilepath.toStdString().c_str() );
         return;
     }
+
+    // the code that follows should support the schema for any model type.
 
     // read the schema document file
     const QString schemaText(QString::fromUtf8(schemaFile.readAll()));
@@ -151,11 +156,6 @@ void JsonValidator::validate(QWidget *parent, SCHEMA schema, const QString &file
                     .arg(reader.GetErrorOffset())
                     .arg(reader.GetErrorOffset())
         );
-
-        //QErrorMessage* errorMessage = new QErrorMessage( parent );
-        //std::string var = "Input is not valid JSON. \noffset: " +  std::to_string(reader.GetErrorOffset()) + "\nparse error: " + std::to_string(reader.GetParseErrorCode());
-        //errorMessage->message(var);
-
     }
 
     // Check the validation result

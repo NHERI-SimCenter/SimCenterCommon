@@ -1,5 +1,5 @@
-#ifndef JSONVALIDATOR_H
-#define JSONVALIDATOR_H
+#ifndef POINTINPUTWIDGET_H
+#define POINTINPUTWIDGET_H
 
 
 /* *****************************************************************************
@@ -39,42 +39,33 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written: mmanning
-#include <QItemSelection>
-#include <QTreeView>
-#include <QStandardItemModel>
-#include <QJsonObject>
-#include <QErrorMessage>
-#include "../rapidjson/schema.h"
-#include "../rapidjson/document.h"
 
-enum SCHEMA { BIM, SAM };
+#include <SimCenterTableWidget.h>
+#include "SimpleSpreadsheetWidget.h"
+#include <QStringList>
+#include <QHBoxLayout>
 
-// the JsonValidator uses the RapidJson library for validation.
-// it is currently configured to be at the same folder level as InutSheetBM
 
-class JsonValidator
+
+class PointInputWidget: public SimCenterTableWidget
 {
-
 public:
-    explicit JsonValidator();
-    ~JsonValidator();
 
-    void validate(QWidget *parent, SCHEMA schema, const QString &fileName);
+    explicit PointInputWidget(SimCenterWidget *parent = 0);
+    ~PointInputWidget();
 
+    void outputToJSON(QJsonObject &rvObject);
+    void inputFromJSON(QJsonObject &rvObject);
+    void clear(void);
 
 signals:
 
 public slots:
 
 private:
-    QString bimSchemaFilepath = "../schema/BIM.schema.json";
-    QErrorMessage msg;    
+    QHBoxLayout *theLayout;
+    QStringList   tableHeader;
 
 };
 
-
-
-
-
-
-#endif // JSONVALIDATOR_H
+#endif // POINTINPUTWIDGET_H

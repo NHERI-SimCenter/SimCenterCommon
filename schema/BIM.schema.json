@@ -16,31 +16,118 @@
     "longitudinal rebar": {
         "type": "object",
         "properties": {
-            "material top":  { "type": "string" },
-            "material bottom":  { "type": "string" },
+            "material":  { "type": "string" },
+            "material corner":  { "type": "string" },
             "num bars top": { "type": "integer" },
             "num bars bottom": { "type": "integer" },
-            "bar area top": { "type": "number" },
-            "bar area bottom": { "type": "number" },
             "num bars depth": { "type": "integer" },
             "num bars width": { "type": "integer" },
+            "bar area top": { "type": "number" },
+            "bar area bottom": { "type": "number" },
             "cover top": { "type": "number" },
             "cover bottom": { "type": "number" }
         },
         "additionalProperties": false,
         "required": ["material top", "material bottom", "num bars top", "num bars bottom", "bar area top", "bar area bottom", "cover top", "cover bottom"]
     },
+
     "transverse rebar": {
         "type": "object",
         "properties": {
             "material":  { "type": "string" },
             "bar area": { "type": "number" },
+            "bar area corner": { "type": "number" },
             "spacing": { "type": "number" },
+            "cover": { "type": "number" },
             "num bars depth": { "type": "integer" },
-            "num bars width": { "type": "integer" }
+            "num bars width": { "type": "integer" },
+            "num bars thickness": { "type": "integer" }
+
         },
         "additionalProperties": false,
         "required": ["material", "bar area", "spacing"]
+    },
+
+    "shear rebar": {
+        "type": "object",
+        "properties": {
+            "material":  { "type": "string" },
+            "bar area": { "type": "number" },
+            "spacing": { "type": "number" }
+        },
+        "additionalProperties": false,
+        "required": ["material", "bar area", "spacing"]
+    },
+
+    "longitudinal boundary element rebar": {
+        "type": "object",
+        "properties": {
+            "material":  { "type": "string" },
+            "num bars length": { "type": "integer" },
+            "num bars thickness": { "type": "integer" },
+            "bar area": { "type": "number" },
+            "cover": { "type": "number" }
+        },
+        "additionalProperties": false,
+        "required": ["material", "bar area"]
+    },
+
+    "transverse boundary element rebar": {
+        "type": "object",
+        "properties": {
+            "material":  { "type": "string" },
+            "num bars length": { "type": "integer" },
+            "num bars thickness": { "type": "integer" },
+            "bar area": { "type": "number" },
+            "spacing": { "type": "number" }
+        },
+        "additionalProperties": false,
+        "required": ["material", "bar area"]
+    },
+
+    "bolt group": {
+        "type": "object",
+        "properties": {
+            "edge distance depth": { "type": "number" },
+            "edge distance width": { "type": "number" },
+            "number of bolts depth": { "type": "number" },
+            "number of bolts width": { "type": "number" },
+            "pattern":  { "type": "string" }
+          },
+          "additionalProperties": false,
+          "required": ["pattern"]
+      },
+
+    "connection": {
+        "type": "object",
+        "properties": {
+            "name":  { "type": "string" },
+            "type":  { "type": "string" },
+            "material":  { "type": "string" },
+            "thickness": { "type": "number" },
+            "weld length brace": { "type": "number" },
+            "weld length column": { "type": "number" },
+            "weld length beam": { "type": "number" },
+            "weld length baseplate": { "type": "number" },
+            "thickness baseplate": { "type": "number" },
+            "workpoint depth": { "type": "number" },
+            "tab width": { "type": "number" },
+            "tab depth": { "type": "number" },
+            "bolt group": { "$ref": "#/definitions/bolt group"  }
+        },
+        "additionalProperties": false,
+        "required": ["name", "type"]
+    },
+
+    "point": {
+        "type": "object",
+        "properties": {
+            "name":  { "type": "string" },
+            "type":  { "type": "string" },
+            "mass": { "type": "array",  "items": {"type": "number" } }
+        },
+        "additionalProperties": false,
+        "required": ["name", "type"]
     },
 
     "floor": {
@@ -110,6 +197,51 @@
         "additionalProperties": false,
         "required": ["name", "type" ]
     },
+
+    "slabsection": {
+        "type": "object",
+        "properties": {
+            "name":  { "type": "string" },
+            "type":  { "type": "string" },
+            "material": { "type": "string" },
+            "thickness": { "type": "number" },
+            "massperarea": { "type": "number" },
+            "longitudinal rebar": { "$ref": "#/definitions/longitudinal rebar"  },
+            "transverse rebar": { "$ref": "#/definitions/transverse rebar"  },
+            "shear rebar": { "$ref": "#/definitions/transverse rebar"  }
+        },
+        "additionalProperties": false,
+        "required": ["name", "type" ]
+    },
+
+    "decksection": {
+        "type": "object",
+        "properties": {
+            "name":  { "type": "string" },
+            "type":  { "type": "string" }
+        },
+        "additionalProperties": false,
+        "required": ["name", "type" ]
+    },
+
+    "wallsection": {
+        "type": "object",
+        "properties": {
+            "name":  { "type": "string" },
+            "type":  { "type": "string" },
+            "length": { "type": "number" },
+            "thickness": { "type": "number" },
+            "boundary element length": { "type": "number" },
+            "massperarea": { "type": "number" },
+            "longitudinal rebar": { "$ref": "#/definitions/longitudinal rebar"  },
+            "transverse rebar": { "$ref": "#/definitions/transverse rebar"  },
+            "longitudinal boundary element rebar": { "$ref": "#/definitions/longitudinal boundary element rebar"  },
+            "transverse boundary element rebar": { "$ref": "#/definitions/transverse boundary element rebar"  }
+        },
+        "additionalProperties": false,
+        "required": ["name", "type" ]
+    },
+
 
     "segment": {
         "type": "object",
@@ -185,14 +317,11 @@
             "properties": {
                 "materials":  { "type": "array",  "items": { "$ref": "#/definitions/material"  } },
                 "framesections":  { "type": "array",  "items": { "$ref": "#/definitions/framesection"  } },
-
-                 "_comment": "TBD !!!!!!!!!!!!!!!!",
-                "braces":  { "type": "array",  "items": { "$ref": "#/definitions/???"  } },
-                "floors":  { "type": "array",  "items": { "$ref": "#/definitions/???"  } },
-                "walls":  { "type": "array",  "items": { "$ref": "#/definitions/???"  } },
-                "panelzones":  { "type": "array",  "items": { "$ref": "#/definitions/???"  } },
-                "links":  { "type": "array",  "items": { "$ref": "#/definitions/???"  } },
-                "points":  { "type": "array",  "items": { "$ref": "#/definitions/???"  } }
+                "slabsections":  { "type": "array",  "items": { "$ref": "#/definitions/slabsection"  } },
+                "decksections":  { "type": "array",  "items": { "$ref": "#/definitions/decksection"  } },
+                "wallsections":  { "type": "array",  "items": { "$ref": "#/definitions/wallsection"  } },
+                "connections":  { "type": "array",  "items": { "$ref": "#/definitions/connection"  } },
+                "points":  { "type": "array",  "items": { "$ref": "#/definitions/point"  } }
             },
             "geometry": {
                 "columns": { "type": "array",  "items": { "$ref": "#/definitions/geom"  }  },
@@ -200,12 +329,6 @@
                 "braces": { "type": "array",  "items": { "$ref": "#/definitions/geom"  }  },
                 "slabs": { "type": "array",  "items": { "$ref": "#/definitions/slab"  }  }
 
-            },
-            "ExteriorInformation": {
-               "_comment": "TBD !!!!!!!!!!!!!!!!"
-            },
-            "ContentInformation": {
-                "_comment": "TBD !!!!!!!!!!!!!!!!"
             }
         },
         "additionalProperties": false

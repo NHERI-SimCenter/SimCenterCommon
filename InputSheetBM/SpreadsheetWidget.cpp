@@ -15,9 +15,15 @@ SpreadsheetWidget::SpreadsheetWidget(int colCount, int rowCount, QStringList hea
     this->setHorizontalHeaderLabels(head);
 
     autoRecalc = true;
+    //this->setDragDropOverwriteMode(true);
+    //this->setDragEnabled(true);
+
+    //this->setSelectionBehavior(...);
+
 
     setItemPrototype(new Cell);
-    setSelectionMode(ContiguousSelection);
+    //setSelectionMode(ContiguousSelection);
+    setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     connect(this, SIGNAL(itemChanged(QTableWidgetItem *)),
             this, SLOT(somethingChanged()));
@@ -31,10 +37,12 @@ QString SpreadsheetWidget::currentLocation() const
            + QString::number(currentRow() + 1);
 }
 
+/*
 QString SpreadsheetWidget::currentFormula() const
 {
     return formula(currentRow(), currentColumn());
 }
+*/
 
 QTableWidgetSelectionRange SpreadsheetWidget::selectedRange() const
 {
@@ -325,6 +333,7 @@ QString SpreadsheetWidget::formula(int row, int column) const
         return "";
     }
 }
+
 
 QString SpreadsheetWidget::text(int row, int column) const
 {

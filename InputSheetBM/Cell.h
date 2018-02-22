@@ -3,6 +3,9 @@
 
 #include <QTableWidgetItem>
 
+// Abstraction class for a spreadsheet cell.
+// Implemented to support formulas
+
 class Cell : public QTableWidgetItem
 {
 public:
@@ -17,9 +20,6 @@ public:
 
 private:
     QVariant value() const;
-    QVariant evalExpression(const QString &str, int &pos) const;
-    QVariant evalTerm(const QString &str, int &pos) const;
-    QVariant evalFactor(const QString &str, int &pos) const;
 
     mutable QVariant cachedValue;
     mutable bool cacheIsDirty;
