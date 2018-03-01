@@ -303,10 +303,6 @@ InputWidgetSheetBM::outputToJSON(QJsonObject &jsonObjectTop)
 
     jsonObject["properties"]=jsonObjProperties;
 
-
-    QJsonObject jsonObjStructInfo = (*jsonObjOrig)["StructuralInformation"].toObject();
-
-    jsonObject["type"] = jsonObjStructInfo["type"];
     jsonObjectTop["StructuralInformation"] = jsonObject;
 
 }
