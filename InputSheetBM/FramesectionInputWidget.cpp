@@ -351,6 +351,7 @@ FramesectionInputWidget::inputFromJSON(QJsonObject &jsonObject){
         lr_barArea = lrObject["bar area"].toDouble();
         lr_barAreaCorner = lrObject["bar area corner"].toDouble();
         lr_cover = lrObject["lr_cover"].toDouble();
+        lr_spacing = lrObject["lr_spacing"].toDouble();
 
         //********* FINISH THIS
 
