@@ -50,80 +50,77 @@ FramesectionInputWidget::FramesectionInputWidget(SimCenterWidget *parent) : SimC
     QStringList headings;
     QList<int> dataTypes;
     headings << tr("Name");
+    dataTypes << SIMPLESPREADSHEET_QString;
     headings << tr("Type");
+    dataTypes << SIMPLESPREADSHEET_QString;
     headings << tr("Material");
+    dataTypes << SIMPLESPREADSHEET_QString;
 
     headings << tr("Depth");
+    dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("Width");
+    dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("Shape");
+    dataTypes << SIMPLESPREADSHEET_QString;
 
     headings << tr("thickness");
+    dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("weld length brace");
+    dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("weld length column");
+    dataTypes << SIMPLESPREADSHEET_QString;
     headings << tr("weld length baseplate");
+    dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("thickness baseplate");
+    dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("workpoint depth");
+    dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("top flange width");
+    dataTypes << SIMPLESPREADSHEET_QString;
     headings << tr("top flange thickness");
+    dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("web thickness");
+    dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("bottom flange width");
+    dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("bottom flange thickness");
+    dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("fillet radius");
+    dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("corner radius");
+    dataTypes << SIMPLESPREADSHEET_QDouble;
 
     headings << tr("longitudinal rebar material");
+    dataTypes << SIMPLESPREADSHEET_QString;
     headings << tr("longitudinal rebar material corner");
+    dataTypes << SIMPLESPREADSHEET_QString;
     headings << tr("longitudinal rebar num bars depth");
+    dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("longitudinal rebar num bars width");
+    dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("longitudinal rebar bar area");
+    dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("longitudinal rebar bar area corner");
+    dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("longitudinal rebar cover");
+    dataTypes << SIMPLESPREADSHEET_QDouble;
 
     headings << tr("transverse rebar material");
+    dataTypes << SIMPLESPREADSHEET_QString;
     headings << tr("transverse rebar num bars depth");
+    dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("transverse rebar num bars width");
+    dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("transverse rebar num bars thickness");
+    dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("transverse rebar bar area");
+    dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("transverse rebar spacing");
+    dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("transverse rebar cover");
-
-    dataTypes << SIMPLESPREADSHEET_QString;
-    dataTypes << SIMPLESPREADSHEET_QString;
-    dataTypes << SIMPLESPREADSHEET_QString;
-
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QString;
-
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QString;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QString;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
     dataTypes << SIMPLESPREADSHEET_QDouble;
 
-    // longitudinal rebar
-    dataTypes << SIMPLESPREADSHEET_QString;
-    dataTypes << SIMPLESPREADSHEET_QString;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-
-    // transverse rebar
-    dataTypes << SIMPLESPREADSHEET_QString;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-
-
-    theSpreadsheet = new SpreadsheetWidget(28, 1000, headings, dataTypes, this);
+    theSpreadsheet = new SpreadsheetWidget(headings.size(), 1000, headings, dataTypes, this);
 
     theLayout->addWidget(theSpreadsheet);
 
@@ -203,33 +200,33 @@ FramesectionInputWidget::outputToJSON(QJsonObject &jsonObj){
                 break;
             if (theSpreadsheet->getString(i,20,lr_materialCorner) == false)
                 break;
-            if (theSpreadsheet->getDouble(i,12,lr_numBarsDepth) == false)
+            if (theSpreadsheet->getDouble(i,21,lr_numBarsDepth) == false)
                 break;
-            if (theSpreadsheet->getDouble(i,13,lr_numBarsWidth) == false)
+            if (theSpreadsheet->getDouble(i,22,lr_numBarsWidth) == false)
                 break;
-            if (theSpreadsheet->getDouble(i,14,lr_barArea) == false)
+            if (theSpreadsheet->getDouble(i,23,lr_barArea) == false)
                 break;
-            if (theSpreadsheet->getDouble(i,15,lr_barAreaCorner) == false)
+            if (theSpreadsheet->getDouble(i,24,lr_barAreaCorner) == false)
                 break;
-            if (theSpreadsheet->getDouble(i,16,lr_cover) == false)
+            if (theSpreadsheet->getDouble(i,25,lr_cover) == false)
                 break;
 
             // transverse rebar
-            if (theSpreadsheet->getString(i,00,tr_material) == false)
+            if (theSpreadsheet->getString(i,26,tr_material) == false)
                 break;
-            if (theSpreadsheet->getDouble(i,00,tr_numBarsDepth) == false)
+            if (theSpreadsheet->getDouble(i,27,tr_numBarsDepth) == false)
                 break;
-            if (theSpreadsheet->getDouble(i,00,tr_numBarsWidth) == false)
+            if (theSpreadsheet->getDouble(i,28,tr_numBarsWidth) == false)
                 break;
-            if (theSpreadsheet->getDouble(i,00,tr_numBarsThickness) == false)
+            if (theSpreadsheet->getDouble(i,29,tr_numBarsThickness) == false)
                 break;
-            if (theSpreadsheet->getDouble(i,00,tr_barArea) == false)
+            if (theSpreadsheet->getDouble(i,30,tr_barArea) == false)
                 break;
-            if (theSpreadsheet->getDouble(i,00,tr_barAreaCorner) == false)
+//            if (theSpreadsheet->getDouble(i,31,tr_barAreaCorner) == false)
+//                break;
+            if (theSpreadsheet->getDouble(i,31,tr_spacing) == false)
                 break;
-            if (theSpreadsheet->getDouble(i,00,tr_spacing) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,00,tr_cover) == false)
+            if (theSpreadsheet->getDouble(i,32,tr_cover) == false)
                 break;
 
 
@@ -260,21 +257,22 @@ FramesectionInputWidget::outputToJSON(QJsonObject &jsonObj){
             // longitudinal rebar   -FIX THIS!!!!!!! todo
             QJsonObject lrebar;
 
-            lrebar["material"]=tr_material;
+            lrebar["material"]=lr_material;
             lrebar["material corner"]=lr_materialCorner;
             lrebar["num bars depth"]=lr_numBarsDepth;
             lrebar["num bars width"]=lr_numBarsWidth;
             lrebar["bar area"]=lr_barArea;
             lrebar["bar area corner"]=lr_barAreaCorner;
+            lrebar["cover"]=lr_cover;
 
-            lrebar["longitudinal rebar"] = lrebar;
+            obj["longitudinal rebar"] = lrebar;
 
             // transverse rebar
             QJsonObject trebar;
 
             trebar["material"]=tr_material;
             trebar["bar area"]=tr_barArea;
-            trebar["bar area corner"]=tr_barAreaCorner;
+//            trebar["bar area corner"]=tr_barAreaCorner;
             trebar["spacing"]=tr_spacing;
             trebar["cover"]=tr_cover;
             trebar["num bars depth"]=tr_numBarsDepth;
