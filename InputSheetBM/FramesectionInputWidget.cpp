@@ -68,7 +68,7 @@ FramesectionInputWidget::FramesectionInputWidget(SimCenterWidget *parent) : SimC
     headings << tr("weld length brace");
     dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("weld length column");
-    dataTypes << SIMPLESPREADSHEET_QString;
+    dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("weld length baseplate");
     dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("thickness baseplate");
@@ -76,7 +76,7 @@ FramesectionInputWidget::FramesectionInputWidget(SimCenterWidget *parent) : SimC
     headings << tr("workpoint depth");
     dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("top flange width");
-    dataTypes << SIMPLESPREADSHEET_QString;
+    dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("top flange thickness");
     dataTypes << SIMPLESPREADSHEET_QDouble;
     headings << tr("web thickness");
@@ -125,6 +125,8 @@ FramesectionInputWidget::FramesectionInputWidget(SimCenterWidget *parent) : SimC
     theLayout->addWidget(theSpreadsheet);
 
     this->setMinimumWidth(500);
+    this->tableHeader = headings;
+    this->dataTypes = dataTypes;
 }
 
 
@@ -138,151 +140,49 @@ FramesectionInputWidget::outputToJSON(QJsonObject &jsonObj){
 
         QJsonArray  jsonArray;
         int numRows = theSpreadsheet->getNumRows();
+
         for (int i=0; i<numRows; i++) {
+            QJsonObject obj, lrebar, trebar;
+            for (int j=0; j<(this->tableHeader.size()); j++) {
+                QString fieldName = this->tableHeader[j].toLower();
+                if(this->dataTypes[j] == 0) {
+                    QString tmpString;
 
-            QJsonObject obj;
-            QString name, fs_type, fs_material, shape;
-            double depth, width, thickness, wlb, wlc, wlbp, tbp, wpd, tfw, tft, wt, bfw, bft, fr, cr;
+                    if (theSpreadsheet->getString(i,j,tmpString) == false || tmpString.isEmpty()) {
+                        qDebug() << "no value for " << fieldName << " in row " << i;
+                        break;
+                    }
+                    if (fieldName.startsWith("longitudinal rebar ") == true) {
+                        fieldName.remove(0,19);
+                        lrebar[fieldName] = tmpString;
+                    } else if (fieldName.startsWith("transverse rebar ") == true) {
+                        fieldName.remove(0,17);
+                        trebar[fieldName] = tmpString;
+                    } else {
+                        obj[fieldName] = tmpString;
+                    }
+                }
 
-            // longitudinal rebar
-            QString lr_material, lr_materialCorner;
-            double lr_numBarsDepth, lr_numBarsWidth, lr_barArea, lr_barAreaCorner, lr_cover;
-
-            // transverse rebar
-            QString tr_material;
-            double tr_numBarsDepth, tr_numBarsWidth, tr_numBarsThickness, tr_barArea, tr_barAreaCorner, tr_spacing, tr_cover;
-
-
-
-            // obtain info from spreadsheet
-            if (theSpreadsheet->getString(i,0,name) == false || name.isEmpty())
-                break;
-            if (theSpreadsheet->getString(i,1,fs_type) == false)
-                break;
-            if (theSpreadsheet->getString(i,2, fs_material) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,3,depth) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,4,width) == false)
-                break;
-            if (theSpreadsheet->getString(i,5,shape) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,6,thickness) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,7,wlb) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,8,wlc) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,9,wlbp) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,10,tbp) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,11,wpd) == false)
-                break;
-
-            if (theSpreadsheet->getDouble(i,12,tfw) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,13,tft) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,14,wt) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,15,bfw) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,16,bft) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,17,fr) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,18,cr) == false)
-                break;
-
-            // longitudinal rebar  ********* FIX THIS ************* then renumber!!!
-            if (theSpreadsheet->getString(i,19,lr_material) == false)
-                break;
-            if (theSpreadsheet->getString(i,20,lr_materialCorner) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,21,lr_numBarsDepth) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,22,lr_numBarsWidth) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,23,lr_barArea) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,24,lr_barAreaCorner) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,25,lr_cover) == false)
-                break;
-
-            // transverse rebar
-            if (theSpreadsheet->getString(i,26,tr_material) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,27,tr_numBarsDepth) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,28,tr_numBarsWidth) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,29,tr_numBarsThickness) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,30,tr_barArea) == false)
-                break;
-//            if (theSpreadsheet->getDouble(i,31,tr_barAreaCorner) == false)
-//                break;
-            if (theSpreadsheet->getDouble(i,31,tr_spacing) == false)
-                break;
-            if (theSpreadsheet->getDouble(i,32,tr_cover) == false)
-                break;
-
-
-
-
-            // now add the items to object
-            obj["name"]=name;
-            obj["type"]=fs_type;
-            obj["material"]=fs_material;
-            obj["depth"]=depth;
-            obj["width"]=width;
-            obj["shape"]=shape;
-            obj["thickness"]=thickness;
-            obj["weld length brace"]=wlb;
-            obj["weld length column"]=wlc;
-            obj["weld length baseplate"]=wlbp;
-            obj["thickness baseplate"]=tbp;
-            obj["workpoint depth"]=wpd;
-            obj["top flange width"]=tfw;
-            obj["top flange thickness"]=tft;
-            obj["web thickness"]=wt;
-            obj["bottom flange width"]=bfw;
-            obj["bottom flange thickness"]=bft;
-            obj["fillet radius"]=fr;
-            obj["corner radius"]=cr;
-
-
-            // longitudinal rebar   -FIX THIS!!!!!!! todo
-            QJsonObject lrebar;
-
-            lrebar["material"]=lr_material;
-            lrebar["material corner"]=lr_materialCorner;
-            lrebar["num bars depth"]=lr_numBarsDepth;
-            lrebar["num bars width"]=lr_numBarsWidth;
-            lrebar["bar area"]=lr_barArea;
-            lrebar["bar area corner"]=lr_barAreaCorner;
-            lrebar["cover"]=lr_cover;
+                if(this->dataTypes[j] == 1) {
+                    double tmpDouble;
+                    if (theSpreadsheet->getDouble(i,j,tmpDouble) == false) {
+                        qDebug() << "no value for " << fieldName << " in row " << i;
+                        break;
+                    }
+                    if (fieldName.startsWith("longitudinal rebar ") == true) {
+                        fieldName.remove(0,19);
+                        lrebar[fieldName] = tmpDouble;
+                    } else if (fieldName.startsWith("transverse rebar ") == true) {
+                        fieldName.remove(0,17);
+                        trebar[fieldName] = tmpDouble;
+                    } else {
+                        obj[fieldName] = tmpDouble;
+                    }
+                }
+            }
 
             obj["longitudinal rebar"] = lrebar;
-
-            // transverse rebar
-            QJsonObject trebar;
-
-            trebar["material"]=tr_material;
-            trebar["bar area"]=tr_barArea;
-//            trebar["bar area corner"]=tr_barAreaCorner;
-            trebar["spacing"]=tr_spacing;
-            trebar["cover"]=tr_cover;
-            trebar["num bars depth"]=tr_numBarsDepth;
-            trebar["num bars width"]=tr_numBarsWidth;
-            trebar["num bars thickness"]=tr_numBarsThickness;
-
             obj["transverse rebar"] = trebar;
-
-
-            // add the object to the array
             jsonArray.append(obj);
         }
 

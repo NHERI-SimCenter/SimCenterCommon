@@ -64,7 +64,7 @@ public slots:
 private:
     QHBoxLayout *theLayout;
     QStringList   tableHeader;
-
+    QList<int> dataTypes;
 
 };
 
