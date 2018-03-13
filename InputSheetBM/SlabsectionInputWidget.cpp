@@ -284,7 +284,7 @@ SlabsectionInputWidget::inputFromJSON(QJsonObject &jsonObject){
     // object in the array, get the values and add to the spreadsheet
     //
 
-    QJsonArray theArray = jsonObject["framesections"].toArray();
+    QJsonArray theArray = jsonObject["slabsections"].toArray();
     foreach (const QJsonValue &theValue, theArray) {
         // get values
         QJsonObject theObject = theValue.toObject();

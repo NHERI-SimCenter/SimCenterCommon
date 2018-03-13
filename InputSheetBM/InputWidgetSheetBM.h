@@ -103,7 +103,10 @@ private:
     WallInputWidget *theWallInput;
     SteelInputWidget *theSteelInput;
     ConcreteInputWidget *theConcreteInput;
-    FramesectionInputWidget *theFramesectionInput;
+    FramesectionInputWidget *theConcreteRectColFSInput;
+    FramesectionInputWidget *theConcreteBoxColFSInput;
+    FramesectionInputWidget *theConcreteCircColFSInput;
+    FramesectionInputWidget *theConcretePipeColFSInput;
     SlabsectionInputWidget *theSlabsectionInput;
     WallsectionInputWidget *theWallsectionInput;
     ConnectionInputWidget *theConnectionInput;

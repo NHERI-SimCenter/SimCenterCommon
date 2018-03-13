@@ -41,6 +41,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QScrollArea>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QJsonDocument>
 #include <QLabel>
 #include <QDebug>
 #include <QHBoxLayout>
@@ -48,6 +49,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QStandardItemModel>
 #include <QItemSelectionModel>
 #include <QModelIndex>
+
 
 
 #include "GeneralInformationWidget.h"
@@ -73,7 +75,6 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
   //
   // create a tree widget, assign it a mode and add to layout
   //
-
   treeView = new QTreeView();
   standardModel = new QStandardItemModel ;
   QStandardItem *rootNode = standardModel->invisibleRootItem();
@@ -81,47 +82,49 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
   //defining bunch of items for inclusion in model
   QStandardItem *infoItem    = new QStandardItem("GeneralInformation");
   QStandardItem *layoutItem   = new QStandardItem("Layout");
-  QStandardItem *floorsItem   = new QStandardItem("Floors");
-  QStandardItem *clinesItem   = new QStandardItem("Clines");
   QStandardItem *geometryItem = new QStandardItem("Geometry");
-  QStandardItem *beamsItem    = new QStandardItem("Beams");
-  QStandardItem *columnsItem  = new QStandardItem("Columns");
-  QStandardItem *bracesItem   = new QStandardItem("Braces");
-  QStandardItem *wallsItem    = new QStandardItem("Walls");
   QStandardItem *propertiesItem = new QStandardItem("Properties");
   QStandardItem *materialsItem = new QStandardItem("Materials");
-  QStandardItem *steelItem = new QStandardItem("Steel");
-  QStandardItem *concreteItem = new QStandardItem("Concrete");
   QStandardItem *framesectionsItem = new QStandardItem("Framesections");
-  QStandardItem *slabsectionsItem = new QStandardItem("Slabsections");
-  QStandardItem *wallsectionsItem = new QStandardItem("Wallsections");
-  QStandardItem *connectionsItem = new QStandardItem("Connections");
-  QStandardItem *pointsItem = new QStandardItem("Points");
 
   //building up the hierarchy of the model
   rootNode->appendRow(infoItem);
-
   infoItemIdx = rootNode->index();
 
   rootNode->appendRow(layoutItem);
-  layoutItem->appendRow(floorsItem);
-  layoutItem->appendRow(clinesItem);
+  layoutItem->appendRow(new QStandardItem("Floors"));
+  layoutItem->appendRow(new QStandardItem("Clines"));
+
   rootNode->appendRow(geometryItem);
-  geometryItem->appendRow(beamsItem);
-  geometryItem->appendRow(columnsItem);
-  geometryItem->appendRow(bracesItem);
-  geometryItem->appendRow(wallsItem);
+  geometryItem->appendRow(new QStandardItem("Beams"));
+  geometryItem->appendRow(new QStandardItem("Columns"));
+  geometryItem->appendRow(new QStandardItem("Braces"));
+  geometryItem->appendRow(new QStandardItem("Walls"));
+
   rootNode->appendRow(propertiesItem);
   propertiesItem->appendRow(materialsItem);
+  materialsItem->appendRow(new QStandardItem("Concrete"));
+  materialsItem->appendRow(new QStandardItem("Steel"));
+
   propertiesItem->appendRow(framesectionsItem);
-  propertiesItem->appendRow(slabsectionsItem);
-  propertiesItem->appendRow(wallsectionsItem);
-  propertiesItem->appendRow(connectionsItem);
-  propertiesItem->appendRow(pointsItem);
+  QStringList framesectionTypes(std::initializer_list<QString>({
+        "Concrete Rectangular Column", "Concrete Box Column",
+        "Concrete Circular Column", "Concrete Pipe Column",
+        "Concrete Rectangular Beam", "Concrete Tee Beam",
+        "Concrete L Beam", "Concrete Cross Beam", "Steel Wide Flange",
+        "Steel Channel", "Steep Double Channel", "Steel Tee",
+        "Steel Angle", "Steel Double Angle", "Steel Tube",
+        "Filled Steel Tube", "Steel Pipe", "Filled Steel Pipe",
+        "Steel Plate", "Steel Rod", "Buckling Restrained Brace"
+        }));
+  for (int i=0; i<framesectionTypes.size(); i++) {
+      framesectionsItem->appendRow(new QStandardItem(framesectionTypes[i]));
+  }
 
-  materialsItem->appendRow(concreteItem);
-  materialsItem->appendRow(steelItem);
-
+  propertiesItem->appendRow(new QStandardItem("Slabsections"));
+  propertiesItem->appendRow(new QStandardItem("Wallsections"));
+  propertiesItem->appendRow(new QStandardItem("Connections"));
+  propertiesItem->appendRow(new QStandardItem("Points"));
 
   //register the model
   treeView->setModel(standardModel);
@@ -137,7 +140,7 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
           SLOT(selectionChangedSlot(const QItemSelection &, const QItemSelection &)));
 
   // add the TreeView widget to the layout
- horizontalLayout->addWidget(treeView);
+  horizontalLayout->addWidget(treeView);
   horizontalLayout->addStretch();
 
   //
@@ -151,7 +154,10 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
   theColumnInput = new ColumnInputWidget();
   theSteelInput = new SteelInputWidget();
   theConcreteInput = new ConcreteInputWidget();
-  theFramesectionInput = new FramesectionInputWidget();
+  theConcreteRectColFSInput = new FramesectionInputWidget("concrete rectangular column");
+  theConcreteBoxColFSInput = new FramesectionInputWidget("concrete box column");
+  theConcreteCircColFSInput = new FramesectionInputWidget("concrete circular column");
+  theConcretePipeColFSInput = new FramesectionInputWidget("concrete pipe column");
   theSlabsectionInput = new SlabsectionInputWidget();
   theWallsectionInput = new WallsectionInputWidget();
   theConnectionInput = new ConnectionInputWidget();
@@ -165,6 +171,7 @@ InputWidgetSheetBM::~InputWidgetSheetBM()
 {
 
 }
+
 void InputWidgetSheetBM::setMainWindow(MainWindow* main)
 {
     window = main;
@@ -231,9 +238,18 @@ void InputWidgetSheetBM::selectionChangedSlot(const QItemSelection & /*newSelect
     } else if (selectedText == tr("Concrete")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theConcreteInput, 1);
         currentWidget = theConcreteInput;
-    } else if (selectedText == tr("Framesections")) {
-        horizontalLayout->insertWidget(horizontalLayout->count()-1, theFramesectionInput, 1);
-        currentWidget = theFramesectionInput;
+    } else if (selectedText == tr("Concrete Rectangular Column")) {
+        horizontalLayout->insertWidget(horizontalLayout->count()-1, theConcreteRectColFSInput, 1);
+        currentWidget = theConcreteRectColFSInput;
+    } else if (selectedText == tr("Concrete Box Column")) {
+        horizontalLayout->insertWidget(horizontalLayout->count()-1, theConcreteBoxColFSInput, 1);
+        currentWidget = theConcreteBoxColFSInput;
+    } else if (selectedText == tr("Concrete Circular Column")) {
+        horizontalLayout->insertWidget(horizontalLayout->count()-1, theConcreteCircColFSInput, 1);
+        currentWidget = theConcreteCircColFSInput;
+    } else if (selectedText == tr("Concrete Pipe Column")) {
+        horizontalLayout->insertWidget(horizontalLayout->count()-1, theConcretePipeColFSInput, 1);
+        currentWidget = theConcretePipeColFSInput;
     } else if (selectedText == tr("Slabsections")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theSlabsectionInput, 1);
         currentWidget = theSlabsectionInput;
@@ -283,12 +299,19 @@ InputWidgetSheetBM::outputToJSON(QJsonObject &jsonObjectTop)
 
     // add properties
     QJsonObject jsonObjProperties;
-    theFramesectionInput->outputToJSON(jsonObjProperties);
     theSlabsectionInput->outputToJSON(jsonObjProperties);
     theWallsectionInput->outputToJSON(jsonObjProperties);
-
     theConnectionInput->outputToJSON(jsonObjProperties);
     thePointInput->outputToJSON(jsonObjProperties);
+
+    QJsonArray theFramesectionsArray;
+    jsonObjProperties["framesections"]=theFramesectionsArray;
+
+    theConcreteRectColFSInput->outputToJSON(theFramesectionsArray);
+    theConcreteBoxColFSInput->outputToJSON(theFramesectionsArray);
+    theConcreteCircColFSInput->outputToJSON(theFramesectionsArray);
+    theConcretePipeColFSInput->outputToJSON(theFramesectionsArray);
+    jsonObjProperties["framesections"]=theFramesectionsArray;
 
     //
     // create a json array and get all material inputs to enter their data
@@ -318,7 +341,12 @@ InputWidgetSheetBM::clear(void)
     theBraceInput->clear();
     theSteelInput->clear();
     theConcreteInput->clear();
-    theFramesectionInput->clear();
+
+    theConcreteRectColFSInput->clear();
+    theConcreteBoxColFSInput->clear();
+    theConcreteCircColFSInput->clear();
+    theConcretePipeColFSInput->clear();
+
     theSlabsectionInput->clear();
     theWallsectionInput->clear();
     theConnectionInput->clear();
@@ -348,11 +376,16 @@ InputWidgetSheetBM::inputFromJSON(QJsonObject &jsonObject)
    //
 
    QJsonObject jsonObjProperties = jsonObjStructuralInformation["properties"].toObject();
-   theFramesectionInput->inputFromJSON(jsonObjProperties);
    theSlabsectionInput->inputFromJSON(jsonObjProperties);
    theWallsectionInput->inputFromJSON(jsonObjProperties);
    theConnectionInput->inputFromJSON(jsonObjProperties);
    thePointInput->inputFromJSON(jsonObjProperties);
+
+   QJsonArray theFramesectionsArray = jsonObjProperties["framesections"].toArray();
+   theConcreteRectColFSInput->inputFromJSON(theFramesectionsArray);
+   theConcreteBoxColFSInput->inputFromJSON(theFramesectionsArray);
+   theConcreteCircColFSInput->inputFromJSON(theFramesectionsArray);
+   theConcretePipeColFSInput->inputFromJSON(theFramesectionsArray);
 
    // first the materials
    // get the array and for every object in array determine it's type and get

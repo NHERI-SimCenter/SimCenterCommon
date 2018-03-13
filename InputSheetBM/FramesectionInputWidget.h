@@ -51,10 +51,14 @@ class FramesectionInputWidget : public SimCenterTableWidget
 public:
 
     explicit FramesectionInputWidget(SimCenterWidget *parent = 0);
+    explicit FramesectionInputWidget(QString framesectionType, SimCenterWidget *parent = 0);
+    explicit FramesectionInputWidget(QStringList headings, QList<int> dataTypes, QString framesectionType, SimCenterWidget *parent = 0);
     ~FramesectionInputWidget();
 
     void outputToJSON(QJsonObject &rvObject);
+    void outputToJSON(QJsonArray &rvObject);
     void inputFromJSON(QJsonObject &rvObject);
+    void inputFromJSON(QJsonArray &rvObject);
     void clear(void);
 
 signals:
@@ -65,6 +69,12 @@ private:
     QHBoxLayout *theLayout;
     QStringList   tableHeader;
     QList<int> dataTypes;
+    QString framesectionType;
+
+    void concreteRectColFS();
+    void concreteBoxColFS();
+    void concreteCircColFS();
+    void concretePipeColFS();
 
 };
 

@@ -42,91 +42,33 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QList>
 
-FramesectionInputWidget::FramesectionInputWidget(SimCenterWidget *parent) : SimCenterTableWidget(parent)
+FramesectionInputWidget::FramesectionInputWidget(QString framesectionType, SimCenterWidget *parent) : SimCenterTableWidget(parent)
+{
+    if (framesectionType == "concrete rectangular column") { this->concreteRectColFS(); }
+    if (framesectionType == "concrete box column") { this->concreteBoxColFS(); }
+    if (framesectionType == "concrete circular column") { this->concreteCircColFS(); }
+    if (framesectionType == "concrete pipe column") { this->concretePipeColFS(); }
+
+    theLayout = new QHBoxLayout();
+    this->setLayout(theLayout);
+
+    theSpreadsheet = new SpreadsheetWidget(this->tableHeader.size(), 1000, this->tableHeader, this->dataTypes, this);
+    theLayout->addWidget(theSpreadsheet);
+    this->setMinimumWidth(500);
+}
+
+FramesectionInputWidget::FramesectionInputWidget(QStringList headings, QList<int> dataTypes, QString framesectionType, SimCenterWidget *parent) : SimCenterTableWidget(parent)
 {
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
 
-    QStringList headings;
-    QList<int> dataTypes;
-    headings << tr("Name");
-    dataTypes << SIMPLESPREADSHEET_QString;
-    headings << tr("Type");
-    dataTypes << SIMPLESPREADSHEET_QString;
-    headings << tr("Material");
-    dataTypes << SIMPLESPREADSHEET_QString;
-
-    headings << tr("Depth");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    headings << tr("Width");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    headings << tr("Shape");
-    dataTypes << SIMPLESPREADSHEET_QString;
-
-    headings << tr("thickness");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    headings << tr("weld length brace");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    headings << tr("weld length column");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    headings << tr("weld length baseplate");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    headings << tr("thickness baseplate");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    headings << tr("workpoint depth");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    headings << tr("top flange width");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    headings << tr("top flange thickness");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    headings << tr("web thickness");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    headings << tr("bottom flange width");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    headings << tr("bottom flange thickness");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    headings << tr("fillet radius");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    headings << tr("corner radius");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-
-    headings << tr("longitudinal rebar material");
-    dataTypes << SIMPLESPREADSHEET_QString;
-    headings << tr("longitudinal rebar material corner");
-    dataTypes << SIMPLESPREADSHEET_QString;
-    headings << tr("longitudinal rebar num bars depth");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    headings << tr("longitudinal rebar num bars width");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    headings << tr("longitudinal rebar bar area");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    headings << tr("longitudinal rebar bar area corner");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    headings << tr("longitudinal rebar cover");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-
-    headings << tr("transverse rebar material");
-    dataTypes << SIMPLESPREADSHEET_QString;
-    headings << tr("transverse rebar num bars depth");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    headings << tr("transverse rebar num bars width");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    headings << tr("transverse rebar num bars thickness");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    headings << tr("transverse rebar bar area");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    headings << tr("transverse rebar spacing");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    headings << tr("transverse rebar cover");
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-
     theSpreadsheet = new SpreadsheetWidget(headings.size(), 1000, headings, dataTypes, this);
-
     theLayout->addWidget(theSpreadsheet);
 
     this->setMinimumWidth(500);
     this->tableHeader = headings;
     this->dataTypes = dataTypes;
+    this->framesectionType = framesectionType;
 }
 
 
@@ -135,46 +77,209 @@ FramesectionInputWidget::~FramesectionInputWidget()
 
 }
 
-void
-FramesectionInputWidget::outputToJSON(QJsonObject &jsonObj){
+void FramesectionInputWidget::concreteRectColFS() {
+    QStringList concreteRectColFSHeadings;
+    QList<int> concreteRectColFSDataTypes;
+    this->framesectionType = "concrete rectangular column";
 
-        QJsonArray  jsonArray;
+    concreteRectColFSHeadings << tr("Name");
+    concreteRectColFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteRectColFSHeadings << tr("Material");
+    concreteRectColFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteRectColFSHeadings << tr("depth");
+    concreteRectColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteRectColFSHeadings << tr("width");
+    concreteRectColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteRectColFSHeadings << tr("longitudinal rebar material");
+    concreteRectColFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteRectColFSHeadings << tr("longitudinal rebar material corner");
+    concreteRectColFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteRectColFSHeadings << tr("longitudinal rebar num bars depth");
+    concreteRectColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteRectColFSHeadings << tr("longitudinal rebar num bars width");
+    concreteRectColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteRectColFSHeadings << tr("longitudinal rebar bar area");
+    concreteRectColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteRectColFSHeadings << tr("longitudinal rebar bar area corner");
+    concreteRectColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteRectColFSHeadings << tr("longitudinal rebar cover");
+    concreteRectColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteRectColFSHeadings << tr("transverse rebar material");
+    concreteRectColFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteRectColFSHeadings << tr("transverse rebar num bars depth");
+    concreteRectColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteRectColFSHeadings << tr("transverse rebar num bars width");
+    concreteRectColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteRectColFSHeadings << tr("transverse rebar bar area");
+    concreteRectColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteRectColFSHeadings << tr("transverse rebar spacing");
+    concreteRectColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteRectColFSHeadings << tr("mass per length");
+    concreteRectColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+
+    this->tableHeader = concreteRectColFSHeadings;
+    this->dataTypes = concreteRectColFSDataTypes;
+}
+
+// same as concrete rectangular column framesection with
+// two field additions: flange thickness (double), web thickness (double)
+void FramesectionInputWidget::concreteBoxColFS() {
+    QStringList concreteBoxColFSHeadings;
+    QList<int> concreteBoxColFSDataTypes;
+    this->framesectionType = "concrete box column";
+
+    concreteBoxColFSHeadings << tr("Name");
+    concreteBoxColFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteBoxColFSHeadings << tr("Material");
+    concreteBoxColFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteBoxColFSHeadings << tr("depth");
+    concreteBoxColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteBoxColFSHeadings << tr("width");
+    concreteBoxColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteBoxColFSHeadings << tr("flange thickness");
+    concreteBoxColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteBoxColFSHeadings << tr("web thickness");
+    concreteBoxColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteBoxColFSHeadings << tr("longitudinal rebar material");
+    concreteBoxColFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteBoxColFSHeadings << tr("longitudinal rebar material corner");
+    concreteBoxColFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteBoxColFSHeadings << tr("longitudinal rebar num bars depth");
+    concreteBoxColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteBoxColFSHeadings << tr("longitudinal rebar num bars width");
+    concreteBoxColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteBoxColFSHeadings << tr("longitudinal rebar bar area");
+    concreteBoxColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteBoxColFSHeadings << tr("longitudinal rebar bar area corner");
+    concreteBoxColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteBoxColFSHeadings << tr("longitudinal rebar cover");
+    concreteBoxColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteBoxColFSHeadings << tr("transverse rebar material");
+    concreteBoxColFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteBoxColFSHeadings << tr("transverse rebar num bars depth");
+    concreteBoxColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteBoxColFSHeadings << tr("transverse rebar num bars width");
+    concreteBoxColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteBoxColFSHeadings << tr("transverse rebar bar area");
+    concreteBoxColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteBoxColFSHeadings << tr("transverse rebar spacing");
+    concreteBoxColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteBoxColFSHeadings << tr("mass per length");
+    concreteBoxColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+
+    this->tableHeader = concreteBoxColFSHeadings;
+    this->dataTypes = concreteBoxColFSDataTypes;
+}
+
+void FramesectionInputWidget::concreteCircColFS() {
+    QStringList concreteCircColFSHeadings;
+    QList<int> concreteCircColFSDataTypes;
+    this->framesectionType = "concrete circular column";
+
+    concreteCircColFSHeadings << tr("Name");
+    concreteCircColFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteCircColFSHeadings << tr("Material");
+    concreteCircColFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteCircColFSHeadings << tr("diameter");
+    concreteCircColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteCircColFSHeadings << tr("longitudinal rebar material");
+    concreteCircColFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteCircColFSHeadings << tr("longitudinal rebar num bars");
+    concreteCircColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteCircColFSHeadings << tr("longitudinal rebar bar area");
+    concreteCircColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteCircColFSHeadings << tr("longitudinal rebar cover");
+    concreteCircColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteCircColFSHeadings << tr("transverse rebar material");
+    concreteCircColFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteCircColFSHeadings << tr("transverse rebar bar area");
+    concreteCircColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteCircColFSHeadings << tr("transverse rebar spacing");
+    concreteCircColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteCircColFSHeadings << tr("mass per length");
+    concreteCircColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+
+    this->tableHeader = concreteCircColFSHeadings;
+    this->dataTypes = concreteCircColFSDataTypes;
+}
+
+//same as concrete circular column + 1 field: wall thickness
+void FramesectionInputWidget::concretePipeColFS() {
+    QStringList concretePipeColFSHeadings;
+    QList<int> concretePipeColFSDataTypes;
+    this->framesectionType = "concrete pipe column";
+
+    concretePipeColFSHeadings << tr("Name");
+    concretePipeColFSDataTypes << SIMPLESPREADSHEET_QString;
+    concretePipeColFSHeadings << tr("Material");
+    concretePipeColFSDataTypes << SIMPLESPREADSHEET_QString;
+    concretePipeColFSHeadings << tr("diameter");
+    concretePipeColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concretePipeColFSHeadings << tr("wall thickness");
+    concretePipeColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concretePipeColFSHeadings << tr("longitudinal rebar material");
+    concretePipeColFSDataTypes << SIMPLESPREADSHEET_QString;
+    concretePipeColFSHeadings << tr("longitudinal rebar num bars");
+    concretePipeColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concretePipeColFSHeadings << tr("longitudinal rebar bar area");
+    concretePipeColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concretePipeColFSHeadings << tr("longitudinal rebar cover");
+    concretePipeColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concretePipeColFSHeadings << tr("transverse rebar material");
+    concretePipeColFSDataTypes << SIMPLESPREADSHEET_QString;
+    concretePipeColFSHeadings << tr("transverse rebar bar area");
+    concretePipeColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concretePipeColFSHeadings << tr("transverse rebar spacing");
+    concretePipeColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concretePipeColFSHeadings << tr("mass per length");
+    concretePipeColFSDataTypes << SIMPLESPREADSHEET_QDouble;
+
+    this->tableHeader = concretePipeColFSHeadings;
+    this->dataTypes = concretePipeColFSDataTypes;
+}
+
+void
+FramesectionInputWidget::outputToJSON(QJsonObject &jsonObj){return;}
+
+
+void
+FramesectionInputWidget::outputToJSON(QJsonArray &jsonArray){
         int numRows = theSpreadsheet->getNumRows();
 
+        // for each row of the spreadsheet
         for (int i=0; i<numRows; i++) {
             QJsonObject obj, lrebar, trebar;
+            // for each field defined in private member var tableHeader
+            // and the respective data type defined in private member var dataTypes
+            // (tableHeader and dataTypes defined in constructor function)
             for (int j=0; j<(this->tableHeader.size()); j++) {
                 QString fieldName = this->tableHeader[j].toLower();
-                if(this->dataTypes[j] == 0) {
-                    QString tmpString;
 
+                if(this->dataTypes[j] == 0) {
+                    //string
+                    QString tmpString;
                     if (theSpreadsheet->getString(i,j,tmpString) == false || tmpString.isEmpty()) {
                         qDebug() << "no value for " << fieldName << " in row " << i;
-                        break;
+                        return;
                     }
                     if (fieldName.startsWith("longitudinal rebar ") == true) {
-                        fieldName.remove(0,19);
-                        lrebar[fieldName] = tmpString;
+                        lrebar[fieldName.remove(0,19)] = tmpString;
                     } else if (fieldName.startsWith("transverse rebar ") == true) {
-                        fieldName.remove(0,17);
-                        trebar[fieldName] = tmpString;
+                        trebar[fieldName.remove(0,17)] = tmpString;
                     } else {
                         obj[fieldName] = tmpString;
                     }
-                }
-
-                if(this->dataTypes[j] == 1) {
+                } else if (this->dataTypes[j] == 1) {
+                    //double
                     double tmpDouble;
                     if (theSpreadsheet->getDouble(i,j,tmpDouble) == false) {
                         qDebug() << "no value for " << fieldName << " in row " << i;
-                        break;
+                        return;
                     }
                     if (fieldName.startsWith("longitudinal rebar ") == true) {
-                        fieldName.remove(0,19);
-                        lrebar[fieldName] = tmpDouble;
+                        lrebar[fieldName.remove(0,19)] = tmpDouble;
                     } else if (fieldName.startsWith("transverse rebar ") == true) {
-                        fieldName.remove(0,17);
-                        trebar[fieldName] = tmpDouble;
+                        trebar[fieldName.remove(0,17)] = tmpDouble;
                     } else {
                         obj[fieldName] = tmpDouble;
                     }
@@ -183,141 +288,53 @@ FramesectionInputWidget::outputToJSON(QJsonObject &jsonObj){
 
             obj["longitudinal rebar"] = lrebar;
             obj["transverse rebar"] = trebar;
+            obj["type"] = framesectionType;
             jsonArray.append(obj);
         }
-
-        // add the object
-        jsonObj["framesections"] = jsonArray;
 
 }
 
 void
-FramesectionInputWidget::inputFromJSON(QJsonObject &jsonObject){
+FramesectionInputWidget::inputFromJSON(QJsonObject &jsonObject) { return; }
 
+void
+FramesectionInputWidget::inputFromJSON(QJsonArray &jsonArray){
     int currentRow = 0;
 
-    QString name, fs_type, fs_material, shape;
-    double depth, width, thickness, wlb, wlc, wlbp, tbp, wpd, tfw, tft, wt, bfw, bft, fr, cr;
-
-    // longitudinal rebar
-    QString lr_material, lr_materialCorner;
-    double lr_numBarsDepth, lr_numBarsWidth, lr_barArea, lr_barAreaCorner, lr_cover, lr_spacing;
-
-    // transverse rebar
-    QString tr_material;
-    double tr_numBarsDepth, tr_numBarsWidth, tr_numBarsThickness, tr_barArea, tr_barAreaCorner, tr_spacing, tr_cover;
-
-    //
-    // get the cline data (a json array) from the object, and for every
-    // object in the array, get the values and add to the spreadsheet
-    //
-
-    QJsonArray theArray = jsonObject["framesections"].toArray();
-    foreach (const QJsonValue &theValue, theArray) {
-        // get values
+    foreach (const QJsonValue &theValue, jsonArray) {
         QJsonObject theObject = theValue.toObject();
+        if (theObject["type"] == this->framesectionType) {
+            QJsonObject lrebar = theObject["longitudinal rebar"].toObject();
+            QJsonObject trebar = theObject["transverse rebar"].toObject();
 
-        name = theObject["name"].toString();
-        fs_type = theObject["type"].toString();
-        fs_material = theObject["material"].toString();
-        depth = theObject["depth"].toDouble();
-        width = theObject["width"].toDouble();
-        shape = theObject["shape"].toString();
+            for (int j=0; j<(this->tableHeader.size()); j++) {
+                QString fieldName = this->tableHeader[j].toLower();
 
-        thickness = theObject["thickness"].toDouble();
-        wlb = theObject["weld length brace"].toDouble();
-        wlc = theObject["weld length column"].toDouble();
-        wlbp = theObject["weld length baseplate"].toDouble();
-        tbp = theObject["thickness baseplate"].toDouble();
-        wpd = theObject["workpoint depth"].toDouble();
-        tfw = theObject["top flange width"].toDouble();
-        tft = theObject["top flange thickness"].toDouble();
-        wt = theObject["web thickness"].toDouble();
-        bfw = theObject["bottom flange width"].toDouble();
-        bft = theObject["bottom flange thickness"].toDouble();
-        fr = theObject["fillet radius"].toDouble();
-        cr = theObject["corner radius"].toDouble();
-
-        // longitudinal rebar
-        QJsonValue theLRValue = theObject["longitudinal rebar"];
-        QJsonObject lrObject = theLRValue.toObject();
-
-        lr_material = lrObject["material"].toString();
-        lr_materialCorner = lrObject["material corner"].toString();
-        lr_numBarsDepth = lrObject["num bars depth"].toDouble();
-        lr_numBarsWidth = lrObject["num bars width"].toDouble();
-        lr_barArea = lrObject["bar area"].toDouble();
-        lr_barAreaCorner = lrObject["bar area corner"].toDouble();
-        lr_cover = lrObject["lr_cover"].toDouble();
-        lr_spacing = lrObject["lr_spacing"].toDouble();
-
-        //********* FINISH THIS
-
-
-
-        // transverse rebar
-        QJsonValue theTRValue = theObject["transverse rebar"];
-        QJsonObject trObject = theTRValue.toObject();
-
-        tr_material = trObject["material"].toString();
-        tr_numBarsDepth = trObject["num bars depth"].toDouble();
-        tr_numBarsWidth = trObject["num bars width"].toDouble();
-        tr_numBarsThickness  = trObject["num bars thickness"].toDouble();
-        tr_barArea = trObject["bar area"].toDouble();
-        tr_barAreaCorner = trObject["bar area corner"].toDouble();
-        tr_spacing = trObject["spacing"].toDouble();
-        tr_cover = trObject["cover"].toDouble();
-
-
-        // add to the spreadsheet
-        theSpreadsheet->setString(currentRow, 0, name);
-        theSpreadsheet->setString(currentRow, 1, fs_type);
-        theSpreadsheet->setString(currentRow, 2, fs_material);
-
-        theSpreadsheet->setDouble(currentRow, 3, depth);
-        theSpreadsheet->setDouble(currentRow, 4, width);
-        theSpreadsheet->setString(currentRow, 5, shape);
-
-        theSpreadsheet->setDouble(currentRow, 6, thickness);
-        theSpreadsheet->setDouble(currentRow, 7, wlb);
-        theSpreadsheet->setDouble(currentRow, 8, wlc);
-        theSpreadsheet->setDouble(currentRow, 9, wlbp);
-        theSpreadsheet->setDouble(currentRow, 10, tbp);
-        theSpreadsheet->setDouble(currentRow, 11, wpd);
-        theSpreadsheet->setDouble(currentRow, 12, tfw);
-        theSpreadsheet->setDouble(currentRow, 13, tft);
-        theSpreadsheet->setDouble(currentRow, 14, wt);
-        theSpreadsheet->setDouble(currentRow, 15, bfw);
-        theSpreadsheet->setDouble(currentRow, 16, bft);
-        theSpreadsheet->setDouble(currentRow, 17, fr);
-        theSpreadsheet->setDouble(currentRow, 18, cr);
-
-
-        // add longitudinal rebar to the spreadsheet
-        theSpreadsheet->setString(currentRow, 19, lr_material);
-        theSpreadsheet->setString(currentRow, 20, lr_materialCorner);
-        theSpreadsheet->setDouble(currentRow, 21, lr_numBarsDepth);
-        theSpreadsheet->setDouble(currentRow, 21, lr_numBarsWidth);
-        theSpreadsheet->setDouble(currentRow, 23, lr_numBarsDepth);
-        theSpreadsheet->setDouble(currentRow, 24, lr_barArea);
-        theSpreadsheet->setDouble(currentRow, 25, lr_spacing);
-        theSpreadsheet->setDouble(currentRow, 26, lr_cover);
-
-        // add transverse rebar to the spreadsheet
-
-        theSpreadsheet->setString(currentRow, 27, tr_material);
-        theSpreadsheet->setDouble(currentRow, 28, tr_numBarsDepth);
-        theSpreadsheet->setDouble(currentRow, 29, tr_numBarsWidth);
-        theSpreadsheet->setDouble(currentRow, 30, tr_numBarsThickness);
-        theSpreadsheet->setDouble(currentRow, 31, tr_barArea);
-        theSpreadsheet->setDouble(currentRow, 32, tr_barAreaCorner);
-        theSpreadsheet->setDouble(currentRow, 33, tr_spacing);
-        theSpreadsheet->setDouble(currentRow, 34, tr_cover);
-
-
-        currentRow++;
+                if(this->dataTypes[j] == 0) {
+                    QString tmpString;
+                    if(fieldName.startsWith("longitudinal rebar ") == true) {
+                        tmpString = lrebar[fieldName.remove(0,19)].toString();
+                    } else if (fieldName.startsWith("transverse rebar ") == true) {
+                        tmpString = trebar[fieldName.remove(0,17)].toString();
+                    } else {
+                        tmpString = theObject[fieldName].toString();
+                    }
+                    theSpreadsheet->setString(currentRow, j, tmpString);
+                } else if (this->dataTypes[j] == 1) {
+                    double tmpDouble;
+                    if(fieldName.startsWith("longitudinal rebar ") == true) {
+                        tmpDouble = lrebar[fieldName.remove(0,19)].toDouble();
+                    } else if (fieldName.startsWith("transverse rebar ") == true) {
+                        tmpDouble = trebar[fieldName.remove(0,17)].toDouble();
+                    } else {
+                        tmpDouble = theObject[fieldName].toDouble();
+                    }
+                    theSpreadsheet->setDouble(currentRow, j, tmpDouble);
+                }
+            }
+            currentRow++;
+        }
     }
-
 }
 
 
