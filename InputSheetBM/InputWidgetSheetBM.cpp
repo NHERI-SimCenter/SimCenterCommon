@@ -112,7 +112,7 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
         "Concrete Circular Column", "Concrete Pipe Column",
         "Concrete Rectangular Beam", "Concrete Tee Beam",
         "Concrete L Beam", "Concrete Cross Beam", "Steel Wide Flange",
-        "Steel Channel", "Steep Double Channel", "Steel Tee",
+        "Steel Channel", "Steel Double Channel", "Steel Tee",
         "Steel Angle", "Steel Double Angle", "Steel Tube",
         "Filled Steel Tube", "Steel Pipe", "Filled Steel Pipe",
         "Steel Plate", "Steel Rod", "Buckling Restrained Brace"

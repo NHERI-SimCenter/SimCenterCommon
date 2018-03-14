@@ -77,6 +77,19 @@ private:
     void concreteCircColFS();
     void concretePipeColFS();
     void concreteRectBeamFS();
+    void concreteTeeBeamFS();
+    void concreteCrossBeamFS();
+    void steelWideFlangeFS();
+    void steelChannelFS();
+    void steelDoubleChannelFS();
+    void steelDoubleAngleFS();
+    void steelTubeFS();
+    void filledSteelTubeFS();
+    void steelPipeFS();
+    void filledSteelPipeFS();
+    void steelPlateFS();
+    void steelRodFS();
+    void bucklingRestrainedBraceFS();
 };
 
 #endif // FRAMESECTIONINPUWIDGET_H

@@ -52,6 +52,22 @@ FramesectionInputWidget::FramesectionInputWidget(QString framesectionType, SimCe
     if (framesectionType == "concrete circular column") { this->concreteCircColFS(); }
     if (framesectionType == "concrete pipe column") { this->concretePipeColFS(); }
     if (framesectionType == "concrete rectangular beam") { this->concreteRectBeamFS(); }
+    if (framesectionType == "concrete tee beam") { this->concreteTeeBeamFS(); }
+    if (framesectionType == "concrete l beam") { this->concreteTeeBeamFS(); this->framesectionType = "concrete l beam"; }
+    if (framesectionType == "concrete cross beam") { this->concreteCrossBeamFS(); }
+    if (framesectionType == "steel wide flange") { this->steelWideFlangeFS(); }
+    if (framesectionType == "steel channel") { this->steelChannelFS(); }
+    if (framesectionType == "steel double channel") { this->steelDoubleChannelFS(); }
+    if (framesectionType == "steel tee") { this->steelChannelFS(); this->framesectionType = "steel tee"; }
+    if (framesectionType == "steel angle") { this->steelChannelFS(); this->framesectionType = "steel angle"; }
+    if (framesectionType == "steel double angle") { this->steelDoubleAngleFS(); }
+    if (framesectionType == "steel tube") { this->steelTubeFS(); }
+    if (framesectionType == "filled steel tube") { this->filledSteelTubeFS(); }
+    if (framesectionType == "steel pipe") { this->steelPipeFS(); }
+    if (framesectionType == "filled steel pipe") { this->filledSteelPipeFS(); }
+    if (framesectionType == "steel plate") { this->steelPlateFS(); }
+    if (framesectionType == "steel rod") { this->steelRodFS(); }
+    if (framesectionType == "buckling restrained brace") { this->bucklingRestrainedBraceFS(); }
 
     this->setupSpreadsheet();
 }
@@ -103,6 +119,7 @@ FramesectionInputWidget::outputToJSON(QJsonArray &jsonArray){
                     QString tmpString;
                     if (theSpreadsheet->getString(i,j,tmpString) == false || tmpString.isEmpty()) {
                         qDebug() << "no value for " << fieldName << " in row " << i;
+                        // TODO: need to actually break out of this loop
                         return;
                     }
                     if (fieldName.startsWith("longitudinal rebar ") == true) {
@@ -117,6 +134,7 @@ FramesectionInputWidget::outputToJSON(QJsonArray &jsonArray){
                     double tmpDouble;
                     if (theSpreadsheet->getDouble(i,j,tmpDouble) == false) {
                         qDebug() << "no value for " << fieldName << " in row " << i;
+                        // TODO: need to actually break out of this loop
                         return;
                     }
                     if (fieldName.startsWith("longitudinal rebar ") == true) {
@@ -387,4 +405,386 @@ void FramesectionInputWidget::concreteRectBeamFS() {
 
     this->tableHeader = concreteRectBeamFSHeadings;
     this->dataTypes = concreteRectBeamFSDataTypes;
+}
+
+void FramesectionInputWidget::concreteTeeBeamFS() {
+    QStringList concreteTeeBeamFSHeadings;
+    QList<int> concreteTeeBeamFSDataTypes;
+    this->framesectionType = "concrete tee beam";
+
+    concreteTeeBeamFSHeadings << tr("Name");
+    concreteTeeBeamFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteTeeBeamFSHeadings << tr("Material");
+    concreteTeeBeamFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteTeeBeamFSHeadings << tr("depth");
+    concreteTeeBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteTeeBeamFSHeadings << tr("width");
+    concreteTeeBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteTeeBeamFSHeadings << tr("flange thickness");
+    concreteTeeBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteTeeBeamFSHeadings << tr("web thickness at flange");
+    concreteTeeBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteTeeBeamFSHeadings << tr("web thickness at tip");
+    concreteTeeBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteTeeBeamFSHeadings << tr("longitudinal rebar material top");
+    concreteTeeBeamFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteTeeBeamFSHeadings << tr("longitudinal rebar material bottom");
+    concreteTeeBeamFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteTeeBeamFSHeadings << tr("longitudinal rebar num bars top");
+    concreteTeeBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteTeeBeamFSHeadings << tr("longitudinal rebar num bars bottom");
+    concreteTeeBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteTeeBeamFSHeadings << tr("longitudinal rebar bar area top");
+    concreteTeeBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteTeeBeamFSHeadings << tr("longitudinal rebar bar area bottom");
+    concreteTeeBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteTeeBeamFSHeadings << tr("longitudinal rebar cover top");
+    concreteTeeBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteTeeBeamFSHeadings << tr("longitudinal rebar cover bottom");
+    concreteTeeBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteTeeBeamFSHeadings << tr("transverse rebar material");
+    concreteTeeBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteTeeBeamFSHeadings << tr("transverse rebar bar area");
+    concreteTeeBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteTeeBeamFSHeadings << tr("transverse rebar spacing");
+    concreteTeeBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteTeeBeamFSHeadings << tr("mass per length");
+    concreteTeeBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+
+    this->tableHeader = concreteTeeBeamFSHeadings;
+    this->dataTypes = concreteTeeBeamFSDataTypes;
+}
+
+void FramesectionInputWidget::concreteCrossBeamFS() {
+    QStringList concreteCrossBeamFSHeadings;
+    QList<int> concreteCrossBeamFSDataTypes;
+    this->framesectionType = "concrete cross beam";
+
+    concreteCrossBeamFSHeadings << tr("Name");
+    concreteCrossBeamFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteCrossBeamFSHeadings << tr("Material");
+    concreteCrossBeamFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteCrossBeamFSHeadings << tr("depth");
+    concreteCrossBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteCrossBeamFSHeadings << tr("width");
+    concreteCrossBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteCrossBeamFSHeadings << tr("flange thickness");
+    concreteCrossBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteCrossBeamFSHeadings << tr("web thickness");
+    concreteCrossBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteCrossBeamFSHeadings << tr("longitudinal rebar material center");
+    concreteCrossBeamFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteCrossBeamFSHeadings << tr("longitudinal rebar material tip");
+    concreteCrossBeamFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteCrossBeamFSHeadings << tr("longitudinal rebar num bars center");
+    concreteCrossBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteCrossBeamFSHeadings << tr("longitudinal rebar num bars tip");
+    concreteCrossBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteCrossBeamFSHeadings << tr("longitudinal rebar bar area center");
+    concreteCrossBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteCrossBeamFSHeadings << tr("longitudinal rebar bar area tip");
+    concreteCrossBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteCrossBeamFSHeadings << tr("longitudinal rebar cover");
+    concreteCrossBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteCrossBeamFSHeadings << tr("transverse rebar material");
+    concreteCrossBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteCrossBeamFSHeadings << tr("transverse rebar bar area");
+    concreteCrossBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteCrossBeamFSHeadings << tr("transverse rebar spacing");
+    concreteCrossBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteCrossBeamFSHeadings << tr("mass per length");
+    concreteCrossBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+
+    this->tableHeader = concreteCrossBeamFSHeadings;
+    this->dataTypes = concreteCrossBeamFSDataTypes;
+}
+
+void FramesectionInputWidget::steelWideFlangeFS() {
+    QStringList steelWideFlangeFSHeadings;
+    QList<int> steelWideFlangeFSDataTypes;
+    this->framesectionType = "steel wide flange";
+
+    steelWideFlangeFSHeadings << tr("Name");
+    steelWideFlangeFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelWideFlangeFSHeadings << tr("database");
+    steelWideFlangeFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelWideFlangeFSHeadings << tr("shape");
+    steelWideFlangeFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelWideFlangeFSHeadings << tr("material");
+    steelWideFlangeFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelWideFlangeFSHeadings << tr("depth");
+    steelWideFlangeFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelWideFlangeFSHeadings << tr("top flange width");
+    steelWideFlangeFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelWideFlangeFSHeadings << tr("top flange thickness");
+    steelWideFlangeFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelWideFlangeFSHeadings << tr("web thickness");
+    steelWideFlangeFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelWideFlangeFSHeadings << tr("bottom flange width");
+    steelWideFlangeFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelWideFlangeFSHeadings << tr("bottom flange thickness");
+    steelWideFlangeFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelWideFlangeFSHeadings << tr("fillet radius");
+    steelWideFlangeFSDataTypes << SIMPLESPREADSHEET_QDouble;
+
+    this->tableHeader = steelWideFlangeFSHeadings;
+    this->dataTypes = steelWideFlangeFSDataTypes;
+}
+
+void FramesectionInputWidget::steelChannelFS() {
+    QStringList steelChannelFSHeadings;
+    QList<int> steelChannelFSDataTypes;
+    this->framesectionType = "steel channel";
+
+    steelChannelFSHeadings << tr("Name");
+    steelChannelFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelChannelFSHeadings << tr("database");
+    steelChannelFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelChannelFSHeadings << tr("shape");
+    steelChannelFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelChannelFSHeadings << tr("material");
+    steelChannelFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelChannelFSHeadings << tr("depth");
+    steelChannelFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelChannelFSHeadings << tr("width");
+    steelChannelFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelChannelFSHeadings << tr("flange thickness");
+    steelChannelFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelChannelFSHeadings << tr("web thickness");
+    steelChannelFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelChannelFSHeadings << tr("fillet radius");
+    steelChannelFSDataTypes << SIMPLESPREADSHEET_QDouble;
+
+    this->tableHeader = steelChannelFSHeadings;
+    this->dataTypes = steelChannelFSDataTypes;
+}
+
+void FramesectionInputWidget::steelDoubleChannelFS() {
+    QStringList steelDoubleChannelFSHeadings;
+    QList<int> steelDoubleChannelFSDataTypes;
+    this->framesectionType = "steel double channel";
+
+    steelDoubleChannelFSHeadings << tr("Name");
+    steelDoubleChannelFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelDoubleChannelFSHeadings << tr("database");
+    steelDoubleChannelFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelDoubleChannelFSHeadings << tr("shape");
+    steelDoubleChannelFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelDoubleChannelFSHeadings << tr("material");
+    steelDoubleChannelFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelDoubleChannelFSHeadings << tr("depth");
+    steelDoubleChannelFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelDoubleChannelFSHeadings << tr("width of single channel");
+    steelDoubleChannelFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelDoubleChannelFSHeadings << tr("flange thickness");
+    steelDoubleChannelFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelDoubleChannelFSHeadings << tr("web thickness");
+    steelDoubleChannelFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelDoubleChannelFSHeadings << tr("back to back distance");
+    steelDoubleChannelFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelDoubleChannelFSHeadings << tr("fillet radius");
+    steelDoubleChannelFSDataTypes << SIMPLESPREADSHEET_QDouble;
+
+    this->tableHeader = steelDoubleChannelFSHeadings;
+    this->dataTypes = steelDoubleChannelFSDataTypes;
+}
+
+void FramesectionInputWidget::steelDoubleAngleFS() {
+    QStringList steelDoubleAngleFSHeadings;
+    QList<int> steelDoubleAngleFSDataTypes;
+    this->framesectionType = "steel double angle";
+
+    steelDoubleAngleFSHeadings << tr("Name");
+    steelDoubleAngleFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelDoubleAngleFSHeadings << tr("database");
+    steelDoubleAngleFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelDoubleAngleFSHeadings << tr("shape");
+    steelDoubleAngleFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelDoubleAngleFSHeadings << tr("material");
+    steelDoubleAngleFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelDoubleAngleFSHeadings << tr("depth");
+    steelDoubleAngleFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelDoubleAngleFSHeadings << tr("width of single angle");
+    steelDoubleAngleFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelDoubleAngleFSHeadings << tr("flange thickness");
+    steelDoubleAngleFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelDoubleAngleFSHeadings << tr("web thickness");
+    steelDoubleAngleFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelDoubleAngleFSHeadings << tr("back to back distance");
+    steelDoubleAngleFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelDoubleAngleFSHeadings << tr("fillet radius");
+    steelDoubleAngleFSDataTypes << SIMPLESPREADSHEET_QDouble;
+
+    this->tableHeader = steelDoubleAngleFSHeadings;
+    this->dataTypes = steelDoubleAngleFSDataTypes;
+}
+
+void FramesectionInputWidget::steelTubeFS() {
+    QStringList steelTubeFSHeadings;
+    QList<int> steelTubeFSDataTypes;
+    this->framesectionType = "steel tube";
+
+    steelTubeFSHeadings << tr("Name");
+    steelTubeFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelTubeFSHeadings << tr("database");
+    steelTubeFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelTubeFSHeadings << tr("shape");
+    steelTubeFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelTubeFSHeadings << tr("material");
+    steelTubeFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelTubeFSHeadings << tr("depth");
+    steelTubeFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelTubeFSHeadings << tr("width");
+    steelTubeFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelTubeFSHeadings << tr("flange thickness");
+    steelTubeFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelTubeFSHeadings << tr("web thickness");
+    steelTubeFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelTubeFSHeadings << tr("corner radius");
+    steelTubeFSDataTypes << SIMPLESPREADSHEET_QDouble;
+
+    this->tableHeader = steelTubeFSHeadings;
+    this->dataTypes = steelTubeFSDataTypes;
+}
+
+void FramesectionInputWidget::filledSteelTubeFS() {
+    QStringList filledSteelTubeFSHeadings;
+    QList<int> filledSteelTubeFSDataTypes;
+    this->framesectionType = "filled steel tube";
+
+    filledSteelTubeFSHeadings << tr("Name");
+    filledSteelTubeFSDataTypes << SIMPLESPREADSHEET_QString;
+    filledSteelTubeFSHeadings << tr("database");
+    filledSteelTubeFSDataTypes << SIMPLESPREADSHEET_QString;
+    filledSteelTubeFSHeadings << tr("shape");
+    filledSteelTubeFSDataTypes << SIMPLESPREADSHEET_QString;
+    filledSteelTubeFSHeadings << tr("material");
+    filledSteelTubeFSDataTypes << SIMPLESPREADSHEET_QString;
+    filledSteelTubeFSHeadings << tr("material fill");
+    filledSteelTubeFSDataTypes << SIMPLESPREADSHEET_QString;
+    filledSteelTubeFSHeadings << tr("depth");
+    filledSteelTubeFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    filledSteelTubeFSHeadings << tr("width");
+    filledSteelTubeFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    filledSteelTubeFSHeadings << tr("flange thickness");
+    filledSteelTubeFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    filledSteelTubeFSHeadings << tr("web thickness");
+    filledSteelTubeFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    filledSteelTubeFSHeadings << tr("corner radius");
+    filledSteelTubeFSDataTypes << SIMPLESPREADSHEET_QDouble;
+
+    this->tableHeader = filledSteelTubeFSHeadings;
+    this->dataTypes = filledSteelTubeFSDataTypes;
+}
+
+void FramesectionInputWidget::steelPipeFS() {
+    QStringList steelPipeFSHeadings;
+    QList<int> steelPipeFSDataTypes;
+    this->framesectionType = "steel pipe";
+
+    steelPipeFSHeadings << tr("Name");
+    steelPipeFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelPipeFSHeadings << tr("database");
+    steelPipeFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelPipeFSHeadings << tr("shape");
+    steelPipeFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelPipeFSHeadings << tr("material");
+    steelPipeFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelPipeFSHeadings << tr("diameter");
+    steelPipeFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelPipeFSHeadings << tr("wall thickness");
+    steelPipeFSDataTypes << SIMPLESPREADSHEET_QDouble;
+
+    this->tableHeader = steelPipeFSHeadings;
+    this->dataTypes = steelPipeFSDataTypes;
+}
+
+void FramesectionInputWidget::filledSteelPipeFS() {
+    QStringList filledSteelPipeFSHeadings;
+    QList<int> filledSteelPipeFSDataTypes;
+    this->framesectionType = "filled steel pipe";
+
+    filledSteelPipeFSHeadings << tr("Name");
+    filledSteelPipeFSDataTypes << SIMPLESPREADSHEET_QString;
+    filledSteelPipeFSHeadings << tr("database");
+    filledSteelPipeFSDataTypes << SIMPLESPREADSHEET_QString;
+    filledSteelPipeFSHeadings << tr("shape");
+    filledSteelPipeFSDataTypes << SIMPLESPREADSHEET_QString;
+    filledSteelPipeFSHeadings << tr("material");
+    filledSteelPipeFSDataTypes << SIMPLESPREADSHEET_QString;
+    filledSteelPipeFSHeadings << tr("material fill");
+    filledSteelPipeFSDataTypes << SIMPLESPREADSHEET_QString;
+    filledSteelPipeFSHeadings << tr("diameter");
+    filledSteelPipeFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    filledSteelPipeFSHeadings << tr("wall thickness");
+    filledSteelPipeFSDataTypes << SIMPLESPREADSHEET_QDouble;
+
+    this->tableHeader = filledSteelPipeFSHeadings;
+    this->dataTypes = filledSteelPipeFSDataTypes;
+}
+
+void FramesectionInputWidget::steelPlateFS() {
+    QStringList steelPlateFSHeadings;
+    QList<int> steelPlateFSDataTypes;
+    this->framesectionType = "steel plate";
+
+    steelPlateFSHeadings << tr("Name");
+    steelPlateFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelPlateFSHeadings << tr("material");
+    steelPlateFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelPlateFSHeadings << tr("depth");
+    steelPlateFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    steelPlateFSHeadings << tr("width");
+    steelPlateFSDataTypes << SIMPLESPREADSHEET_QDouble;
+
+    this->tableHeader = steelPlateFSHeadings;
+    this->dataTypes = steelPlateFSDataTypes;
+}
+
+void FramesectionInputWidget::steelRodFS() {
+    QStringList steelRodFSHeadings;
+    QList<int> steelRodFSDataTypes;
+    this->framesectionType = "steel rod";
+
+    steelRodFSHeadings << tr("Name");
+    steelRodFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelRodFSHeadings << tr("material");
+    steelRodFSDataTypes << SIMPLESPREADSHEET_QString;
+    steelRodFSHeadings << tr("diameter");
+    steelRodFSDataTypes << SIMPLESPREADSHEET_QDouble;
+
+    this->tableHeader = steelRodFSHeadings;
+    this->dataTypes = steelRodFSDataTypes;
+}
+
+void FramesectionInputWidget::bucklingRestrainedBraceFS() {
+    QStringList bucklingBraceFSHeadings;
+    QList<int> bucklingBraceFSDataTypes;
+    this->framesectionType = "buckling restrained brace";
+
+    bucklingBraceFSHeadings << tr("Name");
+    bucklingBraceFSDataTypes << SIMPLESPREADSHEET_QString;
+    bucklingBraceFSHeadings << tr("database");
+    bucklingBraceFSDataTypes << SIMPLESPREADSHEET_QString;
+    bucklingBraceFSHeadings << tr("shape");
+    bucklingBraceFSDataTypes << SIMPLESPREADSHEET_QString;
+    bucklingBraceFSHeadings << tr("material");
+    bucklingBraceFSDataTypes << SIMPLESPREADSHEET_QString;
+    bucklingBraceFSHeadings << tr("material core");
+    bucklingBraceFSDataTypes << SIMPLESPREADSHEET_QString;
+    bucklingBraceFSHeadings << tr("depth");
+    bucklingBraceFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    bucklingBraceFSHeadings << tr("width");
+    bucklingBraceFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    bucklingBraceFSHeadings << tr("area core");
+    bucklingBraceFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    bucklingBraceFSHeadings << tr("yield length");
+    bucklingBraceFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    bucklingBraceFSHeadings << tr("omega");
+    bucklingBraceFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    bucklingBraceFSHeadings << tr("beta-omega");
+    bucklingBraceFSDataTypes << SIMPLESPREADSHEET_QDouble;
+
+    this->tableHeader = bucklingBraceFSHeadings;
+    this->dataTypes = bucklingBraceFSDataTypes;
 }
