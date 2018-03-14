@@ -119,6 +119,7 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
         }));
   for (int i=0; i<framesectionTypes.size(); i++) {
       framesectionsItem->appendRow(new QStandardItem(framesectionTypes[i]));
+      theFramesectionTypes << framesectionTypes[i].toLower();
   }
 
   propertiesItem->appendRow(new QStandardItem("Slabsections"));
@@ -154,10 +155,9 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
   theColumnInput = new ColumnInputWidget();
   theSteelInput = new SteelInputWidget();
   theConcreteInput = new ConcreteInputWidget();
-  theConcreteRectColFSInput = new FramesectionInputWidget("concrete rectangular column");
-  theConcreteBoxColFSInput = new FramesectionInputWidget("concrete box column");
-  theConcreteCircColFSInput = new FramesectionInputWidget("concrete circular column");
-  theConcretePipeColFSInput = new FramesectionInputWidget("concrete pipe column");
+  for (int i=0; i<theFramesectionTypes.size(); i++) {
+      theFramesectionInputs[theFramesectionTypes[i]] = new FramesectionInputWidget(theFramesectionTypes[i]);
+  }
   theSlabsectionInput = new SlabsectionInputWidget();
   theWallsectionInput = new WallsectionInputWidget();
   theConnectionInput = new ConnectionInputWidget();
@@ -238,18 +238,9 @@ void InputWidgetSheetBM::selectionChangedSlot(const QItemSelection & /*newSelect
     } else if (selectedText == tr("Concrete")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theConcreteInput, 1);
         currentWidget = theConcreteInput;
-    } else if (selectedText == tr("Concrete Rectangular Column")) {
-        horizontalLayout->insertWidget(horizontalLayout->count()-1, theConcreteRectColFSInput, 1);
-        currentWidget = theConcreteRectColFSInput;
-    } else if (selectedText == tr("Concrete Box Column")) {
-        horizontalLayout->insertWidget(horizontalLayout->count()-1, theConcreteBoxColFSInput, 1);
-        currentWidget = theConcreteBoxColFSInput;
-    } else if (selectedText == tr("Concrete Circular Column")) {
-        horizontalLayout->insertWidget(horizontalLayout->count()-1, theConcreteCircColFSInput, 1);
-        currentWidget = theConcreteCircColFSInput;
-    } else if (selectedText == tr("Concrete Pipe Column")) {
-        horizontalLayout->insertWidget(horizontalLayout->count()-1, theConcretePipeColFSInput, 1);
-        currentWidget = theConcretePipeColFSInput;
+    } else if (theFramesectionTypes.contains(selectedText.toLower())) {
+        horizontalLayout->insertWidget(horizontalLayout->count()-1, theFramesectionInputs[selectedText.toLower()], 1);
+        currentWidget = theFramesectionInputs[selectedText.toLower()];
     } else if (selectedText == tr("Slabsections")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theSlabsectionInput, 1);
         currentWidget = theSlabsectionInput;
@@ -307,10 +298,9 @@ InputWidgetSheetBM::outputToJSON(QJsonObject &jsonObjectTop)
     QJsonArray theFramesectionsArray;
     jsonObjProperties["framesections"]=theFramesectionsArray;
 
-    theConcreteRectColFSInput->outputToJSON(theFramesectionsArray);
-    theConcreteBoxColFSInput->outputToJSON(theFramesectionsArray);
-    theConcreteCircColFSInput->outputToJSON(theFramesectionsArray);
-    theConcretePipeColFSInput->outputToJSON(theFramesectionsArray);
+    for (int i=0; i<theFramesectionTypes.size(); i++) {
+        theFramesectionInputs[theFramesectionTypes[i]]->outputToJSON(theFramesectionsArray);
+    }
     jsonObjProperties["framesections"]=theFramesectionsArray;
 
     //
@@ -342,10 +332,9 @@ InputWidgetSheetBM::clear(void)
     theSteelInput->clear();
     theConcreteInput->clear();
 
-    theConcreteRectColFSInput->clear();
-    theConcreteBoxColFSInput->clear();
-    theConcreteCircColFSInput->clear();
-    theConcretePipeColFSInput->clear();
+    for (int i=0; i<theFramesectionTypes.size(); i++) {
+        theFramesectionInputs[theFramesectionTypes[i]]->clear();
+    }
 
     theSlabsectionInput->clear();
     theWallsectionInput->clear();
@@ -382,10 +371,9 @@ InputWidgetSheetBM::inputFromJSON(QJsonObject &jsonObject)
    thePointInput->inputFromJSON(jsonObjProperties);
 
    QJsonArray theFramesectionsArray = jsonObjProperties["framesections"].toArray();
-   theConcreteRectColFSInput->inputFromJSON(theFramesectionsArray);
-   theConcreteBoxColFSInput->inputFromJSON(theFramesectionsArray);
-   theConcreteCircColFSInput->inputFromJSON(theFramesectionsArray);
-   theConcretePipeColFSInput->inputFromJSON(theFramesectionsArray);
+   for (int i=0; i<theFramesectionTypes.size(); i++) {
+       theFramesectionInputs[theFramesectionTypes[i]]->inputFromJSON(theFramesectionsArray);
+   }
 
    // first the materials
    // get the array and for every object in array determine it's type and get

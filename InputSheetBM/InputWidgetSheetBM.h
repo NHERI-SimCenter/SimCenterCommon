@@ -103,6 +103,8 @@ private:
     WallInputWidget *theWallInput;
     SteelInputWidget *theSteelInput;
     ConcreteInputWidget *theConcreteInput;
+    QStringList theFramesectionTypes;
+    QMap<QString, FramesectionInputWidget*> theFramesectionInputs;
     FramesectionInputWidget *theConcreteRectColFSInput;
     FramesectionInputWidget *theConcreteBoxColFSInput;
     FramesectionInputWidget *theConcreteCircColFSInput;

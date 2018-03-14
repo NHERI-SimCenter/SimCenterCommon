@@ -42,39 +42,148 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QList>
 
+//Constructor takes the name for this type of framesection and a SimCenterWidget
+//FramesectionInputWidget class implementation contains details about what fields
+//are included for each framesection type
 FramesectionInputWidget::FramesectionInputWidget(QString framesectionType, SimCenterWidget *parent) : SimCenterTableWidget(parent)
 {
     if (framesectionType == "concrete rectangular column") { this->concreteRectColFS(); }
     if (framesectionType == "concrete box column") { this->concreteBoxColFS(); }
     if (framesectionType == "concrete circular column") { this->concreteCircColFS(); }
     if (framesectionType == "concrete pipe column") { this->concretePipeColFS(); }
+    if (framesectionType == "concrete rectangular beam") { this->concreteRectBeamFS(); }
 
-    theLayout = new QHBoxLayout();
-    this->setLayout(theLayout);
-
-    theSpreadsheet = new SpreadsheetWidget(this->tableHeader.size(), 1000, this->tableHeader, this->dataTypes, this);
-    theLayout->addWidget(theSpreadsheet);
-    this->setMinimumWidth(500);
+    this->setupSpreadsheet();
 }
 
+//Constructor takes a string list of column headings, an integer list of data types,
+//the name for this type of framesection, and a SimCenterWidget
 FramesectionInputWidget::FramesectionInputWidget(QStringList headings, QList<int> dataTypes, QString framesectionType, SimCenterWidget *parent) : SimCenterTableWidget(parent)
 {
-    theLayout = new QHBoxLayout();
-    this->setLayout(theLayout);
-
-    theSpreadsheet = new SpreadsheetWidget(headings.size(), 1000, headings, dataTypes, this);
-    theLayout->addWidget(theSpreadsheet);
-
-    this->setMinimumWidth(500);
     this->tableHeader = headings;
     this->dataTypes = dataTypes;
     this->framesectionType = framesectionType;
+
+    this->setupSpreadsheet();
 }
 
 
 FramesectionInputWidget::~FramesectionInputWidget()
 {
 
+}
+
+void FramesectionInputWidget::setupSpreadsheet() {
+    theLayout = new QHBoxLayout();
+    this->setLayout(theLayout);
+    theSpreadsheet = new SpreadsheetWidget(tableHeader.size(), 1000, tableHeader, dataTypes, this);
+    theLayout->addWidget(theSpreadsheet);
+    this->setMinimumWidth(500);
+}
+
+void
+FramesectionInputWidget::outputToJSON(QJsonObject &jsonObj){return;}
+
+
+void
+FramesectionInputWidget::outputToJSON(QJsonArray &jsonArray){
+        int numRows = theSpreadsheet->getNumRows();
+
+        // for each row of the spreadsheet
+        for (int i=0; i<numRows; i++) {
+            QJsonObject obj, lrebar, trebar;
+            // for each field defined in private member var tableHeader
+            // and the respective data type defined in private member var dataTypes
+            // (tableHeader and dataTypes defined in constructor function)
+            for (int j=0; j<tableHeader.size(); j++) {
+                QString fieldName = tableHeader[j].toLower();
+
+                if(dataTypes[j] == 0) {
+                    //string
+                    QString tmpString;
+                    if (theSpreadsheet->getString(i,j,tmpString) == false || tmpString.isEmpty()) {
+                        qDebug() << "no value for " << fieldName << " in row " << i;
+                        return;
+                    }
+                    if (fieldName.startsWith("longitudinal rebar ") == true) {
+                        lrebar[fieldName.remove(0,19)] = tmpString;
+                    } else if (fieldName.startsWith("transverse rebar ") == true) {
+                        trebar[fieldName.remove(0,17)] = tmpString;
+                    } else {
+                        obj[fieldName] = tmpString;
+                    }
+                } else if (dataTypes[j] == 1) {
+                    //double
+                    double tmpDouble;
+                    if (theSpreadsheet->getDouble(i,j,tmpDouble) == false) {
+                        qDebug() << "no value for " << fieldName << " in row " << i;
+                        return;
+                    }
+                    if (fieldName.startsWith("longitudinal rebar ") == true) {
+                        lrebar[fieldName.remove(0,19)] = tmpDouble;
+                    } else if (fieldName.startsWith("transverse rebar ") == true) {
+                        trebar[fieldName.remove(0,17)] = tmpDouble;
+                    } else {
+                        obj[fieldName] = tmpDouble;
+                    }
+                }
+            }
+
+            obj["longitudinal rebar"] = lrebar;
+            obj["transverse rebar"] = trebar;
+            obj["type"] = framesectionType;
+            jsonArray.append(obj);
+        }
+
+}
+
+void
+FramesectionInputWidget::inputFromJSON(QJsonObject &jsonObject) { return; }
+
+void
+FramesectionInputWidget::inputFromJSON(QJsonArray &jsonArray){
+    int currentRow = 0;
+
+    foreach (const QJsonValue &theValue, jsonArray) {
+        QJsonObject theObject = theValue.toObject();
+        if (theObject["type"] == framesectionType) {
+            QJsonObject lrebar = theObject["longitudinal rebar"].toObject();
+            QJsonObject trebar = theObject["transverse rebar"].toObject();
+
+            for (int j=0; j<tableHeader.size(); j++) {
+                QString fieldName = tableHeader[j].toLower();
+
+                if(dataTypes[j] == 0) {
+                    QString tmpString;
+                    if(fieldName.startsWith("longitudinal rebar ") == true) {
+                        tmpString = lrebar[fieldName.remove(0,19)].toString();
+                    } else if (fieldName.startsWith("transverse rebar ") == true) {
+                        tmpString = trebar[fieldName.remove(0,17)].toString();
+                    } else {
+                        tmpString = theObject[fieldName].toString();
+                    }
+                    theSpreadsheet->setString(currentRow, j, tmpString);
+                } else if (dataTypes[j] == 1) {
+                    double tmpDouble;
+                    if(fieldName.startsWith("longitudinal rebar ") == true) {
+                        tmpDouble = lrebar[fieldName.remove(0,19)].toDouble();
+                    } else if (fieldName.startsWith("transverse rebar ") == true) {
+                        tmpDouble = trebar[fieldName.remove(0,17)].toDouble();
+                    } else {
+                        tmpDouble = theObject[fieldName].toDouble();
+                    }
+                    theSpreadsheet->setDouble(currentRow, j, tmpDouble);
+                }
+            }
+            currentRow++;
+        }
+    }
+}
+
+void
+FramesectionInputWidget::clear(void)
+{
+    theSpreadsheet->clear();
 }
 
 void FramesectionInputWidget::concreteRectColFS() {
@@ -238,109 +347,44 @@ void FramesectionInputWidget::concretePipeColFS() {
     this->dataTypes = concretePipeColFSDataTypes;
 }
 
-void
-FramesectionInputWidget::outputToJSON(QJsonObject &jsonObj){return;}
+void FramesectionInputWidget::concreteRectBeamFS() {
+    QStringList concreteRectBeamFSHeadings;
+    QList<int> concreteRectBeamFSDataTypes;
+    this->framesectionType = "concrete rectangular beam";
 
+    concreteRectBeamFSHeadings << tr("Name");
+    concreteRectBeamFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteRectBeamFSHeadings << tr("Material");
+    concreteRectBeamFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteRectBeamFSHeadings << tr("depth");
+    concreteRectBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteRectBeamFSHeadings << tr("width");
+    concreteRectBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteRectBeamFSHeadings << tr("longitudinal rebar material top");
+    concreteRectBeamFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteRectBeamFSHeadings << tr("longitudinal rebar material bottom");
+    concreteRectBeamFSDataTypes << SIMPLESPREADSHEET_QString;
+    concreteRectBeamFSHeadings << tr("longitudinal rebar num bars top");
+    concreteRectBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteRectBeamFSHeadings << tr("longitudinal rebar num bars bottom");
+    concreteRectBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteRectBeamFSHeadings << tr("longitudinal rebar bar area top");
+    concreteRectBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteRectBeamFSHeadings << tr("longitudinal rebar bar area bottom");
+    concreteRectBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteRectBeamFSHeadings << tr("longitudinal rebar cover top");
+    concreteRectBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteRectBeamFSHeadings << tr("longitudinal rebar cover bottom");
+    concreteRectBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteRectBeamFSHeadings << tr("transverse rebar material");
+    concreteRectBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteRectBeamFSHeadings << tr("transverse rebar bar area");
+    concreteRectBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteRectBeamFSHeadings << tr("transverse rebar spacing");
+    concreteRectBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
+    concreteRectBeamFSHeadings << tr("mass per length");
+    concreteRectBeamFSDataTypes << SIMPLESPREADSHEET_QDouble;
 
-void
-FramesectionInputWidget::outputToJSON(QJsonArray &jsonArray){
-        int numRows = theSpreadsheet->getNumRows();
-
-        // for each row of the spreadsheet
-        for (int i=0; i<numRows; i++) {
-            QJsonObject obj, lrebar, trebar;
-            // for each field defined in private member var tableHeader
-            // and the respective data type defined in private member var dataTypes
-            // (tableHeader and dataTypes defined in constructor function)
-            for (int j=0; j<(this->tableHeader.size()); j++) {
-                QString fieldName = this->tableHeader[j].toLower();
-
-                if(this->dataTypes[j] == 0) {
-                    //string
-                    QString tmpString;
-                    if (theSpreadsheet->getString(i,j,tmpString) == false || tmpString.isEmpty()) {
-                        qDebug() << "no value for " << fieldName << " in row " << i;
-                        return;
-                    }
-                    if (fieldName.startsWith("longitudinal rebar ") == true) {
-                        lrebar[fieldName.remove(0,19)] = tmpString;
-                    } else if (fieldName.startsWith("transverse rebar ") == true) {
-                        trebar[fieldName.remove(0,17)] = tmpString;
-                    } else {
-                        obj[fieldName] = tmpString;
-                    }
-                } else if (this->dataTypes[j] == 1) {
-                    //double
-                    double tmpDouble;
-                    if (theSpreadsheet->getDouble(i,j,tmpDouble) == false) {
-                        qDebug() << "no value for " << fieldName << " in row " << i;
-                        return;
-                    }
-                    if (fieldName.startsWith("longitudinal rebar ") == true) {
-                        lrebar[fieldName.remove(0,19)] = tmpDouble;
-                    } else if (fieldName.startsWith("transverse rebar ") == true) {
-                        trebar[fieldName.remove(0,17)] = tmpDouble;
-                    } else {
-                        obj[fieldName] = tmpDouble;
-                    }
-                }
-            }
-
-            obj["longitudinal rebar"] = lrebar;
-            obj["transverse rebar"] = trebar;
-            obj["type"] = framesectionType;
-            jsonArray.append(obj);
-        }
-
+    this->tableHeader = concreteRectBeamFSHeadings;
+    this->dataTypes = concreteRectBeamFSDataTypes;
 }
-
-void
-FramesectionInputWidget::inputFromJSON(QJsonObject &jsonObject) { return; }
-
-void
-FramesectionInputWidget::inputFromJSON(QJsonArray &jsonArray){
-    int currentRow = 0;
-
-    foreach (const QJsonValue &theValue, jsonArray) {
-        QJsonObject theObject = theValue.toObject();
-        if (theObject["type"] == this->framesectionType) {
-            QJsonObject lrebar = theObject["longitudinal rebar"].toObject();
-            QJsonObject trebar = theObject["transverse rebar"].toObject();
-
-            for (int j=0; j<(this->tableHeader.size()); j++) {
-                QString fieldName = this->tableHeader[j].toLower();
-
-                if(this->dataTypes[j] == 0) {
-                    QString tmpString;
-                    if(fieldName.startsWith("longitudinal rebar ") == true) {
-                        tmpString = lrebar[fieldName.remove(0,19)].toString();
-                    } else if (fieldName.startsWith("transverse rebar ") == true) {
-                        tmpString = trebar[fieldName.remove(0,17)].toString();
-                    } else {
-                        tmpString = theObject[fieldName].toString();
-                    }
-                    theSpreadsheet->setString(currentRow, j, tmpString);
-                } else if (this->dataTypes[j] == 1) {
-                    double tmpDouble;
-                    if(fieldName.startsWith("longitudinal rebar ") == true) {
-                        tmpDouble = lrebar[fieldName.remove(0,19)].toDouble();
-                    } else if (fieldName.startsWith("transverse rebar ") == true) {
-                        tmpDouble = trebar[fieldName.remove(0,17)].toDouble();
-                    } else {
-                        tmpDouble = theObject[fieldName].toDouble();
-                    }
-                    theSpreadsheet->setDouble(currentRow, j, tmpDouble);
-                }
-            }
-            currentRow++;
-        }
-    }
-}
-
-
-void
-FramesectionInputWidget::clear(void)
-{
-    theSpreadsheet->clear();
-}
-

@@ -71,11 +71,12 @@ private:
     QList<int> dataTypes;
     QString framesectionType;
 
+    void setupSpreadsheet();
     void concreteRectColFS();
     void concreteBoxColFS();
     void concreteCircColFS();
     void concretePipeColFS();
-
+    void concreteRectBeamFS();
 };
 
 #endif // FRAMESECTIONINPUWIDGET_H
