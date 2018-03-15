@@ -54,10 +54,16 @@ class WallsectionInputWidget : public SimCenterTableWidget
 public:
 
     explicit WallsectionInputWidget(SimCenterWidget *parent = 0);
+    explicit WallsectionInputWidget(QString wallsectionType, SimCenterWidget *parent = 0);
+    explicit WallsectionInputWidget(QStringList headings, QList<int> dataTypes, QString wallsectionType, SimCenterWidget *parent = 0);
+
+
     ~WallsectionInputWidget();
 
     void outputToJSON(QJsonObject &rvObject);
+    void outputToJSON(QJsonArray &rvObject);
     void inputFromJSON(QJsonObject &rvObject);
+    void inputFromJSON(QJsonArray &rvObject);
     void clear(void);
 
 signals:
@@ -67,8 +73,13 @@ public slots:
 private:
     QHBoxLayout *theLayout;
     QStringList   tableHeader;
+    QList<int> dataTypes;
+    QString wallsectionType;
 
-
+    void setupSpreadsheet();
+    void concreteRectWallWS();
+    void concreteFlangedWallWS();
+    void concreteBarbellWallWS();
 };
 
 #endif // WALLSECTIONINPUTWIDGET_H

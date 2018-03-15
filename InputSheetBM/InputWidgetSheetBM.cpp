@@ -86,6 +86,8 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
   QStandardItem *propertiesItem = new QStandardItem("Properties");
   QStandardItem *materialsItem = new QStandardItem("Materials");
   QStandardItem *framesectionsItem = new QStandardItem("Framesections");
+  QStandardItem *wallsectionsItem = new QStandardItem("Wallsections");
+  QStandardItem *connectionsItem = new QStandardItem("Connections");
 
   //building up the hierarchy of the model
   rootNode->appendRow(infoItem);
@@ -123,15 +125,33 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
   }
 
   propertiesItem->appendRow(new QStandardItem("Slabsections"));
-  propertiesItem->appendRow(new QStandardItem("Wallsections"));
-  propertiesItem->appendRow(new QStandardItem("Connections"));
+
+  propertiesItem->appendRow(wallsectionsItem);
+  QStringList wallsectionTypes(std::initializer_list<QString>({
+        "Concrete Rectangular Wall", "Concrete Flanged Wall",
+        "Concrete Barbell Wall"}));
+  for (int i=0; i<wallsectionTypes.size(); i++) {
+      wallsectionsItem->appendRow(new QStandardItem(wallsectionTypes[i]));
+      theWallsectionTypes << wallsectionTypes[i].toLower();
+  }
+
+  propertiesItem->appendRow(connectionsItem);
+  QStringList connectionTypes(std::initializer_list<QString>({
+        "Gusset with Foldline", "Gusset without Foldline",
+        "Baseplate Gusset with Foldline", "Baseplate Gusset without Foldline",
+        "Welded Shear Tab", "Bolted Shear Tab"}));
+  for (int i=0; i<connectionTypes.size(); i++) {
+      connectionsItem->appendRow(new QStandardItem(connectionTypes[i]));
+      theConnectionTypes << connectionTypes[i].toLower();
+  }
+
   propertiesItem->appendRow(new QStandardItem("Points"));
 
   //register the model
   treeView->setModel(standardModel);
   treeView->expandAll();
   treeView->setHeaderHidden(true);
-  treeView->setMaximumWidth(200);
+  treeView->setMaximumWidth(250);
 
   // set up so that a slection change triggers yje selectionChanged slot
   QItemSelectionModel *selectionModel= treeView->selectionModel();
@@ -159,8 +179,12 @@ InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), curre
       theFramesectionInputs[theFramesectionTypes[i]] = new FramesectionInputWidget(theFramesectionTypes[i]);
   }
   theSlabsectionInput = new SlabsectionInputWidget();
-  theWallsectionInput = new WallsectionInputWidget();
-  theConnectionInput = new ConnectionInputWidget();
+  for (int i=0; i<theWallsectionTypes.size(); i++) {
+      theWallsectionInputs[theWallsectionTypes[i]] = new WallsectionInputWidget(theWallsectionTypes[i]);
+  }
+  for (int i=0; i<theConnectionTypes.size(); i++) {
+      theConnectionInputs[theConnectionTypes[i]] = new ConnectionInputWidget(theConnectionTypes[i]);
+  }
   thePointInput = new PointInputWidget();
 
 
@@ -244,13 +268,12 @@ void InputWidgetSheetBM::selectionChangedSlot(const QItemSelection & /*newSelect
     } else if (selectedText == tr("Slabsections")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theSlabsectionInput, 1);
         currentWidget = theSlabsectionInput;
-    } else if (selectedText == tr("Wallsections")) {
-        horizontalLayout->insertWidget(horizontalLayout->count()-1, theWallsectionInput, 1);
-        currentWidget = theWallsectionInput;
-    } else if (selectedText == tr("Connections")) {
-        horizontalLayout->insertWidget(horizontalLayout->count()-1, theConnectionInput, 1);
-        currentWidget = theConnectionInput;
-
+    } else if (theWallsectionTypes.contains(selectedText.toLower())) {
+        horizontalLayout->insertWidget(horizontalLayout->count()-1, theWallsectionInputs[selectedText.toLower()], 1);
+        currentWidget = theWallsectionInputs[selectedText.toLower()];
+    } else if (theConnectionTypes.contains(selectedText.toLower())) {
+        horizontalLayout->insertWidget(horizontalLayout->count()-1, theConnectionInputs[selectedText.toLower()], 1);
+        currentWidget = theConnectionInputs[selectedText.toLower()];
     } else if (selectedText == tr("Points")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, thePointInput, 1);
         currentWidget = thePointInput;
@@ -291,8 +314,6 @@ InputWidgetSheetBM::outputToJSON(QJsonObject &jsonObjectTop)
     // add properties
     QJsonObject jsonObjProperties;
     theSlabsectionInput->outputToJSON(jsonObjProperties);
-    theWallsectionInput->outputToJSON(jsonObjProperties);
-    theConnectionInput->outputToJSON(jsonObjProperties);
     thePointInput->outputToJSON(jsonObjProperties);
 
     QJsonArray theFramesectionsArray;
@@ -302,6 +323,22 @@ InputWidgetSheetBM::outputToJSON(QJsonObject &jsonObjectTop)
         theFramesectionInputs[theFramesectionTypes[i]]->outputToJSON(theFramesectionsArray);
     }
     jsonObjProperties["framesections"]=theFramesectionsArray;
+
+    QJsonArray theWallsectionsArray;
+    jsonObjProperties["wallsections"]=theWallsectionsArray;
+
+    for (int i=0; i<theWallsectionTypes.size(); i++) {
+        theWallsectionInputs[theWallsectionTypes[i]]->outputToJSON(theWallsectionsArray);
+    }
+    jsonObjProperties["wallsections"]=theWallsectionsArray;
+
+    QJsonArray theConnectionsArray;
+    jsonObjProperties["connections"]=theConnectionsArray;
+
+    for (int i=0; i<theConnectionTypes.size(); i++) {
+        theConnectionInputs[theConnectionTypes[i]]->outputToJSON(theConnectionsArray);
+    }
+    jsonObjProperties["connections"]=theConnectionsArray;
 
     //
     // create a json array and get all material inputs to enter their data
@@ -337,8 +374,15 @@ InputWidgetSheetBM::clear(void)
     }
 
     theSlabsectionInput->clear();
-    theWallsectionInput->clear();
-    theConnectionInput->clear();
+
+    for (int i=0; i<theWallsectionTypes.size(); i++) {
+        theWallsectionInputs[theWallsectionTypes[i]]->clear();
+    }
+
+    for (int i=0; i<theConnectionTypes.size(); i++) {
+        theConnectionInputs[theConnectionTypes[i]]->clear();
+    }
+
     thePointInput->clear();
 
     if (jsonObjOrig) {
@@ -366,13 +410,21 @@ InputWidgetSheetBM::inputFromJSON(QJsonObject &jsonObject)
 
    QJsonObject jsonObjProperties = jsonObjStructuralInformation["properties"].toObject();
    theSlabsectionInput->inputFromJSON(jsonObjProperties);
-   theWallsectionInput->inputFromJSON(jsonObjProperties);
-   theConnectionInput->inputFromJSON(jsonObjProperties);
    thePointInput->inputFromJSON(jsonObjProperties);
 
    QJsonArray theFramesectionsArray = jsonObjProperties["framesections"].toArray();
    for (int i=0; i<theFramesectionTypes.size(); i++) {
        theFramesectionInputs[theFramesectionTypes[i]]->inputFromJSON(theFramesectionsArray);
+   }
+
+   QJsonArray theWallsectionsArray = jsonObjProperties["wallsections"].toArray();
+   for (int i=0; i<theWallsectionTypes.size(); i++) {
+       theWallsectionInputs[theWallsectionTypes[i]]->inputFromJSON(theWallsectionsArray);
+   }
+
+   QJsonArray theConnectionsArray = jsonObjProperties["connections"].toArray();
+   for (int i=0; i<theConnectionTypes.size(); i++) {
+       theConnectionInputs[theConnectionTypes[i]]->inputFromJSON(theConnectionsArray);
    }
 
    // first the materials

@@ -51,10 +51,15 @@ class ConnectionInputWidget : public SimCenterTableWidget
 public:    
 
     explicit ConnectionInputWidget(SimCenterWidget *parent = 0);
+    explicit ConnectionInputWidget(QString connectionType, SimCenterWidget *parent = 0);
+    explicit ConnectionInputWidget(QStringList headings, QList<int> dataTypes, QString connectionType, SimCenterWidget *parent = 0);
+
     ~ConnectionInputWidget();
 
     void outputToJSON(QJsonObject &rvObject);
+    void outputToJSON(QJsonArray &rvObject);
     void inputFromJSON(QJsonObject &rvObject);
+    void inputFromJSON(QJsonArray &rvObject);
     void clear(void);
 
 signals:
@@ -64,7 +69,14 @@ public slots:
 private:
     QHBoxLayout *theLayout;
     QStringList   tableHeader;
+    QList<int> dataTypes;
+    QString connectionType;
 
+    void setupSpreadsheet();
+    void gussetConnection();
+    void baseplateConnection();
+    void weldedShearTab();
+    void boltedShearTab();
 };
 
 #endif // CONNECTIONINPUTWIDGET_H

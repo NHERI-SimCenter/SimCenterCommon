@@ -89,7 +89,8 @@ FramesectionInputWidget::~FramesectionInputWidget()
 
 }
 
-void FramesectionInputWidget::setupSpreadsheet() {
+void
+FramesectionInputWidget::setupSpreadsheet() {
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
     theSpreadsheet = new SpreadsheetWidget(tableHeader.size(), 1000, tableHeader, dataTypes, this);
@@ -147,8 +148,8 @@ FramesectionInputWidget::outputToJSON(QJsonArray &jsonArray){
                 }
             }
 
-            obj["longitudinal rebar"] = lrebar;
-            obj["transverse rebar"] = trebar;
+            if (!lrebar.isEmpty()) { obj["longitudinal rebar"] = lrebar; }
+            if (!trebar.isEmpty()) { obj["transverse rebar"] = trebar; }
             obj["type"] = framesectionType;
             jsonArray.append(obj);
         }
