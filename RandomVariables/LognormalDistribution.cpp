@@ -69,19 +69,36 @@ LognormalDistribution::~LognormalDistribution()
 
 }
 
-void
+bool
 LognormalDistribution::outputToJSON(QJsonObject &rvObject){
+    if (mean->text().isEmpty() || standardDev->text().isEmpty()) {
+        emit sendErrorMessage("ERROR: LognormalDistribution - data has not been set");
+        return false;
+    }
     rvObject["mean"]=mean->text().toDouble();
     rvObject["stdDev"]=standardDev->text().toDouble();
+    return true;
 }
 
-void
+bool
 LognormalDistribution::inputFromJSON(QJsonObject &rvObject){
-    QJsonValue theMeanValue = rvObject["mean"];
-    mean->setText(QString::number(theMeanValue.toDouble()));
+    if (rvObject.contains("mean")) {
+        QJsonValue theMeanValue = rvObject["mean"];
+        mean->setText(QString::number(theMeanValue.toDouble()));
+    } else {
+        emit sendErrorMessage("ERROR: LognormalDistribution - no \"mean\" entry");
+        return false;
+    }
 
-    QJsonValue theStdDevValue = rvObject["stdDev"];
-    standardDev->setText(QString::number(theStdDevValue.toDouble()));
+    if (rvObject.contains("stdDev")) {
+        QJsonValue theStdDevValue = rvObject["stdDev"];
+        standardDev->setText(QString::number(theStdDevValue.toDouble()));
+    } else {
+        emit sendErrorMessage("Error: LognormalDistribution - no \"stdDev\" entry");
+        return false;
+    }
+
+    return true;
 }
 
 QString 

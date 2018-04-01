@@ -57,13 +57,13 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 
 RandomVariable::RandomVariable()
-    :QWidget(0),variableClass(QString(""))
+    :SimCenterWidget(0),variableClass(QString(""))
 {
 
 }
 
 RandomVariable::RandomVariable(const QString &type, QWidget *parent)
-    :QWidget(parent),variableClass(type)
+    :SimCenterWidget(parent),variableClass(type)
 {
     //
     // create a vertical layout to deal with variable name
@@ -140,6 +140,7 @@ RandomVariable::RandomVariable(const QString &type, QWidget *parent)
 
     theDistribution = new NormalDistribution(this);
     mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+     connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 
     mainLayout->setSpacing(10);
     mainLayout->setMargin(0);
@@ -168,6 +169,7 @@ RandomVariable::RandomVariable(const QString &type,
   delete theDistribution;
   theDistribution = &theD;
   mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+   connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 }
 
 
@@ -183,27 +185,43 @@ RandomVariable::RandomVariable(const QString &type,
      return variableName->text();
  }
 
-void RandomVariable::outputToJSON(QJsonObject &rvObject){
+bool
+RandomVariable::outputToJSON(QJsonObject &rvObject){
+    bool result = false;
     if (!variableName->text().isEmpty()) {
-       rvObject["name"]=variableName->text();
-       rvObject["distribution"]=distributionComboBox->currentText();
-       rvObject["variableClass"]=variableClass;
-       theDistribution->outputToJSON(rvObject);
+        rvObject["name"]=variableName->text();
+        rvObject["distribution"]=distributionComboBox->currentText();
+        rvObject["variableClass"]=variableClass;
+        result = theDistribution->outputToJSON(rvObject);
+    } else {
+        emit sendErrorMessage("ERROR: RandomVariable - cannot output as no \"name\" entry!");
+        return false;
     }
+    return result;
 }
 
-void RandomVariable::inputFromJSON(QJsonObject &rvObject){
-
-    QJsonValue theName = rvObject["name"];
-    variableName->setText(theName.toString());
-    QJsonValue theDistributionValue = rvObject["distribution"];
-    QString distributionType = theDistributionValue.toString();
+bool
+RandomVariable::inputFromJSON(QJsonObject &rvObject){
+    bool result = false;
+    QString distributionType;
+    if (rvObject.contains("name")) {
+        QJsonValue theName = rvObject["name"];
+        variableName->setText(theName.toString());
+    } else {
+        return false;
+    }
+    if (rvObject.contains("distribution")) {
+        QJsonValue theDistributionValue = rvObject["distribution"];
+        distributionType = theDistributionValue.toString();
+    } else {
+        return false;
+    }
 
     int index = distributionComboBox->findText(distributionType);
     this->distributionChanged(distributionType);
     distributionComboBox->setCurrentIndex(index);
-    theDistribution->inputFromJSON(rvObject);
-    return;
+    return theDistribution->inputFromJSON(rvObject);
+
 }
 
 // distributionChanged()
@@ -241,4 +259,10 @@ void RandomVariable::distributionChanged(const QString &arg1)
          theDistribution = new ContinuousDesignDistribution();
          mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     }
+    connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 }
+
+   void
+   RandomVariable::errorMessage(QString message) {
+       emit sendErrorMessage(message);
+   }

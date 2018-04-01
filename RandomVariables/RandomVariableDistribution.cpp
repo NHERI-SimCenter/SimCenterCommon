@@ -46,7 +46,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDoubleValidator>
 
 RandomVariableDistribution::RandomVariableDistribution(QWidget *parent)
-    : QWidget(parent)
+    : SimCenterWidget(parent)
 {
 
 }
