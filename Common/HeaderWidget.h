@@ -52,7 +52,7 @@ public:
     ~HeaderWidget();
 
     void setHeadingText(const QString &newText);
-
+    void appendLayout(QLayout * newLayout);
 signals:
 
 public slots:

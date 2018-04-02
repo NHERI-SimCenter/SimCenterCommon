@@ -51,8 +51,8 @@ public:
     explicit LognormalDistribution(QWidget *parent = 0);
     ~LognormalDistribution();
 
-    void outputToJSON(QJsonObject &rvObject);
-    void inputFromJSON(QJsonObject &rvObject);
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
 
     QString getAbbreviatedName(void);
 

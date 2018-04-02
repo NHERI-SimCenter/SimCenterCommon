@@ -39,13 +39,13 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <QWidget>
+#include <SimCenterWidget.h>
 #include <QJsonObject>
 
 class QLineEdit;
 class QHBoxLayout;
 
-class RandomVariableDistribution : public QWidget
+class RandomVariableDistribution : public SimCenterWidget
 {
     Q_OBJECT
 public:
@@ -56,9 +56,6 @@ public:
 			       QHBoxLayout *theLayout,
 			       int minL=100,
 			       int maxL=100);
-
-    virtual void outputToJSON(QJsonObject &rvObject) =0;
-    virtual void inputFromJSON(QJsonObject &rvObject) =0;
 
     virtual QString getAbbreviatedName(void) = 0;
 

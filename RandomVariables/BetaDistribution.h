@@ -50,8 +50,8 @@ public:
     explicit BetaDistribution(QWidget *parent = 0);
     ~BetaDistribution();
 
-    void outputToJSON(QJsonObject &rvObject);
-    void inputFromJSON(QJsonObject &rvObject);
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
 
     QString getAbbreviatedName(void);
 
