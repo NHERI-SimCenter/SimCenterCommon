@@ -94,7 +94,7 @@ BeamInputWidget::~BeamInputWidget()
 
 }
 
-void
+bool
 BeamInputWidget::outputToJSON(QJsonObject &jsonObj){
 
     // create a json array and for each row add a json object to it
@@ -197,9 +197,11 @@ BeamInputWidget::outputToJSON(QJsonObject &jsonObj){
 
     // finally add the array to the input arg
     jsonObj["beams"]=jsonArray;
+
+    return(true);
 }
 
-void
+bool
 BeamInputWidget::inputFromJSON(QJsonObject &jsonObject){
 
 
@@ -283,7 +285,7 @@ BeamInputWidget::inputFromJSON(QJsonObject &jsonObject){
         currentRow++;
     }
 
-
+    return(true);
 }
 
 void

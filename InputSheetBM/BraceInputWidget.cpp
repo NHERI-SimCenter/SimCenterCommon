@@ -95,7 +95,7 @@ BraceInputWidget::~BraceInputWidget()
 
 }
 
-void
+bool
 BraceInputWidget::outputToJSON(QJsonObject &jsonObj){
 
     // create a json array and for each row add a json object to it
@@ -200,9 +200,11 @@ BraceInputWidget::outputToJSON(QJsonObject &jsonObj){
 
     // finally add the array to the input arg
     jsonObj["braces"]=jsonArray;
+
+    return(true);
 }
 
-void
+bool
 BraceInputWidget::inputFromJSON(QJsonObject &jsonObject){
 
 
@@ -289,8 +291,7 @@ BraceInputWidget::inputFromJSON(QJsonObject &jsonObject){
         currentRow++;
     }
 
-
-
+    return(true);
 }
 
 void

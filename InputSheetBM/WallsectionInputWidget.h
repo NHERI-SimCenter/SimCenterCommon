@@ -60,10 +60,10 @@ public:
 
     ~WallsectionInputWidget();
 
-    void outputToJSON(QJsonObject &rvObject);
-    void outputToJSON(QJsonArray &rvObject);
-    void inputFromJSON(QJsonObject &rvObject);
-    void inputFromJSON(QJsonArray &rvObject);
+    bool outputToJSON(QJsonObject &rvObject);
+    bool outputToJSON(QJsonArray &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonArray &rvObject);
     void clear(void);
 
 signals:

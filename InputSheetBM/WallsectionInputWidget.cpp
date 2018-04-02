@@ -77,10 +77,10 @@ WallsectionInputWidget::setupSpreadsheet() {
     this->setMinimumWidth(500);
 }
 
-void
-WallsectionInputWidget::outputToJSON(QJsonObject &jsonObj){return;}
+bool
+WallsectionInputWidget::outputToJSON(QJsonObject &jsonObj){return(true);}
 
-void
+bool
 WallsectionInputWidget::outputToJSON(QJsonArray &jsonArray) {
     int numRows = theSpreadsheet->getNumRows();
 
@@ -99,7 +99,7 @@ WallsectionInputWidget::outputToJSON(QJsonArray &jsonArray) {
                 if (theSpreadsheet->getString(i,j,tmpString) == false || tmpString.isEmpty()) {
                     qDebug() << "no value for " << fieldName << " in row " << i;
                     // TODO: need to actually break out of this loop
-                    return;
+                    return(true);
                 }
                 if (fieldName.startsWith("longitudinal rebar ") == true) {
                     lrebar[fieldName.remove(0,19)] = tmpString;
@@ -118,7 +118,7 @@ WallsectionInputWidget::outputToJSON(QJsonArray &jsonArray) {
                 if (theSpreadsheet->getDouble(i,j,tmpDouble) == false) {
                     qDebug() << "no value for " << fieldName << " in row " << i;
                     // TODO: need to actually break out of this loop
-                    return;
+                    return(true);
                 }
                 if (fieldName.startsWith("longitudinal rebar ") == true) {
                     lrebar[fieldName.remove(0,19)] = tmpDouble;
@@ -134,17 +134,19 @@ WallsectionInputWidget::outputToJSON(QJsonArray &jsonArray) {
             }
         }
 
-        if (!lrebar.isEmpty) { obj["longitudinal rebar"] = lrebar; }
-        if (!trebar.isEmpty) { obj["transverse rebar"] = trebar; }
-        if (!lber.isEmpty) { obj["longitudinal boundary element rebar"] = lber; }
-        if (!tber.isEmpty) { obj["transverse boundary element rebar"] = tber; }
+        if (!lrebar.isEmpty()) { obj["longitudinal rebar"] = lrebar; }
+        if (!trebar.isEmpty()) { obj["transverse rebar"] = trebar; }
+        if (!lber.isEmpty()) { obj["longitudinal boundary element rebar"] = lber; }
+        if (!tber.isEmpty()) { obj["transverse boundary element rebar"] = tber; }
         obj["type"] = wallsectionType;
         jsonArray.append(obj);
     }
 
+    return(true);
+
 }
 
-void
+bool
 WallsectionInputWidget::inputFromJSON(QJsonObject &jsonObject){
 
 
@@ -285,10 +287,10 @@ WallsectionInputWidget::inputFromJSON(QJsonObject &jsonObject){
         currentRow++;
     }
 
-
+    return(true);
 }
 
-void
+bool
 WallsectionInputWidget::inputFromJSON(QJsonArray &jsonArray) {
     int currentRow = 0;
 
@@ -309,9 +311,9 @@ WallsectionInputWidget::inputFromJSON(QJsonArray &jsonArray) {
                         tmpString = lrebar[fieldName.remove(0,19)].toString();
                     } else if (fieldName.startsWith("transverse rebar ") == true) {
                         tmpString = trebar[fieldName.remove(0,17)].toString();
-                    } else if (fieldName.startsWith("LBER ") == true) {
+                    } else if (fieldName.startsWith("lber ") == true) {
                         tmpString = lber[fieldName.remove(0,5)].toString();
-                    } else if (fieldName.startsWith("TBER ") == true) {
+                    } else if (fieldName.startsWith("tber ") == true) {
                         tmpString = tber[fieldName.remove(0,5)].toString();
                     } else {
                         tmpString = theObject[fieldName].toString();
@@ -323,9 +325,9 @@ WallsectionInputWidget::inputFromJSON(QJsonArray &jsonArray) {
                         tmpDouble = lrebar[fieldName.remove(0,19)].toDouble();
                     } else if (fieldName.startsWith("transverse rebar ") == true) {
                         tmpDouble = trebar[fieldName.remove(0,17)].toDouble();
-                    } else if (fieldName.startsWith("LBER ") == true) {
+                    } else if (fieldName.startsWith("lber ") == true) {
                         tmpDouble = lber[fieldName.remove(0,5)].toDouble();
-                    } else if (fieldName.startsWith("TBER") == true) {
+                    } else if (fieldName.startsWith("tber") == true) {
                         tmpDouble = tber[fieldName.remove(0,5)].toDouble();
                     } else {
                         tmpDouble = theObject[fieldName].toDouble();
@@ -336,6 +338,7 @@ WallsectionInputWidget::inputFromJSON(QJsonArray &jsonArray) {
             currentRow++;
         }
     }
+    return(true);
 }
 
 void

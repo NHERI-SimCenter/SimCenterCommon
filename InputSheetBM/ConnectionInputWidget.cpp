@@ -129,10 +129,10 @@ ConnectionInputWidget::~ConnectionInputWidget()
 
 }
 
-void
-ConnectionInputWidget::outputToJSON(QJsonObject &jsonObj){return;}
+bool
+ConnectionInputWidget::outputToJSON(QJsonObject &jsonObj){return(true);}
 
-void
+bool
 ConnectionInputWidget::outputToJSON(QJsonArray &jsonArray){
     int numRows = theSpreadsheet->getNumRows();
 
@@ -151,7 +151,7 @@ ConnectionInputWidget::outputToJSON(QJsonArray &jsonArray){
                 if (theSpreadsheet->getString(i,j,tmpString) == false || tmpString.isEmpty()) {
                     qDebug() << "no value for " << fieldName << " in row " << i;
                     // TODO: need to actually break out of this loop
-                    return;
+                    return(true);
                 }
                 if (fieldName.startsWith("bolt group ") == true) {
                     boltGroup[fieldName.remove(0,11)] = tmpString;
@@ -164,7 +164,7 @@ ConnectionInputWidget::outputToJSON(QJsonArray &jsonArray){
                 if (theSpreadsheet->getDouble(i,j,tmpDouble) == false) {
                     qDebug() << "no value for " << fieldName << " in row " << i;
                     // TODO: need to actually break out of this loop
-                    return;
+                    return(true);
                 }
                 if (fieldName.startsWith("bolt group ") == true) {
                     boltGroup[fieldName.remove(0,11)] = tmpDouble;
@@ -178,13 +178,13 @@ ConnectionInputWidget::outputToJSON(QJsonArray &jsonArray){
         obj["type"] = connectionType;
         jsonArray.append(obj);
     }
-
+    return(true);
 }
 
-void
-ConnectionInputWidget::inputFromJSON(QJsonObject &jsonObject){return;}
+bool
+ConnectionInputWidget::inputFromJSON(QJsonObject &jsonObject){return(true);}
 
-void
+bool
 ConnectionInputWidget::inputFromJSON(QJsonArray &jsonArray) {
     int currentRow = 0;
 
@@ -217,6 +217,7 @@ ConnectionInputWidget::inputFromJSON(QJsonArray &jsonArray) {
             currentRow++;
         }
     }
+    return(true);
 }
 
 void

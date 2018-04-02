@@ -83,7 +83,7 @@ PointInputWidget::~PointInputWidget()
 
 }
 
-void
+bool
 PointInputWidget::outputToJSON(QJsonObject &jsonObj){
     using namespace std;
 
@@ -132,10 +132,10 @@ PointInputWidget::outputToJSON(QJsonObject &jsonObj){
 
     // add the object
     jsonObj["points"] = jsonArray;
-
+    return(true);
 }
 
-void
+bool
 PointInputWidget::inputFromJSON(QJsonObject &jsonObject){
 
     int currentRow = 0;
@@ -176,7 +176,7 @@ PointInputWidget::inputFromJSON(QJsonObject &jsonObject){
         currentRow++;
     }
 
-
+    return(true);
 }
 
 

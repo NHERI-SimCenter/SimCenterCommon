@@ -127,7 +127,7 @@ SlabsectionInputWidget::~SlabsectionInputWidget()
 
 }
 
-void
+bool
 SlabsectionInputWidget::outputToJSON(QJsonObject &jsonObj){
 
 
@@ -256,10 +256,10 @@ SlabsectionInputWidget::outputToJSON(QJsonObject &jsonObj){
 
     // add the object
     jsonObj["slabsections"] = jsonArray;
-
+    return(true);
 }
 
-void
+bool
 SlabsectionInputWidget::inputFromJSON(QJsonObject &jsonObject){
 
     int currentRow = 0;
@@ -370,7 +370,7 @@ SlabsectionInputWidget::inputFromJSON(QJsonObject &jsonObject){
         currentRow++;
     }
 
-
+    return(true);
 }
 
 

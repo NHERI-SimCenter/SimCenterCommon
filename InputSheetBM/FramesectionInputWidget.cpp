@@ -98,11 +98,11 @@ FramesectionInputWidget::setupSpreadsheet() {
     this->setMinimumWidth(500);
 }
 
-void
-FramesectionInputWidget::outputToJSON(QJsonObject &jsonObj){return;}
+bool
+FramesectionInputWidget::outputToJSON(QJsonObject &jsonObj){return(true);}
 
 
-void
+bool
 FramesectionInputWidget::outputToJSON(QJsonArray &jsonArray){
         int numRows = theSpreadsheet->getNumRows();
 
@@ -121,7 +121,7 @@ FramesectionInputWidget::outputToJSON(QJsonArray &jsonArray){
                     if (theSpreadsheet->getString(i,j,tmpString) == false || tmpString.isEmpty()) {
                         qDebug() << "no value for " << fieldName << " in row " << i;
                         // TODO: need to actually break out of this loop
-                        return;
+                        return(true);
                     }
                     if (fieldName.startsWith("longitudinal rebar ") == true) {
                         lrebar[fieldName.remove(0,19)] = tmpString;
@@ -136,7 +136,7 @@ FramesectionInputWidget::outputToJSON(QJsonArray &jsonArray){
                     if (theSpreadsheet->getDouble(i,j,tmpDouble) == false) {
                         qDebug() << "no value for " << fieldName << " in row " << i;
                         // TODO: need to actually break out of this loop
-                        return;
+                        return(true);
                     }
                     if (fieldName.startsWith("longitudinal rebar ") == true) {
                         lrebar[fieldName.remove(0,19)] = tmpDouble;
@@ -154,15 +154,16 @@ FramesectionInputWidget::outputToJSON(QJsonArray &jsonArray){
             jsonArray.append(obj);
         }
 
+        return(true);
+
 }
 
-void
-FramesectionInputWidget::inputFromJSON(QJsonObject &jsonObject) { return; }
+bool
+FramesectionInputWidget::inputFromJSON(QJsonObject &jsonObject) { return(true); }
 
-void
+bool
 FramesectionInputWidget::inputFromJSON(QJsonArray &jsonArray){
     int currentRow = 0;
-
     foreach (const QJsonValue &theValue, jsonArray) {
         QJsonObject theObject = theValue.toObject();
         if (theObject["type"] == framesectionType) {
@@ -197,6 +198,7 @@ FramesectionInputWidget::inputFromJSON(QJsonArray &jsonArray){
             currentRow++;
         }
     }
+    return(true);
 }
 
 void

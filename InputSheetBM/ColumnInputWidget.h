@@ -51,8 +51,8 @@ public:
     explicit ColumnInputWidget(QWidget *parent = 0);
     ~ColumnInputWidget();
 
-    void outputToJSON(QJsonObject &rvObject);
-    void inputFromJSON(QJsonObject &rvObject);
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
     void clear(void);
 
 signals:
