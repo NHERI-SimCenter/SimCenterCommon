@@ -52,10 +52,10 @@ public:
     explicit ClineInputWidget(QWidget *parent = 0);
     ~ClineInputWidget();
 
-    void outputToJSON(QJsonObject &rvObject);
-    void inputFromJSON(QJsonObject &rvObject);
-    void outputToJSON(QJsonArray &arrayObject);
-    void inputFromJSON(QJsonArray &arrayObject);
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+    bool outputToJSON(QJsonArray &arrayObject);
+    bool inputFromJSON(QJsonArray &arrayObject);
 
     void clear(void);
 

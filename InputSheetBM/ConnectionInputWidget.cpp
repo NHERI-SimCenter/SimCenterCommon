@@ -102,180 +102,233 @@ ConnectionInputWidget::ConnectionInputWidget(SimCenterWidget *parent) : SimCente
     this->setMinimumWidth(500);
 }
 
+ConnectionInputWidget::ConnectionInputWidget(QString connectionType, SimCenterWidget *parent) : SimCenterTableWidget(parent)
+{
+    if (connectionType == "gusset with foldline") { this->gussetConnection(); }
+    if (connectionType == "gusset without foldline") { this->gussetConnection(); }
+    if (connectionType == "baseplate gusset with foldline") { this->baseplateConnection(); }
+    if (connectionType == "baseplate gusset without foldline") { this->baseplateConnection(); }
+    if (connectionType == "welded shear tab") { this->weldedShearTab(); }
+    if (connectionType == "bolted shear tab") { this->boltedShearTab(); }
 
+    this->connectionType = connectionType;
+    this->setupSpreadsheet();
+}
+
+ConnectionInputWidget::ConnectionInputWidget(QStringList headings, QList<int> dataTypes, QString connectionType, SimCenterWidget *parent) : SimCenterTableWidget(parent)
+{
+    this->tableHeader = headings;
+    this->dataTypes = dataTypes;
+    this->connectionType = connectionType;
+
+    this->setupSpreadsheet();
+}
 
 ConnectionInputWidget::~ConnectionInputWidget()
 {
 
 }
 
-void
-ConnectionInputWidget::outputToJSON(QJsonObject &jsonObj){
+bool
+ConnectionInputWidget::outputToJSON(QJsonObject &jsonObj){return(true);}
 
-
-    QJsonArray  jsonArray;
+bool
+ConnectionInputWidget::outputToJSON(QJsonArray &jsonArray){
     int numRows = theSpreadsheet->getNumRows();
+
+    // for each row of the spreadsheet
     for (int i=0; i<numRows; i++) {
+        QJsonObject obj, boltGroup;
+        // for each field defined in private member var tableHeader
+        // and the respective data type defined in private member var dataTypes
+        // (tableHeader and dataTypes defined in constructor function)
+        for (int j=0; j<tableHeader.size(); j++) {
+            QString fieldName = tableHeader[j].toLower();
 
-        QJsonObject obj;
-        QString name, type, material;
-        double thickness, weld_len_brace, weld_len_beam, weld_len_column, weld_len_baseplate, thickness_baseplate, workpoint_depth, tab_depth, tab_width;
+            if(dataTypes[j] == 0) {
+                //string
+                QString tmpString;
+                if (theSpreadsheet->getString(i,j,tmpString) == false || tmpString.isEmpty()) {
+                    qDebug() << "no value for " << fieldName << " in row " << i;
+                    // TODO: need to actually break out of this loop
+                    return(true);
+                }
+                if (fieldName.startsWith("bolt group ") == true) {
+                    boltGroup[fieldName.remove(0,11)] = tmpString;
+                } else {
+                    obj[fieldName] = tmpString;
+                }
+            } else if (dataTypes[j] == 1) {
+                //double
+                double tmpDouble;
+                if (theSpreadsheet->getDouble(i,j,tmpDouble) == false) {
+                    qDebug() << "no value for " << fieldName << " in row " << i;
+                    // TODO: need to actually break out of this loop
+                    return(true);
+                }
+                if (fieldName.startsWith("bolt group ") == true) {
+                    boltGroup[fieldName.remove(0,11)] = tmpDouble;
+                } else {
+                    obj[fieldName] = tmpDouble;
+                }
+            }
+        }
 
-        // bolt group
-        QString pattern;
-        double edge_dist_depth, edge_dist_width, num_bolts_depth, num_bolts_width;
-
-        // obtain info from spreadsheet
-        if (theSpreadsheet->getString(i,0,name) == false || name.isEmpty())
-            break;
-        if (theSpreadsheet->getString(i,1,type) == false)
-            break;
-        if (theSpreadsheet->getString(i,2, material) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,3,thickness) == false)
-            break;
-
-        if (theSpreadsheet->getDouble(i,4,weld_len_baseplate) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,5,weld_len_beam) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,6,weld_len_brace) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,7,weld_len_column) == false)
-            break;
-
-        if (theSpreadsheet->getDouble(i,8,thickness_baseplate) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,9,workpoint_depth) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,10,tab_depth) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,11,tab_width) == false)
-            break;
-
-        // bolt group
-        if (theSpreadsheet->getDouble(i,12,edge_dist_depth) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,13,edge_dist_width) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,14,num_bolts_depth) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,15,num_bolts_width) == false)
-            break;
-        if (theSpreadsheet->getString(i,16,pattern) == false || name.isEmpty())
-            break;
-
-        // now add the items to object
-        obj["name"]=name;
-        obj["type"]=type;
-        obj["material"]=material;
-        obj["thickness"]=thickness;
-
-        obj["weld length baseplate"]=weld_len_baseplate;
-        obj["weld length beam"]=weld_len_beam;
-        obj["weld length brace"]=weld_len_brace;
-        obj["weld length column"]=weld_len_column;
-
-        //bolt group
-        QJsonObject boltgroup;
-
-        boltgroup["edge distance depth"]=edge_dist_depth;
-        boltgroup["edge distance width"]=edge_dist_width;
-        boltgroup["number of bolts depth"]=num_bolts_depth;
-        boltgroup["number of bolts width"]=num_bolts_width;
-        boltgroup["bar area corner"]=pattern;
-
-        obj["bolt group"] = boltgroup;
-
-
-        // add the object to the array
-       jsonArray.append(obj);
-
+        if(!boltGroup.isEmpty()) { obj["bolt group"] = boltGroup; }
+        obj["type"] = connectionType;
+        jsonArray.append(obj);
     }
-
-    // add the object
-    jsonObj["connections"] = jsonArray;
-
+    return(true);
 }
 
-void
-ConnectionInputWidget::inputFromJSON(QJsonObject &jsonObject){
+bool
+ConnectionInputWidget::inputFromJSON(QJsonObject &jsonObject){return(true);}
 
+bool
+ConnectionInputWidget::inputFromJSON(QJsonArray &jsonArray) {
     int currentRow = 0;
 
-    QString name, type, material;
-    double thickness, weld_len_brace, weld_len_beam, weld_len_column, weld_len_baseplate, thickness_baseplate, workpoint_depth, tab_depth, tab_width;
-
-    // bolt group
-    QString pattern;
-    double edge_dist_depth, edge_dist_width, num_bolts_depth, num_bolts_width;
-
-    //
-    //
-
-    QJsonArray theArray = jsonObject["connections"].toArray();
-    foreach (const QJsonValue &theValue, theArray) {
-        // get values
+    foreach (const QJsonValue &theValue, jsonArray) {
         QJsonObject theObject = theValue.toObject();
+        if (theObject["type"] == connectionType) {
+            QJsonObject boltGroup = theObject["bolt group"].toObject();
 
-        name = theObject["name"].toString();
-        type = theObject["type"].toString();
-        material = theObject["material"].toString();
-        thickness = theObject["thickness"].toDouble();
+            for (int j=0; j<tableHeader.size(); j++) {
+                QString fieldName = tableHeader[j].toLower();
 
-        weld_len_baseplate = theObject["weld length baseplate"].toDouble();
-        weld_len_beam = theObject["weld length beam"].toDouble();
-        weld_len_brace = theObject["weld length brace"].toDouble();
-        weld_len_column = theObject["weld length column"].toDouble();
-
-        thickness_baseplate = theObject["thickness baseplate"].toDouble();
-        workpoint_depth = theObject["workpoint depth"].toDouble();
-        tab_depth = theObject["tab depth"].toDouble();
-        tab_width = theObject["tab width"].toDouble();
-
-        // bolt group
-        QJsonValue theBGValue = theObject["bolt group"];
-        QJsonObject bgObject = theBGValue.toObject();
-
-        edge_dist_depth = theObject["edge distance depth"].toDouble();
-        edge_dist_width = theObject["edge distance width"].toDouble();
-        num_bolts_depth = theObject["number of bolts depth"].toDouble();
-        num_bolts_width = theObject["number of bolts width"].toDouble();
-        pattern = theObject["pattern"].toString();
-
-
-        // add to the spreadsheet
-        theSpreadsheet->setString(currentRow, 0, name);
-        theSpreadsheet->setString(currentRow, 1, type);
-        theSpreadsheet->setString(currentRow, 2, material);
-        theSpreadsheet->setDouble(currentRow, 3, thickness);
-
-        theSpreadsheet->setDouble(currentRow, 4, weld_len_baseplate);
-        theSpreadsheet->setDouble(currentRow, 5, weld_len_beam);
-        theSpreadsheet->setDouble(currentRow, 6, weld_len_brace);
-        theSpreadsheet->setDouble(currentRow, 7, weld_len_column);
-
-        theSpreadsheet->setDouble(currentRow, 8, thickness_baseplate);
-        theSpreadsheet->setDouble(currentRow, 9, workpoint_depth);
-        theSpreadsheet->setDouble(currentRow, 10, tab_depth);
-        theSpreadsheet->setDouble(currentRow, 11, tab_width);
-
-        // bolt group
-        theSpreadsheet->setDouble(currentRow, 12, edge_dist_depth);
-        theSpreadsheet->setDouble(currentRow, 13, edge_dist_width);
-        theSpreadsheet->setDouble(currentRow, 14, num_bolts_depth);
-        theSpreadsheet->setDouble(currentRow, 15, num_bolts_width);
-        theSpreadsheet->setString(currentRow, 16, pattern);
-
-        currentRow++;
+                if(dataTypes[j] == 0) {
+                    QString tmpString;
+                    if(fieldName.startsWith("bolt group ") == true) {
+                        tmpString = boltGroup[fieldName.remove(0,11)].toString();
+                    } else {
+                        tmpString = theObject[fieldName].toString();
+                    }
+                    theSpreadsheet->setString(currentRow, j, tmpString);
+                } else if (dataTypes[j] == 1) {
+                    double tmpDouble;
+                    if(fieldName.startsWith("bolt group ") == true) {
+                        tmpDouble = boltGroup[fieldName.remove(0,11)].toDouble();
+                    } else {
+                        tmpDouble = theObject[fieldName].toDouble();
+                    }
+                    theSpreadsheet->setDouble(currentRow, j, tmpDouble);
+                }
+            }
+            currentRow++;
+        }
     }
-
-
+    return(true);
 }
-
 
 void
 ConnectionInputWidget::clear(void)
 {
     theSpreadsheet->clear();
+}
+
+void
+ConnectionInputWidget::setupSpreadsheet() {
+    theLayout = new QHBoxLayout();
+    this->setLayout(theLayout);
+    theSpreadsheet = new SpreadsheetWidget(tableHeader.size(), 1000, tableHeader, dataTypes, this);
+    theLayout->addWidget(theSpreadsheet);
+    this->setMinimumWidth(500);
+}
+
+void
+ConnectionInputWidget::gussetConnection() {
+    QStringList gussetHeadings;
+    QList<int> gussetDataTypes;
+
+    gussetHeadings << tr("Name");
+    gussetDataTypes << SIMPLESPREADSHEET_QString;
+    gussetHeadings << tr("material");
+    gussetDataTypes << SIMPLESPREADSHEET_QDouble;
+    gussetHeadings << tr("thickness");
+    gussetDataTypes << SIMPLESPREADSHEET_QDouble;
+    gussetHeadings << tr("weld length brace");
+    gussetDataTypes << SIMPLESPREADSHEET_QDouble;
+    gussetHeadings << tr("weld length column");
+    gussetDataTypes << SIMPLESPREADSHEET_QDouble;
+    gussetHeadings << tr("weld length beam");
+    gussetDataTypes << SIMPLESPREADSHEET_QDouble;
+
+    this->tableHeader = gussetHeadings;
+    this->dataTypes = gussetDataTypes;
+}
+
+void
+ConnectionInputWidget::baseplateConnection() {
+    QStringList baseplateHeadings;
+    QList<int> baseplateDataTypes;
+
+    baseplateHeadings << tr("Name");
+    baseplateDataTypes << SIMPLESPREADSHEET_QString;
+    baseplateHeadings << tr("material");
+    baseplateDataTypes << SIMPLESPREADSHEET_QDouble;
+    baseplateHeadings << tr("thickness");
+    baseplateDataTypes << SIMPLESPREADSHEET_QDouble;
+    baseplateHeadings << tr("weld length brace");
+    baseplateDataTypes << SIMPLESPREADSHEET_QDouble;
+    baseplateHeadings << tr("weld length column");
+    baseplateDataTypes << SIMPLESPREADSHEET_QDouble;
+    baseplateHeadings << tr("weld length baseplate");
+    baseplateDataTypes << SIMPLESPREADSHEET_QDouble;
+    baseplateHeadings << tr("thickness baseplate");
+    baseplateDataTypes << SIMPLESPREADSHEET_QDouble;
+    baseplateHeadings << tr("workpoint depth");
+    baseplateDataTypes << SIMPLESPREADSHEET_QDouble;
+
+    this->tableHeader = baseplateHeadings;
+    this->dataTypes = baseplateDataTypes;
+}
+
+void
+ConnectionInputWidget::weldedShearTab() {
+    QStringList weldedShearTabHeadings;
+    QList<int> weldedShearTabDataTypes;
+
+    weldedShearTabHeadings << tr("Name");
+    weldedShearTabDataTypes << SIMPLESPREADSHEET_QString;
+    weldedShearTabHeadings << tr("material");
+    weldedShearTabDataTypes << SIMPLESPREADSHEET_QDouble;
+    weldedShearTabHeadings << tr("thickness");
+    weldedShearTabDataTypes << SIMPLESPREADSHEET_QDouble;
+    weldedShearTabHeadings << tr("tab width");
+    weldedShearTabDataTypes << SIMPLESPREADSHEET_QDouble;
+    weldedShearTabHeadings << tr("tab depth");
+    weldedShearTabDataTypes << SIMPLESPREADSHEET_QDouble;
+
+    this->tableHeader = weldedShearTabHeadings;
+    this->dataTypes = weldedShearTabDataTypes;
+}
+
+void
+ConnectionInputWidget::boltedShearTab() {
+    QStringList boltedShearTabHeadings;
+    QList<int> boltedShearTabDataTypes;
+
+    boltedShearTabHeadings << tr("Name");
+    boltedShearTabDataTypes << SIMPLESPREADSHEET_QString;
+    boltedShearTabHeadings << tr("material");
+    boltedShearTabDataTypes << SIMPLESPREADSHEET_QDouble;
+    boltedShearTabHeadings << tr("thickness");
+    boltedShearTabDataTypes << SIMPLESPREADSHEET_QDouble;
+    boltedShearTabHeadings << tr("tab width");
+    boltedShearTabDataTypes << SIMPLESPREADSHEET_QDouble;
+    boltedShearTabHeadings << tr("tab depth");
+    boltedShearTabDataTypes << SIMPLESPREADSHEET_QDouble;
+    boltedShearTabHeadings << tr("bolt group edge distance depth");
+    boltedShearTabDataTypes << SIMPLESPREADSHEET_QDouble;
+    boltedShearTabHeadings << tr("bolt group edge distance width");
+    boltedShearTabDataTypes << SIMPLESPREADSHEET_QDouble;
+    boltedShearTabHeadings << tr("bolt group number of bolts depth");
+    boltedShearTabDataTypes << SIMPLESPREADSHEET_QDouble;
+    boltedShearTabHeadings << tr("bolt group number of bolts width");
+    boltedShearTabDataTypes << SIMPLESPREADSHEET_QDouble;
+    boltedShearTabHeadings << tr("bolt group pattern");
+    boltedShearTabDataTypes << SIMPLESPREADSHEET_QDouble;
+
+    this->tableHeader = boltedShearTabHeadings;
+    this->dataTypes = boltedShearTabDataTypes;
 }
