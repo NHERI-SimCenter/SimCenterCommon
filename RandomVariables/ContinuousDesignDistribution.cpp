@@ -79,7 +79,7 @@ ContinuousDesignDistribution::outputToJSON(QJsonObject &rvObject){
     }
     rvObject["lowerbound"]=min->text().toDouble();
     rvObject["upperbound"]=max->text().toDouble();
-    rvObject["initialPoint"]=initialPoint->text().toDouble();
+    rvObject["initialpoint"]=initialPoint->text().toDouble();
     return true;
 }
 
@@ -107,7 +107,7 @@ ContinuousDesignDistribution::inputFromJSON(QJsonObject &rvObject){
         QJsonValue theValue = rvObject["initialpoint"];
         initialPoint->setText(QString::number(theValue.toDouble()));
     } else {
-        emit sendErrorMessage("ERROR: Continuous Distribution - no \"upperbound\" entry");
+        emit sendErrorMessage("ERROR: Continuous Distribution - no \"initialpoint\" entry");
         return false;
     }
 
