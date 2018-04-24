@@ -55,8 +55,8 @@ public:
     explicit SlabsectionInputWidget(SimCenterWidget *parent = 0);
     ~SlabsectionInputWidget();
 
-    void outputToJSON(QJsonObject &rvObject);
-    void inputFromJSON(QJsonObject &rvObject);
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
     void clear(void);
 
 signals:

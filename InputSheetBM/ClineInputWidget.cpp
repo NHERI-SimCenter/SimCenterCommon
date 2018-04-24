@@ -66,7 +66,7 @@ ClineInputWidget::~ClineInputWidget()
 
 }
 
-void
+bool
 ClineInputWidget::outputToJSON(QJsonObject &jsonObj){
 
      // create a json array and for each row add a json object to it
@@ -97,10 +97,11 @@ ClineInputWidget::outputToJSON(QJsonObject &jsonObj){
 
     // finally add the array to the input arg
     jsonObj["clines"]=jsonArrayCline;
+    return(true);
 
 }
 
-void
+bool
 ClineInputWidget::inputFromJSON(QJsonObject &jsonObject)
 {
     int currentRow = 0;
@@ -131,6 +132,7 @@ ClineInputWidget::inputFromJSON(QJsonObject &jsonObject)
 
         currentRow++;
     }
+    return(true);
 }
 
 void

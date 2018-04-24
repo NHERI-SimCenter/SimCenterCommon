@@ -51,10 +51,14 @@ class FramesectionInputWidget : public SimCenterTableWidget
 public:
 
     explicit FramesectionInputWidget(SimCenterWidget *parent = 0);
+    explicit FramesectionInputWidget(QString framesectionType, SimCenterWidget *parent = 0);
+    explicit FramesectionInputWidget(QStringList headings, QList<int> dataTypes, QString framesectionType, SimCenterWidget *parent = 0);
     ~FramesectionInputWidget();
 
-    void outputToJSON(QJsonObject &rvObject);
-    void inputFromJSON(QJsonObject &rvObject);
+    bool outputToJSON(QJsonObject &rvObject);
+    bool outputToJSON(QJsonArray &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonArray &rvObject);
     void clear(void);
 
 signals:
@@ -64,8 +68,28 @@ public slots:
 private:
     QHBoxLayout *theLayout;
     QStringList   tableHeader;
+    QList<int> dataTypes;
+    QString framesectionType;
 
-
+    void setupSpreadsheet();
+    void concreteRectColFS();
+    void concreteBoxColFS();
+    void concreteCircColFS();
+    void concretePipeColFS();
+    void concreteRectBeamFS();
+    void concreteTeeBeamFS();
+    void concreteCrossBeamFS();
+    void steelWideFlangeFS();
+    void steelChannelFS();
+    void steelDoubleChannelFS();
+    void steelDoubleAngleFS();
+    void steelTubeFS();
+    void filledSteelTubeFS();
+    void steelPipeFS();
+    void filledSteelPipeFS();
+    void steelPlateFS();
+    void steelRodFS();
+    void bucklingRestrainedBraceFS();
 };
 
 #endif // FRAMESECTIONINPUWIDGET_H
