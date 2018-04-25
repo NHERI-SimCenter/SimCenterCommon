@@ -37,7 +37,18 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+/**
+ *  @author  fmckenna
+ *  @date    2/2017
+ *  @version 1.0
+ *
+ *  @section DESCRIPTION
+ *
+ *  This is an abstract interface providing interface SimCenter widgets must adhere to. At present limited to
+ * providing methods to read and write from/to JSON objects and signals the class can use to invoke slot methods
+ * in main window classes. This is to allow uniform handling of error messages in an application comprised of
+ * different widgets.
+ */
 
 #include <QWidget>
 class QJsonObject;
@@ -48,11 +59,35 @@ class SimCenterWidget : public QWidget
 public:
     explicit SimCenterWidget(QWidget *parent = 0);
     virtual ~SimCenterWidget();
+    /** 
+     *   @brief outputToJSON method to write all objects data neeed to reconstruct object to JsonObject
+     *   @param rvObject the JSON object to be written to
+     *   @return bool - true for success, otherwise false
+     */  
 
-    virtual void outputToJSON(QJsonObject &rvObject) =0;
-    virtual void inputFromJSON(QJsonObject &rvObject) =0;
+    virtual bool outputToJSON(QJsonObject &rvObject);
+    /** 
+     *   @brief inputFromJSON method to instantiate itself from a JSON object
+     *   @param rvObject the JSON object contaiing data to instantiate the object
+     *   @return bool - true for success, otherwise false
+     */  
+    virtual bool inputFromJSON(QJsonObject &rvObject);
 
 signals:
+
+    /**
+     *   @brief sendFatalMessage signal to be emitted when object needs to shut program down
+     *   @param message to be returned
+     *   @return void
+     */
+    void sendFatalMessage(QString message);
+
+    /**
+     *   @brief sendErrorMessage signal to be emitted when object needs to communicate error with user
+     *   @param message to be returned
+     *   @return void
+     */
+    void sendErrorMessage(QString message);
 
 public slots:
 

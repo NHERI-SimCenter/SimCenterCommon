@@ -51,14 +51,19 @@ class RandomVariableInputWidget : public SimCenterWidget
     Q_OBJECT
 public:
     explicit RandomVariableInputWidget(QWidget *parent = 0);
+    explicit RandomVariableInputWidget(QString &randomVariableClass, QWidget *parent = 0);
+
     ~RandomVariableInputWidget();
 
-    void outputToJSON(QJsonObject &rvObject);
-    void inputFromJSON(QJsonObject &rvObject);
+    void  addRandomVariable(RandomVariable *theRV);
+    bool inputFromJSON(QJsonObject &rvObject);
+    bool outputToJSON(QJsonObject &rvObject);
 
-signals:
+    void setInitialConstantRVs(QStringList &varNamesAndValues);
+    QStringList getRandomVariableNames(void);
 
 public slots:
+   void errorMessage(QString message);
    void addRandomVariable(void);
    void removeRandomVariable(void);
    void clear(void);
@@ -69,6 +74,7 @@ private:
     QVBoxLayout *rvLayout;
     QWidget *rv;
 
+    QString randomVariableClass;
     QVector<RandomVariable *>theRandomVariables;
 };
 

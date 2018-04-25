@@ -40,22 +40,22 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 
-#include <SimCenterWidget.h>
+#include <SimCenterTableWidget.h>
 #include "SimpleSpreadsheetWidget.h"
 #include <QStringList>
 #include <QHBoxLayout>
 
-class ClineInputWidget : public SimCenterWidget
+class ClineInputWidget : public SimCenterTableWidget
 {
     Q_OBJECT
 public:
     explicit ClineInputWidget(QWidget *parent = 0);
     ~ClineInputWidget();
 
-    void outputToJSON(QJsonObject &rvObject);
-    void inputFromJSON(QJsonObject &rvObject);
-    void outputToJSON(QJsonArray &arrayObject);
-    void inputFromJSON(QJsonArray &arrayObject);
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+    bool outputToJSON(QJsonArray &arrayObject);
+    bool inputFromJSON(QJsonArray &arrayObject);
 
     void clear(void);
 
@@ -65,7 +65,6 @@ public slots:
 
 private:
     QHBoxLayout *theLayout;
-    SimpleSpreadsheetWidget* theSpreadsheet;
     QStringList   tableHeader;
 };
 

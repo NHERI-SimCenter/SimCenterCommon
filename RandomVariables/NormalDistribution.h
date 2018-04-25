@@ -39,7 +39,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include "RandomVariabledistribution.h"
+#include "RandomVariableDistribution.h"
 class QLineEdit;
 class QLabel;
 
@@ -50,8 +50,10 @@ public:
     explicit NormalDistribution(QWidget *parent = 0);
     ~NormalDistribution();
 
-    void outputToJSON(QJsonObject &rvObject);
-    void inputFromJSON(QJsonObject &rvObject);
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+
+    QString getAbbreviatedName(void);
 
 signals:
 

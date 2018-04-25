@@ -42,8 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QList>
 
-SteelInputWidget::SteelInputWidget(QWidget *parent) 
-: SimCenterWidget(parent)
+SteelInputWidget::SteelInputWidget(QWidget *parent) : SimCenterTableWidget(parent)
 {
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
@@ -62,7 +61,7 @@ SteelInputWidget::SteelInputWidget(QWidget *parent)
     dataTypes << SIMPLESPREADSHEET_QDouble;
     dataTypes << SIMPLESPREADSHEET_QDouble;
     dataTypes << SIMPLESPREADSHEET_QDouble;
-    theSpreadsheet = new SimpleSpreadsheetWidget(6, 1000, headings, dataTypes, this);
+    theSpreadsheet = new SpreadsheetWidget(6, 1000, headings, dataTypes, this);
 
     theLayout->addWidget(theSpreadsheet);
     this->setMinimumWidth(200);
@@ -74,12 +73,12 @@ SteelInputWidget::~SteelInputWidget()
 }
 
 
-void
+bool
 SteelInputWidget::outputToJSON(QJsonObject &jsonObj){
-    return;
+    return(true);
 }
 
-void
+bool
 SteelInputWidget::outputToJSON(QJsonArray &jsonArray){
 
      // create a json array and for each row add a json object to it
@@ -116,9 +115,10 @@ SteelInputWidget::outputToJSON(QJsonArray &jsonArray){
         // add the object to the array
         jsonArray.append(obj);
     }
+    return(true);
 }
 
-void
+bool
 SteelInputWidget::inputFromJSON(QJsonObject &theObject)
 {
     // this has to be called one object at a time for efficiency
@@ -148,6 +148,7 @@ SteelInputWidget::inputFromJSON(QJsonObject &theObject)
 
         currentRow++;
     }
+    return(true);
 }
 
 void

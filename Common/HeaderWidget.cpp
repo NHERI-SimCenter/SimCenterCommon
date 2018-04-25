@@ -72,3 +72,11 @@ HeaderWidget::setHeadingText(const QString &newText)
 {
   titleText->setText(newText);
 }
+
+void HeaderWidget::appendLayout(QLayout * newLayout)
+{
+  //newLayout-setParent(this);
+  layout->addStretch();
+  layout->addLayout(newLayout);
+}
+

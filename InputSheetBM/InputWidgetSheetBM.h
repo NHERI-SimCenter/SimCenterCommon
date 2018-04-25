@@ -45,7 +45,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QTreeView>
 #include <QStandardItemModel>
 #include <QHBoxLayout>
+#include "MainWindow.h"
 
+class GeneralInformationWidget;
 class ClineInputWidget;
 class FloorInputWidget;
 class BeamInputWidget;
@@ -54,7 +56,14 @@ class BraceInputWidget;
 class WallInputWidget;
 class SteelInputWidget;
 class ConcreteInputWidget;
+class FramesectionInputWidget;
+class SlabsectionInputWidget;
+class WallsectionInputWidget;
+class ConnectionInputWidget;
+class PointInputWidget;
 class RandomVariableInputWidget;
+class SpreadsheetWidget;
+class MainWindow;
 
 class InputWidgetSheetBM : public QWidget
 {
@@ -67,16 +76,25 @@ public:
     void inputFromJSON(QJsonObject &rvObject);
     void clear(void);
 
+    void setMainWindow(MainWindow* window);
+
+    const SpreadsheetWidget * getActiveSpreadsheet();
+
 signals:
 
 public slots:  
     void selectionChangedSlot(const QItemSelection &, const QItemSelection &);
 
 private:
+    void outputGeneralInformationToJSON(QJsonObject &rvObject);
+
+    MainWindow* window;
+
     QHBoxLayout *horizontalLayout;
     QTreeView *treeView;
     QStandardItemModel *standardModel;
 
+    GeneralInformationWidget *theGeneralInformationInput;
     ClineInputWidget *theClineInput;
     FloorInputWidget *theFloorInput;
     BeamInputWidget *theBeamInput;
@@ -85,9 +103,24 @@ private:
     WallInputWidget *theWallInput;
     SteelInputWidget *theSteelInput;
     ConcreteInputWidget *theConcreteInput;
+
+    QStringList theFramesectionTypes;
+    QMap<QString, FramesectionInputWidget*> theFramesectionInputs;
+
+    SlabsectionInputWidget *theSlabsectionInput;
+
+    QStringList theWallsectionTypes;
+    QMap<QString, WallsectionInputWidget*> theWallsectionInputs;
+
+    QStringList theConnectionTypes;
+    QMap<QString, ConnectionInputWidget*> theConnectionInputs;
+    PointInputWidget *thePointInput;
     RandomVariableInputWidget *theRVs;
 
-    QWidget *currentWidget;
+    QModelIndex infoItemIdx;
+    SimCenterTableWidget  *currentWidget;
+
+    QJsonObject *jsonObjOrig;
 };
 
 #endif // INPUTWIDGETBMSHEET_H

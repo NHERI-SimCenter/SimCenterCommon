@@ -42,7 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QList>
 
-FloorInputWidget::FloorInputWidget(QWidget *parent) : SimCenterWidget(parent)
+FloorInputWidget::FloorInputWidget(QWidget *parent) : SimCenterTableWidget(parent)
 {
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
@@ -53,7 +53,7 @@ FloorInputWidget::FloorInputWidget(QWidget *parent) : SimCenterWidget(parent)
     headings << tr("elevation");
     dataTypes << SIMPLESPREADSHEET_QString;
     dataTypes << SIMPLESPREADSHEET_QDouble;
-    theSpreadsheet = new SimpleSpreadsheetWidget(2, 1000, headings, dataTypes, this);
+    theSpreadsheet = new SpreadsheetWidget(2, 1000, headings, dataTypes, this);
 
     theLayout->addWidget(theSpreadsheet);
     this->setMinimumWidth(200);
@@ -64,7 +64,7 @@ FloorInputWidget::~FloorInputWidget()
 
 }
 
-void
+bool
 FloorInputWidget::outputToJSON(QJsonObject &jsonObj){
 
       // create a json array and for each row add a json object to it
@@ -92,9 +92,11 @@ FloorInputWidget::outputToJSON(QJsonObject &jsonObj){
 
     // finally add the array to the input arg
     jsonObj["floors"]=jsonArray;
+
+    return(true);
 }
 
-void
+bool
 FloorInputWidget::inputFromJSON(QJsonObject &jsonObject)
 {
     int currentRow = 0;
@@ -119,6 +121,7 @@ FloorInputWidget::inputFromJSON(QJsonObject &jsonObject)
 
         currentRow++;
     }
+    return(true);
 }
 
 void
