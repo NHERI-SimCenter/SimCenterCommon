@@ -73,12 +73,12 @@ SteelInputWidget::~SteelInputWidget()
 }
 
 
-void
+bool
 SteelInputWidget::outputToJSON(QJsonObject &jsonObj){
-    return;
+    return(true);
 }
 
-void
+bool
 SteelInputWidget::outputToJSON(QJsonArray &jsonArray){
 
      // create a json array and for each row add a json object to it
@@ -115,9 +115,10 @@ SteelInputWidget::outputToJSON(QJsonArray &jsonArray){
         // add the object to the array
         jsonArray.append(obj);
     }
+    return(true);
 }
 
-void
+bool
 SteelInputWidget::inputFromJSON(QJsonObject &theObject)
 {
     // this has to be called one object at a time for efficiency
@@ -147,6 +148,7 @@ SteelInputWidget::inputFromJSON(QJsonObject &theObject)
 
         currentRow++;
     }
+    return(true);
 }
 
 void

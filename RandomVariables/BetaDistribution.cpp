@@ -70,22 +70,62 @@ BetaDistribution::~BetaDistribution()
 }
 
 
-void BetaDistribution::outputToJSON(QJsonObject &rvObject){
-  rvObject["alphas"]=alphas->text();
-  rvObject["betas"]=betas->text();
-  rvObject["lowerbound"]=lowerBound->text();
-  rvObject["upperbound"]=upperBound->text();
+bool
+BetaDistribution::outputToJSON(QJsonObject &rvObject){
+    // check for error condition, an entry had no value
+    if (alphas->text().isEmpty() || betas->text().isEmpty() ||
+            upperBound->text().isEmpty() || lowerBound->text().isEmpty()) {
+        emit sendErrorMessage("ERROR: BetaDistribution - data has not been set");
+        return false;
+    }
+
+    rvObject["alphas"]=alphas->text();
+    rvObject["betas"]=betas->text();
+    rvObject["lowerbound"]=lowerBound->text();
+    rvObject["upperbound"]=upperBound->text();
+    return true;
 }
 
-void BetaDistribution::inputFromJSON(QJsonObject &rvObject){
-  QJsonValue val = rvObject["mean"];
-  alphas->setText(val.toString());
-  val = rvObject["betas"];
-  betas->setText(val.toString());
-  val = rvObject["lowerbound"];
-  lowerBound->setText(val.toString());
-  val = rvObject["upperbound"];
-  upperBound->setText(val.toString());
+bool
+BetaDistribution::inputFromJSON(QJsonObject &rvObject){
+
+    //
+    // for all entries, make sure i exists and if it does get it, otherwise return error
+    //
+
+    if (rvObject.contains("alphas")) {
+        QJsonValue theValue = rvObject["alphas"];
+        alphas->setText(QString::number(theValue.toDouble()));
+    } else {
+        emit sendErrorMessage("ERROR: Beta Distribution - no \"alphas\" entry");
+        return false;
+    }
+
+    if (rvObject.contains("betas")) {
+        QJsonValue theValue = rvObject["betas"];
+        betas->setText(QString::number(theValue.toDouble()));
+    } else {
+        emit sendErrorMessage("ERROR: Beta Distribution - no \"betas\" entry");
+        return false;
+    }
+
+    if (rvObject.contains("lowerbound")) {
+        QJsonValue theValue = rvObject["lowerbound"];
+        lowerBound->setText(QString::number(theValue.toDouble()));
+    } else {
+        emit sendErrorMessage("ERROR: Beta Distribution - no \"lowerbound\" entry");
+        return false;
+    }
+
+    if (rvObject.contains("upperbound")) {
+        QJsonValue theValue = rvObject["upperbound"];
+        upperBound->setText(QString::number(theValue.toDouble()));
+    } else {
+        emit sendErrorMessage("ERROR: Beta Distribution - no \"lowerbound\" entry");
+        return false;
+    }
+
+    return true;
 }
 
 QString 

@@ -70,25 +70,48 @@ ContinuousDesignDistribution::~ContinuousDesignDistribution()
 }
 
 
-void
+bool
 ContinuousDesignDistribution::outputToJSON(QJsonObject &rvObject){
-       rvObject["lower_bounds"]=min->text().toDouble();
-       rvObject["upper_bounds"]=max->text().toDouble();
-       rvObject["initialPoint"]=initialPoint->text().toDouble();
+    // check for error condition, an entry had no value
+    if (min->text().isEmpty() || max->text().isEmpty() || initialPoint->text().isEmpty()) {
+        emit sendErrorMessage("ERROR: Continuous Distribution - data has not been set");
+        return false;
+    }
+    rvObject["lowerbound"]=min->text().toDouble();
+    rvObject["upperbound"]=max->text().toDouble();
+    rvObject["initialpoint"]=initialPoint->text().toDouble();
+    return true;
 }
 
 
-void
+bool
 ContinuousDesignDistribution::inputFromJSON(QJsonObject &rvObject){
-  qDebug() << "ContinuousDesignDistribution::inputFromJSON(QJsonObject &rvObject){";
-    QJsonValue theMinValue = rvObject["lower_bounds"];
-    min->setText(QString::number(theMinValue.toDouble()));
 
-    QJsonValue theMaxValue = rvObject["upper_bounds"];
-    max->setText(QString::number(theMaxValue.toDouble()));
+    if (rvObject.contains("lowerbound")) {
+        QJsonValue theValue = rvObject["lowerbound"];
+        min->setText(QString::number(theValue.toDouble()));
+    } else {
+        emit sendErrorMessage("ERROR: Continuous Distribution - no \"lowerbound\" entry");
+        return false;
+    }
 
-    QJsonValue theIPValue = rvObject["initialPoint"];
-    initialPoint->setText(QString::number(theIPValue.toDouble()));
+    if (rvObject.contains("upperbound")) {
+        QJsonValue theValue = rvObject["upperbound"];
+        max->setText(QString::number(theValue.toDouble()));
+    } else {
+        emit sendErrorMessage("ERROR: Continuous Distribution - no \"upperbound\" entry");
+        return false;
+    }
+
+    if (rvObject.contains("initialpoint")) {
+        QJsonValue theValue = rvObject["initialpoint"];
+        initialPoint->setText(QString::number(theValue.toDouble()));
+    } else {
+        emit sendErrorMessage("ERROR: Continuous Distribution - no \"initialpoint\" entry");
+        return false;
+    }
+
+    return true;
 }
 
 QString 

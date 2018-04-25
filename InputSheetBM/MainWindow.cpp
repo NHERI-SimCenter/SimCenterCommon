@@ -222,8 +222,6 @@ void MainWindow::createActions() {
  exitAction->setStatusTip(tr("Exit the application"));
  fileMenu->addAction(exitAction);
 
-
-
  // the Model Menu cotains is a check list of which model type is currently being edited
  // to get the current value check each menu item
  // only one menu item should be selected at a time, the dafault on startup is BIM
@@ -301,7 +299,6 @@ void MainWindow::createActions() {
  selectSubMenu->addAction(selectColumnAction);
  selectSubMenu->addAction(selectAllAction);
 
-
 }
 
 
@@ -332,7 +329,5 @@ void MainWindow::connectMenuItems(SimCenterTableWidget  *inputwidget)
     connect(selectRowAction, SIGNAL(triggered()), (const QObject *)inputwidget->getSpreadsheetWidget(), SLOT(selectCurrentRow()));
     connect(selectColumnAction, SIGNAL(triggered()), (const QObject *)inputwidget->getSpreadsheetWidget(), SLOT(selectCurrentColumn()));
     connect(selectAllAction, SIGNAL(triggered()), (const QObject *)inputwidget->getSpreadsheetWidget(), SLOT(selectAll()));
-
-
 
 }

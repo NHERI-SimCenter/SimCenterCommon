@@ -80,14 +80,14 @@ ConcreteInputWidget::~ConcreteInputWidget()
 
 }
 
-void
+bool
 ConcreteInputWidget::outputToJSON(QJsonObject &jsonObj){
-    return;
+    return(true);
 }
 
-void
+bool
 ConcreteInputWidget::outputToJSON(QJsonArray &jsonArray){
-\
+
     int numRows = theSpreadsheet->getNumRows();
     for (int i=0; i<numRows; i++) {
 
@@ -133,9 +133,10 @@ ConcreteInputWidget::outputToJSON(QJsonArray &jsonArray){
         // add the object to the array
         jsonArray.append(obj);
     }
+    return(true);
 }
 
-void
+bool
 ConcreteInputWidget::inputFromJSON(QJsonObject &theObject)
 {
     // this has to be called one object at a time for efficiency
@@ -173,6 +174,7 @@ ConcreteInputWidget::inputFromJSON(QJsonObject &theObject)
 
         currentRow++;
     }
+    return(true);
 }
 
 void

@@ -127,7 +127,7 @@ SlabsectionInputWidget::~SlabsectionInputWidget()
 
 }
 
-void
+bool
 SlabsectionInputWidget::outputToJSON(QJsonObject &jsonObj){
 
 
@@ -256,10 +256,10 @@ SlabsectionInputWidget::outputToJSON(QJsonObject &jsonObj){
 
     // add the object
     jsonObj["slabsections"] = jsonArray;
-
+    return(true);
 }
 
-void
+bool
 SlabsectionInputWidget::inputFromJSON(QJsonObject &jsonObject){
 
     int currentRow = 0;
@@ -284,7 +284,7 @@ SlabsectionInputWidget::inputFromJSON(QJsonObject &jsonObject){
     // object in the array, get the values and add to the spreadsheet
     //
 
-    QJsonArray theArray = jsonObject["framesections"].toArray();
+    QJsonArray theArray = jsonObject["slabsections"].toArray();
     foreach (const QJsonValue &theValue, theArray) {
         // get values
         QJsonObject theObject = theValue.toObject();
@@ -307,6 +307,7 @@ SlabsectionInputWidget::inputFromJSON(QJsonObject &jsonObject){
         lr_barArea = lrObject["bar area"].toDouble();
         lr_barAreaCorner = lrObject["bar area corner"].toDouble();
         lr_cover = lrObject["lr_cover"].toDouble();
+        lr_spacing = lrObject["lr_spacing"].toDouble();
 
         //********* FINISH THIS
 
@@ -369,7 +370,7 @@ SlabsectionInputWidget::inputFromJSON(QJsonObject &jsonObject){
         currentRow++;
     }
 
-
+    return(true);
 }
 
 

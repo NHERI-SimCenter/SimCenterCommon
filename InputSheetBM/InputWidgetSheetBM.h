@@ -103,10 +103,17 @@ private:
     WallInputWidget *theWallInput;
     SteelInputWidget *theSteelInput;
     ConcreteInputWidget *theConcreteInput;
-    FramesectionInputWidget *theFramesectionInput;
+
+    QStringList theFramesectionTypes;
+    QMap<QString, FramesectionInputWidget*> theFramesectionInputs;
+
     SlabsectionInputWidget *theSlabsectionInput;
-    WallsectionInputWidget *theWallsectionInput;
-    ConnectionInputWidget *theConnectionInput;
+
+    QStringList theWallsectionTypes;
+    QMap<QString, WallsectionInputWidget*> theWallsectionInputs;
+
+    QStringList theConnectionTypes;
+    QMap<QString, ConnectionInputWidget*> theConnectionInputs;
     PointInputWidget *thePointInput;
     RandomVariableInputWidget *theRVs;
 

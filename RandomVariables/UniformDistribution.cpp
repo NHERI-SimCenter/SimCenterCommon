@@ -68,23 +68,42 @@ UniformDistribution::~UniformDistribution()
 
 }
 
-void
+bool
 UniformDistribution::outputToJSON(QJsonObject &rvObject){
-       rvObject["lower_bounds"]=min->text().toDouble();
-       rvObject["upper_bounds"]=max->text().toDouble();
-//       rvObject["initialPoint"]=initialPoint->text().toDouble();
+    // check for error condition, an entry had no value
+    if (min->text().isEmpty() || max->text().isEmpty()) {
+        emit sendErrorMessage("ERROR: Uniform Distribution - data has not been set");
+        return false;
+    }
+
+    rvObject["lowerbound"]=min->text().toDouble();
+    rvObject["upperbound"]=max->text().toDouble();
+    return true;
 }
 
-void
+bool
 UniformDistribution::inputFromJSON(QJsonObject &rvObject){
-    QJsonValue theMinValue = rvObject["lower_bounds"];
-    min->setText(QString::number(theMinValue.toDouble()));
+    //
+    // for all entries, make sure i exists and if it does get it, otherwise return error
+    //
 
-    QJsonValue theMaxValue = rvObject["upper_bounds"];
-    max->setText(QString::number(theMaxValue.toDouble()));
+    if (rvObject.contains("lowerbound")) {
+        QJsonValue theValue = rvObject["lowerbound"];
+        min->setText(QString::number(theValue.toDouble()));
+    } else {
+        emit sendErrorMessage("ERROR: Uniform Distribution - no \"lowerbound\" entry");
+        return false;
+    }
 
-  //  QJsonValue theIPValue = rvObject["initialPoint"];
-  // initialPoint->setText(QString::number(theIPValue.toDouble()));
+    if (rvObject.contains("upperbound")) {
+        QJsonValue theValue = rvObject["upperbound"];
+        min->setText(QString::number(theValue.toDouble()));
+    } else {
+        emit sendErrorMessage("ERROR: Uniform Distribution - no \"upperbound\" entry");
+        return false;
+    }
+
+    return true;
 }
 
 QString 

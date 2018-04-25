@@ -51,8 +51,8 @@ public:
     explicit BeamInputWidget(SimCenterWidget *parent = 0);
     ~BeamInputWidget();
 
-    void outputToJSON(QJsonObject &rvObject);
-    void inputFromJSON(QJsonObject &rvObject);
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
     void clear(void);
 
 signals:

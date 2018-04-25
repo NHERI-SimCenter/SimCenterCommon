@@ -93,7 +93,7 @@ ColumnInputWidget::~ColumnInputWidget()
 
 }
 
-void
+bool
 ColumnInputWidget::outputToJSON(QJsonObject &jsonObj){
 
      // create a json array and for each row add a json object to it
@@ -188,9 +188,11 @@ ColumnInputWidget::outputToJSON(QJsonObject &jsonObj){
 
     // finally add the array to the input arg
     jsonObj["columns"]=jsonArray;
+
+    return(true);
 }
 
-void
+bool
 ColumnInputWidget::inputFromJSON(QJsonObject &jsonObject){
 
     QString name;
@@ -271,7 +273,7 @@ ColumnInputWidget::inputFromJSON(QJsonObject &jsonObject){
         }
         currentRow++;
     }
-
+    return(true);
 }
 
 void

@@ -51,9 +51,9 @@ public:
     explicit ConcreteInputWidget(QWidget *parent = 0);
     ~ConcreteInputWidget();
 
-    void outputToJSON(QJsonObject &rvObject);
-     void outputToJSON(QJsonArray &arrayObject);
-    void inputFromJSON(QJsonObject &rvObject);
+    bool outputToJSON(QJsonObject &rvObject);
+    bool outputToJSON(QJsonArray &arrayObject);
+    bool inputFromJSON(QJsonObject &rvObject);
     void clear(void);
 
 signals:

@@ -49,13 +49,14 @@ SimCenterWidget::~SimCenterWidget()
 }
 
 
-void
+bool
 SimCenterWidget::outputToJSON(QJsonObject &rvObject)
 {
+    return true;
 }
 
-void
+bool
 SimCenterWidget::inputFromJSON(QJsonObject &rvObject)
 {
-
+    return true;
 }

@@ -160,7 +160,7 @@ GeneralInformationWidget::~GeneralInformationWidget()
 
 }
 
-void
+bool
 GeneralInformationWidget::outputToJSON(QJsonObject &jsonObj){
 
     jsonObj["name"] = nameEdit->text().trimmed();
@@ -199,9 +199,11 @@ GeneralInformationWidget::outputToJSON(QJsonObject &jsonObj){
 
     jsonObj["units"] = units;
 
+    return(true);
+
 }
 
-void
+bool
 GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
 
     double rev;
@@ -255,6 +257,7 @@ GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
     QJsonValue unitsTempValue = unitsObj["temperature"];
     unitsTemperatureEdit->setText(unitsTempValue.toString());
 
+    return(true);
 }
 
 void

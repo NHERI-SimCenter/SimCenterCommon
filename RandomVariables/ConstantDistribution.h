@@ -51,8 +51,8 @@ public:
     explicit ConstantDistribution(double initValue, QWidget *parent = 0);
     ~ConstantDistribution();
 
-    void outputToJSON(QJsonObject &rvObject);
-    void inputFromJSON(QJsonObject &rvObject);
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
 
     QString getAbbreviatedName(void);
 

@@ -64,7 +64,7 @@ FloorInputWidget::~FloorInputWidget()
 
 }
 
-void
+bool
 FloorInputWidget::outputToJSON(QJsonObject &jsonObj){
 
       // create a json array and for each row add a json object to it
@@ -92,9 +92,11 @@ FloorInputWidget::outputToJSON(QJsonObject &jsonObj){
 
     // finally add the array to the input arg
     jsonObj["floors"]=jsonArray;
+
+    return(true);
 }
 
-void
+bool
 FloorInputWidget::inputFromJSON(QJsonObject &jsonObject)
 {
     int currentRow = 0;
@@ -119,6 +121,7 @@ FloorInputWidget::inputFromJSON(QJsonObject &jsonObject)
 
         currentRow++;
     }
+    return(true);
 }
 
 void
