@@ -1,0 +1,12 @@
+cp NHERI-PGT-Icon-32.png   icon_16x16@2x.png
+cp NHERI-PGT-Icon-64.png   icon_32x32@2x.png
+cp NHERI-PGT-Icon-128.png  icon_64x64@2x.png
+cp NHERI-PGT-Icon-256.png  icon_128x128@2x.png
+cp NHERI-PGT-Icon-512.png  icon_256x256@2x.png
+mv NHERI-PGT-Icon-1024.png icon_512x512@2x.png
+mv NHERI-PGT-Icon-16.png   icon_16x16.png
+mv NHERI-PGT-Icon-32.png   icon_32x32.png
+mv NHERI-PGT-Icon-64.png   icon_64x64.png
+mv NHERI-PGT-Icon-128.png  icon_128x128.png
+mv NHERI-PGT-Icon-256.png  icon_256x256.png
+mv NHERI-PGT-Icon-512.png  icon_512x512.png
