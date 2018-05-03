@@ -42,7 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QList>
 
-ClineInputWidget::ClineInputWidget(QWidget *parent) : SimCenterWidget(parent)
+ClineInputWidget::ClineInputWidget(QWidget *parent) : SimCenterTableWidget(parent)
 {
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
@@ -55,7 +55,7 @@ ClineInputWidget::ClineInputWidget(QWidget *parent) : SimCenterWidget(parent)
     dataTypes << SIMPLESPREADSHEET_QString;
     dataTypes << SIMPLESPREADSHEET_QDouble;
     dataTypes << SIMPLESPREADSHEET_QDouble;
-    theSpreadsheet = new SimpleSpreadsheetWidget(3, 1000, headings, dataTypes, this);
+    theSpreadsheet = new SpreadsheetWidget(3, 1000, headings, dataTypes, this);
 
     theLayout->addWidget(theSpreadsheet);
     this->setMinimumWidth(400);
@@ -66,7 +66,7 @@ ClineInputWidget::~ClineInputWidget()
 
 }
 
-void
+bool
 ClineInputWidget::outputToJSON(QJsonObject &jsonObj){
 
      // create a json array and for each row add a json object to it
@@ -97,10 +97,11 @@ ClineInputWidget::outputToJSON(QJsonObject &jsonObj){
 
     // finally add the array to the input arg
     jsonObj["clines"]=jsonArrayCline;
+    return(true);
 
 }
 
-void
+bool
 ClineInputWidget::inputFromJSON(QJsonObject &jsonObject)
 {
     int currentRow = 0;
@@ -131,6 +132,7 @@ ClineInputWidget::inputFromJSON(QJsonObject &jsonObject)
 
         currentRow++;
     }
+    return(true);
 }
 
 void

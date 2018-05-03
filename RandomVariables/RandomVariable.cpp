@@ -51,9 +51,19 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "NormalDistribution.h"
 #include "LognormalDistribution.h"
 #include "BetaDistribution.h"
+#include "UniformDistribution.h"
+#include "ConstantDistribution.h"
+#include "ContinuousDesignDistribution.h"
+#include <QDebug>
 
-RandomVariable::RandomVariable(QWidget *parent)
-    :QWidget(parent)
+RandomVariable::RandomVariable()
+    :SimCenterWidget(0),variableClass(QString(""))
+{
+
+}
+
+RandomVariable::RandomVariable(const QString &type, QWidget *parent)
+    :SimCenterWidget(parent),variableClass(type)
 {
     //
     // create a vertical layout to deal with variable name
@@ -81,8 +91,8 @@ RandomVariable::RandomVariable(QWidget *parent)
     distributionLabel = new QLabel();
     distributionLabel->setText(QString("Distribution"));
     distributionComboBox = new QComboBox();
-    distributionComboBox->setMaximumWidth(100);
-    distributionComboBox->setMinimumWidth(100);
+    distributionComboBox->setMaximumWidth(200);
+    distributionComboBox->setMinimumWidth(200);
     distributionLayout->addWidget(distributionLabel);
     distributionLayout->addWidget(distributionComboBox);
     distributionLayout->setSpacing(0);
@@ -94,10 +104,16 @@ RandomVariable::RandomVariable(QWidget *parent)
     // signal to this classes distributionChange slot method
     //
 
-    distributionComboBox->addItem(tr("Normal"));
-    distributionComboBox->addItem(tr("Lognormal"));
-    distributionComboBox->addItem(tr("Beta"));
-
+    if (variableClass == QString("Design")) {
+        distributionComboBox->addItem(tr("ContinuousDesign"));
+        distributionComboBox->addItem(tr("Constant"));
+    } else if (variableClass == QString("Uncertain")) {
+        distributionComboBox->addItem(tr("Normal"));
+        distributionComboBox->addItem(tr("Lognormal"));
+        distributionComboBox->addItem(tr("Beta"));
+        distributionComboBox->addItem(tr("Uniform"));
+        distributionComboBox->addItem(tr("Constant"));
+    }
     connect(distributionComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(distributionChanged(QString)));
 
     //
@@ -124,6 +140,7 @@ RandomVariable::RandomVariable(QWidget *parent)
 
     theDistribution = new NormalDistribution(this);
     mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+     connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 
     mainLayout->setSpacing(10);
     mainLayout->setMargin(0);
@@ -131,7 +148,6 @@ RandomVariable::RandomVariable(QWidget *parent)
     this->setLayout(mainLayout);
   //  this->setStyleSheet("border: 1px solid red");
   // mainLayout->setSizeConstraint(QLayout::SetMaximumSize);
-
 }
 
 RandomVariable::~RandomVariable()
@@ -139,44 +155,73 @@ RandomVariable::~RandomVariable()
 
 }
 
+RandomVariable::RandomVariable(const QString &type,
+                const QString &rvName,
+                RandomVariableDistribution &theD,
+                QWidget *parent)
+    :RandomVariable(type, parent)
+{
+    variableName->setText(rvName);
+
+  // now change the distribution to constant and set value
+  int index = distributionComboBox->findText(theD.getAbbreviatedName());
+  distributionComboBox->setCurrentIndex(index);
+  delete theDistribution;
+  theDistribution = &theD;
+  mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+   connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+}
+
+
  bool
  RandomVariable::isSelectedForRemoval(void)
 {
   return button->isChecked();
  }
 
-void RandomVariable::outputToJSON(QJsonObject &rvObject){
+
+ QString
+ RandomVariable::getVariableName(void){
+     return variableName->text();
+ }
+
+bool
+RandomVariable::outputToJSON(QJsonObject &rvObject){
+    bool result = false;
     if (!variableName->text().isEmpty()) {
-       rvObject["name"]=variableName->text();
-       rvObject["distribution"]=distributionComboBox->currentText();
-       theDistribution->outputToJSON(rvObject);
+        rvObject["name"]=variableName->text();
+        rvObject["distribution"]=distributionComboBox->currentText();
+        rvObject["variableClass"]=variableClass;
+        result = theDistribution->outputToJSON(rvObject);
+    } else {
+        emit sendErrorMessage("ERROR: RandomVariable - cannot output as no \"name\" entry!");
+        return false;
     }
+    return result;
 }
 
-void RandomVariable::inputFromJSON(QJsonObject &rvObject){
-    QJsonValue theName = rvObject["name"];
-    variableName->setText(theName.toString());
-    QJsonValue theDistributionValue = rvObject["distribution"];
-    QString distributionType = theDistributionValue.toString();
-
-    if (distributionType == QString("Normal")) {
-        int index = distributionComboBox->findText(tr("Normal"));
-        distributionComboBox->setCurrentIndex(index);
-        theDistribution->inputFromJSON(rvObject);
-
-    } else if (distributionType == QString("Lognormal")) {
-        int index = distributionComboBox->findText(tr("Lognormal"));
-        distributionComboBox->setCurrentIndex(index);
-        theDistribution->inputFromJSON(rvObject);
-
-    } else if (distributionType == QString("Beta")) {
-        int index = distributionComboBox->findText(tr("Beta"));
-        distributionComboBox->setCurrentIndex(index);
-        theDistribution->inputFromJSON(rvObject);
+bool
+RandomVariable::inputFromJSON(QJsonObject &rvObject){
+    bool result = false;
+    QString distributionType;
+    if (rvObject.contains("name")) {
+        QJsonValue theName = rvObject["name"];
+        variableName->setText(theName.toString());
+    } else {
+        return false;
+    }
+    if (rvObject.contains("distribution")) {
+        QJsonValue theDistributionValue = rvObject["distribution"];
+        distributionType = theDistributionValue.toString();
+    } else {
+        return false;
     }
 
-   // rvObject["distribution"]=distributionComboBox->currentText();
-   // theDistribution->outputToJSON(rvObject);
+    int index = distributionComboBox->findText(distributionType);
+    this->distributionChanged(distributionType);
+    distributionComboBox->setCurrentIndex(index);
+    return theDistribution->inputFromJSON(rvObject);
+
 }
 
 // distributionChanged()
@@ -193,11 +238,31 @@ void RandomVariable::distributionChanged(const QString &arg1)
     if (arg1 == QString("Normal")) {
         theDistribution = new NormalDistribution();
         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+
     } else if (arg1 == QString("Lognormal")) {
         theDistribution = new LognormalDistribution();
         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+
     } else if (arg1 == QString("Beta")) {
          theDistribution = new BetaDistribution();
          mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+
+    } else if (arg1 == QString("Uniform")) {
+         theDistribution = new UniformDistribution();
+         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+
+    } else if (arg1 == QString("Constant")) {
+         theDistribution = new ConstantDistribution();
+         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+
+    } else if (arg1 == QString("ContinuousDesign")) {
+         theDistribution = new ContinuousDesignDistribution();
+         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     }
+    connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 }
+
+   void
+   RandomVariable::errorMessage(QString message) {
+       emit sendErrorMessage(message);
+   }

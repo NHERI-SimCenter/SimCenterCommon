@@ -48,28 +48,37 @@ class QHBoxLayout;
 class RandomVariableDistribution;
 class QRadioButton;
 
-class RandomVariable : public QWidget
+class RandomVariable : public SimCenterWidget
 {
     Q_OBJECT
 public:
-    explicit RandomVariable(QWidget *parent = 0);
+    explicit RandomVariable();
+    explicit RandomVariable(const QString &variableClass, QWidget *parent = 0);
+    explicit RandomVariable(const QString &variableClass, 
+			    const QString &name, 
+                RandomVariableDistribution &theDistribution,
+			    QWidget *parent = 0);
     ~RandomVariable();
 
-    virtual void outputToJSON(QJsonObject &rvObject);
-    virtual void inputFromJSON(QJsonObject &rvObject);
+    virtual bool outputToJSON(QJsonObject &rvObject);
+    virtual bool inputFromJSON(QJsonObject &rvObject);
 
     bool isSelectedForRemoval(void);
-  QLineEdit *variableName;
+    QString getVariableName(void);
+    QLineEdit *variableName;
 signals:
 
 public slots:
      void distributionChanged(const QString &arg1);
+     void errorMessage(QString message);
 
 private:
     RandomVariableDistribution *theDistribution;
 
+    QString variableClass;
     QLabel *variableLabel;
     QLabel *distributionLabel;
+
   // QRadioButton *button;
   //  QLineEdit *variableName;
     QComboBox *distributionComboBox;

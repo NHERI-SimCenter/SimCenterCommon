@@ -67,18 +67,48 @@ NormalDistribution::~NormalDistribution()
 
 }
 
-void
+bool
 NormalDistribution::outputToJSON(QJsonObject &rvObject){
-       rvObject["mean"]=mean->text().toDouble();
-       rvObject["stdDev"]=standardDev->text().toDouble();
+
+    // check for error condition, an entry had no value
+    if (mean->text().isEmpty() || standardDev->text().isEmpty()) {
+        emit sendErrorMessage("ERROR: NormalDistribution - data has not been set");
+        return false;
+    }
+    rvObject["mean"]=mean->text().toDouble();
+    rvObject["stdDev"]=standardDev->text().toDouble();
+    return true;
 }
 
-void
+bool
 NormalDistribution::inputFromJSON(QJsonObject &rvObject){
-    QJsonValue theMeanValue = rvObject["mean"];
-    mean->setText(QString::number(theMeanValue.toDouble()));
 
-    QJsonValue theStdDevValue = rvObject["stdDev"];
-    standardDev->setText(QString::number(theStdDevValue.toDouble()));
+    //
+    // for all entries, make sure i exists and if it does get it, otherwise return error
+    //
 
+    if (rvObject.contains("mean")) {
+        QJsonValue theMeanValue = rvObject["mean"];
+        mean->setText(QString::number(theMeanValue.toDouble()));
+    } else {
+        emit sendErrorMessage("ERROR: NormalDistribution - no \"mean\" entry");
+        return false;
+    }
+
+    if (rvObject.contains("stdDev")) {
+        QJsonValue theStdDevValue = rvObject["stdDev"];
+        standardDev->setText(QString::number(theStdDevValue.toDouble()));
+    } else {
+        emit sendErrorMessage("ERROR: NormalDistribution - no \"stdDev\" entry");
+        return false;
+    }
+
+    return true;
+}
+
+
+
+QString 
+NormalDistribution::getAbbreviatedName(void) {
+  return QString("Normal");
 }

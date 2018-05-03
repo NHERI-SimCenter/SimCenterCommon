@@ -48,3 +48,15 @@ SimCenterWidget::~SimCenterWidget()
 
 }
 
+
+bool
+SimCenterWidget::outputToJSON(QJsonObject &rvObject)
+{
+    return true;
+}
+
+bool
+SimCenterWidget::inputFromJSON(QJsonObject &rvObject)
+{
+    return true;
+}

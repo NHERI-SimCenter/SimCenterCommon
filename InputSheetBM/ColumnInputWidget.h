@@ -39,20 +39,20 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterWidget.h>
+#include <SimCenterTableWidget.h>
 #include "SimpleSpreadsheetWidget.h"
 #include <QStringList>
 #include <QHBoxLayout>
 
-class ColumnInputWidget : public SimCenterWidget
+class ColumnInputWidget : public SimCenterTableWidget
 {
     Q_OBJECT
 public:
     explicit ColumnInputWidget(QWidget *parent = 0);
     ~ColumnInputWidget();
 
-    void outputToJSON(QJsonObject &rvObject);
-    void inputFromJSON(QJsonObject &rvObject);
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
     void clear(void);
 
 signals:
@@ -61,7 +61,6 @@ public slots:
 
 private:
     QHBoxLayout *theLayout;
-    SimpleSpreadsheetWidget* theSpreadsheet;
     QStringList   tableHeader;
 };
 

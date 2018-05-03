@@ -1,0 +1,339 @@
+{   "$schema": "http://json-schema.org/schema#",
+    "id": "http://yourdomain.com/schemas/myschema.json",
+
+    "_comment": "initial draft based on 3Bay6StoryRCFrame_BIM.json",
+    "_comment": "added from 1Bay2StoryNCBF_B1_BIM.json, , 1Bay2StoryNCBF_B2_BIM.json, RCSideColumn_BIM.json, 18-Story_Steel_High-Rise_at_E-Defense-BIM.json, 1Bay2StoryNCBF_B1_BIM.json",
+
+    "description": "schema for a BIM data set",
+    "type": "object",
+    "required": [ "GeneralInformation", "StructuralInformation" ],
+    "properties": {
+        "GeneralInformation": {"$ref": "#/definitions/generalinformation" },
+        "StructuralInformation": {"$ref": "#/definitions/structuralinformation" }
+     },
+
+  "definitions": {
+    "longitudinal rebar": {
+        "type": "object",
+        "properties": {
+            "material":  { "type": "string" },
+            "material corner":  { "type": "string" },
+            "num bars top": { "type": "integer" },
+            "num bars bottom": { "type": "integer" },
+            "num bars depth": { "type": "integer" },
+            "num bars width": { "type": "integer" },
+            "bar area top": { "type": "number" },
+            "bar area bottom": { "type": "number" },
+            "cover top": { "type": "number" },
+            "cover bottom": { "type": "number" }
+        },
+        "additionalProperties": false,
+        "required": ["material top", "material bottom", "num bars top", "num bars bottom", "bar area top", "bar area bottom", "cover top", "cover bottom"]
+    },
+
+    "transverse rebar": {
+        "type": "object",
+        "properties": {
+            "material":  { "type": "string" },
+            "bar area": { "type": "number" },
+            "bar area corner": { "type": "number" },
+            "spacing": { "type": "number" },
+            "cover": { "type": "number" },
+            "num bars depth": { "type": "integer" },
+            "num bars width": { "type": "integer" },
+            "num bars thickness": { "type": "integer" }
+
+        },
+        "additionalProperties": false,
+        "required": ["material", "bar area", "spacing"]
+    },
+
+    "shear rebar": {
+        "type": "object",
+        "properties": {
+            "material":  { "type": "string" },
+            "bar area": { "type": "number" },
+            "spacing": { "type": "number" }
+        },
+        "additionalProperties": false,
+        "required": ["material", "bar area", "spacing"]
+    },
+
+    "longitudinal boundary element rebar": {
+        "type": "object",
+        "properties": {
+            "material":  { "type": "string" },
+            "num bars length": { "type": "integer" },
+            "num bars thickness": { "type": "integer" },
+            "bar area": { "type": "number" },
+            "cover": { "type": "number" }
+        },
+        "additionalProperties": false,
+        "required": ["material", "bar area"]
+    },
+
+    "transverse boundary element rebar": {
+        "type": "object",
+        "properties": {
+            "material":  { "type": "string" },
+            "num bars length": { "type": "integer" },
+            "num bars thickness": { "type": "integer" },
+            "bar area": { "type": "number" },
+            "spacing": { "type": "number" }
+        },
+        "additionalProperties": false,
+        "required": ["material", "bar area"]
+    },
+
+    "bolt group": {
+        "type": "object",
+        "properties": {
+            "edge distance depth": { "type": "number" },
+            "edge distance width": { "type": "number" },
+            "number of bolts depth": { "type": "number" },
+            "number of bolts width": { "type": "number" },
+            "pattern":  { "type": "string" }
+          },
+          "additionalProperties": false,
+          "required": ["pattern"]
+      },
+
+    "connection": {
+        "type": "object",
+        "properties": {
+            "name":  { "type": "string" },
+            "type":  { "type": "string" },
+            "material":  { "type": "string" },
+            "thickness": { "type": "number" },
+            "weld length brace": { "type": "number" },
+            "weld length column": { "type": "number" },
+            "weld length beam": { "type": "number" },
+            "weld length baseplate": { "type": "number" },
+            "thickness baseplate": { "type": "number" },
+            "workpoint depth": { "type": "number" },
+            "tab width": { "type": "number" },
+            "tab depth": { "type": "number" },
+            "bolt group": { "$ref": "#/definitions/bolt group"  }
+        },
+        "additionalProperties": false,
+        "required": ["name", "type"]
+    },
+
+    "point": {
+        "type": "object",
+        "properties": {
+            "name":  { "type": "string" },
+            "type":  { "type": "string" },
+            "mass": { "type": "array",  "items": {"type": "number" } }
+        },
+        "additionalProperties": false,
+        "required": ["name", "type"]
+    },
+
+    "floor": {
+        "type": "object",
+        "properties": {
+            "name":  { "type": "string" },
+            "elevation": { "type": "number" }
+        },
+        "additionalProperties": false,
+        "required": ["name", "elevation"]
+    },
+    "cline": {
+        "type": "object",
+        "properties": {
+            "name":  { "type": "string" },
+            "location": { "type": "array",  "items": {"type": "number" } }
+        },
+        "additionalProperties": false,
+        "required": ["name", "location"]
+    },
+    "material": {
+        "_comment": "what is full set of attributes?????? which are mandatory???",
+        "type": "object",
+        "properties": {
+            "name":  { "type": "string" },
+            "type":  { "type": "string" },
+            "masspervolume": { "type": "number" },
+            "fpc": { "type": "number" },
+            "E": { "type": "number" },
+            "nu": { "type": "number" },
+            "fy": { "type": "number" },
+            "fu": { "type": "number" },
+            "espr": { "type": "number" }
+        },
+        "additionalProperties": false,
+        "required": ["name", "type", "masspervolume"]
+    },
+    "framesection": {
+        "_comment": "what is full set of attributes?????? which are mandatory???",
+        "type": "object",
+        "properties": {
+            "name":  { "type": "string" },
+            "type":  { "type": "string" },
+            "material": { "type": "string" },
+            "depth": { "type": "number" },
+            "width": { "type": "number" },
+            "longitudinal rebar": { "$ref": "#/definitions/longitudinal rebar"  },
+            "transverse rebar": { "$ref": "#/definitions/transverse rebar"  },
+
+            "_comment": "added from 1Bay2StoryNCBF_B1_BIM.json",
+            "shape": { "type": "string" },
+            "thickness": { "type": "number" },
+            "weld length brace": { "type": "number" },
+            "weld length column": { "type": "number" },
+            "weld length baseplate": { "type": "number" },
+            "thickness baseplate": { "type": "number" },
+            "workpoint depth": { "type": "number" },
+            "top flange width": { "type": "number" },
+            "top flange thickness": { "type": "number" },
+            "web thickness": { "type": "number" },
+            "bottom flange width": { "type": "number" },
+            "bottom flange thickness": { "type": "number" },
+            "fillet radius": { "type": "number" },
+            "corner radius": { "type": "number" }
+
+        },
+        "additionalProperties": false,
+        "required": ["name", "type" ]
+    },
+
+    "slabsection": {
+        "type": "object",
+        "properties": {
+            "name":  { "type": "string" },
+            "type":  { "type": "string" },
+            "material": { "type": "string" },
+            "thickness": { "type": "number" },
+            "massperarea": { "type": "number" },
+            "longitudinal rebar": { "$ref": "#/definitions/longitudinal rebar"  },
+            "transverse rebar": { "$ref": "#/definitions/transverse rebar"  },
+            "shear rebar": { "$ref": "#/definitions/transverse rebar"  }
+        },
+        "additionalProperties": false,
+        "required": ["name", "type" ]
+    },
+
+    "decksection": {
+        "type": "object",
+        "properties": {
+            "name":  { "type": "string" },
+            "type":  { "type": "string" }
+        },
+        "additionalProperties": false,
+        "required": ["name", "type" ]
+    },
+
+    "wallsection": {
+        "type": "object",
+        "properties": {
+            "name":  { "type": "string" },
+            "type":  { "type": "string" },
+            "length": { "type": "number" },
+            "thickness": { "type": "number" },
+            "boundary element length": { "type": "number" },
+            "massperarea": { "type": "number" },
+            "longitudinal rebar": { "$ref": "#/definitions/longitudinal rebar"  },
+            "transverse rebar": { "$ref": "#/definitions/transverse rebar"  },
+            "longitudinal boundary element rebar": { "$ref": "#/definitions/longitudinal boundary element rebar"  },
+            "transverse boundary element rebar": { "$ref": "#/definitions/transverse boundary element rebar"  }
+        },
+        "additionalProperties": false,
+        "required": ["name", "type" ]
+    },
+
+
+    "segment": {
+        "type": "object",
+        "properties": {
+            "section":  { "type": "string" },
+            "ratio": { "type": "array",  "items": {"type": "number" } },
+            "angle": { "type": "number" }
+        },
+        "additionalProperties": false,
+        "required": ["section", "ratio", "angle"]
+    },
+
+    "slab": {
+        "type": "object",
+        "properties": {
+            "clines":  { "type": "array",  "items": {"type": "string" } },
+            "floor":  { "type": "string" },
+            "name":  { "type": "string" },
+            "section": { "type": "string" }
+        },
+        "additionalProperties": false,
+        "required": ["clines", "floor", "name", "section"]
+    },
+
+    "geom": {
+        "type": "object",
+        "properties": {
+            "name":  { "type": "string" },
+            "cline": { "type": "array",  "items": {"type": "number" } },
+            "floor": { "type": "array",  "items": {"type": "number" } },
+            "segment": { "type": "array",  "items": { "$ref": "#/definitions/segment"  } }
+        },
+        "additionalProperties": false,
+        "required": ["name", "cline", "floor", "segment"]
+    },
+
+    "generalinformation": {
+        "type": "object",
+        "properties": {
+            "name": { "type": "string" },
+            "revision": { "type": "number" },
+            "type": { "type": "string" },
+            "year": { "type": "integer" },
+            "stories": { "type": "integer" },
+            "height": { "type": "number" },
+            "area": {"type": ["number", "null"]},
+            "location": {
+                "name": { "type": "string" },
+                "latitude": { "type": "number" },
+                "longitude":{ "type": "number" }
+            },
+            "units": {
+                "force": { "type": "string" },
+                "length": { "type": "string" },
+                "time": { "type": "string" },
+                "temperature": { "type": "string" }
+            },
+            "engineer": { "type": "string" },
+            "URL": {"type": ["string", "null"]},
+            "DOI": {"type": ["string", "null"]}
+        },
+        "additionalProperties": false
+    },
+
+    "structuralinformation": {
+        "type": "object",
+        "properties": {
+            "type": { "type": "string" },
+            "layout": {
+                "floors":  { "type": "array",  "items": { "$ref": "#/definitions/floor"  } },
+                 "clines":  { "type": "array",  "items": { "$ref": "#/definitions/clines"  } }
+            },
+            "properties": {
+                "materials":  { "type": "array",  "items": { "$ref": "#/definitions/material"  } },
+                "framesections":  { "type": "array",  "items": { "$ref": "#/definitions/framesection"  } },
+                "slabsections":  { "type": "array",  "items": { "$ref": "#/definitions/slabsection"  } },
+                "decksections":  { "type": "array",  "items": { "$ref": "#/definitions/decksection"  } },
+                "wallsections":  { "type": "array",  "items": { "$ref": "#/definitions/wallsection"  } },
+                "connections":  { "type": "array",  "items": { "$ref": "#/definitions/connection"  } },
+                "points":  { "type": "array",  "items": { "$ref": "#/definitions/point"  } }
+            },
+            "geometry": {
+                "columns": { "type": "array",  "items": { "$ref": "#/definitions/geom"  }  },
+                "beams": { "type": "array",  "items": { "$ref": "#/definitions/geom"  }  },
+                "braces": { "type": "array",  "items": { "$ref": "#/definitions/geom"  }  },
+                "slabs": { "type": "array",  "items": { "$ref": "#/definitions/slab"  }  }
+
+            }
+        },
+        "additionalProperties": false
+    }
+
+  }
+
+}
