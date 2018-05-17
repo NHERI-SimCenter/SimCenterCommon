@@ -196,6 +196,7 @@ InputWidgetSheetBM::~InputWidgetSheetBM()
 
 }
 
+/*
 void InputWidgetSheetBM::setMainWindow(MainWindow* main)
 {
     window = main;
@@ -208,6 +209,7 @@ void InputWidgetSheetBM::setMainWindow(MainWindow* main)
     //selectionChangedSlot(selection)
 
 }
+*/
 
 const SpreadsheetWidget * InputWidgetSheetBM::getActiveSpreadsheet()
 {
@@ -227,7 +229,7 @@ void InputWidgetSheetBM::selectionChangedSlot(const QItemSelection & /*newSelect
         if (currentWidget != (SimCenterTableWidget *) theGeneralInformationInput ) {
             //qDebug() << "disconnect edit menu items ";
             // up call to detach the MainWindow Edit menun from this sheet
-            window->disconnectMenuItems(currentWidget);
+            emit disconnectMenuItems(currentWidget);
         }
         horizontalLayout->removeWidget(currentWidget);
         currentWidget->setParent(0);
@@ -281,7 +283,7 @@ void InputWidgetSheetBM::selectionChangedSlot(const QItemSelection & /*newSelect
 
     if (currentWidget != 0) {
         // up call to connect the MainWindow Edit menu to this sheet
-        window->connectMenuItems(currentWidget);
+        emit connectMenuItems(currentWidget);
     }
   }
 
