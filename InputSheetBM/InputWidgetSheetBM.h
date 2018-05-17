@@ -45,7 +45,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QTreeView>
 #include <QStandardItemModel>
 #include <QHBoxLayout>
-#include "MainWindow.h"
 
 class GeneralInformationWidget;
 class ClineInputWidget;
@@ -62,8 +61,11 @@ class WallsectionInputWidget;
 class ConnectionInputWidget;
 class PointInputWidget;
 class RandomVariableInputWidget;
+class SimCenterWidget;
+class SimCenterTableWidget;
 class SpreadsheetWidget;
-class MainWindow;
+
+
 
 class InputWidgetSheetBM : public QWidget
 {
@@ -76,19 +78,17 @@ public:
     void inputFromJSON(QJsonObject &rvObject);
     void clear(void);
 
-    void setMainWindow(MainWindow* window);
-
     const SpreadsheetWidget * getActiveSpreadsheet();
 
 signals:
+    void connectMenuItems(SimCenterWidget *);
+    void disconnectMenuItems(SimCenterWidget *);
 
 public slots:  
     void selectionChangedSlot(const QItemSelection &, const QItemSelection &);
 
 private:
     void outputGeneralInformationToJSON(QJsonObject &rvObject);
-
-    MainWindow* window;
 
     QHBoxLayout *horizontalLayout;
     QTreeView *treeView;
