@@ -43,11 +43,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLabel>
 #include <QLineEdit>
 #include <QRadioButton>
+#include <QDebug>
 
 //
 // headers for RandomVariableDistribution subclasses that user can select
 //
 
+#include "GumbelDistribution.h"
+#include "WeibullDistribution.h"
 #include "NormalDistribution.h"
 #include "LognormalDistribution.h"
 #include "BetaDistribution.h"
@@ -113,6 +116,8 @@ RandomVariable::RandomVariable(const QString &type, QWidget *parent)
         distributionComboBox->addItem(tr("Beta"));
         distributionComboBox->addItem(tr("Uniform"));
         distributionComboBox->addItem(tr("Constant"));
+        distributionComboBox->addItem(tr("Weibull"));
+        distributionComboBox->addItem(tr("Gumbel"));
     }
     connect(distributionComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(distributionChanged(QString)));
 
@@ -246,10 +251,16 @@ void RandomVariable::distributionChanged(const QString &arg1)
     } else if (arg1 == QString("Beta")) {
          theDistribution = new BetaDistribution();
          mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+         // padhye added 4/32/18
+          //qDebug () <<"Hello world I am degbuging this is BetaDistribution"; // padhye
+
 
     } else if (arg1 == QString("Uniform")) {
          theDistribution = new UniformDistribution();
          mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+           // padhye added 4/32/18
+            //qDebug () <<"Hello world I am degbuging this is Uniform"; // padhye
+            //qDebug () <<QString("Uniform"); // padhy
 
     } else if (arg1 == QString("Constant")) {
          theDistribution = new ConstantDistribution();
@@ -258,7 +269,15 @@ void RandomVariable::distributionChanged(const QString &arg1)
     } else if (arg1 == QString("ContinuousDesign")) {
          theDistribution = new ContinuousDesignDistribution();
          mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+    } else if (arg1 == QString("Weibull")) {
+        theDistribution = new WeibullDistribution();
+        mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+
+    } else if (arg1 == QString("Gumbel")) {
+        theDistribution = new GumbelDistribution();
+        mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     }
+
     connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 }
 
