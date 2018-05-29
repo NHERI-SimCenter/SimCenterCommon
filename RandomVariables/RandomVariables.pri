@@ -17,7 +17,9 @@ SOURCES += $$PWD/RandomVariableDistribution.cpp \
     $$PWD/RandomVariableInputWidget.cpp \
     $$PWD/UniformDistribution.cpp \
     $$PWD/ConstantDistribution.cpp \
-    $$PWD/ContinuousDesignDistribution.cpp
+    $$PWD/ContinuousDesignDistribution.cpp \
+    $$PWD/WeibullDistribution.cpp \
+    $$PWD/GumbelDistribution.cpp
 
 
 HEADERS += $$PWD/RandomVariableDistribution.h \
@@ -29,5 +31,7 @@ HEADERS += $$PWD/RandomVariableDistribution.h \
     $$PWD/UniformDistribution.h \
     $$PWD/ConstantDistribution.h \
     $$PWD/ContinuousDesignDistribution.h \
-    $$PWD/ConstantDistribution.h
+    $$PWD/ConstantDistribution.h \
+    $$PWD/WeibullDistribution.h \
+    $$PWD/GumbelDistribution.h
 
