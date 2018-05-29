@@ -69,7 +69,7 @@ QLineEdit {
 * ======= <HEADER AND FOOTER> =======
 */
 
-QGroupBox {
+FooterWidget, HeaderWidget {
     background-color: #B0BEC5;
     height: 30px;
     border-radius: 5px;

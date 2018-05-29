@@ -56,7 +56,6 @@ FooterWidget::FooterWidget(QWidget *parent)
   QPixmap newPixmap = pixmap.scaled(QSize(40,40),  Qt::KeepAspectRatio);
   nsfLogo->setPixmap(newPixmap);
   nsfLogo->setMask(newPixmap.mask());
-  nsfLogo->show();
   
   // putting some text in another
   QLabel *nsfText = new QLabel();
@@ -68,7 +67,6 @@ FooterWidget::FooterWidget(QWidget *parent)
   QPixmap pixmap2(":/imagesCommon/sim_logo_footer.png");
   QPixmap newPixmap2 = pixmap2;
   simLogo->setPixmap(newPixmap2);
-  simLogo->show();
   
   // adding both to a layout
   QHBoxLayout *layout = new QHBoxLayout;
