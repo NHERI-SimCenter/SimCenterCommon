@@ -1,8 +1,11 @@
+#ifndef GUMBELDISTRIBUTION_H
+#define GUMBELDISTRIBUTION_H
+
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -26,61 +29,41 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
 // Written: fmckenna
 
-#include "FooterWidget.h"
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QLineEdit>
-#include <QGroupBox>
-#include <QHBoxLayout>
-#include <QPixmap>
-#include <QBitmap>
-#include <QDebug>
+#include "RandomVariableDistribution.h"
+class QLineEdit;
+class QLabel;
 
-
-FooterWidget::FooterWidget(QWidget *parent)
-    :QGroupBox(parent)
+class GumbelDistribution : public RandomVariableDistribution
 {
-  // putting NSF logo in label
-  QLabel *nsfLogo = new QLabel();
-  QPixmap pixmap(":/imagesCommon/nsf.gif");
-  QPixmap newPixmap = pixmap.scaled(QSize(40,40),  Qt::KeepAspectRatio);
-  nsfLogo->setPixmap(newPixmap);
-  nsfLogo->setMask(newPixmap.mask());
-  
-  // putting some text in another
-  QLabel *nsfText = new QLabel();
-  nsfText->setObjectName(QString::fromUtf8("nsfText"));
-  nsfText->setText(tr("This work is based on material supported by the National Science Foundation under grant 1612843"));
+    Q_OBJECT
+public:
+    explicit  GumbelDistribution(QWidget *parent = 0);
+    ~GumbelDistribution();
 
-  //simcenter logo in label
-  QLabel *simLogo = new QLabel();
-  QPixmap pixmap2(":/imagesCommon/sim_logo_footer.png");
-  QPixmap newPixmap2 = pixmap2;
-  simLogo->setPixmap(newPixmap2);
-  
-  // adding both to a layout
-  QHBoxLayout *layout = new QHBoxLayout;
-  layout->setAlignment(Qt::AlignCenter); //can this be done in CSS???
-  layout->addWidget(nsfLogo);
-  layout->addWidget(nsfText);
-  layout->addWidget(simLogo);
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
 
-  this->setLayout(layout);
-  this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);  
-}
+    QString getAbbreviatedName(void);
 
-FooterWidget::~FooterWidget()
-{
+signals:
 
-}
+public slots:
 
+private:
+    QLineEdit *alphaparam;
+    QLineEdit *betaparam;
+};
+
+
+
+#endif // GUMBELDISTRIBUTION_H
