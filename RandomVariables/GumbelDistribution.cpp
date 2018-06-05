@@ -2,7 +2,7 @@
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -26,17 +26,17 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
 // Written: fmckenna
 
-#include "UniformDistribution.h"
+#include "GumbelDistribution.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -44,7 +44,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 
 
-UniformDistribution::UniformDistribution(QWidget *parent) :RandomVariableDistribution(parent)
+GumbelDistribution::GumbelDistribution(QWidget *parent) :RandomVariableDistribution(parent)
 {
     //
     // create the main horizontal layout and add the input entries
@@ -52,9 +52,8 @@ UniformDistribution::UniformDistribution(QWidget *parent) :RandomVariableDistrib
 
     QHBoxLayout *mainLayout = new QHBoxLayout();
 
-    min = this->createTextEntry(tr("Min."), mainLayout);
-    max = this->createTextEntry(tr("Max."), mainLayout);
-   // initialPoint = this->createTextEntry(tr("Initial Point"), mainLayout);
+    alphaparam = this->createTextEntry(tr("Alpha"), mainLayout);
+    betaparam = this->createTextEntry(tr("Beta"), mainLayout);
 
     mainLayout->addStretch();
 
@@ -63,55 +62,51 @@ UniformDistribution::UniformDistribution(QWidget *parent) :RandomVariableDistrib
     mainLayout->setMargin(0);
     this->setLayout(mainLayout);
 }
-UniformDistribution::~UniformDistribution()
+GumbelDistribution::~GumbelDistribution()
 {
 
 }
 
 bool
-UniformDistribution::outputToJSON(QJsonObject &rvObject){
+GumbelDistribution::outputToJSON(QJsonObject &rvObject){
+
     // check for error condition, an entry had no value
-    if (min->text().isEmpty() || max->text().isEmpty()) {
-        emit sendErrorMessage("ERROR: Uniform Distribution - data has not been set");
+    if (alphaparam->text().isEmpty() || betaparam->text().isEmpty()) {
+        emit sendErrorMessage("ERROR: GumbelDistribution - data has not been set");
         return false;
     }
-
-    rvObject["lowerbound"]=min->text().toDouble();
-    rvObject["upperbound"]=max->text().toDouble();
-
+    rvObject["alphaparam"]=alphaparam->text().toDouble();
+    rvObject["betaparam"]=betaparam->text().toDouble();
     return true;
 }
 
 bool
-UniformDistribution::inputFromJSON(QJsonObject &rvObject){
+GumbelDistribution::inputFromJSON(QJsonObject &rvObject){
+
     //
     // for all entries, make sure i exists and if it does get it, otherwise return error
     //
-    if (rvObject.contains("lowerbound")) {
-        QJsonValue theValue = rvObject["lowerbound"];
-        min->setText(QString::number(theValue.toDouble()));
 
-        qDebug()<<QString::number(theValue.toDouble());
-
-
+    if (rvObject.contains("alphaparam")) {
+        QJsonValue theAlphaValue = rvObject["alphaparam"];
+        alphaparam->setText(QString::number(theAlphaValue.toDouble()));
     } else {
-        emit sendErrorMessage("ERROR: Uniform Distribution - no \"lowerbound\" entry");
+        emit sendErrorMessage("ERROR: GumbelDistribution - no \"Alpha\" entry");
         return false;
     }
 
-    if (rvObject.contains("upperbound")) {
-        QJsonValue theValue = rvObject["upperbound"];
-        max->setText(QString::number(theValue.toDouble()));
-        qDebug()<<QString::number(theValue.toDouble());
+    if (rvObject.contains("betaparam")) {
+        QJsonValue theBetaValue = rvObject["betaparam"];
+        betaparam->setText(QString::number(theBetaValue.toDouble()));
     } else {
-        emit sendErrorMessage("ERROR: Uniform Distribution - no \"upperbound\" entry");
+        emit sendErrorMessage("ERROR: GumbelDistribution - no \"Beta\" entry");
         return false;
     }
 
     return true;
 }
 
-QString 
-UniformDistribution::getAbbreviatedName(void) {
-  return QString("Uniform");
+QString
+GumbelDistribution::getAbbreviatedName(void) {
+  return QString("Gumbel");
 }
