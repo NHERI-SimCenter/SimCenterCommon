@@ -45,6 +45,16 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QGroupBox>
 #include <QVector>
 #include <QVBoxLayout>
+#include <QTableWidget>
+#include <QPushButton>
+#include <QScrollArea>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QLabel>
+#include <QDebug>
+#include <sectiontitle.h>
+#include <QLineEdit>
+
 
 class RandomVariableInputWidget : public SimCenterWidget
 {
@@ -69,6 +79,7 @@ public slots:
    void errorMessage(QString message);
    void addRandomVariable(void);
    void removeRandomVariable(void);
+   void addCorrelationMatrix(void); // added by padhye for correlation matrix
    void clear(void);
 
 private:
@@ -79,6 +90,9 @@ private:
 
     QString randomVariableClass;
     QVector<RandomVariable *>theRandomVariables;
+    QTableWidget *correlationMatrix=NULL;
+    SectionTitle *correlationtabletitle;
+    int flag_for_correlationMatrix;
 };
 
 #endif // RANDOMVARIABLEINPUTWIDGET_H
