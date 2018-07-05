@@ -79,7 +79,7 @@ ContinuousDesignDistribution::outputToJSON(QJsonObject &rvObject){
     }
     rvObject["lowerbound"]=min->text().toDouble();
     rvObject["upperbound"]=max->text().toDouble();
-    rvObject["initialPoint"]=initialPoint->text().toDouble();
+    rvObject["initialpoint"]=initialPoint->text().toDouble();
 
     return true;
 }
@@ -92,32 +92,22 @@ ContinuousDesignDistribution::inputFromJSON(QJsonObject &rvObject){
         QJsonValue theValue = rvObject["lowerbound"];
         min->setText(QString::number(theValue.toDouble()));
 
-        qDebug() << "I am checking the lower bounds; padhye";
-        qDebug() << QString::number(theValue.toDouble());
-
     } else {
         emit sendErrorMessage("ERROR: Continuous Distribution - no \"lowerbound\" entry");
         return false;
     }
 
-    qDebug()<<"Flag 1 ";
-    qDebug()<<rvObject.contains("upperbound");
 
     if (rvObject.contains("upperbound")) {
         QJsonValue theValue = rvObject["upperbound"];
         max->setText(QString::number(theValue.toDouble()));
-        qDebug() << "I am checking the upper bounds; padhye";
-        qDebug() << QString::number(theValue.toDouble());
     } else {
-
-        qDebug() << "The value of upperbound check is Flag 2 ";
-        qDebug() << rvObject.contains("upperbound");
 
         emit sendErrorMessage("ERROR: Continuous Distribution - no \"upperbound\" entry");
         return false;
     }
 
-    if (rvObject.contains("initialPoint")){
+    if (rvObject.contains("initialpoint")){
         QJsonValue theValue = rvObject["initialpoint"];
         initialPoint->setText(QString::number(theValue.toDouble()));
     } else {

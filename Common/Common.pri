@@ -7,7 +7,7 @@
 #message($$_PRO_FILE_PWD_)
 #message($$PWD)
 
-INCLUDEPATH += "../widgets/Common"
+INCLUDEPATH += "../SimCenterCommon/Common"
 INCLUDEPATH += "../Common"
 
 #INCLUDEPATH += "./../widgets/Common/"
