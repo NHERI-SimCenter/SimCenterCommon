@@ -37,7 +37,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 
-#include "RandomVariableDistribution.h"
+#include "RandomVariabledistribution.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
