@@ -34,9 +34,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: padhye
+// Written: fmckenna
 
-#include "WeibullDistribution.h"
+#include "UserDef.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -44,7 +44,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 
 
-WeibullDistribution::WeibullDistribution(QWidget *parent) :RandomVariableDistribution(parent)
+UserDef::UserDef(QWidget *parent) :RandomVariableDistribution(parent)
 {
     //
     // create the main horizontal layout and add the input entries
@@ -52,8 +52,8 @@ WeibullDistribution::WeibullDistribution(QWidget *parent) :RandomVariableDistrib
 
     QHBoxLayout *mainLayout = new QHBoxLayout();
 
-    shapeparam = this->createTextEntry(tr("Shape"), mainLayout);
-    scaleparam = this->createTextEntry(tr("Scale"), mainLayout);
+    //alphaparam = this->createTextEntry(tr("Alpha"), mainLayout);
+    //betaparam = this->createTextEntry(tr("Beta"), mainLayout);
 
     mainLayout->addStretch();
 
@@ -62,51 +62,51 @@ WeibullDistribution::WeibullDistribution(QWidget *parent) :RandomVariableDistrib
     mainLayout->setMargin(0);
     this->setLayout(mainLayout);
 }
-WeibullDistribution::~WeibullDistribution()
+UserDef::~UserDef()
 {
 
 }
 
 bool
-WeibullDistribution::outputToJSON(QJsonObject &rvObject){
+UserDef::outputToJSON(QJsonObject &rvObject){
 
     // check for error condition, an entry had no value
-    if (shapeparam->text().isEmpty() || scaleparam->text().isEmpty()) {
-        emit sendErrorMessage("ERROR: WeibullDistribution - data has not been set");
-        return false;
-    }
-    rvObject["shapeparam"]=shapeparam->text().toDouble();
-    rvObject["scaleparam"]=scaleparam->text().toDouble();
+   // if (alphaparam->text().isEmpty() || betaparam->text().isEmpty()) {
+     //   emit sendErrorMessage("ERROR: UserDef - data has not been set");
+     //   return false;
+   // }
+   // rvObject["alphaparam"]=alphaparam->text().toDouble();
+   // rvObject["betaparam"]=betaparam->text().toDouble();
     return true;
 }
 
 bool
-WeibullDistribution::inputFromJSON(QJsonObject &rvObject){
+UserDef::inputFromJSON(QJsonObject &rvObject){
 
     //
     // for all entries, make sure i exists and if it does get it, otherwise return error
     //
 
-    if (rvObject.contains("shapeparam")) {
-        QJsonValue theShapeValue = rvObject["shapeparam"];
-        shapeparam->setText(QString::number(theShapeValue.toDouble()));
+    /*if (rvObject.contains("alphaparam")) {
+        QJsonValue theAlphaValue = rvObject["alphaparam"];
+        alphaparam->setText(QString::number(theAlphaValue.toDouble()));
     } else {
-        emit sendErrorMessage("ERROR: WeibullDistribution - no \"mean\" entry");
+        emit sendErrorMessage("ERROR: GumbelDistribution - no \"Alpha\" entry");
         return false;
     }
 
-    if (rvObject.contains("scaleparam")) {
-        QJsonValue theScaleValue = rvObject["scaleparam"];
-        scaleparam->setText(QString::number(theScaleValue.toDouble()));
+    if (rvObject.contains("betaparam")) {
+        QJsonValue theBetaValue = rvObject["betaparam"];
+        betaparam->setText(QString::number(theBetaValue.toDouble()));
     } else {
-        emit sendErrorMessage("ERROR: WeibullDistribution - no \"stdDev\" entry");
+        emit sendErrorMessage("ERROR: GumbelDistribution - no \"Beta\" entry");
         return false;
-    }
+    }*/
 
     return true;
 }
 
 QString
-WeibullDistribution::getAbbreviatedName(void) {
-  return QString("Weibull");
+UserDef::getAbbreviatedName(void) {
+  return QString("UserDef");
 }

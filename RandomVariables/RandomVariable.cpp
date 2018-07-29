@@ -57,6 +57,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "UniformDistribution.h"
 #include "ConstantDistribution.h"
 #include "ContinuousDesignDistribution.h"
+#include "UserDef.h"
 #include <QDebug>
 
 RandomVariable::RandomVariable()
@@ -118,6 +119,7 @@ RandomVariable::RandomVariable(const QString &type, QWidget *parent)
         distributionComboBox->addItem(tr("Constant"));
         distributionComboBox->addItem(tr("Weibull"));
         distributionComboBox->addItem(tr("Gumbel"));
+        distributionComboBox->addItem(tr("UserDef"));
     }
     connect(distributionComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(distributionChanged(QString)));
 
@@ -253,28 +255,26 @@ void RandomVariable::distributionChanged(const QString &arg1)
          mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
          // padhye added 4/32/18
           //qDebug () <<"Hello world I am degbuging this is BetaDistribution"; // padhye
-
-
     } else if (arg1 == QString("Uniform")) {
          theDistribution = new UniformDistribution();
          mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
            // padhye added 4/32/18
             //qDebug () <<"Hello world I am degbuging this is Uniform"; // padhye
             //qDebug () <<QString("Uniform"); // padhy
-
     } else if (arg1 == QString("Constant")) {
          theDistribution = new ConstantDistribution();
          mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
-
     } else if (arg1 == QString("ContinuousDesign")) {
          theDistribution = new ContinuousDesignDistribution();
          mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     } else if (arg1 == QString("Weibull")) {
         theDistribution = new WeibullDistribution();
         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
-
     } else if (arg1 == QString("Gumbel")) {
         theDistribution = new GumbelDistribution();
+        mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+    } else if (arg1 == QString("UserDef")) {
+        theDistribution = new UserDef();
         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     }
 

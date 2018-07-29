@@ -148,6 +148,7 @@ RandomVariableInputWidget::makeRV(void)
     addCorrelation->setText(tr("Add Correlation Matrix"));
     connect(addCorrelation,SIGNAL(clicked()),this,SLOT(addCorrelationMatrix()));
     flag_for_correlationMatrix=0;
+
     // a correlation matrix will be initialized based on number of variables by number of variables
 
     //qDebug()<<"\n the value of this->theParameters is "<<this->SimCenterWidget.<<"\n\n";
@@ -193,6 +194,8 @@ RandomVariableInputWidget::makeRV(void)
      verticalLayout->addWidget(sa);
      verticalLayout->setSpacing(0);
      verticalLayout->setMargin(0);
+
+
 }
 
 void RandomVariableInputWidget::addRandomVariable(void)
@@ -424,21 +427,40 @@ RandomVariableInputWidget::outputToJSON(QJsonObject &rvObject)
 
     QJsonArray testingjsonarray;
 
+    int correlation_flad_check =1;
     for (int i = 0; i <theRandomVariables.size(); ++i)
       {
           for (int j = 0; j <theRandomVariables.size(); ++j)
           {
               // this gets the pointer to an item of the table at index i,j
-              QTableWidgetItem *cellItemFromTable = correlationMatrix->item(i,j);
 
-              qDebug()<<"\n the value of   item is      "<<i<<"     "<<j<<((cellItemFromTable->text()).toDouble())<<"\n";
 
-              double value=((cellItemFromTable->text()).toDouble());
-              testingjsonarray.append(value);
+              qDebug()<<"\n I am just here before cellItemFromTable \n";
+
+              qDebug()<<"\n I am just here before cellItemFromTable \n";
+
+              qDebug()<<"\n I am just here before cellItemFromTable \n";
+
+              QTableWidgetItem *cellItemFromTable=NULL;
+
+              if(correlationMatrix!=NULL){cellItemFromTable= correlationMatrix->item(i,j);}
+              else {correlation_flad_check=0;}
+
+              qDebug()<<"\n checking if cellItemFromTabele defined      "<<cellItemFromTable;
+
+
+              if(cellItemFromTable!=NULL)
+              {
+                    qDebug()<<"\n the value of   item is      "<<i<<"     "<<j<<((cellItemFromTable->text()).toDouble())<<"\n";
+
+                    double value=((cellItemFromTable->text()).toDouble());
+                    testingjsonarray.append(value);
+              }else {correlation_flad_check=0;}
             }
     }
 
-    rvObject["uncertain_correlation_matrix"]=testingjsonarray;
+    if(correlation_flad_check==1)
+    {rvObject["uncertain_correlation_matrix"]=testingjsonarray;}
 
     return result;
 
@@ -502,6 +524,14 @@ qDebug() << rvObject;
               } else {
                   result = false;
               }
+          }
+
+          qDebug()<<"\n\n\n   I am here just before adding correlation from default loading json    \n\n\n   ";
+
+          // adding/inializing correlation matrix if the data is loaded from json
+          {
+            addCorrelationMatrix();
+
           }
       }
   return result;
