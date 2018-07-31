@@ -168,6 +168,9 @@ RandomVariableInputWidget::makeRV(void)
     QSpacerItem *spacer1 = new QSpacerItem(50,10);
     QSpacerItem *spacer2 = new QSpacerItem(20,10);
     QSpacerItem *spacer3 = new QSpacerItem(50,10);
+    QSpacerItem *spacer4 = new QSpacerItem(20,10);
+
+
 
 
     QPushButton *addRV = new QPushButton();
@@ -195,6 +198,11 @@ RandomVariableInputWidget::makeRV(void)
     connect(addCorrelation,SIGNAL(clicked()),this,SLOT(addCorrelationMatrix()));
     flag_for_correlationMatrix=0;
 
+
+    QCheckBox *checkbox =new QCheckBox("Sobolev Index", this);
+    connect(checkbox,SIGNAL(clicked(bool)),this,SLOT(addSobolevIndices(bool)));
+    flag_for_sobolev_indices=0;
+
     // a correlation matrix will be initialized based on number of variables by number of variables
 
     //qDebug()<<"\n the value of this->theParameters is "<<this->SimCenterWidget.<<"\n\n";
@@ -211,12 +219,17 @@ RandomVariableInputWidget::makeRV(void)
     titleLayout->addItem(spacer3);
 
 
+    // see if you can access the uqMethod type here and how?
+    //if(uq->uqSelection->currentText()=="sampling"
 
-   // if(uq["uqType"].toString()=="sampling")
+    //if(uq["uqType"].toString()=="sampling")
     {
 
         titleLayout->addWidget(addCorrelation);
     }
+
+    titleLayout->addItem(spacer4);
+    titleLayout->addWidget(checkbox);
 
     titleLayout->addStretch();
 
@@ -251,6 +264,9 @@ void RandomVariableInputWidget::addRandomVariable(void)
    rvLayout->insertWidget(rvLayout->count()-1, theRV);
    connect(this,SLOT(randomVariableErrorMessage(QString)), theRV, SIGNAL(sendErrorMessage(QString)));
 
+   //if(uq["uqType"].toString()=="sampling")
+   {
+
    if(correlationMatrix!=NULL)
    {
      while (correlationMatrix->rowCount() > 0)
@@ -262,6 +278,8 @@ void RandomVariableInputWidget::addRandomVariable(void)
         delete correlationMatrix;
         correlationMatrix=NULL;
         delete correlationtabletitle;
+   }
+
    }
 
 }
@@ -287,6 +305,9 @@ void RandomVariableInputWidget::removeRandomVariable(void)
     //correlationMatrix->clear();
     //correlationMatrix->clearContents();
 
+    //if(uq["uqType"].toString()=="sampling")
+    {
+
     if(correlationMatrix!=NULL)
     {
          while (correlationMatrix->rowCount() > 0)
@@ -299,18 +320,36 @@ void RandomVariableInputWidget::removeRandomVariable(void)
                 correlationMatrix=NULL;
                 delete correlationtabletitle;
     }
+    }
 }
 
 
 
 
-// we will remove the correlation Matrix if the user
+void RandomVariableInputWidget::addSobolevIndices(bool value)
+{
 
+
+
+    if(value)
+    {
+
+    flag_for_sobolev_indices=1;
+
+    }
+    return;
+
+}
+
+
+
+// correlation matrix function
 void RandomVariableInputWidget::addCorrelationMatrix(void)
 {
 
 
     int numRandomVariables = theRandomVariables.size();
+
 
     if(correlationMatrix==NULL && numRandomVariables>0)
     {
@@ -484,11 +523,11 @@ RandomVariableInputWidget::outputToJSON(QJsonObject &rvObject)
               // this gets the pointer to an item of the table at index i,j
 
 
-              qDebug()<<"\n I am just here before cellItemFromTable \n";
+          //    qDebug()<<"\n I am just here before cellItemFromTable \n";
 
-              qDebug()<<"\n I am just here before cellItemFromTable \n";
+            //  qDebug()<<"\n I am just here before cellItemFromTable \n";
 
-              qDebug()<<"\n I am just here before cellItemFromTable \n";
+             // qDebug()<<"\n I am just here before cellItemFromTable \n";
 
               QTableWidgetItem *cellItemFromTable=NULL;
 
@@ -510,6 +549,12 @@ RandomVariableInputWidget::outputToJSON(QJsonObject &rvObject)
 
     if(correlation_flad_check==1)
     {rvObject["uncertain_correlation_matrix"]=testingjsonarray;}
+
+    if(flag_for_sobolev_indices==1)
+    {
+        rvObject["sobelov_indices"]=1;
+
+    }
 
     return result;
 
