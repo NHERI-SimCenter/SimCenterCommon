@@ -59,6 +59,7 @@ signals:
 
 public slots:
 
+
 private:
     QHBoxLayout *theLayout;
     QStringList   tableHeader;

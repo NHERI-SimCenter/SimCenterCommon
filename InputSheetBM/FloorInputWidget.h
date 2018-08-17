@@ -59,10 +59,15 @@ public:
 signals:
 
 public slots:
+    void somethingChanged(int row, int column);
+    void somethingEntered(int row, int column, int row2, int col2);
+
 
 private:
     QHBoxLayout *theLayout;
     QStringList   tableHeader;
+    QString currentName;
+    bool fillingTableFromMap;
 };
 
 #endif // FLOORINPUTWIDGET_H

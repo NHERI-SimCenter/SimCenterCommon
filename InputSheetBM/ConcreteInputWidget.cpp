@@ -44,6 +44,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 ConcreteInputWidget::ConcreteInputWidget(QWidget *parent) : SimCenterTableWidget(parent)
 {
+    fillingTableFromMap = false;
+    currentName.clear();
+
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
 

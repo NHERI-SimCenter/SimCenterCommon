@@ -10,7 +10,7 @@
 INCLUDEPATH+=$$PWD
 
 SOURCES += \
-$$PWD/InputWidgetSheetBM.cpp \
+$$PWD/InputWidgetSheetSIM.cpp \
 $$PWD/ClineInputWidget.cpp \
 $$PWD/BeamInputWidget.cpp \
 $$PWD/FloorInputWidget.cpp \
@@ -27,11 +27,14 @@ $$PWD/FramesectionInputWidget.cpp \
 $$PWD/SlabsectionInputWidget.cpp \
 $$PWD/WallsectionInputWidget.cpp \
 $$PWD/ConnectionInputWidget.cpp \
-$$PWD/PointInputWidget.cpp
+$$PWD/PointInputWidget.cpp \
+$$PWD/BimClasses.cpp 
+
+
 
 
 HEADERS += \
-$$PWD/InputWidgetSheetBM.h \
+$$PWD/InputWidgetSheetSIM.h \
 $$PWD/ClineInputWidget.h \
 $$PWD/BeamInputWidget.h \
 $$PWD/FloorInputWidget.h \
@@ -49,4 +52,8 @@ $$PWD/SlabsectionInputWidget.h \
 $$PWD/WallsectionInputWidget.h \
 $$PWD/ConnectionInputWidget.h \
 $$PWD/SimCenterTableWidget.h \
-$$PWD/PointInputWidget.h
+$$PWD/PointInputWidget.h \
+$$PWD/BimClasses.h
+
+INCLUDEPATH+="/usr/local/jansson/include"
+LIBS+="/usr/local/jansson/lib/libjansson.a"

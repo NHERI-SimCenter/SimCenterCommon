@@ -44,6 +44,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 ColumnInputWidget::ColumnInputWidget(QWidget *parent) : SimCenterTableWidget(parent)
 {
+
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
 
