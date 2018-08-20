@@ -62,6 +62,7 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent) : SimCenterW
     storiesBox->setRange(1, INT_MAX);
 
     heightEdit = new QLineEdit(this);
+    planAreaEdit = new QLineEdit(this);
 
     locationNameEdit = new QLineEdit(this);
     locationLatBox = new QDoubleSpinBox(this);
@@ -107,6 +108,7 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent) : SimCenterW
     infoFormLayout->addRow(tr("Year"), yearBox);
     infoFormLayout->addRow(tr("Stories"), storiesBox);
     infoFormLayout->addRow(tr("Height"), heightEdit);
+    infoFormLayout->addRow(tr("Plan Area"), planAreaEdit);
 
     QGroupBox* locationGroupBox = new QGroupBox("Location", this);
     QFormLayout* locationFormLayout = new QFormLayout(locationGroupBox);
@@ -141,21 +143,12 @@ bool
 GeneralInformationWidget::outputToJSON(QJsonObject &jsonObj){
 
     jsonObj["name"] = nameEdit->text().trimmed();
-
-    QString revVal = revEdit->text();
-    jsonObj["revision"] = revVal.toDouble();
-
+    jsonObj["revision"] = revEdit->text().toDouble();
     jsonObj["type"] = typeEdit->text().trimmed();
-
-    QString intVal = yearBox->text();
-    jsonObj["year"] = intVal.toInt();
-
-    intVal = storiesBox->text();
-    jsonObj["stories"] = intVal.toInt();
-
-    intVal = heightEdit->text();
-    jsonObj["height"] = intVal.toInt();
-
+    jsonObj["year"] = yearBox->text().toInt();
+    jsonObj["stories"] = storiesBox->text().toInt();
+    jsonObj["height"] = heightEdit->text().toDouble();
+    jsonObj["planArea"] = planAreaEdit->text().toDouble();
 
     QJsonObject location;
     location["name"] = locationNameEdit->text().trimmed();
@@ -203,6 +196,12 @@ GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
 
     QJsonValue heightValue = jsonObject["height"];
     heightEdit->setText(  QString::number(heightValue.toDouble()) );
+
+    QJsonValue planAreaValue = jsonObject["planArea"];
+    if(planAreaValue.isUndefined() || planAreaValue == QJsonValue::Null || !planAreaValue.isDouble())
+        planAreaEdit->setText("0.0");
+    else
+        planAreaEdit->setText(QString::number(planAreaValue.toDouble()));
 
     // Location Object
     QJsonValue locationValue = jsonObject["location"];

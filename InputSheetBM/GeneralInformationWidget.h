@@ -86,6 +86,7 @@ private:
     QSpinBox *yearBox;
     QSpinBox *storiesBox;
     QLineEdit *heightEdit;
+    QLineEdit *planAreaEdit;
 
     QLineEdit *locationNameEdit;
     QDoubleSpinBox *locationLatBox;
