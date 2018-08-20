@@ -37,6 +37,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 #include "GeneralInformationWidget.h"
+#include <QFormLayout>
+#include <QGroupBox>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QDebug>
@@ -45,114 +47,89 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLabel>
 #include <QLineEdit>
 
+#include <QMetaEnum>
+
+
 GeneralInformationWidget::GeneralInformationWidget(QWidget *parent) : SimCenterWidget(parent)
 {
-    QLabel *nameLabel = new QLabel(this);
-    nameLabel->setText("Name");
-    nameEdit = new QLineEdit;
+    nameEdit = new QLineEdit(this);
+    revEdit = new QLineEdit(this);
+    typeEdit = new QLineEdit(this);
+    yearBox = new QSpinBox(this);
+    yearBox->setRange(1800, INT_MAX);
+    yearBox->setValue(2018);
+    storiesBox = new QSpinBox(this);
+    storiesBox->setRange(1, INT_MAX);
 
-    QLabel *revLabel = new QLabel(this);
-    revLabel->setText("Revision");
-    revEdit = new QLineEdit;
+    heightEdit = new QLineEdit(this);
 
-    QLabel *typeLabel = new QLabel(this);
-    typeLabel->setText("Type");
-    typeEdit = new QLineEdit;
+    locationNameEdit = new QLineEdit(this);
+    locationLatBox = new QDoubleSpinBox(this);
+    locationLatBox->setRange(-90.0, 90.0);
+    locationLatBox->setDecimals(4);
+    locationLatBox->setSingleStep(0.0001);
 
-    QLabel *yearLabel = new QLabel(this);
-    yearLabel->setText("Year");
-    yearEdit = new QLineEdit;
+    locationLonBox = new QDoubleSpinBox(this);
+    locationLonBox->setRange(-180.0, 180.0);
+    locationLonBox->setDecimals(4);
+    locationLonBox->setSingleStep(0.0001);
 
-    QLabel *storiesLabel = new QLabel(this);
-    storiesLabel->setText("Stories");
-    storiesEdit = new QLineEdit;
+    unitsForceCombo = new QComboBox(this);
+    unitsForceCombo->addItem("Newtons", ForceUnit::N);
+    unitsForceCombo->addItem("Kilonewtons", ForceUnit::kN);
+    unitsForceCombo->addItem("Pounds", ForceUnit::lb);
+    unitsForceCombo->addItem("Kips", ForceUnit::kips);
 
-    QLabel *heightLabel = new QLabel(this);
-    heightLabel->setText("Height");
-    heightEdit = new QLineEdit;
+    unitsLengthCombo = new QComboBox(this);
+    unitsLengthCombo->addItem("Meters", LengthUnit::m);
+    unitsLengthCombo->addItem("Centimeters", LengthUnit::cm);
+    unitsLengthCombo->addItem("Millimeters", LengthUnit::mm);
+    unitsLengthCombo->addItem("Inches", LengthUnit::in);
+    unitsLengthCombo->addItem("Feet", LengthUnit::ft);
 
-    QLabel *locationLabel = new QLabel(this);
-    locationLabel->setText("Location");
-    locationLabel->setStyleSheet("font-weight: bold; font-size: 14px ");
-    QLabel *emptyLabel = new QLabel(this);
-    emptyLabel->setText("");
+    unitsTemperatureCombo = new QComboBox(this);
+    unitsTemperatureCombo->addItem("Celsius", TemperatureUnit::C);
+    unitsTemperatureCombo->addItem("Fahrenheit", TemperatureUnit::F);
+    unitsTemperatureCombo->addItem("Kelvin", TemperatureUnit::K);
 
-    QLabel *locationNameLabel = new QLabel(this);
-    locationNameLabel->setText("Name");
-    locationNameEdit = new QLineEdit;
+    unitsTimeCombo = new QComboBox(this);
+    unitsTimeCombo->addItem("Seconds", TimeUnit::sec);
+    unitsTimeCombo->addItem("Minutes", TimeUnit::min);
+    unitsTimeCombo->addItem("Hours", TimeUnit::hr);
 
-    QLabel *locationLatLabel = new QLabel(this);
-    locationLatLabel->setText("Latitude");
-    locationLatEdit = new QLineEdit;
+    QVBoxLayout* layout = new QVBoxLayout(this);
 
-    QLabel *locationLonLabel = new QLabel(this);
-    locationLonLabel->setText("Longitude");
-    locationLonEdit = new QLineEdit;
+    QGroupBox* infoGroupBox = new QGroupBox("Building Information", this);
+    QFormLayout* infoFormLayout = new QFormLayout(infoGroupBox);
+    infoFormLayout->addRow(tr("Name"), nameEdit);
+    infoFormLayout->addRow(tr("Revision"), revEdit);
+    infoFormLayout->addRow(tr("Type"), typeEdit);
+    infoFormLayout->addRow(tr("Year"), yearBox);
+    infoFormLayout->addRow(tr("Stories"), storiesBox);
+    infoFormLayout->addRow(tr("Height"), heightEdit);
 
-    // Units
-    QLabel *unitsLabel = new QLabel(this);
-    unitsLabel->setStyleSheet("font-weight: bold; font-size: 14px ");
-    unitsLabel->setText("Units");
+    QGroupBox* locationGroupBox = new QGroupBox("Location", this);
+    QFormLayout* locationFormLayout = new QFormLayout(locationGroupBox);
+    locationFormLayout->addRow(tr("Name"), locationNameEdit);
+    locationFormLayout->addRow(tr("Latitude"), locationLatBox);
+    locationFormLayout->addRow(tr("Longitude"), locationLonBox);
 
-    QLabel *unitsForceLabel = new QLabel(this);
-    unitsForceLabel->setText("Force");
-    unitsForceEdit = new QLineEdit;
+    QGroupBox* unitsGroupBox = new QGroupBox("Units", this);
+    QFormLayout* unitsFormLayout = new QFormLayout(unitsGroupBox);
+    unitsFormLayout->addRow(tr("Force"), unitsForceCombo);
+    unitsFormLayout->addRow(tr("Length"), unitsLengthCombo);
+    unitsFormLayout->addRow(tr("Temperature"), unitsTemperatureCombo);
+    unitsFormLayout->addRow(tr("Time"), unitsTimeCombo);
 
-    QLabel *unitsLengthLabel = new QLabel(this);
-    unitsLengthLabel->setText("Length");
-    unitsLengthEdit = new QLineEdit;
-
-    QLabel *unitsTemperatureLabel = new QLabel(this);
-    unitsTemperatureLabel->setText("Temperature");
-    unitsTemperatureEdit = new QLineEdit;
-
-    QLabel *unitsTimeLabel = new QLabel(this);
-    unitsTimeLabel->setText("Time");
-    unitsTimeEdit = new QLineEdit;
-
-    theLayout = new QHBoxLayout();
-    this->setLayout(theLayout);
-
-    QGridLayout *leftLayout = new QGridLayout;
-    leftLayout->addWidget(nameLabel, 0, 0);
-    leftLayout->addWidget(revLabel, 1, 0);
-    leftLayout->addWidget(typeLabel, 2, 0);
-    leftLayout->addWidget(yearLabel, 3, 0);
-    leftLayout->addWidget(storiesLabel, 4, 0);
-    leftLayout->addWidget(heightLabel, 5, 0);
-    leftLayout->addWidget(locationLabel, 6, 0, 1, 2);
-    leftLayout->addWidget(locationNameLabel, 7, 0);
-    leftLayout->addWidget(locationLatLabel, 8, 0);
-    leftLayout->addWidget(locationLonLabel, 9, 0);
-    leftLayout->addWidget(unitsLabel, 10, 0, 1, 2);
-    leftLayout->addWidget(unitsForceLabel, 11, 0);
-    leftLayout->addWidget(unitsLengthLabel, 12, 0);
-    leftLayout->addWidget(unitsTemperatureLabel, 13, 0);
-    leftLayout->addWidget(unitsTimeLabel, 14, 0);
-
-    QGridLayout *rightLayout = new QGridLayout;
-    rightLayout->addWidget(nameEdit, 0, 1);
-    rightLayout->addWidget(revEdit, 1, 1);
-    rightLayout->addWidget(typeEdit, 2, 1);
-    rightLayout->addWidget(yearEdit, 3, 1);
-    rightLayout->addWidget(storiesEdit, 4, 1);
-    rightLayout->addWidget(heightEdit, 5, 1);
-    rightLayout->addWidget(emptyLabel, 6, 1);
-    rightLayout->addWidget(locationNameEdit, 7, 1);
-    rightLayout->addWidget(locationLatEdit, 8, 1);
-    rightLayout->addWidget(locationLonEdit, 9, 1);
-    rightLayout->addWidget(emptyLabel, 10, 1);
-    rightLayout->addWidget(unitsForceEdit, 11, 1);
-    rightLayout->addWidget(unitsLengthEdit, 12, 1);
-    rightLayout->addWidget(unitsTemperatureEdit, 13, 1);
-    rightLayout->addWidget(unitsTimeEdit, 14, 1);
-
-    theLayout->addLayout(leftLayout);
-    theLayout->addLayout(rightLayout);
-    setLayout(theLayout);
     setWindowTitle(tr("General Information"));
 
-    this->setMinimumWidth(500);
+    layout->addWidget(infoGroupBox);
+    layout->addWidget(locationGroupBox);
+    layout->addWidget(unitsGroupBox);
+    layout->addStretch(1);
+
+    this->setMinimumWidth(200);
+    this->setMaximumWidth(400);
 }
 
 GeneralInformationWidget::~GeneralInformationWidget()
@@ -170,10 +147,10 @@ GeneralInformationWidget::outputToJSON(QJsonObject &jsonObj){
 
     jsonObj["type"] = typeEdit->text().trimmed();
 
-    QString intVal = yearEdit->text();
+    QString intVal = yearBox->text();
     jsonObj["year"] = intVal.toInt();
 
-    intVal = storiesEdit->text();
+    intVal = storiesBox->text();
     jsonObj["stories"] = intVal.toInt();
 
     intVal = heightEdit->text();
@@ -183,19 +160,19 @@ GeneralInformationWidget::outputToJSON(QJsonObject &jsonObj){
     QJsonObject location;
     location["name"] = locationNameEdit->text().trimmed();
 
-    QString dblVal = locationLatEdit->text();
+    QString dblVal = locationLatBox->text();
     location["latitude"] = dblVal.toDouble();
 
-    dblVal = locationLonEdit->text();
+    dblVal = locationLonBox->text();
     location["longitude"] = dblVal.toDouble();
 
     jsonObj["location"] = location;
 
     QJsonObject units;
-    units["force"] = unitsForceEdit->text().trimmed();
-    units["length"] = unitsLengthEdit->text().trimmed();
-    units["time"] = unitsTimeEdit->text().trimmed();
-    units["temperature"] = unitsTemperatureEdit->text().trimmed();
+    units["force"] = unitEnumToString(unitsForceCombo->currentData().value<ForceUnit>());
+    units["length"] = unitEnumToString(unitsLengthCombo->currentData().value<LengthUnit>());
+    units["time"] = unitEnumToString(unitsTimeCombo->currentData().value<TimeUnit>());
+    units["temperature"] = unitEnumToString(unitsTemperatureCombo->currentData().value<TemperatureUnit>());
 
     jsonObj["units"] = units;
 
@@ -219,13 +196,13 @@ GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
     typeEdit->setText(typeValue.toString());
 
     QJsonValue yearValue = jsonObject["year"];
-    yearEdit->setText( QString::number(yearValue.toInt()) );
+    yearBox->setValue(yearValue.toInt());
 
     QJsonValue storiesValue = jsonObject["stories"];
-    storiesEdit->setText(  QString::number(storiesValue.toInt()));
+    storiesBox->setValue(storiesValue.toInt());
 
     QJsonValue heightValue = jsonObject["height"];
-    heightEdit->setText(  QString::number(heightValue.toInt()) );
+    heightEdit->setText(  QString::number(heightValue.toDouble()) );
 
     // Location Object
     QJsonValue locationValue = jsonObject["location"];
@@ -235,10 +212,10 @@ GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
     locationNameEdit->setText(locationNameValue.toString());
 
     QJsonValue locationLatitudeValue = locationObj["latitude"];
-    locationLatEdit->setText( QString::number(locationLatitudeValue.toDouble()) );
+    locationLatBox->setValue(locationLatitudeValue.toDouble());
 
     QJsonValue locationLongitudeValue = locationObj["longitude"];
-    locationLonEdit->setText( QString::number(locationLongitudeValue.toDouble()) );
+    locationLonBox->setValue(locationLongitudeValue.toDouble());
 
 
     // Units Object
@@ -246,16 +223,24 @@ GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
     QJsonObject unitsObj = unitsValue.toObject();
 
     QJsonValue unitsForceValue = unitsObj["force"];
-    unitsForceEdit->setText(unitsForceValue.toString());
+    ForceUnit forceUnit = unitStringToEnum<ForceUnit>(unitsForceValue.toString());
+    int forceUnitIndex = unitsForceCombo->findData(forceUnit);
+    unitsForceCombo->setCurrentIndex(forceUnitIndex);
 
     QJsonValue unitsLengthValue = unitsObj["length"];
-    unitsLengthEdit->setText(unitsLengthValue.toString());
+    LengthUnit lengthUnit = unitStringToEnum<LengthUnit>(unitsLengthValue.toString());
+    int lengthUnitIndex = unitsLengthCombo->findData(lengthUnit);
+    unitsLengthCombo->setCurrentIndex(lengthUnitIndex);
 
     QJsonValue unitsTimeValue = unitsObj["time"];
-    unitsTimeEdit->setText(unitsTimeValue.toString());
+    TimeUnit timeUnit = unitStringToEnum<TimeUnit>(unitsTimeValue.toString());
+    int timeUnitIndex = unitsTimeCombo->findData(timeUnit);
+    unitsTimeCombo->setCurrentIndex(timeUnitIndex);
 
     QJsonValue unitsTempValue = unitsObj["temperature"];
-    unitsTemperatureEdit->setText(unitsTempValue.toString());
+    TemperatureUnit tempUnit = unitStringToEnum<TemperatureUnit>(unitsTempValue.toString());
+    int tempUnitIndex = unitsTemperatureCombo->findData(tempUnit);
+    unitsTemperatureCombo->setCurrentIndex(tempUnitIndex);
 
     return(true);
 }
@@ -266,17 +251,28 @@ GeneralInformationWidget::clear(void)
     nameEdit->clear();
     revEdit->clear();
     typeEdit->clear();
-    yearEdit->clear();
-    storiesEdit->clear();
+    yearBox->clear();
+    storiesBox->clear();
     heightEdit->clear();
 
     locationNameEdit->clear();
-    locationLatEdit->clear();
-    locationLonEdit->clear();
+    locationLatBox->clear();
+    locationLonBox->clear();
 
-    unitsForceEdit->clear();
-    unitsLengthEdit->clear();
-    unitsTemperatureEdit->clear();
-    unitsTimeEdit->clear();
+    unitsForceCombo->clear();
+    unitsTemperatureCombo->clear();
+    unitsTimeCombo->clear();
 
+}
+
+template<typename UnitEnum>
+QString GeneralInformationWidget::unitEnumToString(UnitEnum enumValue)
+{
+    return QString(QMetaEnum::fromType<UnitEnum>().valueToKey(enumValue));
+}
+
+template<typename UnitEnum>
+UnitEnum GeneralInformationWidget::unitStringToEnum(QString unitString)
+{
+    return (UnitEnum)QMetaEnum::fromType<UnitEnum>().keyToValue(unitString.toStdString().c_str());
 }
