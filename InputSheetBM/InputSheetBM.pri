@@ -17,6 +17,8 @@ $$PWD/FloorInputWidget.cpp \
 $$PWD/BraceInputWidget.cpp \
 $$PWD/ColumnInputWidget.cpp \
 $$PWD/SteelInputWidget.cpp \
+$$PWD/SteelWSectionInputWidget.cpp \
+$$PWD/SteelTubeSectionInputWidget.cpp \
 $$PWD/ConcreteInputWidget.cpp \
 $$PWD/JsonValidator.cpp \
 $$PWD/SpreadsheetWidget.cpp \
@@ -28,7 +30,11 @@ $$PWD/SlabsectionInputWidget.cpp \
 $$PWD/WallsectionInputWidget.cpp \
 $$PWD/ConnectionInputWidget.cpp \
 $$PWD/PointInputWidget.cpp \
-$$PWD/BimClasses.cpp 
+$$PWD/BimClasses.cpp \
+$$PWD/Materials.cpp \
+$$PWD/FrameSections.cpp \
+$$PWD/WallSections.cpp \
+$$PWD/Geometry.cpp
 
 
 
@@ -41,6 +47,8 @@ $$PWD/FloorInputWidget.h \
 $$PWD/BraceInputWidget.h \
 $$PWD/ColumnInputWidget.h \
 $$PWD/SteelInputWidget.h \
+$$PWD/SteelWSectionInputWidget.h \
+$$PWD/SteelTubeSectionInputWidget.h \
 $$PWD/ConcreteInputWidget.h \
 $$PWD/JsonValidator.h \
 $$PWD/SpreadsheetWidget.h \
@@ -53,7 +61,11 @@ $$PWD/WallsectionInputWidget.h \
 $$PWD/ConnectionInputWidget.h \
 $$PWD/SimCenterTableWidget.h \
 $$PWD/PointInputWidget.h \
-$$PWD/BimClasses.h
+$$PWD/BimClasses.h \
+$$PWD/Materials.h \
+$$PWD/FrameSections.h \
+$$PWD/WallSections.h \
+$$PWD/Geometry.h
 
 INCLUDEPATH+="/usr/local/jansson/include"
 LIBS+="/usr/local/jansson/lib/libjansson.a"

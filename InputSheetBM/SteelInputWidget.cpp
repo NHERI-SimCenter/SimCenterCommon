@@ -84,12 +84,13 @@ SteelInputWidget::~SteelInputWidget()
 
 bool
 SteelInputWidget::outputToJSON(QJsonObject &jsonObj){
-    return(true);
+    // this is just a view, data sent elsewhere
+    return true;
 }
 
 bool
 SteelInputWidget::outputToJSON(QJsonArray &jsonArray){
-
+  qDebug() << "STeelInputWidget - outputToJSON\n";
      // create a json array and for each row add a json object to it
     int numRows = theSpreadsheet->getNumRows();
     for (int i=0; i<numRows; i++) {
@@ -120,39 +121,8 @@ SteelInputWidget::outputToJSON(QJsonArray &jsonArray){
 bool
 SteelInputWidget::inputFromJSON(QJsonObject &theObject)
 {
-    qDebug() << "SteelINputFromJSON";
-    /* Materails already imported from JSON .. now just need to create entries from Materials::theMaterials
-     * why folliwng code is not needed .. keeping just in case
-     *
-    // this has to be called one object at a time for efficiency
-    // could use the rVarray above. This array will contain multiple
-    // object types and could parse each to to see if corect type.
-    //  BUT too slow if multiple material types,
-    //  int currentRow = 0;
+    // qDebug() << "SteelInputFromJSON";
 
-    QString name, type;
-    double E, Fy, Fu, rho, nu;
-    type = theObject["type"].toString();
-    if (type == QString(tr("steel"))) {
-        name = theObject["name"].toString();
-        E = theObject["E"].toDouble();
-        Fy = theObject["fy"].toDouble();
-        Fu = theObject["fu"].toDouble();
-        nu = theObject["nu"].toDouble();
-        rho = theObject["rho"].toDouble();
-
-        // add to the spreadsheet
-        theSpreadsheet->setString(currentRow, 0, name);
-        theSpreadsheet->setDouble(currentRow, 1, E);
-        theSpreadsheet->setDouble(currentRow, 2, Fy);
-        theSpreadsheet->setDouble(currentRow, 3, Fu);
-        theSpreadsheet->setDouble(currentRow, 4, nu);
-        theSpreadsheet->setDouble(currentRow, 5, rho);
-
-        currentRow++;
-    }
-    return(true);
-    */
     fillingTableFromMap = true;
     this->clear();
     currentRow = 0;
@@ -164,7 +134,7 @@ SteelInputWidget::inputFromJSON(QJsonObject &theObject)
 
         if (theOrigMaterial->matType == STEEL_TYPE) {
 
-            Steel *theMaterial = (Steel *)theOrigMaterial;
+            Steel *theMaterial = dynamic_cast<Steel *>(theOrigMaterial);
 
             QString name(QString::fromStdString((theMaterial->name)));
 
@@ -220,9 +190,8 @@ SteelInputWidget::somethingEntered(int row, int column, int row2, int col2) {
     if (column == 0) {
         if (theSpreadsheet->getString(row, column, currentName) == false)
             currentName.clear();
-   } else
+    } else
         currentName.clear();
-
 }
 
 void
@@ -253,29 +222,46 @@ SteelInputWidget::somethingChanged(int row, int column) {
         qDebug() << "NO CELL";
         return; // do not add Floor until all data exists
     }
-    if (theSpreadsheet->getString(row,0,name) == false || name == QString("")) {
+
+    if (theSpreadsheet->getString(row,0,name) == false) {
         qDebug() << "NO NAME";
         return; // problem with name
     }
 
-    // check name is unique, if not set string to what it was before entry
+
     if (column == 0) {
-        Material *existingMaterial = Material::getMaterial(name.toStdString());
-        if (existingMaterial != NULL) {
-            //theSpreadsheet->takeItem(row,0);
-            //QString blankString("");
+        string theStringName = name.toStdString();
+        if ((theStringName.empty()) || (theStringName.find_first_not_of(' ') == std::string::npos)) {
             theSpreadsheet->setString(row, 0, currentName);
+            // qDebug() << "BLANK NAME";
             return;
         }
     }
-qDebug() << "steel changed - unique name";
+
+
+
+    // check name is  unique, if not set string to what it was before entry
+    if (column == 0) {
+        Material *existingMaterial = Material::getMaterial(name.toStdString());
+        if (existingMaterial != NULL) {
+            theSpreadsheet->setString(row, 0, currentName);
+            return;
+        }
+    } else { // is name is empty or conatins blanks, return
+      string theStringName = name.toStdString();
+      if ((theStringName.empty()) || (theStringName.find_first_not_of(' ') == std::string::npos)) {
+	return;
+      }
+    }
+
     //
     // if height exists, update map in Floors with new entry
     //
 
     if (theE == NULL || theFy == NULL || theFu == NULL || theNu == NULL || theMass == NULL)
         return;
-qDebug() << "steel changed - all there";
+
+    //  qDebug() << "steel changed - all there";
 
     if (theSpreadsheet->getDouble(row,1,E) == false) {
         if (theSpreadsheet->getString(row,1,rvE) == false) {
@@ -314,7 +300,7 @@ qDebug() << "steel changed - all there";
     }
 
     if (theSpreadsheet->getDouble(row,5,Mass) == false) {
-        if (theSpreadsheet->getString(row,4,rvMass) == false) {
+        if (theSpreadsheet->getString(row,5,rvMass) == false) {
             qDebug() << "NO Mass";
             return;
         } else {
@@ -323,15 +309,15 @@ qDebug() << "steel changed - all there";
     }
 
 
-    if (column == 0) { // add new floor, remove old if renamed
-        if (currentName != name)
+    if (column == 0) { // if modified the name, need to remove old before can add as would leave add there
+        if (currentName != name) {
             Material::removeMaterial(currentName.toStdString());
-        Steel::addSteelMaterial(name.toStdString(), E, Fy, Fu, Nu, Mass,
-                                rvEString, rvFyString, rvFuString, rvNuString, rvMassString);
-        qDebug() << "SteelSpread :: added Steel";
-    } else { // reset properties on existing floor
-        Steel::addSteelMaterial(name.toStdString(), E, Fy, Fu, Nu, Mass,
-                                  rvEString, rvFyString, rvFuString, rvNuString, rvMassString);
-     qDebug() << "SteelSpread :: updated Steel";
+            qDebug() << " removing material " << currentName << " to be replaced with: " << name;
+        }
     }
+
+    Steel::addSteelMaterial(name.toStdString(), E, Fy, Fu, Nu, Mass,
+                            rvEString, rvFyString, rvFuString, rvNuString, rvMassString);
+    currentName = name;
+
 }

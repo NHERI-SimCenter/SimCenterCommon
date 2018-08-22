@@ -64,6 +64,8 @@ class RandomVariableInputWidget;
 class SimCenterWidget;
 class SimCenterTableWidget;
 class SpreadsheetWidget;
+class SteelWSectionInputWidget;
+class SteelTubeSectionInputWidget;
 
 
 
@@ -100,9 +102,13 @@ private:
     WallInputWidget *theWallInput;
     SteelInputWidget *theSteelInput;
     ConcreteInputWidget *theConcreteInput;
+    SteelWSectionInputWidget *theSteelWSectionInput;
+    SteelTubeSectionInputWidget *theSteelTubeSectionInput;
 
+    /*
     QStringList theFramesectionTypes;
     QMap<QString, FramesectionInputWidget*> theFramesectionInputs;
+    */
 
     SlabsectionInputWidget *theSlabsectionInput;
 

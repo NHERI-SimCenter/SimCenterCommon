@@ -51,7 +51,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QModelIndex>
 
 
-
 #include "ClineInputWidget.h"
 #include "FloorInputWidget.h"
 #include "BeamInputWidget.h"
@@ -59,15 +58,18 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "BraceInputWidget.h"
 #include "SteelInputWidget.h"
 #include "ConcreteInputWidget.h"
-#include "FramesectionInputWidget.h"
+//#include "FramesectionInputWidget.h"
 #include "SlabsectionInputWidget.h"
 #include "WallsectionInputWidget.h"
 #include "ConnectionInputWidget.h"
 #include "PointInputWidget.h"
 #include "SpreadsheetWidget.h"
+#include "SteelWSectionInputWidget.h"
+#include "SteelTubeSectionInputWidget.h"
 
 #include <jansson.h>
 #include <BimClasses.h>
+
 
 InputWidgetSheetSIM::InputWidgetSheetSIM(QWidget *parent) : QWidget(parent), currentWidget(0)
 {
@@ -108,7 +110,12 @@ InputWidgetSheetSIM::InputWidgetSheetSIM(QWidget *parent) : QWidget(parent), cur
   materialsItem->appendRow(new QStandardItem("Concrete"));
   materialsItem->appendRow(new QStandardItem("Steel"));
 
+
   propertiesItem->appendRow(framesectionsItem);
+  framesectionsItem->appendRow(new QStandardItem("Steel W Section"));
+  framesectionsItem->appendRow(new QStandardItem("Steel Tube Section"));
+  /*
+
   QStringList framesectionTypes(std::initializer_list<QString>({
         "Concrete Rectangular Column", "Concrete Box Column",
         "Concrete Circular Column", "Concrete Pipe Column",
@@ -123,7 +130,7 @@ InputWidgetSheetSIM::InputWidgetSheetSIM(QWidget *parent) : QWidget(parent), cur
       framesectionsItem->appendRow(new QStandardItem(framesectionTypes[i]));
       theFramesectionTypes << framesectionTypes[i].toLower();
   }
-
+*/
   propertiesItem->appendRow(new QStandardItem("Slabsections"));
 
   propertiesItem->appendRow(wallsectionsItem);
@@ -174,9 +181,13 @@ InputWidgetSheetSIM::InputWidgetSheetSIM(QWidget *parent) : QWidget(parent), cur
   theColumnInput = new ColumnInputWidget();
   theSteelInput = new SteelInputWidget();
   theConcreteInput = new ConcreteInputWidget();
+  theSteelWSectionInput = new SteelWSectionInputWidget();
+   theSteelTubeSectionInput = new SteelTubeSectionInputWidget();
+  /*
   for (int i=0; i<theFramesectionTypes.size(); i++) {
       theFramesectionInputs[theFramesectionTypes[i]] = new FramesectionInputWidget(theFramesectionTypes[i]);
   }
+  */
   theSlabsectionInput = new SlabsectionInputWidget();
   for (int i=0; i<theWallsectionTypes.size(); i++) {
       theWallsectionInputs[theWallsectionTypes[i]] = new WallsectionInputWidget(theWallsectionTypes[i]);
@@ -265,9 +276,17 @@ void InputWidgetSheetSIM::selectionChangedSlot(const QItemSelection & /*newSelec
     } else if (selectedText == tr("Concrete")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theConcreteInput, 1);
         currentWidget = theConcreteInput;
+    } else if (selectedText == tr("Steel W Section")) {
+        horizontalLayout->insertWidget(horizontalLayout->count()-1, theSteelWSectionInput, 1);
+        currentWidget = theSteelWSectionInput;
+    } else if (selectedText == tr("Steel Tube Section")) {
+        horizontalLayout->insertWidget(horizontalLayout->count()-1, theSteelTubeSectionInput, 1);
+        currentWidget = theSteelTubeSectionInput;
+        /*
     } else if (theFramesectionTypes.contains(selectedText.toLower())) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theFramesectionInputs[selectedText.toLower()], 1);
         currentWidget = theFramesectionInputs[selectedText.toLower()];
+        */
     } else if (selectedText == tr("Slabsections")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theSlabsectionInput, 1);
         currentWidget = theSlabsectionInput;
@@ -290,10 +309,12 @@ void InputWidgetSheetSIM::selectionChangedSlot(const QItemSelection & /*newSelec
 
 
 
-
+// NOTE: method to be redone when all these spreadsheet widgets classes have migrated to just being
+// views, and the C++ objects write themselves. method for Data
 void
 InputWidgetSheetSIM::outputToJSON(QJsonObject &jsonObject)
 {
+
     //QJsonObject jsonObject;
 
     // add layout
@@ -304,6 +325,27 @@ InputWidgetSheetSIM::outputToJSON(QJsonObject &jsonObject)
 
     // add geometry
     QJsonObject jsonObjGeometry;
+
+    // following is a kludgy hack as mixing jansson and QJSON.
+    // wrte beam data to jansson, get the string, convert to QJSON and use the QJSON object
+    json_t *objBeams = json_array();
+    Beam::writeObjects(objBeams);
+    json_t *objJanBeams = json_object();
+    json_object_set(objJanBeams, "beam", objBeams);
+    // dump that jansson object to a QJsonDoc and convertinto QJson object
+    char *jsonTextBeams = json_dumps(objJanBeams, JSON_COMPACT);
+    QJsonDocument docBeams = QJsonDocument::fromJson(jsonTextBeams);
+    if (docBeams.isNull()) {
+       qDebug() << "Floor invalid JSON";
+    }
+    QJsonObject objQtBeams = docBeams.object();
+    QJsonArray theBeamsArray = objQtBeams["beam"].toArray();
+    // free memory that json_dumps allocaed
+    free(jsonTextBeams);
+    jsonObjGeometry["beam"]=theBeamsArray;
+
+
+
     theBeamInput->outputToJSON(jsonObjGeometry);
     theColumnInput->outputToJSON(jsonObjGeometry);
     theBraceInput->outputToJSON(jsonObjGeometry);
@@ -316,13 +358,16 @@ InputWidgetSheetSIM::outputToJSON(QJsonObject &jsonObject)
 
     thePointInput->outputToJSON(jsonObjProperties);
 
+    /*
     QJsonArray theFramesectionsArray;
     jsonObjProperties["framesections"]=theFramesectionsArray;
 
     for (int i=0; i<theFramesectionTypes.size(); i++) {
         theFramesectionInputs[theFramesectionTypes[i]]->outputToJSON(theFramesectionsArray);
     }
+
     jsonObjProperties["framesections"]=theFramesectionsArray;
+    */
 
     QJsonArray theWallsectionsArray;
     jsonObjProperties["wallsections"]=theWallsectionsArray;
@@ -343,6 +388,7 @@ InputWidgetSheetSIM::outputToJSON(QJsonObject &jsonObject)
     //
     // create a json array and get all material inputs to enter their data
     //
+
     QJsonArray theMaterialsArray;
     jsonObjProperties["materials"]=theMaterialsArray;
 
@@ -351,7 +397,7 @@ InputWidgetSheetSIM::outputToJSON(QJsonObject &jsonObject)
    //    theSteelInput->outputToJSON(theMaterialsArray);
    //    theConcreteInput->outputToJSON(theMaterialsArray);
    // with:
-    // use jansson to set up a jansson JSON object
+   //     use jansson to set up a jansson JSON object
 
     // kinda ugly, due to mixing JSON libs, write to jansson, convert to char *, and use that string to encode to QJson
 
@@ -378,6 +424,33 @@ InputWidgetSheetSIM::outputToJSON(QJsonObject &jsonObject)
 
     jsonObjProperties["materials"]=theMaterialsArray;
 
+    // same with FrameSections as materials
+
+    QJsonArray theFrameSectionsArray;
+    jsonObjProperties["frameSections"]=theFrameSectionsArray;
+
+    json_t *objFrameSections = json_array();
+    FrameSection::writeObjects(objFrameSections);
+    json_t *objJanFS = json_object();
+
+    json_object_set(objJanFS, "frameSections", objFrameSections);
+
+    // dump that jansson object to a QJsonDoc and convertinto QJson object
+    char *jsonTextFrameSections = json_dumps(objJanFS, JSON_COMPACT);
+
+    QJsonDocument docFS = QJsonDocument::fromJson(jsonTextFrameSections);
+
+    if (docFS.isNull()) {
+       qDebug() << "FrameSectuons invalid JSON";
+    }
+
+    QJsonObject objQtFS = docFS.object();
+    theFrameSectionsArray = objQtFS["frameSections"].toArray();
+
+    // free memory that json_dumps allocaed
+    free(jsonTextFrameSections);
+
+    jsonObjProperties["frameSections"]=theFrameSectionsArray;
 
     jsonObject["properties"]=jsonObjProperties;
 
@@ -395,10 +468,13 @@ InputWidgetSheetSIM::clear(void)
     theBraceInput->clear();
     theSteelInput->clear();
     theConcreteInput->clear();
-
+    theSteelWSectionInput->clear();
+    theSteelTubeSectionInput->clear();
+    /*
     for (int i=0; i<theFramesectionTypes.size(); i++) {
         theFramesectionInputs[theFramesectionTypes[i]]->clear();
     }
+    */
 
     theSlabsectionInput->clear();
 
@@ -415,6 +491,10 @@ InputWidgetSheetSIM::clear(void)
     if (jsonObjOrig) {
         delete jsonObjOrig;
     }
+
+    Material::removeAllMaterial();
+    FrameSection::removeAllFrameSection();
+    Beam::removeAllBeam();
 }
 
 void
@@ -423,7 +503,7 @@ InputWidgetSheetSIM::inputFromJSON(QJsonObject &jsonObjStructuralInformation)
 
    QJsonObject jsonObjLayout = jsonObjStructuralInformation["layout"].toObject();
    theClineInput->inputFromJSON(jsonObjLayout);
-    theFloorInput->inputFromJSON(jsonObjLayout);
+   theFloorInput->inputFromJSON(jsonObjLayout);
 
    //
    // parse the properties
@@ -433,10 +513,12 @@ InputWidgetSheetSIM::inputFromJSON(QJsonObject &jsonObjStructuralInformation)
    theSlabsectionInput->inputFromJSON(jsonObjProperties);
    thePointInput->inputFromJSON(jsonObjProperties);
 
+   /*
    QJsonArray theFramesectionsArray = jsonObjProperties["framesections"].toArray();
    for (int i=0; i<theFramesectionTypes.size(); i++) {
        theFramesectionInputs[theFramesectionTypes[i]]->inputFromJSON(theFramesectionsArray);
    }
+*/
 
    QJsonArray theWallsectionsArray = jsonObjProperties["wallsections"].toArray();
    for (int i=0; i<theWallsectionTypes.size(); i++) {
@@ -454,6 +536,7 @@ InputWidgetSheetSIM::inputFromJSON(QJsonObject &jsonObjStructuralInformation)
    //
 
    // ugly code again as mixing libraries, take QJson, convert to string, and load into jansson
+
    QJsonArray theMaterialArray = jsonObjProperties["materials"].toArray();
    QJsonDocument doc(theMaterialArray);
    QString strJson(doc.toJson(QJsonDocument::Compact));
@@ -462,6 +545,8 @@ InputWidgetSheetSIM::inputFromJSON(QJsonObject &jsonObjStructuralInformation)
    json_error_t error;
    janssonObj = json_loads(strJson.toStdString().c_str(), 0, &error);
    qDebug() << json_dumps(janssonObj, JSON_COMPACT);
+
+   Material::removeAllMaterial();
    Material::readObjects(janssonObj, Material::theMaterials);
 
    // now get tables to fill themselves in
@@ -469,6 +554,19 @@ InputWidgetSheetSIM::inputFromJSON(QJsonObject &jsonObjStructuralInformation)
    theSteelInput->inputFromJSON(blank);
    theConcreteInput->inputFromJSON(blank);
 
+   QJsonArray theFrameSectionsArray = jsonObjProperties["frameSections"].toArray();
+   QJsonDocument docFS(theFrameSectionsArray);
+   QString strJsonFS(docFS.toJson(QJsonDocument::Compact));
+
+   json_t *janssonObjFS = json_object();
+   janssonObjFS = json_loads(strJsonFS.toStdString().c_str(), 0, &error);
+   qDebug() << json_dumps(janssonObjFS, JSON_COMPACT);
+
+   FrameSection::removeAllFrameSection();
+   FrameSection::readObjects(janssonObjFS, FrameSection::theFrameSections);
+
+   theSteelWSectionInput->inputFromJSON(blank);
+   theSteelTubeSectionInput->inputFromJSON(blank);
 
    //
    // parse the geometry
@@ -476,8 +574,20 @@ InputWidgetSheetSIM::inputFromJSON(QJsonObject &jsonObjStructuralInformation)
 
 
   QJsonObject jsonObjGeometry = jsonObjStructuralInformation["geometry"].toObject();
+
+   QJsonArray theBeamArray = jsonObjGeometry["beams"].toArray();
+   QJsonDocument doc3(theBeamArray);
+   QString strJson3(doc3.toJson(QJsonDocument::Compact));
+
+   json_t *janssonObj3 = json_object();
+   janssonObj3 = json_loads(strJson3.toStdString().c_str(), 0, &error);
+   qDebug() << json_dumps(janssonObj3, JSON_COMPACT);
+
+   Beam::removeAllBeam();
+   Beam::readObjects(janssonObj3, Beam::theBeams);
+
    theColumnInput->inputFromJSON(jsonObjGeometry);
-   theBeamInput->inputFromJSON(jsonObjGeometry);
+   theBeamInput->inputFromJSON(blank);
    theBraceInput->inputFromJSON(jsonObjGeometry);
 }
 
