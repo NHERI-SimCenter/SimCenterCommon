@@ -1,12 +1,11 @@
-#ifndef SIMCENTER_BIM_GEOMETRY
-#define SIMCENTER_BIM_GEOMETRY
+#ifndef SIMCENTER_BIM_BEAM
+#define SIMCENTER_BIM_BEAM
 
 #include <string>
 #include <map>
 
 using namespace std;
 #include <jansson.h>;
-
 
 class Beam {
  public:
@@ -22,8 +21,8 @@ class Beam {
   double *ratios;
   int numSegment;
 
-  virtual int readFromJSON(json_t *);
-  virtual int writeToJSON(json_t *);
+  int readFromJSON(json_t *);
+  int writeToJSON(json_t *);
 
   static int readObjects(json_t *, map<string, Beam *> &theBeams);
   static int writeObjects(json_t *);

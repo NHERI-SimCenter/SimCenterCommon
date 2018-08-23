@@ -344,6 +344,23 @@ InputWidgetSheetSIM::outputToJSON(QJsonObject &jsonObject)
     free(jsonTextBeams);
     jsonObjGeometry["beam"]=theBeamsArray;
 
+    // now columns
+    json_t *objColumns = json_array();
+    Column::writeObjects(objColumns);
+    json_t *objJanColumns = json_object();
+    json_object_set(objJanColumns, "column", objColumns);
+    // dump that jansson object to a QJsonDoc and convertinto QJson object
+    char *jsonTextColumns = json_dumps(objJanColumns, JSON_COMPACT);
+    QJsonDocument docColumns = QJsonDocument::fromJson(jsonTextColumns);
+    if (docColumns.isNull()) {
+       qDebug() << "Floor invalid JSON";
+    }
+    QJsonObject objQtColumns = docColumns.object();
+    QJsonArray theColumnsArray = objQtColumns["column"].toArray();
+    // free memory that json_dumps allocaed
+    free(jsonTextColumns);
+    jsonObjGeometry["column"]=theColumnsArray;
+
 
 
     theBeamInput->outputToJSON(jsonObjGeometry);

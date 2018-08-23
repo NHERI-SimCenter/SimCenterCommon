@@ -41,9 +41,11 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 #include <QDebug>
 #include <QList>
+#include <BimClasses.h>
 
 ColumnInputWidget::ColumnInputWidget(QWidget *parent) : SimCenterTableWidget(parent)
 {
+    fillingTableFromMap = false;
 
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
@@ -55,16 +57,6 @@ ColumnInputWidget::ColumnInputWidget(QWidget *parent) : SimCenterTableWidget(par
     headings << tr("Floor1");
     headings << tr("Floor2");
     headings << tr("section");
-    headings << tr("ratio_start");
-    headings << tr("ratio_end");
-    headings << tr("angle");
-    headings << tr("section");
-    headings << tr("ratio_start");
-    headings << tr("ratio_end");
-    headings << tr("angle");
-    headings << tr("section");
-    headings << tr("ratio_start");
-    headings << tr("ratio_end");
     headings << tr("angle");
     dataTypes << SIMPLESPREADSHEET_QString;
     dataTypes << SIMPLESPREADSHEET_QString;
@@ -72,21 +64,15 @@ ColumnInputWidget::ColumnInputWidget(QWidget *parent) : SimCenterTableWidget(par
     dataTypes << SIMPLESPREADSHEET_QString;
     dataTypes << SIMPLESPREADSHEET_QString;
     dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QString;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QString;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    theSpreadsheet = new SpreadsheetWidget(16, 1000, headings, dataTypes, this);
+    theSpreadsheet = new SpreadsheetWidget(6, 1000, headings, dataTypes, this);
 
     theLayout->addWidget(theSpreadsheet);
 
     this->setMinimumWidth(500);
+
+    // connect signals and slots
+    connect(theSpreadsheet,SIGNAL(currentCellChanged(int,int,int,int)),this,SLOT(somethingEntered(int,int,int,int)));
+    connect(theSpreadsheet,SIGNAL(cellChanged(int,int)),this,SLOT(somethingChanged(int,int)));
 }
 
 ColumnInputWidget::~ColumnInputWidget()
@@ -97,184 +83,39 @@ ColumnInputWidget::~ColumnInputWidget()
 bool
 ColumnInputWidget::outputToJSON(QJsonObject &jsonObj){
 
-     // create a json array and for each row add a json object to it
-    QJsonArray  jsonArray;
+    // Does nothing now .. just a view
 
-    int numRows = theSpreadsheet->getNumRows();
-    for (int i=0; i<numRows; i++) {
-
-        QJsonObject obj;
-        QString name;
-        QString floor1, floor2;
-        QString cline;
-        QString section1, section2, section3;
-        double ang, ratS, ratE;
-        if (theSpreadsheet->getString(i,0,name) == false || name.isEmpty())
-            break;
-        if (theSpreadsheet->getString(i,1,cline) == false)
-            break;
-        if (theSpreadsheet->getString(i,2,floor1) == false)
-            break;
-        if (theSpreadsheet->getString(i,3,floor2) == false)
-            break;
-        if (theSpreadsheet->getString(i,4,section1) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,5,ratS) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,6,ratE) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,7,ang) == false)
-            break;
-
-        obj["name"]=name;
-        obj["cline"]=cline;
-        QJsonArray floors;
-        floors.append(floor1);
-        floors.append(floor2);
-        obj["floor"] =floors;
-
-        QJsonArray segments;
-        QJsonObject segment1;
-        QJsonArray ratios1;
-
-        segment1["section"]=section1;
-        segment1["angle"]=ang;
-        ratios1.append(ratS);
-        ratios1.append(ratE);
-        segment1["ratio"] = ratios1;
-
-        segments.append(segment1);
-
-        if ((theSpreadsheet->getString(i,8,section1) == true) &&
-                (theSpreadsheet->getDouble(i,9,ratS) == true) &&
-                (theSpreadsheet->getDouble(i,10,ratE) == true) &&
-                (theSpreadsheet->getDouble(i,11,ang) == true))  {
-
-            QJsonObject segment2;
-            QJsonArray ratios2;
-
-            segment2["section"]=section1;
-            segment2["angle"]=ang;
-            ratios2.append(ratS);
-            ratios2.append(ratE);
-            segment2["ratio"] = ratios2;
-
-            segments.append(segment2);
-        }
-
-        if ((theSpreadsheet->getString(i,12,section1) == true) &&
-                (theSpreadsheet->getDouble(i,13,ratS) == true) &&
-                (theSpreadsheet->getDouble(i,14,ratE) == true) &&
-                (theSpreadsheet->getDouble(i,15,ang) == true))  {
-
-            QJsonObject segment3;
-            QJsonArray ratios3;
-
-            segment3["section"]=section1;
-            segment3["angle"]=ang;
-            ratios3.append(ratS);
-            ratios3.append(ratE);
-            segment3["ratio"] = ratios3;
-
-            segments.append(segment3);
-        }
-
-
-        obj["segment"]=segments;
-
-        // add the object to the array
-        jsonArray.append(obj);
-
-    }
-
-    // finally add the array to the input arg
-    jsonObj["columns"]=jsonArray;
-
-    return(true);
+    return true;
 }
 
 bool
 ColumnInputWidget::inputFromJSON(QJsonObject &jsonObject){
 
-    QString name;
-    QJsonArray clineArray;
-    QJsonArray floorArray;
-    QString clineValue, floor1Value, floor2Value;
-    int currentRow = 0;
+    fillingTableFromMap = true;
+    this->clear();
+    currentRow = 0;
+    std::map<string, Column *>::iterator it;
+    for (it = Column::theColumns.begin(); it != Column::theColumns.end(); it++) {
+        Column *theColumn = it->second;
 
-    //
-    // get the cline data (a json array) from the object, and for every
-    // object in the array, get the values and add to the spreadsheet
-    //
+            QString name(QString::fromStdString((theColumn->name)));
+            QString floor1(QString::fromStdString((theColumn->floor1)));
+            QString floor2(QString::fromStdString((theColumn->floor2)));
+            QString cline(QString::fromStdString((theColumn->cline)));
+            QString section(QString::fromStdString((theColumn->sections[0])));
 
-    QJsonArray theArray = jsonObject["columns"].toArray();
-    foreach (const QJsonValue &theValue, theArray) {
-        // get values
-        QJsonObject theObject = theValue.toObject();
-        QJsonValue theColumnValue = theObject["name"];
-        name = theColumnValue.toString();
+            theSpreadsheet->setString(currentRow, 0, name);
+            theSpreadsheet->setString(currentRow, 1, cline);
+            theSpreadsheet->setString(currentRow, 2, floor1);
+            theSpreadsheet->setString(currentRow, 3, floor2);
+            theSpreadsheet->setString(currentRow, 4, section);
+            theSpreadsheet->setDouble(currentRow, 5, theColumn->angles[0]);
 
-        QJsonValue theClineValue = theObject["cline"];
-        clineArray = theClineValue.toArray();
-        QJsonValue cValue = clineArray.at(0);
-        clineValue = cValue.toString();
-
-        QJsonValue theFloorValue = theObject["floor"];
-        floorArray = theFloorValue.toArray();
-        QJsonValue f1Value = floorArray.at(0);
-        QJsonValue f2Value = floorArray.at(1);
-        floor1Value = f1Value.toString();
-        floor2Value = f2Value.toString();
-
-        QJsonArray theSegmentArray = theObject["segment"].toArray();
-
-        // add to the spreadsheet
-        theSpreadsheet->setString(currentRow, 0, name);
-        theSpreadsheet->setString(currentRow, 1, clineValue);
-        theSpreadsheet->setString(currentRow, 2, floor1Value);
-        theSpreadsheet->setString(currentRow, 3, floor2Value);
-
-        QString section;
-        double angle;
-        double ratio1Value, ratio2Value;
-        int currentSection = 0;
-        int offset = 0;
-
-        foreach (const QJsonValue &theValue, theSegmentArray) {
-
-            // get values
-            QJsonObject theObject = theValue.toObject();
-
-            section = theObject["section"].toString();
-            angle = theObject["angle"].toDouble();
-
-            // ratio can be a two member array or single value
-            if ( theObject["ratio"].isArray() ) {
-                QJsonArray theRatioArray = theObject["ratio"].toArray();
-                QJsonValue r1Value = theRatioArray.at(0);
-                QJsonValue r2Value = theRatioArray.at(1);
-                ratio1Value = r1Value.toDouble();
-                ratio2Value = r2Value.toDouble();
-            }
-            else {
-                QJsonValue r1Value = theObject["ratio"];
-                ratio1Value = r1Value.toDouble();
-                // TODO: correect default for ratio2?????
-                ratio2Value = 0.0;
-            }
-
-            // all segment sections on the same row so must shift for each new set
-            offset = (currentSection * 4) + 4;
-            theSpreadsheet->setString(currentRow, offset, section);
-            theSpreadsheet->setDouble(currentRow, (offset + 1), ratio1Value);
-            theSpreadsheet->setDouble(currentRow, (offset + 2), ratio2Value);
-            theSpreadsheet->setDouble(currentRow, (offset + 3), angle);
-
-            currentSection++;
+            currentRow++;
         }
-        currentRow++;
-    }
-    return(true);
+     fillingTableFromMap = false;
+
+    return true;
 }
 
 void
@@ -282,3 +123,127 @@ ColumnInputWidget::clear(void)
 {
     theSpreadsheet->clear();
 }
+
+
+void
+ColumnInputWidget::somethingEntered(int row, int column, int row2, int col2) {
+    if (column == 0) {
+        if (theSpreadsheet->getString(row, column, currentName) == false)
+            currentName.clear();
+    } else
+        currentName.clear();
+}
+
+void
+ColumnInputWidget::somethingChanged(int row, int column) {
+
+    if (fillingTableFromMap == true) {
+        return;
+    }
+    QString name;
+    QString cline;
+    QString floor1;
+    QString floor2;
+    QString section;
+    double angle;
+
+    string *sections = NULL;
+    double *angles = NULL;
+    double *ratios = NULL;
+    int numSegment = 0;
+
+/*
+    QString name;
+
+    double E = 0., Fy =0., Fu = 0., Nu = 0.,  Mass = 0.;
+    QString rvE, rvFy, rvFu, rvNu, rvMass;
+    string *rvEString = NULL, *rvFyString = NULL, *rvFuString = NULL, *rvNuString = NULL, *rvMassString = NULL;
+*/
+    QTableWidgetItem *theName = theSpreadsheet->item(row, 0);
+    QTableWidgetItem *theCline = theSpreadsheet->item(row,1);
+    QTableWidgetItem *theFloor1 = theSpreadsheet->item(row,2);
+    QTableWidgetItem *theFloor2 = theSpreadsheet->item(row,3);
+    QTableWidgetItem *theSection = theSpreadsheet->item(row,4);
+    QTableWidgetItem *theAngle = theSpreadsheet->item(row,5);
+
+    //
+    // make sure name exists and is unique
+    //   if not unique reset to last value and return w/o doing anything
+    //
+
+    // check for name field on row entered
+    if (theName == NULL) {
+        return; // do not add Column until all data exists
+    }
+
+    if (theSpreadsheet->getString(row,0,name) == false) {
+        return; // problem with name
+    }
+
+    // check name not empty
+    if (column == 0) {
+        string theStringName = name.toStdString();
+        if ((theStringName.empty()) || (theStringName.find_first_not_of(' ') == std::string::npos)) {
+            theSpreadsheet->setString(row, 0, currentName);
+            return;
+        }
+    }
+
+    // check name is  unique, if not set string to what it was before entry
+    if (column == 0) {
+        Column *existingColumn = Column::getColumn(name.toStdString());
+        if (existingColumn != NULL) {
+            theSpreadsheet->setString(row, 0, currentName);
+            return;
+        }
+    } else { // is name is empty or conatins blanks, return
+        string theStringName = name.toStdString();
+        if ((theStringName.empty()) || (theStringName.find_first_not_of(' ') == std::string::npos)) {
+            return;
+        }
+    }
+
+    //
+    // if data exists, get it from cells in spreadsheet row, otherwise return if no data
+    //
+
+    if (theCline == NULL || theFloor1 == NULL || theFloor2 == NULL || theSection == NULL || theAngle == NULL)
+        return;
+
+    if (theSpreadsheet->getString(row,1,cline) == false) {
+        qDebug() << "NO Cline";
+        return;
+    }
+    if (theSpreadsheet->getString(row,2,floor1) == false) {
+        qDebug() << "NO Floor1";
+        return;
+    }
+    if (theSpreadsheet->getString(row,3,floor2) == false) {
+        qDebug() << "NO Floor1";
+        return;
+    }
+    if (theSpreadsheet->getString(row,4,section) == false) {
+        qDebug() << "NO Section";
+        return;
+    }
+    if (theSpreadsheet->getDouble(row,5,angle) == false) {
+        qDebug() << "NO Angle";
+        return;
+    }
+
+    if (column == 0) { // if modified the name, need to remove old before can add as would leave add there
+        if (currentName != name) {
+            Column::removeColumn(currentName.toStdString());
+            qDebug() << " removing Column " << currentName << " to be replaced with: " << name;
+        }
+    }
+
+    //
+    // add the beam
+    //
+    Column::addColumn(name.toStdString(), cline.toStdString(), floor1.toStdString(), floor2.toStdString(), section.toStdString(), angle);
+
+    currentName = name; // so don't enter again
+
+}
+

@@ -115,7 +115,6 @@ BeamInputWidget::inputFromJSON(QJsonObject &jsonObject){
             theSpreadsheet->setString(currentRow, 1, floor);
             theSpreadsheet->setString(currentRow, 2, cline1);
             theSpreadsheet->setString(currentRow, 3, cline2);
-            theSpreadsheet->setString(currentRow, 3, cline2);
             theSpreadsheet->setString(currentRow, 4, section);
             theSpreadsheet->setDouble(currentRow, 5, theBeam->angles[0]);
 

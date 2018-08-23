@@ -9,7 +9,8 @@ using namespace std;
 
 #include <Materials.h>
 #include <FrameSections.h>
-#include <Geometry.h>
+#include <Beam.h>
+#include <Column.h>
 
 #define STEEL_W_SECTION 1
 #define STEEL_TUBE_SECTION 2
@@ -65,11 +66,6 @@ class ConceteSlab : public SlabSection {
   int    numTransverseRebarDepth;
 };  
 
-
-
-class Column {
-  virtual int readFromJSON(json_t *);
-};
 
 class Brace {
   virtual int readFromJSON(json_t *);

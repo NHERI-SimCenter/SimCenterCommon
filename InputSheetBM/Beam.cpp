@@ -1,4 +1,4 @@
-#include "Geometry.h"
+#include "Beam.h"
 
 #include <vector>
 #include <string>
@@ -20,7 +20,9 @@ extern int BIM_getDoubleFromArray(json_t *obj, const char *jsonKey, double *val,
 extern int BIM_writeDouble(json_t *obj, const char *jsonKey, double var, string *rvVar);
 extern int BIM_writeString(json_t *obj, const char *jsonKey, string *rvVar);
 
-
+/* ************************************************************************************
+ * Beam Class
+ * ************************************************************************************ */
 map<string, Beam *>Beam::theBeams;
 
 Beam::Beam()

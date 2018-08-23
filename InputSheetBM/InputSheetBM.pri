@@ -34,8 +34,8 @@ $$PWD/BimClasses.cpp \
 $$PWD/Materials.cpp \
 $$PWD/FrameSections.cpp \
 $$PWD/WallSections.cpp \
-$$PWD/Geometry.cpp
-
+$$PWD/Beam.cpp \
+$$PWD/Column.cpp
 
 
 
@@ -65,7 +65,8 @@ $$PWD/BimClasses.h \
 $$PWD/Materials.h \
 $$PWD/FrameSections.h \
 $$PWD/WallSections.h \
-$$PWD/Geometry.h
+$$PWD/Beam.h \
+$$PWD/Column.h \
 
 INCLUDEPATH+="/usr/local/jansson/include"
 LIBS+="/usr/local/jansson/lib/libjansson.a"
