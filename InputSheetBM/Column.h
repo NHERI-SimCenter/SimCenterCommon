@@ -31,7 +31,7 @@ class Column {
   static Column *getColumn(string name);
   static int removeAllColumn(void);
 
-  static int addColumn(string name, string floor, string cline1, string cline2, string section, double angle);
+  static int addColumn(string name, string cline, string floor1, string floor2, string section, double angle);
 
  protected:
 

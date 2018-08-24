@@ -64,7 +64,7 @@ Material::readFromJSON(json_t *obj) {
     // get massPerVolume
     //
 
-    json_t *theMass = json_object_get(obj,"masspervolume");
+    json_t *theMass = json_object_get(obj,"massPerVolume");
     if (theMass == NULL)
         fatalError("Material missing 'masspervolume' field");
 
@@ -81,7 +81,7 @@ Material::writeToJSON(json_t *obj) {
     if (rvMass != NULL)
         json_object_set(obj,"masspervolume",json_string(rvMass->c_str()));
     else
-        json_object_set(obj,"masspervolume",json_real(massPerVolume));
+        json_object_set(obj,"massPerVolume",json_real(massPerVolume));
 
     return 0;
 }
@@ -101,7 +101,6 @@ Material::readObjects(json_t *matArray, map<string, Material *> &theMaterials) {
         if (matType == NULL)
             fatalError("material missing 'type' field");
         const char *type = json_string_value(matType);
-        std::cerr << "MATTYPE: " << type << "\n";
 
         if (strcmp(type,"steel")==0) {
             theMaterial = new Steel();
@@ -234,8 +233,6 @@ Concrete::readFromJSON(json_t *theObject) {
     } else
         fatalError("Concrete -reading from JSON - UNKNOWN TYPE for fpc\n");
 
-    std::cerr << "CONCRETE: " << name << " " << E << " " << fpc << " " << massPerVolume << "\n";
-    // std::cerr << json_dumps(theElevation,JSON_COMPACT);
     return 0;
 }
 
@@ -320,7 +317,6 @@ Concrete::addConcreteMaterial(string name, double E, double fpc, double nu, doub
             theMaterial->rvMass = new string(*rvMass);
 
         theMaterials.insert(pair<string, Material *>(theMaterial->name,theMaterial));
-        std::cerr << "Concrete NEW\n";
     }
     return 0;
 }
@@ -354,7 +350,6 @@ Concrete::newConcreteMaterialProperties(string name, double E, double fpc, doubl
             theMaterial->rvMass = new string(*rvMass);
 
         theMaterials.insert(pair<string, Material *>(theMaterial->name,theMaterial));
-        std::cerr << "Concrete UPDATE _ NEW \n";
 
     }  else {  // make the change
         Material *theMaterialOrig = it->second;
@@ -375,8 +370,6 @@ Concrete::newConcreteMaterialProperties(string name, double E, double fpc, doubl
                 theMaterial->rvNu = new string(*rvNu);
             if (rvMass != NULL)
                 theMaterial->rvMass = new string(*rvMass);
-
-            std::cerr << "Concere .. UPDATED - UPDATEn";
         }
     }
     return 0;
@@ -540,11 +533,10 @@ Steel::addSteelMaterial(string name, double E, double fy, double fu, double nu, 
             theMaterial->rvMass = new string(*rvMass);
 
         theMaterials.insert(pair<string, Material *>(theMaterial->name,theMaterial));
-         std::cerr << "Steel ADD .. NEW\n";
 
     }  else {  // make the change
         Material *theMaterial = it->second;
-        Steel *theSteelMaterial = (Steel *)theMaterial;
+        Steel *theSteelMaterial = dynamic_cast<Steel *>(theMaterial);
         theSteelMaterial->E = E;
         theSteelMaterial->rvE = rvE;
         theSteelMaterial->fy= fy;
@@ -561,16 +553,15 @@ Steel::addSteelMaterial(string name, double E, double fy, double fu, double nu, 
             theSteelMaterial->rvNu = new string(*rvNu);
         if (rvMass != NULL)
             theSteelMaterial->rvMass = new string(*rvMass);
-         std::cerr << "Steel NEW .. UPDATED!n";
     }
 
-    std::cerr << "STEEL addSteelMaterial\n";
+    /*
     std::map<string, Material *>::iterator it1;
     for (it1 = theMaterials.begin(); it1 != theMaterials.end(); it1++) {
         Material *theMaterial = it1->second;
         std::cerr << theMaterial->name << "\n";
     }
-
+    */
     return 0;
 }
 

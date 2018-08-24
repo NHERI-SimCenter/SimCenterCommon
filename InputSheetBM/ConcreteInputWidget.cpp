@@ -58,11 +58,6 @@ ConcreteInputWidget::ConcreteInputWidget(QWidget *parent) : SimCenterTableWidget
     headings << tr("Name");
     headings << tr("E");
     headings << tr("fpc");
-    //headings << tr("ft");
-    //headings << tr("Ec");
-    //headings << tr("Et");
-    //headings << tr("epsc");
-    //headings << tr("epscu");
     headings << tr("nu");
     headings << tr("rho");
     dataTypes << SIMPLESPREADSHEET_QString;
@@ -98,53 +93,8 @@ ConcreteInputWidget::outputToJSON(QJsonObject &jsonObj){
 bool
 ConcreteInputWidget::outputToJSON(QJsonArray &jsonArray){
 
-
-    int numRows = theSpreadsheet->getNumRows();
-    for (int i=0; i<numRows; i++) {
-
-        QJsonObject obj;
-        QString name;
-        double Ec, Et, fc, fcu, epsc, epscu, ft, rho, nu;
-
-        // obtain info from spreadsheet
-        if (theSpreadsheet->getString(i,0,name) == false || name.isEmpty())
-            break;
-        if (theSpreadsheet->getDouble(i,1,fc) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,2,fcu) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,3,ft) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,4,Ec) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,5,Et) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,6,epsc) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,7,epscu) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,8,nu) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,9,rho) == false)
-            break;
-
-        // now add the items to object
-        obj["name"]=name;
-        obj["type"]=QString(tr("concrete"));
-        obj["fc"]=fc;
-        obj["fcu"]=fcu;
-        obj["ft"]=ft;
-        obj["Ec"]=Ec;
-        obj["Et"]=Et;
-        obj["epsc"]=epsc;
-        obj["epscu"]=epscu;
-        obj["nu"]=nu;
-        obj["rho"]=rho;
-
-        // add the object to the array
-        jsonArray.append(obj);
-    }
-    return(true);
+   // this is just a view, data sent elsewhere
+   return true;
 }
 
 bool

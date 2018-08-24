@@ -42,8 +42,8 @@ Column::~Column()
 {
   if (sections != 0)
     delete [] sections;
-  if (angles != 0)
-    delete [] angles;
+  if (ratios != 0)
+    delete [] ratios;
   if (angles != 0)
     delete [] angles;
 }
@@ -65,16 +65,6 @@ Column::readFromJSON(json_t *theObject) {
   }
   floor1 = floors[0];
   floor2 = floors[1];
-
-  /* original had floors in an arrray
-  string clines[1];
-  if ((res = BIM_getStringFromArray(theObject,"floor", floors, 1)) < 0) {
-      std::cerr << "\nFLOOR ERROR" << res << "\n";
-    fatalError("Column - error reading 'floor'\n");
-    return -2;
-  }
-  floor = floors[0];
-  */
 
   if (BIM_getString(theObject, "cline", &cline) != 0) {
     fatalError("Column - errr reading 'cline'\n");
@@ -111,7 +101,6 @@ Column::readFromJSON(json_t *theObject) {
       return -2;
     }
   }
-  std::cerr << "read Column " << name << " " << cline << " " << floor2 << " " << floor1 << "\n";
   return 0;
 }
 
@@ -171,7 +160,6 @@ Column::readObjects(json_t *sectArray, map<string, Column *> &theColumns) {
         Column *theColumn = new Column();
         json_t *theSectJSON = json_array_get(sectArray, i);
         if (theColumn->readFromJSON(theSectJSON) == 0) {
-            std::cerr <<  "Succesfully read Column " << theColumn->name;
             theColumns.insert(pair<string, Column *>(theColumn->name,theColumn));
         }
     }
@@ -256,7 +244,6 @@ Column::addColumn(string nam, string cli, string flr1, string flr2, string sect,
         theColumn->angles[0] = ang;
 
         theColumns.insert(pair<string, Column *>(theColumn->name,theColumn));
-        std::cerr << "Column ADD .. NEW\n";
 
     }  else {  // make the change
         Column *theColumn = it->second;

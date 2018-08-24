@@ -21,7 +21,7 @@ extern int BIM_writeDouble(json_t *obj, const char *jsonKey, double var, string 
 extern int BIM_writeString(json_t *obj, const char *jsonKey, string *rvVar);
 
 /* ************************************************************************************
- * COLUMN Class
+ * WALL Class
  * ************************************************************************************ */
 
 map<string, Wall *>Wall::theWalls;

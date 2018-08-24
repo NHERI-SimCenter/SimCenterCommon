@@ -90,7 +90,7 @@ SteelInputWidget::outputToJSON(QJsonObject &jsonObj){
 
 bool
 SteelInputWidget::outputToJSON(QJsonArray &jsonArray){
-  qDebug() << "STeelInputWidget - outputToJSON\n";
+    qDebug() << "STeelInputWidget - outputToJSON\n";
      // create a json array and for each row add a json object to it
     int numRows = theSpreadsheet->getNumRows();
     for (int i=0; i<numRows; i++) {
@@ -129,16 +129,12 @@ SteelInputWidget::inputFromJSON(QJsonObject &theObject)
     std::map<string, Material *>::iterator it;
     for (it = Material::theMaterials.begin(); it != Material::theMaterials.end(); it++) {
         Material *theOrigMaterial = it->second;
-        qDebug() << "LOOKING FOR STEEL" << theOrigMaterial->matType;
-
 
         if (theOrigMaterial->matType == STEEL_TYPE) {
 
             Steel *theMaterial = dynamic_cast<Steel *>(theOrigMaterial);
 
             QString name(QString::fromStdString((theMaterial->name)));
-
-            qDebug() << "Steel: " << name;
 
 
             theSpreadsheet->setString(currentRow, 0, name);
@@ -238,8 +234,6 @@ SteelInputWidget::somethingChanged(int row, int column) {
         }
     }
 
-
-
     // check name is  unique, if not set string to what it was before entry
     if (column == 0) {
         Material *existingMaterial = Material::getMaterial(name.toStdString());
@@ -248,10 +242,10 @@ SteelInputWidget::somethingChanged(int row, int column) {
             return;
         }
     } else { // is name is empty or conatins blanks, return
-      string theStringName = name.toStdString();
-      if ((theStringName.empty()) || (theStringName.find_first_not_of(' ') == std::string::npos)) {
-	return;
-      }
+        string theStringName = name.toStdString();
+        if ((theStringName.empty()) || (theStringName.find_first_not_of(' ') == std::string::npos)) {
+            return;
+        }
     }
 
     //
@@ -312,7 +306,6 @@ SteelInputWidget::somethingChanged(int row, int column) {
     if (column == 0) { // if modified the name, need to remove old before can add as would leave add there
         if (currentName != name) {
             Material::removeMaterial(currentName.toStdString());
-            qDebug() << " removing material " << currentName << " to be replaced with: " << name;
         }
     }
 

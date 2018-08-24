@@ -112,8 +112,6 @@ SteelTubeSectionInputWidget::inputFromJSON(QJsonObject &theObject)
             QString name(QString::fromStdString((theFrameSection->name)));
             QString material(QString::fromStdString((theFrameSection->material)));
 
-            qDebug() << "SteelTubeSection: " << name;
-
             theSpreadsheet->setString(currentRow, 0, name);
             theSpreadsheet->setString(currentRow, 1, material);
 
@@ -209,10 +207,10 @@ SteelTubeSectionInputWidget::somethingChanged(int row, int column) {
             return;
         }
     } else { // if name empty, don't add
-      string theStringName = name.toStdString();
-      if ((theStringName.empty()) || (theStringName.find_first_not_of(' ') == std::string::npos)) {
-	return;
-      }
+        string theStringName = name.toStdString();
+        if ((theStringName.empty()) || (theStringName.find_first_not_of(' ') == std::string::npos)) {
+            return;
+        }
     }
 
     // check name is  unique, if not set string to what it was before entry
@@ -275,12 +273,12 @@ SteelTubeSectionInputWidget::somethingChanged(int row, int column) {
     }
 
     if (theSpreadsheet->getDouble(row,4,r) == false) {
-      if (theSpreadsheet->getString(row,4, rvR ) == false) {
-	qDebug() << "NO R";
-	return;
-      } else {
-	rvRString = new string(rvR.toStdString());
-      }
+        if (theSpreadsheet->getString(row,4, rvR ) == false) {
+            qDebug() << "NO R";
+            return;
+        } else {
+            rvRString = new string(rvR.toStdString());
+        }
     }
 
     if (column == 0) { // if modified the name, need to remove old before can add as would leave add there

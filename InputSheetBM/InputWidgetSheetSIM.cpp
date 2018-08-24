@@ -331,46 +331,75 @@ InputWidgetSheetSIM::outputToJSON(QJsonObject &jsonObject)
     // add geometry
     QJsonObject jsonObjGeometry;
 
-    // following is a kludgy hack as mixing jansson and QJSON.
-    // wrte beam data to jansson, get the string, convert to QJSON and use the QJSON object
+    //
+    // add the beams
+    //    warning: following is a kludgy hack as mixing jansson and QJSON.
+    //
+
+    // wrte beam data to jansson object,
     json_t *objBeams = json_array();
     Beam::writeObjects(objBeams);
     json_t *objJanBeams = json_object();
     json_object_set(objJanBeams, "beam", objBeams);
-    // dump that jansson object to a QJsonDoc and convertinto QJson object
+
+    // get the string of that jansson object
     char *jsonTextBeams = json_dumps(objJanBeams, JSON_COMPACT);
+
+    // use the string to create a QJsonDoc and then from that document get a JSON object
     QJsonDocument docBeams = QJsonDocument::fromJson(jsonTextBeams);
     if (docBeams.isNull()) {
-       qDebug() << "Floor invalid JSON";
+       qDebug() << "Beam invalid JSON";
     }
     QJsonObject objQtBeams = docBeams.object();
-    QJsonArray theBeamsArray = objQtBeams["beam"].toArray();
-    // free memory that json_dumps allocaed
-    free(jsonTextBeams);
-    jsonObjGeometry["beam"]=theBeamsArray;
 
-    // now columns
+    // get the JSON object "beam" and write to the QJSON object,
+    //   freeing up memory that json_dumps created as we go
+    QJsonArray theBeamsArray = objQtBeams["beam"].toArray();
+    free(jsonTextBeams);
+    jsonObjGeometry["beams"]=theBeamsArray;
+
+    //
+    // now columns .. same ugly code .. see beam above for doc
+    //
+
     json_t *objColumns = json_array();
     Column::writeObjects(objColumns);
     json_t *objJanColumns = json_object();
     json_object_set(objJanColumns, "column", objColumns);
-    // dump that jansson object to a QJsonDoc and convertinto QJson object
     char *jsonTextColumns = json_dumps(objJanColumns, JSON_COMPACT);
     QJsonDocument docColumns = QJsonDocument::fromJson(jsonTextColumns);
     if (docColumns.isNull()) {
-       qDebug() << "Floor invalid JSON";
+       qDebug() << "Column invalid JSON";
     }
     QJsonObject objQtColumns = docColumns.object();
     QJsonArray theColumnsArray = objQtColumns["column"].toArray();
-    // free memory that json_dumps allocaed
     free(jsonTextColumns);
-    jsonObjGeometry["column"]=theColumnsArray;
+    jsonObjGeometry["columns"]=theColumnsArray;
 
+    //
+    // now wall .. same ugly code .. see beam above for doc
+    //
 
+    json_t *objWalls = json_array();
+    Wall::writeObjects(objWalls);
+    json_t *objJanWalls = json_object();
+    json_object_set(objJanWalls, "wall", objWalls);
+    char *jsonTextWalls = json_dumps(objJanWalls, JSON_COMPACT);
+    QJsonDocument docWalls = QJsonDocument::fromJson(jsonTextWalls);
+    if (docWalls.isNull()) {
+       qDebug() << "Wall invalid JSON";
+    }
+    QJsonObject objQtWalls = docWalls.object();
+    QJsonArray theWallsArray = objQtWalls["wall"].toArray();
+    free(jsonTextWalls);
+    jsonObjGeometry["walls"]=theWallsArray;
 
+    /*
     theBeamInput->outputToJSON(jsonObjGeometry);
     theColumnInput->outputToJSON(jsonObjGeometry);
     theBraceInput->outputToJSON(jsonObjGeometry);
+    theWallInput->outputToJSON(jsonObjectGeomtry)
+    */
 
     jsonObject["geometry"]=jsonObjGeometry;
 
@@ -446,7 +475,9 @@ InputWidgetSheetSIM::outputToJSON(QJsonObject &jsonObject)
 
     jsonObjProperties["materials"]=theMaterialsArray;
 
-    // same with FrameSections as materials
+    //
+    // now FrameSections, same as materials
+    //
 
     QJsonArray theFrameSectionsArray;
     jsonObjProperties["frameSections"]=theFrameSectionsArray;
@@ -488,6 +519,7 @@ InputWidgetSheetSIM::clear(void)
     theColumnInput->clear();
     theBeamInput->clear();
     theBraceInput->clear();
+    theWallInput->clear();
     theSteelInput->clear();
     theConcreteInput->clear();
     theSteelWSectionInput->clear();
@@ -517,6 +549,9 @@ InputWidgetSheetSIM::clear(void)
     Material::removeAllMaterial();
     FrameSection::removeAllFrameSection();
     Beam::removeAllBeam();
+    Column::removeAllColumn();
+    Wall::removeAllWall();
+    Floor::removeAllFloor();
 }
 
 void
@@ -566,7 +601,7 @@ InputWidgetSheetSIM::inputFromJSON(QJsonObject &jsonObjStructuralInformation)
    json_t *janssonObj = json_object();
    json_error_t error;
    janssonObj = json_loads(strJson.toStdString().c_str(), 0, &error);
-   qDebug() << json_dumps(janssonObj, JSON_COMPACT);
+   //qDebug() << json_dumps(janssonObj, JSON_COMPACT);
 
    Material::removeAllMaterial();
    Material::readObjects(janssonObj, Material::theMaterials);
@@ -576,13 +611,18 @@ InputWidgetSheetSIM::inputFromJSON(QJsonObject &jsonObjStructuralInformation)
    theSteelInput->inputFromJSON(blank);
    theConcreteInput->inputFromJSON(blank);
 
+   //
+   // now the frame sections
+   //
+
    QJsonArray theFrameSectionsArray = jsonObjProperties["frameSections"].toArray();
    QJsonDocument docFS(theFrameSectionsArray);
    QString strJsonFS(docFS.toJson(QJsonDocument::Compact));
+   //qDebug() << "strJSONFS: " << strJsonFS;
 
    json_t *janssonObjFS = json_object();
    janssonObjFS = json_loads(strJsonFS.toStdString().c_str(), 0, &error);
-   qDebug() << json_dumps(janssonObjFS, JSON_COMPACT);
+   //qDebug() << "FRAMESECTIONS: " << json_dumps(janssonObjFS, JSON_COMPACT);
 
    FrameSection::removeAllFrameSection();
    FrameSection::readObjects(janssonObjFS, FrameSection::theFrameSections);
@@ -594,23 +634,50 @@ InputWidgetSheetSIM::inputFromJSON(QJsonObject &jsonObjStructuralInformation)
    // parse the geometry
    //
 
+   QJsonObject jsonObjGeometry = jsonObjStructuralInformation["geometry"].toObject();
 
-  QJsonObject jsonObjGeometry = jsonObjStructuralInformation["geometry"].toObject();
-
+   // first beams .. kludgy again
    QJsonArray theBeamArray = jsonObjGeometry["beams"].toArray();
-   QJsonDocument doc3(theBeamArray);
-   QString strJson3(doc3.toJson(QJsonDocument::Compact));
+   json_t *janssonObjBeam = json_object();
 
-   json_t *janssonObj3 = json_object();
-   janssonObj3 = json_loads(strJson3.toStdString().c_str(), 0, &error);
-   qDebug() << json_dumps(janssonObj3, JSON_COMPACT);
+   if (janssonObjBeam != NULL) {
+     QJsonDocument docBeam(theBeamArray);
+     QString strJsonBeam(docBeam.toJson(QJsonDocument::Compact));
+     janssonObjBeam = json_loads(strJsonBeam.toStdString().c_str(), 0, &error);
+   }
 
    Beam::removeAllBeam();
-   Beam::readObjects(janssonObj3, Beam::theBeams);
+   Beam::readObjects(janssonObjBeam, Beam::theBeams);
+
+   // now columns .. again kludgy
+   QJsonArray theColumnArray = jsonObjGeometry["columns"].toArray();
+   json_t *janssonObjColumn = json_object();
+
+   if (janssonObjColumn != NULL) {
+       QJsonDocument docColumn(theColumnArray);
+       QString strJsonColumn(docColumn.toJson(QJsonDocument::Compact));
+       janssonObjColumn = json_loads(strJsonColumn.toStdString().c_str(), 0, &error);
+   }
+
+   Column::removeAllColumn();
+   Column::readObjects(janssonObjColumn, Column::theColumns);
+
+   // now walls
+   QJsonArray theWallArray = jsonObjGeometry["walls"].toArray();
+   json_t *janssonObjWall = json_object();
+   if (janssonObjWall != NULL) {
+       QJsonDocument docWall(theWallArray);
+       QString strJsonWall(docWall.toJson(QJsonDocument::Compact));
+       janssonObjWall = json_loads(strJsonWall.toStdString().c_str(), 0, &error);
+   }
+   Wall::removeAllWall();
+   Wall::readObjects(janssonObjWall, Wall::theWalls);
+
 
    theColumnInput->inputFromJSON(jsonObjGeometry);
    theBeamInput->inputFromJSON(blank);
    theBraceInput->inputFromJSON(jsonObjGeometry);
+   theWallInput->inputFromJSON(jsonObjGeometry);
 }
 
 

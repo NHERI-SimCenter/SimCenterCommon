@@ -41,8 +41,8 @@ Beam::~Beam()
 {
   if (sections != 0)
     delete [] sections;
-  if (angles != 0)
-    delete [] angles;
+  if (ratios != 0)
+    delete [] ratios;
   if (angles != 0)
     delete [] angles;
 }
@@ -66,22 +66,11 @@ Beam::readFromJSON(json_t *theObject) {
   cline1 = clines[0];
   cline2 = clines[1];
 
-  /* original had floors in an arrray
-  string floors[1];
-  if ((res = BIM_getStringFromArray(theObject,"floor", floors, 1)) < 0) {
-      std::cerr << "\nFLOOR ERROR" << res << "\n";
-    fatalError("Beam - error reading 'floor'\n");
-    return -2;    
-  }
-  floor = floors[0];
-  */
-
   if (BIM_getString(theObject, "floor", &floor) != 0) {
     fatalError("Beam - errr reading 'name'\n");
     return -2;
   }
 
- // json_t *thetheSegments = json_object_get(theObject, jsonKey);
   json_t *theSegments = json_object_get(theObject, "segment");
   if (theSegments == NULL) {
     return -1;
@@ -111,7 +100,7 @@ Beam::readFromJSON(json_t *theObject) {
       return -2;
     }
   }
-  std::cerr << "read Beam " << name << " " << cline1 << " " << cline2 << " " << floor << "\n";
+
   return 0;
 }
 
@@ -171,7 +160,6 @@ Beam::readObjects(json_t *sectArray, map<string, Beam *> &theBeams) {
         Beam *theBeam = new Beam();
         json_t *theSectJSON = json_array_get(sectArray, i);
         if (theBeam->readFromJSON(theSectJSON) == 0) {
-            std::cerr <<  "Succesfully read Beam " << theBeam->name;
             theBeams.insert(pair<string, Beam *>(theBeam->name,theBeam));
         }
     }

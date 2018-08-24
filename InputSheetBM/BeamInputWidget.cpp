@@ -108,8 +108,6 @@ BeamInputWidget::inputFromJSON(QJsonObject &jsonObject){
             QString cline2(QString::fromStdString((theBeam->cline2)));
             QString floor(QString::fromStdString((theBeam->floor)));
             QString section(QString::fromStdString((theBeam->sections[0])));
-           // QDouble floor(QString::fromStdString((theBeam->floor)));
-            qDebug() << "Beam: " << name;
 
             theSpreadsheet->setString(currentRow, 0, name);
             theSpreadsheet->setString(currentRow, 1, floor);
@@ -158,13 +156,6 @@ BeamInputWidget::somethingChanged(int row, int column) {
     double *ratios = NULL;
     int numSegment = 0;
 
-/*
-    QString name;
-
-    double E = 0., Fy =0., Fu = 0., Nu = 0.,  Mass = 0.;
-    QString rvE, rvFy, rvFu, rvNu, rvMass;
-    string *rvEString = NULL, *rvFyString = NULL, *rvFuString = NULL, *rvNuString = NULL, *rvMassString = NULL;
-*/
     QTableWidgetItem *theName = theSpreadsheet->item(row, 0);
     QTableWidgetItem *theFloor = theSpreadsheet->item(row,1);
     QTableWidgetItem *theCline1 = theSpreadsheet->item(row,2);
@@ -240,7 +231,6 @@ BeamInputWidget::somethingChanged(int row, int column) {
     if (column == 0) { // if modified the name, need to remove old before can add as would leave add there
         if (currentName != name) {
             Beam::removeBeam(currentName.toStdString());
-            qDebug() << " removing Beam " << currentName << " to be replaced with: " << name;
         }
     }
 

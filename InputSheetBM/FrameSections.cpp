@@ -85,24 +85,20 @@ FrameSection::readObjects(json_t *sectArray, map<string, FrameSection *> &theFra
         if (sectType == NULL)
             fatalError("secterial missing 'type' field");
         const char *type = json_string_value(sectType);
-        std::cerr << "SECTTYPE: " << type << "\n";
 
         if (strcmp(type,"steelWideFlange")==0) {
-            std::cerr << "creating SteelWF\n";
             theFrameSection = new SteelWSection();
-        } 
-	else if (strcmp(type,"steelTube")==0) {
+        }
+        else if (strcmp(type,"steelTube")==0) {
             theFrameSection = new SteelTubeSection();
         }
-	else {
+        else {
 
-	}
+        }
 
         if (theFrameSection == NULL)
             std::cerr << "FrameSection::readObjects, type: " << type << " unknown\n";
         else if (theFrameSection->readFromJSON(theSectJSON) == 0) {
-            std::cerr <<  "Succesfully read FrameScetion " << theFrameSection->name;
-
             theFrameSections.insert(pair<string, FrameSection *>(theFrameSection->name,theFrameSection));
         }
     }
@@ -186,7 +182,7 @@ SteelWSection::~SteelWSection(){
 
 int 
 SteelWSection::readFromJSON(json_t *theObject) {
-    std::cerr  << "SteelWF-reading\n";
+
   //    double masspervolume, E, fu,fy,nu;
   if (this->FrameSection::readFromJSON(theObject) != 0) 
     return -1;
@@ -196,7 +192,7 @@ SteelWSection::readFromJSON(json_t *theObject) {
     return -2;
   } 
   if (BIM_getDouble(theObject, "depth", &depth, &rvD) != 0) {
-    fatalError("SteelWSection - errr reading 'flangeWidth'\n");
+    fatalError("SteelWSection - errr reading 'depth'\n");
     return -3;
   }
   if (BIM_getDouble(theObject, "flangeWidth", &flangeW, &rvFW) != 0) {
@@ -211,11 +207,11 @@ SteelWSection::readFromJSON(json_t *theObject) {
     fatalError("SteelWSection - errr reading 'webThickness'\n");
     return -6;
   }
-  if (BIM_getDouble(theObject, "cornerRadius", &r, &rvR) != 0) {
+  if (BIM_getDouble(theObject, "filletRadius", &r, &rvR) != 0) {
     fatalError("SteelWSection - errr reading 'cornerRadius'\n");
     return -7;
   }
-   std::cerr  << "SteelWF-done reading\n";
+
    return 0;
 }
 
@@ -258,7 +254,7 @@ SteelWSection::writeToJSON(json_t *theArray) {
       fatalError("SteelWSection - errr writing 'webThickness'\n");
       return -2;
     }
-    if (BIM_writeDouble(theObject, "cornerRadius", r, rvR) != 0) {
+    if (BIM_writeDouble(theObject, "filletRadius", r, rvR) != 0) {
       fatalError("SteelWSection - errr writing 'cornerRadius'\n");
       return -2;
     }
@@ -311,19 +307,10 @@ SteelWSection::addSteelWSection(string nam, string mat, double d, double fW, dou
 
 
         theFrameSections.insert(pair<string, FrameSection *>(theSection->name,theSection));
-         std::cerr << "SteelWSection ADD .. NEW\n";
 
-    }  else {  // make the change
-        FrameSection *theSect = it->second;
-        SteelWSection *theSection = dynamic_cast<SteelWSection *>(theSect);
+    }  else {  // make change to existing
 
-         std::cerr << "SteelWSection NEW .. UPDATED!n";
-    }
-
-    std::cerr << "STEEL addSteelMaterial\n";
-    std::map<string, FrameSection *>::iterator it1;
-    for (it1 = theFrameSections.begin(); it1 != theFrameSections.end(); it1++) {
-        FrameSection  *theSect = it1->second;
+        FrameSection  *theSect = it->second;
         SteelWSection *theSection = dynamic_cast<SteelWSection *>(theSect);
 
         theSection->material = mat;
@@ -344,7 +331,7 @@ SteelWSection::addSteelWSection(string nam, string mat, double d, double fW, dou
         if (rv_R != NULL)
             theSection->rvR = new string(*rv_R);
 
-        std::cerr << theSection->name << "\n";
+   //     std::cerr << theSection->name << "\n";
     }
 
     return 0;
@@ -376,7 +363,7 @@ SteelTubeSection::~SteelTubeSection(){
 
 int 
 SteelTubeSection::readFromJSON(json_t *theObject) {
-    std::cerr  << "SteelTubeF-reading\n";
+
   //    double masspervolume, E, fu,fy,nu;
   if (this->FrameSection::readFromJSON(theObject) != 0) 
     return -1;
@@ -405,7 +392,7 @@ SteelTubeSection::readFromJSON(json_t *theObject) {
     fatalError("SteelTubeSection - errr reading 'cornerRadius'\n");
     return -7;
   }
-   std::cerr  << "SteelTubeF-done reading\n";
+
    return 0;
 }
 
@@ -416,7 +403,7 @@ SteelTubeSection::writeToJSON(json_t *theArray) {
 
     this->FrameSection::writeToJSON(theObject);
 
-    string type("steelWideFlange");
+    string type("steelTube");
 
     if (BIM_writeString(theObject, "type", &type) != 0) {
       fatalError("SteelTubeSection - errr writing 'type'\n");
@@ -497,17 +484,9 @@ SteelTubeSection::addSteelTubeSection(string nam, string mat, double d, double w
         theFrameSections.insert(pair<string, FrameSection *>(theSection->name,theSection));
          std::cerr << "SteelTubeSection ADD .. NEW\n";
 
-    }  else {  // make the change
-        FrameSection *theSect = it->second;
-        SteelTubeSection *theSection = dynamic_cast<SteelTubeSection *>(theSect);
+    }  else {  // make changes to existing
 
-         std::cerr << "SteelTubeSection NEW .. UPDATED!n";
-    }
-
-    std::cerr << "STEEL addSteelMaterial\n";
-    std::map<string, FrameSection *>::iterator it1;
-    for (it1 = theFrameSections.begin(); it1 != theFrameSections.end(); it1++) {
-        FrameSection  *theSect = it1->second;
+        FrameSection  *theSect = it->second;
         SteelTubeSection *theSection = dynamic_cast<SteelTubeSection *>(theSect);
 
         theSection->material = mat;

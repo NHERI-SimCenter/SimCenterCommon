@@ -107,10 +107,10 @@ WallInputWidget::inputFromJSON(QJsonObject &jsonObject){
 
             theSpreadsheet->setString(currentRow, 0, name);
             theSpreadsheet->setString(currentRow, 1, cline1);
-            theSpreadsheet->setString(currentRow, 1, cline2);
-            theSpreadsheet->setString(currentRow, 2, floor1);
-            theSpreadsheet->setString(currentRow, 3, floor2);
-            theSpreadsheet->setString(currentRow, 4, section);
+            theSpreadsheet->setString(currentRow, 2, cline2);
+            theSpreadsheet->setString(currentRow, 3, floor1);
+            theSpreadsheet->setString(currentRow, 4, floor2);
+            theSpreadsheet->setString(currentRow, 5, section);
 
             currentRow++;
         }

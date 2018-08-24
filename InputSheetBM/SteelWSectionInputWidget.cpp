@@ -112,7 +112,6 @@ SteelWSectionInputWidget::inputFromJSON(QJsonObject &theObject)
             QString name(QString::fromStdString((theFrameSection->name)));
             QString material(QString::fromStdString((theFrameSection->material)));
 
-            qDebug() << "SteelWSection: " << name;
 
             theSpreadsheet->setString(currentRow, 0, name);
             theSpreadsheet->setString(currentRow, 1, material);

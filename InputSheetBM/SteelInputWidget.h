@@ -65,6 +65,7 @@ public slots:
 private:
     QHBoxLayout *theLayout;
     QStringList   tableHeader;
+
     int currentRow;
     QString currentName;
     bool fillingTableFromMap;
