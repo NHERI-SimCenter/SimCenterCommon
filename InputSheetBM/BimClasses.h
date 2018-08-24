@@ -11,6 +11,7 @@ using namespace std;
 #include <FrameSections.h>
 #include <Beam.h>
 #include <Column.h>
+#include <Wall.h>
 
 #define STEEL_W_SECTION 1
 #define STEEL_TUBE_SECTION 2
@@ -68,10 +69,6 @@ class ConceteSlab : public SlabSection {
 
 
 class Brace {
-  virtual int readFromJSON(json_t *);
-};
-
-class Wall {
   virtual int readFromJSON(json_t *);
 };
 

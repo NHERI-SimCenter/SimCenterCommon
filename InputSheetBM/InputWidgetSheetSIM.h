@@ -50,6 +50,7 @@ class GeneralInformationWidget;
 class ClineInputWidget;
 class FloorInputWidget;
 class BeamInputWidget;
+class WallInputWidget;
 class ColumnInputWidget;
 class BraceInputWidget;
 class WallInputWidget;

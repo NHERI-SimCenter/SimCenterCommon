@@ -35,7 +35,9 @@ $$PWD/Materials.cpp \
 $$PWD/FrameSections.cpp \
 $$PWD/WallSections.cpp \
 $$PWD/Beam.cpp \
-$$PWD/Column.cpp
+$$PWD/Column.cpp \
+$$PWD/Wall.cpp \
+$$PWD/WallInputWidget.cpp
 
 
 
@@ -67,6 +69,8 @@ $$PWD/FrameSections.h \
 $$PWD/WallSections.h \
 $$PWD/Beam.h \
 $$PWD/Column.h \
+$$PWD/Wall.h \
+$$PWD/WallInputWidget.h
 
 INCLUDEPATH+="/usr/local/jansson/include"
 LIBS+="/usr/local/jansson/lib/libjansson.a"

@@ -54,6 +54,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "ClineInputWidget.h"
 #include "FloorInputWidget.h"
 #include "BeamInputWidget.h"
+#include "WallInputWidget.h"
 #include "ColumnInputWidget.h"
 #include "BraceInputWidget.h"
 #include "SteelInputWidget.h"
@@ -102,8 +103,8 @@ InputWidgetSheetSIM::InputWidgetSheetSIM(QWidget *parent) : QWidget(parent), cur
   rootNode->appendRow(geometryItem);
   geometryItem->appendRow(new QStandardItem("Beams"));
   geometryItem->appendRow(new QStandardItem("Columns"));
-  geometryItem->appendRow(new QStandardItem("Braces"));
   geometryItem->appendRow(new QStandardItem("Walls"));
+  geometryItem->appendRow(new QStandardItem("Braces"));
 
   rootNode->appendRow(propertiesItem);
   propertiesItem->appendRow(materialsItem);
@@ -178,6 +179,7 @@ InputWidgetSheetSIM::InputWidgetSheetSIM(QWidget *parent) : QWidget(parent), cur
   theFloorInput = new FloorInputWidget();
   theBeamInput = new BeamInputWidget();
   theBraceInput = new BraceInputWidget();
+  theWallInput = new WallInputWidget();
   theColumnInput = new ColumnInputWidget();
   theSteelInput = new SteelInputWidget();
   theConcreteInput = new ConcreteInputWidget();
@@ -267,6 +269,9 @@ void InputWidgetSheetSIM::selectionChangedSlot(const QItemSelection & /*newSelec
     } else if (selectedText == tr("Columns")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theColumnInput, 1);
         currentWidget = theColumnInput;
+    } else if (selectedText == tr("Walls")) {
+        horizontalLayout->insertWidget(horizontalLayout->count()-1, theWallInput, 1);
+        currentWidget = theWallInput;
     } else if (selectedText == tr("Braces")) {
         horizontalLayout->insertWidget(horizontalLayout->count()-1, theBraceInput, 1);
         currentWidget = theBraceInput;
