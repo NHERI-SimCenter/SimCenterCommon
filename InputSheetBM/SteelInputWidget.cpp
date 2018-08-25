@@ -90,32 +90,7 @@ SteelInputWidget::outputToJSON(QJsonObject &jsonObj){
 
 bool
 SteelInputWidget::outputToJSON(QJsonArray &jsonArray){
-    qDebug() << "STeelInputWidget - outputToJSON\n";
-     // create a json array and for each row add a json object to it
-    int numRows = theSpreadsheet->getNumRows();
-    for (int i=0; i<numRows; i++) {
-
-        // ugly .. but necessary as using two JSON libraries!
-        // write one in jansssssson, get string, create doc and then get QJSonObject!
-        QJsonObject obj;
-        QString name;
-        Material *theMaterial = Material::getMaterial(name.toStdString());
-        json_t *theJObj = json_object();
-        theMaterial->writeToJSON(theJObj);
-        char *jsonText = json_dumps(theJObj, JSON_COMPACT);
-        QJsonDocument doc = QJsonDocument::fromJson(jsonText);
-
-        if (doc.isNull()) {
-           qDebug() << "Floor invalid JSON";
-        }
-
-        QJsonObject objQt = doc.object();
-
-        jsonArray.append(objQt);
-        free(jsonText);
-
-    }
-    return(true);
+  return true;
 }
 
 bool
@@ -136,8 +111,8 @@ SteelInputWidget::inputFromJSON(QJsonObject &theObject)
 
             QString name(QString::fromStdString((theMaterial->name)));
 
-
             theSpreadsheet->setString(currentRow, 0, name);
+
             if (theMaterial->rvE != 0) {
                 QString name(QString::fromStdString(*(theMaterial->rvE)));
                 theSpreadsheet->setString(currentRow, 1, name);

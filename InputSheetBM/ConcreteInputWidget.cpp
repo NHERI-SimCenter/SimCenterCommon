@@ -100,66 +100,25 @@ ConcreteInputWidget::outputToJSON(QJsonArray &jsonArray){
 bool
 ConcreteInputWidget::inputFromJSON(QJsonObject &theObject)
 {
-    // this has to be called one object at a time for efficiency
-    // could use the rVarray above. This array will contain multiple
-    // object types and could parse each to to see if corect type.
-    //  BUT too slow if multiple material types,
-    //  int currentRow = 0;
-
-    QString name, type;
-    double Ec, Et, fc, fcu, epsc, epscu, ft, rho, nu;
-    type = theObject["type"].toString();
-    if (type == QString(tr("concrete"))) {
-        name = theObject["name"].toString();
-        fc = theObject["fc"].toDouble();
-        fcu = theObject["fcu"].toDouble();
-        ft = theObject["ft"].toDouble();
-        Ec = theObject["Ec"].toDouble();
-        Et = theObject["Et"].toDouble();
-        epsc = theObject["epsc"].toDouble();
-        epscu = theObject["epscu"].toDouble();
-        nu = theObject["nu"].toDouble();
-        rho = theObject["rho"].toDouble();
-
-        // add to the spreadsheet
-        theSpreadsheet->setString(currentRow, 0, name);
-        theSpreadsheet->setDouble(currentRow, 1, fc);
-        theSpreadsheet->setDouble(currentRow, 2, fcu);
-        theSpreadsheet->setDouble(currentRow, 3, ft);
-        theSpreadsheet->setDouble(currentRow, 4, Ec);
-        theSpreadsheet->setDouble(currentRow, 5, Et);
-        theSpreadsheet->setDouble(currentRow, 6, epsc);
-        theSpreadsheet->setDouble(currentRow, 7, epscu);
-        theSpreadsheet->setDouble(currentRow, 8, nu);
-        theSpreadsheet->setDouble(currentRow, 9, rho);
-
-        currentRow++;
-    }
-    return(true);
     fillingTableFromMap = true;
     this->clear();
     currentRow = 0;
     std::map<string, Material *>::iterator it;
     for (it = Material::theMaterials.begin(); it != Material::theMaterials.end(); it++) {
         Material *theOrigMaterial = it->second;
-        qDebug() << "LOOKING FOR CONCRETE" << theOrigMaterial->matType;
-
 
         if (theOrigMaterial->matType == CONCRETE_TYPE) {
 
-            Concrete *theMaterial = dynamic_cast<Concrete *>(theOrigMaterial);
+            Concrete  *theMaterial = dynamic_cast<Concrete *>(theOrigMaterial);
 
             QString name(QString::fromStdString((theMaterial->name)));
-
-            qDebug() << "Concrete: " << name;
-
             theSpreadsheet->setString(currentRow, 0, name);
+
             if (theMaterial->rvE != 0) {
                 QString name(QString::fromStdString(*(theMaterial->rvE)));
                 theSpreadsheet->setString(currentRow, 1, name);
             } else
                 theSpreadsheet->setDouble(currentRow, 1, theMaterial->E);
-
 
             if (theMaterial->rvFpc != 0) {
                 QString name(QString::fromStdString(*(theMaterial->rvFpc)));
@@ -173,6 +132,7 @@ ConcreteInputWidget::inputFromJSON(QJsonObject &theObject)
             } else
                 theSpreadsheet->setDouble(currentRow, 3, theMaterial->nu);
 
+
             if (theMaterial->rvMass != 0) {
                 QString name(QString::fromStdString(*(theMaterial->rvMass)));
                 theSpreadsheet->setString(currentRow, 4, name);
@@ -182,7 +142,9 @@ ConcreteInputWidget::inputFromJSON(QJsonObject &theObject)
             currentRow++;
         }
     }
+
     fillingTableFromMap = false;
+    return true;
 }
 
 void
