@@ -100,6 +100,7 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent) : SimCenterW
 
     QVBoxLayout* layout = new QVBoxLayout(this);
 
+    //Building information
     QGroupBox* infoGroupBox = new QGroupBox("Building Information", this);
     QFormLayout* infoFormLayout = new QFormLayout(infoGroupBox);
     infoFormLayout->addRow(tr("Name"), nameEdit);
@@ -109,19 +110,36 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent) : SimCenterW
     infoFormLayout->addRow(tr("Stories"), storiesBox);
     infoFormLayout->addRow(tr("Height"), heightEdit);
     infoFormLayout->addRow(tr("Plan Area"), planAreaEdit);
+    //Setting Style
+    infoFormLayout->setAlignment(Qt::AlignLeft);
+    infoFormLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    infoFormLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
 
+
+    //Location
     QGroupBox* locationGroupBox = new QGroupBox("Location", this);
     QFormLayout* locationFormLayout = new QFormLayout(locationGroupBox);
     locationFormLayout->addRow(tr("Name"), locationNameEdit);
     locationFormLayout->addRow(tr("Latitude"), locationLatBox);
     locationFormLayout->addRow(tr("Longitude"), locationLonBox);
+    //Setting Style
+    locationFormLayout->setAlignment(Qt::AlignLeft);
+    locationFormLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    locationFormLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
 
+
+    //Units
     QGroupBox* unitsGroupBox = new QGroupBox("Units", this);
     QFormLayout* unitsFormLayout = new QFormLayout(unitsGroupBox);
     unitsFormLayout->addRow(tr("Force"), unitsForceCombo);
     unitsFormLayout->addRow(tr("Length"), unitsLengthCombo);
     unitsFormLayout->addRow(tr("Temperature"), unitsTemperatureCombo);
     unitsFormLayout->addRow(tr("Time"), unitsTimeCombo);
+    //Setting Style
+    unitsFormLayout->setAlignment(Qt::AlignLeft);
+    unitsFormLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    unitsFormLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
+
 
     setWindowTitle(tr("General Information"));
 
