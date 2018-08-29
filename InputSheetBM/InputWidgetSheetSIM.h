@@ -39,7 +39,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <QWidget>
+#include <SimCenterAppWidget.h>
 
 #include <QItemSelection>
 #include <QTreeView>
@@ -62,7 +62,7 @@ class WallsectionInputWidget;
 class ConnectionInputWidget;
 class PointInputWidget;
 class RandomVariableInputWidget;
-class SimCenterWidget;
+//class SimCenterWidget;
 class SimCenterTableWidget;
 class SpreadsheetWidget;
 class SteelWSectionInputWidget;
@@ -70,15 +70,15 @@ class SteelTubeSectionInputWidget;
 
 
 
-class InputWidgetSheetSIM : public QWidget
+class InputWidgetSheetSIM : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
     explicit InputWidgetSheetSIM(QWidget *parent = 0);
     ~InputWidgetSheetSIM();
 
-    void outputToJSON(QJsonObject &rvObject);
-    void inputFromJSON(QJsonObject &rvObject);
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
     void clear(void);
 
     const SpreadsheetWidget * getActiveSpreadsheet();

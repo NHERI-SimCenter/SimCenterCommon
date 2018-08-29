@@ -72,7 +72,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <BimClasses.h>
 
 
-InputWidgetSheetSIM::InputWidgetSheetSIM(QWidget *parent) : QWidget(parent), currentWidget(0)
+InputWidgetSheetSIM::InputWidgetSheetSIM(QWidget *parent) : SimCenterAppWidget(parent), currentWidget(0)
 {
   horizontalLayout = new QHBoxLayout();
   this->setLayout(horizontalLayout);
@@ -316,9 +316,10 @@ void InputWidgetSheetSIM::selectionChangedSlot(const QItemSelection & /*newSelec
 
 // NOTE: method to be redone when all these spreadsheet widgets classes have migrated to just being
 // views, and the C++ objects write themselves. method for Data
-void
+bool
 InputWidgetSheetSIM::outputToJSON(QJsonObject &jsonObject)
 {
+    jsonObject["type"]="SimCenterBIM";
 
     //QJsonObject jsonObject;
 
@@ -509,6 +510,7 @@ InputWidgetSheetSIM::outputToJSON(QJsonObject &jsonObject)
 
    // jsonObjectTop["StructuralInformation"] = jsonObject;
 
+    return true;
 }
 
 void
@@ -554,7 +556,7 @@ InputWidgetSheetSIM::clear(void)
     Floor::removeAllFloor();
 }
 
-void
+bool
 InputWidgetSheetSIM::inputFromJSON(QJsonObject &jsonObjStructuralInformation)
 {
 
@@ -678,6 +680,8 @@ InputWidgetSheetSIM::inputFromJSON(QJsonObject &jsonObjStructuralInformation)
    theBeamInput->inputFromJSON(blank);
    theBraceInput->inputFromJSON(jsonObjGeometry);
    theWallInput->inputFromJSON(jsonObjGeometry);
+
+   return true;
 }
 
 
