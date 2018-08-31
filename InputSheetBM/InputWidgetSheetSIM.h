@@ -74,7 +74,7 @@ class InputWidgetSheetSIM : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
-    explicit InputWidgetSheetSIM(QWidget *parent = 0);
+    explicit InputWidgetSheetSIM(RandomVariableInputWidget * =0, QWidget *parent = 0);
     ~InputWidgetSheetSIM();
 
     bool outputToJSON(QJsonObject &rvObject);
@@ -119,7 +119,8 @@ private:
     QStringList theConnectionTypes;
     QMap<QString, ConnectionInputWidget*> theConnectionInputs;
     PointInputWidget *thePointInput;
-    RandomVariableInputWidget *theRVs;
+
+    RandomVariableInputWidget *theRandomVariableInputWidget;
 
     QModelIndex infoItemIdx;
     SimCenterTableWidget  *currentWidget;
