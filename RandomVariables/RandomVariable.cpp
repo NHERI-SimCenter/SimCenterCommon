@@ -167,7 +167,6 @@ RandomVariable::RandomVariable(const QString &type,
     :RandomVariable(type, parent)
 {
     variableName->setText(rvName);
-    qDebug() << "VARIABLE NAME:" << variableName->text();
 
     // now change the distribution to constant and set value
     int index = distributionComboBox->findText(theD.getAbbreviatedName());
