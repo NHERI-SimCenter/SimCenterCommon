@@ -52,9 +52,14 @@ RandomVariableInputWidget::RandomVariableInputWidget(QWidget *parent)
     : SimCenterWidget(parent)
 {
     randomVariableClass = QString("Uncertain");
+    qDebug() << randomVariableClass;
+
     verticalLayout = new QVBoxLayout();
     this->setLayout(verticalLayout);
     this->makeRV();
+    qDebug() << randomVariableClass;
+    qDebug() << this;
+
 }
 
 RandomVariableInputWidget::RandomVariableInputWidget(QString &theClass, QWidget *parent)
@@ -84,6 +89,53 @@ RandomVariableInputWidget::setInitialConstantRVs(QStringList &varNamesAndValues)
         RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution);
         theRandomVariables.append(theRV);
         rvLayout->insertWidget(rvLayout->count()-1, theRV);
+    }
+}
+
+void
+RandomVariableInputWidget::addConstantRVs(QStringList &varNamesAndValues)
+{
+ qDebug() << "RANDOMVARIABLES SIZE" << theRandomVariables.size();
+    int numVar = varNamesAndValues.count();
+
+    for (int i=0; i<numVar; i+= 2) {
+        QString varName = varNamesAndValues.at(i);
+        QString value = varNamesAndValues.at(i+1);
+
+        double dValue = value.toDouble();
+        ConstantDistribution *theDistribution = new ConstantDistribution(dValue, 0);
+        RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution);
+
+        theRandomVariables.append(theRV);
+        rvLayout->insertWidget(rvLayout->count()-1, theRV);
+    }
+    qDebug() << "RANDOMVARIABLES SIZE" << theRandomVariables.size();
+}
+
+void
+RandomVariableInputWidget::removeRandomVariables(QStringList &varNames)
+{
+    // find the ones selected & remove them
+     int numVar = varNames.count();
+
+
+    for (int i=0; i<numVar; i++) {
+        QString varName = varNames.at(i);
+
+        // find the ones selected & remove them
+        int numRandomVariables = theRandomVariables.size();
+
+        for (int j =0; j < numRandomVariables; j++) {
+            RandomVariable *theRV = theRandomVariables.at(j);
+            if (theRV->variableName->text() == varName) {
+                theRV->close();
+                rvLayout->removeWidget(theRV);
+                theRandomVariables.remove(j);
+                theRV->setParent(0);
+                delete theRV;
+                j=numRandomVariables;
+            }
+        }
     }
 }
 
@@ -188,14 +240,20 @@ RandomVariableInputWidget::clear(void)
 bool
 RandomVariableInputWidget::outputToJSON(QJsonObject &rvObject)
 {
+    qDebug() << "RANDOMVARIABLES: outputToJSON :: " << theRandomVariables.size();
+
     bool result = true;
     QJsonArray rvArray;
     for (int i = 0; i <theRandomVariables.size(); ++i) {
         QJsonObject rv;
-        if (theRandomVariables.at(i)->outputToJSON(rv))
+        if (theRandomVariables.at(i)->outputToJSON(rv)) {
             rvArray.append(rv);
-        else
+            qDebug() << "OUTPUT RV" << theRandomVariables.at(i)->variableName->text();
+
+        } else {
+            qDebug() << "OUTPUT FAILED" << theRandomVariables.at(i)->variableName->text();
             result = false;
+        }
     }
     rvObject["randomVariables"]=rvArray;
     return result;
@@ -228,7 +286,6 @@ RandomVariableInputWidget::inputFromJSON(QJsonObject &rvObject)
   //    4) get it to input itself
   //    5) finally add it to layout
   //
-qDebug() << rvObject;
 
   // get array
   if (rvObject.contains("randomVariables"))

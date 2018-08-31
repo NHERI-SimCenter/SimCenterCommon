@@ -161,20 +161,21 @@ RandomVariable::~RandomVariable()
 }
 
 RandomVariable::RandomVariable(const QString &type,
-                const QString &rvName,
-                RandomVariableDistribution &theD,
-                QWidget *parent)
+                               const QString &rvName,
+                               RandomVariableDistribution &theD,
+                               QWidget *parent)
     :RandomVariable(type, parent)
 {
     variableName->setText(rvName);
+    qDebug() << "VARIABLE NAME:" << variableName->text();
 
-  // now change the distribution to constant and set value
-  int index = distributionComboBox->findText(theD.getAbbreviatedName());
-  distributionComboBox->setCurrentIndex(index);
-  delete theDistribution;
-  theDistribution = &theD;
-  mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
-   connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+    // now change the distribution to constant and set value
+    int index = distributionComboBox->findText(theD.getAbbreviatedName());
+    distributionComboBox->setCurrentIndex(index);
+    delete theDistribution;
+    theDistribution = &theD;
+    mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+    connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 }
 
 
