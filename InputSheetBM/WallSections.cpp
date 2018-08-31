@@ -196,11 +196,9 @@ ConcreteRectangularWallSection::readFromJSON(json_t *obj) {
 ConcreteRectangularWallSection::ConcreteRectangularWallSection()
   :thickness(0), beLength(0),
    lrArea(0), lrSpacing(0), lrCover(0), 
-   lrNumBarsThickness(0),
-   lrbArea(0), lrbCover(0), 
+   lrNumBarsThickness(0), lrbArea(0), lrbCover(0), 
    lrbNumBarsThickness(0), lrbNumBarsLength(0),
-   trArea(0), trSpacing(0), trCover(0), 
-   trNumBarsThickness(0),
+   trArea(0), trSpacing(0), trCover(0), trNumBarsThickness(0),
    thicknessRV(NULL), beLengthRV(NULL), lrAreaRV(NULL), lrSpacingRV(NULL), lrCoverRV(NULL),
    lrbAreaRV(NULL), lrbCoverRV(NULL), trAreaRV(NULL), trSpacingRV(NULL), trCoverRV(NULL)
 {
@@ -236,20 +234,6 @@ ConcreteRectangularWallSection::readFromJSON(json_t *theObject) {
   if (this->WallSection::readFromJSON(theObject) != 0)
     return -1;
   
-  double thickness, beLength;
-  double lrArea, lrSpacing, lrCover; 
-  int lrNumBarsThickness;
-  double lrbArea, lrbCover; 
-  int lrbNumBarsThickness, lrbNumBarsLength;
-  double trArea, trSpacing, trCover; 
-  int trNumBarsThickness;
-  string lrMat, lrbMat, trMat, concMat;
-
-  string *thicknessRV, *beLengthRV;
-  string *lrAreaRV, *lrSpacingRV, *lrCoverRV; 
-  string *lrbAreaRV, *lrbCoverRV; 
-  string *trAreaRV, *trSpacingRV, *trCoverRV; 
-
 
   if (BIM_getString(theObject, "concreteMaterial", &concMat) != 0) {
     fatalError("ConcreteRectangularWallSection - errr reading 'concreteMaterial'\n");
@@ -292,32 +276,58 @@ ConcreteRectangularWallSection::readFromJSON(json_t *theObject) {
   } 
 
   json_t *theTransverseRebarObject = json_object_get(theObject, "transverseRebar");
-  if (theLongRebarObject == 0) {
+  if (theTransverseRebarObject == 0) {
 
   }
-  if (BIM_getString(theLongRebarObject, "material", &lrMat) != 0) {
-    fatalError("ConcreteRectangularWallSection - errr reading longitudinal objects 'material'\n");
+  if (BIM_getString(theTransverseRebarObject, "material", &trMat) != 0) {
+    fatalError("ConcreteRectangularWallSection - errr reading transverse objects 'material'\n");
     return -2;
   }
-  if (BIM_getInt(theTransverseRebarObject, "numBarsThickness", &lrNumBarsThickness) != 0) {
-    fatalError("ConcreteRectangularWallSection - errr reading longitudinal objects 'numBarsThickness'\n");
+  if (BIM_getInt(theTransverseRebarObject, "numBarsThickness", &trNumBarsThickness) != 0) {
+    fatalError("ConcreteRectangularWallSection - errr reading transverse objects 'numBarsThickness'\n");
     return -2;
   }
-  if (BIM_getDouble(theTransverseRebarObject, "barArea", &lrArea, &lrAreaRV) != 0) {
-    fatalError("ConcreteRectangularWallSection - errr reading longitudinal objects 'barArea'\n");
+  if (BIM_getDouble(theTransverseRebarObject, "barArea", &trArea, &trAreaRV) != 0) {
+    fatalError("ConcreteRectangularWallSection - errr reading transverse objects 'barArea'\n");
     return -2;
   }
-  if (BIM_getDouble(theTransverseRebarObject, "spacing", &lrSpacing, &lrSpacingRV) != 0) {
-    fatalError("ConcreteRectangularWallSection - errr reading longitudinal objects 'spacing'\n");
+  if (BIM_getDouble(theTransverseRebarObject, "spacing", &trSpacing, &trSpacingRV) != 0) {
+    fatalError("ConcreteRectangularWallSection - errr reading transverse objects 'spacing'\n");
     return -2;
   }
-  if (BIM_getDouble(theTransverseRebarObject, "cover", &lrCover, &lrCoverRV) != 0) {
-    fatalError("ConcreteRectangularWallSection - errr reading longitudinal objects 'cover'\n");
+  if (BIM_getDouble(theTransverseRebarObject, "cover", &trCover, &trCoverRV) != 0) {
+    fatalError("ConcreteRectangularWallSection - errr reading transverse objects 'cover'\n");
     return -2;
   }
 
+  json_t *theLongBeRebarObject = json_object_get(theObject, "lognitudinalBoundaryElementRebar");
+  if (theLongBeRebarObject == 0) {
 
+  }
 
+  if (BIM_getString(theLongBeRebarObject, "material", &lrbMat) != 0) {
+    fatalError("ConcreteRectangularWallSection - errr reading longitudinal boundary element objects 'material'\n");
+    return -2;
+  }
+
+  if (BIM_getInt(theLongBeRebarObject, "numBarsThickness", &lrbNumBarsThickness) != 0) {
+    fatalError("ConcreteRectangularWallSection - errr reading longitudinal boundary element objects 'numBarsThickness'\n");
+    return -2;
+  }
+
+  if (BIM_getDouble(theLongBeRebarObject, "barArea", &lrbArea, &lrbAreaRV) != 0) {
+    fatalError("ConcreteRectangularWallSection - errr reading longitudinal boundary element objects 'barArea'\n");
+    return -2;
+  }
+
+  if (BIM_getInt(theLongBeRebarObject, "numBarsLength", &lrbNumBarsLength) != 0) {
+    fatalError("ConcreteRectangularWallSection - errr reading longitudinal boundary element objects 'numBarsLength'\n");
+    return -2;
+  }
+  if (BIM_getDouble(theLongBeRebarObject, "cover", &lrbCover, &lrbCoverRV) != 0) {
+    fatalError("ConcreteRectangularWallSection - errr reading longitudinal boundary element objects 'cover'\n");
+    return -2;
+  }
 
    std::cerr  << "ConcreteRectangularWallF-done reading\n";
    return 0;

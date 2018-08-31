@@ -45,9 +45,10 @@ class ConcreteRectangularWallSection: public WallSection
   double thickness, beLength;
   double lrArea, lrSpacing, lrCover; 
   int lrNumBarsThickness;
-  double lrbArea, lrbCover; 
 
+  double lrbArea, lrbCover; 
   int lrbNumBarsThickness, lrbNumBarsLength;
+
   double trArea, trSpacing, trCover; 
   int trNumBarsThickness;
   string lrMat, lrbMat, trMat, concMat;
