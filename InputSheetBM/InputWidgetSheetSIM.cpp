@@ -321,7 +321,7 @@ void InputWidgetSheetSIM::selectionChangedSlot(const QItemSelection & /*newSelec
 bool
 InputWidgetSheetSIM::outputToJSON(QJsonObject &jsonObject)
 {
-    jsonObject["type"]="SimCenterBIM";
+    jsonObject["type"]="SimCenterSIM";
 
     //QJsonObject jsonObject;
 

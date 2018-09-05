@@ -52,14 +52,10 @@ RandomVariableInputWidget::RandomVariableInputWidget(QWidget *parent)
     : SimCenterWidget(parent)
 {
     randomVariableClass = QString("Uncertain");
-    qDebug() << randomVariableClass;
 
     verticalLayout = new QVBoxLayout();
     this->setLayout(verticalLayout);
     this->makeRV();
-    qDebug() << randomVariableClass;
-    qDebug() << this;
-
 }
 
 RandomVariableInputWidget::RandomVariableInputWidget(QString &theClass, QWidget *parent)
@@ -95,7 +91,6 @@ RandomVariableInputWidget::setInitialConstantRVs(QStringList &varNamesAndValues)
 void
 RandomVariableInputWidget::addConstantRVs(QStringList &varNamesAndValues)
 {
- qDebug() << "RANDOMVARIABLES SIZE" << theRandomVariables.size();
     int numVar = varNamesAndValues.count();
 
     for (int i=0; i<numVar; i+= 2) {
@@ -109,7 +104,6 @@ RandomVariableInputWidget::addConstantRVs(QStringList &varNamesAndValues)
         theRandomVariables.append(theRV);
         rvLayout->insertWidget(rvLayout->count()-1, theRV);
     }
-    qDebug() << "RANDOMVARIABLES SIZE" << theRandomVariables.size();
 }
 
 void
@@ -240,15 +234,12 @@ RandomVariableInputWidget::clear(void)
 bool
 RandomVariableInputWidget::outputToJSON(QJsonObject &rvObject)
 {
-    qDebug() << "RANDOMVARIABLES: outputToJSON :: " << theRandomVariables.size();
-
     bool result = true;
     QJsonArray rvArray;
     for (int i = 0; i <theRandomVariables.size(); ++i) {
         QJsonObject rv;
         if (theRandomVariables.at(i)->outputToJSON(rv)) {
             rvArray.append(rv);
-            qDebug() << "OUTPUT RV" << theRandomVariables.at(i)->variableName->text();
 
         } else {
             qDebug() << "OUTPUT FAILED" << theRandomVariables.at(i)->variableName->text();

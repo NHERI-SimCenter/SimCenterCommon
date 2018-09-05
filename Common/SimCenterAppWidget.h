@@ -72,6 +72,16 @@ public:
      */  
     virtual bool inputAppDataFromJSON(QJsonObject &rvObject);
 
+    /**
+     *   @brief copyFiles method invoked to copy all files aapplication will need to run directory
+     *   @param destDir the directory to put files in
+     *   @return bool - true for success, otherwise false
+     */
+    virtual bool copyFiles(QString &destDir);
+
+    static bool copyPath(QString sourceDir, QString destinationDir, bool overWriteDirectory);
+    static bool copyFile(QString filename, QString destinationDir);
+
 signals:
 
     /**
@@ -87,6 +97,8 @@ signals:
      *   @return void
      */
     void sendErrorMessage(QString message);
+
+
 
 public slots:
 
