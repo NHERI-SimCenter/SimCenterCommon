@@ -7,6 +7,9 @@
 # Qt created files
 moc*
 build*
+Makefile*
+.qmake.stash
+target_wrapper.sh
 
 # Compiled Object files
 *.slo
@@ -37,7 +40,11 @@ build*
 *.exe
 *.out
 *.app
+unit_tests
 
 # QT
 *.pro.user
 *.#
+
+# Text files
+*.txt
