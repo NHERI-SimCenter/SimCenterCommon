@@ -1,4 +1,4 @@
-sudo: false
+sudo: true
 
 branches:
   only:
@@ -12,6 +12,12 @@ addons:
       - doxygen-latex
       - doxygen-gui
       - graphviz
+
+before_install:
+  - wget https://download.qt.io/official_releases/qt/5.11/5.11.1/
+  - chmod +x qt-opensource-linux-x64-5.11.1.run
+  - sudo ./qt-opensource-linux-x64-5.11.1.run
+  - sudo apt-get install build-essential libgl1-mesa-dev  
 
 script:
   - doxygen Doxyfile
