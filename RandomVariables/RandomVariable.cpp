@@ -195,6 +195,7 @@ RandomVariable::outputToJSON(QJsonObject &rvObject){
     bool result = false;
     if (!variableName->text().isEmpty()) {
         rvObject["name"]=variableName->text();
+        rvObject["value"]=QString("RV.") + variableName->text();
         rvObject["distribution"]=distributionComboBox->currentText();
         rvObject["variableClass"]=variableClass;
         result = theDistribution->outputToJSON(rvObject);
