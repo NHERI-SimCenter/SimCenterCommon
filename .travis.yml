@@ -20,6 +20,10 @@ before_install:
   - sudo apt-get install build-essential libgl1-mesa-dev  
 
 script:
+  - cd test
+  - qmake -project
+  - qmake unit_tests.pro
+  - ./unit_tests
   - doxygen Doxyfile
 
 deploy:
