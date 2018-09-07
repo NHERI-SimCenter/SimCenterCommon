@@ -14,19 +14,16 @@ addons:
       - graphviz
 
 before_install:
-  - sudo add-apt-repository ppa:forkotov02/opt-qt-5.11.1-trusty -y
-  - sudo apt-get update -q
-  - sudo apt-get install qt511-meta-full qt511creator -y
-  - sudo apt-get install build-essential libgl1-mesa-dev -y
-  - /opt/qt511/bin/qt511-env.sh
+  - wget https://download.qt.io/official_releases/qt/5.11/5.11.1/
+  - chmod +x qt-opensource-linux-x64-5.11.1.run
+  - sudo ./qt-opensource-linux-x64-5.11.1.run
+  - sudo apt-get install build-essential libgl1-mesa-dev  
 
 script:
   - cd test
   - qmake -project
   - qmake unit_tests.pro
-  - make
   - ./unit_tests
-  - cd ..
   - doxygen Doxyfile
 
 deploy:
