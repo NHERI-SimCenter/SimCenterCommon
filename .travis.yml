@@ -14,9 +14,9 @@ addons:
       - graphviz
 
 before_install:
-  - wget https://download.qt.io/official_releases/qt/5.11/5.11.1/qt-opensource-linux-x64-5.11.1.run
-  - chmod +x qt-opensource-linux-x64-5.11.1.run
-  - sudo ./qt-opensource-linux-x64-5.11.1.run
+  - sudo add-apt-repository ppa:forkotov02/opt-qt-5.11.1-trusty
+  - sudo apt-get update
+  - sudo apt-get install qt511base qt511tools qt511translations qt511x11extras 
   - sudo apt-get install build-essential libgl1-mesa-dev  
 
 script:
