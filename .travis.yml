@@ -23,6 +23,7 @@ script:
   - cd test
   - qmake -project
   - qmake unit_tests.pro
+  - make
   - ./unit_tests
   - doxygen Doxyfile
 
