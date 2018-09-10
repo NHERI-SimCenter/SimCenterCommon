@@ -72,5 +72,11 @@ $$PWD/Column.h \
 $$PWD/Wall.h \
 $$PWD/WallInputWidget.h
 
-INCLUDEPATH+="/usr/local/jansson/include"
-LIBS+="/usr/local/jansson/lib/libjansson.a"
+macx{
+    INCLUDEPATH+="/usr/local/jansson/include"
+    LIBS+="/usr/local/jansson/lib/libjansson.a"
+}
+
+unix:!macx{
+    LIBS+="/usr/lib/x86_64-linux-gnu/libjansson.a"
+}
