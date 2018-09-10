@@ -14,10 +14,10 @@ addons:
       - graphviz
 
 before_install:
-  - sudo add-apt-repository ppa:forkotov02/opt-qt-5.11.1-trusty
-  - sudo apt-get update
-  - sudo apt-get install qt511base qt511tools qt511translations qt511x11extras 
-  - sudo apt-get install build-essential libgl1-mesa-dev  
+  - sudo add-apt-repository ppa:forkotov02/opt-qt-5.11.1-trusty -y
+  - sudo apt-get update -q
+  - sudo apt-get install qt511base qt511tools qt511translations qt511x11extras -y
+  - sudo apt-get install build-essential libgl1-mesa-dev -y
 
 script:
   - cd test
