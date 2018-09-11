@@ -14,11 +14,8 @@ addons:
       - graphviz
 
 before_install:
-  - sudo add-apt-repository ppa:forkotov02/opt-qt-5.11.1-trusty -y
-  - sudo apt-get update -q
-  - sudo apt-get install qt511-meta-full qt511creator -y
-  - sudo apt-get install build-essential libgl1-mesa-dev -y
-  - /opt/qt511/bin/qt511-env.sh
+  - sudo apt-get install qtcreator -y
+  - sudo apt-get install qt5-default -y
 
 script:
   - cd test
