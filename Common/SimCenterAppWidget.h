@@ -84,22 +84,6 @@ public:
 
 signals:
 
-    /**
-     *   @brief sendFatalMessage signal to be emitted when object needs to shut program down
-     *   @param message to be returned
-     *   @return void
-     */
-    void sendFatalMessage(QString message);
-
-    /**
-     *   @brief sendErrorMessage signal to be emitted when object needs to communicate error with user
-     *   @param message to be returned
-     *   @return void
-     */
-    void sendErrorMessage(QString message);
-
-
-
 public slots:
 
 private:
