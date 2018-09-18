@@ -60,21 +60,26 @@
 #include <QFrame>
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QGridLayout>
+class QComboBox;
 
 class SectionTitle : public QFrame
 {
     Q_OBJECT
+
 public:
+
     explicit SectionTitle(QWidget *parent = 0);
     void setTitle(QString);
     void setText(QString s) {this->setTitle(s);};
+    void addWidget(QWidget *theWidget);
 
 signals:
 
 public slots:
 
 private:
-    QVBoxLayout *sectionLayout;
+    QGridLayout *sectionLayout;
     QLabel      *sectionLabel;
     QFrame      *line;
 };
