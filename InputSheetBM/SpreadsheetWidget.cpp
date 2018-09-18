@@ -374,8 +374,9 @@ bool SpreadsheetWidget::getDouble(int row, int col, double &res){
   if (theItem == 0)
     return false;
   QString textData = theItem->text();
-  res = textData.toDouble();
-  return true;
+  bool ok;
+  res = textData.toDouble(&ok);
+  return ok;
 }
 
 bool SpreadsheetWidget::getInt(int row, int col, int &res){
@@ -384,8 +385,9 @@ bool SpreadsheetWidget::getInt(int row, int col, int &res){
   if (theCell == 0)
     return false;
   QString textData = theCell->text();
-  res = textData.toInt();
-  return true;
+  bool ok;
+  res = textData.toInt(&ok);
+  return ok;
 }
 
 int  SpreadsheetWidget::setString(int row,int col, QString &data)

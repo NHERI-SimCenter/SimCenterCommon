@@ -39,11 +39,16 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "SteelInputWidget.h"
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QJsonDocument>
 #include <QDebug>
 #include <QList>
+#include <BimClasses.h>
+#include <jansson.h>
 
 SteelInputWidget::SteelInputWidget(QWidget *parent) : SimCenterTableWidget(parent)
 {
+    fillingTableFromMap = false;
+
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
 
@@ -65,6 +70,10 @@ SteelInputWidget::SteelInputWidget(QWidget *parent) : SimCenterTableWidget(paren
 
     theLayout->addWidget(theSpreadsheet);
     this->setMinimumWidth(200);
+
+    // connect signals and slots
+    connect(theSpreadsheet,SIGNAL(currentCellChanged(int,int,int,int)),this,SLOT(somethingEntered(int,int,int,int)));
+    connect(theSpreadsheet,SIGNAL(cellChanged(int,int)),this,SLOT(somethingChanged(int,int)));
 }
 
 SteelInputWidget::~SteelInputWidget()
@@ -75,80 +84,69 @@ SteelInputWidget::~SteelInputWidget()
 
 bool
 SteelInputWidget::outputToJSON(QJsonObject &jsonObj){
-    return(true);
+    // this is just a view, data sent elsewhere
+    return true;
 }
 
 bool
 SteelInputWidget::outputToJSON(QJsonArray &jsonArray){
-
-     // create a json array and for each row add a json object to it
-    int numRows = theSpreadsheet->getNumRows();
-    for (int i=0; i<numRows; i++) {
-
-        QJsonObject obj;
-        QString name;
-        double E, Fy, Fu, rho, nu;
-
-        // obtain info from spreadsheet
-        if (theSpreadsheet->getString(i,0,name) == false || name.isEmpty())
-            break;
-        if (theSpreadsheet->getDouble(i,1,E) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,2,Fy) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,3,Fu) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,4,nu) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,5,rho) == false)
-            break;
-
-        // now add the items to object
-        obj["name"]=name;
-        obj["type"]=QString(tr("steel"));
-        obj["fy"]=Fy;
-        obj["fu"]=Fu;
-        obj["E"]=E;
-        obj["nu"]=nu;
-        obj["rho"]=rho;
-
-        // add the object to the array
-        jsonArray.append(obj);
-    }
-    return(true);
+  return true;
 }
 
 bool
 SteelInputWidget::inputFromJSON(QJsonObject &theObject)
 {
-    // this has to be called one object at a time for efficiency
-    // could use the rVarray above. This array will contain multiple
-    // object types and could parse each to to see if corect type.
-    //  BUT too slow if multiple material types,
-    //  int currentRow = 0;
+    // qDebug() << "SteelInputFromJSON";
 
-    QString name, type;
-    double E, Fy, Fu, rho, nu;
-    type = theObject["type"].toString();
-    if (type == QString(tr("steel"))) {
-        name = theObject["name"].toString();
-        E = theObject["E"].toDouble();
-        Fy = theObject["fy"].toDouble();
-        Fu = theObject["fu"].toDouble();
-        nu = theObject["nu"].toDouble();
-        rho = theObject["rho"].toDouble();
+    fillingTableFromMap = true;
+    this->clear();
+    currentRow = 0;
+    std::map<string, Material *>::iterator it;
+    for (it = Material::theMaterials.begin(); it != Material::theMaterials.end(); it++) {
+        Material *theOrigMaterial = it->second;
 
-        // add to the spreadsheet
-        theSpreadsheet->setString(currentRow, 0, name);
-        theSpreadsheet->setDouble(currentRow, 1, E);
-        theSpreadsheet->setDouble(currentRow, 2, Fy);
-        theSpreadsheet->setDouble(currentRow, 3, Fu);
-        theSpreadsheet->setDouble(currentRow, 4, nu);
-        theSpreadsheet->setDouble(currentRow, 5, rho);
+        if (theOrigMaterial->matType == STEEL_TYPE) {
 
-        currentRow++;
+            Steel *theMaterial = dynamic_cast<Steel *>(theOrigMaterial);
+
+            QString name(QString::fromStdString((theMaterial->name)));
+
+            theSpreadsheet->setString(currentRow, 0, name);
+
+            if (theMaterial->rvE != 0) {
+                QString name(QString::fromStdString(*(theMaterial->rvE)));
+                theSpreadsheet->setString(currentRow, 1, name);
+            } else
+                theSpreadsheet->setDouble(currentRow, 1, theMaterial->E);
+
+            if (theMaterial->rvFy != 0) {
+                QString name(QString::fromStdString(*(theMaterial->rvFy)));
+                theSpreadsheet->setString(currentRow, 2, name);
+            } else
+                theSpreadsheet->setDouble(currentRow, 2, theMaterial->fy);
+
+            if (theMaterial->rvFu != 0) {
+                QString name(QString::fromStdString(*(theMaterial->rvFu)));
+                theSpreadsheet->setString(currentRow, 3, name);
+            } else
+                theSpreadsheet->setDouble(currentRow, 3, theMaterial->fu);
+
+            if (theMaterial->rvNu != 0) {
+                QString name(QString::fromStdString(*(theMaterial->rvNu)));
+                theSpreadsheet->setString(currentRow, 4, name);
+            } else
+                theSpreadsheet->setDouble(currentRow, 4, theMaterial->nu);
+
+            if (theMaterial->rvMass != 0) {
+                QString name(QString::fromStdString(*(theMaterial->rvMass)));
+                theSpreadsheet->setString(currentRow, 5, name);
+            } else
+                theSpreadsheet->setDouble(currentRow, 5, theMaterial->massPerVolume);
+
+            currentRow++;
+        }
     }
-    return(true);
+    fillingTableFromMap = false;
 }
 
 void
@@ -156,4 +154,138 @@ SteelInputWidget::clear(void)
 {
     currentRow = 0;
     theSpreadsheet->clear();
+}
+
+void
+SteelInputWidget::somethingEntered(int row, int column, int row2, int col2) {
+    if (column == 0) {
+        if (theSpreadsheet->getString(row, column, currentName) == false)
+            currentName.clear();
+    } else
+        currentName.clear();
+}
+
+void
+SteelInputWidget::somethingChanged(int row, int column) {
+
+    if (fillingTableFromMap == true) {
+        return;
+    }
+
+    QString name;
+    double E = 0., Fy =0., Fu = 0., Nu = 0.,  Mass = 0.;
+    QString rvE, rvFy, rvFu, rvNu, rvMass;
+    string *rvEString = NULL, *rvFyString = NULL, *rvFuString = NULL, *rvNuString = NULL, *rvMassString = NULL;
+
+    QTableWidgetItem *theName = theSpreadsheet->item(row, 0);
+    QTableWidgetItem *theE = theSpreadsheet->item(row,1);
+    QTableWidgetItem *theFy = theSpreadsheet->item(row,2);
+    QTableWidgetItem *theFu = theSpreadsheet->item(row,3);
+    QTableWidgetItem *theNu = theSpreadsheet->item(row,4);
+    QTableWidgetItem *theMass = theSpreadsheet->item(row,5);
+
+    //
+    // make sure name exists and is unique
+    //   if not unique reset to last value and return w/o doing anything
+    //
+
+    if (theName == NULL) {
+        qDebug() << "NO CELL";
+        return; // do not add Floor until all data exists
+    }
+
+    if (theSpreadsheet->getString(row,0,name) == false) {
+        qDebug() << "NO NAME";
+        return; // problem with name
+    }
+
+
+    if (column == 0) {
+        string theStringName = name.toStdString();
+        if ((theStringName.empty()) || (theStringName.find_first_not_of(' ') == std::string::npos)) {
+            theSpreadsheet->setString(row, 0, currentName);
+            // qDebug() << "BLANK NAME";
+            return;
+        }
+    }
+
+    // check name is  unique, if not set string to what it was before entry
+    if (column == 0) {
+        Material *existingMaterial = Material::getMaterial(name.toStdString());
+        if (existingMaterial != NULL) {
+            theSpreadsheet->setString(row, 0, currentName);
+            return;
+        }
+    } else { // is name is empty or conatins blanks, return
+        string theStringName = name.toStdString();
+        if ((theStringName.empty()) || (theStringName.find_first_not_of(' ') == std::string::npos)) {
+            return;
+        }
+    }
+
+    //
+    // if height exists, update map in Floors with new entry
+    //
+
+    if (theE == NULL || theFy == NULL || theFu == NULL || theNu == NULL || theMass == NULL)
+        return;
+
+    //  qDebug() << "steel changed - all there";
+
+    if (theSpreadsheet->getDouble(row,1,E) == false) {
+        if (theSpreadsheet->getString(row,1,rvE) == false) {
+            qDebug() << "NO E";
+            return;
+        } else {
+            rvEString = new string(rvE.toStdString());
+        }
+    }
+
+    if (theSpreadsheet->getDouble(row,2,Fy) == false) {
+        if (theSpreadsheet->getString(row,2,rvFy) == false) {
+            qDebug() << "NO Fy";
+            return;
+        } else {
+            rvFyString = new string(rvFy.toStdString());
+        }
+    }
+
+    if (theSpreadsheet->getDouble(row,3,Fu) == false) {
+        if (theSpreadsheet->getString(row,3,rvFu) == false) {
+            qDebug() << "NO Fu";
+            return;
+        } else {
+            rvFuString = new string(rvFu.toStdString());
+        }
+    }
+
+    if (theSpreadsheet->getDouble(row,4,Nu) == false) {
+        if (theSpreadsheet->getString(row,4,rvNu) == false) {
+            qDebug() << "NO Nu";
+            return;
+        } else {
+            rvNuString = new string(rvNu.toStdString());
+        }
+    }
+
+    if (theSpreadsheet->getDouble(row,5,Mass) == false) {
+        if (theSpreadsheet->getString(row,5,rvMass) == false) {
+            qDebug() << "NO Mass";
+            return;
+        } else {
+            rvNuString = new string(rvNu.toStdString());
+        }
+    }
+
+
+    if (column == 0) { // if modified the name, need to remove old before can add as would leave add there
+        if (currentName != name) {
+            Material::removeMaterial(currentName.toStdString());
+        }
+    }
+
+    Steel::addSteelMaterial(name.toStdString(), E, Fy, Fu, Nu, Mass,
+                            rvEString, rvFyString, rvFuString, rvNuString, rvMassString);
+    currentName = name;
+
 }

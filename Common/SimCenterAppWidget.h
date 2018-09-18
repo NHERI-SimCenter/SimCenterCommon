@@ -1,3 +1,6 @@
+#ifndef SIMCENTER_APP_WIDGET_H
+#define SIMCENTER_APP_WIDGET_H
+
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -34,50 +37,57 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+/**
+ *  @author  fmckenna
+ *  @date    09/2018
+ *  @version 1.0
+ *
+ *  @section DESCRIPTION
+ *
+ * The purpose of this class is to define interface for SimCenter widgets that are associated with an application
+ * in the Workflow applications. They introduce methods for wrating the application specific data, e.g. AppName, data
+ * that are used in workflow applicaions.
+ */
 
+#include <SimCenterWidget.h>
+class QJsonObject;
 
-#include "RandomVariableDistribution.h"
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QLineEdit>
-#include <QDebug>
-#include <QDoubleValidator>
-
-RandomVariableDistribution::RandomVariableDistribution(QWidget *parent)
-    : SimCenterWidget(parent)
+class SimCenterAppWidget : public SimCenterWidget
 {
+    Q_OBJECT
+public:
+    explicit SimCenterAppWidget(QWidget *parent = 0);
+    virtual ~SimCenterAppWidget();
+    /** 
+     *   @brief outputAppDataToJSON method to write the application data to json object.
+     *   @param rvObject the JSON object to be written to
+     *   @return bool - true for success, otherwise false
+     */  
 
-}
+    virtual bool outputAppDataToJSON(QJsonObject &rvObject);
+    /** 
+     *   @brief inputFromJSON method to read applications specific data from a JSON object
+     *   @param rvObject the JSON object contaiing data to instantiate the object
+     *   @return bool - true for success, otherwise false
+     */  
+    virtual bool inputAppDataFromJSON(QJsonObject &rvObject);
 
-RandomVariableDistribution::~RandomVariableDistribution()
-{
+    /**
+     *   @brief copyFiles method invoked to copy all files aapplication will need to run directory
+     *   @param destDir the directory to put files in
+     *   @return bool - true for success, otherwise false
+     */
+    virtual bool copyFiles(QString &destDir);
 
-}
+    static bool copyPath(QString sourceDir, QString destinationDir, bool overWriteDirectory);
+    static bool copyFile(QString filename, QString destinationDir);
 
-QLineEdit *
-RandomVariableDistribution::createTextEntry(QString text,
-                                            QHBoxLayout *theLayout,
-                                            int minL,
-                                            int maxL)
-{
-    QVBoxLayout *entryLayout = new QVBoxLayout();
-    QLabel *entryLabel = new QLabel();
-    entryLabel->setText(text);
+signals:
 
-    QLineEdit *res = new QLineEdit();
-    res->setMinimumWidth(minL);
-    res->setMaximumWidth(maxL);
-    res->setValidator(new QDoubleValidator);
+public slots:
 
-    entryLayout->addWidget(entryLabel);
-    entryLayout->addWidget(res);
+private:
 
-    entryLayout->setSpacing(0);
-    entryLayout->setMargin(0);
+};
 
-    theLayout->addLayout(entryLayout);
-
-    return res;
-}
+#endif // SIMCENTER_APP_WIDGET_H

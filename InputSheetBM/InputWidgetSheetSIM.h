@@ -1,5 +1,5 @@
-#ifndef COLUMNINPUTWIDGET_H
-#define COLUMNINPUTWIDGET_H
+#ifndef INPUTWIDGETSHEETSIM_H
+#define INPUTWIDGETSHEETSIM_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -39,35 +39,93 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterTableWidget.h>
-#include "SimpleSpreadsheetWidget.h"
-#include <QStringList>
+#include <SimCenterAppWidget.h>
+
+#include <QItemSelection>
+#include <QTreeView>
+#include <QStandardItemModel>
 #include <QHBoxLayout>
 
-class ColumnInputWidget : public SimCenterTableWidget
+class GeneralInformationWidget;
+class ClineInputWidget;
+class FloorInputWidget;
+class BeamInputWidget;
+class WallInputWidget;
+class ColumnInputWidget;
+class BraceInputWidget;
+class WallInputWidget;
+class SteelInputWidget;
+class ConcreteInputWidget;
+class FramesectionInputWidget;
+class SlabsectionInputWidget;
+class WallsectionInputWidget;
+class ConnectionInputWidget;
+class PointInputWidget;
+class RandomVariableInputWidget;
+//class SimCenterWidget;
+class SimCenterTableWidget;
+class SpreadsheetWidget;
+class SteelWSectionInputWidget;
+class SteelTubeSectionInputWidget;
+
+
+
+class InputWidgetSheetSIM : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
-    explicit ColumnInputWidget(QWidget *parent = 0);
-    ~ColumnInputWidget();
+    explicit InputWidgetSheetSIM(RandomVariableInputWidget * =0, QWidget *parent = 0);
+    ~InputWidgetSheetSIM();
 
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
     void clear(void);
 
-signals:
+    const SpreadsheetWidget * getActiveSpreadsheet();
 
-public slots:
-    void somethingChanged(int row, int column);
-    void somethingEntered(int row, int column, int row2, int col2);
+signals:
+    void connectMenuItems(SimCenterWidget *);
+    void disconnectMenuItems(SimCenterWidget *);
+
+public slots:  
+    void selectionChangedSlot(const QItemSelection &, const QItemSelection &);
 
 private:
-    QHBoxLayout *theLayout;
-    QStringList   tableHeader;
+    QHBoxLayout *horizontalLayout;
+    QTreeView *treeView;
+    QStandardItemModel *standardModel;
 
-    int currentRow;
-    QString currentName;
-    bool fillingTableFromMap;
+    ClineInputWidget *theClineInput;
+    FloorInputWidget *theFloorInput;
+    BeamInputWidget *theBeamInput;
+    ColumnInputWidget *theColumnInput;
+    BraceInputWidget *theBraceInput;
+    WallInputWidget *theWallInput;
+    SteelInputWidget *theSteelInput;
+    ConcreteInputWidget *theConcreteInput;
+    SteelWSectionInputWidget *theSteelWSectionInput;
+    SteelTubeSectionInputWidget *theSteelTubeSectionInput;
+
+    /*
+    QStringList theFramesectionTypes;
+    QMap<QString, FramesectionInputWidget*> theFramesectionInputs;
+    */
+
+    SlabsectionInputWidget *theSlabsectionInput;
+
+    QStringList theWallsectionTypes;
+    QMap<QString, WallsectionInputWidget*> theWallsectionInputs;
+
+    QStringList theConnectionTypes;
+    QMap<QString, ConnectionInputWidget*> theConnectionInputs;
+    PointInputWidget *thePointInput;
+
+    RandomVariableInputWidget *theRandomVariableInputWidget;
+
+    QModelIndex infoItemIdx;
+    SimCenterTableWidget  *currentWidget;
+
+    QJsonObject *jsonObjOrig;
 };
 
-#endif // COLUMNINPUTWIDGET_H
+#endif // INPUTWIDGETSIMSHEET_H

@@ -1,13 +1,11 @@
-#ifndef GENERALINFORMATIONWIDGET_H
-#define GENERALINFORMATIONWIDGET_H
-
-
+#ifndef STEEL_TUBE_SECTION_INPUTWIDGET_H
+#define STEEL_TUBE_SECTION_INPUTWIDGET_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without
+Redistribution and use in source and binary forms, with or without 
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -31,76 +29,46 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
 // Written: fmckenna
 
-
+#include <SimCenterTableWidget.h>
+#include "SimpleSpreadsheetWidget.h"
 #include <QStringList>
 #include <QHBoxLayout>
-#include <SimCenterTableWidget.h>
-#include <QComboBox>
-#include <QSpinBox>
-#include <QDoubleSpinBox>
 
-class GeneralInformationWidget : public SimCenterWidget
+class SteelTubeSectionInputWidget : public SimCenterTableWidget
 {
     Q_OBJECT
 public:
-    explicit GeneralInformationWidget(QWidget *parent = 0);
-    ~GeneralInformationWidget();
+    explicit SteelTubeSectionInputWidget(QWidget *parent = 0);
+    ~SteelTubeSectionInputWidget();
 
     bool outputToJSON(QJsonObject &rvObject);
-    bool inputFromJSON(QJsonObject &rvObject);
     bool outputToJSON(QJsonArray &arrayObject);
-    bool inputFromJSON(QJsonArray &arrayObject);
+    bool inputFromJSON(QJsonObject &rvObject);
 
     void clear(void);
-
-    enum LengthUnit{m, cm, mm, in, ft};
-    Q_ENUM(LengthUnit)
-    enum ForceUnit{N, kN, lb, kips};
-    Q_ENUM(ForceUnit)
-    enum TimeUnit{sec, min, hr};
-    Q_ENUM(TimeUnit)
-    enum TemperatureUnit{C, F, K};
-    Q_ENUM(TemperatureUnit)
-
 
 signals:
 
 public slots:
+    void somethingChanged(int row, int column);
+    void somethingEntered(int row, int column, int row2, int col2);
 
 private:
+    QHBoxLayout *theLayout;
     QStringList   tableHeader;
-
-    QLineEdit *nameEdit;
-    QLineEdit *revEdit;
-    QLineEdit *typeEdit;
-    QSpinBox *yearBox;
-    QSpinBox *storiesBox;
-    QLineEdit *heightEdit;
-    QLineEdit *planAreaEdit;
-
-    QLineEdit *locationNameEdit;
-    QDoubleSpinBox *locationLatBox;
-    QDoubleSpinBox *locationLonBox;
-
-    QComboBox *unitsForceCombo;
-    QComboBox *unitsLengthCombo;
-    QComboBox *unitsTemperatureCombo;
-    QComboBox *unitsTimeCombo;
-
-    template<typename UnitEnum> QString unitEnumToString(UnitEnum enumValue);
-    template<typename UnitEnum> UnitEnum unitStringToEnum(QString unitString);
-
+    int currentRow;
+    QString currentName;
+    bool fillingTableFromMap;
 };
 
-
-#endif // GENERALINFORMATIONWIDGET_H
+#endif // STEEL_TUBE_SECTION_INPUTWIDGET_H

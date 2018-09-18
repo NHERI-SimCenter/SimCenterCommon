@@ -39,11 +39,16 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "FloorInputWidget.h"
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QJsonDocument>
 #include <QDebug>
 #include <QList>
+#include "BimClasses.h"
+#include <jansson.h>
 
 FloorInputWidget::FloorInputWidget(QWidget *parent) : SimCenterTableWidget(parent)
 {
+    fillingTableFromMap = false;
+
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
 
@@ -57,6 +62,11 @@ FloorInputWidget::FloorInputWidget(QWidget *parent) : SimCenterTableWidget(paren
 
     theLayout->addWidget(theSpreadsheet);
     this->setMinimumWidth(200);
+    theSpreadsheet->setTabKeyNavigation(true);
+
+    // connect signals and slots
+    connect(theSpreadsheet,SIGNAL(currentCellChanged(int,int,int,int)),this,SLOT(somethingEntered(int,int,int,int)));
+    connect(theSpreadsheet,SIGNAL(cellChanged(int,int)),this,SLOT(somethingChanged(int,int)));
 }
 
 FloorInputWidget::~FloorInputWidget()
@@ -67,31 +77,37 @@ FloorInputWidget::~FloorInputWidget()
 bool
 FloorInputWidget::outputToJSON(QJsonObject &jsonObj){
 
-      // create a json array and for each row add a json object to it
-    QJsonArray  jsonArray;
-    int numRows = theSpreadsheet->getNumRows();
-    for (int i=0; i<numRows; i++) {
+    // use jansson to set up a jansson JSON object
+    json_t *objFloors = json_array();
+    Floor::writeObjects(objFloors);
+    json_t *objJan = json_object();
 
-        QJsonObject obj;
-        QString name;
-        double zLoc;
+    json_object_set(objJan, "floors", objFloors);
 
-        // parse the arguments
-        if (theSpreadsheet->getString(i,0,name) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,1,zLoc) == false)
-            break;
+    // dump that jansson object to a QJsonDoc and convertinto QJson object
+    char *jsonText = json_dumps(objJan, JSON_COMPACT);
 
-        // add the components to the object
-        obj["name"]=name;
-        obj["elevation"]=zLoc;
 
-        // add the object to the array
-        jsonArray.append(obj);
+    QJsonDocument doc = QJsonDocument::fromJson(jsonText);
+
+    if (doc.isNull()) {
+       qDebug() << "Floor invalid JSON";
     }
 
+    QJsonObject objQt = doc.object();
+    QJsonArray theArray = objQt["floors"].toArray();
+
+    /*
+    QJsonDocument doc1(theArray);
+    QString strJson(doc1.toJson(QJsonDocument::Compact));
+    qDebug() << strJson;
+    */
+
     // finally add the array to the input arg
-    jsonObj["floors"]=jsonArray;
+    jsonObj["floors"]=theArray;
+
+    // free memory json_dumps allocaed
+    free(jsonText);
 
     return(true);
 }
@@ -99,6 +115,41 @@ FloorInputWidget::outputToJSON(QJsonObject &jsonObj){
 bool
 FloorInputWidget::inputFromJSON(QJsonObject &jsonObject)
 {
+    fillingTableFromMap = true;
+    Floor::removeAllFloor();
+
+    // get QJson object & Convert to Jansson for Floors to read
+    QJsonArray theArray = jsonObject["floors"].toArray();
+    QJsonDocument doc(theArray);
+    QString strJson(doc.toJson(QJsonDocument::Compact));
+qDebug() << strJson;
+
+    json_t *janssonObj = json_object();
+    json_error_t error;
+    janssonObj = json_loads(strJson.toStdString().c_str(), 0, &error);
+    qDebug() << json_dumps(janssonObj, JSON_COMPACT);
+    Floor::readObjects(janssonObj);
+
+    QString name;
+    double height;
+    string rvHeight;
+
+    int currentRow = 0;
+    std::map<string, Floor *>::iterator it = Floor::theFloors.begin();
+    while (it != Floor::theFloors.end()) {
+        Floor *theFloor = it->second;
+        QString name(QString::fromStdString((theFloor->name)));
+        theSpreadsheet->setString(currentRow, 0, name);
+        if (theFloor->rvHeight != 0) {
+            QString name(QString::fromStdString(*(theFloor->rvHeight)));
+            theSpreadsheet->setString(currentRow, 1, name);
+        } else
+            theSpreadsheet->setDouble(currentRow, 1, theFloor->height);
+        it++;
+        currentRow++;
+
+    }
+    /*
     int currentRow = 0;
     QString name;
     double zLoc;
@@ -121,6 +172,8 @@ FloorInputWidget::inputFromJSON(QJsonObject &jsonObject)
 
         currentRow++;
     }
+    */
+    fillingTableFromMap = false;
     return(true);
 }
 
@@ -128,4 +181,81 @@ void
 FloorInputWidget::clear(void)
 {
     theSpreadsheet->clear();
+}
+
+void
+FloorInputWidget::somethingChanged(int row, int column) {
+
+    if (fillingTableFromMap == true) {
+        return;
+    }
+
+    QString name;
+    double height = 0.;
+    QString rvHeight;
+    string *rvHeightString = NULL;
+
+    QTableWidgetItem *theName = theSpreadsheet->item(row, 0);
+    QTableWidgetItem *theHeight = theSpreadsheet->item(row,1);
+
+
+    //
+    // make sure name exists and is unique
+    //   if not unique reset to last value and return w/o doing anything
+    //
+
+    if (theName == NULL) {
+        qDebug() << "NO CELL";
+        return; // do not add Floor until all data exists
+    }
+    if (theSpreadsheet->getString(row,0,name) == false || name == QString("")) {
+        qDebug() << "NO NAME";
+        return; // problem with name
+    }
+
+    // check name is unique, if not set string to what it was before entry
+    if (column == 0) {
+        Floor *existingFloor = Floor::getFloor(name.toStdString());
+        if (existingFloor != NULL) {
+            //theSpreadsheet->takeItem(row,0);
+            //QString blankString("");
+            theSpreadsheet->setString(row, 0, currentName);
+            return;
+        }
+    }
+
+    //
+    // if height exists, update map in Floors with new entry
+    //
+
+    if (theHeight == NULL)
+        return;
+
+    if (theSpreadsheet->getDouble(row,1,height) == false) {
+        if (theSpreadsheet->getString(row,1,rvHeight) == false) {
+            qDebug() << "NO HEIGHT";
+            return;
+        } else {
+            rvHeightString = new string(rvHeight.toStdString());
+        }
+    }
+
+
+    if (column == 0) { // add new floor, remove old if renamed
+        if (currentName != name)
+            Floor::removeFloor(currentName.toStdString());
+        Floor::addFloor(name.toStdString(), height, rvHeightString);
+    } else // reset properties on existing floor
+        Floor::newFloorProperties(name.toStdString(), height, rvHeightString);
+}
+
+void
+FloorInputWidget::somethingEntered(int row, int column, int row2, int col2) {
+
+    if (column == 0) {
+        if (theSpreadsheet->getString(row, column, currentName) == false)
+            currentName.clear();
+   } else
+        currentName.clear();
+
 }

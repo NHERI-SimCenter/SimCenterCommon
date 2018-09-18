@@ -36,48 +36,98 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-
-#include "RandomVariableDistribution.h"
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QLineEdit>
+#include <SimCenterAppWidget.h>
+#include <QDir>
 #include <QDebug>
-#include <QDoubleValidator>
 
-RandomVariableDistribution::RandomVariableDistribution(QWidget *parent)
-    : SimCenterWidget(parent)
+SimCenterAppWidget::SimCenterAppWidget(QWidget *parent)
+    :SimCenterWidget(parent)
 {
 
 }
 
-RandomVariableDistribution::~RandomVariableDistribution()
+SimCenterAppWidget::~SimCenterAppWidget()
 {
 
 }
 
-QLineEdit *
-RandomVariableDistribution::createTextEntry(QString text,
-                                            QHBoxLayout *theLayout,
-                                            int minL,
-                                            int maxL)
+
+bool
+SimCenterAppWidget::outputAppDataToJSON(QJsonObject &rvObject)
 {
-    QVBoxLayout *entryLayout = new QVBoxLayout();
-    QLabel *entryLabel = new QLabel();
-    entryLabel->setText(text);
+    return true;
+}
 
-    QLineEdit *res = new QLineEdit();
-    res->setMinimumWidth(minL);
-    res->setMaximumWidth(maxL);
-    res->setValidator(new QDoubleValidator);
+bool
+SimCenterAppWidget::inputAppDataFromJSON(QJsonObject &rvObject)
+{
+    return true;
+}
 
-    entryLayout->addWidget(entryLabel);
-    entryLayout->addWidget(res);
 
-    entryLayout->setSpacing(0);
-    entryLayout->setMargin(0);
+bool
+SimCenterAppWidget::copyFiles(QString &path)
+{
+    return true;
+}
 
-    theLayout->addLayout(entryLayout);
+bool
+SimCenterAppWidget::copyPath(QString sourceDir, QString destinationDir, bool overWriteDirectory)
+{
+    QDir originDirectory(sourceDir);
 
-    return res;
+    if (! originDirectory.exists()) {
+        qDebug() << "Origin Directory: " << sourceDir << " Does not exist";
+        return false;
+    }
+
+    QDir destinationDirectory(destinationDir);
+
+    if(destinationDirectory.exists() && overWriteDirectory) {
+        destinationDirectory.removeRecursively();
+    }
+
+    originDirectory.mkpath(destinationDir);
+
+    foreach (QString directoryName, originDirectory.entryList(QDir::Dirs | \
+                                                              QDir::NoDotAndDotDot))
+    {
+        if (directoryName != QString("tmp.SimCenter")) {
+        QString destinationPath = destinationDir + "/" + directoryName;
+        originDirectory.mkpath(destinationPath);
+        copyPath(sourceDir + "/" + directoryName, destinationPath, overWriteDirectory);
+        }
+    }
+
+    foreach (QString fileName, originDirectory.entryList(QDir::Files)) {
+        QFile::copy(sourceDir + "/" + fileName, destinationDir + "/" + fileName);
+    }
+
+    /*! Possible race-condition mitigation? */
+
+    QDir finalDestination(destinationDir);
+    finalDestination.refresh();
+
+    if(finalDestination.exists()) {
+        return true;
+    }
+
+    return false;
+}
+
+
+bool
+SimCenterAppWidget::copyFile(QString filename, QString destinationDir)
+{
+    QFile fileToCopy(filename);
+
+    if (! fileToCopy.exists()) {
+        return false;
+    }
+
+    QFileInfo fileInfo(filename);
+    QString theFile = fileInfo.fileName();
+    QString thePath = fileInfo.path();
+
+    return fileToCopy.copy(destinationDir + QDir::separator() + theFile);
 }
