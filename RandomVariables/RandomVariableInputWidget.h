@@ -55,11 +55,14 @@ public:
 
     ~RandomVariableInputWidget();
 
-    void  addRandomVariable(RandomVariable *theRV);
+    void addRandomVariable(RandomVariable *theRV);
     bool inputFromJSON(QJsonObject &rvObject);
     bool outputToJSON(QJsonObject &rvObject);
 
     void setInitialConstantRVs(QStringList &varNamesAndValues);
+    void addConstantRVs(QStringList &varNamesAndValues);
+    void removeRandomVariables(QStringList &varNames);
+
     QStringList getRandomVariableNames(void);
 
 public slots:

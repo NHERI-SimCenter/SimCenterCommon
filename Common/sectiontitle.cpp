@@ -52,9 +52,9 @@ SectionTitle::SectionTitle(QWidget *parent) : QFrame(parent)
     line->setFrameShadow(QFrame::Sunken);
 
     //add line to Layout
-    sectionLayout = new QVBoxLayout();
-    sectionLayout->addWidget(sectionLabel);
-    sectionLayout->addWidget(line);
+    sectionLayout = new QGridLayout(); //VBoxLayout();
+    sectionLayout->addWidget(sectionLabel,0,0);
+    sectionLayout->addWidget(line,1,0,1,2);
     //sectionLayout->setSpacing(0);
     sectionLayout->setMargin(0);
 
@@ -65,4 +65,8 @@ SectionTitle::SectionTitle(QWidget *parent) : QFrame(parent)
 void SectionTitle::setTitle(QString s)
 {
     sectionLabel->setText(s);
+}
+
+void SectionTitle::addWidget(QWidget *theWidget) {
+    sectionLayout->addWidget(theWidget, 0, 1);
 }
