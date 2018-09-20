@@ -85,7 +85,7 @@ RandomVariable::RandomVariable(const QString &type, QWidget *parent)
     nameLayout->addWidget(variableName);
     nameLayout->setSpacing(1);
     nameLayout->setMargin(0);
-  //nameLayout->addStretch();
+    //nameLayout->addStretch();
 
     //
     // another vertical layout to deal with distribution selection
@@ -95,6 +95,7 @@ RandomVariable::RandomVariable(const QString &type, QWidget *parent)
     distributionLabel = new QLabel();
     distributionLabel->setText(QString("Distribution"));
     distributionComboBox = new QComboBox();
+    distributionComboBox->setStyleSheet("QComboBox::down-arrow {image: url(C://Users//nikhil//NHERI/uqFEM//images//pulldownarrow.PNG);heigth:50px;width:100px;}");
     distributionComboBox->setMaximumWidth(200);
     distributionComboBox->setMinimumWidth(200);
     distributionLayout->addWidget(distributionLabel);
