@@ -102,7 +102,6 @@ RandomVariableInputWidget::~RandomVariableInputWidget()
 
 }
 
-
 // this is called from InputWidgetUQ.cpp
 // see
 //if (dakotaMethod != 0) {
@@ -123,7 +122,6 @@ RandomVariableInputWidget::makeRV(void)
     QSpacerItem *spacer2 = new QSpacerItem(20,10);
     QSpacerItem *spacer3 = new QSpacerItem(50,10);
     QSpacerItem *spacer4 = new QSpacerItem(20,10);
-
 
 
 
@@ -176,10 +174,10 @@ RandomVariableInputWidget::makeRV(void)
     // see if you can access the uqMethod type here and how?
     //if(uq->uqSelection->currentText()=="sampling"
 
-    //if(uq["uqType"].toString()=="sampling")
+   // if(uq["uqType"].toString()=="sampling")
     {
 
-        titleLayout->addWidget(addCorrelation);
+        titleLayout->addWidget(addCorrelation,0,Qt::AlignTop);
     }
 
     titleLayout->addItem(spacer4);
@@ -301,9 +299,11 @@ void RandomVariableInputWidget::addSobolevIndices(bool value)
 void RandomVariableInputWidget::addCorrelationMatrix(void)
 {
 
-
     int numRandomVariables = theRandomVariables.size();
 
+    //qDebug()<<"\n the number of random variables are    "<<numRandomVariables;
+    //qDebug()<<"\n the information   ";
+    // exit(1);
 
     if(correlationMatrix==NULL && numRandomVariables>0)
     {
@@ -313,19 +313,18 @@ void RandomVariableInputWidget::addCorrelationMatrix(void)
 
         correlationtabletitle=new SectionTitle();
 
+
         correlationtabletitle->setText(tr("Correlation Matrix"));
-        correlationtabletitle->setMinimumWidth(200);
+//        correlationtabletitle->setMinimumWidth(200);
+     //   correlationtabletitle->resize();
+
 
         verticalLayout->addWidget(correlationtabletitle);
 
         //QSpacerItem *spacer1 = new QSpacerItem(50,10);
-
-
         this->correlationMatrix = new QTableWidget();
 
         verticalLayout->addWidget(correlationMatrix);
-
-
 
 
 
@@ -342,21 +341,19 @@ void RandomVariableInputWidget::addCorrelationMatrix(void)
 
    // First, arg(i) replaces %1. Then arg(total) replaces %2. Finally, arg(fileName) replaces %3.
 
-
-
     //correlationMatrix->setWindowTitle("Correlation Matrix");
     correlationMatrix->setRowCount(numRandomVariables);
     correlationMatrix->setColumnCount(numRandomVariables);
 
    // correlationMatrix->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
 
-    correlationMatrix->setMaximumWidth(numRandomVariables*55);
-    correlationMatrix->setMinimumWidth(10);
+  //  correlationMatrix->setMaximumWidth(numRandomVariables*55);
+  //  correlationMatrix->setMinimumWidth(10);
 
 
 
-    correlationMatrix->setMaximumHeight(numRandomVariables*50);
-    correlationMatrix->setMinimumHeight(10);
+    //correlationMatrix->setMaximumHeight(numRandomVariables*50);
+    //correlationMatrix->setMinimumHeight(10);
 
     //newItem = new QTableWidgetItem(tr("%......1").arg((numRandomVariables+1)*(numRandomVariables+1)));
     //correlationMatrix->setItem(0,0, newItem);
@@ -364,10 +361,10 @@ void RandomVariableInputWidget::addCorrelationMatrix(void)
 
 
     // if the number of variables is zero then show a warning.
-    // qDebug()<<"\n \n  \n  \n";
-    // qDebug()<<"\n values of theRandomVariables is   \n";
-    // qDebug()<<"\n   \n"<<theRandomVariables.at(0)->getVariableName();
-    //qDebug()<<"\n \n    \n  The value of numRandomVariables is  \n \n \n  "<<numRandomVariables;
+  //   qDebug()<<"\n \n  \n  \n";
+  //   qDebug()<<"\n values of theRandomVariables is   \n";
+  //   qDebug()<<"\n   \n"<<theRandomVariables.at(0)->getVariableName();
+  //  qDebug()<<"\n \n    \n  The value of numRandomVariables is  \n \n \n  "<<numRandomVariables;
 
 
     QStringList table_header;
@@ -375,7 +372,7 @@ void RandomVariableInputWidget::addCorrelationMatrix(void)
     for (int i = 0; i < numRandomVariables; i++)
     {
 
-        //  qDebug()<< "\n the variable name is       "<<theRandomVariables.at(i)->getVariableName();
+     //     qDebug()<< "\n the variable name is       "<<theRandomVariables.at(i)->getVariableName();
 
         table_header.append(theRandomVariables.at(i)->getVariableName());
 
@@ -390,13 +387,16 @@ void RandomVariableInputWidget::addCorrelationMatrix(void)
         //}
     }
 
-    //qDebug()<<"\n the table_header is       "<<table_header;
+   // qDebug()<<"\n the table_header is       "<<table_header;
     correlationMatrix->setHorizontalHeaderLabels(table_header);
     correlationMatrix->setVerticalHeaderLabels(table_header);
 
+    correlationMatrix->setSizeAdjustPolicy(QTableWidget::AdjustToContents);
+
+    correlationMatrix->setSizePolicy(QSizePolicy::Policy::Minimum,QSizePolicy::Policy::Minimum);
+
     for(int i = 0; i < numRandomVariables; i++)
     {
-
         correlationMatrix->setColumnWidth(i,100 );
 
         for(int j = 0; j < numRandomVariables; j++)
@@ -425,6 +425,7 @@ void RandomVariableInputWidget::addCorrelationMatrix(void)
     //correlationMatrix->verticalHeader()->setStretchLastSection(True)
 
     }
+ //   exit(1);
 }
 
 // loop over random variables, removing from layout & deleting
@@ -485,7 +486,7 @@ RandomVariableInputWidget::outputToJSON(QJsonObject &rvObject)
               if(correlationMatrix!=NULL){cellItemFromTable= correlationMatrix->item(i,j);}
               else {correlation_flad_check=0;}
 
-              qDebug()<<"\n checking if cellItemFromTabele defined      "<<cellItemFromTable;
+          //    qDebug()<<"\n checking if cellItemFromTabele defined      "<<cellItemFromTable;
 
 
               if(cellItemFromTable!=NULL)
@@ -540,7 +541,7 @@ RandomVariableInputWidget::inputFromJSON(QJsonObject &rvObject)
   //    4) get it to input itself
   //    5) finally add it to layout
   //
-qDebug() << rvObject;
+//qDebug() << rvObject;
 
   // get array
   if (rvObject.contains("randomVariables"))
@@ -571,7 +572,7 @@ qDebug() << rvObject;
               }
           }
 
-          qDebug()<<"\n\n\n   I am here just before adding correlation from default loading json    \n\n\n   ";
+        //  qDebug()<<"\n\n\n   I am here just before adding correlation from default loading json    \n\n\n   ";
 
           // adding/inializing correlation matrix if the data is loaded from json
           {
