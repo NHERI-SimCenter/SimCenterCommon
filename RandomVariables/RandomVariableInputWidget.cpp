@@ -588,12 +588,7 @@ RandomVariableInputWidget::inputFromJSON(QJsonObject &rvObject)
   //    4) get it to input itself
   //    5) finally add it to layout
   //
-<<<<<<< HEAD
 
-  //qDebug() << rvObject;
-=======
-//qDebug() << rvObject;
->>>>>>> 3fb29090c2c57f4761e5d8a1c4424accb18ba4ae
 
   // get array
   if (rvObject.contains("randomVariables"))
