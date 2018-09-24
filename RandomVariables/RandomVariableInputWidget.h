@@ -79,6 +79,7 @@ public:
 public slots:
    void errorMessage(QString message);
    void addRandomVariable(void);
+   void variableNameChanged(const QString &newValue);
    void removeRandomVariable(void);
    void addCorrelationMatrix(void); // added by padhye for correlation matrix
    void addSobolevIndices(bool);// added by padhye for sobolev indices
