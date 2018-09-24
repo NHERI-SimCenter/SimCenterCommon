@@ -35,6 +35,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written: fmckenna
+// padhye modified
 
 #include "InputWidgetUQ.h"
 #include "RandomVariableInputWidget.h"
@@ -91,8 +92,11 @@ RandomVariableInputWidget::setInitialConstantRVs(QStringList &varNamesAndValues)
         QString varName = varNamesAndValues.at(i);
         QString value = varNamesAndValues.at(i+1);
         double dValue = value.toDouble();
-        ConstantDistribution *theDistribution = new ConstantDistribution(dValue, 0);
-        RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution);
+ConstantDistribution *theDistribution = new ConstantDistribution(dValue, 0);
+RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution);
+connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(variableNameChanged(const QString &)));
+
+
         theRandomVariables.append(theRV);
         rvLayout->insertWidget(rvLayout->count()-1, theRV);
     }
@@ -102,17 +106,20 @@ void
 RandomVariableInputWidget::addConstantRVs(QStringList &varNamesAndValues)
 {
     int numVar = varNamesAndValues.count();
+    for (int i=0; i<numVar; i+= 2)
+    {
 
-    for (int i=0; i<numVar; i+= 2) {
-        QString varName = varNamesAndValues.at(i);
-        QString value = varNamesAndValues.at(i+1);
+    QString varName = varNamesAndValues.at(i);
+    QString value = varNamesAndValues.at(i+1);
 
-        double dValue = value.toDouble();
-        ConstantDistribution *theDistribution = new ConstantDistribution(dValue, 0);
-        RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution);
+    double dValue = value.toDouble();
+    ConstantDistribution *theDistribution = new ConstantDistribution(dValue, 0);
+    RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution);
+    connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(variableNameChanged(const QString &)));
 
-        theRandomVariables.append(theRV);
-        rvLayout->insertWidget(rvLayout->count()-1, theRV);
+    theRandomVariables.append(theRV);
+    rvLayout->insertWidget(rvLayout->count()-1, theRV);
+
     }
 }
 
@@ -121,7 +128,6 @@ RandomVariableInputWidget::removeRandomVariables(QStringList &varNames)
 {
     // find the ones selected & remove them
      int numVar = varNames.count();
-
 
     for (int i=0; i<numVar; i++) {
         QString varName = varNames.at(i);
@@ -255,12 +261,56 @@ RandomVariableInputWidget::makeRV(void)
 
 }
 
+
+void RandomVariableInputWidget::variableNameChanged(const QString &newValue)
+{
+
+//  qDebug()<<"\n I just changed the name and the new name is       "<<newValue;
+  //  qDebug()<<"\n I am exiting the code now         ";
+  //  exit(1);
+
+  //updating the variable names in the correlation matrix:
+
+  int numRandomVariables = theRandomVariables.size();
+
+  //qDebug()<<"\n the number of random variables are    "<<numRandomVariables;
+  //qDebug()<<"\n the information   ";
+  // exit(1);
+
+  if(correlationMatrix!=NULL)
+    {
+
+      QStringList table_header;
+      for (int i = 0; i < numRandomVariables; i++)
+        {
+         //     qDebug()<< "\n the variable name is       "<<theRandomVariables.at(i)->getVariableName();
+            table_header.append(theRandomVariables.at(i)->getVariableName());
+            // RandomVariable *theRV = theRandomVariables.at(i);
+            //if (theRV->isSelectedForRemoval())
+            //{
+                //   theRV->close();
+                // rvLayout->removeWidget(theRV);
+                // theRandomVariables.remove(i);
+                // theRV->setParent(0);
+                // delete theRV;
+            //}
+        }
+       // qDebug()<<"\n the table_header is       "<<table_header;
+        correlationMatrix->setHorizontalHeaderLabels(table_header);
+        correlationMatrix->setVerticalHeaderLabels(table_header);
+    }
+
+}
+
+
 void RandomVariableInputWidget::addRandomVariable(void)
 {
    RandomVariable *theRV = new RandomVariable(randomVariableClass);
    theRandomVariables.append(theRV);
    rvLayout->insertWidget(rvLayout->count()-1, theRV);
    connect(this,SLOT(randomVariableErrorMessage(QString)), theRV, SIGNAL(sendErrorMessage(QString)));
+
+   connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(variableNameChanged(const QString &)));
 
    //if(uq["uqType"].toString()=="sampling")
    {
@@ -606,6 +656,8 @@ RandomVariableInputWidget::inputFromJSON(QJsonObject &rvObject)
                 RandomVariable *theRV = 0;
                 QString classType = typeRV.toString();
                 theRV = new RandomVariable(classType);
+      connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(variableNameChanged(const QString &)));
+
                 connect(theRV,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 
                 if (theRV->inputFromJSON(rvObject)) { // this method is where type is set
