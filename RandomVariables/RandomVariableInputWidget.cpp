@@ -265,7 +265,7 @@ RandomVariableInputWidget::makeRV(void)
 void RandomVariableInputWidget::variableNameChanged(const QString &newValue)
 {
 
-  qDebug()<<"\n I just changed the name and the new name is       "<<newValue;
+//  qDebug()<<"\n I just changed the name and the new name is       "<<newValue;
   //  qDebug()<<"\n I am exiting the code now         ";
   //  exit(1);
 
@@ -283,11 +283,8 @@ void RandomVariableInputWidget::variableNameChanged(const QString &newValue)
       QStringList table_header;
       for (int i = 0; i < numRandomVariables; i++)
         {
-
          //     qDebug()<< "\n the variable name is       "<<theRandomVariables.at(i)->getVariableName();
-
             table_header.append(theRandomVariables.at(i)->getVariableName());
-
             // RandomVariable *theRV = theRandomVariables.at(i);
             //if (theRV->isSelectedForRemoval())
             //{
@@ -298,16 +295,10 @@ void RandomVariableInputWidget::variableNameChanged(const QString &newValue)
                 // delete theRV;
             //}
         }
-
        // qDebug()<<"\n the table_header is       "<<table_header;
         correlationMatrix->setHorizontalHeaderLabels(table_header);
         correlationMatrix->setVerticalHeaderLabels(table_header);
-
-
     }
-
-
-
 
 }
 
