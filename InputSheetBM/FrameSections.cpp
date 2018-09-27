@@ -269,6 +269,7 @@ SteelWSection::writeToJSON(json_t *theArray) {
 int 
 SteelWSection::writeBeamSectionJSON(json_t *sectionArray) {
 
+    return 0;
 }
 
 
@@ -444,6 +445,7 @@ SteelTubeSection::writeToJSON(json_t *theArray) {
 int 
 SteelTubeSection::writeBeamSectionJSON(json_t *sectionArray) {
 
+    return 0;
 }
 
 
