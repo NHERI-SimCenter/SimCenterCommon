@@ -80,21 +80,21 @@ signals:
      *   @param message to be returned
      *   @return void
      */
-    virtual void sendFatalMessage(QString message);
+    void sendFatalMessage(QString message);
 
     /**
      *   @brief sendErrorMessage signal to be emitted when object needs to communicate error with user
      *   @param message to be returned
      *   @return void
      */
-    virtual void sendErrorMessage(QString message);
+    void sendErrorMessage(QString message);
 
     /**
      *   @brief sendStatusMessage signal to be emitted when object needs to communicate status with user
      *   @param message to be passed
      *   @return void
      */
-    virtual void sendStatusMessage(QString message);
+    void sendStatusMessage(QString message);
 
 
 
