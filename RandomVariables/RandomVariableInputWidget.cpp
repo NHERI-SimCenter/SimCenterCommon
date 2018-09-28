@@ -37,7 +37,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 // padhye modified
 
-#include "InputWidgetUQ.h"
+//#include "InputWidgetUQ.h"
 #include "RandomVariableInputWidget.h"
 #include "ConstantDistribution.h"
 #include <QPushButton>
