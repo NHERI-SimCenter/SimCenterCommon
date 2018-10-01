@@ -5,7 +5,7 @@
 #include <map>
 
 using namespace std;
-#include <jansson.h>;
+#include <jansson.h>
 
 #define STEEL_W_SECTION 1
 #define STEEL_TUBE_SECTION 2
