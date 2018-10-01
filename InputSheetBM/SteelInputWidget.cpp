@@ -147,6 +147,7 @@ SteelInputWidget::inputFromJSON(QJsonObject &theObject)
         }
     }
     fillingTableFromMap = false;
+    return true;
 }
 
 void

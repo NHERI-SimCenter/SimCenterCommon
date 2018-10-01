@@ -89,6 +89,15 @@ signals:
      */
     void sendErrorMessage(QString message);
 
+    /**
+     *   @brief sendStatusMessage signal to be emitted when object needs to communicate status with user
+     *   @param message to be passed
+     *   @return void
+     */
+    void sendStatusMessage(QString message);
+
+
+
 public slots:
 
 private:
