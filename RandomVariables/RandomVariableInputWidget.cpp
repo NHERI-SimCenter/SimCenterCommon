@@ -203,17 +203,11 @@ RandomVariableInputWidget::makeRV(void)
     flag_for_correlationMatrix=0;
 
 
+    /********************* moving to sampling method input ***************************
     QCheckBox *checkbox =new QCheckBox("Sobolev Index", this);
     connect(checkbox,SIGNAL(clicked(bool)),this,SLOT(addSobolevIndices(bool)));
     flag_for_sobolev_indices=0;
-
-    // a correlation matrix will be initialized based on number of variables by number of variables
-
-    //qDebug()<<"\n the value of this->theParameters is "<<this->SimCenterWidget.<<"\n\n";
-
-   // qDebug()<<"I am trying to get the this->getRandomVariableNames() "<<this->SimCenterWidget.;
-
- //   exit(1);
+    ******************************************************************************** */
 
     titleLayout->addWidget(title);
     titleLayout->addItem(spacer1);
@@ -222,11 +216,6 @@ RandomVariableInputWidget::makeRV(void)
     titleLayout->addWidget(removeRV);
     titleLayout->addItem(spacer3);
 
-
-    // see if you can access the uqMethod type here and how?
-    //if(uq->uqSelection->currentText()=="sampling"
-
-   // if(uq["uqType"].toString()=="sampling")
     {
 
         titleLayout->addWidget(addCorrelation,0,Qt::AlignTop);
@@ -373,11 +362,9 @@ void RandomVariableInputWidget::removeRandomVariable(void)
 
 
 
-
+/*
 void RandomVariableInputWidget::addSobolevIndices(bool value)
 {
-
-
 
     if(value)
     {
@@ -388,6 +375,7 @@ void RandomVariableInputWidget::addSobolevIndices(bool value)
     return;
 
 }
+*/
 
 // correlation matrix function
 void RandomVariableInputWidget::addCorrelationMatrix(void)
@@ -599,11 +587,13 @@ RandomVariableInputWidget::outputToJSON(QJsonObject &rvObject)
     if(correlation_flad_check==1)
     {rvObject["uncertain_correlation_matrix"]=testingjsonarray;}
 
+    /*
     if(flag_for_sobolev_indices==1)
     {
         rvObject["sobelov_indices"]=1;
 
     }
+    */
 
     return result;
 

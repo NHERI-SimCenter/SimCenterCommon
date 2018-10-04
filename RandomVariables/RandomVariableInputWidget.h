@@ -82,7 +82,7 @@ public slots:
    void variableNameChanged(const QString &newValue);
    void removeRandomVariable(void);
    void addCorrelationMatrix(void); // added by padhye for correlation matrix
-   void addSobolevIndices(bool);// added by padhye for sobolev indices
+   //   void addSobolevIndices(bool);// added by padhye for sobolev indices
    void clear(void);
 
 private:
@@ -98,8 +98,7 @@ private:
 
     SectionTitle *correlationtabletitle;
     int flag_for_correlationMatrix;
-    int flag_for_sobolev_indices;
-
+    //    int flag_for_sobolev_indices;
 };
 
 #endif // RANDOMVARIABLEINPUTWIDGET_H
