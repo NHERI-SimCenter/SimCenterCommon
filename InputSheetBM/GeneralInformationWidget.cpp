@@ -80,6 +80,7 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent) : SimCenterW
     unitsForceCombo->addItem("Kilonewtons", ForceUnit::kN);
     unitsForceCombo->addItem("Pounds", ForceUnit::lb);
     unitsForceCombo->addItem("Kips", ForceUnit::kips);
+    unitsForceCombo->setCurrentIndex(3);
 
     unitsLengthCombo = new QComboBox(this);
     unitsLengthCombo->addItem("Meters", LengthUnit::m);
@@ -87,6 +88,7 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent) : SimCenterW
     unitsLengthCombo->addItem("Millimeters", LengthUnit::mm);
     unitsLengthCombo->addItem("Inches", LengthUnit::in);
     unitsLengthCombo->addItem("Feet", LengthUnit::ft);
+    unitsLengthCombo->setCurrentIndex(3);
 
     unitsTemperatureCombo = new QComboBox(this);
     unitsTemperatureCombo->addItem("Celsius", TemperatureUnit::C);
