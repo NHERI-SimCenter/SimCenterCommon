@@ -5,7 +5,7 @@
 #include <map>
 
 using namespace std;
-#include <jansson.h>;
+#include <jansson.h>
 
 class Wall {
  public:

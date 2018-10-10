@@ -5,7 +5,7 @@
 #include <map>
 
 using namespace std;
-#include <jansson.h>;
+#include <jansson.h>
 
 #define CONCRETE_TYPE 1
 #define STEEL_TYPE 2
