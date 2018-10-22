@@ -306,15 +306,79 @@ void RandomVariableInputWidget::addRandomVariable(void)
 
    if(correlationMatrix!=NULL)
    {
-     while (correlationMatrix->rowCount() > 0)
-        {
-             correlationMatrix->removeRow(0);
-        }
-        correlationMatrix->clear();
-        correlationMatrix->clearContents();
-        delete correlationMatrix;
-        correlationMatrix=NULL;
-        delete correlationtabletitle;
+
+       int numRandomVariables=theRandomVariables.size();
+
+       correlationMatrix->insertRow(numRandomVariables-1);
+
+       correlationMatrix->insertColumn(numRandomVariables-1);
+
+
+       //correlationMatrix->takeHorizontalHeaderItem(numRandomVariables-1);// takeHorizontalHeaderItem(int column)
+       //correlationMatrix->takeVerticalHeaderItem(numRandomVariables-1);
+
+
+
+       QStringList table_header;
+       for (int i = 0; i < numRandomVariables; i++)
+       {
+
+           table_header.append(theRandomVariables.at(i)->getVariableName());
+
+       }
+
+       correlationMatrix->setHorizontalHeaderLabels(table_header);
+       correlationMatrix->setVerticalHeaderLabels(table_header);
+
+
+
+
+       //correlationMatrix->setRowCount(numRandomVariables);
+       //correlationMatrix->setColumnCount(numRandomVariables);
+
+
+     //  table_header.append(theRandomVariables.at(i)->getVariableName());
+
+
+       //correlationMatrix->setHorizontalHeaderLabels(table_header);
+       //correlationMatrix->setVerticalHeaderLabels(table_header);
+
+
+
+       //table_header.append(theRandomVariables.at(new_added_index)->getVariableName());
+
+       for(int i = 0; i < numRandomVariables-1; i++)
+       {
+           correlationMatrix->setColumnWidth(i,100);
+           QTableWidgetItem *newItem1,*newItem2;
+           newItem1 = new QTableWidgetItem("0.0");
+           newItem2 = new QTableWidgetItem("0.0");
+           correlationMatrix->setItem(numRandomVariables-1,i,newItem1);
+           correlationMatrix->setItem(i,numRandomVariables-1,newItem2);
+       }
+
+           correlationMatrix->setColumnWidth(numRandomVariables-1,100);
+           QTableWidgetItem *newItem;
+
+           newItem = new QTableWidgetItem("1.0");
+           correlationMatrix->setItem(numRandomVariables-1,numRandomVariables-1, newItem);
+
+           correlationMatrix->resizeColumnsToContents();
+           correlationMatrix->resizeRowsToContents();
+
+
+
+
+
+        // while (correlationMatrix->rowCount() > 0)
+        // {
+        //      correlationMatrix->removeRow(0);
+        //    }
+        // correlationMatrix->clear();
+        // correlationMatrix->clearContents();
+        // delete correlationMatrix;
+        // correlationMatrix=NULL;
+        // delete correlationtabletitle;
    }
 
    }
@@ -325,39 +389,73 @@ void RandomVariableInputWidget::removeRandomVariable(void)
 {
     // find the ones selected & remove them
     int numRandomVariables = theRandomVariables.size();
-    for (int i = numRandomVariables-1; i >= 0; i--) {
-      RandomVariable *theRV = theRandomVariables.at(i);
-      if (theRV->isSelectedForRemoval()) {
+
+    int *index_selected_to_remove;int size_selected_to_remove=0;
+
+    index_selected_to_remove = (int *)malloc(numRandomVariables*sizeof(int));
+
+    for (int i = numRandomVariables-1; i >= 0; i--)
+    {
+        qDebug()<<"\n the value of i is     "<<i;
+        RandomVariable *theRV = theRandomVariables.at(i);
+        if (theRV->isSelectedForRemoval())
+        {
           theRV->close();
           rvLayout->removeWidget(theRV);
           theRandomVariables.remove(i);
           theRV->setParent(0);
           delete theRV;
-      }     
+          index_selected_to_remove[size_selected_to_remove]=i;
+//qDebug()<<"\n the value of size_selected_to_remove is       "<<size_selected_to_remove;
+
+        size_selected_to_remove=size_selected_to_remove+1;
+//qDebug()<<"\n the value of index_selected_to_remove[size_selected_to_remove]"<<index_selected_to_remove[size_selected_to_remove];
+
+                }
+
+        //qDebug()<<"\n";
     }
-
-
     //qDebug()<<"\n\n\n ";
     // if any of the variable is removed, we remove the correlation matrix and user has to re-add.
     //correlationMatrix->clear();
     //correlationMatrix->clearContents();
-
     //if(uq["uqType"].toString()=="sampling")
     {
+        if(correlationMatrix!=NULL)
+        {
+            int counter_for_removal=size_selected_to_remove-1;//=size_selected_to_remove;
+            while (counter_for_removal>=0)
+            {
+                correlationMatrix->removeRow(index_selected_to_remove[counter_for_removal]);
+                correlationMatrix->removeColumn(index_selected_to_remove[counter_for_removal]);
 
-    if(correlationMatrix!=NULL)
-    {
-         while (correlationMatrix->rowCount() > 0)
-         {
-                correlationMatrix->removeRow(0);
-         }
-                correlationMatrix->clear();
-                correlationMatrix->clearContents();
-                delete correlationMatrix;
-                correlationMatrix=NULL;
-                delete correlationtabletitle;
-    }
-    }
+               if(counter_for_removal>0)
+                {
+                    for (int ii=0;ii<size_selected_to_remove;++ii)
+                    {
+                        index_selected_to_remove[ii]=index_selected_to_remove[ii]-1;
+                    }
+
+                }
+                counter_for_removal--;
+
+            }
+
+        // we simply remove the row and colum that corresponds to the variable trying to remove
+
+             //while (correlationMatrix->rowCount() > 0)
+               // {
+               //     correlationMatrix->removeRow(0);
+               //  }
+               // correlationMatrix->clear();
+               // correlationMatrix->clearContents();
+                //delete correlationMatrix;
+                //correlationMatrix=NULL;
+                //delete correlationtabletitle;
+        }
+   }
+
+    free(index_selected_to_remove);
 }
 
 
