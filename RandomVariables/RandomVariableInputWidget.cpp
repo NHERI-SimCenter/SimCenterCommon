@@ -78,6 +78,7 @@ RandomVariableInputWidget::RandomVariableInputWidget(QString &theClass, QWidget 
     this->makeRV(); //makeRV is a private member of RandomVariableInputWidget and is called from here
 }
 
+/*
 void
 RandomVariableInputWidget::setInitialConstantRVs(QStringList &varNamesAndValues)
 {
@@ -101,6 +102,7 @@ connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(var
         rvLayout->insertWidget(rvLayout->count()-1, theRV);
     }
 }
+*/
 
 void
 RandomVariableInputWidget::addConstantRVs(QStringList &varNamesAndValues)
@@ -383,6 +385,14 @@ void RandomVariableInputWidget::addRandomVariable(void)
 
    }
 
+}
+
+void RandomVariableInputWidget::addRandomVariable(RandomVariable *theRV)
+{
+   //RandomVariable *theRV = new RandomVariable(randomVariableClass);
+   theRandomVariables.append(theRV);
+   rvLayout->insertWidget(rvLayout->count()-1, theRV);
+   connect(this,SLOT(randomVariableErrorMessage(QString)), theRV, SIGNAL(sendErrorMessage(QString)));
 }
 
 void RandomVariableInputWidget::removeRandomVariable(void)
