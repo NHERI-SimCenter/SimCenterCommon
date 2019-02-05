@@ -160,6 +160,19 @@ RandomVariable::~RandomVariable()
 
 }
 
+
+RandomVariable::RandomVariable(const QString &type,
+                               const QString &rvName,
+                               QWidget *parent)
+    :RandomVariable(type, parent)
+{
+    variableName->setText(rvName);
+
+    // now change the distribution to constant and set value
+    mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+    connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+}
+
 RandomVariable::RandomVariable(const QString &type,
                                const QString &rvName,
                                RandomVariableDistribution &theD,

@@ -59,7 +59,9 @@ public:
     bool inputFromJSON(QJsonObject &rvObject);
     bool outputToJSON(QJsonObject &rvObject);
 
-    void setInitialConstantRVs(QStringList &varNamesAndValues);
+    //void setInitialConstantRVs(QStringList &varNamesAndValues);
+
+    void addRVs(QStringList &varNames);
     void addConstantRVs(QStringList &varNamesAndValues);
     void removeRandomVariables(QStringList &varNames);
 
