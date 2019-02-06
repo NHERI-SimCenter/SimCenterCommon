@@ -1,5 +1,5 @@
-#ifndef RANDOMVARIABLEINPUTWIDGET_H
-#define RANDOMVARIABLEINPUTWIDGET_H
+#ifndef RANDOM_VARIABLES_CONTAINER_H
+#define RANDOM_VARIABLES_CONTAINER_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -57,20 +57,22 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  #include <QCheckBox>
 
 
-class RandomVariableInputWidget : public SimCenterWidget
+class RandomVariablesContainer : public SimCenterWidget
 {
     Q_OBJECT
 public:
-    explicit RandomVariableInputWidget(QWidget *parent = 0);
-    explicit RandomVariableInputWidget(QString &randomVariableClass, QWidget *parent = 0);
+    explicit RandomVariablesContainer(QWidget *parent = 0);
+    explicit RandomVariablesContainer(QString &randomVariableClass, QWidget *parent = 0);
 
-    ~RandomVariableInputWidget();
+    ~RandomVariablesContainer();
 
     void addRandomVariable(RandomVariable *theRV);
     bool inputFromJSON(QJsonObject &rvObject);
     bool outputToJSON(QJsonObject &rvObject);
 
-    void setInitialConstantRVs(QStringList &varNamesAndValues);
+    //void setInitialConstantRVs(QStringList &varNamesAndValues);
+
+    void addRVs(QStringList &varNames);
     void addConstantRVs(QStringList &varNamesAndValues);
     void removeRandomVariables(QStringList &varNames);
 
@@ -82,7 +84,7 @@ public slots:
    void variableNameChanged(const QString &newValue);
    void removeRandomVariable(void);
    void addCorrelationMatrix(void); // added by padhye for correlation matrix
-   void addSobolevIndices(bool);// added by padhye for sobolev indices
+   //   void addSobolevIndices(bool);// added by padhye for sobolev indices
    void clear(void);
 
 private:
@@ -98,8 +100,7 @@ private:
 
     SectionTitle *correlationtabletitle;
     int flag_for_correlationMatrix;
-    int flag_for_sobolev_indices;
-
+    //    int flag_for_sobolev_indices;
 };
 
-#endif // RANDOMVARIABLEINPUTWIDGET_H
+#endif // RANDOM_VARIABLES_CONTAINER_H

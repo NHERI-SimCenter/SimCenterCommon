@@ -52,9 +52,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class GeneralInformationWidget : public SimCenterWidget
 {
     Q_OBJECT
-public:
+
+private:
     explicit GeneralInformationWidget(QWidget *parent = 0);
     ~GeneralInformationWidget();
+    static GeneralInformationWidget *theInstance;
+
+public:
+    static GeneralInformationWidget *getInstance(void);
 
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
@@ -72,8 +77,17 @@ public:
     enum TemperatureUnit{C, F, K};
     Q_ENUM(TemperatureUnit)
 
+    QString getLengthUnit();
+    QString getForceUnit();
+    int getNumFloors();
+    void setNumFloors(int numFloors);
+
 
 signals:
+    void numFloorsChanged(int newNumFloors);
+    void buildingDimensionsChanged(double newWidth, double newDepth, double newHeight);
+    void buildingWeightChanged(double newWeight);
+    void unitsChanged(QString lengthUnit, QString ForceUnit);
 
 public slots:
 
@@ -82,11 +96,16 @@ private:
 
     QLineEdit *nameEdit;
     QLineEdit *revEdit;
+
     QLineEdit *typeEdit;
-    QSpinBox *yearBox;
-    QSpinBox *storiesBox;
+    QSpinBox  *yearBox;
+    QSpinBox  *storiesBox;
     QLineEdit *heightEdit;
-    QLineEdit *planAreaEdit;
+    QLineEdit *widthEdit;
+    QLineEdit *depthEdit;
+    QLineEdit *weightEdit;
+
+   // QLineEdit *planAreaEdit;
 
     QLineEdit *locationNameEdit;
     QDoubleSpinBox *locationLatBox;

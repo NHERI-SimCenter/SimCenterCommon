@@ -60,7 +60,7 @@ class SlabsectionInputWidget;
 class WallsectionInputWidget;
 class ConnectionInputWidget;
 class PointInputWidget;
-class RandomVariableInputWidget;
+class RandomVariablesContainer;
 class SimCenterWidget;
 class SimCenterTableWidget;
 class SpreadsheetWidget;
@@ -115,7 +115,7 @@ private:
     QStringList theConnectionTypes;
     QMap<QString, ConnectionInputWidget*> theConnectionInputs;
     PointInputWidget *thePointInput;
-    RandomVariableInputWidget *theRVs;
+    RandomVariablesContainer *theRVs;
 
     QModelIndex infoItemIdx;
     SimCenterTableWidget  *currentWidget;

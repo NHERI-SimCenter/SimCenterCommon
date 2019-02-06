@@ -61,7 +61,7 @@ class SlabsectionInputWidget;
 class WallsectionInputWidget;
 class ConnectionInputWidget;
 class PointInputWidget;
-class RandomVariableInputWidget;
+class RandomVariablesContainer;
 //class SimCenterWidget;
 class SimCenterTableWidget;
 class SpreadsheetWidget;
@@ -74,7 +74,7 @@ class InputWidgetSheetSIM : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
-    explicit InputWidgetSheetSIM(RandomVariableInputWidget * =0, QWidget *parent = 0);
+    explicit InputWidgetSheetSIM(RandomVariablesContainer * =0, QWidget *parent = 0);
     ~InputWidgetSheetSIM();
 
     bool outputToJSON(QJsonObject &rvObject);
@@ -120,7 +120,7 @@ private:
     QMap<QString, ConnectionInputWidget*> theConnectionInputs;
     PointInputWidget *thePointInput;
 
-    RandomVariableInputWidget *theRandomVariableInputWidget;
+    RandomVariablesContainer *theRandomVariablesContainer;
 
     QModelIndex infoItemIdx;
     SimCenterTableWidget  *currentWidget;
