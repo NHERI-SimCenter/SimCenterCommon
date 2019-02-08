@@ -34,7 +34,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: padhye
 
 #include "WeibullDistribution.h"
 #include <QVBoxLayout>

@@ -67,6 +67,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "PointInputWidget.h"
 #include "SpreadsheetWidget.h"
 
+#include <jansson.h>
+#include <BimClasses.h>
+
 InputWidgetSheetBM::InputWidgetSheetBM(QWidget *parent) : QWidget(parent), currentWidget(0)
 {
   horizontalLayout = new QHBoxLayout();
@@ -211,6 +214,9 @@ void InputWidgetSheetBM::setMainWindow(MainWindow* main)
 }
 */
 
+
+
+
 const SpreadsheetWidget * InputWidgetSheetBM::getActiveSpreadsheet()
 {
     return currentWidget->getSpreadsheetWidget();
@@ -285,7 +291,8 @@ void InputWidgetSheetBM::selectionChangedSlot(const QItemSelection & /*newSelect
         // up call to connect the MainWindow Edit menu to this sheet
         emit connectMenuItems(currentWidget);
     }
-  }
+}
+
 
 
 
@@ -348,8 +355,36 @@ InputWidgetSheetBM::outputToJSON(QJsonObject &jsonObjectTop)
     QJsonArray theMaterialsArray;
     jsonObjProperties["materials"]=theMaterialsArray;
 
-    theSteelInput->outputToJSON(theMaterialsArray);
-    theConcreteInput->outputToJSON(theMaterialsArray);
+   // Material::theMaterials outputToJson will do what outputToJson did
+   // i.e. replace:
+   //    theSteelInput->outputToJSON(theMaterialsArray);
+   //    theConcreteInput->outputToJSON(theMaterialsArray);
+   // with:
+    // use jansson to set up a jansson JSON object
+
+    // kinda ugly, due to mixing JSON libs, write to jansson, convert to char *, and use that string to encode to QJson
+
+    json_t *objMaterials = json_array();
+    Material::writeObjects(objMaterials);
+    json_t *objJan = json_object();
+
+    json_object_set(objJan, "materials", objMaterials);
+
+    // dump that jansson object to a QJsonDoc and convertinto QJson object
+    char *jsonText = json_dumps(objJan, JSON_COMPACT);
+
+    QJsonDocument doc = QJsonDocument::fromJson(jsonText);
+
+    if (doc.isNull()) {
+       qDebug() << "Floor invalid JSON";
+    }
+
+    QJsonObject objQt = doc.object();
+    theMaterialsArray = objQt["materials"].toArray();
+
+    // free memory that json_dumps allocaed
+    free(jsonText);
+
     jsonObjProperties["materials"]=theMaterialsArray;
 
 
@@ -393,18 +428,12 @@ InputWidgetSheetBM::clear(void)
 }
 
 void
-InputWidgetSheetBM::inputFromJSON(QJsonObject &jsonObject)
+InputWidgetSheetBM::inputFromJSON(QJsonObject &jsonObjStructuralInformation)
 {
-   jsonObjOrig = new QJsonObject(jsonObject);
-
-   QJsonObject jsonObjGeneralInformation = jsonObject["GeneralInformation"].toObject();
-   theGeneralInformationInput->inputFromJSON(jsonObjGeneralInformation);
-
-   QJsonObject jsonObjStructuralInformation = jsonObject["StructuralInformation"].toObject();
 
    QJsonObject jsonObjLayout = jsonObjStructuralInformation["layout"].toObject();
    theClineInput->inputFromJSON(jsonObjLayout);
-   theFloorInput->inputFromJSON(jsonObjLayout);
+    theFloorInput->inputFromJSON(jsonObjLayout);
 
    //
    // parse the properties
@@ -434,30 +463,32 @@ InputWidgetSheetBM::inputFromJSON(QJsonObject &jsonObject)
    // the approprate inputwidget to parse the data
    //
 
+   // ugly code again as mixing libraries, take QJson, convert to string, and load into jansson
    QJsonArray theMaterialArray = jsonObjProperties["materials"].toArray();
-   foreach (const QJsonValue &theValue, theMaterialArray) {
+   QJsonDocument doc(theMaterialArray);
+   QString strJson(doc.toJson(QJsonDocument::Compact));
 
-       QJsonObject theObject = theValue.toObject();
-       QString theType = theObject["type"].toString();
+   json_t *janssonObj = json_object();
+   json_error_t error;
+   janssonObj = json_loads(strJson.toStdString().c_str(), 0, &error);
+   qDebug() << json_dumps(janssonObj, JSON_COMPACT);
+   Material::readObjects(janssonObj, Material::theMaterials);
 
-       if (theType == QString(tr("steel"))) {
-            theSteelInput->inputFromJSON(theObject);
-       } else if (theType == QString(tr("concrete"))) {
-           theConcreteInput->inputFromJSON(theObject);
-      }
-   }
+   // now get tables to fill themselves in
+   QJsonObject blank;
+   theSteelInput->inputFromJSON(blank);
+   theConcreteInput->inputFromJSON(blank);
 
 
    //
    // parse the geometry
    //
 
-   QJsonObject jsonObjGeometry = jsonObjStructuralInformation["geometry"].toObject();
+
+  QJsonObject jsonObjGeometry = jsonObjStructuralInformation["geometry"].toObject();
    theColumnInput->inputFromJSON(jsonObjGeometry);
    theBeamInput->inputFromJSON(jsonObjGeometry);
    theBraceInput->inputFromJSON(jsonObjGeometry);
-
-
 }
 
 

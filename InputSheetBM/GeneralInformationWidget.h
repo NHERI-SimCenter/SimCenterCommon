@@ -45,13 +45,21 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QStringList>
 #include <QHBoxLayout>
 #include <SimCenterTableWidget.h>
+#include <QComboBox>
+#include <QSpinBox>
+#include <QDoubleSpinBox>
 
 class GeneralInformationWidget : public SimCenterWidget
 {
     Q_OBJECT
-public:
+
+private:
     explicit GeneralInformationWidget(QWidget *parent = 0);
     ~GeneralInformationWidget();
+    static GeneralInformationWidget *theInstance;
+
+public:
+    static GeneralInformationWidget *getInstance(void);
 
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
@@ -60,30 +68,56 @@ public:
 
     void clear(void);
 
+    enum LengthUnit{m, cm, mm, in, ft};
+    Q_ENUM(LengthUnit)
+    enum ForceUnit{N, kN, lb, kips};
+    Q_ENUM(ForceUnit)
+    enum TimeUnit{sec, min, hr};
+    Q_ENUM(TimeUnit)
+    enum TemperatureUnit{C, F, K};
+    Q_ENUM(TemperatureUnit)
+
+    QString getLengthUnit();
+    QString getForceUnit();
+    int getNumFloors();
+    void setNumFloors(int numFloors);
+
+
 signals:
+    void numFloorsChanged(int newNumFloors);
+    void buildingDimensionsChanged(double newWidth, double newDepth, double newHeight);
+    void buildingWeightChanged(double newWeight);
+    void unitsChanged(QString lengthUnit, QString ForceUnit);
 
 public slots:
 
 private:
-    QHBoxLayout *theLayout;
     QStringList   tableHeader;
 
     QLineEdit *nameEdit;
     QLineEdit *revEdit;
+
     QLineEdit *typeEdit;
-    QLineEdit *yearEdit;
-    QLineEdit *storiesEdit;
+    QSpinBox  *yearBox;
+    QSpinBox  *storiesBox;
     QLineEdit *heightEdit;
+    QLineEdit *widthEdit;
+    QLineEdit *depthEdit;
+    QLineEdit *weightEdit;
+
+   // QLineEdit *planAreaEdit;
 
     QLineEdit *locationNameEdit;
-    QLineEdit *locationLatEdit;
-    QLineEdit *locationLonEdit;
+    QDoubleSpinBox *locationLatBox;
+    QDoubleSpinBox *locationLonBox;
 
-    QLineEdit *unitsForceEdit;
-    QLineEdit *unitsLengthEdit;
-    QLineEdit *unitsTemperatureEdit;
-    QLineEdit *unitsTimeEdit;
+    QComboBox *unitsForceCombo;
+    QComboBox *unitsLengthCombo;
+    QComboBox *unitsTemperatureCombo;
+    QComboBox *unitsTimeCombo;
 
+    template<typename UnitEnum> QString unitEnumToString(UnitEnum enumValue);
+    template<typename UnitEnum> UnitEnum unitStringToEnum(QString unitString);
 
 };
 

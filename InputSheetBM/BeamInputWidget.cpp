@@ -9,7 +9,7 @@ modification, are permitted provided that the following conditions are met:
    list of conditions and the following disclaimer.
 2. Redistributions in binary form must reproduce the above copyright notice,
    this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
+   and/or other Beams provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -41,10 +41,16 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 #include <QDebug>
 #include <QList>
+#include <BimClasses.h>
+#include <string>
+#include <map>
+using namespace::std;
 
 
 BeamInputWidget::BeamInputWidget(SimCenterWidget *parent) : SimCenterTableWidget(parent)
 {
+    fillingTableFromMap = false;
+
     theLayout = new QHBoxLayout();
     this->setLayout(theLayout);
 
@@ -55,38 +61,24 @@ BeamInputWidget::BeamInputWidget(SimCenterWidget *parent) : SimCenterTableWidget
     headings << tr("CLine1");
     headings << tr("CLine2");
     headings << tr("section");
-    headings << tr("ratio_start");
-    headings << tr("ratio_end");
     headings << tr("angle");
-    headings << tr("section");
-    headings << tr("ratio_start");
-    headings << tr("ratio_end");
-    headings << tr("angle");
-    headings << tr("section");
-    headings << tr("ratio_start");
-    headings << tr("ratio_end");
-    headings << tr("angle");
+
     dataTypes << SIMPLESPREADSHEET_QString;
     dataTypes << SIMPLESPREADSHEET_QString;
     dataTypes << SIMPLESPREADSHEET_QString;
     dataTypes << SIMPLESPREADSHEET_QString;
     dataTypes << SIMPLESPREADSHEET_QString;
     dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QString;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QString;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    dataTypes << SIMPLESPREADSHEET_QDouble;
-    theSpreadsheet = new SpreadsheetWidget(16, 1000, headings, dataTypes, this);
+
+    theSpreadsheet = new SpreadsheetWidget(6, 1000, headings, dataTypes, this);
 
     theLayout->addWidget(theSpreadsheet);
 
     this->setMinimumWidth(500);
+
+    // connect signals and slots
+    connect(theSpreadsheet,SIGNAL(currentCellChanged(int,int,int,int)),this,SLOT(somethingEntered(int,int,int,int)));
+    connect(theSpreadsheet,SIGNAL(cellChanged(int,int)),this,SLOT(somethingChanged(int,int)));
 }
 
 BeamInputWidget::~BeamInputWidget()
@@ -97,199 +89,156 @@ BeamInputWidget::~BeamInputWidget()
 bool
 BeamInputWidget::outputToJSON(QJsonObject &jsonObj){
 
-    // create a json array and for each row add a json object to it
-    QJsonArray  jsonArray;
-    int numRows = theSpreadsheet->getNumRows();
+    // Does nothing now .. just a view
 
-    for (int i=0; i<numRows; i++) {
-
-        QJsonObject obj;
-
-        QString name;
-        QString floor;
-        QString cline1, cline2;
-        QString section1, section2, section3;
-        double ang, ratS, ratE;
-
-        // obtain info from spreadsheet
-        if (theSpreadsheet->getString(i,0,name) == false || name.isEmpty())
-            break;
-        if (theSpreadsheet->getString(i,1,floor) == false)
-            break;
-        if (theSpreadsheet->getString(i,2,cline1) == false)
-            break;
-        if (theSpreadsheet->getString(i,3,cline2) == false)
-            break;
-        if (theSpreadsheet->getString(i,4,section1) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,5,ratS) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,6,ratE) == false)
-            break;
-        if (theSpreadsheet->getDouble(i,7,ang) == false)
-            break;
-
-        // now add the items to object, some of which are arrays
-        obj["name"]=name;
-        obj["floor"]=floor;
-        QJsonArray clines;
-        clines.append(cline1);
-        clines.append(cline2);
-        obj["cline"] =clines;
-
-        QJsonArray segments;
-        QJsonObject segment1;
-        QJsonArray ratios1;
-
-        segment1["section"]=section1;
-        segment1["angle"]=ang;
-        ratios1.append(ratS);
-        ratios1.append(ratE);
-        segment1["ratio"] = ratios1;
-
-        segments.append(segment1);
-
-        //
-        // parse for more segments
-        //
-        if ((theSpreadsheet->getString(i,8,section1) == true) &&
-                (theSpreadsheet->getDouble(i,9,ratS) == true) &&
-                (theSpreadsheet->getDouble(i,10,ratE) == true) &&
-                (theSpreadsheet->getDouble(i,11,ang) == true))  {
-
-            QJsonObject segment2;
-            QJsonArray ratios2;
-
-            segment2["section"]=section1;
-            segment2["angle"]=ang;
-            ratios2.append(ratS);
-            ratios2.append(ratE);
-            segment2["ratio"] = ratios2;
-
-            segments.append(segment2);
-        }
-
-        if ((theSpreadsheet->getString(i,12,section1) == true) &&
-                (theSpreadsheet->getDouble(i,13,ratS) == true) &&
-                (theSpreadsheet->getDouble(i,14,ratE) == true) &&
-                (theSpreadsheet->getDouble(i,15,ang) == true))  {
-
-            QJsonObject segment3;
-            QJsonArray ratios3;
-
-            segment3["section"]=section1;
-            segment3["angle"]=ang;
-            ratios3.append(ratS);
-            ratios3.append(ratE);
-            segment3["ratio"] = ratios3;
-
-            segments.append(segment3);
-        }
-
-        obj["segment"]=segments;
-
-         // add the object to the array
-        jsonArray.append(obj);
-
-        int length = jsonArray.size();
-         qDebug() << "ADDED BEAM " << length;
-    }
-
-    // finally add the array to the input arg
-    jsonObj["beams"]=jsonArray;
-
-    return(true);
+    return true;
 }
 
 bool
 BeamInputWidget::inputFromJSON(QJsonObject &jsonObject){
+    fillingTableFromMap = true;
+    this->clear();
+    currentRow = 0;
+    std::map<string, Beam *>::iterator it;
+    for (it = Beam::theBeams.begin(); it != Beam::theBeams.end(); it++) {
+        Beam *theBeam = it->second;
 
+            QString name(QString::fromStdString((theBeam->name)));
+            QString cline1(QString::fromStdString((theBeam->cline1)));
+            QString cline2(QString::fromStdString((theBeam->cline2)));
+            QString floor(QString::fromStdString((theBeam->floor)));
+            QString section(QString::fromStdString((theBeam->sections[0])));
 
-    QString name;
-    QJsonArray clineArray;
-    QJsonArray floorArray;
-    QString cline1Value, cline2Value, floorValue;
-    int currentRow = 0;
+            theSpreadsheet->setString(currentRow, 0, name);
+            theSpreadsheet->setString(currentRow, 1, floor);
+            theSpreadsheet->setString(currentRow, 2, cline1);
+            theSpreadsheet->setString(currentRow, 3, cline2);
+            theSpreadsheet->setString(currentRow, 4, section);
+            theSpreadsheet->setDouble(currentRow, 5, theBeam->angles[0]);
 
-    //
-    // get the cline data (a json array) from the object, and for every
-    // object in the array, get the values and add to the spreadsheet
-    //
-
-    QJsonArray theArray = jsonObject["beams"].toArray();
-    foreach (const QJsonValue &theValue, theArray) {
-        // get values
-        QJsonObject theObject = theValue.toObject();
-        QJsonValue theColumnValue = theObject["name"];
-        name = theColumnValue.toString();
-
-        QJsonValue theClineValue = theObject["cline"];
-        clineArray = theClineValue.toArray();
-        QJsonValue c1Value = clineArray.at(0);
-        QJsonValue c2Value = clineArray.at(1);
-        cline1Value = c1Value.toString();
-        cline2Value = c2Value.toString();
-
-        QJsonValue theFloorValue = theObject["floor"];
-        floorArray = theFloorValue.toArray();
-        QJsonValue fValue = floorArray.at(0);
-        floorValue = fValue.toString();
-
-        QJsonArray theSegmentArray = theObject["segment"].toArray();
-
-        // add to the spreadsheet
-        theSpreadsheet->setString(currentRow, 0, name);
-        theSpreadsheet->setString(currentRow, 1, floorValue);
-        theSpreadsheet->setString(currentRow, 2, cline1Value);
-        theSpreadsheet->setString(currentRow, 3, cline2Value);
-
-
-        QString section;
-        double angle;
-        double ratio1Value, ratio2Value;
-        int currentSection = 0;
-        int offset = 0;
-
-        foreach (const QJsonValue &theValue, theSegmentArray) {
-
-            // get values
-            QJsonObject theObject = theValue.toObject();
-
-            section = theObject["section"].toString();
-            angle = theObject["angle"].toDouble();
-
-            // ratio can be a two member array or single value
-            if ( theObject["ratio"].isArray() ) {
-                QJsonArray theRatioArray = theObject["ratio"].toArray();
-                QJsonValue r1Value = theRatioArray.at(0);
-                QJsonValue r2Value = theRatioArray.at(1);
-                ratio1Value = r1Value.toDouble();
-                ratio2Value = r2Value.toDouble();
-            }
-            else {
-                QJsonValue r1Value = theObject["ratio"];
-                ratio1Value = r1Value.toDouble();
-                // TODO: correect default for ratio2?????
-                ratio2Value = 0.0;
-            }
-
-            // all segment sections on the same row so must shift for each new set
-            offset = (currentSection * 4) + 4;
-            theSpreadsheet->setString(currentRow, offset, section);
-            theSpreadsheet->setDouble(currentRow, (offset + 1), ratio1Value);
-            theSpreadsheet->setDouble(currentRow, (offset + 2), ratio2Value);
-            theSpreadsheet->setDouble(currentRow, (offset + 3), angle);
-
-            currentSection++;
+            currentRow++;
         }
-        currentRow++;
-    }
+     fillingTableFromMap = false;
 
-    return(true);
+    return true;
 }
 
 void
 BeamInputWidget::clear(void)
 {
     theSpreadsheet->clear();
+}
+
+void
+BeamInputWidget::somethingEntered(int row, int column, int row2, int col2) {
+    if (column == 0) {
+        if (theSpreadsheet->getString(row, column, currentName) == false)
+            currentName.clear();
+    } else
+        currentName.clear();
+}
+
+void
+BeamInputWidget::somethingChanged(int row, int column) {
+
+    if (fillingTableFromMap == true) {
+        return;
+    }
+    QString name;
+    QString floor;
+    QString cline1;
+    QString cline2;
+    QString section;
+    double angle;
+
+    string *sections = NULL;
+    double *angles = NULL;
+    double *ratios = NULL;
+    int numSegment = 0;
+
+    QTableWidgetItem *theName = theSpreadsheet->item(row, 0);
+    QTableWidgetItem *theFloor = theSpreadsheet->item(row,1);
+    QTableWidgetItem *theCline1 = theSpreadsheet->item(row,2);
+    QTableWidgetItem *theCline2 = theSpreadsheet->item(row,3);
+    QTableWidgetItem *theSection = theSpreadsheet->item(row,4);
+    QTableWidgetItem *theAngle = theSpreadsheet->item(row,5);
+
+    //
+    // make sure name exists and is unique
+    //   if not unique reset to last value and return w/o doing anything
+    //
+
+    // check for name field on row entered
+    if (theName == NULL) {
+        return; // do not add Beam until all data exists
+    }
+
+    if (theSpreadsheet->getString(row,0,name) == false) {
+        return; // problem with name
+    }
+
+    // check name not empty
+    if (column == 0) {
+        string theStringName = name.toStdString();
+        if ((theStringName.empty()) || (theStringName.find_first_not_of(' ') == std::string::npos)) {
+            theSpreadsheet->setString(row, 0, currentName);
+            return;
+        }
+    }
+
+    // check name is  unique, if not set string to what it was before entry
+    if (column == 0) {
+        Beam *existingBeam = Beam::getBeam(name.toStdString());
+        if (existingBeam != NULL) {
+            theSpreadsheet->setString(row, 0, currentName);
+            return;
+        }
+    } else { // is name is empty or conatins blanks, return
+        string theStringName = name.toStdString();
+        if ((theStringName.empty()) || (theStringName.find_first_not_of(' ') == std::string::npos)) {
+            return;
+        }
+    }
+
+    //
+    // if data exists, get it from cells in spreadsheet row, otherwise return if no data
+    //
+
+    if (theFloor == NULL || theCline1 == NULL || theCline2 == NULL || theSection == NULL || theAngle == NULL)
+        return;
+
+    if (theSpreadsheet->getString(row,1,floor) == false) {
+        qDebug() << "NO Floor";
+        return;
+    }
+    if (theSpreadsheet->getString(row,2,cline1) == false) {
+        qDebug() << "NO Cline1";
+        return;
+    }
+    if (theSpreadsheet->getString(row,3,cline2) == false) {
+        qDebug() << "NO Cline1";
+        return;
+    }
+    if (theSpreadsheet->getString(row,4,section) == false) {
+        qDebug() << "NO Cline1";
+        return;
+    }
+    if (theSpreadsheet->getDouble(row,5,angle) == false) {
+        qDebug() << "NO Cline1";
+        return;
+    }
+
+    if (column == 0) { // if modified the name, need to remove old before can add as would leave add there
+        if (currentName != name) {
+            Beam::removeBeam(currentName.toStdString());
+        }
+    }
+
+    //
+    // add the beam
+    //
+    Beam::addBeam(name.toStdString(), floor.toStdString(), cline1.toStdString(), cline2.toStdString(), section.toStdString(), angle);
+
+    currentName = name; // so don't enter again
+
 }
