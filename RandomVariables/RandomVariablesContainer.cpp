@@ -38,7 +38,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // padhye modified
 
 //#include "InputWidgetUQ.h"
-#include "RandomVariableInputWidget.h"
+#include "RandomVariablesContainer.h"
 #include "ConstantDistribution.h"
 #include <QPushButton>
 #include <QScrollArea>
@@ -50,7 +50,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLineEdit>
 #include <QTableWidget>
 
-RandomVariableInputWidget::RandomVariableInputWidget(QWidget *parent)
+RandomVariablesContainer::RandomVariablesContainer(QWidget *parent)
     : SimCenterWidget(parent)
 {
     randomVariableClass = QString("Uncertain");
@@ -69,17 +69,18 @@ RandomVariableInputWidget::RandomVariableInputWidget(QWidget *parent)
 
 }
 
-RandomVariableInputWidget::RandomVariableInputWidget(QString &theClass, QWidget *parent)
+RandomVariablesContainer::RandomVariablesContainer(QString &theClass, QWidget *parent)
     : SimCenterWidget(parent)
 {
     randomVariableClass = theClass;
     verticalLayout = new QVBoxLayout();
     this->setLayout(verticalLayout);
-    this->makeRV(); //makeRV is a private member of RandomVariableInputWidget and is called from here
+    this->makeRV(); //makeRV is a private member of RandomVariablesContainer and is called from here
 }
 
+/*
 void
-RandomVariableInputWidget::setInitialConstantRVs(QStringList &varNamesAndValues)
+RandomVariablesContainer::setInitialConstantRVs(QStringList &varNamesAndValues)
 {
     theRandomVariables.clear();
     delete rvLayout;
@@ -101,9 +102,10 @@ connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(var
         rvLayout->insertWidget(rvLayout->count()-1, theRV);
     }
 }
+*/
 
 void
-RandomVariableInputWidget::addConstantRVs(QStringList &varNamesAndValues)
+RandomVariablesContainer::addConstantRVs(QStringList &varNamesAndValues)
 {
     int numVar = varNamesAndValues.count();
     for (int i=0; i<numVar; i+= 2)
@@ -124,7 +126,7 @@ RandomVariableInputWidget::addConstantRVs(QStringList &varNamesAndValues)
 }
 
 void
-RandomVariableInputWidget::removeRandomVariables(QStringList &varNames)
+RandomVariablesContainer::removeRandomVariables(QStringList &varNames)
 {
     // find the ones selected & remove them
      int numVar = varNames.count();
@@ -149,7 +151,7 @@ RandomVariableInputWidget::removeRandomVariables(QStringList &varNames)
     }
 }
 
-RandomVariableInputWidget::~RandomVariableInputWidget()
+RandomVariablesContainer::~RandomVariablesContainer()
 {
 
 }
@@ -160,9 +162,9 @@ RandomVariableInputWidget::~RandomVariableInputWidget()
 //    return dakotaMethod->getParameters();
 //}
 
-// see the RandomVariableInputWidget.h and this a private member function
+// see the RandomVariablesContainer.h and this a private member function
 void
-RandomVariableInputWidget::makeRV(void)
+RandomVariablesContainer::makeRV(void)
 {
     // title & add button
     QHBoxLayout *titleLayout = new QHBoxLayout();
@@ -251,7 +253,7 @@ RandomVariableInputWidget::makeRV(void)
 }
 
 
-void RandomVariableInputWidget::variableNameChanged(const QString &newValue)
+void RandomVariablesContainer::variableNameChanged(const QString &newValue)
 {
 
 //  qDebug()<<"\n I just changed the name and the new name is       "<<newValue;
@@ -292,7 +294,7 @@ void RandomVariableInputWidget::variableNameChanged(const QString &newValue)
 }
 
 
-void RandomVariableInputWidget::addRandomVariable(void)
+void RandomVariablesContainer::addRandomVariable(void)
 {
    RandomVariable *theRV = new RandomVariable(randomVariableClass);
    theRandomVariables.append(theRV);
@@ -385,7 +387,15 @@ void RandomVariableInputWidget::addRandomVariable(void)
 
 }
 
-void RandomVariableInputWidget::removeRandomVariable(void)
+void RandomVariablesContainer::addRandomVariable(RandomVariable *theRV)
+{
+   //RandomVariable *theRV = new RandomVariable(randomVariableClass);
+   theRandomVariables.append(theRV);
+   rvLayout->insertWidget(rvLayout->count()-1, theRV);
+   connect(this,SLOT(randomVariableErrorMessage(QString)), theRV, SIGNAL(sendErrorMessage(QString)));
+}
+
+void RandomVariablesContainer::removeRandomVariable(void)
 {
     // find the ones selected & remove them
     int numRandomVariables = theRandomVariables.size();
@@ -461,7 +471,7 @@ void RandomVariableInputWidget::removeRandomVariable(void)
 
 
 /*
-void RandomVariableInputWidget::addSobolevIndices(bool value)
+void RandomVariablesContainer::addSobolevIndices(bool value)
 {
 
     if(value)
@@ -476,7 +486,7 @@ void RandomVariableInputWidget::addSobolevIndices(bool value)
 */
 
 // correlation matrix function
-void RandomVariableInputWidget::addCorrelationMatrix(void)
+void RandomVariablesContainer::addCorrelationMatrix(void)
 {
 
     int numRandomVariables = theRandomVariables.size();
@@ -611,7 +621,7 @@ void RandomVariableInputWidget::addCorrelationMatrix(void)
 // loop over random variables, removing from layout & deleting
 
 void
-RandomVariableInputWidget::clear(void)
+RandomVariablesContainer::clear(void)
 {
   // loop over random variables, removing from layout & deleting
   for (int i = 0; i <theRandomVariables.size(); ++i) {
@@ -629,7 +639,7 @@ RandomVariableInputWidget::clear(void)
 
 
 bool
-RandomVariableInputWidget::outputToJSON(QJsonObject &rvObject)
+RandomVariablesContainer::outputToJSON(QJsonObject &rvObject)
 {
     bool result = true;
     QJsonArray rvArray;
@@ -701,7 +711,7 @@ RandomVariableInputWidget::outputToJSON(QJsonObject &rvObject)
 
 
 QStringList
-RandomVariableInputWidget::getRandomVariableNames(void)
+RandomVariablesContainer::getRandomVariableNames(void)
 {
     QStringList results;
     for (int i = 0; i <theRandomVariables.size(); ++i) {
@@ -711,7 +721,7 @@ RandomVariableInputWidget::getRandomVariableNames(void)
 }
 
 bool
-RandomVariableInputWidget::inputFromJSON(QJsonObject &rvObject)
+RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
 {
   bool result = true;
 
@@ -772,7 +782,7 @@ RandomVariableInputWidget::inputFromJSON(QJsonObject &rvObject)
 
 
 void
-RandomVariableInputWidget::errorMessage(QString message){
+RandomVariablesContainer::errorMessage(QString message){
     emit sendErrorMessage(message);
 }
 
