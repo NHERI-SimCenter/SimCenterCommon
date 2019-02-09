@@ -67,6 +67,8 @@ public:
     bool isSelectedForRemoval(void);
     QString getVariableName(void);
     QLineEdit *variableName;
+    int refCount;
+
 signals:
 
 public slots:

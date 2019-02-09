@@ -75,6 +75,7 @@ public:
     void addRandomVariable(QString &rvName);
     void addRVs(QStringList &varNames);
     void addConstantRVs(QStringList &varNamesAndValues);
+
     void removeRandomVariable(QString &varName);
     void removeRandomVariables(QStringList &varNames);
 
@@ -102,6 +103,7 @@ private:
 
     SectionTitle *correlationtabletitle;
     int flag_for_correlationMatrix;
+    QStringList randomVariableNames;
     // int flag_for_sobolev_indices;
 };
 
