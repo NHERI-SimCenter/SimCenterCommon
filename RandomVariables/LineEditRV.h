@@ -1,5 +1,5 @@
-#ifndef RANDOMVARIABLE_H
-#define RANDOMVARIABLE_H
+#ifndef LINE_EDIT_RV_H
+#define LINE_EDIT_RV_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -37,56 +37,54 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+/**
+ *  @author  fmckenna
+ *  @date    2/2017
+ *  @version 1.0
+ *
+ *  @section DESCRIPTION
+ *
+ *  This is an abstract interface providing interface SimCenter widgets must adhere to. At present limited to
+ * providing methods to read and write from/to JSON objects and signals the class can use to invoke slot methods
+ * in main window classes. This is to allow uniform handling of error messages in an application comprised of
+ * different widgets.
+ */
 
-#include <SimCenterWidget.h>
+#include <QLineEdit>
+class QJsonObject;
+class RandomVariablesContainer;
 
-class QComboBox;
-class QLineEdit;
-class QLabel;
-class QHBoxLayout;
-class RandomVariableDistribution;
-class QRadioButton;
-
-class RandomVariable : public SimCenterWidget
+class LineEditRV : public QLineEdit
 {
     Q_OBJECT
 public:
-    explicit RandomVariable();
-    explicit RandomVariable(const QString &variableClass, QWidget *parent = 0);
-    explicit RandomVariable(const QString &variableClass, const QString &name, QWidget *parent = 0);
-    explicit RandomVariable(const QString &variableClass, 
-			    const QString &name, 
-                RandomVariableDistribution &theDistribution,
-			    QWidget *parent = 0);
-    ~RandomVariable();
+    explicit LineEditRV(RandomVariablesContainer *theRVC, QWidget *parent = 0);
+    ~LineEditRV();
+    /** 
+     *   @brief outputToJSON method to write all objects data neeed to reconstruct object to JsonObject
+     *   @param rvObject the JSON object to be written to
+     *   @param  key for objects value
+     *   @return bool - true for success, otherwise false
+     */  
 
-    virtual bool outputToJSON(QJsonObject &rvObject);
-    virtual bool inputFromJSON(QJsonObject &rvObject);
-
-    bool isSelectedForRemoval(void);
-    QString getVariableName(void);
-    QLineEdit *variableName;
-    int refCount;
+    bool outputToJSON(QJsonObject &rvObject, QString key);
+    /** 
+     *   @brief inputFromJSON method to instantiate itself from a JSON object
+     *   @param rvObject the JSON object contaiing data to instantiate the object
+     *   @param key the key for the object value
+     *   @return bool - true for success, otherwise false
+     */  
+    bool inputFromJSON(QJsonObject &rvObject, QString key);
 
 signals:
 
 public slots:
-     void distributionChanged(const QString &arg1);
-     void errorMessage(QString message);
+   void on_editingFinished();
 
 private:
-    RandomVariableDistribution *theDistribution;
 
-    QString variableClass;
-    QLabel *variableLabel;
-    QLabel *distributionLabel;
-
-  // QRadioButton *button;
-  //  QLineEdit *variableName;
-    QComboBox *distributionComboBox;
-    QRadioButton *button;
-    QHBoxLayout *mainLayout;
+  RandomVariablesContainer *theRVC;
+  QString oldText;
 };
 
-#endif // RANDOMVARIABLE_H
+#endif // LINEEDIT_RV_H

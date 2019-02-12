@@ -67,7 +67,7 @@ RandomVariable::RandomVariable()
 }
 
 RandomVariable::RandomVariable(const QString &type, QWidget *parent)
-    :SimCenterWidget(parent),variableClass(type)
+    :SimCenterWidget(parent),variableClass(type), refCount(0)
 {
     //
     // create a vertical layout to deal with variable name
@@ -214,6 +214,7 @@ RandomVariable::outputToJSON(QJsonObject &rvObject){
         rvObject["value"]=QString("RV.") + variableName->text();
         rvObject["distribution"]=distributionComboBox->currentText();
         rvObject["variableClass"]=variableClass;
+        rvObject["refCount"]=refCount;
         result = theDistribution->outputToJSON(rvObject);
     } else {
         emit sendErrorMessage("ERROR: RandomVariable - cannot output as no \"name\" entry!");
@@ -232,9 +233,17 @@ RandomVariable::inputFromJSON(QJsonObject &rvObject){
     } else {
         return false;
     }
+
     if (rvObject.contains("distribution")) {
         QJsonValue theDistributionValue = rvObject["distribution"];
         distributionType = theDistributionValue.toString();
+    } else {
+        return false;
+    }
+
+    if (rvObject.contains("refCount")) {
+        QJsonValue theCount= rvObject["refCount"];
+        refCount = theCount.toInt();
     } else {
         return false;
     }
