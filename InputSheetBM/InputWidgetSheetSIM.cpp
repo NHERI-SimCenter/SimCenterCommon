@@ -71,10 +71,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <jansson.h>
 #include <BimClasses.h>
 
-class RandomVariableInputWidget;
+class RandomVariablesContainer;
 
-InputWidgetSheetSIM::InputWidgetSheetSIM(RandomVariableInputWidget *theRandomVariableIW, QWidget *parent)
-    : SimCenterAppWidget(parent), currentWidget(0), theRandomVariableInputWidget(theRandomVariableIW)
+InputWidgetSheetSIM::InputWidgetSheetSIM(RandomVariablesContainer *theRandomVariableIW, QWidget *parent)
+    : SimCenterAppWidget(parent), currentWidget(0), theRandomVariablesContainer(theRandomVariableIW)
 {
   horizontalLayout = new QHBoxLayout();
   this->setLayout(horizontalLayout);

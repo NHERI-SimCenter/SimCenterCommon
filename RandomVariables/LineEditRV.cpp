@@ -1,6 +1,3 @@
-#ifndef RANDOMVARIABLE_H
-#define RANDOMVARIABLE_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -39,54 +36,83 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterWidget.h>
+#include <LineEditRV.h>
+#include <QJsonObject>
+#include <QString>
+#include <RandomVariablesContainer.h>
 
-class QComboBox;
-class QLineEdit;
-class QLabel;
-class QHBoxLayout;
-class RandomVariableDistribution;
-class QRadioButton;
-
-class RandomVariable : public SimCenterWidget
+LineEditRV::LineEditRV(RandomVariablesContainer *theRandomVariableContainer, QWidget *parent)
+:QLineEdit(parent), theRVC(theRandomVariableContainer)
 {
-    Q_OBJECT
-public:
-    explicit RandomVariable();
-    explicit RandomVariable(const QString &variableClass, QWidget *parent = 0);
-    explicit RandomVariable(const QString &variableClass, const QString &name, QWidget *parent = 0);
-    explicit RandomVariable(const QString &variableClass, 
-			    const QString &name, 
-                RandomVariableDistribution &theDistribution,
-			    QWidget *parent = 0);
-    ~RandomVariable();
+    connect(this,SIGNAL(editingFinished()),this,SLOT(on_editingFinished()));
+}
 
-    virtual bool outputToJSON(QJsonObject &rvObject);
-    virtual bool inputFromJSON(QJsonObject &rvObject);
+LineEditRV::~LineEditRV()
+{
 
-    bool isSelectedForRemoval(void);
-    QString getVariableName(void);
-    QLineEdit *variableName;
-    int refCount;
+    bool ok;
+    QString currentText = this->text();
+    double value = currentText.toDouble(&ok);
+    if (!ok)
+      theRVC->removeRandomVariable(currentText);
+}
 
-signals:
+bool
+LineEditRV::outputToJSON(QJsonObject &jsonObject, QString key)
+{
+    QString valueText = this->text();
+    bool ok;
 
-public slots:
-     void distributionChanged(const QString &arg1);
-     void errorMessage(QString message);
+    double valueDouble = valueText.QString::toDouble(&ok);
+    if (ok == true)
+        jsonObject[key]=valueDouble;
+    else
+        jsonObject[key]= QString("RV.") + valueText;
 
-private:
-    RandomVariableDistribution *theDistribution;
+    return true;
+}
 
-    QString variableClass;
-    QLabel *variableLabel;
-    QLabel *distributionLabel;
+bool
+LineEditRV::inputFromJSON(QJsonObject &jsonObject, QString key)
+{
+    if (jsonObject.contains(key)) {
 
-  // QRadioButton *button;
-  //  QLineEdit *variableName;
-    QComboBox *distributionComboBox;
-    QRadioButton *button;
-    QHBoxLayout *mainLayout;
-};
+        QJsonValue theValue = jsonObject[key];
+        if (theValue.isString()) {
+            oldText = theValue.toString();
+            oldText.remove(0,3); // remove RV.
+            this->setText(oldText);
+        } else if (theValue.isDouble()) {
+            oldText = QString::number(theValue.toDouble());
+            this->setText(oldText);
+        }
+    } else {
+        qDebug() << "LineEditRV::iinputFRomJSON - key not found, key: " << key;
+        return false;
+    }
 
-#endif // RANDOMVARIABLE_H
+    return true;
+}
+
+
+void 
+LineEditRV::on_editingFinished() {
+  QString currentText = this->text();
+  
+  if (oldText != currentText) {
+    bool ok;
+
+    // if old text not double, remove random Variable
+    double value = oldText.toDouble(&ok);
+    if (!ok) {
+      theRVC->removeRandomVariable(oldText);
+    }
+
+    // if new text not double, add random variable
+    value = currentText.toDouble(&ok);
+    if (!ok) {
+      theRVC->addRandomVariable(currentText);
+    }
+    oldText = currentText;
+  }
+}

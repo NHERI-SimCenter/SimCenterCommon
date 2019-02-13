@@ -16,13 +16,14 @@ SOURCES += $$PWD/RandomVariableDistribution.cpp \
     $$PWD/RandomVariable.cpp \
     $$PWD/LognormalDistribution.cpp \
     $$PWD/BetaDistribution.cpp \
-    $$PWD/RandomVariableInputWidget.cpp \
+    $$PWD/RandomVariablesContainer.cpp \
     $$PWD/UniformDistribution.cpp \
     $$PWD/ConstantDistribution.cpp \
     $$PWD/ContinuousDesignDistribution.cpp \
     $$PWD/WeibullDistribution.cpp \
     $$PWD/GumbelDistribution.cpp \
-    $$PWD/UserDef.cpp
+    $$PWD/UserDef.cpp \
+    $$PWD/LineEditRV.cpp
 
 
 HEADERS += $$PWD/RandomVariableDistribution.h \
@@ -30,12 +31,13 @@ HEADERS += $$PWD/RandomVariableDistribution.h \
     $$PWD/RandomVariable.h \
     $$PWD/LognormalDistribution.h \
     $$PWD/BetaDistribution.h \
-    $$PWD/RandomVariableInputWidget.h \
+    $$PWD/RandomVariablesContainer.h \
     $$PWD/UniformDistribution.h \
     $$PWD/ConstantDistribution.h \
     $$PWD/ContinuousDesignDistribution.h \
     $$PWD/ConstantDistribution.h \
     $$PWD/WeibullDistribution.h \
     $$PWD/GumbelDistribution.h \
-    $$PWD/UserDef.h
+    $$PWD/UserDef.h \
+    $$PWD/LineEditRV.h
 
