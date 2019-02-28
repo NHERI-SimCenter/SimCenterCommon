@@ -456,7 +456,7 @@ InputWidgetSheetSIM::outputToJSON(QJsonObject &jsonObject)
     // kinda ugly, due to mixing JSON libs, write to jansson, convert to char *, and use that string to encode to QJson
 
     json_t *objMaterials = json_array();
-    Material::writeObjects(objMaterials);
+    Materiall::writeObjects(objMaterials);
     json_t *objJan = json_object();
 
     json_object_set(objJan, "materials", objMaterials);
@@ -550,7 +550,7 @@ InputWidgetSheetSIM::clear(void)
         delete jsonObjOrig;
     }
 
-    Material::removeAllMaterial();
+    Materiall::removeAllMaterial();
     FrameSection::removeAllFrameSection();
     Beam::removeAllBeam();
     Column::removeAllColumn();
@@ -607,8 +607,8 @@ InputWidgetSheetSIM::inputFromJSON(QJsonObject &jsonObjStructuralInformation)
    janssonObj = json_loads(strJson.toStdString().c_str(), 0, &error);
    //qDebug() << json_dumps(janssonObj, JSON_COMPACT);
 
-   Material::removeAllMaterial();
-   Material::readObjects(janssonObj, Material::theMaterials);
+   Materiall::removeAllMaterial();
+   Materiall::readObjects(janssonObj, Materiall::theMaterials);
 
    // now get tables to fill themselves in
    QJsonObject blank;
