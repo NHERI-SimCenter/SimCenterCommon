@@ -74,6 +74,7 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent)
     heightEdit = new QLineEdit(this);
     widthEdit = new QLineEdit();
     depthEdit = new QLineEdit();
+    planAreaEdit = new QLineEdit();
     weightEdit = new QLineEdit();
 
     locationNameEdit = new QLineEdit(this);
@@ -133,12 +134,12 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent)
    propertiesFormLayout->addRow(tr("# Stories"), storiesBox);
    propertiesFormLayout->addRow(tr("Width"), widthEdit);
    propertiesFormLayout->addRow(tr("Depth"), depthEdit);
+   propertiesFormLayout->addRow(tr("Plan Area"), planAreaEdit);
    propertiesFormLayout->addRow(tr("Height"), heightEdit);
    propertiesFormLayout->addRow(tr("Weight"), weightEdit);
    propertiesFormLayout->setAlignment(Qt::AlignLeft);
    propertiesFormLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
    propertiesFormLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
-   // infoFormLayout->addRow(tr("Plan Area"), planAreaEdit);
    //Setting Style
 
     //Location
@@ -192,9 +193,25 @@ GeneralInformationWidget::outputToJSON(QJsonObject &jsonObj){
     jsonObj["stories"] = storiesBox->text().toInt();
     jsonObj["width"] = widthEdit->text().toDouble();
     jsonObj["depth"] = depthEdit->text().toDouble();
+
+    // if the plan area is provided:
+    double planAreaValue = planAreaEdit->text().toDouble();
+    if (planAreaValue > 0.0)
+        jsonObj["planArea"] = planAreaValue;
+    else {
+        double widthValue = widthEdit->text().toDouble();
+        double depthValue = depthEdit->text().toDouble();
+        double rectAreaValue = widthValue * depthValue;
+        // otherwise, assume a rectangular plan and use width x depth
+        if (rectAreaValue > 0.0)
+            jsonObj["planArea"] = rectAreaValue;
+        else
+            // if none of the above are provided, use 0.0 for the area
+            jsonObj["planArea"] = 0.0;
+    }
+
     jsonObj["height"] = heightEdit->text().toDouble();
     jsonObj["weight"] = weightEdit->text().toDouble();
-   // jsonObj["planArea"] = planAreaEdit->text().toDouble();
 
     QJsonObject location;
     location["name"] = locationNameEdit->text().trimmed();
@@ -243,13 +260,17 @@ GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
     QJsonValue heightValue = jsonObject["height"];
     heightEdit->setText(  QString::number(heightValue.toDouble()) );
 
-    /*
+    QJsonValue widthValue = jsonObject["width"];
+    widthEdit->setText(  QString::number(widthValue.toDouble()) );
+
+    QJsonValue depthValue = jsonObject["depth"];
+    depthEdit->setText(  QString::number(depthValue.toDouble()) );
+
     QJsonValue planAreaValue = jsonObject["planArea"];
     if(planAreaValue.isUndefined() || planAreaValue == QJsonValue::Null || !planAreaValue.isDouble())
         planAreaEdit->setText("0.0");
     else
         planAreaEdit->setText(QString::number(planAreaValue.toDouble()));
-*/
 
     // Location Object
     QJsonValue locationValue = jsonObject["location"];
