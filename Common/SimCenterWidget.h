@@ -65,13 +65,13 @@ public:
      *   @return bool - true for success, otherwise false
      */  
 
-    virtual bool outputToJSON(QJsonObject &rvObject);
+    virtual bool outputToJSON(QJsonObject &jsonObject);
     /** 
      *   @brief inputFromJSON method to instantiate itself from a JSON object
-     *   @param rvObject the JSON object contaiing data to instantiate the object
+     *   @param jsonObject the JSON object contaiing data to instantiate the object
      *   @return bool - true for success, otherwise false
      */  
-    virtual bool inputFromJSON(QJsonObject &rvObject);
+    virtual bool inputFromJSON(QJsonObject &jsonObject);
 
 signals:
 
