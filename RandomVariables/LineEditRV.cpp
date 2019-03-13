@@ -44,7 +44,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 LineEditRV::LineEditRV(RandomVariablesContainer *theRandomVariableContainer, QWidget *parent)
 :QLineEdit(parent), theRVC(theRandomVariableContainer)
 {
-    connect(this,SIGNAL(editingFinished()),this,SLOT(on_editingFinished()));
+    //connect(this,SIGNAL(editingFinished()),this,SLOT(on_editingFinished()));
+    connect(this,SIGNAL(textChanged(QString)),this,SLOT(on_editingFinished()));
 }
 
 LineEditRV::~LineEditRV()
@@ -97,6 +98,7 @@ LineEditRV::inputFromJSON(QJsonObject &jsonObject, QString key)
 
 void 
 LineEditRV::on_editingFinished() {
+
   QString currentText = this->text();
   
   if (oldText != currentText) {
