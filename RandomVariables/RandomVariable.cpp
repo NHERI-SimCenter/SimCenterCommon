@@ -171,9 +171,6 @@ RandomVariable::RandomVariable(const QString &type,
 {
     variableName->setText(rvName);
 
-    // now change the distribution to constant and set value
-    mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
-    connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 }
 
 RandomVariable::RandomVariable(const QString &type,
@@ -187,7 +184,12 @@ RandomVariable::RandomVariable(const QString &type,
     // now change the distribution to constant and set value
     int index = distributionComboBox->findText(theD.getAbbreviatedName());
     distributionComboBox->setCurrentIndex(index);
+
+    // remove old
+    mainLayout->removeWidget(theDistribution);
     delete theDistribution;
+
+    // set new
     theDistribution = &theD;
     mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));

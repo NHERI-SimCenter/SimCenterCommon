@@ -103,9 +103,9 @@ ConcreteInputWidget::inputFromJSON(QJsonObject &theObject)
     fillingTableFromMap = true;
     this->clear();
     currentRow = 0;
-    std::map<string, Material *>::iterator it;
-    for (it = Material::theMaterials.begin(); it != Material::theMaterials.end(); it++) {
-        Material *theOrigMaterial = it->second;
+    std::map<string, Materiall *>::iterator it;
+    for (it = Materiall::theMaterials.begin(); it != Materiall::theMaterials.end(); it++) {
+        Materiall *theOrigMaterial = it->second;
 
         if (theOrigMaterial->matType == CONCRETE_TYPE) {
 
@@ -212,7 +212,7 @@ ConcreteInputWidget::somethingChanged(int row, int column){
 
     // check name is  unique, if not set string to what it was before entry
     if (column == 0) {
-        Material *existingMaterial = Material::getMaterial(name.toStdString());
+        Materiall *existingMaterial = Materiall::getMaterial(name.toStdString());
         if (existingMaterial != NULL) {
             theSpreadsheet->setString(row, 0, currentName);
             return;
@@ -277,7 +277,7 @@ ConcreteInputWidget::somethingChanged(int row, int column){
 
     if (column == 0) { // if modified the name, need to remove old before can add as would leave add there
         if (currentName != name) {
-            Material::removeMaterial(currentName.toStdString());
+            Materiall::removeMaterial(currentName.toStdString());
             qDebug() << " removing material " << currentName << " to be replaced with: " << name;
         }
     }
