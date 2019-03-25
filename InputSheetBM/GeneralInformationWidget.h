@@ -103,6 +103,7 @@ private:
     QLineEdit *heightEdit;
     QLineEdit *widthEdit;
     QLineEdit *depthEdit;
+    QLineEdit *planAreaEdit;
     QLineEdit *weightEdit;
 
    // QLineEdit *planAreaEdit;

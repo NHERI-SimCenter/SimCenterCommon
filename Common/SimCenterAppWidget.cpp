@@ -53,13 +53,13 @@ SimCenterAppWidget::~SimCenterAppWidget()
 
 
 bool
-SimCenterAppWidget::outputAppDataToJSON(QJsonObject &rvObject)
+SimCenterAppWidget::outputAppDataToJSON(QJsonObject &jsonObject)
 {
     return true;
 }
 
 bool
-SimCenterAppWidget::inputAppDataFromJSON(QJsonObject &rvObject)
+SimCenterAppWidget::inputAppDataFromJSON(QJsonObject &jsonObject)
 {
     return true;
 }
