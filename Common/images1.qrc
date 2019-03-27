@@ -6,5 +6,6 @@
     <qresource prefix="/styleCommon">
         <file>style.qss</file>
         <file>common_style.qss</file>
+        <file>common_experimental.qss</file>
     </qresource>
 </RCC>
