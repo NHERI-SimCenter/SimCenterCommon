@@ -1,5 +1,5 @@
-#ifndef RANDOMVARIABLEINPUTWIDGET_H
-#define RANDOMVARIABLEINPUTWIDGET_H
+#ifndef LINE_EDIT_RV_H
+#define LINE_EDIT_RV_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -37,68 +37,54 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+/**
+ *  @author  fmckenna
+ *  @date    2/2017
+ *  @version 1.0
+ *
+ *  @section DESCRIPTION
+ *
+ *  This is an abstract interface providing interface SimCenter widgets must adhere to. At present limited to
+ * providing methods to read and write from/to JSON objects and signals the class can use to invoke slot methods
+ * in main window classes. This is to allow uniform handling of error messages in an application comprised of
+ * different widgets.
+ */
 
-#include <SimCenterWidget.h>
-
-#include "RandomVariable.h"
-#include <QGroupBox>
-#include <QVector>
-#include <QVBoxLayout>
-#include <QTableWidget>
-#include <QPushButton>
-#include <QScrollArea>
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QLabel>
-#include <QDebug>
-#include <sectiontitle.h>
 #include <QLineEdit>
- #include <QCheckBox>
+class QJsonObject;
+class RandomVariablesContainer;
 
-
-class RandomVariableInputWidget : public SimCenterWidget
+class LineEditRV : public QLineEdit
 {
     Q_OBJECT
 public:
-    explicit RandomVariableInputWidget(QWidget *parent = 0);
-    explicit RandomVariableInputWidget(QString &randomVariableClass, QWidget *parent = 0);
+    explicit LineEditRV(RandomVariablesContainer *theRVC, QWidget *parent = 0);
+    ~LineEditRV();
+    /** 
+     *   @brief outputToJSON method to write all objects data neeed to reconstruct object to JsonObject
+     *   @param rvObject the JSON object to be written to
+     *   @param  key for objects value
+     *   @return bool - true for success, otherwise false
+     */  
 
-    ~RandomVariableInputWidget();
+    bool outputToJSON(QJsonObject &rvObject, QString key);
+    /** 
+     *   @brief inputFromJSON method to instantiate itself from a JSON object
+     *   @param rvObject the JSON object contaiing data to instantiate the object
+     *   @param key the key for the object value
+     *   @return bool - true for success, otherwise false
+     */  
+    bool inputFromJSON(QJsonObject &rvObject, QString key);
 
-    void addRandomVariable(RandomVariable *theRV);
-    bool inputFromJSON(QJsonObject &rvObject);
-    bool outputToJSON(QJsonObject &rvObject);
-
-    void setInitialConstantRVs(QStringList &varNamesAndValues);
-    void addConstantRVs(QStringList &varNamesAndValues);
-    void removeRandomVariables(QStringList &varNames);
-
-    QStringList getRandomVariableNames(void);
+signals:
 
 public slots:
-   void errorMessage(QString message);
-   void addRandomVariable(void);
-   void variableNameChanged(const QString &newValue);
-   void removeRandomVariable(void);
-   void addCorrelationMatrix(void); // added by padhye for correlation matrix
-   //   void addSobolevIndices(bool);// added by padhye for sobolev indices
-   void clear(void);
+   void on_editingFinished();
 
 private:
-    void makeRV(void);
-    QVBoxLayout *verticalLayout;
-    QVBoxLayout *rvLayout;
-    QWidget *rv;
 
-    QString randomVariableClass;
-    QVector<RandomVariable *>theRandomVariables;
-    QTableWidget *correlationMatrix=NULL;
-    QCheckBox *checkbox = NULL;
-
-    SectionTitle *correlationtabletitle;
-    int flag_for_correlationMatrix;
-    //    int flag_for_sobolev_indices;
+  RandomVariablesContainer *theRVC;
+  QString oldText;
 };
 
-#endif // RANDOMVARIABLEINPUTWIDGET_H
+#endif // LINEEDIT_RV_H

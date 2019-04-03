@@ -20,28 +20,28 @@ extern int BIM_writeString(json_t *obj, const char *jsonKey, string *rvVar);
 
 
 //
-// constructor, destructor and static variable initialiation for Materials
+// constructor, destructor and static variable initialiation for Materialls
 //
 
-int Material::numUniaxialTag = 0;
-int Material::numNDTag = 0;
-map<string, Material *>Material::theMaterials;
+int Materiall::numUniaxialTag = 0;
+int Materiall::numNDTag = 0;
+map<string, Materiall *>Materiall::theMaterials;
 
-Material::Material()
+Materiall::Materiall()
     :uniaxialTag(-1), ndTag(-1), rvMass(0)
 {
     name.clear();
 
 }
 
-Material::~Material()
+Materiall::~Materiall()
 {
     if (rvMass != 0)
         delete rvMass;
 }
 
 int 
-Material::readFromJSON(json_t *obj) {
+Materiall::readFromJSON(json_t *obj) {
 
     //
     // get name
@@ -49,7 +49,7 @@ Material::readFromJSON(json_t *obj) {
 
     json_t *theName = json_object_get(obj,"name");
     if (theName == NULL)
-        fatalError("Material missing 'name' field");
+        fatalError("Materiall missing 'name' field");
 
     // allow ints or strings!
     int type = json_typeof(theName);
@@ -59,7 +59,7 @@ Material::readFromJSON(json_t *obj) {
         json_int_t intName = json_integer_value(theName);
         name = std::to_string(intName);
     } else
-        fatalError("Material name not a string or an int!");
+        fatalError("Materiall name not a string or an int!");
 
     //
     // get massPerVolume
@@ -67,7 +67,7 @@ Material::readFromJSON(json_t *obj) {
 
     json_t *theMass = json_object_get(obj,"massPerVolume");
     if (theMass == NULL)
-        fatalError("Material missing 'masspervolume' field");
+        fatalError("Materiall missing 'masspervolume' field");
 
      massPerVolume  = json_number_value(theMass);
 
@@ -76,7 +76,7 @@ Material::readFromJSON(json_t *obj) {
 
 
 int
-Material::writeToJSON(json_t *obj) {
+Materiall::writeToJSON(json_t *obj) {
     json_object_set(obj,"name",json_string(name.c_str()));
 
     if (rvMass != NULL)
@@ -88,15 +88,15 @@ Material::writeToJSON(json_t *obj) {
 }
 
 //
-// static methods for Materials
+// static methods for Materialls
 //
 
 // read objects from json array
 int
-Material::readObjects(json_t *matArray, map<string, Material *> &theMaterials) {
+Materiall::readObjects(json_t *matArray, map<string, Materiall *> &theMaterialls) {
     int numMAT = json_array_size(matArray);
     for (int i=0; i<numMAT; i++) {
-        Material *theMaterial = 0;
+        Materiall *theMateriall = 0;
         json_t *theMatJSON = json_array_get(matArray, i);
         json_t *matType = json_object_get(theMatJSON, "type");
         if (matType == NULL)
@@ -104,15 +104,15 @@ Material::readObjects(json_t *matArray, map<string, Material *> &theMaterials) {
         const char *type = json_string_value(matType);
 
         if (strcmp(type,"steel")==0) {
-            theMaterial = new Steel();
+            theMateriall = new Steel();
         } else if (strcmp(type,"concrete")==0) {
-            theMaterial = new Concrete();
+            theMateriall = new Concrete();
         }
 
-        if (theMaterial == NULL)
-            std::cerr << "Material::readObjects, type: " << type << " unknown\n";
-        else if (theMaterial->readFromJSON(theMatJSON) == 0) {
-            theMaterials.insert(pair<string, Material *>(theMaterial->name,theMaterial));
+        if (theMateriall == NULL)
+            std::cerr << "Materiall::readObjects, type: " << type << " unknown\n";
+        else if (theMateriall->readFromJSON(theMatJSON) == 0) {
+            theMaterialls.insert(pair<string, Materiall *>(theMateriall->name,theMateriall));
         }
     }
 
@@ -121,11 +121,11 @@ Material::readObjects(json_t *matArray, map<string, Material *> &theMaterials) {
 
 // write objects to json array
 int
-Material::writeObjects(json_t *matArray) {
-    std::map<string, Material *>::iterator it;
+Materiall::writeObjects(json_t *matArray) {
+    std::map<string, Materiall *>::iterator it;
     for (it = theMaterials.begin(); it != theMaterials.end(); it++) {
-        Material *theMaterial = it->second;
-        theMaterial->writeToJSON(matArray);
+        Materiall *theMateriall = it->second;
+        theMateriall->writeToJSON(matArray);
     }
     return 0;
 }
@@ -133,12 +133,12 @@ Material::writeObjects(json_t *matArray) {
 // remove an object with a given name
 
 int
-Material::removeMaterial(string name) {
-    map<string, Material *>::iterator it;
+Materiall::removeMaterial(string name) {
+    map<string, Materiall *>::iterator it;
     it = theMaterials.find (name);
     if (it != theMaterials.end()) {
-        Material *theMaterial = it->second;
-        delete theMaterial;// by iterator (b), leaves acdefghi.
+        Materiall *theMateriall = it->second;
+        delete theMateriall;// by iterator (b), leaves acdefghi.
         theMaterials.erase(it);
     }
     return 0;
@@ -146,12 +146,12 @@ Material::removeMaterial(string name) {
 
 // get a material with a given name
 
-Material *
-Material::getMaterial(string name) {
-    map<string, Material *>::iterator it;
+Materiall *
+Materiall::getMaterial(string name) {
+    map<string, Materiall *>::iterator it;
     it = theMaterials.find(name);
     if (it != theMaterials.end()) {
-        Material *theMaterial = it->second;
+        Materiall *theMaterial = it->second;
         return theMaterial;
     }
     return NULL;
@@ -160,10 +160,10 @@ Material::getMaterial(string name) {
 // remove all the materials
 
 int
-Material::removeAllMaterial(void) {
-    std::map<string, Material *>::iterator it;
+Materiall::removeAllMaterial(void) {
+    std::map<string, Materiall *>::iterator it;
     for (it = theMaterials.begin(); it != theMaterials.end(); it++) {
-        Material *theMaterial = it->second;
+        Materiall *theMaterial = it->second;
         delete theMaterial;
     }
     theMaterials.clear();
@@ -175,7 +175,7 @@ Material::removeAllMaterial(void) {
 //
 
 Concrete::Concrete()
-    :Material(), E(0),fpc(0),nu(0),rvE(NULL),rvFpc(NULL),rvNu(NULL)
+    :Materiall(), E(0),fpc(0),nu(0),rvE(NULL),rvFpc(NULL),rvNu(NULL)
 {
     matType = CONCRETE_TYPE;
 }
@@ -192,7 +192,7 @@ Concrete::~Concrete(){
 int 
 Concrete::readFromJSON(json_t *theObject) {
 
-    if (this->Material::readFromJSON(theObject) != 0)
+    if (this->Materiall::readFromJSON(theObject) != 0)
         return -1;
 
     json_t *theE = json_object_get(theObject,"E");
@@ -242,7 +242,7 @@ Concrete::writeToJSON(json_t *theArray) {
 
     json_t *obj = json_object();
 
-    this->Material::writeToJSON(obj);
+    this->Materiall::writeToJSON(obj);
 
     json_object_set(obj,"type",json_string("concrete"));
 
@@ -272,7 +272,7 @@ Concrete::writeUniaxialJSON(json_t *obj){
 }
 
 int 
-Concrete::writeNDJSON(json_t *ndMaterials) {
+Concrete::writeNDJSON(json_t *ndMaterialls) {
     if (ndTag == -1) {
         ndTag = numNDTag++;
 
@@ -285,39 +285,39 @@ Concrete::writeNDJSON(json_t *ndMaterials) {
         //    json_object_set(obj,"b",json_real((fu-fy)/(epsu-fy/E)));
         json_object_set(obj,"nu",json_real(nu));
 
-        json_array_append(ndMaterials, obj);
+        json_array_append(ndMaterialls, obj);
     }
 
     return 0;
 }
 
-//  static int addConcreteMaterial(string name, double E, double fpc, double nu, double mass, string *rvE, string *rvFpc, string *rvNu, string *rvMass);
-//  static int newConcreteMaterialProperties(string name, double E, double fpc, double nu, double mass, string *rvE, string *rvFpc, string *rvNu, string *rvMass);
+//  static int addConcreteMateriall(string name, double E, double fpc, double nu, double mass, string *rvE, string *rvFpc, string *rvNu, string *rvMass);
+//  static int newConcreteMateriallProperties(string name, double E, double fpc, double nu, double mass, string *rvE, string *rvFpc, string *rvNu, string *rvMass);
 
 int
 Concrete::addConcreteMaterial(string name, double E, double fpc, double nu, double mass, string *rvE, string *rvFpc, string *rvNu, string *rvMass) {
 
-    map<string, Material *>::iterator it;
+    map<string, Materiall *>::iterator it;
     it = theMaterials.find(name);
     if (it != theMaterials.end()) {
 
     } else {
-        Concrete *theMaterial = new Concrete();
-        theMaterial->name = name;
-        theMaterial->E= E;
-        theMaterial->fpc= fpc;
-        theMaterial->nu= nu;
-        theMaterial->massPerVolume= mass;
+        Concrete *theMateriall = new Concrete();
+        theMateriall->name = name;
+        theMateriall->E= E;
+        theMateriall->fpc= fpc;
+        theMateriall->nu= nu;
+        theMateriall->massPerVolume= mass;
         if (rvE != NULL)
-            theMaterial->rvE = new string(*rvE);
+            theMateriall->rvE = new string(*rvE);
         if (rvFpc != NULL)
-            theMaterial->rvFpc = new string(*rvFpc);
+            theMateriall->rvFpc = new string(*rvFpc);
         if (rvNu != NULL)
-            theMaterial->rvNu = new string(*rvNu);
+            theMateriall->rvNu = new string(*rvNu);
         if (rvMass != NULL)
-            theMaterial->rvMass = new string(*rvMass);
+            theMateriall->rvMass = new string(*rvMass);
 
-        theMaterials.insert(pair<string, Material *>(theMaterial->name,theMaterial));
+        theMaterials.insert(pair<string, Materiall *>(theMateriall->name,theMateriall));
     }
     return 0;
 }
@@ -331,46 +331,46 @@ Concrete::newConcreteMaterialProperties(string name, double E, double fpc, doubl
     //   if end make new and add, if find make changes
     //
 
-    map<string, Material *>::iterator it;
+    map<string, Materiall *>::iterator it;
     it = theMaterials.find(name);
 
     if (it == theMaterials.end()) {  // if not there, add it
-        Concrete *theMaterial = new Concrete();
-        theMaterial->name = name;
-        theMaterial->E= E;
-        theMaterial->fpc= fpc;
-        theMaterial->nu= nu;
-        theMaterial->massPerVolume= mass;
+        Concrete *theMateriall = new Concrete();
+        theMateriall->name = name;
+        theMateriall->E= E;
+        theMateriall->fpc= fpc;
+        theMateriall->nu= nu;
+        theMateriall->massPerVolume= mass;
         if (rvE != NULL)
-            theMaterial->rvE = new string(*rvE);
+            theMateriall->rvE = new string(*rvE);
         if (rvFpc != NULL)
-            theMaterial->rvFpc = new string(*rvFpc);
+            theMateriall->rvFpc = new string(*rvFpc);
         if (rvNu != NULL)
-            theMaterial->rvNu = new string(*rvNu);
+            theMateriall->rvNu = new string(*rvNu);
         if (rvMass != NULL)
-            theMaterial->rvMass = new string(*rvMass);
+            theMateriall->rvMass = new string(*rvMass);
 
-        theMaterials.insert(pair<string, Material *>(theMaterial->name,theMaterial));
+        theMaterials.insert(pair<string, Materiall *>(theMateriall->name,theMateriall));
 
     }  else {  // make the change
-        Material *theMaterialOrig = it->second;
-        Concrete *theMaterial = dynamic_cast<Concrete *>(theMaterialOrig);
-        if (theMaterial == 0) {
+        Materiall *theMateriallOrig = it->second;
+        Concrete *theMateriall = dynamic_cast<Concrete *>(theMateriallOrig);
+        if (theMateriall == 0) {
             fatalError("Concrete  - updating material properties - material was not a concrete material\n");
         } else {
-            theMaterial->name = name;
-            theMaterial->E= E;
-            theMaterial->fpc= fpc;
-            theMaterial->nu= nu;
-            theMaterial->massPerVolume= mass;
+            theMateriall->name = name;
+            theMateriall->E= E;
+            theMateriall->fpc= fpc;
+            theMateriall->nu= nu;
+            theMateriall->massPerVolume= mass;
             if (rvE != NULL)
-                theMaterial->rvE = new string(*rvE);
+                theMateriall->rvE = new string(*rvE);
             if (rvFpc != NULL)
-                theMaterial->rvFpc = new string(*rvFpc);
+                theMateriall->rvFpc = new string(*rvFpc);
             if (rvNu != NULL)
-                theMaterial->rvNu = new string(*rvNu);
+                theMateriall->rvNu = new string(*rvNu);
             if (rvMass != NULL)
-                theMaterial->rvMass = new string(*rvMass);
+                theMateriall->rvMass = new string(*rvMass);
         }
     }
     return 0;
@@ -409,7 +409,7 @@ Steel::writeNDJSON(json_t *obj) {
 int 
 Steel::readFromJSON(json_t *theObject) {
     //    double masspervolume, E, fu,fy,nu;
-    if (this->Material::readFromJSON(theObject) != 0)
+    if (this->Materiall::readFromJSON(theObject) != 0)
         return -1;
 
     json_t *theE = json_object_get(theObject,"E");
@@ -468,7 +468,7 @@ Steel::writeToJSON(json_t *theArray) {
 
     json_t *obj = json_object();
 
-    this->Material::writeToJSON(obj);
+    this->Materiall::writeToJSON(obj);
 
     json_object_set(obj,"type",json_string("steel"));
 
@@ -511,56 +511,56 @@ Steel::addSteelMaterial(string name, double E, double fy, double fu, double nu, 
     //   if end make new and add, if find make changes
     //
 
-    map<string, Material *>::iterator it;
+    map<string, Materiall *>::iterator it;
     it = theMaterials.find(name);
 
     if (it == theMaterials.end()) {  // if not there, add it
-        Steel *theMaterial = new Steel();
-        theMaterial->name = name;
-        theMaterial->E= E;
-        theMaterial->fy= fy;
-        theMaterial->fu= fu;
-        theMaterial->nu= nu;
-        theMaterial->massPerVolume= m;
+        Steel *theMateriall = new Steel();
+        theMateriall->name = name;
+        theMateriall->E= E;
+        theMateriall->fy= fy;
+        theMateriall->fu= fu;
+        theMateriall->nu= nu;
+        theMateriall->massPerVolume= m;
         if (rvE != NULL)
-            theMaterial->rvE = new string(*rvE);
+            theMateriall->rvE = new string(*rvE);
         if (rvFy != NULL)
-            theMaterial->rvFy = new string(*rvFy);
+            theMateriall->rvFy = new string(*rvFy);
         if (rvFu != NULL)
-            theMaterial->rvFu = new string(*rvFu);
+            theMateriall->rvFu = new string(*rvFu);
         if (rvNu != NULL)
-            theMaterial->rvNu = new string(*rvNu);
+            theMateriall->rvNu = new string(*rvNu);
         if (rvMass != NULL)
-            theMaterial->rvMass = new string(*rvMass);
+            theMateriall->rvMass = new string(*rvMass);
 
-        theMaterials.insert(pair<string, Material *>(theMaterial->name,theMaterial));
+        theMaterials.insert(pair<string, Materiall *>(theMateriall->name,theMateriall));
 
     }  else {  // make the change
-        Material *theMaterial = it->second;
-        Steel *theSteelMaterial = dynamic_cast<Steel *>(theMaterial);
-        theSteelMaterial->E = E;
-        theSteelMaterial->rvE = rvE;
-        theSteelMaterial->fy= fy;
-        theSteelMaterial->fu= fu;
-        theSteelMaterial->nu= nu;
-        theSteelMaterial->massPerVolume= m;
+        Materiall *theMateriall = it->second;
+        Steel *theSteelMateriall = dynamic_cast<Steel *>(theMateriall);
+        theSteelMateriall->E = E;
+        theSteelMateriall->rvE = rvE;
+        theSteelMateriall->fy= fy;
+        theSteelMateriall->fu= fu;
+        theSteelMateriall->nu= nu;
+        theSteelMateriall->massPerVolume= m;
         if (rvE != NULL)
-            theSteelMaterial->rvE = new string(*rvE);
+            theSteelMateriall->rvE = new string(*rvE);
         if (rvFy != NULL)
-            theSteelMaterial->rvFy = new string(*rvFy);
+            theSteelMateriall->rvFy = new string(*rvFy);
         if (rvFu != NULL)
-            theSteelMaterial->rvFu = new string(*rvFu);
+            theSteelMateriall->rvFu = new string(*rvFu);
         if (rvNu != NULL)
-            theSteelMaterial->rvNu = new string(*rvNu);
+            theSteelMateriall->rvNu = new string(*rvNu);
         if (rvMass != NULL)
-            theSteelMaterial->rvMass = new string(*rvMass);
+            theSteelMateriall->rvMass = new string(*rvMass);
     }
 
     /*
-    std::map<string, Material *>::iterator it1;
-    for (it1 = theMaterials.begin(); it1 != theMaterials.end(); it1++) {
-        Material *theMaterial = it1->second;
-        std::cerr << theMaterial->name << "\n";
+    std::map<string, Materiall *>::iterator it1;
+    for (it1 = theMaterialls.begin(); it1 != theMaterialls.end(); it1++) {
+        Materiall *theMateriall = it1->second;
+        std::cerr << theMateriall->name << "\n";
     }
     */
     return 0;
@@ -569,7 +569,7 @@ Steel::addSteelMaterial(string name, double E, double fy, double fu, double nu, 
 int
 Steel::newSteelMaterialProperties(string name, double E, double fy, double fu, double nu, double m,
                                   string *rvE, string *rvFy, string *rvFu, string *rvNu, string *rvMass) {
-    map<string, Material *>::iterator it;
+    map<string, Materiall *>::iterator it;
     it = theMaterials.find(name);
 
     if (it != theMaterials.end()) {
@@ -577,32 +577,32 @@ Steel::newSteelMaterialProperties(string name, double E, double fy, double fu, d
       fatalError("Steel  - adding new steel material but material already exists\n");
 	  return -1;
 	} else {
-        Steel *theMaterial = new Steel();
-        theMaterial->name = name;
-        theMaterial->E= E;
-        theMaterial->fy= fy;
-        theMaterial->fu= fu;
-        theMaterial->nu= nu;
-        theMaterial->massPerVolume= m;
+        Steel *theMateriall = new Steel();
+        theMateriall->name = name;
+        theMateriall->E= E;
+        theMateriall->fy= fy;
+        theMateriall->fu= fu;
+        theMateriall->nu= nu;
+        theMateriall->massPerVolume= m;
         if (rvE != NULL)
-            theMaterial->rvE = new string(*rvE);
+            theMateriall->rvE = new string(*rvE);
         if (rvFy != NULL)
-            theMaterial->rvFy = new string(*rvFy);
+            theMateriall->rvFy = new string(*rvFy);
         if (rvFu != NULL)
-            theMaterial->rvFu = new string(*rvFu);
+            theMateriall->rvFu = new string(*rvFu);
         if (rvNu != NULL)
-            theMaterial->rvNu = new string(*rvNu);
+            theMateriall->rvNu = new string(*rvNu);
         if (rvMass != NULL)
-            theMaterial->rvMass = new string(*rvMass);
+            theMateriall->rvMass = new string(*rvMass);
 
-        theMaterials.insert(pair<string, Material *>(theMaterial->name,theMaterial));
+        theMaterials.insert(pair<string, Materiall *>(theMateriall->name,theMateriall));
     }
 
-    std::cerr << "STEEL newSteelMaterial\n";
-    std::map<string, Material *>::iterator it1;
+    std::cerr << "STEEL newSteelMateriall\n";
+    std::map<string, Materiall *>::iterator it1;
     for (it1 = theMaterials.begin(); it1 != theMaterials.end(); it1++) {
-        Material *theMaterial = it1->second;
-        std::cerr << theMaterial->name << "\n";
+        Materiall *theMateriall = it1->second;
+        std::cerr << theMateriall->name << "\n";
     }
 
 
