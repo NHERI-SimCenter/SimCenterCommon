@@ -95,7 +95,6 @@ RandomVariable::RandomVariable(const QString &type, QWidget *parent)
     distributionLabel = new QLabel();
     distributionLabel->setText(QString("Distribution"));
     distributionComboBox = new QComboBox();
-    //distributionComboBox->setStyleSheet("QComboBox::down-arrow {image: url(C://Users//nikhil//NHERI/uqFEM//images//pulldownarrow.PNG);heigth:50px;width:100px;}");
     distributionComboBox->setMaximumWidth(200);
     distributionComboBox->setMinimumWidth(200);
     distributionLayout->addWidget(distributionLabel);
@@ -154,7 +153,6 @@ RandomVariable::RandomVariable(const QString &type, QWidget *parent)
     mainLayout->setMargin(0);
 
     this->setLayout(mainLayout);
-  //  this->setStyleSheet("border: 1px solid red");
   // mainLayout->setSizeConstraint(QLayout::SetMaximumSize);
 }
 

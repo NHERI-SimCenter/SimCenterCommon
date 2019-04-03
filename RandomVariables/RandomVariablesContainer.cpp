@@ -236,7 +236,6 @@ RandomVariablesContainer::makeRV(void)
 
     //rv = new QGroupBox(tr(""));
     rv = new QWidget;
-  //  rv->setStyleSheet("QGroupBox {background: #E0E0E0}");
 
     rvLayout = new QVBoxLayout;
     rvLayout->addStretch();
