@@ -18,13 +18,15 @@ SOURCES += $$PWD/HeaderWidget.cpp \
     $$PWD/sectiontitle.cpp \
     $$PWD/FooterWidget.cpp \
     $$PWD/SimCenterWidget.cpp \
-    $$PWD/SimCenterAppWidget.cpp
+    $$PWD/SimCenterAppWidget.cpp \
+    $$PWD/GoogleAnalytics.cpp
 
 HEADERS += $$PWD/HeaderWidget.h \
     $$PWD/sectiontitle.h \
     $$PWD/FooterWidget.h \
     $$PWD/SimCenterWidget.h \
-    $$PWD/SimCenterAppWidget.h
+    $$PWD/SimCenterAppWidget.h \
+    $$PWD/GoogleAnalytics.h
 
 RESOURCES += \
     $$PWD/images1.qrc \
