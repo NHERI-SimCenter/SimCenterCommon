@@ -49,20 +49,33 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <QMetaEnum>
 
+GeneralInformationWidget *
+GeneralInformationWidget::getInstance() {
+  if (theInstance == 0)
+    theInstance = new GeneralInformationWidget();
 
-GeneralInformationWidget::GeneralInformationWidget(QWidget *parent) : SimCenterWidget(parent)
+  return theInstance;
+ }
+
+GeneralInformationWidget *GeneralInformationWidget::theInstance = 0;
+
+GeneralInformationWidget::GeneralInformationWidget(QWidget *parent) 
+  : SimCenterWidget(parent)
 {
     nameEdit = new QLineEdit(this);
     revEdit = new QLineEdit(this);
     typeEdit = new QLineEdit(this);
     yearBox = new QSpinBox(this);
-    yearBox->setRange(1800, INT_MAX);
+    yearBox->setRange(1800, 2050);
     yearBox->setValue(2018);
     storiesBox = new QSpinBox(this);
     storiesBox->setRange(1, INT_MAX);
 
     heightEdit = new QLineEdit(this);
-    planAreaEdit = new QLineEdit(this);
+    widthEdit = new QLineEdit();
+    depthEdit = new QLineEdit();
+    planAreaEdit = new QLineEdit();
+    weightEdit = new QLineEdit();
 
     locationNameEdit = new QLineEdit(this);
     locationLatBox = new QDoubleSpinBox(this);
@@ -95,7 +108,8 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent) : SimCenterW
     unitsTemperatureCombo->addItem("Fahrenheit", TemperatureUnit::F);
     unitsTemperatureCombo->addItem("Kelvin", TemperatureUnit::K);
 
-    unitsTimeCombo = new QComboBox(this);
+
+    unitsTimeCombo = new QComboBox();
     unitsTimeCombo->addItem("Seconds", TimeUnit::sec);
     unitsTimeCombo->addItem("Minutes", TimeUnit::min);
     unitsTimeCombo->addItem("Hours", TimeUnit::hr);
@@ -109,19 +123,29 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent) : SimCenterW
     infoFormLayout->addRow(tr("Revision"), revEdit);
     infoFormLayout->addRow(tr("Type"), typeEdit);
     infoFormLayout->addRow(tr("Year"), yearBox);
-    infoFormLayout->addRow(tr("Stories"), storiesBox);
-    infoFormLayout->addRow(tr("Height"), heightEdit);
-    infoFormLayout->addRow(tr("Plan Area"), planAreaEdit);
-    //Setting Style
     infoFormLayout->setAlignment(Qt::AlignLeft);
     infoFormLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     infoFormLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
 
+    // Properties
+    QGroupBox* propertiesGroupBox = new QGroupBox("Properties", this);
+    QFormLayout* propertiesFormLayout = new QFormLayout(propertiesGroupBox);
+
+   propertiesFormLayout->addRow(tr("# Stories"), storiesBox);
+   propertiesFormLayout->addRow(tr("Width"), widthEdit);
+   propertiesFormLayout->addRow(tr("Depth"), depthEdit);
+   propertiesFormLayout->addRow(tr("Plan Area"), planAreaEdit);
+   propertiesFormLayout->addRow(tr("Height"), heightEdit);
+   propertiesFormLayout->addRow(tr("Weight"), weightEdit);
+   propertiesFormLayout->setAlignment(Qt::AlignLeft);
+   propertiesFormLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+   propertiesFormLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
+   //Setting Style
 
     //Location
     QGroupBox* locationGroupBox = new QGroupBox("Location", this);
     QFormLayout* locationFormLayout = new QFormLayout(locationGroupBox);
-    locationFormLayout->addRow(tr("Name"), locationNameEdit);
+    locationFormLayout->addRow(tr("Address"), locationNameEdit);
     locationFormLayout->addRow(tr("Latitude"), locationLatBox);
     locationFormLayout->addRow(tr("Longitude"), locationLonBox);
     //Setting Style
@@ -136,16 +160,16 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent) : SimCenterW
     unitsFormLayout->addRow(tr("Force"), unitsForceCombo);
     unitsFormLayout->addRow(tr("Length"), unitsLengthCombo);
     unitsFormLayout->addRow(tr("Temperature"), unitsTemperatureCombo);
-    unitsFormLayout->addRow(tr("Time"), unitsTimeCombo);
+   // unitsFormLayout->addRow(tr("Time"), unitsTimeCombo);
     //Setting Style
     unitsFormLayout->setAlignment(Qt::AlignLeft);
     unitsFormLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     unitsFormLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
 
-
     setWindowTitle(tr("General Information"));
 
     layout->addWidget(infoGroupBox);
+    layout->addWidget(propertiesGroupBox);
     layout->addWidget(locationGroupBox);
     layout->addWidget(unitsGroupBox);
     layout->addStretch(1);
@@ -167,8 +191,27 @@ GeneralInformationWidget::outputToJSON(QJsonObject &jsonObj){
     jsonObj["type"] = typeEdit->text().trimmed();
     jsonObj["year"] = yearBox->text().toInt();
     jsonObj["stories"] = storiesBox->text().toInt();
+    jsonObj["width"] = widthEdit->text().toDouble();
+    jsonObj["depth"] = depthEdit->text().toDouble();
+
+    // if the plan area is provided:
+    double planAreaValue = planAreaEdit->text().toDouble();
+    if (planAreaValue > 0.0)
+        jsonObj["planArea"] = planAreaValue;
+    else {
+        double widthValue = widthEdit->text().toDouble();
+        double depthValue = depthEdit->text().toDouble();
+        double rectAreaValue = widthValue * depthValue;
+        // otherwise, assume a rectangular plan and use width x depth
+        if (rectAreaValue > 0.0)
+            jsonObj["planArea"] = rectAreaValue;
+        else
+            // if none of the above are provided, use 0.0 for the area
+            jsonObj["planArea"] = 0.0;
+    }
+
     jsonObj["height"] = heightEdit->text().toDouble();
-    jsonObj["planArea"] = planAreaEdit->text().toDouble();
+    jsonObj["weight"] = weightEdit->text().toDouble();
 
     QJsonObject location;
     location["name"] = locationNameEdit->text().trimmed();
@@ -216,6 +259,12 @@ GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
 
     QJsonValue heightValue = jsonObject["height"];
     heightEdit->setText(  QString::number(heightValue.toDouble()) );
+
+    QJsonValue widthValue = jsonObject["width"];
+    widthEdit->setText(  QString::number(widthValue.toDouble()) );
+
+    QJsonValue depthValue = jsonObject["depth"];
+    depthEdit->setText(  QString::number(depthValue.toDouble()) );
 
     QJsonValue planAreaValue = jsonObject["planArea"];
     if(planAreaValue.isUndefined() || planAreaValue == QJsonValue::Null || !planAreaValue.isDouble())
@@ -294,4 +343,21 @@ template<typename UnitEnum>
 UnitEnum GeneralInformationWidget::unitStringToEnum(QString unitString)
 {
     return (UnitEnum)QMetaEnum::fromType<UnitEnum>().keyToValue(unitString.toStdString().c_str());
+}
+
+int
+GeneralInformationWidget::getNumFloors() {
+ return storiesBox->text().toInt();
+}
+
+QString
+GeneralInformationWidget::getLengthUnit()
+{
+    return unitEnumToString(unitsLengthCombo->currentData().value<LengthUnit>());
+}
+
+QString
+GeneralInformationWidget::getForceUnit()
+{
+   return unitEnumToString(unitsForceCombo->currentData().value<ForceUnit>());
 }

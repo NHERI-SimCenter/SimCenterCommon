@@ -1,5 +1,5 @@
-#ifndef RANDOMVARIABLE_H
-#define RANDOMVARIABLE_H
+#ifndef RANDOM_VARIABLES_CONTAINER_H
+#define RANDOM_VARIABLES_CONTAINER_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -41,52 +41,70 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <SimCenterWidget.h>
 
-class QComboBox;
-class QLineEdit;
-class QLabel;
-class QHBoxLayout;
-class RandomVariableDistribution;
-class QRadioButton;
+#include "RandomVariable.h"
+#include <QGroupBox>
+#include <QVector>
+#include <QVBoxLayout>
+#include <QTableWidget>
+#include <QPushButton>
+#include <QScrollArea>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QLabel>
+#include <QDebug>
+#include <sectiontitle.h>
+#include <QLineEdit>
+ #include <QCheckBox>
 
-class RandomVariable : public SimCenterWidget
+
+class RandomVariablesContainer : public SimCenterWidget
 {
     Q_OBJECT
 public:
-    explicit RandomVariable();
-    explicit RandomVariable(const QString &variableClass, QWidget *parent = 0);
-    explicit RandomVariable(const QString &variableClass, const QString &name, QWidget *parent = 0);
-    explicit RandomVariable(const QString &variableClass, 
-			    const QString &name, 
-                RandomVariableDistribution &theDistribution,
-			    QWidget *parent = 0);
-    ~RandomVariable();
+    explicit RandomVariablesContainer(QWidget *parent = 0);
+    explicit RandomVariablesContainer(QString &randomVariableClass, QWidget *parent = 0);
 
-    virtual bool outputToJSON(QJsonObject &rvObject);
-    virtual bool inputFromJSON(QJsonObject &rvObject);
+    ~RandomVariablesContainer();
 
-    bool isSelectedForRemoval(void);
-    QString getVariableName(void);
-    QLineEdit *variableName;
-    int refCount;
+    void addRandomVariable(RandomVariable *theRV);
+    bool inputFromJSON(QJsonObject &rvObject);
+    bool outputToJSON(QJsonObject &rvObject);
 
-signals:
+    //void setInitialConstantRVs(QStringList &varNamesAndValues);
+
+    void addRandomVariable(QString &rvName);
+    void addRVs(QStringList &varNames);
+    void addConstantRVs(QStringList &varNamesAndValues);
+
+    void removeRandomVariable(QString &varName);
+    void removeRandomVariables(QStringList &varNames);
+
+    QStringList getRandomVariableNames(void);
 
 public slots:
-     void distributionChanged(const QString &arg1);
-     void errorMessage(QString message);
+   void errorMessage(QString message);
+   void addRandomVariable(void);
+   void variableNameChanged(const QString &newValue);
+   void removeRandomVariable(void);
+   void addCorrelationMatrix(void); // added by padhye for correlation matrix
+   //   void addSobolevIndices(bool);// added by padhye for sobolev indices
+   void clear(void);
 
 private:
-    RandomVariableDistribution *theDistribution;
+    void makeRV(void);
+    QVBoxLayout *verticalLayout;
+    QVBoxLayout *rvLayout;
+    QWidget *rv;
 
-    QString variableClass;
-    QLabel *variableLabel;
-    QLabel *distributionLabel;
+    QString randomVariableClass;
+    QVector<RandomVariable *>theRandomVariables;
+    QTableWidget *correlationMatrix=NULL;
+    QCheckBox *checkbox = NULL;
 
-  // QRadioButton *button;
-  //  QLineEdit *variableName;
-    QComboBox *distributionComboBox;
-    QRadioButton *button;
-    QHBoxLayout *mainLayout;
+    SectionTitle *correlationtabletitle;
+    int flag_for_correlationMatrix;
+    QStringList randomVariableNames;
+    // int flag_for_sobolev_indices;
 };
 
-#endif // RANDOMVARIABLE_H
+#endif // RANDOM_VARIABLES_CONTAINER_H

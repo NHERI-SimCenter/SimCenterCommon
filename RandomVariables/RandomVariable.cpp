@@ -67,7 +67,7 @@ RandomVariable::RandomVariable()
 }
 
 RandomVariable::RandomVariable(const QString &type, QWidget *parent)
-    :SimCenterWidget(parent),variableClass(type)
+    :SimCenterWidget(parent),variableClass(type), refCount(0)
 {
     //
     // create a vertical layout to deal with variable name
@@ -95,7 +95,6 @@ RandomVariable::RandomVariable(const QString &type, QWidget *parent)
     distributionLabel = new QLabel();
     distributionLabel->setText(QString("Distribution"));
     distributionComboBox = new QComboBox();
-    //distributionComboBox->setStyleSheet("QComboBox::down-arrow {image: url(C://Users//nikhil//NHERI/uqFEM//images//pulldownarrow.PNG);heigth:50px;width:100px;}");
     distributionComboBox->setMaximumWidth(200);
     distributionComboBox->setMinimumWidth(200);
     distributionLayout->addWidget(distributionLabel);
@@ -154,12 +153,21 @@ RandomVariable::RandomVariable(const QString &type, QWidget *parent)
     mainLayout->setMargin(0);
 
     this->setLayout(mainLayout);
-  //  this->setStyleSheet("border: 1px solid red");
   // mainLayout->setSizeConstraint(QLayout::SetMaximumSize);
 }
 
 RandomVariable::~RandomVariable()
 {
+
+}
+
+
+RandomVariable::RandomVariable(const QString &type,
+                               const QString &rvName,
+                               QWidget *parent)
+    :RandomVariable(type, parent)
+{
+    variableName->setText(rvName);
 
 }
 
@@ -174,7 +182,12 @@ RandomVariable::RandomVariable(const QString &type,
     // now change the distribution to constant and set value
     int index = distributionComboBox->findText(theD.getAbbreviatedName());
     distributionComboBox->setCurrentIndex(index);
+
+    // remove old
+    mainLayout->removeWidget(theDistribution);
     delete theDistribution;
+
+    // set new
     theDistribution = &theD;
     mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
@@ -201,6 +214,7 @@ RandomVariable::outputToJSON(QJsonObject &rvObject){
         rvObject["value"]=QString("RV.") + variableName->text();
         rvObject["distribution"]=distributionComboBox->currentText();
         rvObject["variableClass"]=variableClass;
+        rvObject["refCount"]=refCount;
         result = theDistribution->outputToJSON(rvObject);
     } else {
         emit sendErrorMessage("ERROR: RandomVariable - cannot output as no \"name\" entry!");
@@ -219,9 +233,17 @@ RandomVariable::inputFromJSON(QJsonObject &rvObject){
     } else {
         return false;
     }
+
     if (rvObject.contains("distribution")) {
         QJsonValue theDistributionValue = rvObject["distribution"];
         distributionType = theDistributionValue.toString();
+    } else {
+        return false;
+    }
+
+    if (rvObject.contains("refCount")) {
+        QJsonValue theCount= rvObject["refCount"];
+        refCount = theCount.toInt();
     } else {
         return false;
     }

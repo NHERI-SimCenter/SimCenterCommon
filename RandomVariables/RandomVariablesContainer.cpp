@@ -38,8 +38,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // padhye modified
 
 //#include "InputWidgetUQ.h"
-#include "RandomVariableInputWidget.h"
+#include "RandomVariablesContainer.h"
 #include "ConstantDistribution.h"
+#include "NormalDistribution.h"
 #include <QPushButton>
 #include <QScrollArea>
 #include <QJsonArray>
@@ -50,8 +51,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLineEdit>
 #include <QTableWidget>
 
-RandomVariableInputWidget::RandomVariableInputWidget(QWidget *parent)
-    : SimCenterWidget(parent)
+RandomVariablesContainer::RandomVariablesContainer(QWidget *parent)
+    : SimCenterWidget(parent), correlationMatrix(0)
 {
     randomVariableClass = QString("Uncertain");
 
@@ -69,100 +70,102 @@ RandomVariableInputWidget::RandomVariableInputWidget(QWidget *parent)
 
 }
 
-RandomVariableInputWidget::RandomVariableInputWidget(QString &theClass, QWidget *parent)
+RandomVariablesContainer::RandomVariablesContainer(QString &theClass, QWidget *parent)
     : SimCenterWidget(parent)
 {
     randomVariableClass = theClass;
     verticalLayout = new QVBoxLayout();
     this->setLayout(verticalLayout);
-    this->makeRV(); //makeRV is a private member of RandomVariableInputWidget and is called from here
+    this->makeRV(); //makeRV is a private member of RandomVariablesContainer and is called from here
 }
 
 void
-RandomVariableInputWidget::setInitialConstantRVs(QStringList &varNamesAndValues)
+RandomVariablesContainer::addConstantRVs(QStringList &varNamesAndValues)
 {
-    theRandomVariables.clear();
-    delete rvLayout;
-    rvLayout = new QVBoxLayout;
-    rvLayout->addStretch();
-    rv->setLayout(rvLayout);
-
     int numVar = varNamesAndValues.count();
     for (int i=0; i<numVar; i+= 2) {
+
         QString varName = varNamesAndValues.at(i);
         QString value = varNamesAndValues.at(i+1);
+
         double dValue = value.toDouble();
-ConstantDistribution *theDistribution = new ConstantDistribution(dValue, 0);
-RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution);
-connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(variableNameChanged(const QString &)));
+        ConstantDistribution *theDistribution = new ConstantDistribution(dValue, 0);
+        RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution);
 
-
-        theRandomVariables.append(theRV);
-        rvLayout->insertWidget(rvLayout->count()-1, theRV);
+        this->addRandomVariable(theRV);
     }
 }
 
 void
-RandomVariableInputWidget::addConstantRVs(QStringList &varNamesAndValues)
-{
-    int numVar = varNamesAndValues.count();
-    for (int i=0; i<numVar; i+= 2)
-    {
+RandomVariablesContainer::addRandomVariable(QString &varName) {
 
-    QString varName = varNamesAndValues.at(i);
-    QString value = varNamesAndValues.at(i+1);
-
-    double dValue = value.toDouble();
-    ConstantDistribution *theDistribution = new ConstantDistribution(dValue, 0);
+    NormalDistribution *theDistribution = new NormalDistribution();
     RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution);
-    connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(variableNameChanged(const QString &)));
 
-    theRandomVariables.append(theRV);
-    rvLayout->insertWidget(rvLayout->count()-1, theRV);
-
-    }
+    this->addRandomVariable(theRV);
 }
 
 void
-RandomVariableInputWidget::removeRandomVariables(QStringList &varNames)
+RandomVariablesContainer::removeRandomVariable(QString &varName)
 {
-    // find the ones selected & remove them
-     int numVar = varNames.count();
+    //
+    // find the RV, if refCout > 1 decrement refCount otherwise remove and delete the RV
+    //
 
-    for (int i=0; i<numVar; i++) {
-        QString varName = varNames.at(i);
-
-        // find the ones selected & remove them
-        int numRandomVariables = theRandomVariables.size();
-
-        for (int j =0; j < numRandomVariables; j++) {
-            RandomVariable *theRV = theRandomVariables.at(j);
-            if (theRV->variableName->text() == varName) {
+    int numRandomVariables = theRandomVariables.size();
+    for (int j =0; j < numRandomVariables; j++) {
+        RandomVariable *theRV = theRandomVariables.at(j);
+        if (theRV->variableName->text() == varName) {
+            if (theRV->refCount > 1) {
+                theRV->refCount = theRV->refCount-1;
+            } else {
                 theRV->close();
                 rvLayout->removeWidget(theRV);
                 theRandomVariables.remove(j);
                 theRV->setParent(0);
                 delete theRV;
-                j=numRandomVariables;
+
+                // remove name from List
+                randomVariableNames.removeAt(j);
+
+                // remove row & col from correlation matrix
+                if (correlationMatrix != NULL) {
+                    correlationMatrix->removeRow(j);
+                    correlationMatrix->removeColumn(j);
+                    correlationMatrix->setHorizontalHeaderLabels(randomVariableNames);
+                    correlationMatrix->setVerticalHeaderLabels(randomVariableNames);
+                }
+
             }
+            j=numRandomVariables; // get out of loop if foud
         }
     }
 }
 
-RandomVariableInputWidget::~RandomVariableInputWidget()
+
+void
+RandomVariablesContainer::removeRandomVariables(QStringList &varNames)
+{
+    //
+    // just loop over list, get varName & invoke removeRandomVariable with varName
+    //
+
+    int numVar = varNames.count();
+    for (int i=0; i<numVar; i++) {
+        QString varName = varNames.at(i);
+        this->removeRandomVariable(varName);
+    }
+}
+
+
+RandomVariablesContainer::~RandomVariablesContainer()
 {
 
 }
 
-// this is called from InputWidgetUQ.cpp
-// see
-//if (dakotaMethod != 0) {
-//    return dakotaMethod->getParameters();
-//}
-
-// see the RandomVariableInputWidget.h and this a private member function
+// see the RandomVariablesContainer.h and this a private member function
 void
-RandomVariableInputWidget::makeRV(void)
+RandomVariablesContainer::makeRV(void)
 {
     // title & add button
     QHBoxLayout *titleLayout = new QHBoxLayout();
@@ -174,7 +177,6 @@ RandomVariableInputWidget::makeRV(void)
     QSpacerItem *spacer2 = new QSpacerItem(20,10);
     QSpacerItem *spacer3 = new QSpacerItem(50,10);
     QSpacerItem *spacer4 = new QSpacerItem(20,10);
-
 
 
     QPushButton *addRV = new QPushButton();
@@ -191,15 +193,17 @@ RandomVariableInputWidget::makeRV(void)
     connect(removeRV,SIGNAL(clicked()),this,SLOT(removeRandomVariable()));
 
 
-
     // padhye, adding the button for correlation matrix, we need to add a condition here
     // that whether the uqMehod selected is that of Dakota and sampling type? only then we need correlation matrix
 
+    /* FMK
     QPushButton *addCorrelation = new QPushButton();
     //addCorrelation->setMinimumWidth(250);
     //addCorrelation->setMaximumWidth(280);
-    addCorrelation->setText(tr("Add Correlation Matrix"));
+    addCorrelation->setText(tr("Correlation Matrix"));
     connect(addCorrelation,SIGNAL(clicked()),this,SLOT(addCorrelationMatrix()));
+    */
+
     flag_for_correlationMatrix=0;
 
 
@@ -216,10 +220,11 @@ RandomVariableInputWidget::makeRV(void)
     titleLayout->addWidget(removeRV);
     titleLayout->addItem(spacer3);
 
+    /* FMK
     {
-
         titleLayout->addWidget(addCorrelation,0,Qt::AlignTop);
     }
+    */
 
     titleLayout->addItem(spacer4);
     titleLayout->addWidget(checkbox);
@@ -235,7 +240,6 @@ RandomVariableInputWidget::makeRV(void)
 
     //rv = new QGroupBox(tr(""));
     rv = new QWidget;
-  //  rv->setStyleSheet("QGroupBox {background: #E0E0E0}");
 
     rvLayout = new QVBoxLayout;
     rvLayout->addStretch();
@@ -251,40 +255,31 @@ RandomVariableInputWidget::makeRV(void)
 }
 
 
-void RandomVariableInputWidget::variableNameChanged(const QString &newValue)
-{
+void
+RandomVariablesContainer::variableNameChanged(const QString &newValue) {
 
-//  qDebug()<<"\n I just changed the name and the new name is       "<<newValue;
-  //  qDebug()<<"\n I am exiting the code now         ";
-  //  exit(1);
 
-  //updating the variable names in the correlation matrix:
+    int numRandomVariables = theRandomVariables.size();
 
-  int numRandomVariables = theRandomVariables.size();
 
-  //qDebug()<<"\n the number of random variables are    "<<numRandomVariables;
-  //qDebug()<<"\n the information   ";
-  // exit(1);
+    if(correlationMatrix!=NULL) {
 
-  if(correlationMatrix!=NULL)
-    {
+        QStringList table_header;
+        for (int i = 0; i < numRandomVariables; i++) {
 
-      QStringList table_header;
-      for (int i = 0; i < numRandomVariables; i++)
-        {
-         //     qDebug()<< "\n the variable name is       "<<theRandomVariables.at(i)->getVariableName();
+            //     qDebug()<< "\n the variable name is       "<<theRandomVariables.at(i)->getVariableName();
             table_header.append(theRandomVariables.at(i)->getVariableName());
             // RandomVariable *theRV = theRandomVariables.at(i);
             //if (theRV->isSelectedForRemoval())
             //{
-                //   theRV->close();
-                // rvLayout->removeWidget(theRV);
-                // theRandomVariables.remove(i);
-                // theRV->setParent(0);
-                // delete theRV;
+            //   theRV->close();
+            // rvLayout->removeWidget(theRV);
+            // theRandomVariables.remove(i);
+            // theRV->setParent(0);
+            // delete theRV;
             //}
         }
-       // qDebug()<<"\n the table_header is       "<<table_header;
+        // qDebug()<<"\n the table_header is       "<<table_header;
         correlationMatrix->setHorizontalHeaderLabels(table_header);
         correlationMatrix->setVerticalHeaderLabels(table_header);
     }
@@ -292,103 +287,208 @@ void RandomVariableInputWidget::variableNameChanged(const QString &newValue)
 }
 
 
-void RandomVariableInputWidget::addRandomVariable(void)
-{
-   RandomVariable *theRV = new RandomVariable(randomVariableClass);
-   theRandomVariables.append(theRV);
-   rvLayout->insertWidget(rvLayout->count()-1, theRV);
-   connect(this,SLOT(randomVariableErrorMessage(QString)), theRV, SIGNAL(sendErrorMessage(QString)));
+void
+RandomVariablesContainer::addRandomVariable(void) {
 
-   connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(variableNameChanged(const QString &)));
+    RandomVariable *theRV = new RandomVariable(randomVariableClass);
+    theRandomVariables.append(theRV);
+    rvLayout->insertWidget(rvLayout->count()-1, theRV);
+    connect(this,SLOT(randomVariableErrorMessage(QString)), theRV, SIGNAL(sendErrorMessage(QString)));
 
-   //if(uq["uqType"].toString()=="sampling")
-   {
-
-   if(correlationMatrix!=NULL)
-   {
-     while (correlationMatrix->rowCount() > 0)
-        {
-             correlationMatrix->removeRow(0);
-        }
-        correlationMatrix->clear();
-        correlationMatrix->clearContents();
-        delete correlationMatrix;
-        correlationMatrix=NULL;
-        delete correlationtabletitle;
-   }
-
-   }
-
-}
-
-void RandomVariableInputWidget::removeRandomVariable(void)
-{
-    // find the ones selected & remove them
-    int numRandomVariables = theRandomVariables.size();
-    for (int i = numRandomVariables-1; i >= 0; i--) {
-      RandomVariable *theRV = theRandomVariables.at(i);
-      if (theRV->isSelectedForRemoval()) {
-          theRV->close();
-          rvLayout->removeWidget(theRV);
-          theRandomVariables.remove(i);
-          theRV->setParent(0);
-          delete theRV;
-      }     
-    }
-
-
-    //qDebug()<<"\n\n\n ";
-    // if any of the variable is removed, we remove the correlation matrix and user has to re-add.
-    //correlationMatrix->clear();
-    //correlationMatrix->clearContents();
+    connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(variableNameChanged(const QString &)));
 
     //if(uq["uqType"].toString()=="sampling")
     {
 
-    if(correlationMatrix!=NULL)
-    {
-         while (correlationMatrix->rowCount() > 0)
-         {
-                correlationMatrix->removeRow(0);
-         }
-                correlationMatrix->clear();
-                correlationMatrix->clearContents();
-                delete correlationMatrix;
-                correlationMatrix=NULL;
-                delete correlationtabletitle;
-    }
+        if(correlationMatrix!=NULL)
+        {
+
+            int numRandomVariables=theRandomVariables.size();
+
+            correlationMatrix->insertRow(numRandomVariables-1);
+
+            correlationMatrix->insertColumn(numRandomVariables-1);
+
+
+            //correlationMatrix->takeHorizontalHeaderItem(numRandomVariables-1);// takeHorizontalHeaderItem(int column)
+            //correlationMatrix->takeVerticalHeaderItem(numRandomVariables-1);
+
+
+
+            QStringList table_header;
+            for (int i = 0; i < numRandomVariables; i++)
+            {
+
+                table_header.append(theRandomVariables.at(i)->getVariableName());
+
+            }
+
+            correlationMatrix->setHorizontalHeaderLabels(table_header);
+            correlationMatrix->setVerticalHeaderLabels(table_header);
+
+
+
+
+            //correlationMatrix->setRowCount(numRandomVariables);
+            //correlationMatrix->setColumnCount(numRandomVariables);
+
+
+            //  table_header.append(theRandomVariables.at(i)->getVariableName());
+
+
+            //correlationMatrix->setHorizontalHeaderLabels(table_header);
+            //correlationMatrix->setVerticalHeaderLabels(table_header);
+
+
+
+            //table_header.append(theRandomVariables.at(new_added_index)->getVariableName());
+
+            for(int i = 0; i < numRandomVariables-1; i++)
+            {
+                correlationMatrix->setColumnWidth(i,100);
+                QTableWidgetItem *newItem1,*newItem2;
+                newItem1 = new QTableWidgetItem("0.0");
+                newItem2 = new QTableWidgetItem("0.0");
+                correlationMatrix->setItem(numRandomVariables-1,i,newItem1);
+                correlationMatrix->setItem(i,numRandomVariables-1,newItem2);
+            }
+
+            correlationMatrix->setColumnWidth(numRandomVariables-1,100);
+            QTableWidgetItem *newItem;
+
+            newItem = new QTableWidgetItem("1.0");
+            correlationMatrix->setItem(numRandomVariables-1,numRandomVariables-1, newItem);
+
+            correlationMatrix->resizeColumnsToContents();
+            correlationMatrix->resizeRowsToContents();
+
+
+            // while (correlationMatrix->rowCount() > 0)
+            // {
+            //      correlationMatrix->removeRow(0);
+            //    }
+            // correlationMatrix->clear();
+            // correlationMatrix->clearContents();
+            // delete correlationMatrix;
+            // correlationMatrix=NULL;
+            // delete correlationtabletitle;
+        }
+
     }
 }
 
 
 
-/*
-void RandomVariableInputWidget::addSobolevIndices(bool value)
+void RandomVariablesContainer::removeRandomVariable(void)
 {
+    // find the ones selected & remove them
+    int numRandomVariables = theRandomVariables.size();
 
-    if(value)
-    {
+    int *index_selected_to_remove;int size_selected_to_remove=0;
 
-    flag_for_sobolev_indices=1;
+    index_selected_to_remove = (int *)malloc(numRandomVariables*sizeof(int));
 
+    for (int i = numRandomVariables-1; i >= 0; i--) {
+        qDebug()<<"\n the value of i is     "<<i;
+        RandomVariable *theRV = theRandomVariables.at(i);
+        if (theRV->isSelectedForRemoval()) {
+            theRV->close();
+            rvLayout->removeWidget(theRV);
+            theRandomVariables.remove(i);
+            theRV->setParent(0);
+            delete theRV;
+            index_selected_to_remove[size_selected_to_remove]=i;
+
+            size_selected_to_remove=size_selected_to_remove+1;
+
+        }
     }
-    return;
 
+    if(correlationMatrix!=NULL) {
+        int counter_for_removal=size_selected_to_remove-1;//=size_selected_to_remove;
+        while (counter_for_removal>=0) {
+            correlationMatrix->removeRow(index_selected_to_remove[counter_for_removal]);
+            correlationMatrix->removeColumn(index_selected_to_remove[counter_for_removal]);
+
+            if(counter_for_removal>0) {
+
+                for (int ii=0;ii<size_selected_to_remove;++ii) {
+                    index_selected_to_remove[ii]=index_selected_to_remove[ii]-1;
+                }
+
+            }
+            counter_for_removal--;
+
+        }
+    }
+
+
+    free(index_selected_to_remove);
 }
-*/
+
+
+void
+RandomVariablesContainer::addRandomVariable(RandomVariable *theRV) {
+
+    if (randomVariableNames.contains(theRV->variableName->text())) {
+
+        //
+        // if exists, get index and increment refCount of current RV, deletig new
+        //
+
+        int index = randomVariableNames.indexOf(theRV->variableName->text());
+        RandomVariable *theCurrentRV = theRandomVariables.at(index);
+        theCurrentRV->refCount = theCurrentRV->refCount+1;
+        delete theRV;
+
+    } else {
+
+        //
+        // if does not exist we add it
+        //    set refCount to 1, don;t allow others to edit it, set connections & finally and add at end
+        //
+
+        theRandomVariables.append(theRV);
+        rvLayout->insertWidget(rvLayout->count()-1, theRV);
+        theRV->refCount = 1;
+        theRV->variableName->setReadOnly(true);
+
+        connect(this,SLOT(randomVariableErrorMessage(QString)), theRV, SIGNAL(sendErrorMessage(QString)));
+        connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(variableNameChanged(const QString &)));
+
+        randomVariableNames << theRV->variableName->text();
+
+
+        //
+        // update correlation matrix if set
+        //
+
+        int numRVs = randomVariableNames.size();
+
+        if (correlationMatrix != NULL) {
+
+            correlationMatrix->insertRow(correlationMatrix->rowCount());
+            correlationMatrix->insertColumn(correlationMatrix->columnCount());
+            correlationMatrix->setHorizontalHeaderLabels(randomVariableNames);
+            correlationMatrix->setVerticalHeaderLabels(randomVariableNames);
+
+            for (int i=0; i<numRVs-1; i++) {
+                correlationMatrix->setItem(numRVs-1, i, new QTableWidgetItem(QString("0.0")));
+                correlationMatrix->setItem(i,numRVs-1, new QTableWidgetItem(QString("0.0")));
+            }
+            correlationMatrix->setItem(numRVs-1,numRVs-1, new QTableWidgetItem(QString("1.0")));
+        }
+    }
+}
+
 
 // correlation matrix function
-void RandomVariableInputWidget::addCorrelationMatrix(void)
-{
+void RandomVariablesContainer::addCorrelationMatrix(void) {
 
     int numRandomVariables = theRandomVariables.size();
 
-    //qDebug()<<"\n the number of random variables are    "<<numRandomVariables;
-    //qDebug()<<"\n the information   ";
-    // exit(1);
 
-    if(correlationMatrix==NULL && numRandomVariables>0)
-    {
+    if(correlationMatrix==NULL && numRandomVariables>0) {
         flag_for_correlationMatrix=1;
 
         //QHBoxLayout *correlationtabletableLayout = new QHBoxLayout();
@@ -503,8 +603,6 @@ void RandomVariableInputWidget::addCorrelationMatrix(void)
     correlationMatrix->resizeColumnsToContents();
     correlationMatrix->resizeRowsToContents();
 
-    //correlationMatrix->horizontalHeader()->setStretchLastSection(True)
-    //correlationMatrix->verticalHeader()->setStretchLastSection(True)
 
     }
  //   exit(1);
@@ -513,17 +611,23 @@ void RandomVariableInputWidget::addCorrelationMatrix(void)
 // loop over random variables, removing from layout & deleting
 
 void
-RandomVariableInputWidget::clear(void)
-{
+RandomVariablesContainer::clear(void) {
+
   // loop over random variables, removing from layout & deleting
   for (int i = 0; i <theRandomVariables.size(); ++i) {
     RandomVariable *theRV = theRandomVariables.at(i);
     rvLayout->removeWidget(theRV);
     delete theRV;
   }
+
   theRandomVariables.clear();
+  randomVariableNames.clear();
 
-
+  if (correlationMatrix != NULL) {
+       rvLayout->removeWidget(correlationMatrix);
+       delete correlationMatrix;
+       correlationMatrix = NULL;
+  }
 }
 
 
@@ -531,15 +635,14 @@ RandomVariableInputWidget::clear(void)
 
 
 bool
-RandomVariableInputWidget::outputToJSON(QJsonObject &rvObject)
-{
+RandomVariablesContainer::outputToJSON(QJsonObject &rvObject) {
+
     bool result = true;
     QJsonArray rvArray;
     for (int i = 0; i <theRandomVariables.size(); ++i) {
         QJsonObject rv;
         if (theRandomVariables.at(i)->outputToJSON(rv)) {
             rvArray.append(rv);
-
         } else {
             qDebug() << "OUTPUT FAILED" << theRandomVariables.at(i)->variableName->text();
             result = false;
@@ -548,44 +651,23 @@ RandomVariableInputWidget::outputToJSON(QJsonObject &rvObject)
 
     rvObject["randomVariables"]=rvArray;
 
-    // added by padhye
+    // added by padhye, fixed by FMK
+    if (correlationMatrix != NULL) {
 
-    QJsonArray testingjsonarray;
+        QJsonArray correlationData;
+        for (int i = 0; i <theRandomVariables.size(); ++i) {
+            for (int j = 0; j <theRandomVariables.size(); ++j) {
 
-    int correlation_flad_check =1;
-    for (int i = 0; i <theRandomVariables.size(); ++i)
-      {
-          for (int j = 0; j <theRandomVariables.size(); ++j)
-          {
-              // this gets the pointer to an item of the table at index i,j
-
-
-          //    qDebug()<<"\n I am just here before cellItemFromTable \n";
-
-            //  qDebug()<<"\n I am just here before cellItemFromTable \n";
-
-             // qDebug()<<"\n I am just here before cellItemFromTable \n";
-
-              QTableWidgetItem *cellItemFromTable=NULL;
-
-              if(correlationMatrix!=NULL){cellItemFromTable= correlationMatrix->item(i,j);}
-              else {correlation_flad_check=0;}
-
-          //    qDebug()<<"\n checking if cellItemFromTabele defined      "<<cellItemFromTable;
-
-
-              if(cellItemFromTable!=NULL)
-              {
-                    qDebug()<<"\n the value of   item is      "<<i<<"     "<<j<<((cellItemFromTable->text()).toDouble())<<"\n";
-
-                    double value=((cellItemFromTable->text()).toDouble());
-                    testingjsonarray.append(value);
-              }else {correlation_flad_check=0;}
+                QTableWidgetItem *cellItemFromTable=correlationMatrix->item(i,j);
+                double value = 0.0;
+                if (cellItemFromTable!=NULL)
+                    value=((cellItemFromTable->text()).toDouble());
+                    correlationData.append(value);
             }
-    }
+        }
 
-    if(correlation_flad_check==1)
-    {rvObject["uncertain_correlation_matrix"]=testingjsonarray;}
+        rvObject["correlationMatrix"]=correlationData;
+    }
 
     /*
     if(flag_for_sobolev_indices==1)
@@ -603,7 +685,7 @@ RandomVariableInputWidget::outputToJSON(QJsonObject &rvObject)
 
 
 QStringList
-RandomVariableInputWidget::getRandomVariableNames(void)
+RandomVariablesContainer::getRandomVariableNames(void)
 {
     QStringList results;
     for (int i = 0; i <theRandomVariables.size(); ++i) {
@@ -613,7 +695,7 @@ RandomVariableInputWidget::getRandomVariableNames(void)
 }
 
 bool
-RandomVariableInputWidget::inputFromJSON(QJsonObject &rvObject)
+RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
 {
   bool result = true;
 
@@ -630,8 +712,8 @@ RandomVariableInputWidget::inputFromJSON(QJsonObject &rvObject)
   //
 
 
-  // get array
-  if (rvObject.contains("randomVariables"))
+  // get randomVariables & add
+  if (rvObject.contains("randomVariables")) {
       if (rvObject["randomVariables"].isArray()) {
 
           QJsonArray rvArray = rvObject["randomVariables"].toArray();
@@ -642,39 +724,57 @@ RandomVariableInputWidget::inputFromJSON(QJsonObject &rvObject)
               QJsonObject rvObject = rvValue.toObject();
 
               if (rvObject.contains("variableClass")) {
-                QJsonValue typeRV = rvObject["variableClass"];
-                RandomVariable *theRV = 0;
-                QString classType = typeRV.toString();
-                theRV = new RandomVariable(classType);
-      connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(variableNameChanged(const QString &)));
+                  QJsonValue typeRV = rvObject["variableClass"];
+                  RandomVariable *theRV = 0;
+                  QString classType = typeRV.toString();
+                  theRV = new RandomVariable(classType);
+                  connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(variableNameChanged(const QString &)));
 
-                connect(theRV,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+                  connect(theRV,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 
-                if (theRV->inputFromJSON(rvObject)) { // this method is where type is set
-                    theRandomVariables.append(theRV);
-                    rvLayout->insertWidget(rvLayout->count()-1, theRV);
-                } else {
-                    result = false;
-                }
+                  if (theRV->inputFromJSON(rvObject)) { // this method is where type is set
+                      theRandomVariables.append(theRV);
+                      randomVariableNames << theRV->variableName->text();
+                      theRV->variableName->setReadOnly(true);
+
+                      rvLayout->insertWidget(rvLayout->count()-1, theRV);
+                  } else {
+                      result = false;
+                  }
               } else {
                   result = false;
               }
           }
 
-        //  qDebug()<<"\n\n\n   I am here just before adding correlation from default loading json    \n\n\n   ";
+      }
+  }
 
-          // adding/inializing correlation matrix if the data is loaded from json
-          {
-            addCorrelationMatrix();
+  // get correlationMatrix if present and add data if it is int
+  if (rvObject.contains("correlationMatrix")) {
+      if (rvObject["correlationMatrix"].isArray()) {
 
+          this->addCorrelationMatrix();
+          QJsonArray rvArray = rvObject["randomVariables"].toArray();
+          // foreach object in array
+          int row = 0; int col = 0; int numCols=theRandomVariables.size();
+
+          foreach (const QJsonValue &rvValue, rvArray) {
+              double value = rvValue.toDouble();
+              QTableWidgetItem *item = correlationMatrix->item(row,col);
+              item->setText(QString::number(value));
+              col++;
+              if (col == numCols) {
+                  row++; col=0;
+              }
           }
       }
+  }
   return result;
 }
 
 
 void
-RandomVariableInputWidget::errorMessage(QString message){
+RandomVariablesContainer::errorMessage(QString message){
     emit sendErrorMessage(message);
 }
 

@@ -64,13 +64,13 @@ public:
      *   @return bool - true for success, otherwise false
      */  
 
-    virtual bool outputAppDataToJSON(QJsonObject &rvObject);
+    virtual bool outputAppDataToJSON(QJsonObject &jsonObject);
     /** 
      *   @brief inputFromJSON method to read applications specific data from a JSON object
      *   @param rvObject the JSON object contaiing data to instantiate the object
      *   @return bool - true for success, otherwise false
      */  
-    virtual bool inputAppDataFromJSON(QJsonObject &rvObject);
+    virtual bool inputAppDataFromJSON(QJsonObject &jsonObject);
 
     /**
      *   @brief copyFiles method invoked to copy all files aapplication will need to run directory

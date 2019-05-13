@@ -36,98 +36,85 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterAppWidget.h>
-#include <QDir>
-#include <QDebug>
+#include <LineEditRV.h>
+#include <QJsonObject>
+#include <QString>
+#include <RandomVariablesContainer.h>
 
-SimCenterAppWidget::SimCenterAppWidget(QWidget *parent)
-    :SimCenterWidget(parent)
+LineEditRV::LineEditRV(RandomVariablesContainer *theRandomVariableContainer, QWidget *parent)
+:QLineEdit(parent), theRVC(theRandomVariableContainer)
 {
-
+    //connect(this,SIGNAL(editingFinished()),this,SLOT(on_editingFinished()));
+    connect(this,SIGNAL(textChanged(QString)),this,SLOT(on_editingFinished()));
 }
 
-SimCenterAppWidget::~SimCenterAppWidget()
+LineEditRV::~LineEditRV()
 {
 
+    bool ok;
+    QString currentText = this->text();
+    double value = currentText.toDouble(&ok);
+    if (!ok)
+      theRVC->removeRandomVariable(currentText);
 }
-
 
 bool
-SimCenterAppWidget::outputAppDataToJSON(QJsonObject &jsonObject)
+LineEditRV::outputToJSON(QJsonObject &jsonObject, QString key)
 {
+    QString valueText = this->text();
+    bool ok;
+
+    double valueDouble = valueText.QString::toDouble(&ok);
+    if (ok == true)
+        jsonObject[key]=valueDouble;
+    else
+        jsonObject[key]= QString("RV.") + valueText;
+
     return true;
 }
 
 bool
-SimCenterAppWidget::inputAppDataFromJSON(QJsonObject &jsonObject)
+LineEditRV::inputFromJSON(QJsonObject &jsonObject, QString key)
 {
-    return true;
-}
+    if (jsonObject.contains(key)) {
 
-
-bool
-SimCenterAppWidget::copyFiles(QString &path)
-{
-    return true;
-}
-
-bool
-SimCenterAppWidget::copyPath(QString sourceDir, QString destinationDir, bool overWriteDirectory)
-{
-    QDir originDirectory(sourceDir);
-
-    if (! originDirectory.exists()) {
-        qDebug() << "Origin Directory: " << sourceDir << " Does not exist";
-        return false;
-    }
-
-    QDir destinationDirectory(destinationDir);
-
-    if(destinationDirectory.exists() && overWriteDirectory) {
-        destinationDirectory.removeRecursively();
-    }
-
-    originDirectory.mkpath(destinationDir);
-
-    foreach (QString directoryName, originDirectory.entryList(QDir::Dirs | \
-                                                              QDir::NoDotAndDotDot))
-    {
-        if (directoryName != QString("tmp.SimCenter")) {
-        QString destinationPath = destinationDir + "/" + directoryName;
-        originDirectory.mkpath(destinationPath);
-        copyPath(sourceDir + "/" + directoryName, destinationPath, overWriteDirectory);
+        QJsonValue theValue = jsonObject[key];
+        if (theValue.isString()) {
+            oldText = theValue.toString();
+            oldText.remove(0,3); // remove RV.
+            this->setText(oldText);
+        } else if (theValue.isDouble()) {
+            oldText = QString::number(theValue.toDouble());
+            this->setText(oldText);
         }
-    }
-
-    foreach (QString fileName, originDirectory.entryList(QDir::Files)) {
-        QFile::copy(sourceDir + "/" + fileName, destinationDir + "/" + fileName);
-    }
-
-    /*! Possible race-condition mitigation? */
-
-    QDir finalDestination(destinationDir);
-    finalDestination.refresh();
-
-    if(finalDestination.exists()) {
-        return true;
-    }
-
-    return false;
-}
-
-
-bool
-SimCenterAppWidget::copyFile(QString filename, QString destinationDir)
-{
-    QFile fileToCopy(filename);
-
-    if (! fileToCopy.exists()) {
+    } else {
+        qDebug() << "LineEditRV::iinputFRomJSON - key not found, key: " << key;
         return false;
     }
 
-    QFileInfo fileInfo(filename);
-    QString theFile = fileInfo.fileName();
-    QString thePath = fileInfo.path();
+    return true;
+}
 
-    return fileToCopy.copy(destinationDir + QDir::separator() + theFile);
+
+void 
+LineEditRV::on_editingFinished() {
+
+  QString currentText = this->text();
+  
+  if (oldText != currentText) {
+    bool ok;
+
+    // if old text not double, remove random Variable
+    double value = oldText.toDouble(&ok);
+    if (!ok) {
+      theRVC->removeRandomVariable(oldText);
+    }
+
+    // if new text not double, add random variable
+    value = currentText.toDouble(&ok);
+    if (!ok) {
+      theRVC->addRandomVariable(currentText);
+    }
+    oldText = currentText;
+  }
 }
