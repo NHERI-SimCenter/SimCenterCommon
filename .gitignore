@@ -41,3 +41,4 @@ build*
 # QT
 *.pro.user
 *.#
+icons/\.DS_Store
