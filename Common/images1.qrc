@@ -1,9 +1,11 @@
 <RCC>
     <qresource prefix="/imagesCommon">
-        <file>./nsf.gif</file>
-        <file>./sim_logo_footer.png</file>
+        <file>nsf.gif</file>
+        <file>sim_logo_footer.png</file>
     </qresource>
     <qresource prefix="/styleCommon">
-        <file>./style.qss</file>
+        <file>style.qss</file>
+        <file>common_style.qss</file>
+        <file>common_experimental.qss</file>
     </qresource>
 </RCC>
