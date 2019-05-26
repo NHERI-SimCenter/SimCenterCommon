@@ -95,7 +95,8 @@
             </property>
             <property name="text">
              <string>toggle
-legend</string>
+legend
+ON/OFF</string>
             </property>
            </widget>
           </item>
@@ -109,7 +110,8 @@ legend</string>
             </property>
             <property name="text">
              <string>toggle
-labels</string>
+legend
+POSITION</string>
             </property>
            </widget>
           </item>
