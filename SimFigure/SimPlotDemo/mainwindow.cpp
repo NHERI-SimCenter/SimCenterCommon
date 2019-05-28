@@ -25,6 +25,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->selectionView->setModel(model);
     ui->selectionView->header()->hide();
     ui->selectionView->setColumnWidth(0,30);
+
+    connect(ui->theFigure, SIGNAL(curve_selected(int)), this, SLOT(on_selection_changed(int)));
 }
 
 MainWindow::~MainWindow()
@@ -89,6 +91,19 @@ void MainWindow::on_selectionView_clicked(const QModelIndex &index)
 
 }
 
+void MainWindow::on_selection_changed(int ID)
+{
+    if (ID >= 0)
+    {
+        ui->btn_option3->setText(tr("ID = %1\n\nclick to\nclear\nselection").arg(ID));
+        ui->btn_option3->setStyleSheet("color: #cc4444");
+    }
+    else {
+        ui->btn_option3->setText(tr("none\nselected"));
+        ui->btn_option3->setStyleSheet("color: #cc4444");
+    }
+}
+
 void MainWindow::on_btn_option1_clicked()
 {
     ui->theFigure->showLegend(!ui->theFigure->legendVisible());
@@ -113,5 +128,20 @@ void MainWindow::on_btn_option2_clicked()
 
 void MainWindow::on_btn_option3_clicked()
 {
+    ui->theFigure->clearSelection();
+}
 
+void MainWindow::on_btn_1st_clicked()
+{
+    ui->theFigure->select(1);
+}
+
+void MainWindow::on_btn_2nd_clicked()
+{
+    ui->theFigure->select(2);
+}
+
+void MainWindow::on_btn_none_clicked()
+{
+    ui->theFigure->clearSelection();
 }

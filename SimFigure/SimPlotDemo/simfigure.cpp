@@ -8,6 +8,8 @@
 #include <QPolygon>
 #include <QPointF>
 #include <QPolygonF>
+#include <QMap>
+#include <QMapIterator>
 
 #include <qwt_plot.h>
 #include <qwt_plot_grid.h>
@@ -276,7 +278,10 @@ int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor 
     rescale();
     m_plot->replot();
 
-    return m_curves.length();
+    int idx = m_curves.length();
+    m_plotInvMap.insert(newCurve, idx);
+
+    return idx;
 }
 
 void SimFigure::rescale(void)
@@ -304,8 +309,13 @@ void SimFigure::cla(void)
     {
         curve->detach();
         delete curve;
+
+        m_plotInvMap.clear();
     }
     m_curves.clear();
+
+    lastSelection.object = nullptr;
+    lastSelection.plotID = -1;
 
     m_xmin = 1.e20;
     m_xmax = 1.e-20;
@@ -313,6 +323,8 @@ void SimFigure::cla(void)
     m_ymax = 1.e-20;
 
     m_plot->replot();
+
+    emit curve_selected(-1);
 }
 
 void SimFigure::legend(QList<QString> labels, Location loc)
@@ -404,17 +416,17 @@ bool SimFigure::legendVisible(void)
 
 void SimFigure::on_picker_activated(bool on)
 {
-    qWarning() << "picker activated " << on;
+    //qWarning() << "picker activated " << on;
 }
 
 void SimFigure::on_picker_selected(const QPolygon &polygon)
 {
-    qWarning() << "picker selected " << polygon;
+    //qWarning() << "picker selected " << polygon;
 }
 
 void SimFigure::on_picker_appended (const QPoint &pos)
 {
-    qWarning() << "picker appended " << pos;
+    //qWarning() << "picker appended " << pos;
 
     double coords[ QwtPlot::axisCnt ];
     coords[ QwtPlot::xBottom ] = m_plot->canvasMap( QwtPlot::xBottom ).invTransform( pos.x() );
@@ -429,7 +441,7 @@ void SimFigure::on_picker_appended (const QPoint &pos)
         if ( item->rtti() == QwtPlotItem::Rtti_PlotShape )
         {
             QwtPlotShapeItem *theShape = static_cast<QwtPlotShapeItem *>(item);
-            theShape->setPen(Qt::red, 3);
+            theShape->setPen(Qt::cyan, 4);
             QBrush brush = theShape->brush();
             QColor color = brush.color();
             color.setAlpha(64);
@@ -440,15 +452,18 @@ void SimFigure::on_picker_appended (const QPoint &pos)
         if ( item->rtti() == QwtPlotItem::Rtti_PlotCurve )
         {
             QwtPlotCurve *theCurve = static_cast<QwtPlotCurve *>(item);
-            theCurve->setPen(Qt::red, 5);
+
+            if (lastSelection.object != item)
+            {
+                if (lastSelection.object != nullptr) clearSelection();
+                select(item);
+            }
 
             // we need a way to revert to original color schema when a different curve is selected.
 
         }
 
         m_plot->replot();
-
-        qWarning() << "item identified:" << item->rtti();
     }
     else
     {
@@ -458,23 +473,23 @@ void SimFigure::on_picker_appended (const QPoint &pos)
 
 void SimFigure::on_picker_moved (const QPoint &pos)
 {
-    qWarning() << "picker moved " << pos;
+    //qWarning() << "picker moved " << pos;
 }
 
 void SimFigure::on_picker_removed (const QPoint &pos)
 {
-    qWarning() << "picker removed " << pos;
+    //qWarning() << "picker removed " << pos;
 }
 
 void SimFigure::on_picker_changed (const QPolygon &selection)
 {
-    qWarning() << "picker changed " << selection;
+    //qWarning() << "picker changed " << selection;
 }
 
 QwtPlotItem* SimFigure::itemAt( const QPoint& pos ) const
 {
-    if ( m_plot == NULL )
-        return NULL;
+    if ( m_plot == nullptr )
+        return nullptr;
 
     // translate pos into the plot coordinates
     double coords[ QwtPlot::axisCnt ];
@@ -538,7 +553,7 @@ QwtPlotItem* SimFigure::itemAt( const QPoint& pos ) const
                     }
                 }
 
-                qWarning() << "curve dist =" << dist;
+                //qWarning() << "curve dist =" << dist;
 
                 if ( dist <= 5 ) return static_cast<QwtPlotItem *>(curveItem);
             }
@@ -555,6 +570,57 @@ QwtPlotItem* SimFigure::itemAt( const QPoint& pos ) const
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
+void SimFigure::select(int ID)
+{
+    QwtPlotItem *theItem = nullptr;
+
+    if (ID > 0 && m_curves.length() >= ID && m_curves.value(ID-1) != nullptr)
+        theItem = m_curves.value(ID-1);
+
+    if (theItem) select(theItem);
+}
+
+void SimFigure::select(QwtPlotItem *item)
+{
+    clearSelection();
+
+    if (item != nullptr)
+    {
+        QwtPlotCurve *theCurve = static_cast<QwtPlotCurve *>(item);
+
+        // save settings
+        lastSelection.object = item;  // we need to use the generic pointer
+        lastSelection.plotID = m_plotInvMap.value(theCurve, -1);
+        lastSelection.pen = theCurve->pen();
+        lastSelection.brush = theCurve->brush();
+
+        // visually ID selected
+        theCurve->setPen(Qt::cyan, 4);
+
+        // let code now that selection changed
+        int ID = m_plotInvMap.value(theCurve, -1);
+        m_plot->replot();
+
+        emit curve_selected(ID);
+    }
+}
+
+void SimFigure::clearSelection(void)
+{
+    if (lastSelection.object != nullptr)
+    {
+        // restore old settings
+        QwtPlotCurve *lastCurve = static_cast<QwtPlotCurve *>(lastSelection.object);
+        lastCurve->setPen(lastSelection.pen);
+        lastCurve->setBrush(lastSelection.brush);
+        lastSelection.object = nullptr;  // we need to use the generic pointer
+        lastSelection.plotID = -1;
+
+        m_plot->replot();
+    }
+
+    emit curve_selected(-1);
+}

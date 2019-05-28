@@ -3,6 +3,9 @@
 
 #include <QFrame>
 #include <QList>
+#include <QMap>
+#include <QPen>
+#include <QBrush>
 
 class QwtPlot;
 class QwtPlotGrid;
@@ -73,7 +76,8 @@ public:
     void moveLegend(Location loc);
     void showLegend(bool = true);
     bool legendVisible(void);
-    QwtPlotItem* itemAt( const QPoint& pos ) const;
+    void select(int);
+    void clearSelection(void);
 
 private slots:
     void axisTypeChanged(void);
@@ -90,13 +94,17 @@ signals:
     void curve_selected(int ID);
 
 private:
+    void select(QwtPlotItem *);
+    QwtPlotItem* itemAt( const QPoint& pos ) const;
     void rescale(void);
 
     Ui::SimFigure *ui;
     QwtPlot       *m_plot;
     QwtPlotGrid   *m_grid;
-    QwtPlotLegendItem *m_legend;
     QwtPlotPicker *m_picker;
+    QwtPlotLegendItem  *m_legend;
+    QMap<QwtPlotCurve *, int> m_plotInvMap;
+    QMap<QwtPlotItem *, int>  m_itemInvMap;
 
     QVector<QwtPlotCurve *> m_curves;
 
@@ -105,6 +113,13 @@ private:
     double  m_xmax = 1.e-20;
     double  m_ymin = 1.e20;
     double  m_ymax = 1.e-20;
+
+    struct SELECTION {
+        QPen         pen;
+        QBrush       brush;
+        int          plotID = -1;
+        QwtPlotItem *object = nullptr;
+    } lastSelection;
 };
 
 #endif // SIMFIGURE_H
