@@ -4,6 +4,8 @@
 #include <QFrame>
 #include <QList>
 #include <QMap>
+#include <QPen>
+#include <QBrush>
 
 class QwtPlot;
 class QwtPlotGrid;
@@ -108,6 +110,13 @@ private:
     double  m_xmax = 1.e-20;
     double  m_ymin = 1.e20;
     double  m_ymax = 1.e-20;
+
+    struct SELECTION {
+        QPen         pen;
+        QBrush       brush;
+        int          plotID = -1;
+        QwtPlotItem *object = nullptr;
+    } lastSelection;
 };
 
 #endif // SIMFIGURE_H

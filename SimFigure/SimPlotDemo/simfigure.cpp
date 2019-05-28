@@ -9,6 +9,7 @@
 #include <QPointF>
 #include <QPolygonF>
 #include <QMap>
+#include <QMapIterator>
 
 #include <qwt_plot.h>
 #include <qwt_plot_grid.h>
@@ -308,8 +309,13 @@ void SimFigure::cla(void)
     {
         curve->detach();
         delete curve;
+
+        m_plotInvMap.clear();
     }
     m_curves.clear();
+
+    lastSelection.object = nullptr;
+    lastSelection.plotID = -1;
 
     m_xmin = 1.e20;
     m_xmax = 1.e-20;
@@ -444,7 +450,28 @@ void SimFigure::on_picker_appended (const QPoint &pos)
         if ( item->rtti() == QwtPlotItem::Rtti_PlotCurve )
         {
             QwtPlotCurve *theCurve = static_cast<QwtPlotCurve *>(item);
-            theCurve->setPen(Qt::red, 5);
+
+            if (lastSelection.object != item)
+            {
+                if (lastSelection.object != nullptr)
+                {
+                    // restore old settings
+                    QwtPlotCurve *lastCurve = static_cast<QwtPlotCurve *>(lastSelection.object);
+                    lastCurve->setPen(lastSelection.pen);
+                    lastCurve->setBrush(lastSelection.brush);
+                    lastSelection.object = nullptr;  // we need to use the generic pointer
+                    lastSelection.plotID = -1;
+                }
+
+                // save settings
+                lastSelection.object = item;  // we need to use the generic pointer
+                lastSelection.plotID = m_plotInvMap.value(theCurve, -1);
+                lastSelection.pen = theCurve->pen();
+                lastSelection.brush = theCurve->brush();
+
+                // visually ID selected
+                theCurve->setPen(Qt::red, 5);
+            }
 
             // we need a way to revert to original color schema when a different curve is selected.
 
