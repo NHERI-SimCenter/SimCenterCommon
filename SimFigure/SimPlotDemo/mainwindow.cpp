@@ -97,10 +97,24 @@ void MainWindow::on_selection_changed(int ID)
     {
         ui->btn_option3->setText(tr("ID = %1\n\nclick to\nclear\nselection").arg(ID));
         ui->btn_option3->setStyleSheet("color: #cc4444");
+
+        switch (ID)
+        {
+        case 1:
+            ui->btn_1st->setChecked(true);
+            break;
+        case 2:
+            ui->btn_2nd->setChecked(true);
+            break;
+        default:
+            ui->btn_none->setChecked(true);
+        }
     }
     else {
         ui->btn_option3->setText(tr("none\nselected"));
         ui->btn_option3->setStyleSheet("color: #cc4444");
+
+        ui->btn_none->setChecked(true);
     }
 }
 
@@ -129,6 +143,7 @@ void MainWindow::on_btn_option2_clicked()
 void MainWindow::on_btn_option3_clicked()
 {
     ui->theFigure->clearSelection();
+    ui->btn_none->setChecked(true);
 }
 
 void MainWindow::on_btn_1st_clicked()
