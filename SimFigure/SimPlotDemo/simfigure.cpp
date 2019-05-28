@@ -8,6 +8,7 @@
 #include <QPolygon>
 #include <QPointF>
 #include <QPolygonF>
+#include <QMap>
 
 #include <qwt_plot.h>
 #include <qwt_plot_grid.h>
@@ -276,7 +277,10 @@ int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor 
     rescale();
     m_plot->replot();
 
-    return m_curves.length();
+    int idx = m_curves.length();
+    m_plotInvMap.insert(newCurve, idx);
+
+    return idx;
 }
 
 void SimFigure::rescale(void)

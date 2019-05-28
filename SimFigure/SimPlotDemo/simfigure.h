@@ -3,6 +3,7 @@
 
 #include <QFrame>
 #include <QList>
+#include <QMap>
 
 class QwtPlot;
 class QwtPlotGrid;
@@ -95,8 +96,10 @@ private:
     Ui::SimFigure *ui;
     QwtPlot       *m_plot;
     QwtPlotGrid   *m_grid;
-    QwtPlotLegendItem *m_legend;
     QwtPlotPicker *m_picker;
+    QwtPlotLegendItem  *m_legend;
+    QMap<QwtPlotCurve *, int> m_plotInvMap;
+    QMap<QwtPlotItem *, int>  m_itemInvMap;
 
     QVector<QwtPlotCurve *> m_curves;
 
