@@ -145,8 +145,90 @@ void SimFigure::axisTypeChanged(void)
     //qDebug() << "signal axisTypeChanged received " << int(axisType);
 }
 
-void SimFigure::grid(bool mayor, bool minor)
+void SimFigure::grid(bool major, bool minor)
 {
+    m_showMajorGrid = major;
+    m_showMinorGrid = minor;
+
+    refreshGrid();
+}
+
+AxisType SimFigure::AxisType(void)
+{
+    return axisType;
+}
+
+void SimFigure::setAxisType(enum AxisType type)
+{
+    axisType = type;
+    switch (axisType) {
+    case AxisType::LogX :
+        ui->btn_logX->setChecked(true);
+        break;
+    case AxisType::LogY :
+        ui->btn_logY->setChecked(true);
+        break;
+    case AxisType::LogLog :
+        ui->btn_loglog->setChecked(true);
+        break;
+    case AxisType::Default :
+        ui->btn_standard->setChecked(true);
+        break;
+    }
+    this->axisTypeChanged();
+}
+
+int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor color, Marker mk)
+{
+    if (x.length() <= 0 || y.length() <= 0) return -1;
+
+    // update min and max values
+
+    if (MAX(x) > m_xmax) m_xmax=MAX(x);
+    if (MIN(x) < m_xmin) m_xmin=MIN(x);
+    if (MAX(y) > m_ymax) m_ymax=MAX(y);
+    if (MIN(y) < m_ymin) m_ymin=MIN(y);
+
+    // now add that curve
+
+    QwtPlotCurve *curve = new QwtPlotCurve("default");
+    curve->setSamples(x,y);
+
+    setLineStyle(curve, lt);
+    setMarker(curve, mk);
+    setLineColor(curve, color);
+
+    curve->attach(m_plot);
+
+    m_curves.append(curve);
+
+    //grid(true,true);
+    rescale();
+    m_plot->replot();
+
+    int idx = m_curves.length();
+    m_plotInvMap.insert(curve, idx);
+
+    return idx;
+}
+
+void SimFigure::rescale(void)
+{
+    if (m_curves.length() > 0)
+    {
+        m_plot->setAxisScale(QwtPlot::yLeft,   m_ymin, m_ymax);
+        m_plot->setAxisScale(QwtPlot::xBottom, m_xmin, m_xmax);
+    }
+    else
+    {
+        m_plot->setAxisScale(QwtPlot::yLeft,   1, 100);
+        m_plot->setAxisScale(QwtPlot::xBottom, 1, 100);
+    }
+}
+
+void SimFigure::refreshGrid(void)
+{
+
     if (m_grid != nullptr)
     {
         m_grid->detach();
@@ -154,7 +236,7 @@ void SimFigure::grid(bool mayor, bool minor)
         m_grid = nullptr;
     }
     // Create Background Grid for Plot
-    if (mayor)
+    if (m_showMajorGrid)
     {
         m_grid = new QwtPlotGrid();
         m_grid->attach( m_plot );
@@ -168,7 +250,7 @@ void SimFigure::grid(bool mayor, bool minor)
         m_grid->enableX(true);
         m_grid->enableY(true);
 
-        if (minor)
+        if (m_showMinorGrid)
         {
             m_grid->enableXMin(true);
             m_grid->enableYMin(true);
@@ -199,103 +281,6 @@ void SimFigure::grid(bool mayor, bool minor)
     }
 
     m_plot->replot();
-}
-
-int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor color, Marker mk)
-{
-    if (x.length() <= 0 || y.length() <= 0) return -1;
-
-    // update min and max values
-
-    if (MAX(x) > m_xmax) m_xmax=MAX(x);
-    if (MIN(x) < m_xmin) m_xmin=MIN(x);
-    if (MAX(y) > m_ymax) m_ymax=MAX(y);
-    if (MIN(y) < m_ymin) m_ymin=MIN(y);
-
-    // now add that curve
-
-    QwtPlotCurve *newCurve = new QwtPlotCurve("default");
-    newCurve->setSamples(x,y);
-
-    switch (lt)
-    {
-    case LineType::None :
-        newCurve->setPen(color, 0.0);
-        break;
-    case LineType::Solid :
-        newCurve->setPen(color, 2.0, Qt::SolidLine);
-        break;
-    case LineType::Dashed :
-        newCurve->setPen(color, 2.0, Qt::DashLine);
-        break;
-    case LineType::Dotted :
-        newCurve->setPen(color, 2.0, Qt::DotLine);
-        break;
-    case LineType::DashDotted :
-        newCurve->setPen(color, 2.0, Qt::DashDotLine);
-        break;
-    }
-
-    switch (mk)
-    {
-    case Marker::None :
-        newCurve->setSymbol(nullptr);
-        break;
-    case Marker::Ex :
-        newCurve->setSymbol(new QwtSymbol(QwtSymbol::XCross));
-        break;
-    case Marker::Box :
-        newCurve->setSymbol(new QwtSymbol(QwtSymbol::Rect));
-        break;
-    case Marker::Plus :
-        newCurve->setSymbol(new QwtSymbol(QwtSymbol::Cross));
-        break;
-    case Marker::Circle :
-        newCurve->setSymbol(new QwtSymbol(QwtSymbol::Ellipse));
-        break;
-    case Marker::Asterisk :
-        newCurve->setSymbol(new QwtSymbol(QwtSymbol::Star1));
-        break;
-    case Marker::Triangle :
-        newCurve->setSymbol(new QwtSymbol(QwtSymbol::Triangle));
-        break;
-    case Marker::DownTriangle :
-        newCurve->setSymbol(new QwtSymbol(QwtSymbol::DTriangle));
-        break;
-    case Marker::LeftTriangle :
-        newCurve->setSymbol(new QwtSymbol(QwtSymbol::LTriangle));
-        break;
-    case Marker::RightTriangle :
-        newCurve->setSymbol(new QwtSymbol(QwtSymbol::RTriangle));
-        break;
-    }
-
-    newCurve->attach(m_plot);
-
-    m_curves.append(newCurve);
-
-    //grid(true,true);
-    rescale();
-    m_plot->replot();
-
-    int idx = m_curves.length();
-    m_plotInvMap.insert(newCurve, idx);
-
-    return idx;
-}
-
-void SimFigure::rescale(void)
-{
-    if (m_curves.length() > 0)
-    {
-        m_plot->setAxisScale(QwtPlot::yLeft,   m_ymin, m_ymax);
-        m_plot->setAxisScale(QwtPlot::xBottom, m_xmin, m_xmax);
-    }
-    else
-    {
-        m_plot->setAxisScale(QwtPlot::yLeft,   1, 100);
-        m_plot->setAxisScale(QwtPlot::xBottom, 1, 100);
-    }
 }
 
 void SimFigure::clear(void)
@@ -674,7 +659,103 @@ LineType SimFigure::lineStyle(int ID)
     return LineType::Solid;  // for now
 }
 
-void SimFigure::setLineStyle(int ID, LineType tt)
+void SimFigure::setLineStyle(int ID, LineType lt, Marker mk)
 {
+    if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
+    {
+        setLineStyle(m_curves.value(ID-1), lt);
+        setMarker(m_curves.value(ID-1), mk);
+    }
+}
 
+void SimFigure::setLineStyle(QwtPlotCurve *curve, LineType lt)
+{
+    QPen pen = curve->pen();
+    pen.setWidth(2);
+
+    switch (lt)
+    {
+    case LineType::None :
+        pen.setStyle(Qt::NoPen);
+        break;
+    case LineType::Solid :
+        pen.setStyle(Qt::SolidLine);
+        break;
+    case LineType::Dashed :
+        pen.setStyle(Qt::DashLine);
+        break;
+    case LineType::Dotted :
+        pen.setStyle(Qt::DotLine);
+        break;
+    case LineType::DashDotted :
+        pen.setStyle(Qt::DashDotLine);
+        break;
+    }
+
+    curve->setPen(pen);
+}
+
+void SimFigure::setMarker(int ID, Marker mk)
+{
+    if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
+    {
+        setMarker(m_curves.value(ID-1), mk);
+    }
+}
+
+void SimFigure::setMarker(QwtPlotCurve *curve, Marker mk)
+{
+    switch (mk)
+    {
+    case Marker::None :
+        curve->setSymbol(nullptr);
+        break;
+    case Marker::Ex :
+        curve->setSymbol(new QwtSymbol(QwtSymbol::XCross));
+        break;
+    case Marker::Box :
+        curve->setSymbol(new QwtSymbol(QwtSymbol::Rect));
+        break;
+    case Marker::Plus :
+        curve->setSymbol(new QwtSymbol(QwtSymbol::Cross));
+        break;
+    case Marker::Circle :
+        curve->setSymbol(new QwtSymbol(QwtSymbol::Ellipse));
+        break;
+    case Marker::Asterisk :
+        curve->setSymbol(new QwtSymbol(QwtSymbol::Star1));
+        break;
+    case Marker::Triangle :
+        curve->setSymbol(new QwtSymbol(QwtSymbol::Triangle));
+        break;
+    case Marker::DownTriangle :
+        curve->setSymbol(new QwtSymbol(QwtSymbol::DTriangle));
+        break;
+    case Marker::LeftTriangle :
+        curve->setSymbol(new QwtSymbol(QwtSymbol::LTriangle));
+        break;
+    case Marker::RightTriangle :
+        curve->setSymbol(new QwtSymbol(QwtSymbol::RTriangle));
+        break;
+    }
+}
+
+QColor SimFigure::lineColor(int ID)
+{
+    return QColor(Qt::red);
+}
+
+void SimFigure::setLineColor(int ID, QColor color)
+{
+    if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
+    {
+        setLineColor(m_curves.value(ID-1), color);
+    }
+}
+
+void SimFigure::setLineColor(QwtPlotCurve *curve, QColor color)
+{
+    QPen pen = curve->pen();
+    pen.setColor(color);
+    curve->setPen(pen);
 }

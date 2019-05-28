@@ -59,6 +59,7 @@ void MainWindow::on_selectionView_clicked(const QModelIndex &index)
         idx = ui->theFigure->plot(x,z, LineType::Solid, QColor(Qt::blue));
 
         ui->theFigure->showLegend();
+        ui->theFigure->setAxisType(AxisType::LogX);
 
         break; }
     case 1: {
@@ -75,6 +76,7 @@ void MainWindow::on_selectionView_clicked(const QModelIndex &index)
         idx = ui->theFigure->plot(d,u, LineType::Solid, Qt::blue, Marker::Triangle);
 
         ui->theFigure->showLegend();
+        ui->theFigure->setAxisType(AxisType::Default);
 
         break; }
     case 2:
