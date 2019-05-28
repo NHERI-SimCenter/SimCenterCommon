@@ -1,0 +1,17 @@
+TODO:
+=====
+
+1) I can select the curves and need to send the respective signal with the proper curve index.
+
+2) unselect needs to recover the original color and line width
+    - introduce a select buffer that stores
+        (1) pointer to object
+        (2) pen settings
+        (3) brudh settings
+    - a new selection needs to check whether a previously selected object exists (nullptr)
+    - if previous object exists, restore pen and brush settings
+
+3) some helper functions for changing line width and style for existing curves
+
+4) a private map between curve objects (C++-pointers) and plot IDs (MATLAB STYLE)
+    - this includes an inverse map for quick identification of selected objects
