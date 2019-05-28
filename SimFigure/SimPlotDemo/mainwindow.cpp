@@ -130,3 +130,18 @@ void MainWindow::on_btn_option3_clicked()
 {
     ui->theFigure->clearSelection();
 }
+
+void MainWindow::on_btn_1st_clicked()
+{
+    ui->theFigure->select(1);
+}
+
+void MainWindow::on_btn_2nd_clicked()
+{
+    ui->theFigure->select(2);
+}
+
+void MainWindow::on_btn_none_clicked()
+{
+    ui->theFigure->clearSelection();
+}

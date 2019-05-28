@@ -94,6 +94,7 @@ signals:
     void curve_selected(int ID);
 
 private:
+    void select(QwtPlotItem *);
     QwtPlotItem* itemAt( const QPoint& pos ) const;
     void rescale(void);
 

@@ -22,6 +22,12 @@ private slots:
     void on_btn_option2_clicked();
     void on_btn_option3_clicked();
 
+    void on_btn_1st_clicked();
+
+    void on_btn_2nd_clicked();
+
+    void on_btn_none_clicked();
+
 private:
     Ui::MainWindow *ui;
     int currentLegend   = 0;
