@@ -76,7 +76,8 @@ public:
     void moveLegend(Location loc);
     void showLegend(bool = true);
     bool legendVisible(void);
-    QwtPlotItem* itemAt( const QPoint& pos ) const;
+    void select(int);
+    void clearSelection(void);
 
 private slots:
     void axisTypeChanged(void);
@@ -93,6 +94,7 @@ signals:
     void curve_selected(int ID);
 
 private:
+    QwtPlotItem* itemAt( const QPoint& pos ) const;
     void rescale(void);
 
     Ui::SimFigure *ui;
