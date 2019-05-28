@@ -624,3 +624,57 @@ void SimFigure::clearSelection(void)
 
     emit curve_selected(-1);
 }
+
+int SimFigure::lineWidth(int ID)
+{
+    int w = 0;
+
+    if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
+    {
+        QPen pen = m_curves.value(ID-1)->pen();
+        w = pen.width();
+    }
+    return w;
+}
+
+double SimFigure::lineWidthF(int ID)
+{
+    double w = 0;
+
+    if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
+    {
+        QPen pen = m_curves.value(ID-1)->pen();
+        w = pen.widthF();
+    }
+    return w;
+}
+
+void SimFigure::setLineWidth(int ID, int wd)
+{
+    if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
+    {
+        QPen pen = m_curves.value(ID-1)->pen();
+        pen.setWidth(wd);
+        m_curves.value(ID-1)->setPen(pen);
+    }
+}
+
+void SimFigure::setLineWidth(int ID, double wd)
+{
+    if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
+    {
+        QPen pen = m_curves.value(ID-1)->pen();
+        pen.setWidthF(wd);
+        m_curves.value(ID-1)->setPen(pen);
+    }
+}
+
+LineType SimFigure::lineStyle(int ID)
+{
+    return LineType::Solid;  // for now
+}
+
+void SimFigure::setLineStyle(int ID, LineType tt)
+{
+
+}

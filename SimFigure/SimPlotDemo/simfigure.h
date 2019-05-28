@@ -65,7 +65,6 @@ class SimFigure : public QFrame
     Q_OBJECT
 
 public:
-
     explicit SimFigure(QWidget *parent = nullptr);
     ~SimFigure();
     void grid(bool mayor, bool minor);
@@ -78,6 +77,13 @@ public:
     bool legendVisible(void);
     void select(int);
     void clearSelection(void);
+
+    int    lineWidth(int ID);
+    double lineWidthF(int ID);
+    void setLineWidth(int ID, int wd);
+    void setLineWidth(int ID, double wd);
+    LineType lineStyle(int ID);
+    void setLineStyle(int ID, LineType lt);
 
 private slots:
     void axisTypeChanged(void);
