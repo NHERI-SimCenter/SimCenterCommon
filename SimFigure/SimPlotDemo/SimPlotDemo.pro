@@ -29,6 +29,7 @@ win32: QMAKE_CXXFLAGS += /Y- -wd"4100"
 win32: include(C:\qwt-6.1.3\features\qwt.prf)
 unix: include(/usr/local/qwt-6.1.4/features/qwt.prf)
 
+include(../../../SimCenterCommon/SimFigure/SimFigure.pri)
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
@@ -45,16 +46,13 @@ CONFIG += c++11
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp \
-    simfigure.cpp
+        mainwindow.cpp 
 
 HEADERS += \
-        mainwindow.h \
-    simfigure.h
+        mainwindow.h 
 
 FORMS += \
-        mainwindow.ui \
-    simfigure.ui
+        mainwindow.ui 
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
