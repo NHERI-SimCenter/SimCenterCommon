@@ -679,7 +679,9 @@ _EnD_oF_dEf_TeXt_;
 
 _EnD_oF_dEf_TeXt_;
       sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+ clear curent axes &ndash; clears the figure but preserves the grid type
 
+identical to cla()
 _EnD_oF_dEf_TeXt_;
     }; /* sec-member */
     sec-member = {
@@ -702,8 +704,13 @@ _EnD_oF_dEf_TeXt_;
 
 _EnD_oF_dEf_TeXt_;
       sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
-
+clear curent axes &ndash; clears the figure but preserves the grid type  
 _EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1a9ca7d763c13e9007a37a20aec8604545';
+        sec-mem-ref-line = '325';
+        sec-mem-ref-name = 'clear';
+    };
     }; /* sec-member */
     sec-member = {
       sec-mem-kind = 'function';
@@ -735,7 +742,9 @@ _EnD_oF_dEf_TeXt_;
 
 _EnD_oF_dEf_TeXt_;
       sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+ Add a legend to the current plot.
 
+Location is an enum class.
 _EnD_oF_dEf_TeXt_;
     }; /* sec-member */
     sec-member = {
@@ -759,8 +768,14 @@ _EnD_oF_dEf_TeXt_;
 
 _EnD_oF_dEf_TeXt_;
       sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
-
+ Move the legend to a new location identified by Location
+(enum class Location)  
 _EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1a4ef105717addfd538f0de947abda2c12';
+        sec-mem-ref-line = '359';
+        sec-mem-ref-name = 'legend';
+    };
     }; /* sec-member */
     sec-member = {
       sec-mem-kind = 'function';
@@ -786,8 +801,13 @@ _EnD_oF_dEf_TeXt_;
 
 _EnD_oF_dEf_TeXt_;
       sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
-
+show (on=true) or hide (on=false) a legend for the current plots.  
 _EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1a4ef105717addfd538f0de947abda2c12';
+        sec-mem-ref-line = '359';
+        sec-mem-ref-name = 'legend';
+    };
     }; /* sec-member */
     sec-member = {
       sec-mem-kind = 'function';
@@ -809,7 +829,7 @@ _EnD_oF_dEf_TeXt_;
 
 _EnD_oF_dEf_TeXt_;
       sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
-
+check if legend is currently visible. 
 _EnD_oF_dEf_TeXt_;
     }; /* sec-member */
     sec-member = {
@@ -833,8 +853,15 @@ _EnD_oF_dEf_TeXt_;
 
 _EnD_oF_dEf_TeXt_;
       sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
-
+ select the curve identified by its integer handle ID.
+Upon completion, this function will emit a SIGNAL(curve_selected(int)) with
+value = integer handle of that curve. 
 _EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1a79e37046cb4b62b2414bce5f82c8966e';
+        sec-mem-ref-line = '463';
+        sec-mem-ref-name = 'on_picker_appended';
+    };
     }; /* sec-member */
     sec-member = {
       sec-mem-kind = 'function';
@@ -856,8 +883,13 @@ _EnD_oF_dEf_TeXt_;
 
 _EnD_oF_dEf_TeXt_;
       sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
-
+clear selection of any curve. Upon completion, this function will emit a SIGNAL(curve_selected(int)) with value -1. 
 _EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1a79e37046cb4b62b2414bce5f82c8966e';
+        sec-mem-ref-line = '463';
+        sec-mem-ref-name = 'on_picker_appended';
+    };
     }; /* sec-member */
     sec-member = {
       sec-mem-kind = 'function';
@@ -927,7 +959,7 @@ _EnD_oF_dEf_TeXt_;
 
 _EnD_oF_dEf_TeXt_;
       sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
-
+return the line width of the curve with handle ID  
 _EnD_oF_dEf_TeXt_;
     }; /* sec-member */
     sec-member = {
@@ -951,7 +983,7 @@ _EnD_oF_dEf_TeXt_;
 
 _EnD_oF_dEf_TeXt_;
       sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
-
+return the line width of the curve with handle ID  
 _EnD_oF_dEf_TeXt_;
     }; /* sec-member */
     sec-member = {
@@ -981,7 +1013,7 @@ _EnD_oF_dEf_TeXt_;
 
 _EnD_oF_dEf_TeXt_;
       sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
-
+change the line width of the curve with handle ID  
 _EnD_oF_dEf_TeXt_;
     }; /* sec-member */
     sec-member = {
@@ -1011,7 +1043,7 @@ _EnD_oF_dEf_TeXt_;
 
 _EnD_oF_dEf_TeXt_;
       sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
-
+change the line width of the curve with handle ID  
 _EnD_oF_dEf_TeXt_;
     }; /* sec-member */
     sec-member = {
@@ -1180,7 +1212,7 @@ _EnD_oF_dEf_TeXt_;
     };
       sec-mem-referenceby = {
         sec-mem-ref-id = 'simfigure_8cpp_1ab42a2e8cab0b67b6b2a46f81f1564add';
-        sec-mem-ref-line = '717';
+        sec-mem-ref-line = '730';
         sec-mem-ref-name = 'setLineStyle';
     };
     }; /* sec-member */
@@ -1208,7 +1240,7 @@ _EnD_oF_dEf_TeXt_;
 
 _EnD_oF_dEf_TeXt_;
       sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
-
+DEPRICATED  
 _EnD_oF_dEf_TeXt_;
     }; /* sec-member */
     sec-member = {
@@ -1232,7 +1264,7 @@ _EnD_oF_dEf_TeXt_;
 
 _EnD_oF_dEf_TeXt_;
       sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
-
+DEPRICATED  
 _EnD_oF_dEf_TeXt_;
     }; /* sec-member */
     sec-member = {
@@ -1256,7 +1288,7 @@ _EnD_oF_dEf_TeXt_;
 
 _EnD_oF_dEf_TeXt_;
       sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
-
+upon mouse click inside the plot canvas, identify the QwtPlotItem most likely selected by that mouse event.  There is a 5 pixel tolerance to either side of a curve for which a hit will be detected.  
 _EnD_oF_dEf_TeXt_;
     }; /* sec-member */
     sec-member = {
@@ -1280,7 +1312,7 @@ _EnD_oF_dEf_TeXt_;
 
 _EnD_oF_dEf_TeXt_;
       sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
-
+DEPRICATED  
 _EnD_oF_dEf_TeXt_;
     }; /* sec-member */
     sec-member = {
@@ -1304,7 +1336,7 @@ _EnD_oF_dEf_TeXt_;
 
 _EnD_oF_dEf_TeXt_;
       sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
-
+DEPRICATED  
 _EnD_oF_dEf_TeXt_;
     }; /* sec-member */
     sec-member = {
@@ -1328,7 +1360,7 @@ _EnD_oF_dEf_TeXt_;
 
 _EnD_oF_dEf_TeXt_;
       sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
-
+DEPRICATED  
 _EnD_oF_dEf_TeXt_;
     }; /* sec-member */
   }; /* cp-section */
@@ -1382,7 +1414,8 @@ _EnD_oF_dEf_TeXt_;
 
 _EnD_oF_dEf_TeXt_;
       sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
-
+ select the curve identified by the provided pointer (private).
+Upon completion, this function will emit a SIGNAL(curve_selected(int)) with value = integer handle of that curve. 
 _EnD_oF_dEf_TeXt_;
     }; /* sec-member */
     sec-member = {
@@ -1496,7 +1529,7 @@ _EnD_oF_dEf_TeXt_;
 
 _EnD_oF_dEf_TeXt_;
       sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
-
+returns a pointer to the QwtPlotItem selected by the last mouse click (private) 
 _EnD_oF_dEf_TeXt_;
     }; /* sec-member */
     sec-member = {
@@ -1519,7 +1552,7 @@ _EnD_oF_dEf_TeXt_;
 
 _EnD_oF_dEf_TeXt_;
       sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
-
+reinitialize the scale engine for both axes (private)  
 _EnD_oF_dEf_TeXt_;
     }; /* sec-member */
     sec-member = {
@@ -1542,7 +1575,7 @@ _EnD_oF_dEf_TeXt_;
 
 _EnD_oF_dEf_TeXt_;
       sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
-
+Regenerate th egrid with new settings (Type, limits) - (private)  
 _EnD_oF_dEf_TeXt_;
     }; /* sec-member */
   }; /* cp-section */

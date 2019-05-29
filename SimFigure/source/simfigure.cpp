@@ -245,7 +245,7 @@ int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor 
     return idx;
 }
 
-/*! */
+/*! reinitialize the scale engine for both axes (private) */
 void SimFigure::rescale(void)
 {
     if (m_curves.length() > 0)
@@ -260,7 +260,7 @@ void SimFigure::rescale(void)
     }
 }
 
-/*! */
+/*! Regenerate th egrid with new settings (Type, limits) - (private) */
 void SimFigure::refreshGrid(void)
 {
 
@@ -318,13 +318,16 @@ void SimFigure::refreshGrid(void)
     m_plot->replot();
 }
 
-/*! */
+/*! clear curent axes -- clears the figure but preserves the grid type
+ *
+ * identical to cla()
+ */
 void SimFigure::clear(void)
 {
     cla();
 }
 
-/*! */
+/*! clear curent axes -- clears the figure but preserves the grid type */
 void SimFigure::cla(void)
 {
     foreach (QwtPlotCurve *curve, m_curves)
@@ -349,7 +352,10 @@ void SimFigure::cla(void)
     emit curve_selected(-1);
 }
 
-/*! */
+/*! Add a legend to the current plot.
+ *
+ * Location is an enum class.
+ */
 void SimFigure::legend(QList<QString> labels, Location loc)
 {
     moveLegend(loc);
@@ -360,7 +366,8 @@ void SimFigure::legend(QList<QString> labels, Location loc)
     }
 }
 
-/*! */
+/*! Move the legend to a new location identified by Location
+ * (enum class Location) */
 void SimFigure::moveLegend(Location loc)
 {
     if (m_legend == nullptr)
@@ -413,7 +420,7 @@ void SimFigure::moveLegend(Location loc)
     }
 }
 
-/*! */
+/*! show (on=true) or hide (on=false) a legend for the current plots. */
 void SimFigure::showLegend(bool on)
 {
     if (m_legend == nullptr)
@@ -434,25 +441,25 @@ void SimFigure::showLegend(bool on)
     m_plot->replot();
 }
 
-/*! */
+/*! check if legend is currently visible.*/
 bool SimFigure::legendVisible(void)
 {
     return (m_legend!=nullptr && m_legend->isVisible());
 }
 
-/*! */
+/*! DEPRICATED */
 void SimFigure::on_picker_activated(bool on)
 {
     //qWarning() << "picker activated " << on;
 }
 
-/*! */
+/*! DEPRICATED */
 void SimFigure::on_picker_selected(const QPolygon &polygon)
 {
     //qWarning() << "picker selected " << polygon;
 }
 
-/*! */
+/*! upon mouse click inside the plot canvas, identify the QwtPlotItem most likely selected by that mouse event.  There is a 5 pixel tolerance to either side of a curve for which a hit will be detected. */
 void SimFigure::on_picker_appended (const QPoint &pos)
 {
     //qWarning() << "picker appended " << pos;
@@ -500,25 +507,25 @@ void SimFigure::on_picker_appended (const QPoint &pos)
     }
 }
 
-/*! */
+/*! DEPRICATED */
 void SimFigure::on_picker_moved (const QPoint &pos)
 {
     //qWarning() << "picker moved " << pos;
 }
 
-/*! */
+/*! DEPRICATED */
 void SimFigure::on_picker_removed (const QPoint &pos)
 {
     //qWarning() << "picker removed " << pos;
 }
 
-/*! */
+/*! DEPRICATED */
 void SimFigure::on_picker_changed (const QPolygon &selection)
 {
     //qWarning() << "picker changed " << selection;
 }
 
-/*! */
+/*! returns a pointer to the QwtPlotItem selected by the last mouse click (private)*/
 QwtPlotItem* SimFigure::itemAt( const QPoint& pos ) const
 {
     if ( m_plot == nullptr )
@@ -606,7 +613,10 @@ QwtPlotItem* SimFigure::itemAt( const QPoint& pos ) const
     return nullptr;
 }
 
-/*! */
+
+/*! select the curve identified by its integer handle ID.
+ * Upon completion, this function will emit a SIGNAL(curve_selected(int)) with
+ * value = integer handle of that curve.*/
 void SimFigure::select(int ID)
 {
     QwtPlotItem *theItem = nullptr;
@@ -617,7 +627,8 @@ void SimFigure::select(int ID)
     if (theItem) select(theItem);
 }
 
-/*! */
+/*! select the curve identified by the provided pointer (private).
+ * Upon completion, this function will emit a SIGNAL(curve_selected(int)) with value = integer handle of that curve.*/
 void SimFigure::select(QwtPlotItem *item)
 {
     clearSelection();
@@ -643,7 +654,7 @@ void SimFigure::select(QwtPlotItem *item)
     }
 }
 
-/*! */
+/*! clear selection of any curve. Upon completion, this function will emit a SIGNAL(curve_selected(int)) with value -1.*/
 void SimFigure::clearSelection(void)
 {
     if (lastSelection.object != nullptr)
@@ -661,7 +672,7 @@ void SimFigure::clearSelection(void)
     emit curve_selected(-1);
 }
 
-/*! */
+/*! return the line width of the curve with handle ID */
 int SimFigure::lineWidth(int ID)
 {
     int w = 0;
@@ -674,7 +685,7 @@ int SimFigure::lineWidth(int ID)
     return w;
 }
 
-/*! */
+/*! return the line width of the curve with handle ID */
 double SimFigure::lineWidthF(int ID)
 {
     double w = 0;
@@ -687,7 +698,7 @@ double SimFigure::lineWidthF(int ID)
     return w;
 }
 
-/*! */
+/*! change the line width of the curve with handle ID */
 void SimFigure::setLineWidth(int ID, int wd)
 {
     if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
@@ -698,7 +709,7 @@ void SimFigure::setLineWidth(int ID, int wd)
     }
 }
 
-/*! */
+/*! change the line width of the curve with handle ID */
 void SimFigure::setLineWidth(int ID, double wd)
 {
     if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
@@ -707,7 +718,9 @@ void SimFigure::setLineWidth(int ID, double wd)
         pen.setWidthF(wd);
         m_curves.value(ID-1)->setPen(pen);
     }
-}/*! returns the line style of a curve. */
+}
+
+/*! returns the line style of a curve. */
 LineType SimFigure::lineStyle(int ID)
 {
     return LineType::Solid;  // for now
