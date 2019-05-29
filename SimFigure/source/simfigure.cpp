@@ -250,6 +250,75 @@ int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor 
     return idx;
 }
 
+/*! The scatter() method provides a plot functionality similar to MATLAP's scatter function
+ * x and y are regerences to QVector<double>.  The must be of equal length.
+ *
+ * scatter returns an integer serving as a unique handle for all points. The following functions use that handle
+ * to read or change settings for that curve:
+ *
+ * lineWidth(),  lineWidthF(), setLineWidth(),
+ * setLineWidthF(), lineStyle(), setLineStyle(),
+ * lineColor(), setLineColor(), setMarker()
+ *
+ * @param color a QColor object defining the line color.  You may also use pre-defined colors like Qt::red, ...
+ * @param mk a member of the SimFigure::Marker enum.
+ */
+int SimFigure::scatter(QVector<double> &x, QVector<double> &y, QColor color, Marker mk)
+{
+    return plot(x, y, SimFigure::LineType::None, color, mk);
+}
+
+/**
+ * @brief SimFigure::xLabel
+ * @return
+ */
+QString SimFigure::xLabel(QString)
+{
+
+}
+
+/**
+ * @brief SimFigure::yLabel
+ * @return
+ */
+QString SimFigure::yLabel(QString)
+{
+
+}
+
+/**
+ * @brief SimFigure::title
+ * @return
+ */
+QString SimFigure::title(QString)
+{
+
+}
+
+/**
+ * @brief SimFigure::setXLabel
+ */
+void SimFigure::setXLabel(QString)
+{
+
+}
+
+/**
+ * @brief SimFigure::setYLabel
+ */
+void SimFigure::setYLabel(QString)
+{
+
+}
+
+/**
+ * @brief SimFigure::setTitle
+ */
+void SimFigure::setTitle(QString)
+{
+
+}
+
 /*! reinitialize the scale engine for both axes (private) */
 void SimFigure::rescale(void)
 {
