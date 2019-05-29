@@ -35,6 +35,16 @@
 SimFigure::SimFigure(QWidget *parent) :
     QFrame(parent),
     ui(new Ui::SimFigure)
+  /*! SimFigure
+   *  is a widget that emulates a MATLAB-like
+   *  interface to Qwt, allowing for a quick porting of
+   *  MATLAB graphics to Qt5. Creating an instance of
+   *  SimFigure is equivalent to MATLAB's
+   *
+   *  h = figure
+   *
+   * \header simfigure.h "code/simfigure.h"
+   */
 {
     ui->setupUi(this);
 
@@ -73,11 +83,16 @@ SimFigure::SimFigure(QWidget *parent) :
 
 }
 
+/*! the SimFIgure destructor */
 SimFigure::~SimFigure()
 {
     delete ui;
 }
 
+/*! This signal is emited whenever one of the 'Default', 'LogX', 'LogY', or 'LogLog'
+ * radiobuttons is clicked.
+ * It is further emited if the axistype is changed via a call to
+ */
 void SimFigure::axisTypeChanged(void)
 {
     if (ui->btn_standard->isChecked())
@@ -146,6 +161,12 @@ void SimFigure::axisTypeChanged(void)
 }
 
 void SimFigure::grid(bool major, bool minor)
+/*! generate a grid with major (true|false) and minor (true|false) grid markers and lines.
+ *
+ * grid()   turns major and monor grid on
+ *
+ * grid( false, false ) turns the grid off
+ */
 {
     m_showMajorGrid = major;
     m_showMinorGrid = minor;
@@ -154,10 +175,12 @@ void SimFigure::grid(bool major, bool minor)
 }
 
 AxisType SimFigure::AxisType(void)
+/*! returns the current AxisType */
 {
     return axisType;
 }
 
+/*! set the AxisType for the current grid */
 void SimFigure::setAxisType(enum AxisType type)
 {
     axisType = type;
@@ -178,6 +201,16 @@ void SimFigure::setAxisType(enum AxisType type)
     this->axisTypeChanged();
 }
 
+/*! The plot() method provides a plot functionality similar to MATLAP's plot function
+ * x and y are regerences to QVector<double>.  The must be of equal length.
+ *
+ * plot returns an integer serving as a unique handle for the curve. The following functions use that handle
+ * to read or change settings for that curve:
+ *
+ * lineWidth(),  lineWidthF(), setLineWidth(),
+ * setLineWidth(), lineStyle(), setLineStyle(),
+ * lineColor(), setLineColor(), setMarker()
+ */
 int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor color, Marker mk)
 {
     if (x.length() <= 0 || y.length() <= 0) return -1;
@@ -212,6 +245,7 @@ int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor 
     return idx;
 }
 
+/*! */
 void SimFigure::rescale(void)
 {
     if (m_curves.length() > 0)
@@ -226,6 +260,7 @@ void SimFigure::rescale(void)
     }
 }
 
+/*! */
 void SimFigure::refreshGrid(void)
 {
 
@@ -283,11 +318,13 @@ void SimFigure::refreshGrid(void)
     m_plot->replot();
 }
 
+/*! */
 void SimFigure::clear(void)
 {
     cla();
 }
 
+/*! */
 void SimFigure::cla(void)
 {
     foreach (QwtPlotCurve *curve, m_curves)
@@ -312,6 +349,7 @@ void SimFigure::cla(void)
     emit curve_selected(-1);
 }
 
+/*! */
 void SimFigure::legend(QList<QString> labels, Location loc)
 {
     moveLegend(loc);
@@ -322,6 +360,7 @@ void SimFigure::legend(QList<QString> labels, Location loc)
     }
 }
 
+/*! */
 void SimFigure::moveLegend(Location loc)
 {
     if (m_legend == nullptr)
@@ -374,6 +413,7 @@ void SimFigure::moveLegend(Location loc)
     }
 }
 
+/*! */
 void SimFigure::showLegend(bool on)
 {
     if (m_legend == nullptr)
@@ -394,21 +434,25 @@ void SimFigure::showLegend(bool on)
     m_plot->replot();
 }
 
+/*! */
 bool SimFigure::legendVisible(void)
 {
     return (m_legend!=nullptr && m_legend->isVisible());
 }
 
+/*! */
 void SimFigure::on_picker_activated(bool on)
 {
     //qWarning() << "picker activated " << on;
 }
 
+/*! */
 void SimFigure::on_picker_selected(const QPolygon &polygon)
 {
     //qWarning() << "picker selected " << polygon;
 }
 
+/*! */
 void SimFigure::on_picker_appended (const QPoint &pos)
 {
     //qWarning() << "picker appended " << pos;
@@ -456,21 +500,25 @@ void SimFigure::on_picker_appended (const QPoint &pos)
     }
 }
 
+/*! */
 void SimFigure::on_picker_moved (const QPoint &pos)
 {
     //qWarning() << "picker moved " << pos;
 }
 
+/*! */
 void SimFigure::on_picker_removed (const QPoint &pos)
 {
     //qWarning() << "picker removed " << pos;
 }
 
+/*! */
 void SimFigure::on_picker_changed (const QPolygon &selection)
 {
     //qWarning() << "picker changed " << selection;
 }
 
+/*! */
 QwtPlotItem* SimFigure::itemAt( const QPoint& pos ) const
 {
     if ( m_plot == nullptr )
@@ -558,6 +606,7 @@ QwtPlotItem* SimFigure::itemAt( const QPoint& pos ) const
     return nullptr;
 }
 
+/*! */
 void SimFigure::select(int ID)
 {
     QwtPlotItem *theItem = nullptr;
@@ -568,6 +617,7 @@ void SimFigure::select(int ID)
     if (theItem) select(theItem);
 }
 
+/*! */
 void SimFigure::select(QwtPlotItem *item)
 {
     clearSelection();
@@ -593,6 +643,7 @@ void SimFigure::select(QwtPlotItem *item)
     }
 }
 
+/*! */
 void SimFigure::clearSelection(void)
 {
     if (lastSelection.object != nullptr)
@@ -610,6 +661,7 @@ void SimFigure::clearSelection(void)
     emit curve_selected(-1);
 }
 
+/*! */
 int SimFigure::lineWidth(int ID)
 {
     int w = 0;
@@ -622,6 +674,7 @@ int SimFigure::lineWidth(int ID)
     return w;
 }
 
+/*! */
 double SimFigure::lineWidthF(int ID)
 {
     double w = 0;
@@ -634,6 +687,7 @@ double SimFigure::lineWidthF(int ID)
     return w;
 }
 
+/*! */
 void SimFigure::setLineWidth(int ID, int wd)
 {
     if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
@@ -644,6 +698,7 @@ void SimFigure::setLineWidth(int ID, int wd)
     }
 }
 
+/*! */
 void SimFigure::setLineWidth(int ID, double wd)
 {
     if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
@@ -652,13 +707,13 @@ void SimFigure::setLineWidth(int ID, double wd)
         pen.setWidthF(wd);
         m_curves.value(ID-1)->setPen(pen);
     }
-}
-
+}/*! returns the line style of a curve. */
 LineType SimFigure::lineStyle(int ID)
 {
     return LineType::Solid;  // for now
 }
 
+/*! used to change the current line style of a curve. */
 void SimFigure::setLineStyle(int ID, LineType lt, Marker mk)
 {
     if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
@@ -668,6 +723,7 @@ void SimFigure::setLineStyle(int ID, LineType lt, Marker mk)
     }
 }
 
+/*! used to change the current line style of a curve. (private) */
 void SimFigure::setLineStyle(QwtPlotCurve *curve, LineType lt)
 {
     QPen pen = curve->pen();
@@ -695,6 +751,7 @@ void SimFigure::setLineStyle(QwtPlotCurve *curve, LineType lt)
     curve->setPen(pen);
 }
 
+/*! used to change the current marker of a curve. */
 void SimFigure::setMarker(int ID, Marker mk)
 {
     if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
@@ -703,6 +760,7 @@ void SimFigure::setMarker(int ID, Marker mk)
     }
 }
 
+/*! used to change the current marker of a curve. (private) */
 void SimFigure::setMarker(QwtPlotCurve *curve, Marker mk)
 {
     switch (mk)
@@ -740,11 +798,13 @@ void SimFigure::setMarker(QwtPlotCurve *curve, Marker mk)
     }
 }
 
+/*! returns line color of the curve with handle ID. */
 QColor SimFigure::lineColor(int ID)
 {
     return QColor(Qt::red);
 }
 
+/*! used to change the current color of a curve. */
 void SimFigure::setLineColor(int ID, QColor color)
 {
     if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
@@ -753,6 +813,7 @@ void SimFigure::setLineColor(int ID, QColor color)
     }
 }
 
+/*! used to change the current color of a curve. (private) */
 void SimFigure::setLineColor(QwtPlotCurve *curve, QColor color)
 {
     QPen pen = curve->pen();
