@@ -56,10 +56,10 @@ void MainWindow::on_selectionView_clicked(const QModelIndex &index)
         }
         int idx;
         idx = ui->theFigure->plot(x,y);
-        idx = ui->theFigure->plot(x,z, LineType::Solid, QColor(Qt::blue));
+        idx = ui->theFigure->plot(x,z, SimFigure::LineType::Solid, QColor(Qt::blue));
 
         ui->theFigure->showLegend();
-        ui->theFigure->setAxisType(AxisType::LogX);
+        ui->theFigure->setAxisType(SimFigure::AxisType::LogX);
 
         break; }
     case 1: {
@@ -72,11 +72,11 @@ void MainWindow::on_selectionView_clicked(const QModelIndex &index)
             u.append( 200. + 175*0.5*s/PI * sin(s));
         }
         int idx;
-        idx = ui->theFigure->plot(y,z, LineType::DashDotted, Qt::green);
-        idx = ui->theFigure->plot(d,u, LineType::Solid, Qt::blue, Marker::Triangle);
+        idx = ui->theFigure->plot(y,z, SimFigure::LineType::DashDotted, Qt::green);
+        idx = ui->theFigure->plot(d,u, SimFigure::LineType::Solid, Qt::blue, SimFigure::Marker::Triangle);
 
         ui->theFigure->showLegend();
-        ui->theFigure->setAxisType(AxisType::Default);
+        ui->theFigure->setAxisType(SimFigure::AxisType::Default);
 
         break; }
     case 2:
@@ -127,14 +127,15 @@ void MainWindow::on_btn_option1_clicked()
 
 void MainWindow::on_btn_option2_clicked()
 {
-    QVector<Location> locList({Location::Top,
-                               Location::TopRight,
-                               Location::Right,
-                               Location::BottomRight,
-                               Location::Bottom,
-                               Location::BottomLeft,
-                               Location::Left,
-                               Location::TopLeft
+    QVector<SimFigure::Location> locList({
+                               SimFigure::Location::Top,
+                               SimFigure::Location::TopRight,
+                               SimFigure::Location::Right,
+                               SimFigure::Location::BottomRight,
+                               SimFigure::Location::Bottom,
+                               SimFigure::Location::BottomLeft,
+                               SimFigure::Location::Left,
+                               SimFigure::Location::TopLeft
                               });
 
     currentLocation++;

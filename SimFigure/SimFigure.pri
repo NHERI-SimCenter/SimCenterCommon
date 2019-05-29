@@ -24,7 +24,8 @@ INCLUDEPATH += "../SimCenterCommon/SimFigure/source"
 
 SOURCES += $$PWD/source/simfigure.cpp
 
-HEADERS += $$PWD/source/simfigure.h
+HEADERS += $$PWD/source/simfigure.h \
+           $$PWD/source/simfigure_enums.h
 
 FORMS   += $$PWD/source/simfigure.ui
 
