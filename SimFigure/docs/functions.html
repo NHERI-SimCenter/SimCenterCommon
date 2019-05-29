@@ -9,6 +9,14 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+  $(document).ready(initResizable);
+/* @license-end */</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
@@ -22,7 +30,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">SimFigure Widget
-   &#160;<span id="projectnumber">0.2</span>
+   &#160;<span id="projectnumber">0.9</span>
    </div>
    <div id="projectbrief">A light-weight wrapper to emulate MATLAB-like syntax for Qwt</div>
   </td>
@@ -48,6 +56,22 @@ $(function() {
 /* @license-end */</script>
 <div id="main-nav"></div>
 </div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('functions.html','');});
+/* @license-end */
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -63,10 +87,19 @@ $(function() {
 </div>
 
 <div class="contents">
-<div class="textblock">Here is a list of all documented class members with links to the class documentation for each member:</div><ul>
-<li>AxisType()
-: <a class="el" href="class_sim_figure.html#aa13a5715b54c2367bddc6b827baac3ce">SimFigure</a>
+<div class="textblock">Here is a list of all documented class members with links to the class documentation for each member:</div>
+
+<h3><a id="index_a"></a>- a -</h3><ul>
+<li>AxisType
+: <a class="el" href="class_sim_figure.html#aea160416bb26a1ea4cb432eb2603f323">SimFigure</a>
 </li>
+<li>axisType()
+: <a class="el" href="class_sim_figure.html#ac7c1a9f0b0cbb741046c0f858a14f9c6">SimFigure</a>
+</li>
+</ul>
+
+
+<h3><a id="index_c"></a>- c -</h3><ul>
 <li>cla()
 : <a class="el" href="class_sim_figure.html#a5bd2784878e27412cb407fe9b883d084">SimFigure</a>
 </li>
@@ -76,9 +109,17 @@ $(function() {
 <li>clearSelection()
 : <a class="el" href="class_sim_figure.html#ae7e260a85fec8195b3df25061067d3ce">SimFigure</a>
 </li>
+</ul>
+
+
+<h3><a id="index_g"></a>- g -</h3><ul>
 <li>grid()
 : <a class="el" href="class_sim_figure.html#abde918f82b8e33fe6ba53b3f0262baab">SimFigure</a>
 </li>
+</ul>
+
+
+<h3><a id="index_l"></a>- l -</h3><ul>
 <li>legend()
 : <a class="el" href="class_sim_figure.html#a4ef105717addfd538f0de947abda2c12">SimFigure</a>
 </li>
@@ -89,7 +130,10 @@ $(function() {
 : <a class="el" href="class_sim_figure.html#a095f59955b2659771a521962a43f0489">SimFigure</a>
 </li>
 <li>lineStyle()
-: <a class="el" href="class_sim_figure.html#a8ed81ec1e11866c487cea93c23bc8312">SimFigure</a>
+: <a class="el" href="class_sim_figure.html#ab6dfc2c90e904e870a3695872b5b573a">SimFigure</a>
+</li>
+<li>LineType
+: <a class="el" href="class_sim_figure.html#a9c2b10f9af551b016dfd825babc242f8">SimFigure</a>
 </li>
 <li>lineWidth()
 : <a class="el" href="class_sim_figure.html#af1729c4a49feb1e5f3318878d03adecf">SimFigure</a>
@@ -97,9 +141,23 @@ $(function() {
 <li>lineWidthF()
 : <a class="el" href="class_sim_figure.html#a33d8b7ffa6f73c6be5e40b31ab4714bd">SimFigure</a>
 </li>
+<li>Location
+: <a class="el" href="class_sim_figure.html#ac704676c05de241e637760f624a5e111">SimFigure</a>
+</li>
+</ul>
+
+
+<h3><a id="index_m"></a>- m -</h3><ul>
+<li>Marker
+: <a class="el" href="class_sim_figure.html#ab6789cdbf723aeb9193c00a476e87db6">SimFigure</a>
+</li>
 <li>moveLegend()
 : <a class="el" href="class_sim_figure.html#acd3b47ae200a265140052f00dd5e8982">SimFigure</a>
 </li>
+</ul>
+
+
+<h3><a id="index_o"></a>- o -</h3><ul>
 <li>on_picker_activated()
 : <a class="el" href="class_sim_figure.html#ac0ce4c585dd691bba1c0e221f8df94c8">SimFigure</a>
 </li>
@@ -118,14 +176,22 @@ $(function() {
 <li>on_picker_selected()
 : <a class="el" href="class_sim_figure.html#ae06d6a5705e082ca8c59d65fe109acff">SimFigure</a>
 </li>
+</ul>
+
+
+<h3><a id="index_p"></a>- p -</h3><ul>
 <li>plot()
 : <a class="el" href="class_sim_figure.html#a11f73c2f886f15a9cb2a3f746f5b2479">SimFigure</a>
 </li>
+</ul>
+
+
+<h3><a id="index_s"></a>- s -</h3><ul>
 <li>select()
 : <a class="el" href="class_sim_figure.html#a319e910b50383a17bdf4795c3e15fe7f">SimFigure</a>
 </li>
 <li>setAxisType()
-: <a class="el" href="class_sim_figure.html#afd3bbbe547a1cc431d3136bf4d1f9885">SimFigure</a>
+: <a class="el" href="class_sim_figure.html#a0ba080ccc53aaf3dcbe7b07e6a270c9f">SimFigure</a>
 </li>
 <li>setLineColor()
 : <a class="el" href="class_sim_figure.html#abd45928de1b30aeea696d91c69124b67">SimFigure</a>
@@ -136,6 +202,9 @@ $(function() {
 <li>setLineWidth()
 : <a class="el" href="class_sim_figure.html#ab9e22f4d91455e41980cd7592b2031a7">SimFigure</a>
 </li>
+<li>setLineWidthF()
+: <a class="el" href="class_sim_figure.html#a5a965f4e8a2c08889a13c392e9ca38f4">SimFigure</a>
+</li>
 <li>setMarker()
 : <a class="el" href="class_sim_figure.html#a34fe9962e0af5eab0c8c0bb7d57ffec1">SimFigure</a>
 </li>
@@ -145,16 +214,23 @@ $(function() {
 <li>SimFigure()
 : <a class="el" href="class_sim_figure.html#ad3c0e096e64b402a92d192537a64e1ab">SimFigure</a>
 </li>
+</ul>
+
+
+<h3><a id="index_0x7e"></a>- ~ -</h3><ul>
 <li>~SimFigure()
 : <a class="el" href="class_sim_figure.html#a83522b8079dcfaa543ad7aae38053e12">SimFigure</a>
 </li>
 </ul>
 </div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by &#160;<a href="http://www.doxygen.org/index.html">
-<img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.14
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Generated by
+    <a href="http://www.doxygen.org/index.html">
+    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.14 </li>
+  </ul>
+</div>
 </body>
 </html>

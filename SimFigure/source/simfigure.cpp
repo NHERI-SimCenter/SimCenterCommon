@@ -43,6 +43,7 @@ SimFigure::SimFigure(QWidget *parent) :
    *
    *  h = figure
    *
+   * @param parent is a pointer to the parent widget
    * \header simfigure.h "code/simfigure.h"
    */
 {
@@ -59,7 +60,7 @@ SimFigure::SimFigure(QWidget *parent) :
 
     ui->btn_standard->setChecked(true);
 
-    axisType = AxisType::Default;
+    m_axisType = AxisType::Default;
     m_plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLinearScaleEngine(10));
     m_plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLinearScaleEngine(10));
 
@@ -97,9 +98,9 @@ void SimFigure::axisTypeChanged(void)
 {
     if (ui->btn_standard->isChecked())
     {
-        if (axisType != AxisType::Default)
+        if (m_axisType != AxisType::Default)
         {
-            axisType = AxisType::Default;
+            m_axisType = AxisType::Default;
             m_plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLinearScaleEngine(10));
             m_plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLinearScaleEngine(10));
 
@@ -110,9 +111,9 @@ void SimFigure::axisTypeChanged(void)
     }
     else if (ui->btn_logX->isChecked())
     {
-        if (axisType != AxisType::LogX)
+        if (m_axisType != AxisType::LogX)
         {
-            axisType = AxisType::LogX;
+            m_axisType = AxisType::LogX;
             m_plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLinearScaleEngine(10));
             m_plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLogScaleEngine(10));
 
@@ -123,9 +124,9 @@ void SimFigure::axisTypeChanged(void)
     }
     else if (ui->btn_logY->isChecked())
     {
-        if (axisType != AxisType::LogY)
+        if (m_axisType != AxisType::LogY)
         {
-            axisType = AxisType::LogY;
+            m_axisType = AxisType::LogY;
             m_plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLogScaleEngine(10));
             m_plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLinearScaleEngine(10));
 
@@ -136,9 +137,9 @@ void SimFigure::axisTypeChanged(void)
     }
     else if (ui->btn_loglog->isChecked())
     {
-        if (axisType != AxisType::LogLog)
+        if (m_axisType != AxisType::LogLog)
         {
-            axisType = AxisType::LogLog;
+            m_axisType = AxisType::LogLog;
 
             m_plot->setAxisMaxMajor( QwtPlot::yLeft, 6 );
             m_plot->setAxisMaxMinor( QwtPlot::yLeft, 9 );
@@ -157,7 +158,7 @@ void SimFigure::axisTypeChanged(void)
 
     grid(true, true);
 
-    //qDebug() << "signal axisTypeChanged received " << int(axisType);
+    //qDebug() << "signal axisTypeChanged received " << int(m_axisType);
 }
 
 void SimFigure::grid(bool major, bool minor)
@@ -174,17 +175,17 @@ void SimFigure::grid(bool major, bool minor)
     refreshGrid();
 }
 
-AxisType SimFigure::AxisType(void)
+SimFigure::AxisType SimFigure::axisType(void)
 /*! returns the current AxisType */
 {
-    return axisType;
+    return m_axisType;
 }
 
 /*! set the AxisType for the current grid */
 void SimFigure::setAxisType(enum AxisType type)
 {
-    axisType = type;
-    switch (axisType) {
+    m_axisType = type;
+    switch (m_axisType) {
     case AxisType::LogX :
         ui->btn_logX->setChecked(true);
         break;
@@ -208,8 +209,12 @@ void SimFigure::setAxisType(enum AxisType type)
  * to read or change settings for that curve:
  *
  * lineWidth(),  lineWidthF(), setLineWidth(),
- * setLineWidth(), lineStyle(), setLineStyle(),
+ * setLineWidthF(), lineStyle(), setLineStyle(),
  * lineColor(), setLineColor(), setMarker()
+ *
+ * @param lt a member of the SimFigure::LineType enum
+ * @param color a QColor object defining the line color.  You may also use pre-defined colors like Qt::red, ...
+ * @param mk a member of the SimFigure::Marker enum.
  */
 int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor color, Marker mk)
 {
@@ -295,7 +300,7 @@ void SimFigure::refreshGrid(void)
             m_grid->enableYMin(false);
         }
 
-        switch (axisType) {
+        switch (m_axisType) {
         case AxisType::Default:
             m_plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLinearScaleEngine);
             m_plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLinearScaleEngine);
@@ -710,7 +715,7 @@ void SimFigure::setLineWidth(int ID, int wd)
 }
 
 /*! change the line width of the curve with handle ID */
-void SimFigure::setLineWidth(int ID, double wd)
+void SimFigure::setLineWidthF(int ID, double wd)
 {
     if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
     {
@@ -721,7 +726,7 @@ void SimFigure::setLineWidth(int ID, double wd)
 }
 
 /*! returns the line style of a curve. */
-LineType SimFigure::lineStyle(int ID)
+SimFigure::LineType SimFigure::lineStyle(int ID)
 {
     return LineType::Solid;  // for now
 }

@@ -7,6 +7,8 @@
 #include <QPen>
 #include <QBrush>
 
+//#include "simfigure_enums.h"
+
 class QwtPlot;
 class QwtPlotGrid;
 class QwtPlotItem;
@@ -15,50 +17,6 @@ class QwtPlotCurve;
 class QwtPlotLegendItem;
 class QString;
 class QwtPlotPicker;
-
-/*! AxisType is used for selecting linear or logarithmic scales on th eX and Y axes. */
-enum class AxisType { Default, /*!< linear scales for x and y */
-                      LogX,    /*!< log scale for x, linear scale for y */
-                      LogY,    /*!< linear scale for x, log scale for y */
-                      LogLog   /*!< log scales for x and y */
-                    };
-
-/*! LineType is used to define the line type used by plot() */
-enum class LineType { None,      /*!< no line is drawn (only markers) */
-                      Solid,     /*!< a solid line is drawn */
-                      Dotted,    /*!< a dotted line is drawn */
-                      Dashed,    /*!< a dashed line is drawn */
-                      DashDotted /*!< a dash-dotted line is drawn */
-                    };
-
-/*! Marker is used to define the marker used for a particular plot().*/
-enum class Marker { None,
-                    Asterisk,
-                    Circle,
-                    Plus,
-                    Triangle,
-                    DownTriangle,
-                    RightTriangle,
-                    LeftTriangle,
-                    Box,
-                    Ex };
-
-enum class Location { Bottom,
-                      Top,
-                      Left,
-                      Right,
-                      TopLeft,
-                      TopRight,
-                      BottomLeft,
-                      BottomRight,
-                      North,
-                      South,
-                      East,
-                      West,
-                      NorthWest,
-                      NorthEast,
-                      SouthWest,
-                      SouthEast };
 
 
 namespace Ui {
@@ -71,6 +29,70 @@ class SimFigure : public QFrame
     Q_OBJECT
 
 public:
+
+    /**
+     * @brief The AxisType enum
+     *
+     * used for selecting linear or logarithmic scales on th eX and Y axes.
+     */
+    enum class AxisType { Default, ///< linear scales for x and y
+                          LogX,    ///< log scale for x, linear scale for y
+                          LogY,    ///< linear scale for x, log scale for y
+                          LogLog   ///< log scales for x and y
+                        };
+
+    /**
+      * @brief The LineType enum
+      *
+      * used to define the line type used by plot().
+      */
+    enum class LineType { None,      ///< no line is drawn (only markers)
+                          Solid,     ///< a solid line is drawn
+                          Dotted,    ///< a dotted line is drawn
+                          Dashed,    ///< a dashed line is drawn
+                          DashDotted ///< a dash-dotted line is drawn
+                        };
+
+    /**
+     * @brief The Marker enum
+     *
+     * used to define the marker used for a particular plot().
+     */
+    enum class Marker { None,            ///< no marker (line only)
+                        Asterisk,        ///< &lowast;
+                        Circle,          ///< o
+                        Plus,            ///< \+
+                        Triangle,        ///< upright triangle
+                        DownTriangle,    ///< upside-down triangle
+                        RightTriangle,   ///< point to the right triangle
+                        LeftTriangle,    ///< point to the left triangle
+                        Box,             ///< a square box
+                        Ex               ///< x
+                      };
+
+    /**
+     * @brief The Location enum
+     *
+     * used to define the position of the legend (if visible) on the plot() canvas.
+     */
+    enum class Location { Bottom,       ///< centered horizontally at the bottom
+                          Top,          ///< centered horizontally at the top
+                          Left,         ///< centered vertically on the left
+                          Right,        ///< centered vertically on the right
+                          TopLeft,      ///< top left corner
+                          TopRight,     ///< top right corner
+                          BottomLeft,   ///< bottom left corner
+                          BottomRight,  ///< bottom right corner
+                          North,        ///< equivalent to Top
+                          South,        ///< equivalent to Bottom
+                          East,         ///< equivalent to Right
+                          West,         ///< equivalent to Left
+                          NorthWest,    ///< equivalent to TopLeft
+                          NorthEast,    ///< equivalent to TopRight
+                          SouthWest,    ///< equivalent to BottomLeft
+                          SouthEast     ///< equivalent to BottomRight
+                        };
+
     explicit SimFigure(QWidget *parent = nullptr);
     ~SimFigure();
     void grid(bool mayor=true, bool minor=true);
@@ -83,14 +105,14 @@ public:
     bool legendVisible(void);
     void select(int);
     void clearSelection(void);
-    AxisType AxisType(void);
-    void setAxisType(enum AxisType type);
+    SimFigure::AxisType axisType(void);
+    void setAxisType( AxisType type);
 
     int      lineWidth(int ID);
     double   lineWidthF(int ID);
     void     setLineWidth(int ID, int wd);
-    void     setLineWidth(int ID, double wd);
-    LineType lineStyle(int ID);
+    void     setLineWidthF(int ID, double wd);
+    SimFigure::LineType lineStyle(int ID);
     void     setLineStyle(int ID, LineType lt=LineType::Solid, Marker mk=Marker::None);
     QColor   lineColor(int ID);
     void     setLineColor(int ID, QColor color);
@@ -129,7 +151,7 @@ private:
 
     QVector<QwtPlotCurve *> m_curves;
 
-    enum AxisType axisType;
+    AxisType m_axisType;
     double  m_xmin = 1.e20;
     double  m_xmax = 1.e-20;
     double  m_ymin = 1.e20;
