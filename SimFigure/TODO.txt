@@ -22,8 +22,18 @@ TODO:
    - setLineWidth(int)
    - lineStyle()
    - setLineStyle(LineStyle)
+   - lineMarker()
+   - setLineMarker(LineStyle)
+   +++ done: 05/28/2019
 
 5) provide a demo app to illustrate all features and show th eprogrammer how to use them
    +++ this is SimPlotDemo.App
    - keep updating as new features become available
+
+6) let user check and change axisStyle (default, logx, logy, loglog)
+   +++ done: 05/28/2019
+
+7) add doxygen documentation
+
+
 

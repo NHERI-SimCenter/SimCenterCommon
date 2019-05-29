@@ -65,7 +65,6 @@ class SimFigure : public QFrame
     Q_OBJECT
 
 public:
-
     explicit SimFigure(QWidget *parent = nullptr);
     ~SimFigure();
     void grid(bool mayor, bool minor);
@@ -78,6 +77,18 @@ public:
     bool legendVisible(void);
     void select(int);
     void clearSelection(void);
+    AxisType AxisType(void);
+    void setAxisType(enum AxisType type);
+
+    int      lineWidth(int ID);
+    double   lineWidthF(int ID);
+    void     setLineWidth(int ID, int wd);
+    void     setLineWidth(int ID, double wd);
+    LineType lineStyle(int ID);
+    void     setLineStyle(int ID, LineType lt=LineType::Solid, Marker mk=Marker::None);
+    QColor   lineColor(int ID);
+    void     setLineColor(int ID, QColor color);
+    void     setMarker(int ID, Marker mk);
 
 private slots:
     void axisTypeChanged(void);
@@ -95,8 +106,12 @@ signals:
 
 private:
     void select(QwtPlotItem *);
+    void setLineStyle(QwtPlotCurve *, LineType lt);
+    void setLineColor(QwtPlotCurve *, QColor color);
+    void setMarker(QwtPlotCurve *curve, Marker mk);
     QwtPlotItem* itemAt( const QPoint& pos ) const;
     void rescale(void);
+    void refreshGrid(void);
 
     Ui::SimFigure *ui;
     QwtPlot       *m_plot;
@@ -108,7 +123,7 @@ private:
 
     QVector<QwtPlotCurve *> m_curves;
 
-    AxisType axisType;
+    enum AxisType axisType;
     double  m_xmin = 1.e20;
     double  m_xmax = 1.e-20;
     double  m_ymin = 1.e20;
@@ -120,6 +135,9 @@ private:
         int          plotID = -1;
         QwtPlotItem *object = nullptr;
     } lastSelection;
+
+    bool  m_showMajorGrid = true;
+    bool  m_showMinorGrid = true;
 };
 
 #endif // SIMFIGURE_H

@@ -216,7 +216,7 @@ POSITION</string>
   <customwidget>
    <class>SimFigure</class>
    <extends>QFrame</extends>
-   <header location="global">simfigure.h</header>
+   <header location="global">./source/simfigure.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
