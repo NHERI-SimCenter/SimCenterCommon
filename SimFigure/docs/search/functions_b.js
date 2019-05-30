@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['_7esimfigure',['~SimFigure',['../class_sim_figure.html#a83522b8079dcfaa543ad7aae38053e12',1,'SimFigure']]]
+  ['xlabel',['xLabel',['../class_sim_figure.html#a68f4c11b4a81380fb7cdde2d778d36a1',1,'SimFigure']]]
 ];
