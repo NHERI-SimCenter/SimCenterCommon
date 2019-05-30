@@ -233,7 +233,7 @@ int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor 
     curve->setSamples(x,y);
 
     setLineStyle(curve, lt);
-    setMarker(curve, mk);
+    setMarker(curve, mk, 10);
     setLineColor(curve, color);
 
     curve->attach(m_plot);
@@ -806,7 +806,7 @@ void SimFigure::setLineStyle(int ID, LineType lt, Marker mk)
     if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
     {
         setLineStyle(m_curves.value(ID-1), lt);
-        setMarker(m_curves.value(ID-1), mk);
+        setMarker(m_curves.value(ID-1), mk, 10);
     }
 }
 
@@ -838,17 +838,47 @@ void SimFigure::setLineStyle(QwtPlotCurve *curve, LineType lt)
     curve->setPen(pen);
 }
 
-/*! used to change the current marker of a curve. */
-void SimFigure::setMarker(int ID, Marker mk)
+/**
+ * @brief SimFigure::marker
+ * @param ID ... unique handle for the curve of interest
+ * @return SimFigure::Marker enum to identify the marker for curve with handle=ID
+ */
+SimFigure::Marker SimFigure::marker(int ID)
+{
+
+}
+
+/**
+ * @brief SimFigure::markerSize
+ * @param ID ... unique handle for the curve of interest
+ * @return size of the marker in pixels
+ */
+int SimFigure::markerSize(int ID)
 {
     if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
     {
-        setMarker(m_curves.value(ID-1), mk);
+        const QwtSymbol *sym = m_curves.value(ID-1)->symbol();
+        int size = sym->size().width();
+        return size;
+    }
+    else {
+        return -1;
+    }
+}
+
+/**
+ * used to change the current marker of a curve.
+ */
+void SimFigure::setMarker(int ID, Marker mk, int size)
+{
+    if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
+    {
+        setMarker(m_curves.value(ID-1), mk, size);
     }
 }
 
 /*! used to change the current marker of a curve. (private) */
-void SimFigure::setMarker(QwtPlotCurve *curve, Marker mk)
+void SimFigure::setMarker(QwtPlotCurve *curve, Marker mk, int size)
 {
     switch (mk)
     {
@@ -882,6 +912,22 @@ void SimFigure::setMarker(QwtPlotCurve *curve, Marker mk)
     case Marker::RightTriangle :
         curve->setSymbol(new QwtSymbol(QwtSymbol::RTriangle));
         break;
+    }
+
+    if (size>=0)
+    {
+        QwtSymbol *newSym = new QwtSymbol();
+        newSym->setSize(size);
+
+        const QwtSymbol *sym = curve->symbol();
+        if (sym)
+        {
+            newSym->setStyle(sym->style());
+        }
+        else {
+            newSym->setStyle(QwtSymbol::Ellipse);
+        }
+        curve->setSymbol(newSym);
     }
 }
 

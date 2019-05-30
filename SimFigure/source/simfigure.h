@@ -125,7 +125,9 @@ public:
     void     setLineStyle(int ID, LineType lt=LineType::Solid, Marker mk=Marker::None);
     QColor   lineColor(int ID);
     void     setLineColor(int ID, QColor color);
-    void     setMarker(int ID, Marker mk);
+    SimFigure::Marker marker(int ID);
+    int      markerSize(int ID);
+    void     setMarker(int ID, Marker mk, int size=10);
 
 private slots:
     void axisTypeChanged(void);
@@ -145,7 +147,7 @@ protected:
     void select(QwtPlotItem *);
     void setLineStyle(QwtPlotCurve *, LineType lt);
     void setLineColor(QwtPlotCurve *, QColor color);
-    void setMarker(QwtPlotCurve *curve, Marker mk);
+    void setMarker(QwtPlotCurve *curve, Marker mk, int size);
     QwtPlotItem* itemAt( const QPoint& pos ) const;
     void rescale(void);
     void refreshGrid(void);

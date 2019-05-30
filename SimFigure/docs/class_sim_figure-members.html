@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">SimFigure Widget
-   &#160;<span id="projectnumber">0.9</span>
+   &#160;<span id="projectnumber">0.9.1</span>
    </div>
    <div id="projectbrief">A light-weight wrapper to emulate MATLAB-like syntax for Qwt</div>
   </td>
@@ -111,6 +111,8 @@ $(document).ready(function(){initNavTree('class_sim_figure.html','');});
   <tr class="even"><td class="entry"><a class="el" href="class_sim_figure.html#a33d8b7ffa6f73c6be5e40b31ab4714bd">lineWidthF</a>(int ID)</td><td class="entry"><a class="el" href="class_sim_figure.html">SimFigure</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="class_sim_figure.html#ac704676c05de241e637760f624a5e111">Location</a> enum name</td><td class="entry"><a class="el" href="class_sim_figure.html">SimFigure</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="class_sim_figure.html#ab6789cdbf723aeb9193c00a476e87db6">Marker</a> enum name</td><td class="entry"><a class="el" href="class_sim_figure.html">SimFigure</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="class_sim_figure.html#ad2b0d0e8725690c48b6a474ed11cbe5c">marker</a>(int ID)</td><td class="entry"><a class="el" href="class_sim_figure.html">SimFigure</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="class_sim_figure.html#a7ee36ef46f98952e11beeaac47af0c84">markerSize</a>(int ID)</td><td class="entry"><a class="el" href="class_sim_figure.html">SimFigure</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="class_sim_figure.html#acd3b47ae200a265140052f00dd5e8982">moveLegend</a>(Location loc)</td><td class="entry"><a class="el" href="class_sim_figure.html">SimFigure</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="class_sim_figure.html#ac0ce4c585dd691bba1c0e221f8df94c8">on_picker_activated</a>(bool on)</td><td class="entry"><a class="el" href="class_sim_figure.html">SimFigure</a></td><td class="entry"><span class="mlabel">slot</span></td></tr>
   <tr><td class="entry"><a class="el" href="class_sim_figure.html#a79e37046cb4b62b2414bce5f82c8966e">on_picker_appended</a>(const QPoint &amp;pos)</td><td class="entry"><a class="el" href="class_sim_figure.html">SimFigure</a></td><td class="entry"><span class="mlabel">slot</span></td></tr>
@@ -131,8 +133,8 @@ $(document).ready(function(){initNavTree('class_sim_figure.html','');});
   <tr class="even"><td class="entry"><a class="el" href="class_sim_figure.html#a3bf6357f866bd5a2e0531dffd4557272">setLineStyle</a>(QwtPlotCurve *, LineType lt)</td><td class="entry"><a class="el" href="class_sim_figure.html">SimFigure</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
   <tr><td class="entry"><a class="el" href="class_sim_figure.html#ab9e22f4d91455e41980cd7592b2031a7">setLineWidth</a>(int ID, int wd)</td><td class="entry"><a class="el" href="class_sim_figure.html">SimFigure</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="class_sim_figure.html#a5a965f4e8a2c08889a13c392e9ca38f4">setLineWidthF</a>(int ID, double wd)</td><td class="entry"><a class="el" href="class_sim_figure.html">SimFigure</a></td><td class="entry"></td></tr>
-  <tr><td class="entry"><a class="el" href="class_sim_figure.html#a34fe9962e0af5eab0c8c0bb7d57ffec1">setMarker</a>(int ID, Marker mk)</td><td class="entry"><a class="el" href="class_sim_figure.html">SimFigure</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="class_sim_figure.html#a98139c47dd301e5fd7769f2ac0d88be2">setMarker</a>(QwtPlotCurve *curve, Marker mk)</td><td class="entry"><a class="el" href="class_sim_figure.html">SimFigure</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr><td class="entry"><a class="el" href="class_sim_figure.html#af28b608eacaeec9dd8fded737aa75f41">setMarker</a>(int ID, Marker mk, int size=10)</td><td class="entry"><a class="el" href="class_sim_figure.html">SimFigure</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="class_sim_figure.html#a27816b3f8cd53f83097d7de60297ae10">setMarker</a>(QwtPlotCurve *curve, Marker mk, int size)</td><td class="entry"><a class="el" href="class_sim_figure.html">SimFigure</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
   <tr><td class="entry"><a class="el" href="class_sim_figure.html#a7cb5b9b051d2cabaa324898d60c5e66a">setTitle</a>(QString title)</td><td class="entry"><a class="el" href="class_sim_figure.html">SimFigure</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="class_sim_figure.html#ab5fd943a5addf51f9e82c764cb1705fa">setXLabel</a>(QString lbl)</td><td class="entry"><a class="el" href="class_sim_figure.html">SimFigure</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="class_sim_figure.html#ad8929bce26d02feb640b62a06d1d0dec">setYLabel</a>(QString lbl)</td><td class="entry"><a class="el" href="class_sim_figure.html">SimFigure</a></td><td class="entry"></td></tr>
