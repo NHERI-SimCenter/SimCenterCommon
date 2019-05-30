@@ -7,7 +7,7 @@ var searchData=
   ['setlinestyle',['setLineStyle',['../class_sim_figure.html#ab42a2e8cab0b67b6b2a46f81f1564add',1,'SimFigure::setLineStyle(int ID, LineType lt=LineType::Solid, Marker mk=Marker::None)'],['../class_sim_figure.html#a3bf6357f866bd5a2e0531dffd4557272',1,'SimFigure::setLineStyle(QwtPlotCurve *, LineType lt)']]],
   ['setlinewidth',['setLineWidth',['../class_sim_figure.html#ab9e22f4d91455e41980cd7592b2031a7',1,'SimFigure']]],
   ['setlinewidthf',['setLineWidthF',['../class_sim_figure.html#a5a965f4e8a2c08889a13c392e9ca38f4',1,'SimFigure']]],
-  ['setmarker',['setMarker',['../class_sim_figure.html#a34fe9962e0af5eab0c8c0bb7d57ffec1',1,'SimFigure::setMarker(int ID, Marker mk)'],['../class_sim_figure.html#a98139c47dd301e5fd7769f2ac0d88be2',1,'SimFigure::setMarker(QwtPlotCurve *curve, Marker mk)']]],
+  ['setmarker',['setMarker',['../class_sim_figure.html#af28b608eacaeec9dd8fded737aa75f41',1,'SimFigure::setMarker(int ID, Marker mk, int size=10)'],['../class_sim_figure.html#a27816b3f8cd53f83097d7de60297ae10',1,'SimFigure::setMarker(QwtPlotCurve *curve, Marker mk, int size)']]],
   ['settitle',['setTitle',['../class_sim_figure.html#a7cb5b9b051d2cabaa324898d60c5e66a',1,'SimFigure']]],
   ['setxlabel',['setXLabel',['../class_sim_figure.html#ab5fd943a5addf51f9e82c764cb1705fa',1,'SimFigure']]],
   ['setylabel',['setYLabel',['../class_sim_figure.html#ad8929bce26d02feb640b62a06d1d0dec',1,'SimFigure']]],
