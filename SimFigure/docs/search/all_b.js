@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['right',['Right',['../class_sim_figure.html#ac704676c05de241e637760f624a5e111a92b09c7c48c520c3c55e497875da437c',1,'SimFigure']]],
-  ['righttriangle',['RightTriangle',['../class_sim_figure.html#ab6789cdbf723aeb9193c00a476e87db6a9c330fd8bac751dfd4271afe984e37db',1,'SimFigure']]]
+  ['plot',['plot',['../class_sim_figure.html#a121cf6c85b13583f774945aec5e0a2f3',1,'SimFigure']]],
+  ['plus',['Plus',['../class_sim_figure.html#ab6789cdbf723aeb9193c00a476e87db6a32ba78fe43257d3e7f88e3935a8ea0d4',1,'SimFigure']]]
 ];

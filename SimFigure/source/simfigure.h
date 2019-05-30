@@ -141,7 +141,7 @@ public slots:
 signals:
     void curve_selected(int ID);
 
-private:
+protected:
     void select(QwtPlotItem *);
     void setLineStyle(QwtPlotCurve *, LineType lt);
     void setLineColor(QwtPlotCurve *, QColor color);
@@ -150,6 +150,7 @@ private:
     void rescale(void);
     void refreshGrid(void);
 
+private:
     Ui::SimFigure *ui;
     QwtPlot       *m_plot;
     QwtPlotGrid   *m_grid;
