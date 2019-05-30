@@ -96,7 +96,8 @@ public:
     explicit SimFigure(QWidget *parent = nullptr);
     ~SimFigure();
     void grid(bool mayor=true, bool minor=true);
-    int plot(QVector<double> &, QVector<double> &, LineType = LineType::Solid, QColor col = Qt::red, Marker = Marker::None);
+    int plot(QVector<double> &, QVector<double> &, LineType lt = LineType::Solid, QColor col = Qt::red, Marker mk = Marker::None);
+    int scatter(QVector<double> &, QVector<double> &, QColor col = Qt::blue, Marker mk = Marker::Circle);
     void clear(void);
     void cla(void);
     void legend(QList<QString> labels, Location loc=Location::South);
@@ -107,6 +108,14 @@ public:
     void clearSelection(void);
     SimFigure::AxisType axisType(void);
     void setAxisType( AxisType type);
+
+    QString xLabel();
+    QString yLabel();
+    QString title();
+
+    void setXLabel(QString lbl);
+    void setYLabel(QString lbl);
+    void setTitle(QString title);
 
     int      lineWidth(int ID);
     double   lineWidthF(int ID);

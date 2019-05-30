@@ -64,7 +64,8 @@ var class_sim_figure =
     [ "on_picker_moved", "class_sim_figure.html#a584df7a3fa25bbd459cc8e9c2066df80", null ],
     [ "on_picker_removed", "class_sim_figure.html#a9d3124bea7ad6dbca7255f58e53533a1", null ],
     [ "on_picker_selected", "class_sim_figure.html#ae06d6a5705e082ca8c59d65fe109acff", null ],
-    [ "plot", "class_sim_figure.html#a11f73c2f886f15a9cb2a3f746f5b2479", null ],
+    [ "plot", "class_sim_figure.html#a121cf6c85b13583f774945aec5e0a2f3", null ],
+    [ "scatter", "class_sim_figure.html#af618cb2495300f8e933e7378beaf4623", null ],
     [ "select", "class_sim_figure.html#a319e910b50383a17bdf4795c3e15fe7f", null ],
     [ "setAxisType", "class_sim_figure.html#a0ba080ccc53aaf3dcbe7b07e6a270c9f", null ],
     [ "setLineColor", "class_sim_figure.html#abd45928de1b30aeea696d91c69124b67", null ],
@@ -72,5 +73,11 @@ var class_sim_figure =
     [ "setLineWidth", "class_sim_figure.html#ab9e22f4d91455e41980cd7592b2031a7", null ],
     [ "setLineWidthF", "class_sim_figure.html#a5a965f4e8a2c08889a13c392e9ca38f4", null ],
     [ "setMarker", "class_sim_figure.html#a34fe9962e0af5eab0c8c0bb7d57ffec1", null ],
-    [ "showLegend", "class_sim_figure.html#adfd4bd553792c9e0fc985299034f67e7", null ]
+    [ "setTitle", "class_sim_figure.html#a7cb5b9b051d2cabaa324898d60c5e66a", null ],
+    [ "setXLabel", "class_sim_figure.html#ab5fd943a5addf51f9e82c764cb1705fa", null ],
+    [ "setYLabel", "class_sim_figure.html#ad8929bce26d02feb640b62a06d1d0dec", null ],
+    [ "showLegend", "class_sim_figure.html#adfd4bd553792c9e0fc985299034f67e7", null ],
+    [ "title", "class_sim_figure.html#a84d3287fbe5f8478dd014cc2e8ae7cd1", null ],
+    [ "xLabel", "class_sim_figure.html#a68f4c11b4a81380fb7cdde2d778d36a1", null ],
+    [ "yLabel", "class_sim_figure.html#a51ca6a284ef0e6e24fc3b88c34f9ee74", null ]
 ];

@@ -19,7 +19,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QList<QStandardItem *> items;
     items.append(new QStandardItem("Demo 1"));
     items.append(new QStandardItem("Demo 2"));
-    //items.append(new QStandardItem("Demo 3"));
+    items.append(new QStandardItem("Demo 3"));
+    items.append(new QStandardItem("Demo 4"));
     items.append(new QStandardItem("Clear"));
     model->appendColumn(items);
     ui->selectionView->setModel(model);
@@ -51,13 +52,16 @@ void MainWindow::on_selectionView_clicked(const QModelIndex &index)
         for (double s=5.;s<=128.9;s+=0.1)
         {
             x.append(s);
-            y.append( 2.+sin(s) );
-            z.append( 2.+cos(s) );
+            y.append( 2.+sin(0.1*s) );
+            z.append( 2.+cos(0.1*s) );
         }
         int idx;
         idx = ui->theFigure->plot(x,y);
         idx = ui->theFigure->plot(x,z, SimFigure::LineType::Solid, QColor(Qt::blue));
 
+        ui->theFigure->setTitle("Demo #1: simple functions");
+        ui->theFigure->setXLabel("x -->");
+        ui->theFigure->setYLabel("f(x) -->");
         ui->theFigure->showLegend();
         ui->theFigure->setAxisType(SimFigure::AxisType::LogX);
 
@@ -75,12 +79,53 @@ void MainWindow::on_selectionView_clicked(const QModelIndex &index)
         idx = ui->theFigure->plot(y,z, SimFigure::LineType::DashDotted, Qt::green);
         idx = ui->theFigure->plot(d,u, SimFigure::LineType::Solid, Qt::blue, SimFigure::Marker::Triangle);
 
+        ui->theFigure->setTitle("Demo #2: parametric plot");
+        ui->theFigure->setXLabel("x(s) -->");
+        ui->theFigure->setYLabel("y(s) -->");
         ui->theFigure->showLegend();
         ui->theFigure->setAxisType(SimFigure::AxisType::Default);
 
         break; }
-    case 2:
-    case 3:
+    case 2: {
+        for (double s=0.;s<=2.*PI;s+=PI/20)
+        {
+            x.append( s );
+            y.append( 200. + 150*sin(s) );
+            z.append( 200. + 150*cos(s) );
+            d.append( 200. - 125. + 125*s/PI );
+            u.append( 200. + 125 * sin(s));
+        }
+        int idx;
+        idx = ui->theFigure->plot(y,z, SimFigure::LineType::DashDotted, Qt::darkGreen);
+        idx = ui->theFigure->scatter(d,u, Qt::red, SimFigure::Marker::Circle);
+
+        ui->theFigure->setTitle("Demo #3: scatter plot");
+        ui->theFigure->setXLabel("x -->");
+        ui->theFigure->setYLabel("y = f(x) -->");
+        ui->theFigure->showLegend();
+        ui->theFigure->setAxisType(SimFigure::AxisType::Default);
+
+        break; }
+    case 3: {
+        for (double s=0.;s<=2.*PI;s+=PI/20)
+        {
+            x.append( s );
+            y.append( 200. + 150*sin(s) );
+            z.append( 200. + 150*cos(s) );
+            d.append( 200. - 125. + 125*s/PI );
+            u.append( 200. + 125 * sin(s));
+        }
+        int idx;
+        idx = ui->theFigure->plot(y,z, SimFigure::LineType::DashDotted, Qt::green);
+        idx = ui->theFigure->plot(d,u, SimFigure::LineType::Solid, Qt::blue, SimFigure::Marker::Triangle);
+
+        ui->theFigure->setTitle("Demo #4: ");
+        ui->theFigure->setXLabel("index i");
+        ui->theFigure->setYLabel("element a_i");
+        ui->theFigure->showLegend();
+        ui->theFigure->setAxisType(SimFigure::AxisType::Default);
+
+        break; }
     default:
         x.clear();
         y.clear();

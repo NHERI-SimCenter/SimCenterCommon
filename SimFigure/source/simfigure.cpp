@@ -250,6 +250,75 @@ int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor 
     return idx;
 }
 
+/*! The scatter() method provides a plot functionality similar to MATLAP's scatter function
+ * x and y are regerences to QVector<double>.  The must be of equal length.
+ *
+ * scatter returns an integer serving as a unique handle for all points. The following functions use that handle
+ * to read or change settings for that curve:
+ *
+ * lineWidth(),  lineWidthF(), setLineWidth(),
+ * setLineWidthF(), lineStyle(), setLineStyle(),
+ * lineColor(), setLineColor(), setMarker()
+ *
+ * @param color a QColor object defining the line color.  You may also use pre-defined colors like Qt::red, ...
+ * @param mk a member of the SimFigure::Marker enum.
+ */
+int SimFigure::scatter(QVector<double> &x, QVector<double> &y, QColor color, Marker mk)
+{
+    return plot(x, y, SimFigure::LineType::None, color, mk);
+}
+
+/**
+ * @brief SimFigure::xLabel()
+ * @return title of the current x-axis label
+ */
+QString SimFigure::xLabel(void)
+{
+    return m_plot->axisTitle(QwtPlot::xBottom).text();
+}
+
+/**
+ * @brief SimFigure::yLabel()
+ * @return title of the current y-axis label
+ */
+QString SimFigure::yLabel(void)
+{
+    return m_plot->axisTitle(QwtPlot::yLeft).text();
+}
+
+/**
+ * @brief SimFigure::title()
+ * @return title of the current figure
+ */
+QString SimFigure::title(void)
+{
+    return m_plot->title().text();
+}
+
+/**
+ * set the title for the x-axis
+ */
+void SimFigure::setXLabel(QString label)
+{
+    m_plot->setAxisTitle(QwtPlot::xBottom, label);
+}
+
+/**
+ * set the title for the y-axis
+ */
+void SimFigure::setYLabel(QString label)
+{
+    m_plot->setAxisTitle(QwtPlot::yLeft, label);
+}
+
+/**
+ * set the figure title
+ */
+void SimFigure::setTitle(QString title)
+{
+    m_plot->setTitle(title);
+}
+
 /*! reinitialize the scale engine for both axes (private) */
 void SimFigure::rescale(void)
 {
