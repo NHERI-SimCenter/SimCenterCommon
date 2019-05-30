@@ -269,54 +269,54 @@ int SimFigure::scatter(QVector<double> &x, QVector<double> &y, QColor color, Mar
 }
 
 /**
- * @brief SimFigure::xLabel
- * @return
+ * @brief SimFigure::xLabel()
+ * @return title of the current x-axis label
  */
-QString SimFigure::xLabel(QString)
+QString SimFigure::xLabel(void)
 {
-
+    return m_plot->axisTitle(QwtPlot::xBottom).text();
 }
 
 /**
- * @brief SimFigure::yLabel
- * @return
+ * @brief SimFigure::yLabel()
+ * @return title of the current y-axis label
  */
-QString SimFigure::yLabel(QString)
+QString SimFigure::yLabel(void)
 {
-
+    return m_plot->axisTitle(QwtPlot::yLeft).text();
 }
 
 /**
- * @brief SimFigure::title
- * @return
+ * @brief SimFigure::title()
+ * @return title of the current figure
  */
-QString SimFigure::title(QString)
+QString SimFigure::title(void)
 {
-
+    return m_plot->title().text();
 }
 
 /**
- * @brief SimFigure::setXLabel
+ * set the title for the x-axis
  */
-void SimFigure::setXLabel(QString)
+void SimFigure::setXLabel(QString label)
 {
-
+    m_plot->setAxisTitle(QwtPlot::xBottom, label);
 }
 
 /**
- * @brief SimFigure::setYLabel
+ * set the title for the y-axis
  */
-void SimFigure::setYLabel(QString)
+void SimFigure::setYLabel(QString label)
 {
-
+    m_plot->setAxisTitle(QwtPlot::yLeft, label);
 }
 
 /**
- * @brief SimFigure::setTitle
+ * set the figure title
  */
-void SimFigure::setTitle(QString)
+void SimFigure::setTitle(QString title)
 {
-
+    m_plot->setTitle(title);
 }
 
 /*! reinitialize the scale engine for both axes (private) */

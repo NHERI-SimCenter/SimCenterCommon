@@ -109,13 +109,13 @@ public:
     SimFigure::AxisType axisType(void);
     void setAxisType( AxisType type);
 
-    QString xLabel(QString);
-    QString yLabel(QString);
-    QString title(QString);
+    QString xLabel();
+    QString yLabel();
+    QString title();
 
-    void setXLabel(QString);
-    void setYLabel(QString);
-    void setTitle(QString);
+    void setXLabel(QString lbl);
+    void setYLabel(QString lbl);
+    void setTitle(QString title);
 
     int      lineWidth(int ID);
     double   lineWidthF(int ID);
