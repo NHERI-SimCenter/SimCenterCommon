@@ -1,7 +1,8 @@
 var searchData=
 [
-  ['refreshgrid',['refreshGrid',['../class_sim_figure.html#a5f5ef739270d0b8b2340a97c47763497',1,'SimFigure']]],
-  ['rescale',['rescale',['../class_sim_figure.html#a38bdf4357c59880f504ff115a2b47195',1,'SimFigure']]],
-  ['right',['Right',['../class_sim_figure.html#ac704676c05de241e637760f624a5e111a92b09c7c48c520c3c55e497875da437c',1,'SimFigure']]],
-  ['righttriangle',['RightTriangle',['../class_sim_figure.html#ab6789cdbf723aeb9193c00a476e87db6a9c330fd8bac751dfd4271afe984e37db',1,'SimFigure']]]
+  ['pdf',['PDF',['../class_sim_figure.html#aa31c5c58c731b7d0ec3d6d28dcbf08d4abcd1b68617759b1dfcff0403a6b5a8d1',1,'SimFigure']]],
+  ['plot',['plot',['../class_sim_figure.html#a121cf6c85b13583f774945aec5e0a2f3',1,'SimFigure']]],
+  ['plus',['Plus',['../class_sim_figure.html#ab6789cdbf723aeb9193c00a476e87db6a32ba78fe43257d3e7f88e3935a8ea0d4',1,'SimFigure']]],
+  ['png',['PNG',['../class_sim_figure.html#aa31c5c58c731b7d0ec3d6d28dcbf08d4a55505ba281b015ec31f03ccb151b2a34',1,'SimFigure']]],
+  ['ps',['PS',['../class_sim_figure.html#aa31c5c58c731b7d0ec3d6d28dcbf08d4ad3d4c5deb455ac79dd5ff47c88bd65d9',1,'SimFigure']]]
 ];
