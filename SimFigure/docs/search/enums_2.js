@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['marker',['Marker',['../class_sim_figure.html#ab6789cdbf723aeb9193c00a476e87db6',1,'SimFigure']]]
+  ['linetype',['LineType',['../class_sim_figure.html#a9c2b10f9af551b016dfd825babc242f8',1,'SimFigure']]],
+  ['location',['Location',['../class_sim_figure.html#ac704676c05de241e637760f624a5e111',1,'SimFigure']]]
 ];

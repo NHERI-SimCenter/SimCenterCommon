@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['grid',['grid',['../class_sim_figure.html#abde918f82b8e33fe6ba53b3f0262baab',1,'SimFigure']]]
+  ['filetype',['FileType',['../class_sim_figure.html#aa31c5c58c731b7d0ec3d6d28dcbf08d4',1,'SimFigure']]]
 ];
