@@ -1,0 +1,2832 @@
+AutoGen Definitions dummy;
+class = {
+  cp-id     = 'class_main_window';
+  cp-name   = 'MainWindow';
+  cp-ref     = {
+    ref-type = base;
+    ref-id   = 'class_q_main_window';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-section = {
+    sec-kind = 'public-func';
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_main_window_1a996c5a2b6f77944776856f08ec30858d';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'MainWindow';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+QWidget *
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'parent';
+        sec-mem-param-defval = <<_EnD_oF_dEf_TeXt_
+nullptr
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/SimPlotDemo/mainwindow.h';
+      sec-mem-desc-line = '15';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_main_window_1ae98d00a93bc118200eeef9f9bba1dba7';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = '~MainWindow';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/SimPlotDemo/mainwindow.h';
+      sec-mem-desc-line = '16';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+  }; /* cp-section */
+  cp-section = {
+    sec-kind = 'private-attrib';
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'class_main_window_1a35466a70ed47252a0191168126a352a5';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+Ui::MainWindow *
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'ui';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/SimPlotDemo/mainwindow.h';
+      sec-mem-desc-line = '37';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'class_main_window_1ac2322d2c7b3f7290387a7693f0354c15';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'currentLegend';
+      sec-mem-initializer = <<_EnD_oF_dEf_TeXt_
+= 0
+_EnD_oF_dEf_TeXt_;
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/SimPlotDemo/mainwindow.h';
+      sec-mem-desc-line = '38';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'class_main_window_1a1de5f69b29d2a140cf98bc285546c078';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'currentLocation';
+      sec-mem-initializer = <<_EnD_oF_dEf_TeXt_
+= 0
+_EnD_oF_dEf_TeXt_;
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/SimPlotDemo/mainwindow.h';
+      sec-mem-desc-line = '39';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+  }; /* cp-section */
+  cp-section = {
+    sec-kind = 'private-slot';
+    sec-member = {
+      sec-mem-kind = 'slot';
+      sec-mem-id   = 'class_main_window_1ae7b7a85f48b0976a0dea065a40c0e3b4';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'on_selectionView_clicked';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+const QModelIndex &
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'index';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/SimPlotDemo/mainwindow.h';
+      sec-mem-desc-line = '19';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'slot';
+      sec-mem-id   = 'class_main_window_1a300cd049f1a68c2795977bcf755782be';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'on_selection_changed';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'ID';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/SimPlotDemo/mainwindow.h';
+      sec-mem-desc-line = '20';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'slot';
+      sec-mem-id   = 'class_main_window_1ade1b89a02d7cc88b7b3d995652d2d84b';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'on_btn_option1_clicked';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/SimPlotDemo/mainwindow.h';
+      sec-mem-desc-line = '22';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'slot';
+      sec-mem-id   = 'class_main_window_1a97f7383f1d72a21aaac011c436703c51';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'on_btn_option2_clicked';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/SimPlotDemo/mainwindow.h';
+      sec-mem-desc-line = '23';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'slot';
+      sec-mem-id   = 'class_main_window_1a2eb243a0d531faee099292d27ed58a81';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'on_btn_option3_clicked';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/SimPlotDemo/mainwindow.h';
+      sec-mem-desc-line = '24';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'slot';
+      sec-mem-id   = 'class_main_window_1abaf71aad9a49f9dd50824b263bc0ff43';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'on_btn_1st_clicked';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/SimPlotDemo/mainwindow.h';
+      sec-mem-desc-line = '26';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'slot';
+      sec-mem-id   = 'class_main_window_1a5c5e102c116b6d2986f8e31eb631d0e2';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'on_btn_2nd_clicked';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/SimPlotDemo/mainwindow.h';
+      sec-mem-desc-line = '27';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'slot';
+      sec-mem-id   = 'class_main_window_1a6e3203d0667af6a5504dc5a9e4635e58';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'on_btn_none_clicked';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/SimPlotDemo/mainwindow.h';
+      sec-mem-desc-line = '28';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'slot';
+      sec-mem-id   = 'class_main_window_1a632c187ea7c5c0ceb9ffc7977da06f97';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'on_action_Save_triggered';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/SimPlotDemo/mainwindow.h';
+      sec-mem-desc-line = '30';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'slot';
+      sec-mem-id   = 'class_main_window_1a98e86ef6104b6e2910328af2f878438d';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'on_actionSave_As_triggered';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/SimPlotDemo/mainwindow.h';
+      sec-mem-desc-line = '32';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'slot';
+      sec-mem-id   = 'class_main_window_1a5747c9390634e706a4311e5bd079a5b4';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'on_actionSave_Hi_res_triggered';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/SimPlotDemo/mainwindow.h';
+      sec-mem-desc-line = '34';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+  }; /* cp-section */
+  cp-filename  = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/SimPlotDemo/mainwindow.h';
+  cp-fileline  = '11';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 1;
+        node-label = 'QMainWindow';
+      }; /* node */
+      node = {
+        node-id    = 0;
+        node-label = 'MainWindow';
+        node-link = {
+          node-link-id = 'class_main_window';
+        };
+        node-child = {
+          child-id = '1';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+  cp-collaborationgraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 3;
+        node-label = 'QMainWindow';
+      }; /* node */
+      node = {
+        node-id    = 2;
+        node-label = 'MainWindow';
+        node-link = {
+          node-link-id = 'class_main_window';
+        };
+        node-child = {
+          child-id = '3';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'class_q_frame';
+  cp-name   = 'QFrame';
+  cp-ref     = {
+    ref-type = derived;
+    ref-id   = 'class_sim_figure';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-filename  = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+  cp-fileline  = '28';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 5;
+        node-label = 'SimFigure';
+        node-link = {
+          node-link-id = 'class_sim_figure';
+        };
+        node-child = {
+          child-id = '4';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 4;
+        node-label = 'QFrame';
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+class = {
+  cp-id     = 'class_q_main_window';
+  cp-name   = 'QMainWindow';
+  cp-ref     = {
+    ref-type = derived;
+    ref-id   = 'class_main_window';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-filename  = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/SimPlotDemo/mainwindow.h';
+  cp-fileline  = '11';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 7;
+        node-label = 'QMainWindow';
+      }; /* node */
+      node = {
+        node-id    = 8;
+        node-label = 'MainWindow';
+        node-link = {
+          node-link-id = 'class_main_window';
+        };
+        node-child = {
+          child-id = '7';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+struct = {
+  cp-id     = 'struct_sim_figure_1_1_s_e_l_e_c_t_i_o_n';
+  cp-name   = 'SimFigure::SELECTION';
+  cp-section = {
+    sec-kind = 'public-attrib';
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'struct_sim_figure_1_1_s_e_l_e_c_t_i_o_n_1aa219220054ec30d2bc0f746a34d11a58';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+QPen
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'pen';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '203';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'struct_sim_figure_1_1_s_e_l_e_c_t_i_o_n_1a68eaed3d9df2546b2431e7677d8831b2';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+QBrush
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'brush';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '204';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'struct_sim_figure_1_1_s_e_l_e_c_t_i_o_n_1a4e8bde60070da308efc29aa338c7fc3b';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'plotID';
+      sec-mem-initializer = <<_EnD_oF_dEf_TeXt_
+= -1
+_EnD_oF_dEf_TeXt_;
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '205';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'struct_sim_figure_1_1_s_e_l_e_c_t_i_o_n_1a14ccd9949be42ef5eac8513259e58934';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+QwtPlotItem *
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'object';
+      sec-mem-initializer = <<_EnD_oF_dEf_TeXt_
+= nullptr
+_EnD_oF_dEf_TeXt_;
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '206';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+  }; /* cp-section */
+  cp-filename  = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+  cp-fileline  = '202';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* struct */
+class = {
+  cp-id     = 'class_sim_figure';
+  cp-name   = 'SimFigure';
+  cp-ref     = {
+    ref-type = base;
+    ref-id   = 'class_q_frame';
+    ref-prot = public;
+    ref-virt = non-virtual;
+  };
+  cp-section = {
+    sec-kind = 'public-type';
+    sec-member = {
+      sec-mem-kind = 'enum';
+      sec-mem-id   = 'class_sim_figure_1aea160416bb26a1ea4cb432eb2603f323';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-name = 'AxisType';
+      sec-mem-enum = { enum-name = Default; };
+      sec-mem-enum = { enum-name = LogX; };
+      sec-mem-enum = { enum-name = LogY; };
+      sec-mem-enum = { enum-name = LogLog; };
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '38';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+The AxisType enum.
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+used for selecting linear or logarithmic scales on th eX and Y axes.
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'enum';
+      sec-mem-id   = 'class_sim_figure_1a9c2b10f9af551b016dfd825babc242f8';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-name = 'LineType';
+      sec-mem-enum = { enum-name = None; };
+      sec-mem-enum = { enum-name = Solid; };
+      sec-mem-enum = { enum-name = Dotted; };
+      sec-mem-enum = { enum-name = Dashed; };
+      sec-mem-enum = { enum-name = DashDotted; };
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '49';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+The LineType enum.
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+used to define the line type used by plot().
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'enum';
+      sec-mem-id   = 'class_sim_figure_1ab6789cdbf723aeb9193c00a476e87db6';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-name = 'Marker';
+      sec-mem-enum = { enum-name = None; };
+      sec-mem-enum = { enum-name = Asterisk; };
+      sec-mem-enum = { enum-name = Circle; };
+      sec-mem-enum = { enum-name = Plus; };
+      sec-mem-enum = { enum-name = Triangle; };
+      sec-mem-enum = { enum-name = DownTriangle; };
+      sec-mem-enum = { enum-name = RightTriangle; };
+      sec-mem-enum = { enum-name = LeftTriangle; };
+      sec-mem-enum = { enum-name = Box; };
+      sec-mem-enum = { enum-name = Ex; };
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '61';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+The Marker enum.
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+used to define the marker used for a particular plot().
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'enum';
+      sec-mem-id   = 'class_sim_figure_1ac704676c05de241e637760f624a5e111';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-name = 'Location';
+      sec-mem-enum = { enum-name = Bottom; };
+      sec-mem-enum = { enum-name = Top; };
+      sec-mem-enum = { enum-name = Left; };
+      sec-mem-enum = { enum-name = Right; };
+      sec-mem-enum = { enum-name = TopLeft; };
+      sec-mem-enum = { enum-name = TopRight; };
+      sec-mem-enum = { enum-name = BottomLeft; };
+      sec-mem-enum = { enum-name = BottomRight; };
+      sec-mem-enum = { enum-name = North; };
+      sec-mem-enum = { enum-name = South; };
+      sec-mem-enum = { enum-name = East; };
+      sec-mem-enum = { enum-name = West; };
+      sec-mem-enum = { enum-name = NorthWest; };
+      sec-mem-enum = { enum-name = NorthEast; };
+      sec-mem-enum = { enum-name = SouthWest; };
+      sec-mem-enum = { enum-name = SouthEast; };
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '78';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+The Location enum.
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+used to define the position of the legend (if visible) on the plot() canvas.
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'enum';
+      sec-mem-id   = 'class_sim_figure_1aa31c5c58c731b7d0ec3d6d28dcbf08d4';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-name = 'FileType';
+      sec-mem-enum = { enum-name = PNG; };
+      sec-mem-enum = { enum-name = BMP; };
+      sec-mem-enum = { enum-name = PDF; };
+      sec-mem-enum = { enum-name = PS; };
+      sec-mem-enum = { enum-name = SVG; };
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '101';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+The FileType enum.
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+used to define file type in saveToFile() and exportToFile()
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+  }; /* cp-section */
+  cp-section = {
+    sec-kind = 'public-func';
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1ad3c0e096e64b402a92d192537a64e1ab';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'SimFigure';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+QWidget *
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'parent';
+        sec-mem-param-defval = <<_EnD_oF_dEf_TeXt_
+nullptr
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '109';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+SimFigure
+  is a widget that emulates a MATLAB-like
+  interface to Qwt, allowing for a quick porting of
+  MATLAB graphics to Qt5. Creating an instance of
+  SimFigure is equivalent to MATLAB's
+
+  h = figure
+
+@param parent is a pointer to the parent widget
+ \header simfigure.h "code/simfigure.h"
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a83522b8079dcfaa543ad7aae38053e12';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = '~SimFigure';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '110';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+the SimFIgure destructor  
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a121cf6c85b13583f774945aec5e0a2f3';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'plot';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+QVector< double > &
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'x';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+QVector< double > &
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'y';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+LineType
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'lt';
+        sec-mem-param-defval = <<_EnD_oF_dEf_TeXt_
+LineType::Solid
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+QColor
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'col';
+        sec-mem-param-defname = 'color';
+        sec-mem-param-defval = <<_EnD_oF_dEf_TeXt_
+Qt::red
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+Marker
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'mk';
+        sec-mem-param-defval = <<_EnD_oF_dEf_TeXt_
+Marker::None
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '112';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+ The plot() method provides a plot functionality similar to MATLAP's plot function
+x and y are regerences to QVector<double>.  The must be of equal length.
+
+plot returns an integer serving as a unique handle for the curve. The following functions use that handle
+to read or change settings for that curve:
+
+lineWidth(),  lineWidthF(), setLineWidth(),
+setLineWidthF(), lineStyle(), setLineStyle(),
+lineColor(), setLineColor(), setMarker()
+
+@param lt a member of the SimFigure::LineType enum
+@param color a QColor object defining the line color.  You may also use pre-defined colors like Qt::red, ...
+@param mk a member of the SimFigure::Marker enum.
+_EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1af618cb2495300f8e933e7378beaf4623';
+        sec-mem-ref-line = '269';
+        sec-mem-ref-name = 'scatter';
+    };
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1af618cb2495300f8e933e7378beaf4623';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'scatter';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+QVector< double > &
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'x';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+QVector< double > &
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'y';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+QColor
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'col';
+        sec-mem-param-defname = 'color';
+        sec-mem-param-defval = <<_EnD_oF_dEf_TeXt_
+Qt::blue
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+Marker
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'mk';
+        sec-mem-param-defval = <<_EnD_oF_dEf_TeXt_
+Marker::Circle
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '113';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+ The scatter() method provides a plot functionality similar to MATLAP's scatter function
+x and y are regerences to QVector<double>.  The must be of equal length.
+
+scatter returns an integer serving as a unique handle for all points. The following functions use that handle
+to read or change settings for that curve:
+
+lineWidth(),  lineWidthF(), setLineWidth(),
+setLineWidthF(), lineStyle(), setLineStyle(),
+lineColor(), setLineColor(), setMarker()
+
+@param color a QColor object defining the line color.  You may also use pre-defined colors like Qt::red, ...
+@param mk a member of the SimFigure::Marker enum.
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a9ca7d763c13e9007a37a20aec8604545';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'clear';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '115';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+ clear curent axes &ndash; clears the figure but preserves the grid type
+
+identical to cla()
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a5bd2784878e27412cb407fe9b883d084';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'cla';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '116';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+clear curent axes &ndash; clears the figure but preserves the grid type  
+_EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1a9ca7d763c13e9007a37a20aec8604545';
+        sec-mem-ref-line = '454';
+        sec-mem-ref-name = 'clear';
+    };
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1abde918f82b8e33fe6ba53b3f0262baab';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'grid';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+bool
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'mayor';
+        sec-mem-param-defname = 'major';
+        sec-mem-param-defval = <<_EnD_oF_dEf_TeXt_
+true
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+bool
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'minor';
+        sec-mem-param-defval = <<_EnD_oF_dEf_TeXt_
+true
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '118';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+ generate a grid with major (true|false) and minor (true|false) grid markers and lines.
+
+grid()   turns major and monor grid on
+
+grid( false, false ) turns the grid off
+_EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1ad3c0e096e64b402a92d192537a64e1ab';
+        sec-mem-ref-line = '38';
+        sec-mem-ref-name = 'SimFigure';
+    };
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a4ef105717addfd538f0de947abda2c12';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'legend';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+QList< QString >
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'labels';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+Location
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'loc';
+        sec-mem-param-defval = <<_EnD_oF_dEf_TeXt_
+Location::South
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '120';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+ Add a legend to the current plot.
+
+Location is an enum class.
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1acd3b47ae200a265140052f00dd5e8982';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'moveLegend';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+Location
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'loc';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '121';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+ Move the legend to a new location identified by Location
+(enum class Location)  
+_EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1a4ef105717addfd538f0de947abda2c12';
+        sec-mem-ref-line = '492';
+        sec-mem-ref-name = 'legend';
+    };
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1adfd4bd553792c9e0fc985299034f67e7';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'showLegend';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+bool
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'on';
+        sec-mem-param-defval = <<_EnD_oF_dEf_TeXt_
+true
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '122';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+show (on=true) or hide (on=false) a legend for the current plots.  
+_EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1a4ef105717addfd538f0de947abda2c12';
+        sec-mem-ref-line = '492';
+        sec-mem-ref-name = 'legend';
+    };
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a8f530972248abdf68e860df123f0296d';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+bool
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'legendVisible';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '123';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+check if legend is currently visible. 
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a319e910b50383a17bdf4795c3e15fe7f';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'select';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'ID';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '125';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+ select the curve identified by its integer handle ID.
+Upon completion, this function will emit a SIGNAL(curve_selected(int)) with
+value = integer handle of that curve. 
+_EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1a79e37046cb4b62b2414bce5f82c8966e';
+        sec-mem-ref-line = '596';
+        sec-mem-ref-name = 'on_picker_appended';
+    };
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1ae7e260a85fec8195b3df25061067d3ce';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'clearSelection';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '126';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+clear selection of any curve. Upon completion, this function will emit a SIGNAL(curve_selected(int)) with value -1. 
+_EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1a79e37046cb4b62b2414bce5f82c8966e';
+        sec-mem-ref-line = '596';
+        sec-mem-ref-name = 'on_picker_appended';
+    };
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1a018246caa516e67dd1b0c60d80e3befe';
+        sec-mem-ref-line = '765';
+        sec-mem-ref-name = 'select';
+    };
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1ac7c1a9f0b0cbb741046c0f858a14f9c6';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+SimFigure::AxisType
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'axisType';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '128';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+returns the current AxisType  
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a0ba080ccc53aaf3dcbe7b07e6a270c9f';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'setAxisType';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+AxisType
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'type';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '129';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+set the AxisType for the current grid  
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a68f4c11b4a81380fb7cdde2d778d36a1';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+QString
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'xLabel';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '131';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+SimFigure::xLabel()
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+@return title of the current x-axis label
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a51ca6a284ef0e6e24fc3b88c34f9ee74';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+QString
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'yLabel';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '132';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+SimFigure::yLabel()
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+@return text of the current y-axis label
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1aa078851550cef1fea9b794923d6d7211';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'labelFontSize';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '133';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+returns the current font size used for xLabel() and yLabel()
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a84d3287fbe5f8478dd014cc2e8ae7cd1';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+QString
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'title';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '134';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+SimFigure::title()
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+@return title of the current figure
+_EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1a7cb5b9b051d2cabaa324898d60c5e66a';
+        sec-mem-ref-line = '372';
+        sec-mem-ref-name = 'setTitle';
+    };
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a112a8c3cddfbb596a857872c79ed28dd';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'titleFontSize';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '135';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+returns the current font size used for title()
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1ab5fd943a5addf51f9e82c764cb1705fa';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'setXLabel';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+QString
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'lbl';
+        sec-mem-param-defname = 'label';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '137';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+set the title for the x-axis
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1ad8929bce26d02feb640b62a06d1d0dec';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'setYLabel';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+QString
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'lbl';
+        sec-mem-param-defname = 'label';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '138';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+set the title for the y-axis
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1ab7af39b43c89d37ecbcbe2fb4b196768';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'setLabelFontSize';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'sz';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '139';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+sets the current font size used for xLabel() and yLabel() to sz
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1a5bd2784878e27412cb407fe9b883d084';
+        sec-mem-ref-line = '460';
+        sec-mem-ref-name = 'cla';
+    };
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a7cb5b9b051d2cabaa324898d60c5e66a';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'setTitle';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+QString
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'title';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '140';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+set the figure title
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a18254bd1d4112454a39414dd9e84c56e';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'setTitleFontSize';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'sz';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '141';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+sets the current font size used for title() to sz
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1a5bd2784878e27412cb407fe9b883d084';
+        sec-mem-ref-line = '460';
+        sec-mem-ref-name = 'cla';
+    };
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1af1729c4a49feb1e5f3318878d03adecf';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'lineWidth';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'ID';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '143';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+return the line width of the curve with handle ID  
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1ab9e22f4d91455e41980cd7592b2031a7';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'setLineWidth';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'ID';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'wd';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '144';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+change the line width of the curve with handle ID  
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a33d8b7ffa6f73c6be5e40b31ab4714bd';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+double
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'lineWidthF';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'ID';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '146';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+return the line width of the curve with handle ID  
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a5a965f4e8a2c08889a13c392e9ca38f4';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'setLineWidthF';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'ID';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+double
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'wd';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '147';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+change the line width of the curve with handle ID  
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1ab6dfc2c90e904e870a3695872b5b573a';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+SimFigure::LineType
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'lineStyle';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'ID';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '149';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+returns the line style of a curve.  
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1ab42a2e8cab0b67b6b2a46f81f1564add';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'setLineStyle';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'ID';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+LineType
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'lt';
+        sec-mem-param-defval = <<_EnD_oF_dEf_TeXt_
+LineType::Solid
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+Marker
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'mk';
+        sec-mem-param-defval = <<_EnD_oF_dEf_TeXt_
+Marker::None
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '150';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+used to change the current line style of a curve.  
+_EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1a121cf6c85b13583f774945aec5e0a2f3';
+        sec-mem-ref-line = '222';
+        sec-mem-ref-name = 'plot';
+    };
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a095f59955b2659771a521962a43f0489';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+QColor
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'lineColor';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'ID';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '152';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+returns line color of the curve with handle ID.  
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1abd45928de1b30aeea696d91c69124b67';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'setLineColor';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'ID';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+QColor
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'color';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '153';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+used to change the current color of a curve.  
+_EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1a121cf6c85b13583f774945aec5e0a2f3';
+        sec-mem-ref-line = '222';
+        sec-mem-ref-name = 'plot';
+    };
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1ad2b0d0e8725690c48b6a474ed11cbe5c';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+SimFigure::Marker
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'marker';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'ID';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '155';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+SimFigure::marker.
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+@param ID ... unique handle for the curve of interest
+@return SimFigure::Marker enum to identify the marker for curve with handle=ID
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a7ee36ef46f98952e11beeaac47af0c84';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'markerSize';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'ID';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '156';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+SimFigure::markerSize.
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+@param ID ... unique handle for the curve of interest
+@return size of the marker in pixels
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1af28b608eacaeec9dd8fded737aa75f41';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'setMarker';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'ID';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+Marker
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'mk';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'size';
+        sec-mem-param-defval = <<_EnD_oF_dEf_TeXt_
+10
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '157';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+used to change the current marker of a curve.
+_EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1a121cf6c85b13583f774945aec5e0a2f3';
+        sec-mem-ref-line = '222';
+        sec-mem-ref-name = 'plot';
+    };
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1ab42a2e8cab0b67b6b2a46f81f1564add';
+        sec-mem-ref-line = '863';
+        sec-mem-ref-name = 'setLineStyle';
+    };
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a93ef1bda65c2ecdf8092834271b51c34';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'saveToFile';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+QString
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'filename';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+SimFigure::FileType
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'type';
+        sec-mem-param-defval = <<_EnD_oF_dEf_TeXt_
+SimFigure::FileType::PNG
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+QSizeF
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'size';
+        sec-mem-param-defval = <<_EnD_oF_dEf_TeXt_
+QSizeF(300, 200)
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'res';
+        sec-mem-param-defval = <<_EnD_oF_dEf_TeXt_
+85
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '159';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+save image to file
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+used to save the plot to an image file.  Location and filename are defined
+from within the code.  No user interaction required.
+
+@param filename includes fully specified path
+@param type default is SimFigure::FileType::PNG
+@param size QSizeF(width in MM, height in MM).
+            Defaults to 300mm/200mm (~12in/8in)
+@param res resolution: use 75-95 for screen, ~100-150 for presentations, 300 for quality print.
+           Defaults to 85
+_EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1aeb9ee87c326f3cdb65d41cad6d7dd1d7';
+        sec-mem-ref-line = '1065';
+        sec-mem-ref-name = 'exportToFile';
+    };
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1aeb9ee87c326f3cdb65d41cad6d7dd1d7';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'exportToFile';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+QString
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'filename';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+SimFigure::FileType
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'type';
+        sec-mem-param-defval = <<_EnD_oF_dEf_TeXt_
+SimFigure::FileType::PNG
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+QSizeF
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'size';
+        sec-mem-param-defval = <<_EnD_oF_dEf_TeXt_
+QSizeF(300, 200)
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'res';
+        sec-mem-param-defval = <<_EnD_oF_dEf_TeXt_
+85
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '160';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+save image to file
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+used to save the plot to an image file.  Location and filename are suggestions only.
+The user will face a QFileDialog to define actual filename and location.
+
+@param filename specified via QFileDialog
+@param type default is SimFigure::FileType::PNG
+@param size QSizeF(width in MM, height in MM).
+            Defaults to 300mm/200mm (~12in/8in)
+@param res resolution: use 75-95 for screen, ~100-150 for presentations, 300 for quality print.
+           Defaults to 85
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+  }; /* cp-section */
+  cp-section = {
+    sec-kind = 'public-slot';
+    sec-member = {
+      sec-mem-kind = 'slot';
+      sec-mem-id   = 'class_sim_figure_1ac0ce4c585dd691bba1c0e221f8df94c8';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'on_picker_activated';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+bool
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'on';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '166';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+DEPRICATED  
+_EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1ad3c0e096e64b402a92d192537a64e1ab';
+        sec-mem-ref-line = '38';
+        sec-mem-ref-name = 'SimFigure';
+    };
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'slot';
+      sec-mem-id   = 'class_sim_figure_1ae06d6a5705e082ca8c59d65fe109acff';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'on_picker_selected';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+const QPolygon &
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'polygon';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '167';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+DEPRICATED  
+_EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1ad3c0e096e64b402a92d192537a64e1ab';
+        sec-mem-ref-line = '38';
+        sec-mem-ref-name = 'SimFigure';
+    };
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'slot';
+      sec-mem-id   = 'class_sim_figure_1a79e37046cb4b62b2414bce5f82c8966e';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'on_picker_appended';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+const QPoint &
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'pos';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '168';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+upon mouse click inside the plot canvas, identify the QwtPlotItem most likely selected by that mouse event.  There is a 5 pixel tolerance to either side of a curve for which a hit will be detected.  
+_EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1ad3c0e096e64b402a92d192537a64e1ab';
+        sec-mem-ref-line = '38';
+        sec-mem-ref-name = 'SimFigure';
+    };
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'slot';
+      sec-mem-id   = 'class_sim_figure_1a584df7a3fa25bbd459cc8e9c2066df80';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'on_picker_moved';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+const QPoint &
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'pos';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '169';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+DEPRICATED  
+_EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1ad3c0e096e64b402a92d192537a64e1ab';
+        sec-mem-ref-line = '38';
+        sec-mem-ref-name = 'SimFigure';
+    };
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'slot';
+      sec-mem-id   = 'class_sim_figure_1a9d3124bea7ad6dbca7255f58e53533a1';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'on_picker_removed';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+const QPoint &
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'pos';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '170';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+DEPRICATED  
+_EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1ad3c0e096e64b402a92d192537a64e1ab';
+        sec-mem-ref-line = '38';
+        sec-mem-ref-name = 'SimFigure';
+    };
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'slot';
+      sec-mem-id   = 'class_sim_figure_1a75927b0006e5ab138e86c780adbb1071';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'on_picker_changed';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+const QPolygon &
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'selection';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '171';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+DEPRICATED  
+_EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1ad3c0e096e64b402a92d192537a64e1ab';
+        sec-mem-ref-line = '38';
+        sec-mem-ref-name = 'SimFigure';
+    };
+    }; /* sec-member */
+  }; /* cp-section */
+  cp-section = {
+    sec-kind = 'signal';
+    sec-member = {
+      sec-mem-kind = 'signal';
+      sec-mem-id   = 'class_sim_figure_1ab9195d75fa5a25d0e43feb18b0bdf74a';
+      sec-mem-virt = normal;
+      sec-mem-prot = public;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'curve_selected';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'ID';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '174';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+  }; /* cp-section */
+  cp-section = {
+    sec-kind = 'protected-func';
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a018246caa516e67dd1b0c60d80e3befe';
+      sec-mem-virt = normal;
+      sec-mem-prot = protected;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'select';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+QwtPlotItem *
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'item';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '177';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+ select the curve identified by the provided pointer (private).
+Upon completion, this function will emit a SIGNAL(curve_selected(int)) with value = integer handle of that curve. 
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a3bf6357f866bd5a2e0531dffd4557272';
+      sec-mem-virt = normal;
+      sec-mem-prot = protected;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'setLineStyle';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+QwtPlotCurve *
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'curve';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+LineType
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'lt';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '178';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+used to change the current line style of a curve. (private)  
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1abe319bc91d21efcde9d719f8471f9c6a';
+      sec-mem-virt = normal;
+      sec-mem-prot = protected;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'setLineColor';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+QwtPlotCurve *
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-defname = 'curve';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+QColor
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'color';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '179';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+used to change the current color of a curve. (private)  
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a27816b3f8cd53f83097d7de60297ae10';
+      sec-mem-virt = normal;
+      sec-mem-prot = protected;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'setMarker';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+QwtPlotCurve *
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'curve';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+Marker
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'mk';
+      }; /*        sec-mem-param--param */
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'size';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '180';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+used to change the current marker of a curve. (private)  
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a937dcf129edd9dd32210a48e4a2413ff';
+      sec-mem-virt = normal;
+      sec-mem-prot = protected;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+QwtPlotItem *
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'itemAt';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+const QPoint &
+_EnD_oF_dEf_TeXt_;
+        sec-mem-param-declname = 'pos';
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '181';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+returns a pointer to the QwtPlotItem selected by the last mouse click (private) 
+_EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1a79e37046cb4b62b2414bce5f82c8966e';
+        sec-mem-ref-line = '596';
+        sec-mem-ref-name = 'on_picker_appended';
+    };
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a38bdf4357c59880f504ff115a2b47195';
+      sec-mem-virt = normal;
+      sec-mem-prot = protected;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'rescale';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '182';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+reinitialize the scale engine for both axes (private)  
+_EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1a121cf6c85b13583f774945aec5e0a2f3';
+        sec-mem-ref-line = '222';
+        sec-mem-ref-name = 'plot';
+    };
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'function';
+      sec-mem-id   = 'class_sim_figure_1a5f5ef739270d0b8b2340a97c47763497';
+      sec-mem-virt = normal;
+      sec-mem-prot = protected;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'refreshGrid';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '183';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+Regenerate th egrid with new settings (Type, limits) - (private)  
+_EnD_oF_dEf_TeXt_;
+      sec-mem-referenceby = {
+        sec-mem-ref-id = 'simfigure_8cpp_1abde918f82b8e33fe6ba53b3f0262baab';
+        sec-mem-ref-line = '167';
+        sec-mem-ref-name = 'grid';
+    };
+    }; /* sec-member */
+  }; /* cp-section */
+  cp-section = {
+    sec-kind = 'private-attrib';
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'class_sim_figure_1aea5f658cb27177d2a836ae7c70020815';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+Ui::SimFigure *
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'ui';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '186';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'class_sim_figure_1ac7ceac1b1bd8d7a57f01eea53f103115';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+QwtPlot *
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'm_plot';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '187';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'class_sim_figure_1a1cc2d54530051f7718815fd570c462db';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+QwtPlotGrid *
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'm_grid';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '188';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'class_sim_figure_1a68c1b2c88223d01309b0a8ae5f25354b';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+QwtPlotPicker *
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'm_picker';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '189';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'class_sim_figure_1a9c7acdba588b44faa768d7394ebbfb6b';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+QwtPlotLegendItem *
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'm_legend';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '190';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'class_sim_figure_1a47ab869e5a8a8d4fe352bb59d9ef2f51';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+QMap< QwtPlotCurve *, int >
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'm_plotInvMap';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '191';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'class_sim_figure_1a2335fdb69a1415f4d02adb46af7285e8';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+QMap< QwtPlotItem *, int >
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'm_itemInvMap';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '192';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'class_sim_figure_1a77b071021fb4b8f9ad5359a4641f3c33';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+QVector< QwtPlotCurve * >
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'm_curves';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '194';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'class_sim_figure_1aa41a8ac61b9d0fded76d1529cf4bbcd6';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+AxisType
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'm_axisType';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '196';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'class_sim_figure_1a2e643435f6ff088705c47d0ada089ad8';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+double
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'm_xmin';
+      sec-mem-initializer = <<_EnD_oF_dEf_TeXt_
+= 1.e20
+_EnD_oF_dEf_TeXt_;
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '197';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'class_sim_figure_1a0e22fc4b32d1cbd837e7830c0527007e';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+double
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'm_xmax';
+      sec-mem-initializer = <<_EnD_oF_dEf_TeXt_
+= 1.e-20
+_EnD_oF_dEf_TeXt_;
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '198';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'class_sim_figure_1a981b93bb5850d55d1ef29bef35649f16';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+double
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'm_ymin';
+      sec-mem-initializer = <<_EnD_oF_dEf_TeXt_
+= 1.e20
+_EnD_oF_dEf_TeXt_;
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '199';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'class_sim_figure_1abc98c534a246879486d8107c8188f28e';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+double
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'm_ymax';
+      sec-mem-initializer = <<_EnD_oF_dEf_TeXt_
+= 1.e-20
+_EnD_oF_dEf_TeXt_;
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '200';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'class_sim_figure_1a048837ef4c7ad8c85f7550fdec82cb01';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+struct SimFigure::SELECTION
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'lastSelection';
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '207';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'class_sim_figure_1a5ea86be104440d976b86293d3a6b2bce';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+bool
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'm_showMajorGrid';
+      sec-mem-initializer = <<_EnD_oF_dEf_TeXt_
+= true
+_EnD_oF_dEf_TeXt_;
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '209';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+    sec-member = {
+      sec-mem-kind = 'variable';
+      sec-mem-id   = 'class_sim_figure_1a439f6f37bbb88a7d3fb88b4914c8c41d';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+bool
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'm_showMinorGrid';
+      sec-mem-initializer = <<_EnD_oF_dEf_TeXt_
+= true
+_EnD_oF_dEf_TeXt_;
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '210';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+  }; /* cp-section */
+  cp-section = {
+    sec-kind = 'private-slot';
+    sec-member = {
+      sec-mem-kind = 'slot';
+      sec-mem-id   = 'class_sim_figure_1acd03ce07bdf387a0907939a88fe4ed7a';
+      sec-mem-virt = normal;
+      sec-mem-prot = private;
+      sec-mem-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      sec-mem-name = 'axisTypeChanged';
+      sec-mem-param = {
+        sec-mem-param-type = <<_EnD_oF_dEf_TeXt_
+void
+_EnD_oF_dEf_TeXt_;
+      }; /*        sec-mem-param--param */
+      sec-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+      sec-mem-desc-line = '163';
+      sec-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      sec-mem-documentation = <<_EnD_oF_dEf_TeXt_
+ This signal is emited whenever one of the 'Default', 'LogX', 'LogY', or 'LogLog'
+radiobuttons is clicked.
+It is further emited if the axistype is changed via a call to
+_EnD_oF_dEf_TeXt_;
+    }; /* sec-member */
+  }; /* cp-section */
+  cp-filename  = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+  cp-fileline  = '28';
+  cp-briefdesc = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  cp-inheritancegraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 12;
+        node-label = 'SimFigure';
+        node-link = {
+          node-link-id = 'class_sim_figure';
+        };
+        node-child = {
+          child-id = '13';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 13;
+        node-label = 'QFrame';
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+  cp-collaborationgraph = <<_EnD_oF_dEf_TeXt_
+      node = {
+        node-id    = 14;
+        node-label = 'SimFigure';
+        node-link = {
+          node-link-id = 'class_sim_figure';
+        };
+        node-child = {
+          child-id = '15';
+          relation = public-inheritance;
+        }; /* node-child */
+      }; /* node */
+      node = {
+        node-id    = 15;
+        node-label = 'QFrame';
+      }; /* node */
+
+_EnD_oF_dEf_TeXt_;
+}; /* class */
+file = {
+  file-id   = 'main_8cpp';
+  file-name = 'main.cpp';
+    func = {
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'main_8cpp_1a0ddf1224851353fc92bfbff6f499fa97';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'main';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-declname = 'argc';
+      }; /*        func-mem-param--param */
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+char *
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-declname = 'argv';
+        func-mem-param-array = '[]';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/SimPlotDemo/main.cpp';
+      func-mem-desc-line = '4';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    };
+  file-full-name  = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/SimPlotDemo/main.cpp';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'mainwindow_8cpp';
+  file-name = 'mainwindow.cpp';
+    define = {
+    define-member = {
+      define-mem-kind = 'define';
+      define-mem-id   = 'mainwindow_8cpp_1a598a3330b3c21701223ee0ca14316eca';
+      define-mem-virt = normal;
+      define-mem-prot = public;
+      define-mem-name = 'PI';
+      define-mem-initializer = <<_EnD_oF_dEf_TeXt_
+3.141592653590
+_EnD_oF_dEf_TeXt_;
+      define-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/SimPlotDemo/mainwindow.cpp';
+      define-mem-desc-line = '11';
+      define-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      define-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* define-member */
+    };
+  file-full-name  = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/SimPlotDemo/mainwindow.cpp';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'mainwindow_8h';
+  file-name = 'mainwindow.h';
+  file-full-name  = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/SimPlotDemo/mainwindow.h';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'simfigure_8cpp';
+  file-name = 'simfigure.cpp';
+    define = {
+    define-member = {
+      define-mem-kind = 'define';
+      define-mem-id   = 'simfigure_8cpp_1ac721835ad21f21e328b7cf955b7a4d32';
+      define-mem-virt = normal;
+      define-mem-prot = public;
+      define-mem-name = 'MIN';
+      define-mem-param  = {
+        define-mem-def-name = 'vec';
+      }; /*        define-mem-def--param */
+      define-mem-initializer = <<_EnD_oF_dEf_TeXt_
+*std::min_element(vec.constBegin(), vec.constEnd())
+_EnD_oF_dEf_TeXt_;
+      define-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.cpp';
+      define-mem-desc-line = '35';
+      define-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      define-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* define-member */
+    define-member = {
+      define-mem-kind = 'define';
+      define-mem-id   = 'simfigure_8cpp_1a5ed5a26a740bb1340b1733da072d2ae8';
+      define-mem-virt = normal;
+      define-mem-prot = public;
+      define-mem-name = 'MAX';
+      define-mem-param  = {
+        define-mem-def-name = 'vec';
+      }; /*        define-mem-def--param */
+      define-mem-initializer = <<_EnD_oF_dEf_TeXt_
+*std::max_element(vec.constBegin(), vec.constEnd())
+_EnD_oF_dEf_TeXt_;
+      define-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.cpp';
+      define-mem-desc-line = '36';
+      define-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      define-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* define-member */
+    };
+  file-full-name  = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.cpp';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = 'simfigure_8h';
+  file-name = 'simfigure.h';
+  file-full-name  = '/Users/pmackenz/Development/SimCenter/SimCenterCommon/SimFigure/source/simfigure.h';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
