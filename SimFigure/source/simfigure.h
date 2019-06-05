@@ -93,41 +93,71 @@ public:
                           SouthEast     ///< equivalent to BottomRight
                         };
 
+    /**
+     * @brief The FileType enum
+     *
+     * used to define file type in saveToFile() and exportToFile()
+     */
+    enum class FileType {
+        PNG, ///< portable network graphic file
+        BMP, ///< MicroSOft bitmap file
+        PDF, ///< portable document format
+        PS,  ///< PostScript file
+        SVG  ///< scaleable vector graphic file
+    };
+
     explicit SimFigure(QWidget *parent = nullptr);
     ~SimFigure();
-    void grid(bool mayor=true, bool minor=true);
+
     int plot(QVector<double> &, QVector<double> &, LineType lt = LineType::Solid, QColor col = Qt::red, Marker mk = Marker::None);
     int scatter(QVector<double> &, QVector<double> &, QColor col = Qt::blue, Marker mk = Marker::Circle);
+
     void clear(void);
     void cla(void);
+
+    void grid(bool mayor=true, bool minor=true);
+
     void legend(QList<QString> labels, Location loc=Location::South);
     void moveLegend(Location loc);
     void showLegend(bool = true);
     bool legendVisible(void);
+
     void select(int);
     void clearSelection(void);
+
     SimFigure::AxisType axisType(void);
     void setAxisType( AxisType type);
 
     QString xLabel();
     QString yLabel();
+    int labelFontSize();
     QString title();
+    int titleFontSize();
 
     void setXLabel(QString lbl);
     void setYLabel(QString lbl);
+    void setLabelFontSize(int);
     void setTitle(QString title);
+    void setTitleFontSize(int);
 
     int      lineWidth(int ID);
-    double   lineWidthF(int ID);
     void     setLineWidth(int ID, int wd);
+
+    double   lineWidthF(int ID);
     void     setLineWidthF(int ID, double wd);
+
     SimFigure::LineType lineStyle(int ID);
     void     setLineStyle(int ID, LineType lt=LineType::Solid, Marker mk=Marker::None);
+
     QColor   lineColor(int ID);
     void     setLineColor(int ID, QColor color);
+
     SimFigure::Marker marker(int ID);
     int      markerSize(int ID);
     void     setMarker(int ID, Marker mk, int size=10);
+
+    void saveToFile(QString filename, SimFigure::FileType type=SimFigure::FileType::PNG, QSizeF size=QSizeF(300,200), int res=85);
+    void exportToFile(QString filename, SimFigure::FileType type=SimFigure::FileType::PNG, QSizeF size=QSizeF(300,200), int res=85);
 
 private slots:
     void axisTypeChanged(void);

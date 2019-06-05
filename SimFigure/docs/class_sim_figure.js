@@ -6,6 +6,13 @@ var class_sim_figure =
       [ "LogY", "class_sim_figure.html#aea160416bb26a1ea4cb432eb2603f323add3e401a75fb3d4ccbd46aec3ad98738", null ],
       [ "LogLog", "class_sim_figure.html#aea160416bb26a1ea4cb432eb2603f323af31ef15863cb3c9383790dc16c3f2304", null ]
     ] ],
+    [ "FileType", "class_sim_figure.html#aa31c5c58c731b7d0ec3d6d28dcbf08d4", [
+      [ "PNG", "class_sim_figure.html#aa31c5c58c731b7d0ec3d6d28dcbf08d4a55505ba281b015ec31f03ccb151b2a34", null ],
+      [ "BMP", "class_sim_figure.html#aa31c5c58c731b7d0ec3d6d28dcbf08d4aa5d5ca1447586e23dc011f8c0cc0a6db", null ],
+      [ "PDF", "class_sim_figure.html#aa31c5c58c731b7d0ec3d6d28dcbf08d4abcd1b68617759b1dfcff0403a6b5a8d1", null ],
+      [ "PS", "class_sim_figure.html#aa31c5c58c731b7d0ec3d6d28dcbf08d4ad3d4c5deb455ac79dd5ff47c88bd65d9", null ],
+      [ "SVG", "class_sim_figure.html#aa31c5c58c731b7d0ec3d6d28dcbf08d4acd15a75c26008696647b31a3f0de43b3", null ]
+    ] ],
     [ "LineType", "class_sim_figure.html#a9c2b10f9af551b016dfd825babc242f8", [
       [ "None", "class_sim_figure.html#a9c2b10f9af551b016dfd825babc242f8a6adf97f83acf6453d4a6a4b1070f3754", null ],
       [ "Solid", "class_sim_figure.html#a9c2b10f9af551b016dfd825babc242f8ae41480b6bbfbf7407974a88d3d34f4fa", null ],
@@ -50,8 +57,10 @@ var class_sim_figure =
     [ "clear", "class_sim_figure.html#a9ca7d763c13e9007a37a20aec8604545", null ],
     [ "clearSelection", "class_sim_figure.html#ae7e260a85fec8195b3df25061067d3ce", null ],
     [ "curve_selected", "class_sim_figure.html#ab9195d75fa5a25d0e43feb18b0bdf74a", null ],
+    [ "exportToFile", "class_sim_figure.html#aeb9ee87c326f3cdb65d41cad6d7dd1d7", null ],
     [ "grid", "class_sim_figure.html#abde918f82b8e33fe6ba53b3f0262baab", null ],
     [ "itemAt", "class_sim_figure.html#a937dcf129edd9dd32210a48e4a2413ff", null ],
+    [ "labelFontSize", "class_sim_figure.html#aa078851550cef1fea9b794923d6d7211", null ],
     [ "legend", "class_sim_figure.html#a4ef105717addfd538f0de947abda2c12", null ],
     [ "legendVisible", "class_sim_figure.html#a8f530972248abdf68e860df123f0296d", null ],
     [ "lineColor", "class_sim_figure.html#a095f59955b2659771a521962a43f0489", null ],
@@ -70,10 +79,12 @@ var class_sim_figure =
     [ "plot", "class_sim_figure.html#a121cf6c85b13583f774945aec5e0a2f3", null ],
     [ "refreshGrid", "class_sim_figure.html#a5f5ef739270d0b8b2340a97c47763497", null ],
     [ "rescale", "class_sim_figure.html#a38bdf4357c59880f504ff115a2b47195", null ],
+    [ "saveToFile", "class_sim_figure.html#a93ef1bda65c2ecdf8092834271b51c34", null ],
     [ "scatter", "class_sim_figure.html#af618cb2495300f8e933e7378beaf4623", null ],
     [ "select", "class_sim_figure.html#a319e910b50383a17bdf4795c3e15fe7f", null ],
     [ "select", "class_sim_figure.html#a018246caa516e67dd1b0c60d80e3befe", null ],
     [ "setAxisType", "class_sim_figure.html#a0ba080ccc53aaf3dcbe7b07e6a270c9f", null ],
+    [ "setLabelFontSize", "class_sim_figure.html#ab7af39b43c89d37ecbcbe2fb4b196768", null ],
     [ "setLineColor", "class_sim_figure.html#abd45928de1b30aeea696d91c69124b67", null ],
     [ "setLineColor", "class_sim_figure.html#abe319bc91d21efcde9d719f8471f9c6a", null ],
     [ "setLineStyle", "class_sim_figure.html#ab42a2e8cab0b67b6b2a46f81f1564add", null ],
@@ -83,10 +94,12 @@ var class_sim_figure =
     [ "setMarker", "class_sim_figure.html#af28b608eacaeec9dd8fded737aa75f41", null ],
     [ "setMarker", "class_sim_figure.html#a27816b3f8cd53f83097d7de60297ae10", null ],
     [ "setTitle", "class_sim_figure.html#a7cb5b9b051d2cabaa324898d60c5e66a", null ],
+    [ "setTitleFontSize", "class_sim_figure.html#a18254bd1d4112454a39414dd9e84c56e", null ],
     [ "setXLabel", "class_sim_figure.html#ab5fd943a5addf51f9e82c764cb1705fa", null ],
     [ "setYLabel", "class_sim_figure.html#ad8929bce26d02feb640b62a06d1d0dec", null ],
     [ "showLegend", "class_sim_figure.html#adfd4bd553792c9e0fc985299034f67e7", null ],
     [ "title", "class_sim_figure.html#a84d3287fbe5f8478dd014cc2e8ae7cd1", null ],
+    [ "titleFontSize", "class_sim_figure.html#a112a8c3cddfbb596a857872c79ed28dd", null ],
     [ "xLabel", "class_sim_figure.html#a68f4c11b4a81380fb7cdde2d778d36a1", null ],
     [ "yLabel", "class_sim_figure.html#a51ca6a284ef0e6e24fc3b88c34f9ee74", null ]
 ];

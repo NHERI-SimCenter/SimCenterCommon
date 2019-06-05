@@ -120,8 +120,10 @@ void MainWindow::on_selectionView_clicked(const QModelIndex &index)
         idx = ui->theFigure->plot(d,u, SimFigure::LineType::Solid, Qt::blue, SimFigure::Marker::Triangle);
 
         ui->theFigure->setTitle("Demo #4: ");
+        ui->theFigure->setTitleFontSize(24);
         ui->theFigure->setXLabel("index i");
         ui->theFigure->setYLabel("element a_i");
+        ui->theFigure->setLabelFontSize(20);
         ui->theFigure->showLegend();
         ui->theFigure->setAxisType(SimFigure::AxisType::Default);
 
@@ -207,4 +209,24 @@ void MainWindow::on_btn_2nd_clicked()
 void MainWindow::on_btn_none_clicked()
 {
     ui->theFigure->clearSelection();
+}
+
+void MainWindow::on_action_Save_triggered()
+{
+    ui->theFigure->saveToFile("SimPlotDemo1.png", SimFigure::FileType::PNG);
+}
+
+void MainWindow::on_actionSave_As_triggered()
+{
+    ui->theFigure->exportToFile("SimPlotDemo2", SimFigure::FileType::PNG);
+}
+
+void MainWindow::on_actionSave_Hi_res_triggered()
+{
+    ui->theFigure->saveToFile("SimPlotDemo3", SimFigure::FileType::PNG, QSizeF(300,200), 200);
+}
+
+void MainWindow::on_actionSave_PDF_triggered()
+{
+    ui->theFigure->saveToFile("SimPlotDemo4.pdf", SimFigure::FileType::PNG, QSizeF(300,200), 150);
 }
