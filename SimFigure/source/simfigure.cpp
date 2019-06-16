@@ -3,6 +3,7 @@
 
 #include <QVBoxLayout>
 #include <QBrush>
+#include <QFont>
 #include <QVector>
 #include <QPoint>
 #include <QPolygon>
@@ -10,6 +11,9 @@
 #include <QPolygonF>
 #include <QMap>
 #include <QMapIterator>
+#include <QFileDialog>
+#include <QSize>
+#include <QSizeF>
 
 #include <qwt_plot.h>
 #include <qwt_plot_grid.h>
@@ -18,6 +22,7 @@
 #include <qwt_symbol.h>
 #include <qwt_legend.h>
 #include <qwt_plot_legenditem.h>
+#include <qwt_plot_renderer.h>
 
 #include "qwt_picker.h"
 #include "qwt_plot_picker.h"
@@ -43,6 +48,7 @@ SimFigure::SimFigure(QWidget *parent) :
    *
    *  h = figure
    *
+   * @param parent is a pointer to the parent widget
    * \header simfigure.h "code/simfigure.h"
    */
 {
@@ -59,7 +65,7 @@ SimFigure::SimFigure(QWidget *parent) :
 
     ui->btn_standard->setChecked(true);
 
-    axisType = AxisType::Default;
+    m_axisType = AxisType::Default;
     m_plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLinearScaleEngine(10));
     m_plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLinearScaleEngine(10));
 
@@ -97,9 +103,9 @@ void SimFigure::axisTypeChanged(void)
 {
     if (ui->btn_standard->isChecked())
     {
-        if (axisType != AxisType::Default)
+        if (m_axisType != AxisType::Default)
         {
-            axisType = AxisType::Default;
+            m_axisType = AxisType::Default;
             m_plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLinearScaleEngine(10));
             m_plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLinearScaleEngine(10));
 
@@ -110,9 +116,9 @@ void SimFigure::axisTypeChanged(void)
     }
     else if (ui->btn_logX->isChecked())
     {
-        if (axisType != AxisType::LogX)
+        if (m_axisType != AxisType::LogX)
         {
-            axisType = AxisType::LogX;
+            m_axisType = AxisType::LogX;
             m_plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLinearScaleEngine(10));
             m_plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLogScaleEngine(10));
 
@@ -123,9 +129,9 @@ void SimFigure::axisTypeChanged(void)
     }
     else if (ui->btn_logY->isChecked())
     {
-        if (axisType != AxisType::LogY)
+        if (m_axisType != AxisType::LogY)
         {
-            axisType = AxisType::LogY;
+            m_axisType = AxisType::LogY;
             m_plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLogScaleEngine(10));
             m_plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLinearScaleEngine(10));
 
@@ -136,9 +142,9 @@ void SimFigure::axisTypeChanged(void)
     }
     else if (ui->btn_loglog->isChecked())
     {
-        if (axisType != AxisType::LogLog)
+        if (m_axisType != AxisType::LogLog)
         {
-            axisType = AxisType::LogLog;
+            m_axisType = AxisType::LogLog;
 
             m_plot->setAxisMaxMajor( QwtPlot::yLeft, 6 );
             m_plot->setAxisMaxMinor( QwtPlot::yLeft, 9 );
@@ -157,7 +163,7 @@ void SimFigure::axisTypeChanged(void)
 
     grid(true, true);
 
-    //qDebug() << "signal axisTypeChanged received " << int(axisType);
+    //qDebug() << "signal axisTypeChanged received " << int(m_axisType);
 }
 
 void SimFigure::grid(bool major, bool minor)
@@ -174,17 +180,17 @@ void SimFigure::grid(bool major, bool minor)
     refreshGrid();
 }
 
-AxisType SimFigure::AxisType(void)
+SimFigure::AxisType SimFigure::axisType(void)
 /*! returns the current AxisType */
 {
-    return axisType;
+    return m_axisType;
 }
 
 /*! set the AxisType for the current grid */
 void SimFigure::setAxisType(enum AxisType type)
 {
-    axisType = type;
-    switch (axisType) {
+    m_axisType = type;
+    switch (m_axisType) {
     case AxisType::LogX :
         ui->btn_logX->setChecked(true);
         break;
@@ -208,8 +214,12 @@ void SimFigure::setAxisType(enum AxisType type)
  * to read or change settings for that curve:
  *
  * lineWidth(),  lineWidthF(), setLineWidth(),
- * setLineWidth(), lineStyle(), setLineStyle(),
+ * setLineWidthF(), lineStyle(), setLineStyle(),
  * lineColor(), setLineColor(), setMarker()
+ *
+ * @param lt a member of the SimFigure::LineType enum
+ * @param color a QColor object defining the line color.  You may also use pre-defined colors like Qt::red, ...
+ * @param mk a member of the SimFigure::Marker enum.
  */
 int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor color, Marker mk)
 {
@@ -228,7 +238,7 @@ int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor 
     curve->setSamples(x,y);
 
     setLineStyle(curve, lt);
-    setMarker(curve, mk);
+    setMarker(curve, mk, 10);
     setLineColor(curve, color);
 
     curve->attach(m_plot);
@@ -243,6 +253,127 @@ int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor 
     m_plotInvMap.insert(curve, idx);
 
     return idx;
+}
+
+/*! The scatter() method provides a plot functionality similar to MATLAP's scatter function
+ * x and y are regerences to QVector<double>.  The must be of equal length.
+ *
+ * scatter returns an integer serving as a unique handle for all points. The following functions use that handle
+ * to read or change settings for that curve:
+ *
+ * lineWidth(),  lineWidthF(), setLineWidth(),
+ * setLineWidthF(), lineStyle(), setLineStyle(),
+ * lineColor(), setLineColor(), setMarker()
+ *
+ * @param color a QColor object defining the line color.  You may also use pre-defined colors like Qt::red, ...
+ * @param mk a member of the SimFigure::Marker enum.
+ */
+int SimFigure::scatter(QVector<double> &x, QVector<double> &y, QColor color, Marker mk)
+{
+    return plot(x, y, SimFigure::LineType::None, color, mk);
+}
+
+/**
+ * @brief SimFigure::xLabel()
+ * @return title of the current x-axis label
+ */
+QString SimFigure::xLabel(void)
+{
+    return m_plot->axisTitle(QwtPlot::xBottom).text();
+}
+
+/**
+ * @brief SimFigure::yLabel()
+ * @return text of the current y-axis label
+ */
+QString SimFigure::yLabel(void)
+{
+    return m_plot->axisTitle(QwtPlot::yLeft).text();
+}
+
+/**
+ * @brief returns the current font size used for xLabel() and yLabel()
+ */
+int SimFigure::labelFontSize()
+{
+    int size = m_plot->axisTitle(QwtPlot::xBottom).font().pointSize();
+    return size;
+}
+
+/**
+ * @brief returns the current font size used for title()
+ */
+int SimFigure::titleFontSize()
+{
+    int size = m_plot->title().font().pointSize();
+    return size;
+}
+
+/**
+ * @brief sets the current font size used for xLabel() and yLabel() to sz
+ */
+void SimFigure::setLabelFontSize(int sz)
+{
+    if (sz>0)
+    {
+        QwtText text = m_plot->axisTitle(QwtPlot::xBottom);
+        QFont font = text.font();
+        font.setPointSize(sz);
+        text.setFont(font);
+        m_plot->setAxisTitle(QwtPlot::xBottom, text);
+
+        text = m_plot->axisTitle(QwtPlot::yLeft);
+        text.setFont(font);
+        m_plot->setAxisTitle(QwtPlot::yLeft, text);
+    }
+}
+
+/**
+ * @brief sets the current font size used for title() to sz
+ */
+void SimFigure::setTitleFontSize(int sz)
+{
+    if (sz>0)
+    {
+        QwtText text = m_plot->title();
+        QFont font = text.font();
+        font.setPointSize(sz);
+        text.setFont(font);
+        m_plot->setTitle(text);
+    }
+}
+
+/**
+ * @brief SimFigure::title()
+ * @return title of the current figure
+ */
+QString SimFigure::title(void)
+{
+    return m_plot->title().text();
+}
+
+/**
+ * set the title for the x-axis
+ */
+void SimFigure::setXLabel(QString label)
+{
+    m_plot->setAxisTitle(QwtPlot::xBottom, label);
+}
+
+/**
+ * set the title for the y-axis
+ */
+void SimFigure::setYLabel(QString label)
+{
+    m_plot->setAxisTitle(QwtPlot::yLeft, label);
+}
+
+/**
+ * set the figure title
+ */
+void SimFigure::setTitle(QString title)
+{
+    m_plot->setTitle(title);
 }
 
 /*! reinitialize the scale engine for both axes (private) */
@@ -295,7 +426,7 @@ void SimFigure::refreshGrid(void)
             m_grid->enableYMin(false);
         }
 
-        switch (axisType) {
+        switch (m_axisType) {
         case AxisType::Default:
             m_plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLinearScaleEngine);
             m_plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLinearScaleEngine);
@@ -338,6 +469,10 @@ void SimFigure::cla(void)
         m_plotInvMap.clear();
     }
     m_curves.clear();
+
+    // reset label and title fonts
+    setTitleFontSize(14);
+    setLabelFontSize(12);
 
     lastSelection.object = nullptr;
     lastSelection.plotID = -1;
@@ -710,7 +845,7 @@ void SimFigure::setLineWidth(int ID, int wd)
 }
 
 /*! change the line width of the curve with handle ID */
-void SimFigure::setLineWidth(int ID, double wd)
+void SimFigure::setLineWidthF(int ID, double wd)
 {
     if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
     {
@@ -721,7 +856,7 @@ void SimFigure::setLineWidth(int ID, double wd)
 }
 
 /*! returns the line style of a curve. */
-LineType SimFigure::lineStyle(int ID)
+SimFigure::LineType SimFigure::lineStyle(int ID)
 {
     return LineType::Solid;  // for now
 }
@@ -732,7 +867,7 @@ void SimFigure::setLineStyle(int ID, LineType lt, Marker mk)
     if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
     {
         setLineStyle(m_curves.value(ID-1), lt);
-        setMarker(m_curves.value(ID-1), mk);
+        setMarker(m_curves.value(ID-1), mk, 10);
     }
 }
 
@@ -764,50 +899,107 @@ void SimFigure::setLineStyle(QwtPlotCurve *curve, LineType lt)
     curve->setPen(pen);
 }
 
-/*! used to change the current marker of a curve. */
-void SimFigure::setMarker(int ID, Marker mk)
+/**
+ * @brief SimFigure::marker
+ * @param ID ... unique handle for the curve of interest
+ * @return SimFigure::Marker enum to identify the marker for curve with handle=ID
+ */
+SimFigure::Marker SimFigure::marker(int ID)
+{
+
+}
+
+/**
+ * @brief SimFigure::markerSize
+ * @param ID ... unique handle for the curve of interest
+ * @return size of the marker in pixels
+ */
+int SimFigure::markerSize(int ID)
 {
     if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
     {
-        setMarker(m_curves.value(ID-1), mk);
+        const QwtSymbol *sym = m_curves.value(ID-1)->symbol();
+        int size = sym->size().width();
+        return size;
+    }
+    else {
+        return -1;
+    }
+}
+
+/**
+ * used to change the current marker of a curve.
+ */
+void SimFigure::setMarker(int ID, Marker mk, int size)
+{
+    if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
+    {
+        setMarker(m_curves.value(ID-1), mk, size);
     }
 }
 
 /*! used to change the current marker of a curve. (private) */
-void SimFigure::setMarker(QwtPlotCurve *curve, Marker mk)
+void SimFigure::setMarker(QwtPlotCurve *curve, Marker mk, int size)
 {
-    switch (mk)
-    {
-    case Marker::None :
-        curve->setSymbol(nullptr);
-        break;
-    case Marker::Ex :
-        curve->setSymbol(new QwtSymbol(QwtSymbol::XCross));
-        break;
-    case Marker::Box :
-        curve->setSymbol(new QwtSymbol(QwtSymbol::Rect));
-        break;
-    case Marker::Plus :
-        curve->setSymbol(new QwtSymbol(QwtSymbol::Cross));
-        break;
-    case Marker::Circle :
-        curve->setSymbol(new QwtSymbol(QwtSymbol::Ellipse));
-        break;
-    case Marker::Asterisk :
-        curve->setSymbol(new QwtSymbol(QwtSymbol::Star1));
-        break;
-    case Marker::Triangle :
-        curve->setSymbol(new QwtSymbol(QwtSymbol::Triangle));
-        break;
-    case Marker::DownTriangle :
-        curve->setSymbol(new QwtSymbol(QwtSymbol::DTriangle));
-        break;
-    case Marker::LeftTriangle :
-        curve->setSymbol(new QwtSymbol(QwtSymbol::LTriangle));
-        break;
-    case Marker::RightTriangle :
-        curve->setSymbol(new QwtSymbol(QwtSymbol::RTriangle));
-        break;
+    QColor color;
+    QColor brush;
+
+    if (curve) {
+
+        /* these colors return Qt::black even though th ecurve has color. May be bug in Qwt (?) */
+        color = curve->pen().color();
+        brush = curve->brush().color();
+
+        //qDebug() << "Color / brush: " << color << " / " << brush;
+
+        QwtSymbol *newSymbol = nullptr;
+
+        if (size>0) {
+
+            switch (mk)
+            {
+            case Marker::None :
+                newSymbol = new QwtSymbol(QwtSymbol::NoSymbol);
+                break;
+            case Marker::Ex :
+                newSymbol = new QwtSymbol(QwtSymbol::XCross);
+                break;
+            case Marker::Box :
+                newSymbol = new QwtSymbol(QwtSymbol::Rect);
+                break;
+            case Marker::Plus :
+                newSymbol = new QwtSymbol(QwtSymbol::Cross);
+                break;
+            case Marker::Circle :
+                newSymbol = new QwtSymbol(QwtSymbol::Ellipse);
+                break;
+            case Marker::Asterisk :
+                newSymbol = new QwtSymbol(QwtSymbol::Star1);
+                break;
+            case Marker::Triangle :
+                newSymbol = new QwtSymbol(QwtSymbol::Triangle);
+                break;
+            case Marker::DownTriangle :
+                newSymbol = new QwtSymbol(QwtSymbol::DTriangle);
+                break;
+            case Marker::LeftTriangle :
+                newSymbol = new QwtSymbol(QwtSymbol::LTriangle);
+                break;
+            case Marker::RightTriangle :
+                newSymbol = new QwtSymbol(QwtSymbol::RTriangle);
+                break;
+            }
+        }
+        else {
+            newSymbol = new QwtSymbol(QwtSymbol::NoSymbol);
+        }
+
+        newSymbol->setSize(size);
+
+        newSymbol->setPen(color, 0.5);
+        newSymbol->setColor(Qt::lightGray);
+
+        curve->setSymbol(newSymbol);
     }
 }
 
@@ -832,4 +1024,94 @@ void SimFigure::setLineColor(QwtPlotCurve *curve, QColor color)
     QPen pen = curve->pen();
     pen.setColor(color);
     curve->setPen(pen);
+}
+
+/**
+ * @brief save image to file
+ *
+ * used to save the plot to an image file.  Location and filename are defined
+ * from within the code.  No user interaction required.
+ *
+ * @param filename includes fully specified path
+ * @param type default is SimFigure::FileType::PNG
+ * @param size QSizeF(width in MM, height in MM).
+ *             Defaults to 300mm/200mm (~12in/8in)
+ * @param res resolution: use 75-95 for screen, ~100-150 for presentations, 300 for quality print.
+ *            Defaults to 85
+ */
+void SimFigure::saveToFile(QString filename, SimFigure::FileType type, QSizeF size, int res)
+{
+    if (res<50) res=50;
+
+    QFileInfo *file = new QFileInfo(filename);
+    QString base = file->completeBaseName();
+    QString ext  = (file->suffix()).toLower();
+
+    // check for valid type
+    if (ext == "ps" || ext == "pdf" || ext == "png" || ext == "svg" || ext == "bmp")
+    {
+        // use extension from provided file type
+    }
+    else {
+        // fallback to user specified type
+
+        switch (type)
+        {
+        case SimFigure::FileType::PS  : ext = "ps"; break;
+        case SimFigure::FileType::PDF : ext = "pdf"; break;
+        case SimFigure::FileType::PNG : ext = "png"; break;
+        case SimFigure::FileType::SVG : ext = "svg"; break;
+        case SimFigure::FileType::BMP : ext = "bmp"; break;
+        }
+    }
+
+    QString newFilename = base + "." + ext;
+
+    QwtPlotRenderer *renderer = new QwtPlotRenderer(this);
+    renderer->renderDocument(m_plot, newFilename, ext, size, res);
+}
+
+/**
+ * @brief save image to file
+ *
+ * used to save the plot to an image file.  Location and filename are suggestions only.
+ * The user will face a QFileDialog to define actual filename and location.
+ *
+ * @param filename specified via QFileDialog
+ * @param type default is SimFigure::FileType::PNG
+ * @param size QSizeF(width in MM, height in MM).
+ *             Defaults to 300mm/200mm (~12in/8in)
+ * @param res resolution: use 75-95 for screen, ~100-150 for presentations, 300 for quality print.
+ *            Defaults to 85
+ */
+void SimFigure::exportToFile(QString filename, SimFigure::FileType type, QSizeF size, int res)
+{
+    if (res<50) res=50;
+
+    QFileInfo *file = new QFileInfo(filename);
+    QString base = file->completeBaseName();
+    QString ext  = (file->suffix()).toLower();
+
+    // check for valid type
+    if (ext == "ps" || ext == "pdf" || ext == "png" || ext == "svg" || ext == "bmp")
+    {
+        // use extension from provided file type
+    }
+    else {
+        // fallback to user specified type
+
+        switch (type)
+        {
+        case SimFigure::FileType::PS  : ext = "ps"; break;
+        case SimFigure::FileType::PDF : ext = "pdf"; break;
+        case SimFigure::FileType::PNG : ext = "png"; break;
+        case SimFigure::FileType::SVG : ext = "svg"; break;
+        case SimFigure::FileType::BMP : ext = "bmp"; break;
+        }
+    }
+
+    QString newFilename = base + "." + ext;
+
+    QwtPlotRenderer *renderer = new QwtPlotRenderer(this);
+    renderer->exportTo(m_plot, newFilename, size, res);
 }

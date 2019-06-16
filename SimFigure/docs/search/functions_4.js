@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['movelegend',['moveLegend',['../class_sim_figure.html#acd3b47ae200a265140052f00dd5e8982',1,'SimFigure']]]
+  ['itemat',['itemAt',['../class_sim_figure.html#a937dcf129edd9dd32210a48e4a2413ff',1,'SimFigure']]]
 ];

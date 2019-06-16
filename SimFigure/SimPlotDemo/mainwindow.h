@@ -27,6 +27,14 @@ private slots:
     void on_btn_2nd_clicked();
     void on_btn_none_clicked();
 
+    void on_action_Save_triggered();
+
+    void on_actionSave_As_triggered();
+
+    void on_actionSave_Hi_res_triggered();
+
+    void on_actionSave_PDF_triggered();
+
 private:
     Ui::MainWindow *ui;
     int currentLegend   = 0;
