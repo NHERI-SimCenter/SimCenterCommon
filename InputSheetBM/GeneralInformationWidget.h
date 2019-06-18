@@ -61,6 +61,13 @@ private:
 public:
     static GeneralInformationWidget *getInstance(void);
 
+    void setDefaultProperties(int numStory,
+			      double height,
+			      double width,
+			      double depth,
+			      double latit,
+			      double longit);
+
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
     bool outputToJSON(QJsonArray &arrayObject);
@@ -80,35 +87,39 @@ public:
     QString getLengthUnit();
     QString getForceUnit();
     int getNumFloors();
-    void setNumFloors(int numFloors);
+    double getHeight();
+    void setNumFloors(int newNumFloors);
+    void setHeight(double newHeight);
+
+
 
 
 signals:
     void numFloorsChanged(int newNumFloors);
-    void buildingDimensionsChanged(double newWidth, double newDepth, double newHeight);
+    void buildingHeightChanged(double newHeight);
+    void buildingDimensionsChanged(double newWidth, double newDepth, double planArea);
+
     void buildingWeightChanged(double newWeight);
     void unitsChanged(QString lengthUnit, QString ForceUnit);
-
-public slots:
 
 private:
     QStringList   tableHeader;
 
     QLineEdit *nameEdit;
-    QLineEdit *revEdit;
 
-    QLineEdit *typeEdit;
-    QSpinBox  *yearBox;
+    //    QLineEdit *revEdit;
+    //    QLineEdit *typeEdit;
+    //    QSpinBox  *yearBox;
     QSpinBox  *storiesBox;
     QLineEdit *heightEdit;
     QLineEdit *widthEdit;
     QLineEdit *depthEdit;
     QLineEdit *planAreaEdit;
-    QLineEdit *weightEdit;
+    //    QLineEdit *weightEdit;
 
    // QLineEdit *planAreaEdit;
 
-    QLineEdit *locationNameEdit;
+    //    QLineEdit *locationNameEdit;
     QDoubleSpinBox *locationLatBox;
     QDoubleSpinBox *locationLonBox;
 
