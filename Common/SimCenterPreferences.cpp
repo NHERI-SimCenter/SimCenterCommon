@@ -79,7 +79,7 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     // connect the pushbutton with code to open file selection and update python preferences with selected file
     connect(pythonButton, &QPushButton::clicked, this, [this](){
         QSettings settings("SimCenter", "Common"); //These names will need to be constants to be shared
-        QVariant  pythonPathVariant = settings.value("pythonPath");
+        QVariant  pythonPathVariant = settings.value("pythonExePath");
         QString existingDir = QStandardPaths::displayName(QStandardPaths::HomeLocation);
         if (pythonPathVariant.isValid()) {
             QString existingF = pythonPathVariant.toString();
@@ -143,7 +143,7 @@ SimCenterPreferences::~SimCenterPreferences()
 void
 SimCenterPreferences::savePreferences(bool) {
     QSettings settings("SimCenter", "Common");
-    settings.setValue("pythonPath", python->text());
+    settings.setValue("pythonExePath", python->text());
 
     this->close();
 }
@@ -151,7 +151,7 @@ SimCenterPreferences::savePreferences(bool) {
 void
 SimCenterPreferences::loadPreferences() {
     QSettings settings("SimCenter", "Common");
-    QVariant  pythonPathVariant = settings.value("pythonPath");
+    QVariant  pythonPathVariant = settings.value("pythonExePath");
 
     // set python
     if (!pythonPathVariant.isValid()) {
@@ -161,7 +161,7 @@ SimCenterPreferences::loadPreferences() {
         QString pythonPath = QStandardPaths::findExecutable("python");
 #endif
 
-        settings.setValue("pythonPath", pythonPath);
+        settings.setValue("pythonExePath", pythonPath);
         python->setText(pythonPath);
     } else {
         python->setText(pythonPathVariant.toString());
