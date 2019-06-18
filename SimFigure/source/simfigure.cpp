@@ -1006,7 +1006,15 @@ void SimFigure::setMarker(QwtPlotCurve *curve, Marker mk, int size)
 /*! returns line color of the curve with handle ID. */
 QColor SimFigure::lineColor(int ID)
 {
-    return QColor(Qt::red);
+    QColor color;
+    if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
+    {
+        color = m_curves.value(ID-1)->pen().color();
+    }
+    else {
+        color = Qt::red;
+    }
+    return color;
 }
 
 /*! used to change the current color of a curve. */
