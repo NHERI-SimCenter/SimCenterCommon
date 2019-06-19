@@ -57,7 +57,7 @@ SimCenterPreferences::getInstance(QWidget *parent) {
     theInstance = new SimCenterPreferences(parent);
 
   return theInstance;
- }
+}
 
 SimCenterPreferences *SimCenterPreferences::theInstance = 0;
 
@@ -118,7 +118,7 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     appDirButton->setToolTip(tr("Select Directory containing the Backend directory named applications"));
     appDirLayout->addWidget(appDirButton);
 
-    externalApplicationsLayout->addRow(tr("Applications Directory:"), appDirLayout);
+    externalApplicationsLayout->addRow(tr("Local Applications Directory:"), appDirLayout);
     externalApplicationsLayout->setAlignment(Qt::AlignLeft);
     externalApplicationsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     externalApplicationsLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
@@ -147,12 +147,31 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     }
     );
 
+    remoteAppDir = new QLineEdit();
+    QHBoxLayout *remoteAppDirLayout = new QHBoxLayout();
+    remoteAppDirLayout->addWidget(remoteAppDir);
+    QPushButton *remoteAppDirButton = new QPushButton();
+    
+    // no Browse button as remote dir location is stampede2 NOT designsafe & that we cannot touch
+
+    externalApplicationsLayout->addRow(tr("Remote Applications Directory:"), remoteAppDirLayout);
+    externalApplicationsLayout->setAlignment(Qt::AlignLeft);
+    externalApplicationsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    externalApplicationsLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
+
+
     //
     // push buttons at bottom of Widget, save & whatever else
     //
 
     QHBoxLayout *buttonsLayout = new QHBoxLayout();
     buttonsLayout->addStretch();
+
+    QPushButton *resetButton = new QPushButton();
+    resetButton->setText("Reset");
+    resetButton->setToolTip(tr("Reset Preferences"));
+    connect(resetButton, SIGNAL(clicked(bool)), this, SLOT(resetPreferences(bool)));
+    buttonsLayout->addWidget(resetButton);
 
     QPushButton *saveButton = new QPushButton();
     saveButton->setText("Save");
@@ -181,6 +200,18 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     else
         resize(nWidth, nHeight);
 
+    //Automatically changing to forward slash
+    connect(appDir, &QLineEdit::textChanged, this, [this](QString newValue){
+        if (newValue.contains('\\'))
+            appDir->setText(newValue.replace('\\','/'));
+    });
+
+    connect(remoteAppDir, &QLineEdit::textChanged, this, [this](QString newValue){
+        if (newValue.contains('\\'))
+            remoteAppDir->setText(newValue.replace('\\','/'));
+    });
+
+
 }
 
 SimCenterPreferences::~SimCenterPreferences()
@@ -196,24 +227,47 @@ SimCenterPreferences::savePreferences(bool) {
 
     QSettings settingsApp("SimCenter", QCoreApplication::applicationName());
     settingsApp.setValue("appDir", appDir->text());
+    settingsApp.setValue("remoteAppDir-June2019", remoteAppDir->text());
     
-
     this->close();
 }
+
+void
+SimCenterPreferences::resetPreferences(bool) {
+    QSettings settingsCommon("SimCenter", "Common");
+    settingsCommon.setValue("pythonExePath", python->text());
+
+#ifdef Q_OS_WIN
+    QString pythonPath = QStandardPaths::findExecutable("python.exe");
+#else
+    QString pythonPath = QStandardPaths::findExecutable("python");
+#endif
+    settingsCommon.setValue("pythonExePath", pythonPath);
+    python->setText(pythonPath);
+
+    QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
+    QString appDirLocation = QCoreApplication::applicationDirPath();
+    settingsApplication.setValue("appDir", appDirLocation);
+    appDir->setText(appDirLocation);
+    
+    QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/June-2019");
+    settingsApplication.setValue("remoteAppDir", remoteAppDirLocation);
+    remoteAppDir->setText(remoteAppDirLocation);
+}
+
 
 void
 SimCenterPreferences::loadPreferences() {
     QSettings settingsCommon("SimCenter", "Common");
     QVariant  pythonPathVariant = settingsCommon.value("pythonExePath");
 
-    // set python
+    // python
     if (!pythonPathVariant.isValid()) {
 #ifdef Q_OS_WIN
         QString pythonPath = QStandardPaths::findExecutable("python.exe");
 #else
         QString pythonPath = QStandardPaths::findExecutable("python");
 #endif
-
         settingsCommon.setValue("pythonExePath", pythonPath);
         python->setText(pythonPath);
     } else {
@@ -222,15 +276,27 @@ SimCenterPreferences::loadPreferences() {
 
 
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
-    QVariant  appDirVariant = settingsApplication.value("appDir");
 
-    // set python
+
+    // appDir
+    QVariant  appDirVariant = settingsApplication.value("appDir");
     if (!appDirVariant.isValid()) {
-        QString appDirLocation = QCoreApplication::applicationDirPath();
-        settingsApplication.setValue("appDir", appDirLocation);
-        appDir->setText(appDirLocation);
+      QString appDirLocation = QCoreApplication::applicationDirPath();
+      settingsApplication.setValue("appDir", appDirLocation);
+      appDir->setText(appDirLocation);
     } else {
         appDir->setText(appDirVariant.toString());
+    }
+
+    // remoteAppDir NOTE: we cannot allow QSettings here as would not be able to upgrade!
+    // so probably stupid putting in QSettings, should just put in a QString
+    QVariant  remoteAppDirVariant = settingsApplication.value("remoteAppDir-June2019");
+    if (!remoteAppDirVariant.isValid()) {
+      QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/June-2019");
+      settingsApplication.setValue("remoteAppDir", remoteAppDirLocation);
+      remoteAppDir->setText(remoteAppDirLocation);
+    } else {
+        remoteAppDir->setText(remoteAppDirVariant.toString());
     }
 }
 
@@ -270,4 +336,20 @@ SimCenterPreferences::getAppDir(void) {
     } 
 
     return appDirVariant.toString();
+}
+
+QString
+SimCenterPreferences::getRemoteAppDir(void) {
+
+    QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
+    QVariant  remoteAppDirVariant = settingsApplication.value("remoteAppDir");
+
+    // if not set, use default & set default as application directory
+    if (!remoteAppDirVariant.isValid()) {
+      QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/June-2019");
+      settingsApplication.setValue("remoteAppDir-June2019", remoteAppDirLocation);
+      return remoteAppDirLocation;
+    } 
+    
+    return remoteAppDirVariant.toString();
 }

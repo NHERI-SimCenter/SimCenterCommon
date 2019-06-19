@@ -57,14 +57,17 @@ public:
     static SimCenterPreferences *getInstance(QWidget *parent = 0);
     QString getPython(void);
     QString getAppDir(void);
+    QString getRemoteAppDir(void);
 
 public slots:
     void savePreferences(bool);
+    void resetPreferences(bool);
     void loadPreferences(void);
 
 private:
     QLineEdit *python;
     QLineEdit *appDir;
+    QLineEdit *remoteAppDir;
     QVBoxLayout *layout;
 };
 
