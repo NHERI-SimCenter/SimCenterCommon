@@ -48,9 +48,15 @@ class SimCenterPreferences : public QDialog
 {
     Q_OBJECT
 
-public:
+private:
     explicit SimCenterPreferences(QWidget *parent = 0);
     ~SimCenterPreferences();
+    static SimCenterPreferences *theInstance;
+
+public:
+    static SimCenterPreferences *getInstance(QWidget *parent = 0);
+    QString getPython(void);
+    QString getAppDir(void);
 
 public slots:
     void savePreferences(bool);
@@ -58,6 +64,7 @@ public slots:
 
 private:
     QLineEdit *python;
+    QLineEdit *appDir;
     QVBoxLayout *layout;
 };
 
