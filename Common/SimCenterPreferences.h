@@ -58,6 +58,9 @@ public:
     QString getPython(void);
     QString getAppDir(void);
     QString getRemoteAppDir(void);
+    QString getRemoteAgaveApp(void);
+    QString getLocalWorkDir(void);
+    QString getRemoteWorkDir(void);
 
 public slots:
     void savePreferences(bool);
@@ -66,8 +69,11 @@ public slots:
 
 private:
     QLineEdit *python;
+    QLineEdit *localWorkDir;
+    QLineEdit *remoteWorkDir;
     QLineEdit *appDir;
     QLineEdit *remoteAppDir;
+    QLineEdit *remoteAgaveApp;
     QVBoxLayout *layout;
 };
 

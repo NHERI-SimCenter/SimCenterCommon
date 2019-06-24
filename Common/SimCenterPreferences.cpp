@@ -66,9 +66,15 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
 {
     layout = new QVBoxLayout();
 
-    // area for external applications
+    // create QGroup Boxes for sorting the preferences into groups
     QGroupBox* externalApplicationsBox = new QGroupBox("External Applications", this);
     QFormLayout* externalApplicationsLayout = new QFormLayout(externalApplicationsBox);
+
+    QGroupBox* locationDirectoriesBox = new QGroupBox("Local Directories", this);
+    QFormLayout* locationDirectoriesLayout = new QFormLayout(locationDirectoriesBox);
+
+    QGroupBox* remoteSettingsBox = new QGroupBox("Remote Application Settings", this);
+    QFormLayout* remoteSettingsLayout = new QFormLayout(remoteSettingsBox);
 
     //
     // add row for python interpreter
@@ -110,6 +116,89 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     }
     );
 
+
+    //
+    // entry for localWorkDir location .. basically as before
+    //
+
+    localWorkDir = new QLineEdit();
+    QHBoxLayout *localWorkDirLayout = new QHBoxLayout();
+    localWorkDirLayout->addWidget(localWorkDir);
+    QPushButton *localWorkDirButton = new QPushButton();
+    localWorkDirButton->setText("Browse");
+    localWorkDirButton->setToolTip(tr("Select Work directory where local jobs will run"));
+    localWorkDirLayout->addWidget(localWorkDirButton);
+
+    locationDirectoriesLayout->addRow(tr("Local Jobs Directory:"), localWorkDirLayout);
+    locationDirectoriesLayout->setAlignment(Qt::AlignLeft);
+    locationDirectoriesLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    locationDirectoriesLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
+
+    connect(localWorkDirButton, &QPushButton::clicked, this, [this](){
+        QSettings settings("SimCenter", QCoreApplication::applicationName()); 
+        QVariant  localWorkDirPathVariant = settings.value("localWorkDir");
+        QString   existingDir = QCoreApplication::applicationDirPath();
+        if (localWorkDirPathVariant.isValid()) {
+            QString existingDString = localWorkDirPathVariant.toString();
+            QDir existingD(existingDString);
+	    if (existingD.exists())
+	      existingDir = existingD.absolutePath();
+        }
+
+        QString selectedDir = QFileDialog::getExistingDirectory(this,
+                                                                tr("Select Local Directory where local job data is staged, directory remains after job is run"),
+                                                                 existingDir,
+                                                                QFileDialog::ShowDirsOnly);
+        if(!selectedDir.isEmpty()) {
+            localWorkDir->setText(selectedDir);
+        }
+    }
+    );
+
+    //
+    // entry for remoteWorkDir location .. basically as before
+    //
+
+    remoteWorkDir = new QLineEdit();
+    QHBoxLayout *remoteWorkDirLayout = new QHBoxLayout();
+    remoteWorkDirLayout->addWidget(remoteWorkDir);
+    QPushButton *remoteWorkDirButton = new QPushButton();
+    remoteWorkDirButton->setText("Browse");
+    remoteWorkDirButton->setToolTip(tr("Select Work directory where local jobs will run"));
+    remoteWorkDirLayout->addWidget(remoteWorkDirButton);
+
+    locationDirectoriesLayout->addRow(tr("Remote Jobs Directory:"), remoteWorkDirLayout);
+    locationDirectoriesLayout->setAlignment(Qt::AlignLeft);
+    locationDirectoriesLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    locationDirectoriesLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
+
+    connect(remoteWorkDirButton, &QPushButton::clicked, this, [this](){
+        QSettings settings("SimCenter", QCoreApplication::applicationName()); 
+        QVariant  remoteWorkDirPathVariant = settings.value("remoteWorkDir");
+        QString   existingDir = QCoreApplication::applicationDirPath();
+        if (remoteWorkDirPathVariant.isValid()) {
+            QString existingDString = remoteWorkDirPathVariant.toString();
+            QDir existingD(existingDString);
+	    if (existingD.exists())
+	      existingDir = existingD.absolutePath();
+        }
+
+        QString selectedDir = QFileDialog::getExistingDirectory(this,
+                                                                tr("Select Local directory were remote job data staged"),
+                                                                existingDir,
+                                                                QFileDialog::ShowDirsOnly);
+        if(!selectedDir.isEmpty()) {
+            remoteWorkDir->setText(selectedDir);
+        }
+    }
+    );
+
+
+
+    //
+    // entry for appDir location .. basically as before
+    //
+
     appDir = new QLineEdit();
     QHBoxLayout *appDirLayout = new QHBoxLayout();
     appDirLayout->addWidget(appDir);
@@ -118,13 +207,11 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     appDirButton->setToolTip(tr("Select Directory containing the Backend directory named applications"));
     appDirLayout->addWidget(appDirButton);
 
-    externalApplicationsLayout->addRow(tr("Local Applications Directory:"), appDirLayout);
-    externalApplicationsLayout->setAlignment(Qt::AlignLeft);
-    externalApplicationsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-    externalApplicationsLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
+    locationDirectoriesLayout->addRow(tr("Local Applications Directory:"), appDirLayout);
+    locationDirectoriesLayout->setAlignment(Qt::AlignLeft);
+    locationDirectoriesLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    locationDirectoriesLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
 
-
-    // connect the pushbutton with code to open file selection and update appDir preferences with selected file
     connect(appDirButton, &QPushButton::clicked, this, [this](){
         QSettings settings("SimCenter", QCoreApplication::applicationName()); 
         QVariant  appDirPathVariant = settings.value("appDir");
@@ -140,25 +227,35 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
                                                                 tr("Select SimCenter Workflow Applications Directory"),
                                                                 existingDir,
                                                                 QFileDialog::ShowDirsOnly);
-
         if(!selectedDir.isEmpty()) {
             appDir->setText(selectedDir);
         }
     }
     );
 
+
+    //
+    // entry for remoteAppDir location .. basically as before
+    //   - note using time stamp in name so can update setting variable with new releases
+    //
+
     remoteAppDir = new QLineEdit();
     QHBoxLayout *remoteAppDirLayout = new QHBoxLayout();
     remoteAppDirLayout->addWidget(remoteAppDir);
-    QPushButton *remoteAppDirButton = new QPushButton();
     
     // no Browse button as remote dir location is stampede2 NOT designsafe & that we cannot touch
 
-    externalApplicationsLayout->addRow(tr("Remote Applications Directory:"), remoteAppDirLayout);
-    externalApplicationsLayout->setAlignment(Qt::AlignLeft);
-    externalApplicationsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-    externalApplicationsLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
+    remoteSettingsLayout->addRow(tr("Remote Applications Directory:"), remoteAppDirLayout);
 
+
+    remoteAgaveApp = new QLineEdit();
+    QHBoxLayout *remoteAppLayout = new QHBoxLayout();
+    remoteAppLayout->addWidget(remoteAgaveApp);
+    remoteSettingsLayout->addRow(tr("Remote Agave App:"), remoteAppLayout);
+
+    remoteSettingsLayout->setAlignment(Qt::AlignLeft);
+    remoteSettingsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    remoteSettingsLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
 
     //
     // push buttons at bottom of Widget, save & whatever else
@@ -184,6 +281,8 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     //
 
     layout->addWidget(externalApplicationsBox);
+    layout->addWidget(locationDirectoriesBox);
+    layout->addWidget(remoteSettingsBox);
     layout->addLayout(buttonsLayout);
 
     this->setLayout(layout);
@@ -211,7 +310,15 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
             remoteAppDir->setText(newValue.replace('\\','/'));
     });
 
+    connect(localWorkDir, &QLineEdit::textChanged, this, [this](QString newValue){
+        if (newValue.contains('\\'))
+            localWorkDir->setText(newValue.replace('\\','/'));
+    });
 
+    connect(remoteWorkDir, &QLineEdit::textChanged, this, [this](QString newValue){
+        if (newValue.contains('\\'))
+            remoteWorkDir->setText(newValue.replace('\\','/'));
+    });
 }
 
 SimCenterPreferences::~SimCenterPreferences()
@@ -228,6 +335,9 @@ SimCenterPreferences::savePreferences(bool) {
     QSettings settingsApp("SimCenter", QCoreApplication::applicationName());
     settingsApp.setValue("appDir", appDir->text());
     settingsApp.setValue("remoteAppDir-June2019", remoteAppDir->text());
+    settingsApp.setValue("remoteAgaveApp-June2019", remoteAgaveApp->text());
+    settingsApp.setValue("localWorkDir", localWorkDir->text());
+    settingsApp.setValue("remoteWorkDir", remoteWorkDir->text());
     
     this->close();
 }
@@ -246,6 +356,16 @@ SimCenterPreferences::resetPreferences(bool) {
     python->setText(pythonPath);
 
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
+
+    QDir workingDir(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
+    QString remoteWorkDirLocation = workingDir.filePath(QCoreApplication::applicationName() + "/RemoteWorkDir");
+    settingsApplication.setValue("remoteWorkDir", remoteWorkDirLocation);
+    remoteWorkDir->setText(remoteWorkDirLocation);
+
+    QString localWorkDirLocation = workingDir.filePath(QCoreApplication::applicationName() + "/LocalWorkDir");
+    settingsApplication.setValue("localWorkDir", localWorkDirLocation);
+    localWorkDir->setText(localWorkDirLocation);
+
     QString appDirLocation = QCoreApplication::applicationDirPath();
     settingsApplication.setValue("appDir", appDirLocation);
     appDir->setText(appDirLocation);
@@ -253,6 +373,10 @@ SimCenterPreferences::resetPreferences(bool) {
     QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/June-2019");
     settingsApplication.setValue("remoteAppDir", remoteAppDirLocation);
     remoteAppDir->setText(remoteAppDirLocation);
+
+    QString remoteAppName = QString("simcenter-dakota-1.0.0u1");
+    settingsApplication.setValue("remoteAgaveApp-June2019", remoteAppName);
+    remoteAgaveApp->setText(remoteAppName);
 }
 
 
@@ -277,6 +401,25 @@ SimCenterPreferences::loadPreferences() {
 
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
 
+    // localWorkDir
+    QVariant  localWorkDirVariant = settingsApplication.value("localWorkDir");
+    if (!localWorkDirVariant.isValid()) {
+      QString localWorkDirLocation = this->getLocalWorkDir();
+      settingsApplication.setValue("localWorkDir", localWorkDirLocation);
+      localWorkDir->setText(localWorkDirLocation);
+    } else {
+        localWorkDir->setText(localWorkDirVariant.toString());
+    }
+
+    // remoteWorkDir
+    QVariant  remoteWorkDirVariant = settingsApplication.value("remoteWorkDir");
+    if (!remoteWorkDirVariant.isValid()) {
+      QString remoteWorkDirLocation = this->getRemoteWorkDir();
+      settingsApplication.setValue("remoteWorkDir", remoteWorkDirLocation);
+      remoteWorkDir->setText(remoteWorkDirLocation);
+    } else {
+        remoteWorkDir->setText(remoteWorkDirVariant.toString());
+    }
 
     // appDir
     QVariant  appDirVariant = settingsApplication.value("appDir");
@@ -288,15 +431,23 @@ SimCenterPreferences::loadPreferences() {
         appDir->setText(appDirVariant.toString());
     }
 
-    // remoteAppDir NOTE: we cannot allow QSettings here as would not be able to upgrade!
-    // so probably stupid putting in QSettings, should just put in a QString
+    // remoteAppDir NOT quite as before as need to allow future releases to bring new ones
     QVariant  remoteAppDirVariant = settingsApplication.value("remoteAppDir-June2019");
     if (!remoteAppDirVariant.isValid()) {
       QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/June-2019");
-      settingsApplication.setValue("remoteAppDir", remoteAppDirLocation);
+      settingsApplication.setValue("remoteAppDir-JUne2019", remoteAppDirLocation);
       remoteAppDir->setText(remoteAppDirLocation);
     } else {
         remoteAppDir->setText(remoteAppDirVariant.toString());
+    }
+
+    QVariant  remoteAppNameVariant = settingsApplication.value("remoteAgaveApp-June2019");
+    if (!remoteAppNameVariant.isValid()) {
+      QString remoteAppName = QString("simcenter-dakota-1.0.0u1");
+      settingsApplication.setValue("remoteAgaveApp-June2019", remoteAppName);
+      remoteAgaveApp->setText(remoteAppName);
+    } else {
+        remoteAgaveApp->setText(remoteAppNameVariant.toString());
     }
 }
 
@@ -339,6 +490,7 @@ SimCenterPreferences::getAppDir(void) {
 }
 
 QString
+
 SimCenterPreferences::getRemoteAppDir(void) {
 
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
@@ -352,4 +504,57 @@ SimCenterPreferences::getRemoteAppDir(void) {
     } 
     
     return remoteAppDirVariant.toString();
+}
+
+QString
+SimCenterPreferences::getRemoteAgaveApp(void) {
+
+    QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
+    QVariant  remoteAppNameVariant = settingsApplication.value("remoteAgaveApp-June2019");
+
+    // if not set, use default & set default as application directory
+    if (!remoteAppNameVariant.isValid()) {
+      QString remoteAppName = QString("simcenter-dakota-1.0.0u1");
+      settingsApplication.setValue("remoteAgaveApp-June2019", remoteAppName);
+      return remoteAppName;
+    } 
+    
+    return remoteAppNameVariant.toString();
+}
+
+
+QString
+SimCenterPreferences::getLocalWorkDir(void) {
+
+    QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
+    QVariant  localWorkDirVariant = settingsApplication.value("localWorkDir");
+
+    // if not set, use default & set default as application directory
+    if (!localWorkDirVariant.isValid()) {
+      QDir workingDir(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
+      QString localWorkDirLocation = workingDir.filePath(QCoreApplication::applicationName() + "/LocalWorkDir");
+      settingsApplication.setValue("localWorkDir", localWorkDirLocation);
+      localWorkDir->setText(localWorkDirLocation);
+      return localWorkDirLocation;
+    } 
+    
+    return localWorkDirVariant.toString();
+}
+
+QString
+SimCenterPreferences::getRemoteWorkDir(void) {
+
+    QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
+    QVariant  remoteWorkDirVariant = settingsApplication.value("remoteWorkDir");
+
+    // if not set, use default & set default as application directory
+    if (!remoteWorkDirVariant.isValid()) {
+      QDir workingDir(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
+      QString remoteWorkDirLocation = workingDir.filePath(QCoreApplication::applicationName() + "/RemoteWorkDir");
+      settingsApplication.setValue("remoteWorkDir", remoteWorkDirLocation);
+      remoteWorkDir->setText(remoteWorkDirLocation);
+      return remoteWorkDirLocation;
+    } 
+    
+    return remoteWorkDirVariant.toString();
 }
