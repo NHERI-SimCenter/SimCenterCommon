@@ -48,16 +48,32 @@ class SimCenterPreferences : public QDialog
 {
     Q_OBJECT
 
-public:
+private:
     explicit SimCenterPreferences(QWidget *parent = 0);
     ~SimCenterPreferences();
+    static SimCenterPreferences *theInstance;
+
+public:
+    static SimCenterPreferences *getInstance(QWidget *parent = 0);
+    QString getPython(void);
+    QString getAppDir(void);
+    QString getRemoteAppDir(void);
+    QString getRemoteAgaveApp(void);
+    QString getLocalWorkDir(void);
+    QString getRemoteWorkDir(void);
 
 public slots:
     void savePreferences(bool);
+    void resetPreferences(bool);
     void loadPreferences(void);
 
 private:
     QLineEdit *python;
+    QLineEdit *localWorkDir;
+    QLineEdit *remoteWorkDir;
+    QLineEdit *appDir;
+    QLineEdit *remoteAppDir;
+    QLineEdit *remoteAgaveApp;
     QVBoxLayout *layout;
 };
 
