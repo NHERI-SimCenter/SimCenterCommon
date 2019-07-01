@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SimFigure</class>
+ <widget class="QFrame" name="SimFigure">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>480</width>
+    <height>396</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Frame</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QWidget" name="pltWidgetSpace" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="axisControls">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QRadioButton" name="btn_standard">
+        <property name="text">
+         <string>standard</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="btn_logX">
+        <property name="text">
+         <string>logX</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="btn_logY">
+        <property name="text">
+         <string>logY</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="btn_loglog">
+        <property name="text">
+         <string>loglog</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>btn_logX</sender>
+   <signal>clicked()</signal>
+   <receiver>SimFigure</receiver>
+   <slot>axisTypeChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>180</x>
+     <y>377</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>239</x>
+     <y>197</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_logY</sender>
+   <signal>clicked()</signal>
+   <receiver>SimFigure</receiver>
+   <slot>axisTypeChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>297</x>
+     <y>377</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>239</x>
+     <y>197</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_loglog</sender>
+   <signal>clicked()</signal>
+   <receiver>SimFigure</receiver>
+   <slot>axisTypeChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>414</x>
+     <y>377</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>239</x>
+     <y>197</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_standard</sender>
+   <signal>clicked()</signal>
+   <receiver>SimFigure</receiver>
+   <slot>axisTypeChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>63</x>
+     <y>377</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>239</x>
+     <y>197</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>axisTypeChanged()</slot>
+ </slots>
+</ui>

@@ -19,6 +19,7 @@ SOURCES += $$PWD/HeaderWidget.cpp \
     $$PWD/FooterWidget.cpp \
     $$PWD/SimCenterWidget.cpp \
     $$PWD/SimCenterAppWidget.cpp \
+    $$PWD/SimCenterPreferences.cpp \
     $$PWD/GoogleAnalytics.cpp
 
 HEADERS += $$PWD/HeaderWidget.h \
@@ -26,6 +27,7 @@ HEADERS += $$PWD/HeaderWidget.h \
     $$PWD/FooterWidget.h \
     $$PWD/SimCenterWidget.h \
     $$PWD/SimCenterAppWidget.h \
+    $$PWD/SimCenterPreferences.h \
     $$PWD/GoogleAnalytics.h
 
 RESOURCES += \
