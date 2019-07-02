@@ -63,11 +63,6 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent)
   : SimCenterWidget(parent)
 {
     nameEdit = new QLineEdit(this);
-    revEdit = new QLineEdit(this);
-    typeEdit = new QLineEdit(this);
-    yearBox = new QSpinBox(this);
-    yearBox->setRange(1800, 2050);
-    yearBox->setValue(2018);
     storiesBox = new QSpinBox(this);
     storiesBox->setRange(1, INT_MAX);
 
@@ -75,18 +70,20 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent)
     widthEdit = new QLineEdit();
     depthEdit = new QLineEdit();
     planAreaEdit = new QLineEdit();
-    weightEdit = new QLineEdit();
+    heightEdit->setValidator(new QDoubleValidator);  
+    widthEdit->setValidator(new QDoubleValidator);  
+    depthEdit->setValidator(new QDoubleValidator);  
+    planAreaEdit->setValidator(new QDoubleValidator);  
 
-    locationNameEdit = new QLineEdit(this);
-    locationLatBox = new QDoubleSpinBox(this);
-    locationLatBox->setRange(-90.0, 90.0);
-    locationLatBox->setDecimals(4);
-    locationLatBox->setSingleStep(0.0001);
+    latitudeBox = new QDoubleSpinBox(this);
+    latitudeBox->setRange(-90.0, 90.0);
+    latitudeBox->setDecimals(4);
+    latitudeBox->setSingleStep(0.0001);
 
-    locationLonBox = new QDoubleSpinBox(this);
-    locationLonBox->setRange(-180.0, 180.0);
-    locationLonBox->setDecimals(4);
-    locationLonBox->setSingleStep(0.0001);
+    longitudeBox = new QDoubleSpinBox(this);
+    longitudeBox->setRange(-180.0, 180.0);
+    longitudeBox->setDecimals(4);
+    longitudeBox->setSingleStep(0.0001);
 
     unitsForceCombo = new QComboBox(this);
     unitsForceCombo->addItem("Newtons", ForceUnit::N);
@@ -120,9 +117,9 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent)
     QGroupBox* infoGroupBox = new QGroupBox("Building Information", this);
     QFormLayout* infoFormLayout = new QFormLayout(infoGroupBox);
     infoFormLayout->addRow(tr("Name"), nameEdit);
-    infoFormLayout->addRow(tr("Revision"), revEdit);
-    infoFormLayout->addRow(tr("Type"), typeEdit);
-    infoFormLayout->addRow(tr("Year"), yearBox);
+    //    infoFormLayout->addRow(tr("Revision"), revEdit);
+    //    infoFormLayout->addRow(tr("Type"), typeEdit);
+    // infoFormLayout->addRow(tr("Year"), yearBox);
     infoFormLayout->setAlignment(Qt::AlignLeft);
     infoFormLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     infoFormLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
@@ -132,11 +129,12 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent)
     QFormLayout* propertiesFormLayout = new QFormLayout(propertiesGroupBox);
 
    propertiesFormLayout->addRow(tr("# Stories"), storiesBox);
+   propertiesFormLayout->addRow(tr("Height"), heightEdit);
    propertiesFormLayout->addRow(tr("Width"), widthEdit);
    propertiesFormLayout->addRow(tr("Depth"), depthEdit);
    propertiesFormLayout->addRow(tr("Plan Area"), planAreaEdit);
-   propertiesFormLayout->addRow(tr("Height"), heightEdit);
-   propertiesFormLayout->addRow(tr("Weight"), weightEdit);
+
+   //   propertiesFormLayout->addRow(tr("Weight"), weightEdit);
    propertiesFormLayout->setAlignment(Qt::AlignLeft);
    propertiesFormLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
    propertiesFormLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
@@ -145,9 +143,9 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent)
     //Location
     QGroupBox* locationGroupBox = new QGroupBox("Location", this);
     QFormLayout* locationFormLayout = new QFormLayout(locationGroupBox);
-    locationFormLayout->addRow(tr("Address"), locationNameEdit);
-    locationFormLayout->addRow(tr("Latitude"), locationLatBox);
-    locationFormLayout->addRow(tr("Longitude"), locationLonBox);
+    //   locationFormLayout->addRow(tr("Address"), locationNameEdit);
+    locationFormLayout->addRow(tr("Latitude"), latitudeBox);
+    locationFormLayout->addRow(tr("Longitude"), longitudeBox);
     //Setting Style
     locationFormLayout->setAlignment(Qt::AlignLeft);
     locationFormLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
@@ -176,6 +174,9 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent)
 
     this->setMinimumWidth(200);
     this->setMaximumWidth(400);
+
+    connect(storiesBox,SIGNAL(editingFinished()),this,SLOT(numStoriesEditingFinished()));
+    connect(heightEdit,SIGNAL(editingFinished()),this,SLOT(heightEditingFinished()));
 }
 
 GeneralInformationWidget::~GeneralInformationWidget()
@@ -183,13 +184,28 @@ GeneralInformationWidget::~GeneralInformationWidget()
 
 }
 
+void
+GeneralInformationWidget::setDefaultProperties(int numStory,
+					 double height,
+					 double width,
+					 double depth,
+					 double latit,
+					 double longit)
+{
+  //    this->setNumFloors(numStory);
+  //    this->setHeight(height);
+  this->setNumStoriesAndHeight(numStory, height);
+    this->setBuildingDimensions(width, depth, width*depth);
+    this->setBuildingLocation(latit, longit);
+}
+
 bool
 GeneralInformationWidget::outputToJSON(QJsonObject &jsonObj){
 
     jsonObj["name"] = nameEdit->text().trimmed();
-    jsonObj["revision"] = revEdit->text().toDouble();
-    jsonObj["type"] = typeEdit->text().trimmed();
-    jsonObj["year"] = yearBox->text().toInt();
+    //    jsonObj["revision"] = revEdit->text().toDouble();
+    //    jsonObj["type"] = typeEdit->text().trimmed();
+    //    jsonObj["year"] = yearBox->text().toInt();
     jsonObj["stories"] = storiesBox->text().toInt();
     jsonObj["width"] = widthEdit->text().toDouble();
     jsonObj["depth"] = depthEdit->text().toDouble();
@@ -211,15 +227,18 @@ GeneralInformationWidget::outputToJSON(QJsonObject &jsonObj){
     }
 
     jsonObj["height"] = heightEdit->text().toDouble();
-    jsonObj["weight"] = weightEdit->text().toDouble();
+    //    jsonObj["weight"] = weightEdit->text().toDouble();
 
     QJsonObject location;
-    location["name"] = locationNameEdit->text().trimmed();
 
-    QString dblVal = locationLatBox->text();
+    /*
+    location["name"] = locationNameEdit->text().trimmed();
+    */
+
+    QString dblVal = latitudeBox->text();
     location["latitude"] = dblVal.toDouble();
 
-    dblVal = locationLonBox->text();
+    dblVal = longitudeBox->text();
     location["longitude"] = dblVal.toDouble();
 
     jsonObj["location"] = location;
@@ -233,7 +252,6 @@ GeneralInformationWidget::outputToJSON(QJsonObject &jsonObj){
     jsonObj["units"] = units;
 
     return(true);
-
 }
 
 bool
@@ -243,16 +261,6 @@ GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
 
     QJsonValue nameValue = jsonObject["name"];
     nameEdit->setText(nameValue.toString());
-
-    QJsonValue revValue = jsonObject["revision"];
-    rev = revValue.toDouble();
-    revEdit->setText( QString::number(rev) );
-
-    QJsonValue typeValue = jsonObject["type"];
-    typeEdit->setText(typeValue.toString());
-
-    QJsonValue yearValue = jsonObject["year"];
-    yearBox->setValue(yearValue.toInt());
 
     QJsonValue storiesValue = jsonObject["stories"];
     storiesBox->setValue(storiesValue.toInt());
@@ -276,15 +284,11 @@ GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
     QJsonValue locationValue = jsonObject["location"];
     QJsonObject locationObj = locationValue.toObject();
 
-    QJsonValue locationNameValue = locationObj["name"];
-    locationNameEdit->setText(locationNameValue.toString());
-
     QJsonValue locationLatitudeValue = locationObj["latitude"];
-    locationLatBox->setValue(locationLatitudeValue.toDouble());
+    latitudeBox->setValue(locationLatitudeValue.toDouble());
 
     QJsonValue locationLongitudeValue = locationObj["longitude"];
-    locationLonBox->setValue(locationLongitudeValue.toDouble());
-
+    longitudeBox->setValue(locationLongitudeValue.toDouble());
 
     // Units Object
     QJsonValue unitsValue = jsonObject["units"];
@@ -317,15 +321,14 @@ void
 GeneralInformationWidget::clear(void)
 {
     nameEdit->clear();
-    revEdit->clear();
-    typeEdit->clear();
-    yearBox->clear();
     storiesBox->clear();
     heightEdit->clear();
+    widthEdit->clear();
+    depthEdit->clear();
+    planAreaEdit->clear();
 
-    locationNameEdit->clear();
-    locationLatBox->clear();
-    locationLonBox->clear();
+    latitudeBox->clear();
+    longitudeBox->clear();
 
     unitsForceCombo->clear();
     unitsTemperatureCombo->clear();
@@ -345,11 +348,6 @@ UnitEnum GeneralInformationWidget::unitStringToEnum(QString unitString)
     return (UnitEnum)QMetaEnum::fromType<UnitEnum>().keyToValue(unitString.toStdString().c_str());
 }
 
-int
-GeneralInformationWidget::getNumFloors() {
- return storiesBox->text().toInt();
-}
-
 QString
 GeneralInformationWidget::getLengthUnit()
 {
@@ -361,3 +359,94 @@ GeneralInformationWidget::getForceUnit()
 {
    return unitEnumToString(unitsForceCombo->currentData().value<ForceUnit>());
 }
+
+void
+GeneralInformationWidget::numStoriesEditingFinished(void) {
+  emit numStoriesOrHeightChanged(storiesBox->text().toInt(), heightEdit->text().toDouble());
+}
+
+void
+GeneralInformationWidget::heightEditingFinished(void) {
+ emit numStoriesOrHeightChanged(storiesBox->text().toInt(), heightEdit->text().toDouble());
+}
+
+/*
+void
+GeneralInformationWidget::setNumFloors(int newNumFloors) {
+  if (storiesBox->text().toInt() != newNumFloors) {
+    storiesBox->setValue(newNumFloors);
+    qDebug() << "GeneralInformation::setNumFloors()";
+    emit numFloorsChanged(newNumFloors);
+  }
+}
+
+void
+GeneralInformationWidget::setHeight(double newHeight) {
+   qDebug() << "GEI:setHeight " << newHeight;
+
+  if (heightEdit->text().toDouble() != newHeight) {
+    heightEdit->setText(QString::number(newHeight)); 
+    emit buildingHeightChanged(newHeight);
+  }
+}
+*/
+
+
+void
+GeneralInformationWidget::setNumStoriesAndHeight(int newNumFloors, double newHeight) {
+  if ((storiesBox->text().toInt() != newNumFloors) ||
+       (heightEdit->text().toDouble() != newHeight)) {
+    storiesBox->setValue(newNumFloors);
+    heightEdit->setText(QString::number(newHeight)); 
+    emit numStoriesOrHeightChanged(newNumFloors, newHeight);
+  }
+}
+
+
+void
+GeneralInformationWidget::setBuildingLocation(double newLat, double newLong) {
+  if (latitudeBox->text().toDouble() != newLat || 
+      longitudeBox->text().toDouble() != newLong) {
+
+    latitudeBox->setValue(newLat); 
+    longitudeBox->setValue(newLong); 
+    emit buildingLocationChanged(newLat, newLong);
+  }
+}
+
+void
+GeneralInformationWidget::setBuildingDimensions(double newB, double newD, double newA) {
+  if (widthEdit->text().toDouble() != newB || 
+      depthEdit->text().toDouble() != newD ||
+      planAreaEdit->text().toDouble() != newA) {
+
+    widthEdit->setText(QString::number(newB)); 
+    depthEdit->setText(QString::number(newD)); 
+    planAreaEdit->setText(QString::number(newA)); 
+    emit buildingDimensionsChanged(newB, newD, newA);
+  }
+}
+
+int
+GeneralInformationWidget::getNumFloors(void) {
+  return storiesBox->text().toInt();
+}
+
+double
+GeneralInformationWidget::getHeight(void) {
+  return heightEdit->text().toDouble();
+}
+
+void
+GeneralInformationWidget::getBuildingDimensions(double &width, double &depth, double &area) {
+  width = widthEdit->text().toDouble();
+  depth = depthEdit->text().toDouble();
+  depth = planAreaEdit->text().toDouble();
+}
+
+void
+GeneralInformationWidget::getBuildingLocation(double &latitude, double &longitude) {
+  latitude = latitudeBox->text().toDouble();
+  longitude = longitudeBox->text().toDouble();
+}
+
