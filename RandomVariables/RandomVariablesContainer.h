@@ -54,7 +54,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <sectiontitle.h>
 #include <QLineEdit>
- #include <QCheckBox>
+#include <QCheckBox>
 
 
 class RandomVariablesContainer : public SimCenterWidget
