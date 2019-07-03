@@ -494,7 +494,7 @@ QString
 SimCenterPreferences::getRemoteAppDir(void) {
 
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
-    QVariant  remoteAppDirVariant = settingsApplication.value("remoteAppDir");
+    QVariant  remoteAppDirVariant = settingsApplication.value("remoteAppDir-June2019");
 
     // if not set, use default & set default as application directory
     if (!remoteAppDirVariant.isValid()) {
