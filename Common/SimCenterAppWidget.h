@@ -79,6 +79,12 @@ public:
      */
     virtual bool copyFiles(QString &destDir);
 
+    /**
+     *   @brief returns a boolean indicating whether or not this app can run locally
+     *   @return bool - true means the app can run locally, otherwise false
+     */
+    virtual bool supportsLocalRun();
+
     static bool copyPath(QString sourceDir, QString destinationDir, bool overWriteDirectory);
     static bool copyFile(QString filename, QString destinationDir);
 
