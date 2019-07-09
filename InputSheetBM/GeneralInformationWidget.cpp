@@ -330,10 +330,6 @@ GeneralInformationWidget::clear(void)
     latitudeBox->clear();
     longitudeBox->clear();
 
-    unitsForceCombo->clear();
-    unitsTemperatureCombo->clear();
-    unitsTimeCombo->clear();
-
 }
 
 template<typename UnitEnum>
