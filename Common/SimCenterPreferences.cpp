@@ -347,6 +347,7 @@ SimCenterPreferences::resetPreferences(bool) {
     QSettings settingsCommon("SimCenter", "Common");
     settingsCommon.setValue("pythonExePath", python->text());
 
+
 #ifdef Q_OS_WIN
     QString pythonPath = QStandardPaths::findExecutable("python.exe");
 #else
@@ -374,7 +375,12 @@ SimCenterPreferences::resetPreferences(bool) {
     settingsApplication.setValue("remoteAppDir", remoteAppDirLocation);
     remoteAppDir->setText(remoteAppDirLocation);
 
-    QString remoteAppName = QString("simcenter-dakota-1.0.0u1");
+    QString remoteAppName;
+    if (QCoreApplication::applicationName() == QString("WE-UQ")) 
+      remoteAppName = QString("simcenter-openfoam-dakota-1.0.0u1");
+    else
+      remoteAppName = QString("simcenter-dakota-1.0.0u1");
+
     settingsApplication.setValue("remoteAgaveApp-June2019", remoteAppName);
     remoteAgaveApp->setText(remoteAppName);
 }
@@ -514,7 +520,12 @@ SimCenterPreferences::getRemoteAgaveApp(void) {
 
     // if not set, use default & set default as application directory
     if (!remoteAppNameVariant.isValid()) {
-      QString remoteAppName = QString("simcenter-dakota-1.0.0u1");
+      QString remoteAppName;
+      if (QCoreApplication::applicationName() == QString("WE-UQ")) 
+	remoteAppName = QString("simcenter-openfoam-dakota-1.0.0u1");
+      else
+	remoteAppName = QString("simcenter-dakota-1.0.0u1");
+
       settingsApplication.setValue("remoteAgaveApp-June2019", remoteAppName);
       return remoteAppName;
     } 
