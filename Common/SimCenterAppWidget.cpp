@@ -71,6 +71,11 @@ SimCenterAppWidget::copyFiles(QString &path)
     return true;
 }
 
+bool SimCenterAppWidget::supportsLocalRun()
+{
+    return true;
+}
+
 bool
 SimCenterAppWidget::copyPath(QString sourceDir, QString destinationDir, bool overWriteDirectory)
 {

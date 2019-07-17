@@ -68,6 +68,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "SteelWSectionInputWidget.h"
 #include "SteelTubeSectionInputWidget.h"
 
+/*
+ * if you encounter a compile error in the below include
+ * statement, get the missing files from:
+ *
+ *    https://github.com/akheron/jansson
+ *
+ * Read the install instructions at the bottom of that page.
+ */
 #include <jansson.h>
 #include <BimClasses.h>
 
