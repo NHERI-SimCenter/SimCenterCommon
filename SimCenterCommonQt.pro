@@ -1,7 +1,7 @@
 #This project will build common as a static library
 
 CONFIG += conan_basic_setup
-include(conanbuildinfo.pri)
+include($$OUT_PWD/conanbuildinfo.pri)
 
 #Adding the widgets and network modules as prerequisites
 QT += widgets network
