@@ -80,6 +80,7 @@ public:
     void removeRandomVariables(QStringList &varNames);
 
     QStringList getRandomVariableNames(void);
+    int getNumRandomVariables(void);
 
 public slots:
    void errorMessage(QString message);
