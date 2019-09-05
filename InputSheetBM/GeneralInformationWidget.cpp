@@ -444,7 +444,7 @@ void
 GeneralInformationWidget::getBuildingDimensions(double &width, double &depth, double &area) {
   width = widthEdit->text().toDouble();
   depth = depthEdit->text().toDouble();
-  depth = planAreaEdit->text().toDouble();
+  area = planAreaEdit->text().toDouble();
 }
 
 void
