@@ -160,7 +160,7 @@ RandomVariablesContainer::removeRandomVariables(QStringList &varNames)
 
 RandomVariablesContainer::~RandomVariablesContainer()
 {
-
+  qDebug() << "RandomVariablesContainer::~RandomVariablesContainer()";
 }
 
 // see the RandomVariablesContainer.h and this a private member function
@@ -692,6 +692,12 @@ RandomVariablesContainer::getRandomVariableNames(void)
         results.append(theRandomVariables.at(i)->getVariableName());
     }
     return results;
+}
+
+int
+RandomVariablesContainer::getNumRandomVariables(void)
+{
+    return theRandomVariables.size(); 
 }
 
 bool

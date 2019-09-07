@@ -177,6 +177,9 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent)
 
     connect(storiesBox,SIGNAL(editingFinished()),this,SLOT(numStoriesEditingFinished()));
     connect(heightEdit,SIGNAL(editingFinished()),this,SLOT(heightEditingFinished()));
+    connect(widthEdit,SIGNAL(editingFinished()),this,SLOT(buildingDimensionsEditingFinished()));
+    connect(depthEdit,SIGNAL(editingFinished()),this,SLOT(buildingDimensionsEditingFinished()));
+    connect(planAreaEdit,SIGNAL(editingFinished()), this, SLOT(buildingDimensionsEditingFinished()));
 }
 
 GeneralInformationWidget::~GeneralInformationWidget()
@@ -194,7 +197,7 @@ GeneralInformationWidget::setDefaultProperties(int numStory,
 {
   //    this->setNumFloors(numStory);
   //    this->setHeight(height);
-  this->setNumStoriesAndHeight(numStory, height);
+    this->setNumStoriesAndHeight(numStory, height);
     this->setBuildingDimensions(width, depth, width*depth);
     this->setBuildingLocation(latit, longit);
 }
@@ -366,6 +369,10 @@ GeneralInformationWidget::heightEditingFinished(void) {
  emit numStoriesOrHeightChanged(storiesBox->text().toInt(), heightEdit->text().toDouble());
 }
 
+void
+GeneralInformationWidget::buildingDimensionsEditingFinished(void) {
+ emit buildingDimensionsChanged(widthEdit->text().toDouble(), depthEdit->text().toDouble(), planAreaEdit->text().toDouble());
+}
 /*
 void
 GeneralInformationWidget::setNumFloors(int newNumFloors) {
@@ -437,7 +444,7 @@ void
 GeneralInformationWidget::getBuildingDimensions(double &width, double &depth, double &area) {
   width = widthEdit->text().toDouble();
   depth = depthEdit->text().toDouble();
-  depth = planAreaEdit->text().toDouble();
+  area = planAreaEdit->text().toDouble();
 }
 
 void
