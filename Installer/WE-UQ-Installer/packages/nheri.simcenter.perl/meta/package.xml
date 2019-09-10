@@ -8,5 +8,5 @@
     <ReleaseDate>2019-05-23</ReleaseDate>
     <Default>false</Default>
     <Script>installPerl.qs</Script>
-    <SortingPriority>80</SortingPriority>
+    <SortingPriority>40</SortingPriority>
 </Package>

@@ -7,9 +7,9 @@
     <Licenses>
         <License name="OpenSees License Agreement" file="license.txt" />
     </Licenses>
+    <Dependencies>nheri.simcenter.tcl</Dependencies>
     <RequiresAdminRights>true</RequiresAdminRights>
     <Default>true</Default>
     <Script>installOpenSees.qs</Script>
-    <Dependencies>nheri.simcenter.tcl</Dependencies>
     <SortingPriority>50</SortingPriority>
 </Package>
