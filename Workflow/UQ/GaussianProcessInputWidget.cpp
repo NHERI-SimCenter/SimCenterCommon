@@ -14,7 +14,7 @@ GaussianProcessInputWidget::GaussianProcessInputWidget(QWidget *parent) : UQ_Met
     QGroupBox *trainingDataGroup = new QGroupBox("Surrogate Training Data");
     QGridLayout * trainingDataLayout = new QGridLayout();
     numSamples = new QLineEdit();
-    numSamples->setText(tr("10"));
+    numSamples->setText(tr("16"));
     numSamples->setValidator(new QIntValidator);
     numSamples->setToolTip("Specify the number of samples");
     trainingDataLayout->addWidget(new QLabel("# Samples "), 0, 0);
@@ -45,7 +45,7 @@ GaussianProcessInputWidget::GaussianProcessInputWidget(QWidget *parent) : UQ_Met
     QGroupBox *sampleDataGroup = new QGroupBox("Surrogate Sampling Data");
     QGridLayout * sampleDataLayout = new QGridLayout();
     numSamples2 = new QLineEdit();
-    numSamples2->setText(tr("10"));
+    numSamples2->setText(tr("100"));
     numSamples2->setValidator(new QIntValidator);
     numSamples2->setToolTip("Specify the number of samples");
     sampleDataLayout->addWidget(new QLabel("# Samples "), 0, 0);
