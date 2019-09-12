@@ -56,6 +56,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLineEdit>
 #include <QCheckBox>
 
+class QDialog;
 
 class RandomVariablesContainer : public SimCenterWidget
 {
@@ -99,8 +100,9 @@ private:
 
     QString randomVariableClass;
     QVector<RandomVariable *>theRandomVariables;
-    QTableWidget *correlationMatrix=NULL;
-    QCheckBox *checkbox = NULL;
+    QDialog *correlationDialog;
+    QTableWidget *correlationMatrix;
+    QCheckBox *checkbox;
 
     SectionTitle *correlationtabletitle;
     int flag_for_correlationMatrix;
