@@ -51,8 +51,10 @@ bool ImportanceSamplingInputWidget::outputToJSON(QJsonObject &jsonObject)
 
 bool ImportanceSamplingInputWidget::inputFromJSON(QJsonObject &jsonObject)
 {
+    return false;
 }
 
 int ImportanceSamplingInputWidget::getNumberTasks()
 {
+    return 0;
 }
