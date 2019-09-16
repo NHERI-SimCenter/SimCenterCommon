@@ -378,7 +378,7 @@ void GlWidget2D::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     if (theController != 0)
-        theController->draw(this);
+        theController->draw();
 
     //this->drawBuffers();
 
