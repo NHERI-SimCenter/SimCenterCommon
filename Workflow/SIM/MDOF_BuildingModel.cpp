@@ -60,7 +60,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 using namespace std;
 #include <QGridLayout>
 #include <SpreadsheetWidget.h>
-#include <GlWidget2D.h>
+//#include <GlWidget2D.h>
+#include <GraphicView2D.h>
+
 #include <QHeaderView>
 #include <RandomVariable.h>
 
@@ -334,8 +336,10 @@ MDOF_BuildingModel::MDOF_BuildingModel(RandomVariablesContainer *theRandomVariab
 
     inputLayout->addStretch();
 
-    theView = new GlWidget2D();
-    theView->setController(this);
+    //theView = new GlWidget2D();
+    //theView->setController(this);
+
+    theView = new GraphicView2D();
     theView->setMinimumHeight(250);
     theView->setMinimumWidth(250);
     graphicLayout->addWidget(theView);
@@ -352,6 +356,11 @@ MDOF_BuildingModel::MDOF_BuildingModel(RandomVariablesContainer *theRandomVariab
 
     // add signal and slot connections with GI
     GeneralInformationWidget *theGI = GeneralInformationWidget::getInstance();
+    double plan, w, d;
+    theGI->getBuildingDimensions(w, d, plan);
+    buildingW = w;
+    buildingD = d;
+
     /*    connect(this,SIGNAL(numFloorsChanged(int)), theGI, SLOT(setNumFloors(int)));
     connect(this,SIGNAL(heightChanged(double)), theGI, SLOT(setHeight(double)));
     connect(theGI,SIGNAL(numFloorsChanged(int)), this, SLOT(setNumFloors(int)));
@@ -359,6 +368,7 @@ MDOF_BuildingModel::MDOF_BuildingModel(RandomVariablesContainer *theRandomVariab
     */
     connect(this,SIGNAL(numStoriesOrHeightChanged(int, double)), theGI, SLOT(setNumStoriesAndHeight(int, double)));
     connect(theGI,SIGNAL(numStoriesOrHeightChanged(int, double)), this, SLOT(setNumStoriesAndHeight(int, double)));
+    connect(theGI,SIGNAL(buildingDimensionsChanged(double,double,double)),this,SLOT(setBuildingDimensions(double,double,double)));
 }
 
 MDOF_BuildingModel::~MDOF_BuildingModel()
@@ -373,7 +383,6 @@ MDOF_BuildingModel::~MDOF_BuildingModel()
 void
 MDOF_BuildingModel::on_inFloors_editingFinished()
 {
-qDebug() << "on_inFloorsEditing";
 
     QString textFloors =  inFloors->text();
     int numStoriesText = textFloors.toInt();
@@ -505,8 +514,8 @@ qDebug() << "on_inFloorsEditing";
     }
 
     if (theView != 0) {
-        this->draw(theView);
-        theView->update();
+        this->draw();
+       // theView->update();
     }
 
 }
@@ -600,7 +609,7 @@ MDOF_BuildingModel::on_storyHeight_editingFinished()
     emit numStoriesOrHeightChanged(numStories, buildingH);
 
     if (theView != 0) {
-        this->draw(theView);
+        this->draw();
         theView->update();
     }
 
@@ -1237,7 +1246,7 @@ void MDOF_BuildingModel::on_theSpreadsheet_cellClicked(int row, int column)
     sMinSelected = -1;
     sMaxSelected = -1;
 
-    this->draw(theView);
+    this->draw();
     theView->update();
 }
 
@@ -1282,7 +1291,7 @@ void MDOF_BuildingModel::on_theSpreadsheet_cellChanged(int row, int column)
                     buildingH = newHeight;
 
                     if (theView != 0) {
-                        this->draw(theView);
+                        this->draw();
                         theView->update();
                     }
 
@@ -1500,7 +1509,7 @@ MDOF_BuildingModel::inputFromJSON(QJsonObject &jsonObject)
     buildingH = floorHeights[numStories];
 
     if (theView != 0) {
-        this->draw(theView);
+        this->draw();
         theView->update();
     }
 
@@ -1540,13 +1549,20 @@ MDOF_BuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
  }
 
 
+ //void
+ //MDOF_BuildingModel::draw(GlWidget2D *theView)
  void
- MDOF_BuildingModel::draw(GlWidget2D *)
+ MDOF_BuildingModel::draw()
  {
      if (numStories == 0)
             return;
 
      theView->reset();
+    int viewW = theView->width();
+    int viewH = theView->height();
+    float pointW = 0.1*buildingH/(3.*numStories);
+    float pointH = 0.1*buildingH/(1.0*numStories);
+     pointW = buildingW/buildingH*pointH*viewW/viewH;
 
      for (int i=0; i<numStories; i++) {
          if (i == storySelected)
@@ -1558,23 +1574,23 @@ MDOF_BuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
 
      for (int i=0; i<=numStories; i++) {
          if (i == floorSelected)
-             theView->drawPoint(i, 0.,floorHeights[i], 10, 1, 0, 0);
+             theView->drawPoint(i, 0.,floorHeights[i], 10, 1, 0, 0, pointW, pointH);
          else if (i >= fMinSelected && i <= fMaxSelected)
-             theView->drawPoint(i, 0.,floorHeights[i], 10, 1, 0, 0);
+             theView->drawPoint(i, 0.,floorHeights[i], 10, 1, 0, 0, pointW, pointH);
          else {
-             theView->drawPoint(i, 0.,floorHeights[i], 10, 0, 0, 1);
+             theView->drawPoint(i, 0.,floorHeights[i], 10, 0, 0, 1, pointW, pointH);
          }
      }
      theView->drawLine(0, -10., 0.0, 10., 0.0, 1.0, 0., 0., 0.);
 
-    theView->drawBuffers();
+   // theView->drawBuffers();
  }
 
  void
  MDOF_BuildingModel::getBoundary(float &height, float &width)
  {
   height  = buildingH;
-  width = 10;
+  width = buildingW;
  }
 
  void
@@ -1659,7 +1675,7 @@ MDOF_BuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
          storySelected=-1;
      }
 
-     this->draw(theView);
+     this->draw();
      theView->update();
      return;
  }
@@ -1668,12 +1684,10 @@ MDOF_BuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
  MDOF_BuildingModel::addRandomVariable(QString &text, int numReferences) {
      if (randomVariables.contains(text)) {
          randomVariables[text] = randomVariables[text]+numReferences;
-         qDebug() << "adding RV: " << text << " number" << randomVariables[text];
      } else {
          randomVariables[text] = numReferences;
          RandomVariable *theRV = new RandomVariable(QString("Uncertain"), text);
          theRandomVariablesContainer->addRandomVariable(theRV);
-         qDebug() << "ADDING RV: " << text << " number" << randomVariables[text];
      }
  }
 
@@ -1681,11 +1695,11 @@ MDOF_BuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
  MDOF_BuildingModel::removeRandmVariable(QString &text, int numReferences) {
      if (randomVariables.contains(text)) {
          randomVariables[text] = randomVariables[text]-numReferences;
-         qDebug() << "removing RV: " << text << " number" << randomVariables[text];
+
          if (randomVariables[text] < 1) {
              QStringList rvsToRemove; rvsToRemove << text;
              theRandomVariablesContainer->removeRandomVariables(rvsToRemove);
-             qDebug() << "REMOVING RV: " << text << " number" << randomVariables[text];
+
              randomVariables.remove(text);
          }
      } else {
@@ -1694,30 +1708,10 @@ MDOF_BuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
 
  }
 
-/*
- void
- MDOF_BuildingModel::setHeight(double newHeight) {
-   qDebug() << "MDOF - height changed" << newHeight;
-   if (newHeight > 0 && newHeight != buildingH) {
-     qDebug() << QString::number(newHeight/(numStories*1.0));
-     storyHeight->setText(QString::number(newHeight/(numStories*1.0)));
-     buildingH = newHeight;
-     this->on_storyHeight_editingFinished();
-   }
- }
-
- void
- MDOF_BuildingModel::setNumFloors(int newFloors) {
-     if (newFloors > 0 && newFloors != numStories) {
-         inFloors->setText(QString::number(newFloors));
-         storyHeight->setText(QString::number(buildingH/(numStories*1.0)));
-         this->on_inFloors_editingFinished();
-     }
- }
-*/
 
  void
  MDOF_BuildingModel::setNumStoriesAndHeight(int newFloors, double newHeight) {
+
      if ((newFloors > 0 && newFloors != numStories) ||
              (newHeight > 0 && newHeight != buildingH)) {
          inFloors->setText(QString::number(newFloors));
@@ -1728,3 +1722,18 @@ MDOF_BuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
              this->on_storyHeight_editingFinished();
      }
  }
+
+ void
+ MDOF_BuildingModel::setBuildingDimensions(double newW, double newD, double planArea) {
+
+    buildingW = newW;
+    buildingD = newD;
+    this->draw();
+ }
+
+
+ void MDOF_BuildingModel::showEvent(QShowEvent *event) {
+     this->QWidget::showEvent(event);
+     this->draw();
+ }
+

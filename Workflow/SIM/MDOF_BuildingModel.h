@@ -51,6 +51,7 @@ class QLineEdit;
 class InputWidgetParameters;
 class RandomVariablesContainer;
 class QTableWidget;
+class GraphicView2D;
 
 
 class MDOF_BuildingModel : public SimCenterAppWidget, public Controller2D
@@ -66,7 +67,8 @@ public:
     bool inputAppDataFromJSON(QJsonObject &rvObject);
     bool copyFiles(QString &dirName);
 
-    void draw(GlWidget2D *);
+   //void draw(GlWidget2D *);
+   void draw();
     void getBoundary(float &height, float &width);
     void setSelectionBoundary(float y1, float y2);
 
@@ -79,6 +81,8 @@ signals:
 public slots:
    void clear(void);
    void setNumStoriesAndHeight(int numFloors, double height);
+   void setBuildingDimensions(double newWidth, double newDepth, double planArea);
+   void showEvent(QShowEvent *event);
 
    //   void setNumFloors(int newNumFloors);
    //   void setHeight(double newHeight);
@@ -157,6 +161,8 @@ private:
 
     int    numStories;
     double buildingH;
+    double buildingW;
+    double buildingD;
 
     // possible random variables
     QString storyH;
@@ -173,6 +179,7 @@ private:
     double *storyHeights;
 
     int fMinSelected, fMaxSelected, sMinSelected,sMaxSelected,floorSelected, storySelected;
+    GraphicView2D *theView;
 };
 
 #endif // MDOF_BUILDING_MODEL_H
