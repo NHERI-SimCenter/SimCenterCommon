@@ -90,10 +90,12 @@ bool GaussianProcessInputWidget::outputToJSON(QJsonObject &jsonObject)
 
 bool GaussianProcessInputWidget::inputFromJSON(QJsonObject &jsonObject)
 {
+    return false;
 }
 
 int GaussianProcessInputWidget::getNumberTasks()
 {
+    return 0;
 }
 
 
