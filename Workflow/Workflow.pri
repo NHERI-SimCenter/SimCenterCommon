@@ -52,6 +52,7 @@ SOURCES += $$PWD/UQ/DakotaResults.cpp \
     $$PWD/GRAPHICS/Controller2D.cpp \
     $$PWD/GRAPHICS/GlWidget2D.cpp \
     $$PWD/GRAPHICS/MyTableWidget.cpp \
+    $$PWD/GRAPHICS/GraphicView2D.cpp \
     $$PWD/EDP/UserDefinedEDP.cpp \
     $$PWD/EDP/EDP.cpp
 
@@ -87,6 +88,7 @@ HEADERS += $$PWD/UQ/DakotaResults.h \
     $$PWD/GRAPHICS/Controller2D.h \
     $$PWD/GRAPHICS/GlWidget2D.h \
     $$PWD/GRAPHICS/MyTableWidget.h \
+    $$PWD/GRAPHICS/GraphicView2D.h \
     $$PWD/EDP/UserDefinedEDP.h \
     $$PWD/EDP/EDP.h
 
