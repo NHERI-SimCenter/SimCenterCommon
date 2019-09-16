@@ -46,7 +46,7 @@ public:
   Controller2D();
   virtual ~Controller2D();
 
-  virtual void draw(GlWidget2D *) =0;
+  virtual void draw() =0;
   virtual void getBoundary(float &height, float &width) =0;
   virtual void setSelectionBoundary(float y1, float y2);
 
