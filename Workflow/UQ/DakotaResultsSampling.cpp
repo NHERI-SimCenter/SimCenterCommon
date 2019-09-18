@@ -116,16 +116,21 @@ DakotaResultsSampling::~DakotaResultsSampling()
 
 void DakotaResultsSampling::clear(void)
 {
-    // delete any existing widgets
-    int count = tabWidget->count();
-    if (count > 0) {
-        for (int i=0; i<count; i++) {
-            QWidget *theWidget = tabWidget->widget(count);
-            delete theWidget;
-        }
+  // delete any existing widgets
+  int count = tabWidget->count();
+  if (count > 0) {
+    for (int i=0; i<count; i++) {
+      QWidget *theWidget = tabWidget->widget(count);
+      delete theWidget;
     }
+  }
+  theHeadings.clear();
+  theMeans.clear();
+  theStdDevs.clear();
+  theKurtosis.clear();
 
-    tabWidget->clear();
+  tabWidget->clear();
+  
 }
 
 
@@ -221,7 +226,9 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
     std::getline(tabResults, inputLine);
     std::istringstream iss(inputLine);
     int colCount = 0;
+
     theHeadings << "Run #";
+
     bool includesInterface = false;
     do {
         std::string subs;
@@ -244,6 +251,7 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
         colCount = colCount -1;
 
     qDebug() << "colCount: " << colCount << " " << includesInterface;
+    qDebug() << "HEADINGS: " << theHeadings;
 
     spreadsheet->setColumnCount(colCount);
     spreadsheet->setHorizontalHeaderLabels(theHeadings);
