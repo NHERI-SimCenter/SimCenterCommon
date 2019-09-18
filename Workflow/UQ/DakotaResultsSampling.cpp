@@ -56,6 +56,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QMenu>
 #include <QPushButton>
 #include <QProcess>
+#include <QScrollArea>
 
 #include <iostream>
 #include <sstream>
@@ -199,11 +200,18 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
     // create summary, a QWidget for summary data, the EDP name, mean, stdDev, kurtosis info
     //
 
+    // create a scrollable windows, place summary inside it
+    QScrollArea *sa = new QScrollArea;
+    sa->setWidgetResizable(true);
+    sa->setLineWidth(0);
+    sa->setFrameShape(QFrame::NoFrame);
+
     QWidget *summary = new QWidget();
     QVBoxLayout *summaryLayout = new QVBoxLayout();
     summaryLayout->setContentsMargins(0,0,0,0); // adding back
     summary->setLayout(summaryLayout);
 
+    sa->setWidget(summary);
 
     //
     // create spreadsheet,  a QTableWidget showing RV and results for each run
@@ -359,7 +367,7 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
     // add summary, detained info and spreadsheet with chart to the tabed widget
     //
 
-    tabWidget->addTab(summary,tr("Summary"));
+    tabWidget->addTab(sa,tr("Summary"));
     tabWidget->addTab(widget, tr("Data Values"));
     tabWidget->adjustSize();
 
