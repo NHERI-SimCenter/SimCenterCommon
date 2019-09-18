@@ -53,7 +53,6 @@ class RandomVariablesContainer;
 class QTableWidget;
 class GraphicView2D;
 
-
 class MDOF_BuildingModel : public SimCenterAppWidget, public Controller2D
 {
     Q_OBJECT
@@ -93,7 +92,6 @@ public slots:
    void on_inKx_editingFinished();
    void on_inKy_editingFinished();
    void on_inK_theta_editingFinished();
-   //TODO: This code is not maintainable, we need to switch to Model-View Architecture
    void on_inFyx_editingFinished();
    void on_inFyy_editingFinished();
    void on_inBx_editingFinished();
@@ -133,6 +131,10 @@ private:
     QLineEdit *inFyy;
     QLineEdit *inBx;
     QLineEdit *inBy;
+    QLineEdit *massX;
+    QLineEdit *massY;
+    QLineEdit *responseX;
+    QLineEdit *responseY;
 
     // selected values for selectedfloors and stories
     QGroupBox *floorMassFrame;

@@ -167,6 +167,7 @@ createTextEntry(QString text,
     entryLabel->setText(text);
 
     QLineEdit *res = new QLineEdit();
+    res->setText("0.0");
     res->setMinimumWidth(minL);
     res->setMaximumWidth(maxL);
     //res->setValidator(new QDoubleValidator);
@@ -231,6 +232,11 @@ MDOF_BuildingModel::MDOF_BuildingModel(RandomVariablesContainer *theRandomVariab
     inBx = createTextEntry(tr("Hardening Ratio X dirn"), tr("Hardening ratio defines ratio between original stiffness and current stiffness in X direction"), mainPropertiesLayout,4, 0);
     inFyy = createTextEntry(tr("Yield Strength Y dirn"),tr("The force in Y direction at which the story yields"), mainPropertiesLayout,3,3, 100,100);
     inBy = createTextEntry(tr("Hardening Ratio Y dirn"), tr("Hardening ratio defines ratio between original stiffness and current stiffness in Y direction"), mainPropertiesLayout,4, 3);
+
+    massX = createTextEntry(tr("Mass Ecentricity X dirn"), tr("Mass eccentricty x dirn"), mainPropertiesLayout,6, 0);
+    massY = createTextEntry(tr("Mass Ecentricity Y dirn"), tr("Mass eccentricty y dirn"), mainPropertiesLayout,6, 3);
+    responseX = createTextEntry(tr("Response Ecentricity X dirn"), tr("Response eccentricty x dirn"), mainPropertiesLayout,7, 0);
+    responseY = createTextEntry(tr("Response Ecentricity Y dirn"), tr("Response eccentricty y dirn"), mainPropertiesLayout,7, 3);
 
 
     inFloors->setValidator(new QIntValidator);
@@ -1323,6 +1329,15 @@ MDOF_BuildingModel::outputToJSON(QJsonObject &jsonObject)
     writeLineEditRV(jsonObject,"height", storyHeight);
     writeLineEditRV(jsonObject,"Kx", inKx);
     writeLineEditRV(jsonObject,"Ky", inKy);
+    writeLineEditRV(jsonObject,"Krz", inK_theta);
+    writeLineEditRV(jsonObject,"Fyx", inFyx);
+    writeLineEditRV(jsonObject,"Fyy",inFyy);
+    writeLineEditRV(jsonObject,"Bx",inBx);
+    writeLineEditRV(jsonObject,"By",inBy);
+    writeLineEditRV(jsonObject,"massX",massX);
+    writeLineEditRV(jsonObject,"massY",massY);
+    writeLineEditRV(jsonObject,"responseX",responseX);
+    writeLineEditRV(jsonObject,"responseY",responseY);
 
     QJsonArray theArray;
     for (int i = 0; i <numStories; ++i) {
@@ -1399,6 +1414,16 @@ MDOF_BuildingModel::inputFromJSON(QJsonObject &jsonObject)
    readLineEditRV(jsonObject,"height", inStoryHeight);
    readLineEditRV(jsonObject,"Kx", inKx);
    readLineEditRV(jsonObject,"Ky", inKy);
+
+   readLineEditRV(jsonObject,"Krz", inK_theta);
+   readLineEditRV(jsonObject,"Fyx", inFyx);
+   readLineEditRV(jsonObject,"Fyy",inFyy);
+   readLineEditRV(jsonObject,"Bx",inBx);
+   readLineEditRV(jsonObject,"By",inBy);
+   readLineEditRV(jsonObject,"massX",massX);
+   readLineEditRV(jsonObject,"massY",massY);
+   readLineEditRV(jsonObject,"responseX",responseX);
+   readLineEditRV(jsonObject,"responseY",responseY);
 
    QString typHeight =  inStoryHeight->text();
    bool ok;
