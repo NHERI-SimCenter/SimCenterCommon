@@ -1,3 +1,4 @@
+
 #include "GraphicView2D.h"
 #include <QHBoxLayout>
 #include <QPushButton>
@@ -14,6 +15,9 @@
 #include <Qt3DRender/QRenderAspect>
 #include <Qt3DRender/QBuffer>
 #include <Qt3DRender/QAttribute>
+#include <Qt3DRender/QEffect>
+#include <Qt3DRender/QTechnique>
+#include <Qt3DRender/QPointSize>
 #include <Qt3DExtras/QForwardRenderer>
 #include <Qt3DExtras/QPhongAlphaMaterial>
 #include <Qt3DExtras/QPhongMaterial>
@@ -21,6 +25,7 @@
 #include <Qt3DExtras/QOrbitCameraController>
 #include <Qt3DRender/QDirectionalLight>
 #include <Qt3DExtras/QCuboidMesh>
+
 
 GraphicView2D::GraphicView2D(QWidget *parent) : QWidget(parent), rootEntity(NULL),
     minX(0), maxX(0), minY(0), maxY(0)
@@ -138,8 +143,193 @@ void GraphicView2D::setLights(Qt3DCore::QEntity *rootEntity)
     lightEntity->addComponent(lightTransform);
 }
 
+
 void
 GraphicView2D::drawPoint(int tag, float x1, float y1, int numPixels, float r, float g, float b, float w, float h)
+{
+    bool resetCamera = false;
+
+    if (x1 < minX) {
+        resetCamera = true;
+        minX = x1;
+    } else if (x1 > maxX) {
+        resetCamera = true;
+        maxX = x1;
+    }
+    if (y1 < minY) {
+        resetCamera = true;
+        minY = y1;
+    } else if (y1 > maxY) {
+        resetCamera = true;
+        maxY = y1;
+    }
+
+    Qt3DCore::QEntity* pointEntity = new Qt3DCore::QEntity(rootEntity);
+
+    QByteArray coordsBytes;
+    coordsBytes.resize(3 * 1 * sizeof(float)); 
+    float *positions = reinterpret_cast<float*>(coordsBytes.data());
+    *positions++ = x1;
+    *positions++ = y1;
+    *positions++ = 0;
+
+    auto *coordsBuffer = new Qt3DRender::QBuffer();
+    coordsBuffer->setData(coordsBytes);
+
+    auto pointVerticesAttribute = new Qt3DRender::QAttribute(
+		coordsBuffer,
+                Qt3DRender::QAttribute::defaultPositionAttributeName(),
+                Qt3DRender::QAttribute::Float,
+                3,
+                1,
+                0,
+                3 * sizeof (float));
+
+    auto pointGeometry = new Qt3DRender::QGeometry();
+    pointGeometry->addAttribute(pointVerticesAttribute);
+
+    auto pointRenderer = new Qt3DRender::QGeometryRenderer();
+    pointRenderer->setGeometry(pointGeometry);
+    pointRenderer->setFirstVertex(0);
+    pointRenderer->setVertexCount(1);
+    pointRenderer->setPrimitiveType(Qt3DRender::QGeometryRenderer::Points);
+
+    auto pointMaterial = new Qt3DExtras::QPhongMaterial();
+    QColor color(255*r,255*g,255*b);
+    pointMaterial->setAmbient(color);
+    pointMaterial->setSpecular(color);
+    pointMaterial->setDiffuse(color);
+
+    auto effect = pointMaterial->effect();
+    for (auto technique : effect->techniques()) {
+        for (auto renderPass : technique->renderPasses()) {
+            auto pointSize = new Qt3DRender::QPointSize();
+            pointSize->setSizeMode(Qt3DRender::QPointSize::SizeMode::Fixed);
+            pointSize->setValue(numPixels*1.0f);
+            renderPass->addRenderState(pointSize);
+        }
+    }
+
+    auto pointTransform = new Qt3DCore::QTransform();
+
+    pointEntity->addComponent(pointRenderer);
+    pointEntity->addComponent(pointMaterial);
+    pointEntity->addComponent(pointTransform);
+
+    //POINT
+    /*
+    auto *pointEntity = new Qt3DCore::QEntity(rootEntity);
+
+    pointEntity->addComponent(cuboid);
+    pointEntity->addComponent(material);
+    pointEntity->addComponent(transform);
+    */
+
+
+    if (resetCamera == true)
+      this->updateCameraPosition();
+}
+
+void
+GraphicView2D::drawLine(int tag, float x1, float y1, float x2, float y2, float thick, float r, float g, float b, float w)
+{
+    bool resetCamera = false;
+
+    if (x1 < minX) {
+        resetCamera = true;
+        minX = x1;
+    } else if (x1 > maxX) {
+        resetCamera = true;
+        maxX = x1;
+    }
+    if (y1 < minY) {
+        resetCamera = true;
+        minY = y1;
+    } else if (y1 > maxY) {
+        resetCamera = true;
+        maxY = y1;
+    }
+
+    if (x2 < minX) {
+        resetCamera = true;
+        minX = x2;
+    } else if (x2 > maxX) {
+        resetCamera = true;
+        maxX = x2;
+    }
+    if (y2 < minY) {
+        resetCamera = true;
+        minY = y2;
+    } else if (y2 > maxY) {
+        resetCamera = true;
+        maxY = y2;
+    }
+
+    auto *geometry = new Qt3DRender::QGeometry();
+
+    // position vertices (start and end)
+    QByteArray bufferBytes;
+    bufferBytes.resize(3 * 2 * sizeof(float)); 
+    float *positions = reinterpret_cast<float*>(bufferBytes.data());
+    *positions++ = x1;
+    *positions++ = y1;
+    *positions++ = 0;
+    *positions++ = x2;
+    *positions++ = y2;
+    *positions++ = 0;
+
+    auto *buf = new Qt3DRender::QBuffer(geometry);
+    buf->setData(bufferBytes);
+
+    auto *positionAttribute = new Qt3DRender::QAttribute(geometry);
+    positionAttribute->setName(Qt3DRender::QAttribute::defaultPositionAttributeName());
+    positionAttribute->setVertexBaseType(Qt3DRender::QAttribute::Float);
+    positionAttribute->setVertexSize(3);
+    positionAttribute->setAttributeType(Qt3DRender::QAttribute::VertexAttribute);
+    positionAttribute->setBuffer(buf);
+    positionAttribute->setByteStride(3 * sizeof(float));
+    positionAttribute->setCount(2);
+    geometry->addAttribute(positionAttribute); // We add the vertices in the geometry
+
+    // connectivity between vertices
+    QByteArray indexBytes;
+    indexBytes.resize(2 * sizeof(unsigned int)); // start to end
+    unsigned int *indices = reinterpret_cast<unsigned int*>(indexBytes.data());
+    *indices++ = 0;
+    *indices++ = 1;
+
+    auto *indexBuffer = new Qt3DRender::QBuffer(geometry);
+    indexBuffer->setData(indexBytes);
+
+    auto *indexAttribute = new Qt3DRender::QAttribute(geometry);
+    indexAttribute->setVertexBaseType(Qt3DRender::QAttribute::UnsignedInt);
+    indexAttribute->setAttributeType(Qt3DRender::QAttribute::IndexAttribute);
+    indexAttribute->setBuffer(indexBuffer);
+    indexAttribute->setCount(2);
+    geometry->addAttribute(indexAttribute); // We add the indices linking the points in the geometry
+
+    // mesh
+    auto *line = new Qt3DRender::QGeometryRenderer();
+    line->setGeometry(geometry);
+    line->setPrimitiveType(Qt3DRender::QGeometryRenderer::Lines);
+    auto *material = new Qt3DExtras::QPhongMaterial();
+    QColor color(255*r,255*g,255*b);
+    material->setAmbient(color);
+
+    // entity
+    auto *lineEntity = new Qt3DCore::QEntity(rootEntity);
+    lineEntity->addComponent(line);
+    lineEntity->addComponent(material);
+
+  //  rootEntity->addComponent(lineEntity);
+
+    if (resetCamera == true)
+        this->updateCameraPosition();
+}
+
+
+void
+GraphicView2D::drawCube(int tag, float x1, float y1, int numPixels, float r, float g, float b, float w, float h)
 {
     bool resetCamera = false;
 
@@ -261,109 +451,8 @@ GraphicView2D::drawPoint(int tag, float x1, float y1, int numPixels, float r, fl
 
        if (resetCamera == true)
            this->updateCameraPosition();
-
-
-
 }
 
-void
-GraphicView2D::drawLine(int tag, float x1, float y1, float x2, float y2, float thick, float r, float g, float b, float w)
-{
-    bool resetCamera = false;
-
-    if (x1 < minX) {
-        resetCamera = true;
-        minX = x1;
-    } else if (x1 > maxX) {
-        resetCamera = true;
-        maxX = x1;
-    }
-    if (y1 < minY) {
-        resetCamera = true;
-        minY = y1;
-    } else if (y1 > maxY) {
-        resetCamera = true;
-        maxY = y1;
-    }
-
-    if (x2 < minX) {
-        resetCamera = true;
-        minX = x2;
-    } else if (x2 > maxX) {
-        resetCamera = true;
-        maxX = x2;
-    }
-    if (y2 < minY) {
-        resetCamera = true;
-        minY = y2;
-    } else if (y2 > maxY) {
-        resetCamera = true;
-        maxY = y2;
-    }
-
-    auto *geometry = new Qt3DRender::QGeometry();
-
-    // position vertices (start and end)
-    QByteArray bufferBytes;
-    bufferBytes.resize(3 * 2 * sizeof(float)); // start.x, start.y, start.end + end.x, end.y, end.z
-    float *positions = reinterpret_cast<float*>(bufferBytes.data());
-    *positions++ = x1;
-    *positions++ = y1;
-    *positions++ = 0;
-    *positions++ = x2;
-    *positions++ = y2;
-    *positions++ = 0;
-
-    auto *buf = new Qt3DRender::QBuffer(geometry);
-    buf->setData(bufferBytes);
-
-    auto *positionAttribute = new Qt3DRender::QAttribute(geometry);
-    positionAttribute->setName(Qt3DRender::QAttribute::defaultPositionAttributeName());
-    positionAttribute->setVertexBaseType(Qt3DRender::QAttribute::Float);
-    positionAttribute->setVertexSize(3);
-    positionAttribute->setAttributeType(Qt3DRender::QAttribute::VertexAttribute);
-    positionAttribute->setBuffer(buf);
-    positionAttribute->setByteStride(3 * sizeof(float));
-    positionAttribute->setCount(2);
-    geometry->addAttribute(positionAttribute); // We add the vertices in the geometry
-
-    // connectivity between vertices
-    QByteArray indexBytes;
-    indexBytes.resize(2 * sizeof(unsigned int)); // start to end
-    unsigned int *indices = reinterpret_cast<unsigned int*>(indexBytes.data());
-    *indices++ = 0;
-    *indices++ = 1;
-
-    auto *indexBuffer = new Qt3DRender::QBuffer(geometry);
-    indexBuffer->setData(indexBytes);
-
-    auto *indexAttribute = new Qt3DRender::QAttribute(geometry);
-    indexAttribute->setVertexBaseType(Qt3DRender::QAttribute::UnsignedInt);
-    indexAttribute->setAttributeType(Qt3DRender::QAttribute::IndexAttribute);
-    indexAttribute->setBuffer(indexBuffer);
-    indexAttribute->setCount(2);
-    geometry->addAttribute(indexAttribute); // We add the indices linking the points in the geometry
-
-    // mesh
-    auto *line = new Qt3DRender::QGeometryRenderer();
-    line->setGeometry(geometry);
-    line->setPrimitiveType(Qt3DRender::QGeometryRenderer::Lines);
-    auto *material = new Qt3DExtras::QPhongMaterial();
-    QColor color(255*r,255*g,255*b);
-    material->setAmbient(color);
-
-    // entity
-    auto *lineEntity = new Qt3DCore::QEntity(rootEntity);
-    lineEntity->addComponent(line);
-    lineEntity->addComponent(material);
-
-  //  rootEntity->addComponent(lineEntity);
-
-    if (resetCamera == true)
-        this->updateCameraPosition();
-
-
-}
 
 /*
 void

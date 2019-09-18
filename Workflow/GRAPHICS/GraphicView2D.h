@@ -25,6 +25,8 @@ public:
     void reset();
     void drawLine(int tag, float x1, float y1, float x2, float y2, float thick, float r, float g, float b, float w =1.0);
     void drawPoint(int tag, float x1, float y1, int numPixels, float r, float g, float b, float width =9.0, float height =9.0);
+    void drawCube(int tag, float x1, float y1, int numPixels, float r, float g, float b, float width =9.0, float height =9.0);
+
     void drawText(int tag, float x1, float y1, char *text, float r, float g, float b);
     
 signals:
