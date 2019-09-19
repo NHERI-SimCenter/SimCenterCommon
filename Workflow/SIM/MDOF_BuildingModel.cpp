@@ -235,9 +235,12 @@ MDOF_BuildingModel::MDOF_BuildingModel(RandomVariablesContainer *theRandomVariab
 
     massX = createTextEntry(tr("Mass Ecentricity X dirn"), tr("Mass eccentricty x dirn"), mainPropertiesLayout,6, 0);
     massY = createTextEntry(tr("Mass Ecentricity Y dirn"), tr("Mass eccentricty y dirn"), mainPropertiesLayout,6, 3);
+
     responseX = createTextEntry(tr("Response Ecentricity X dirn"), tr("Response eccentricty x dirn"), mainPropertiesLayout,7, 0);
     responseY = createTextEntry(tr("Response Ecentricity Y dirn"), tr("Response eccentricty y dirn"), mainPropertiesLayout,7, 3);
 
+    responseX->setValidator(new QDoubleValidator);
+    responseY->setValidator(new QDoubleValidator);
 
     inFloors->setValidator(new QIntValidator);
     storyHeight->setValidator(new QDoubleValidator);

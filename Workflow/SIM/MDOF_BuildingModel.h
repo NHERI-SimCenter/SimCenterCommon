@@ -133,6 +133,7 @@ private:
     QLineEdit *inBy;
     QLineEdit *massX;
     QLineEdit *massY;
+
     QLineEdit *responseX;
     QLineEdit *responseY;
 
