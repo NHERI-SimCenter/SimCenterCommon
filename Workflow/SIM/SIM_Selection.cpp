@@ -55,8 +55,11 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <MDOF_BuildingModel.h>
 
 
-SIM_Selection::SIM_Selection(RandomVariablesContainer *theRandomVariableIW, QWidget *parent)
-    : SimCenterAppWidget(parent), bimInput(0), theRandomVariablesContainer(theRandomVariableIW)
+SIM_Selection::SIM_Selection(RandomVariablesContainer *theRandomVariableIW, 
+			     bool includeC,
+			     QWidget *parent)
+: SimCenterAppWidget(parent), bimInput(0), theRandomVariablesContainer(theRandomVariableIW),
+   includeCentroid(includeC)
 {
     layout = new QVBoxLayout();
 
@@ -233,7 +236,7 @@ void SIM_Selection::bimSelectionChanged(const QString &arg1)
 
     } else if (arg1 == QString("OpenSees") || (arg1 == QString("OpenSeesInput"))) {
         delete bimInput;
-        bimInput = new OpenSeesBuildingModel(theRandomVariablesContainer);
+        bimInput = new OpenSeesBuildingModel(theRandomVariablesContainer, includeCentroid);
     } else if (arg1 == QString("MDOF") || (arg1 == QString("MDOF_BuildingModel"))) {
         delete bimInput;
         bimInput = new MDOF_BuildingModel(theRandomVariablesContainer);

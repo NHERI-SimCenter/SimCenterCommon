@@ -53,7 +53,9 @@ class OpenSeesBuildingModel : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
-    explicit OpenSeesBuildingModel(RandomVariablesContainer *theRandomVariableIW, QWidget *parent = 0);
+    explicit OpenSeesBuildingModel(RandomVariablesContainer *theRandomVariableIW, 
+				   bool includeCentroid = false,
+				   QWidget *parent = 0);
     ~OpenSeesBuildingModel();
 
     bool outputToJSON(QJsonObject &rvObject);
@@ -81,11 +83,12 @@ private:
 
     QString fileName1;
     QLineEdit *file1;
-    QLineEdit *nodes;
+    QLineEdit *centroidNodes;
+    QLineEdit *responseNodes;
     QLineEdit *elements;
     QLineEdit *ndm;
     QLineEdit *ndf;
-
+    bool includeCentroid;
     RandomVariablesContainer *theRandomVariablesContainer;
     QStringList varNamesAndValues;
 };

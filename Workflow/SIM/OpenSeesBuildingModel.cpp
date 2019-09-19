@@ -59,11 +59,15 @@ using namespace std;
 
 //#include <InputWidgetParameters.h>
 
-OpenSeesBuildingModel::OpenSeesBuildingModel(RandomVariablesContainer *theRandomVariableIW, QWidget *parent)
-    : SimCenterAppWidget(parent), theRandomVariablesContainer(theRandomVariableIW)
+OpenSeesBuildingModel::OpenSeesBuildingModel(RandomVariablesContainer *theRandomVariableIW, 
+					     bool includeC,
+					     QWidget *parent)
+  : SimCenterAppWidget(parent), theRandomVariablesContainer(theRandomVariableIW), responseNodes(0)
 {
-    femSpecific = 0;
-
+  includeCentroid = includeC;
+  femSpecific = 0;
+  centroidNodes = NULL;
+    responseNodes = NULL;
     layout = new QGridLayout();
 
     QLabel *label1 = new QLabel();
@@ -78,28 +82,39 @@ OpenSeesBuildingModel::OpenSeesBuildingModel(RandomVariablesContainer *theRandom
     layout->addWidget(file1,0,1);
     layout->addWidget(chooseFile1,0,2);
 
-    QLabel *label2 = new QLabel();
-    label2->setText("List of CLine Nodes:");
-    nodes = new QLineEdit;
+    int rowCount = 1;
+    if (includeCentroid == true) {
+      QLabel *label2a = new QLabel();
+      label2a->setText("Centroid Nodes:");
+      centroidNodes = new QLineEdit;
+      
+      layout->addWidget(label2a,rowCount,0);
+      layout->addWidget(centroidNodes,rowCount++,1);
+    }
 
-    layout->addWidget(label2,1,0);
-    layout->addWidget(nodes,1,1);
+    QLabel *label2 = new QLabel();
+    label2->setText("Response Nodes:");
+    responseNodes = new QLineEdit;
+
+    layout->addWidget(label2,rowCount,0);
+    layout->addWidget(responseNodes,rowCount++,1);
+
 
     QLabel *label3 = new QLabel();
     label3->setText("Spatial Dimension:");
     ndm = new QLineEdit();
     ndm->setText("2");
     ndm->setMaximumWidth(50);
-    layout->addWidget(label3,2,0);
-    layout->addWidget(ndm,2,1);
+    layout->addWidget(label3,rowCount,0);
+    layout->addWidget(ndm,rowCount++,1);
 
     QLabel *label4 = new QLabel();
     label4->setText("# DOF at Nodes:");
     ndf = new QLineEdit();
     ndf->setText("3");
     ndf->setMaximumWidth(50);
-    layout->addWidget(label4,3,0);
-    layout->addWidget(ndf,3,1);
+    layout->addWidget(label4,rowCount,0);
+    layout->addWidget(ndf,rowCount++,1);
 
     ndf->setValidator(new QIntValidator());
     ndm->setValidator(new QIntValidator());
@@ -138,17 +153,31 @@ OpenSeesBuildingModel::outputToJSON(QJsonObject &jsonObject)
     // just need to send the class type here.. type needed in object in case user screws up
     jsonObject["type"]="OpenSeesInput";
     QJsonArray nodeTags;
-    string nodeString = nodes->text().toStdString();
+    if (centroidNodes != NULL) {
+        string nodeString = centroidNodes->text().toStdString();
+        string s1(nodeString); // this line is needed as nodeString cannot be passed directly to the line below!
+        stringstream nodeStream(s1);
+        int nodeTag;
+        while (nodeStream >> nodeTag) {
+            nodeTags.append(QJsonValue(nodeTag));
+            if (nodeStream.peek() == ',')
+                nodeStream.ignore();
+        }
+    }
+    
+    QJsonArray responseNodeTags;
+    string nodeString = responseNodes->text().toStdString();
     string s1(nodeString); // this line is needed as nodeString cannot be passed directly to the line below!
     stringstream nodeStream(s1);
     int nodeTag;
     while (nodeStream >> nodeTag) {
-            nodeTags.append(QJsonValue(nodeTag));
-            if (nodeStream.peek() == ',')
-                       nodeStream.ignore();
+        responseNodeTags.append(QJsonValue(nodeTag));
+        if (nodeStream.peek() == ',')
+            nodeStream.ignore();
     }
 
-    jsonObject["nodes"]=nodeTags;
+    jsonObject["centroidNodes"]=nodeTags;
+    jsonObject["responseNodes"]=responseNodeTags;
     jsonObject["ndm"]=ndm->text().toInt();
     jsonObject["ndf"]=ndf->text().toInt();
 
@@ -158,7 +187,7 @@ OpenSeesBuildingModel::outputToJSON(QJsonObject &jsonObject)
         QString name = varNamesAndValues.at(i);
         rvObject["name"]=name;
         rvObject["value"]=QString("RV.")+name;
-       rvArray.append(rvObject);
+        rvArray.append(rvObject);
     }
 
     jsonObject["randomVar"]=rvArray;
@@ -171,18 +200,31 @@ bool
 OpenSeesBuildingModel::inputFromJSON(QJsonObject &jsonObject)
 {
     varNamesAndValues.clear();
-
+    std::cerr << "OPS_MODEL-1";
     this->clear();
     QString stringNodes;
-    if (jsonObject.contains("nodes")) {
-        QJsonArray nodeTags = jsonObject["nodes"].toArray();
+    if (jsonObject.contains("centroidNodes")) {
+        QJsonArray nodeTags = jsonObject["centroidNodes"].toArray();
         foreach (const QJsonValue & value, nodeTags) {
             int tag = value.toInt();
             stringNodes = stringNodes + " " +  QString::number(tag);
         }
+        centroidNodes->setText(stringNodes);
+    }
+    std::cerr << "OPS_MODEL-2";
+
+
+    if (jsonObject.contains("responseNodes")) {
+        QString stringResponseNodes;
+        QJsonArray nodeResponseTags = jsonObject["responseNodes"].toArray();
+        foreach (const QJsonValue & value, nodeResponseTags) {
+            int tag = value.toInt();
+            stringResponseNodes = stringResponseNodes + " " +  QString::number(tag);
+        }
+        responseNodes->setText(stringResponseNodes);
     }
 
-    nodes->setText(stringNodes);
+    std::cerr << "OPS_MODEL-3";
 
     if (jsonObject.contains("randomVar")) {
         QJsonArray randomVars = jsonObject["randomVar"].toArray();
@@ -194,7 +236,7 @@ OpenSeesBuildingModel::inputFromJSON(QJsonObject &jsonObject)
             varNamesAndValues.append(zero);
         }
     }
-
+    qDebug() << "OPS_MODEL-4";
     int theNDM = jsonObject["ndm"].toInt();
     int theNDF = 1;
     if (theNDM == 2)
@@ -269,10 +311,9 @@ OpenSeesBuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
         // get nodes and set QLineEdit
         //
 
-        if (dataObject.contains("nodes")) {
-            QJsonValue theName = dataObject["nodes"];
-            nodes->setText(theName.toString());
-
+        if (dataObject.contains("centroidNodes")) {
+            QJsonValue theName = dataObject["centroidNodes"];
+            centroidNodes->setText(theName.toString());
         } else
             return false;
 

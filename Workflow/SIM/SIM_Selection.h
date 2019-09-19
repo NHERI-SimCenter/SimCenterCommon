@@ -54,7 +54,7 @@ class SIM_Selection : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
-    explicit SIM_Selection(RandomVariablesContainer *, QWidget *parent = 0);
+  explicit SIM_Selection(RandomVariablesContainer *, bool includeCentroid = false, QWidget *parent = 0);
     ~SIM_Selection();
 
     bool outputToJSON(QJsonObject &rvObject);
@@ -88,7 +88,7 @@ private:
     //    SimCenterWidget *uqType;
     SimCenterAppWidget *bimInput;
     bool selectionChangeOK;
-
+    bool includeCentroid;
     RandomVariablesContainer *theRandomVariablesContainer;
 
 };
