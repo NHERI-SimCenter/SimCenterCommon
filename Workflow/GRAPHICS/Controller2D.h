@@ -1,5 +1,5 @@
-#ifndef RANDOM_VARIABLES_CONTAINER_H
-#define RANDOM_VARIABLES_CONTAINER_H
+#ifndef CONTROLLER_2D_H
+#define CONTROLLER_2D_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -38,76 +38,25 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written: fmckenna
+class GlWidget2D;
 
-#include <SimCenterWidget.h>
+class Controller2D {
 
-#include "RandomVariable.h"
-#include <QGroupBox>
-#include <QVector>
-#include <QVBoxLayout>
-#include <QTableWidget>
-#include <QPushButton>
-#include <QScrollArea>
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QLabel>
-#include <QDebug>
-#include <sectiontitle.h>
-#include <QLineEdit>
-#include <QCheckBox>
-
-class QDialog;
-
-class RandomVariablesContainer : public SimCenterWidget
-{
-    Q_OBJECT
 public:
-    explicit RandomVariablesContainer(QWidget *parent = 0);
-    explicit RandomVariablesContainer(QString &randomVariableClass, QWidget *parent = 0);
+  Controller2D();
+  virtual ~Controller2D();
 
-    ~RandomVariablesContainer();
+  virtual void draw() =0;
+  virtual void getBoundary(float &height, float &width) =0;
+  virtual void setSelectionBoundary(float y1, float y2);
 
-    void addRandomVariable(RandomVariable *theRV);
-    bool inputFromJSON(QJsonObject &rvObject);
-    bool outputToJSON(QJsonObject &rvObject);
+ public:
 
-    //void setInitialConstantRVs(QStringList &varNamesAndValues);
-
-    void addRandomVariable(QString &rvName);
-    void addRVs(QStringList &varNames);
-    void addConstantRVs(QStringList &varNamesAndValues);
-
-    void removeRandomVariable(QString &varName);
-    void removeRandomVariables(QStringList &varNames);
-
-    QStringList getRandomVariableNames(void);
-    int getNumRandomVariables(void);
-
-public slots:
-   void errorMessage(QString message);
-   void addRandomVariable(void);
-   void variableNameChanged(const QString &newValue);
-   void removeRandomVariable(void);
-   void addCorrelationMatrix(void); // added by padhye for correlation matrix
-   //   void addSobolevIndices(bool);// added by padhye for sobolev indices
-   void clear(void);
-
-private:
-    void makeRV(void);
-    QVBoxLayout *verticalLayout;
-    QVBoxLayout *rvLayout;
-    QWidget *rv;
-
-    QString randomVariableClass;
-    QVector<RandomVariable *>theRandomVariables;
-    QDialog *correlationDialog;
-    QTableWidget *correlationMatrix;
-    QCheckBox *checkbox;
-
-    SectionTitle *correlationtabletitle;
-    int flag_for_correlationMatrix;
-    QStringList randomVariableNames;
-    // int flag_for_sobolev_indices;
+ protected:
+  GlWidget2D *theView;
 };
 
-#endif // RANDOM_VARIABLES_CONTAINER_H
+
+
+
+#endif // CONTROLLER_2D_H
