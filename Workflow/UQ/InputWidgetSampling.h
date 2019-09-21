@@ -75,9 +75,7 @@ signals:
 
 public slots:
    void clear(void);
-   void uqSelectionChanged(const QString &arg1);
-   void onSamplingMethodChanged(QString);
- //  void uqMethodChanged(const QString &arg1);
+   void onSamplingMethodChanged(const QString &arg1);
 
 private:
     QVBoxLayout *layout;

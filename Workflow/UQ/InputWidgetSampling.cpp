@@ -53,7 +53,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QFileDialog>
 #include <QPushButton>
 #include <sectiontitle.h>
-//#include <InputWidgetEDP.h>
 
 #include <iostream>
 #include <sstream>
@@ -140,6 +139,31 @@ InputWidgetSampling::InputWidgetSampling(QWidget *parent)
     connect(samplingMethod, SIGNAL(currentTextChanged(QString)), this, SLOT(onSamplingMethodChanged(QString)));
 }
 
+
+void InputWidgetSampling::onSamplingMethodChanged(const QString &text)
+{
+  if (text=="LHS") {
+    theStackedWidget->setCurrentIndex(0);
+    theCurrentMethod = theLHS;
+  }
+  else if (text=="Monte Carlo") {
+    theStackedWidget->setCurrentIndex(1);
+    theCurrentMethod = theMC;  
+  }
+  else if (text=="Importance Sampling") {
+    theStackedWidget->setCurrentIndex(2);
+    theCurrentMethod = theIS;
+  }
+  else if (text=="Gaussian Process Regression") {
+    theStackedWidget->setCurrentIndex(3);
+    theCurrentMethod = theGP;
+  }
+  else if (text=="Polynomial Chaos Expansion") {
+    theStackedWidget->setCurrentIndex(4);
+    theCurrentMethod = thePCE;
+  }
+}
+
 InputWidgetSampling::~InputWidgetSampling()
 {
 
@@ -182,10 +206,17 @@ InputWidgetSampling::inputFromJSON(QJsonObject &jsonObject)
   if (jsonObject.contains("samplingMethodData")) {
     QJsonObject uq = jsonObject["samplingMethodData"].toObject();
     if (uq.contains("method")) {
-      QString method =uq["method"].toString();
-      this->uqSelectionChanged(method);
+      QString method = uq["method"].toString();
+      int index = samplingMethod->findText(method);
+
+      if (index == -1) {
+          return false;
+      }
+      samplingMethod->setCurrentIndex(index);
       result = theCurrentMethod->inputFromJSON(uq);
     }
+  } else {
+      qDebug() << "No Sampling Method Data";
   }
   
   return result;
@@ -230,51 +261,10 @@ InputWidgetSampling::inputAppDataFromJSON(QJsonObject &jsonObject)
     return result;
 }
 
-void InputWidgetSampling::uqSelectionChanged(const QString &arg1)
-{
-    // if more data than just num samples and seed code would go here to add or remove widgets from layout
-}
 
 int InputWidgetSampling::processResults(QString &filenameResults, QString &filenameTab) {
 
     return 0;
 }
 
-/*
-DakotaResults *
-InputWidgetSampling::getResults(void) {
-    return new DakotaResultsSampling();
-}
 
-
-RandomVariablesContainer *
-InputWidgetSampling::getParameters(void) {
-    QString classType("Uncertain");
-  return new RandomVariablesContainer(classType);
-}
-*/
-
-
-void InputWidgetSampling::onSamplingMethodChanged(QString text)
-{
-  if (text=="LHS") {
-    theStackedWidget->setCurrentIndex(0);
-    theCurrentMethod = theLHS;
-  }
-  else if (text=="Monte Carlo") {
-    theStackedWidget->setCurrentIndex(1);
-    theCurrentMethod = theMC;  
-  }
-  else if (text=="Importance Sampling") {
-    theStackedWidget->setCurrentIndex(2);
-    theCurrentMethod = theIS;
-  }
-  else if (text=="Gaussian Process Regression") {
-    theStackedWidget->setCurrentIndex(3);
-    theCurrentMethod = theGP;
-  }
-  else if (text=="Polynomial Chaos Expansion") {
-    theStackedWidget->setCurrentIndex(4);
-    theCurrentMethod = thePCE;
-  }
-}
