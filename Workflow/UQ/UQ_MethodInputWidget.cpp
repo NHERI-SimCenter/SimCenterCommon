@@ -1,6 +1,3 @@
-#ifndef RANDOM_VARIABLES_CONTAINER_H
-#define RANDOM_VARIABLES_CONTAINER_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -39,75 +36,21 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterWidget.h>
+#include <UQ_MethodInputWidget.h>
 
-#include "RandomVariable.h"
-#include <QGroupBox>
-#include <QVector>
-#include <QVBoxLayout>
-#include <QTableWidget>
-#include <QPushButton>
-#include <QScrollArea>
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QLabel>
-#include <QDebug>
-#include <sectiontitle.h>
-#include <QLineEdit>
-#include <QCheckBox>
-
-class QDialog;
-
-class RandomVariablesContainer : public SimCenterWidget
+UQ_MethodInputWidget::UQ_MethodInputWidget(QWidget *parent) 
+: SimCenterWidget(parent)
 {
-    Q_OBJECT
-public:
-    explicit RandomVariablesContainer(QWidget *parent = 0);
-    explicit RandomVariablesContainer(QString &randomVariableClass, QWidget *parent = 0);
 
-    ~RandomVariablesContainer();
+}
 
-    void addRandomVariable(RandomVariable *theRV);
-    bool inputFromJSON(QJsonObject &rvObject);
-    bool outputToJSON(QJsonObject &rvObject);
+UQ_MethodInputWidget::~UQ_MethodInputWidget()
+{
 
-    //void setInitialConstantRVs(QStringList &varNamesAndValues);
+}
 
-    void addRandomVariable(QString &rvName);
-    void addRVs(QStringList &varNames);
-    void addConstantRVs(QStringList &varNamesAndValues);
 
-    void removeRandomVariable(QString &varName);
-    void removeRandomVariables(QStringList &varNames);
 
-    QStringList getRandomVariableNames(void);
-    int getNumRandomVariables(void);
 
-public slots:
-   void errorMessage(QString message);
-   void addRandomVariable(void);
-   void variableNameChanged(const QString &newValue);
-   void removeRandomVariable(void);
-   void addCorrelationMatrix(void); // added by padhye for correlation matrix
-   //   void addSobolevIndices(bool);// added by padhye for sobolev indices
-   void clear(void);
 
-private:
-    void makeRV(void);
-    QVBoxLayout *verticalLayout;
-    QVBoxLayout *rvLayout;
-    QWidget *rv;
 
-    QString randomVariableClass;
-    QVector<RandomVariable *>theRandomVariables;
-    QDialog *correlationDialog;
-    QTableWidget *correlationMatrix;
-    QCheckBox *checkbox;
-
-    SectionTitle *correlationtabletitle;
-    int flag_for_correlationMatrix;
-    QStringList randomVariableNames;
-    // int flag_for_sobolev_indices;
-};
-
-#endif // RANDOM_VARIABLES_CONTAINER_H

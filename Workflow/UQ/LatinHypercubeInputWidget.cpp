@@ -1,6 +1,3 @@
-#ifndef RANDOM_VARIABLES_CONTAINER_H
-#define RANDOM_VARIABLES_CONTAINER_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -39,75 +36,81 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterWidget.h>
-
-#include "RandomVariable.h"
-#include <QGroupBox>
-#include <QVector>
-#include <QVBoxLayout>
-#include <QTableWidget>
-#include <QPushButton>
-#include <QScrollArea>
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QLabel>
-#include <QDebug>
-#include <sectiontitle.h>
+#include <LatinHypercubeInputWidget.h>
 #include <QLineEdit>
-#include <QCheckBox>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QValidator>
+#include <QJsonObject>
 
-class QDialog;
-
-class RandomVariablesContainer : public SimCenterWidget
+LatinHypercubeInputWidget::LatinHypercubeInputWidget(QWidget *parent) 
+: UQ_MethodInputWidget(parent)
 {
-    Q_OBJECT
-public:
-    explicit RandomVariablesContainer(QWidget *parent = 0);
-    explicit RandomVariablesContainer(QString &randomVariableClass, QWidget *parent = 0);
+    auto layout = new QGridLayout();
 
-    ~RandomVariablesContainer();
+    // create layout label and entry for # samples
+    numSamples = new QLineEdit();
+    numSamples->setText(tr("16"));
+    numSamples->setValidator(new QIntValidator);
+    numSamples->setToolTip("Specify the number of samples");
 
-    void addRandomVariable(RandomVariable *theRV);
-    bool inputFromJSON(QJsonObject &rvObject);
-    bool outputToJSON(QJsonObject &rvObject);
+    layout->addWidget(new QLabel("# Samples"), 0, 0);
+    layout->addWidget(numSamples, 0, 1);
 
-    //void setInitialConstantRVs(QStringList &varNamesAndValues);
+    // create label and entry for seed to layout
+    srand(time(NULL));
+    int randomNumber = rand() % 1000 + 1;
+    randomSeed = new QLineEdit();
+    randomSeed->setText(QString::number(randomNumber));
+    randomSeed->setValidator(new QIntValidator);
+    randomSeed->setToolTip("Set the seed");
 
-    void addRandomVariable(QString &rvName);
-    void addRVs(QStringList &varNames);
-    void addConstantRVs(QStringList &varNamesAndValues);
+    layout->addWidget(new QLabel("Seed"), 1, 0);
+    layout->addWidget(randomSeed, 1, 1);
 
-    void removeRandomVariable(QString &varName);
-    void removeRandomVariables(QStringList &varNames);
+    layout->setRowStretch(2, 1);
+    layout->setColumnStretch(2, 1);
+    this->setLayout(layout);
+}
 
-    QStringList getRandomVariableNames(void);
-    int getNumRandomVariables(void);
+LatinHypercubeInputWidget::~LatinHypercubeInputWidget()
+{
 
-public slots:
-   void errorMessage(QString message);
-   void addRandomVariable(void);
-   void variableNameChanged(const QString &newValue);
-   void removeRandomVariable(void);
-   void addCorrelationMatrix(void); // added by padhye for correlation matrix
-   //   void addSobolevIndices(bool);// added by padhye for sobolev indices
-   void clear(void);
+}
 
-private:
-    void makeRV(void);
-    QVBoxLayout *verticalLayout;
-    QVBoxLayout *rvLayout;
-    QWidget *rv;
+bool
+LatinHypercubeInputWidget::outputToJSON(QJsonObject &jsonObj){
 
-    QString randomVariableClass;
-    QVector<RandomVariable *>theRandomVariables;
-    QDialog *correlationDialog;
-    QTableWidget *correlationMatrix;
-    QCheckBox *checkbox;
+    bool result = true;
+    jsonObj["samples"]=numSamples->text().toInt();
+    jsonObj["seed"]=randomSeed->text().toDouble();
+    return result;    
+}
 
-    SectionTitle *correlationtabletitle;
-    int flag_for_correlationMatrix;
-    QStringList randomVariableNames;
-    // int flag_for_sobolev_indices;
-};
+bool
+LatinHypercubeInputWidget::inputFromJSON(QJsonObject &jsonObject){
 
-#endif // RANDOM_VARIABLES_CONTAINER_H
+  bool result = false;
+  if (jsonObject.contains("samples") && jsonObject.contains("seed")) {
+    int samples=jsonObject["samples"].toInt();
+    double seed=jsonObject["seed"].toDouble();
+    numSamples->setText(QString::number(samples));
+    randomSeed->setText(QString::number(seed));
+    result = true;
+  }
+
+  return result;
+}
+
+void
+LatinHypercubeInputWidget::clear(void)
+{
+
+}
+
+
+int
+LatinHypercubeInputWidget::getNumberTasks()
+{
+  return numSamples->text().toInt();
+}
