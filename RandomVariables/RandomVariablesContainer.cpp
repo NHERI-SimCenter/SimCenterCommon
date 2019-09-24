@@ -50,9 +50,11 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <sectiontitle.h>
 #include <QLineEdit>
 #include <QTableWidget>
+#include <QDialog>
+#include <QGridLayout>
 
 RandomVariablesContainer::RandomVariablesContainer(QWidget *parent)
-    : SimCenterWidget(parent), correlationMatrix(0)
+    : SimCenterWidget(parent), correlationDialog(NULL), correlationMatrix(NULL), checkbox(NULL)
 {
     randomVariableClass = QString("Uncertain");
 
@@ -63,7 +65,7 @@ RandomVariablesContainer::RandomVariablesContainer(QWidget *parent)
     //qDebug()<<"\n\n\n   I am here np    \n\n\n   ";
 
     // padhye adding the button to create table using model view totake in correlation matrix.
-    // QPushButton *correlation_button1 = new QPushButton("Add Correlation Matrix");
+    //QPushButton *correlation_button1 = new QPushButton("Correlation Matrix");
     // QHBoxLayout *correlation_layout = new QHBoxLayout;
     // correlation_layout->addWidget(correlation_button1);
     // this->setLayout(correlation_layout);
@@ -71,7 +73,7 @@ RandomVariablesContainer::RandomVariablesContainer(QWidget *parent)
 }
 
 RandomVariablesContainer::RandomVariablesContainer(QString &theClass, QWidget *parent)
-    : SimCenterWidget(parent)
+    : SimCenterWidget(parent), correlationDialog(NULL), correlationMatrix(NULL), checkbox(NULL)
 {
     randomVariableClass = theClass;
     verticalLayout = new QVBoxLayout();
@@ -160,7 +162,7 @@ RandomVariablesContainer::removeRandomVariables(QStringList &varNames)
 
 RandomVariablesContainer::~RandomVariablesContainer()
 {
-
+  qDebug() << "RandomVariablesContainer::~RandomVariablesContainer()";
 }
 
 // see the RandomVariablesContainer.h and this a private member function
@@ -196,13 +198,12 @@ RandomVariablesContainer::makeRV(void)
     // padhye, adding the button for correlation matrix, we need to add a condition here
     // that whether the uqMehod selected is that of Dakota and sampling type? only then we need correlation matrix
 
-    /* FMK
+    /* FMK */
     QPushButton *addCorrelation = new QPushButton();
     //addCorrelation->setMinimumWidth(250);
     //addCorrelation->setMaximumWidth(280);
     addCorrelation->setText(tr("Correlation Matrix"));
     connect(addCorrelation,SIGNAL(clicked()),this,SLOT(addCorrelationMatrix()));
-    */
 
     flag_for_correlationMatrix=0;
 
@@ -220,14 +221,12 @@ RandomVariablesContainer::makeRV(void)
     titleLayout->addWidget(removeRV);
     titleLayout->addItem(spacer3);
 
-    /* FMK
-    {
-        titleLayout->addWidget(addCorrelation,0,Qt::AlignTop);
-    }
-    */
+   //FMK
+    titleLayout->addWidget(addCorrelation,0,Qt::AlignTop);
 
-    titleLayout->addItem(spacer4);
-    titleLayout->addWidget(checkbox);
+
+    //titleLayout->addItem(spacer4);
+    //titleLayout->addWidget(checkbox);
 
     titleLayout->addStretch();
 
@@ -488,11 +487,21 @@ void RandomVariablesContainer::addCorrelationMatrix(void) {
     int numRandomVariables = theRandomVariables.size();
 
 
-    if(correlationMatrix==NULL && numRandomVariables>0) {
+    if(correlationDialog==NULL && numRandomVariables>0) {
+
+        correlationDialog = new QDialog(this);
+        correlationDialog->setModal(true);
+        correlationDialog->setWindowTitle(tr("Correlation Matrix"));
+        QGridLayout *correlationLayout = new QGridLayout();
+        correlationMatrix = new QTableWidget;
+
+        correlationLayout->addWidget(correlationMatrix,0,0);
+        correlationDialog->setLayout(correlationLayout);
         flag_for_correlationMatrix=1;
 
         //QHBoxLayout *correlationtabletableLayout = new QHBoxLayout();
 
+        /*
         correlationtabletitle=new SectionTitle();
 
 
@@ -507,7 +516,7 @@ void RandomVariablesContainer::addCorrelationMatrix(void) {
         this->correlationMatrix = new QTableWidget();
 
         verticalLayout->addWidget(correlationMatrix);
-
+*/
 
 
     // find the ones selected & remove them
@@ -605,6 +614,8 @@ void RandomVariablesContainer::addCorrelationMatrix(void) {
 
 
     }
+    if (correlationDialog != NULL)
+        correlationDialog->show();
  //   exit(1);
 }
 
@@ -692,6 +703,12 @@ RandomVariablesContainer::getRandomVariableNames(void)
         results.append(theRandomVariables.at(i)->getVariableName());
     }
     return results;
+}
+
+int
+RandomVariablesContainer::getNumRandomVariables(void)
+{
+    return theRandomVariables.size(); 
 }
 
 bool

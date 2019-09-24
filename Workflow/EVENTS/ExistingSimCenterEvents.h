@@ -1,5 +1,5 @@
-#ifndef RANDOM_VARIABLES_CONTAINER_H
-#define RANDOM_VARIABLES_CONTAINER_H
+#ifndef EXISTING_SIMCENTER_EVENTS_H
+#define EXISTING_SIMCENTER_EVENTS_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -40,74 +40,69 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include <SimCenterWidget.h>
+#include <SimCenterAppWidget.h>
 
-#include "RandomVariable.h"
+class RandomVariablesContainer;
+class InputWidgetExistingEvent;
+class QRadioButton;
+class QLineEdit;
+class LineEditRV;
+
 #include <QGroupBox>
 #include <QVector>
 #include <QVBoxLayout>
-#include <QTableWidget>
-#include <QPushButton>
-#include <QScrollArea>
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QLabel>
-#include <QDebug>
-#include <sectiontitle.h>
-#include <QLineEdit>
-#include <QCheckBox>
 
-class QDialog;
-
-class RandomVariablesContainer : public SimCenterWidget
+class ExistingEvent : public SimCenterWidget
 {
     Q_OBJECT
 public:
-    explicit RandomVariablesContainer(QWidget *parent = 0);
-    explicit RandomVariablesContainer(QString &randomVariableClass, QWidget *parent = 0);
+    explicit ExistingEvent(RandomVariablesContainer *theRV, QWidget *parent = 0);
+    ~ExistingEvent();
 
-    ~RandomVariablesContainer();
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
 
-    void addRandomVariable(RandomVariable *theRV);
+    QRadioButton   *button; // used to mark if Event intended for deletion
+    QLineEdit      *theName; // a QLineEdit with name of Event (filename minus path and extension)
+    QLineEdit      *file;    // full path to file name
+    LineEditRV     *factor;  // load factor
+
+public slots:
+    void chooseFileName(void);
+
+private:
+     RandomVariablesContainer *theRandVariableIW;
+     QString lastFactor;
+};
+
+
+class ExistingSimCenterEvents : public SimCenterAppWidget
+{
+    Q_OBJECT
+public:
+    explicit ExistingSimCenterEvents(RandomVariablesContainer *theRandomVariableIW, QWidget *parent = 0);
+
+    ~ExistingSimCenterEvents();
+
     bool inputFromJSON(QJsonObject &rvObject);
     bool outputToJSON(QJsonObject &rvObject);
-
-    //void setInitialConstantRVs(QStringList &varNamesAndValues);
-
-    void addRandomVariable(QString &rvName);
-    void addRVs(QStringList &varNames);
-    void addConstantRVs(QStringList &varNamesAndValues);
-
-    void removeRandomVariable(QString &varName);
-    void removeRandomVariables(QStringList &varNames);
-
-    QStringList getRandomVariableNames(void);
-    int getNumRandomVariables(void);
+    bool outputAppDataToJSON(QJsonObject &rvObject);
+    bool inputAppDataFromJSON(QJsonObject &rvObject);
+    bool copyFiles(QString &dirName);
 
 public slots:
    void errorMessage(QString message);
-   void addRandomVariable(void);
-   void variableNameChanged(const QString &newValue);
-   void removeRandomVariable(void);
-   void addCorrelationMatrix(void); // added by padhye for correlation matrix
-   //   void addSobolevIndices(bool);// added by padhye for sobolev indices
+   void addEvent(void);
+   void removeEvents(void);
    void clear(void);
+   void loadEventsFromDir(void);
 
 private:
-    void makeRV(void);
     QVBoxLayout *verticalLayout;
-    QVBoxLayout *rvLayout;
-    QWidget *rv;
+    QVBoxLayout *eventLayout;
 
-    QString randomVariableClass;
-    QVector<RandomVariable *>theRandomVariables;
-    QDialog *correlationDialog;
-    QTableWidget *correlationMatrix;
-    QCheckBox *checkbox;
-
-    SectionTitle *correlationtabletitle;
-    int flag_for_correlationMatrix;
-    QStringList randomVariableNames;
-    // int flag_for_sobolev_indices;
+    QVector<ExistingEvent *>theEvents;
+    RandomVariablesContainer *theRandVariableIW;
 };
 
-#endif // RANDOM_VARIABLES_CONTAINER_H
+#endif // EXISTING_SIMCENTER_EVENTS_H

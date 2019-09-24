@@ -1,5 +1,5 @@
-#ifndef RANDOM_VARIABLES_CONTAINER_H
-#define RANDOM_VARIABLES_CONTAINER_H
+#ifndef WORKFLOW_APP_WIDGET_H
+#define WORKFLOW_APP_WIDGET_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -39,75 +39,55 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterWidget.h>
+#include <QWidget>
 
-#include "RandomVariable.h"
-#include <QGroupBox>
-#include <QVector>
-#include <QVBoxLayout>
-#include <QTableWidget>
-#include <QPushButton>
-#include <QScrollArea>
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QLabel>
-#include <QDebug>
-#include <sectiontitle.h>
-#include <QLineEdit>
-#include <QCheckBox>
+#include "MainWindow.h"
 
-class QDialog;
+class MainWindowWorkflowApp;
+class RemoteService;
 
-class RandomVariablesContainer : public SimCenterWidget
+
+class WorkflowAppWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit RandomVariablesContainer(QWidget *parent = 0);
-    explicit RandomVariablesContainer(QString &randomVariableClass, QWidget *parent = 0);
+    WorkflowAppWidget(RemoteService *theService, QWidget *parent = 0);
+    virtual ~WorkflowAppWidget();
 
-    ~RandomVariablesContainer();
+    void setMainWindow(MainWindowWorkflowApp* window);
 
-    void addRandomVariable(RandomVariable *theRV);
-    bool inputFromJSON(QJsonObject &rvObject);
-    bool outputToJSON(QJsonObject &rvObject);
+    virtual bool outputToJSON(QJsonObject &rvObject) =0;
+    virtual bool inputFromJSON(QJsonObject &rvObject) =0;
+    virtual void clear(void) =0;
 
-    //void setInitialConstantRVs(QStringList &varNamesAndValues);
+    virtual void onRunButtonClicked() =0;
+    virtual void onRemoteRunButtonClicked() =0;
+    virtual void onRemoteGetButtonClicked() =0;
+    virtual void onExitButtonClicked() =0;
+    virtual int getMaxNumParallelTasks() =0;
+    
+signals:
+    void setUpForApplicationRunDone(QString &tmpDirectory, QString &inputFile);
+    void sendLoadFile(QString filename);
 
-    void addRandomVariable(QString &rvName);
-    void addRVs(QStringList &varNames);
-    void addConstantRVs(QStringList &varNamesAndValues);
+    void sendStatusMessage(QString message);
+    void sendErrorMessage(QString message);
+    void sendFatalMessage(QString message);
 
-    void removeRandomVariable(QString &varName);
-    void removeRandomVariables(QStringList &varNames);
+public slots:  
+    //virtual void selectionChangedSlot(const QItemSelection &, const QItemSelection &) =0;
 
-    QStringList getRandomVariableNames(void);
-    int getNumRandomVariables(void);
+    virtual void setUpForApplicationRun(QString &, QString &) =0;
+    virtual void processResults(QString dakotaOut, QString dakotaTab, QString inputFile) =0;
 
-public slots:
-   void errorMessage(QString message);
-   void addRandomVariable(void);
-   void variableNameChanged(const QString &newValue);
-   void removeRandomVariable(void);
-   void addCorrelationMatrix(void); // added by padhye for correlation matrix
-   //   void addSobolevIndices(bool);// added by padhye for sobolev indices
-   void clear(void);
+    virtual void loadFile(QString filename) =0;
+    void statusMessage(QString message);
+    void errorMessage(QString message);
+    void fatalMessage(QString message);
 
-private:
-    void makeRV(void);
-    QVBoxLayout *verticalLayout;
-    QVBoxLayout *rvLayout;
-    QWidget *rv;
-
-    QString randomVariableClass;
-    QVector<RandomVariable *>theRandomVariables;
-    QDialog *correlationDialog;
-    QTableWidget *correlationMatrix;
-    QCheckBox *checkbox;
-
-    SectionTitle *correlationtabletitle;
-    int flag_for_correlationMatrix;
-    QStringList randomVariableNames;
-    // int flag_for_sobolev_indices;
+protected:
+    MainWindowWorkflowApp *theMainWindow;
+    RemoteService *theRemoteService;
 };
 
-#endif // RANDOM_VARIABLES_CONTAINER_H
+#endif // WORKFLOW_APP_WIDGET_H

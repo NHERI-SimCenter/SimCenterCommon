@@ -84,44 +84,44 @@ public:
     enum TemperatureUnit{C, F, K};
     Q_ENUM(TemperatureUnit)
 
+    int getNumFloors(void);
+    double getHeight(void);
+    void getBuildingDimensions(double &newWidth, double &newDepth, double &planArea);
+    void getBuildingLocation(double &latitude, double &longitude);
     QString getLengthUnit();
     QString getForceUnit();
-    int getNumFloors();
-    double getHeight();
-    void setNumFloors(int newNumFloors);
-    void setHeight(double newHeight);
 
-
-
+public slots:
+    void numStoriesEditingFinished(void);
+    void heightEditingFinished(void);
+    void buildingDimensionsEditingFinished(void);
+    // void setNumFloors(int newNumFloors);
+    // void setHeight(double newHeight);
+    void setNumStoriesAndHeight(int numFloors, double height);
+    void setBuildingDimensions(double newWidth, double newDepth, double planArea);
+    void setBuildingLocation(double latitude, double longitude);
 
 signals:
-    void numFloorsChanged(int newNumFloors);
-    void buildingHeightChanged(double newHeight);
+    //    void numFloorsChanged(int newNumFloors);
+    //    void buildingHeightChanged(double newHeight);
+    void numStoriesOrHeightChanged(int numFloors, double height);
     void buildingDimensionsChanged(double newWidth, double newDepth, double planArea);
+    void buildingLocationChanged(double latitude, double longitude);
 
-    void buildingWeightChanged(double newWeight);
     void unitsChanged(QString lengthUnit, QString ForceUnit);
 
 private:
     QStringList   tableHeader;
 
     QLineEdit *nameEdit;
-
-    //    QLineEdit *revEdit;
-    //    QLineEdit *typeEdit;
-    //    QSpinBox  *yearBox;
     QSpinBox  *storiesBox;
     QLineEdit *heightEdit;
     QLineEdit *widthEdit;
     QLineEdit *depthEdit;
     QLineEdit *planAreaEdit;
-    //    QLineEdit *weightEdit;
 
-   // QLineEdit *planAreaEdit;
-
-    //    QLineEdit *locationNameEdit;
-    QDoubleSpinBox *locationLatBox;
-    QDoubleSpinBox *locationLonBox;
+    QDoubleSpinBox *latitudeBox;
+    QDoubleSpinBox *longitudeBox;
 
     QComboBox *unitsForceCombo;
     QComboBox *unitsLengthCombo;
