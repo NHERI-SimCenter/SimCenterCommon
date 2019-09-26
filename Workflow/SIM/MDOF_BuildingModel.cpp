@@ -349,8 +349,9 @@ MDOF_BuildingModel::MDOF_BuildingModel(RandomVariablesContainer *theRandomVariab
     //theView->setController(this);
 
     theView = new GraphicView2D();
-    theView->setMinimumHeight(250);
-    theView->setMinimumWidth(250);
+   //  theView->setMinimumHeight(250);
+   //  theView->setMinimumWidth(250);
+    theView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     graphicLayout->addWidget(theView);
 
 
