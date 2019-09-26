@@ -25,13 +25,11 @@ FooterWidget, HeaderWidget {
     border-radius: 2px;
 }
 
-
 QLabel#titleText {
-    font-size: 10pt;
-    padding-left: 15px;
+    font-size: 12pt;
+    padding-left: 25px;
     font-weight: bold;
 }
-
 
 footerLayout {
     background-color: #B0BEC5;
@@ -42,7 +40,7 @@ footerLayout {
 
 QLabel#nsfText {
     color: #E0E0E0;
-    font-size: 12pt;
+    font-size: 10px;
     font-weight: bold;
 }
 
@@ -50,15 +48,19 @@ QLabel#nsfText {
 /* Labels                                                             */
 /*----------------------------------------------------------------------------*/
 
+
 QLabel#sectionTitle {
+  /*  font-size: 14px; */
     font-weight: bold;
 }
 
 QLabel#propertiesTitle {
+   /* font-size: 12px; */
     font-weight: bold;
 }
 
 QLabel#vizTitle {
+  /*  font-size: 12px; */
     font-weight: bold;
 }
 
@@ -68,11 +70,12 @@ QLabel#outTitle {
 }
 
 QLabel#inTitle {
-    font-size: 15px;
+   /* font-size: 15px; */
     font-weight: bold;
 }
 
 QLabel{
+
 }
 
 /*----------------------------------------------------------------------------*/
@@ -174,6 +177,7 @@ QTreeView#treeViewOnTheLeft{
 
     /* set the font properties*/
     font-size:12pt;
+    height: 20px;
     color: white;
 }
 
@@ -205,5 +209,3 @@ QComboBox:!editable, QComboBox::drop-down:editable {
 QComboBox:!editable:on, QComboBox::drop-down:editable:on {
     background: rgb(240, 240, 240);
 }
-
-
