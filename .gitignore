@@ -47,3 +47,9 @@ icons/\.DS_Store
 
 *.swp
 
+
+*.dmg
+
+Installer/TInF-Installer/.DS_Store
+
+Installer/PGTinstaller/.DS_Store
