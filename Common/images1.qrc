@@ -7,5 +7,7 @@
         <file>style.qss</file>
         <file>common_style.qss</file>
         <file>common_experimental.qss</file>
+	<file>stylesheetMAC.qss</file>
+	<file>stylesheetWIN.qss</file>
     </qresource>
 </RCC>
