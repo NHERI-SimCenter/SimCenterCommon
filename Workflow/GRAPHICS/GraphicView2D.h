@@ -1,4 +1,4 @@
-#ifndef GraphicVide2D_H
+#ifndef GraphicView2D_H
 #define GraphicView2D_H
 
 #include <QWidget>
