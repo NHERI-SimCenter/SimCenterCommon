@@ -344,13 +344,14 @@ MDOF_BuildingModel::MDOF_BuildingModel(RandomVariablesContainer *theRandomVariab
     connect(theSpreadsheet, SIGNAL(cellChanged(int,int)), this,SLOT(on_theSpreadsheet_cellChanged(int,int)));
 
     inputLayout->addStretch();
-
+    theView = 0;
     //theView = new GlWidget2D();
     //theView->setController(this);
 
-    theView = new GraphicView2D();
+   theView = new GraphicView2D();
    //  theView->setMinimumHeight(250);
    //  theView->setMinimumWidth(250);
+
     theView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     graphicLayout->addWidget(theView);
 
@@ -1257,6 +1258,7 @@ void MDOF_BuildingModel::on_theSpreadsheet_cellClicked(int row, int column)
     sMaxSelected = -1;
 
     this->draw();
+    if (theView != 0)
     theView->update();
 }
 
@@ -1586,7 +1588,10 @@ MDOF_BuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
      if (numStories == 0)
             return;
 
-     theView->reset();
+    if (theView == 0)
+        return;
+
+        theView->reset();
     int viewW = theView->width();
     int viewH = theView->height();
     float pointW = 0.1*buildingH/(3.*numStories);
