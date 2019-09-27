@@ -197,9 +197,10 @@ GeneralInformationWidget::setDefaultProperties(int numStory,
 {
   //    this->setNumFloors(numStory);
   //    this->setHeight(height);
-    this->setNumStoriesAndHeight(numStory, height);
+
     this->setBuildingDimensions(width, depth, width*depth);
     this->setBuildingLocation(latit, longit);
+    this->setNumStoriesAndHeight(numStory, height);
 }
 
 bool
@@ -259,7 +260,7 @@ GeneralInformationWidget::outputToJSON(QJsonObject &jsonObj){
 
 bool
 GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
-
+    qDebug() << "General Information";
     double rev;
 
     QJsonValue nameValue = jsonObject["name"];
@@ -269,13 +270,22 @@ GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
     storiesBox->setValue(storiesValue.toInt());
 
     QJsonValue heightValue = jsonObject["height"];
-    heightEdit->setText(  QString::number(heightValue.toDouble()) );
+    if (!heightValue.isNull())
+        heightEdit->setText(  QString::number(heightValue.toDouble()));
+    else
+        heightEdit->setText("0.0");
 
     QJsonValue widthValue = jsonObject["width"];
-    widthEdit->setText(  QString::number(widthValue.toDouble()) );
+    if (!widthValue.isNull())
+        widthEdit->setText(  QString::number(widthValue.toDouble()));
+    else
+        widthEdit->setText("0.0");
 
     QJsonValue depthValue = jsonObject["depth"];
-    depthEdit->setText(  QString::number(depthValue.toDouble()) );
+    if (!depthValue.isNull())
+        depthEdit->setText(  QString::number(depthValue.toDouble()));
+    else
+        depthEdit->setText("0.0");
 
     QJsonValue planAreaValue = jsonObject["planArea"];
     if(planAreaValue.isUndefined() || planAreaValue == QJsonValue::Null || !planAreaValue.isDouble())
@@ -285,13 +295,18 @@ GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
 
     // Location Object
     QJsonValue locationValue = jsonObject["location"];
-    QJsonObject locationObj = locationValue.toObject();
+    if (!locationValue.isNull()) {
+        QJsonObject locationObj = locationValue.toObject();
 
-    QJsonValue locationLatitudeValue = locationObj["latitude"];
-    latitudeBox->setValue(locationLatitudeValue.toDouble());
+        QJsonValue locationLatitudeValue = locationObj["latitude"];
+        latitudeBox->setValue(locationLatitudeValue.toDouble());
 
-    QJsonValue locationLongitudeValue = locationObj["longitude"];
-    longitudeBox->setValue(locationLongitudeValue.toDouble());
+        QJsonValue locationLongitudeValue = locationObj["longitude"];
+        longitudeBox->setValue(locationLongitudeValue.toDouble());
+    } else {
+        longitudeBox->setValue(0.0);
+        latitudeBox->setValue(0.0);
+    }
 
     // Units Object
     QJsonValue unitsValue = jsonObject["units"];
@@ -424,9 +439,11 @@ GeneralInformationWidget::setBuildingDimensions(double newB, double newD, double
       planAreaEdit->text().toDouble() != newA) {
 
     widthEdit->setText(QString::number(newB)); 
-    depthEdit->setText(QString::number(newD)); 
+
     planAreaEdit->setText(QString::number(newA)); 
+
     emit buildingDimensionsChanged(newB, newD, newA);
+    depthEdit->setText(QString::number(newD));
   }
 }
 

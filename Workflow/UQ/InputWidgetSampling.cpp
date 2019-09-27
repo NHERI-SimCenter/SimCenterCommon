@@ -244,20 +244,29 @@ InputWidgetSampling::inputAppDataFromJSON(QJsonObject &jsonObject)
 {
     bool result = false;
     this->clear();
-
     //
     // get sampleingMethodData, if not present it's an error
 
     if (jsonObject.contains("ApplicationData")) {
         QJsonObject uq = jsonObject["ApplicationData"].toObject();
 
+        if (uq.contains("method")) {
+          QString method = uq["method"].toString();
+          int index = samplingMethod->findText(method);
+
+          if (index == -1) {
+              emit sendErrorMessage(QString("ERROR: Unknown Method") + method);
+              return false;
+          }
+          samplingMethod->setCurrentIndex(index);
+          return theCurrentMethod->inputFromJSON(uq);
+        }
+
     } else {
         emit sendErrorMessage("ERROR: Sampling Input Widget - no \"samplingMethodData\" input");
         return false;
     }
 
-    // should never get here .. if do my logic is screwy and need to return a false
-    emit sendErrorMessage("ERROR - faulty logic - contact code developers");
     return result;
 }
 
