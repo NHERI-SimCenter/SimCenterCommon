@@ -43,13 +43,7 @@ build*
 # QT
 *.pro.user
 *.#
-icons/\.DS_Store
 
 *.swp
-
-
 *.dmg
-
-Installer/TInF-Installer/.DS_Store
-
-Installer/PGTinstaller/.DS_Store
+.DS_Store
