@@ -200,7 +200,7 @@ bool
 OpenSeesBuildingModel::inputFromJSON(QJsonObject &jsonObject)
 {
     varNamesAndValues.clear();
-    std::cerr << "OPS_MODEL-1";
+
     this->clear();
     QString stringNodes;
     if (jsonObject.contains("centroidNodes")) {
@@ -211,8 +211,6 @@ OpenSeesBuildingModel::inputFromJSON(QJsonObject &jsonObject)
         }
         centroidNodes->setText(stringNodes);
     }
-    std::cerr << "OPS_MODEL-2";
-
 
     if (jsonObject.contains("responseNodes")) {
         QString stringResponseNodes;
@@ -224,7 +222,16 @@ OpenSeesBuildingModel::inputFromJSON(QJsonObject &jsonObject)
         responseNodes->setText(stringResponseNodes);
     }
 
-    std::cerr << "OPS_MODEL-3";
+    // backward compatability .. response nodes used to be nodes
+    if (jsonObject.contains("nodes")) {
+        QString stringResponseNodes;
+        QJsonArray nodeResponseTags = jsonObject["nodes"].toArray();
+        foreach (const QJsonValue & value, nodeResponseTags) {
+            int tag = value.toInt();
+            stringResponseNodes = stringResponseNodes + " " +  QString::number(tag);
+        }
+        responseNodes->setText(stringResponseNodes);
+    }
 
     if (jsonObject.contains("randomVar")) {
         QJsonArray randomVars = jsonObject["randomVar"].toArray();
@@ -236,7 +243,7 @@ OpenSeesBuildingModel::inputFromJSON(QJsonObject &jsonObject)
             varNamesAndValues.append(zero);
         }
     }
-    qDebug() << "OPS_MODEL-4";
+
     int theNDM = jsonObject["ndm"].toInt();
     int theNDF = 1;
     if (theNDM == 2)
@@ -292,7 +299,6 @@ OpenSeesBuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
         QString fileName;
         QString filePath;
 
-
         if (dataObject.contains("fileName")) {
             QJsonValue theName = dataObject["fileName"];
             fileName = theName.toString();
@@ -307,19 +313,10 @@ OpenSeesBuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
 
         file1->setText(QDir(filePath).filePath(fileName));
 
-        //
-        // get nodes and set QLineEdit
-        //
-
-        if (dataObject.contains("centroidNodes")) {
-            QJsonValue theName = dataObject["centroidNodes"];
-            centroidNodes->setText(theName.toString());
-        } else
-            return false;
-
     } else {
         return false;
     }
+    return true;
 }
 
 

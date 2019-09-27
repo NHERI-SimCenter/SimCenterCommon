@@ -63,6 +63,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <fstream>
 #include <string>
 
+#include <QHeaderView>
 #include <QMessageBox>
 #include <QVBoxLayout>
 #include <QLineEdit>
@@ -258,11 +259,11 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
     else
         colCount = colCount -1;
 
-    qDebug() << "colCount: " << colCount << " " << includesInterface;
-    qDebug() << "HEADINGS: " << theHeadings;
 
     spreadsheet->setColumnCount(colCount);
     spreadsheet->setHorizontalHeaderLabels(theHeadings);
+    spreadsheet->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    spreadsheet->verticalHeader()->setVisible(false);
 
     // now until end of file, read lines and place data into spreadsheet
 
