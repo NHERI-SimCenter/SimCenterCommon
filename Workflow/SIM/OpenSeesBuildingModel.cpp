@@ -205,11 +205,22 @@ OpenSeesBuildingModel::inputFromJSON(QJsonObject &jsonObject)
     QString stringNodes;
     if (jsonObject.contains("centroidNodes")) {
         QJsonArray nodeTags = jsonObject["centroidNodes"].toArray();
+        int numCentroid = 0;
         foreach (const QJsonValue & value, nodeTags) {
             int tag = value.toInt();
             stringNodes = stringNodes + " " +  QString::number(tag);
+            numCentroid++;
         }
-        centroidNodes->setText(stringNodes);
+        if (numCentroid != 0) {
+            if (centroidNodes == NULL) {
+                QLabel *label2a = new QLabel();
+                label2a->setText("Centroid Nodes:");
+                centroidNodes = new QLineEdit;
+                layout->addWidget(label2a,4,0);
+                layout->addWidget(centroidNodes,4,1);
+            }
+            centroidNodes->setText(stringNodes);
+        }
     }
 
     if (jsonObject.contains("responseNodes")) {
