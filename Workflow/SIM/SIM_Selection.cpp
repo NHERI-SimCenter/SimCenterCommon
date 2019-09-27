@@ -148,7 +148,7 @@ SIM_Selection::inputFromJSON(QJsonObject &jsonObject)
     if (bimInput != 0) {
         result =  bimInput->inputFromJSON(jsonObject);
         if (result == false) {
-            qDebug() << "SIM_Selection inputFromJSON failed in object: " << index;
+            qDebug() << "SIM_Selection inputFromJSON failed in object " << bimSelection->currentText();
         } else
             return true;
     }
