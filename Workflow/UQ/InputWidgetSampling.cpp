@@ -87,7 +87,7 @@ InputWidgetSampling::InputWidgetSampling(QWidget *parent)
     samplingMethod->addItem(tr("Monte Carlo"));
     samplingMethod->addItem(tr("Importance Sampling"));
     samplingMethod->addItem(tr("Gaussian Process Regression"));
-    samplingMethod->addItem(tr("Polynomial Chaos Expansion"));
+   // samplingMethod->addItem(tr("Polynomial Chaos Expansion"));
 
     /*
     samplingMethod->addItem(tr("Multilevel Monte Carlo"));
@@ -124,9 +124,10 @@ InputWidgetSampling::InputWidgetSampling(QWidget *parent)
     theGP = new GaussianProcessInputWidget();
     theStackedWidget->addWidget(theGP);
 
+    /************* Not working as currently omplemented unles only 1 QoI
     thePCE = new PCEInputWidget();
     theStackedWidget->addWidget(thePCE);
-
+    *******************************************************************/
     // set current widget to index 0
     theCurrentMethod = theLHS;
 
