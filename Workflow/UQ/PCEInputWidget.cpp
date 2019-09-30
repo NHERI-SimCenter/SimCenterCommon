@@ -134,7 +134,7 @@ bool PCEInputWidget::inputFromJSON(QJsonObject &jsonObject)
 
 int PCEInputWidget::getNumberTasks()
 {
-    return 1;
+  return level->text().toInt();
 }
 
 void PCEInputWidget::trainingDataMethodChanged(int method) {
