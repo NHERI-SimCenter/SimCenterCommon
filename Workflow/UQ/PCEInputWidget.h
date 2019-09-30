@@ -6,6 +6,7 @@
 #include <QComboBox>
 
 class QGridLayout;
+class QLabel;
 
 class PCEInputWidget : public UQ_MethodInputWidget
 {
@@ -16,7 +17,8 @@ public:
 signals:
 
 public slots:
-    void dataMethodChanged(int);
+    void trainingDataMethodChanged(int);
+    void samplingDataMethodChanged(int);
 
 
 public:
@@ -27,12 +29,17 @@ public:
     int getNumberTasks();
 
 private:
-    QLineEdit *randomSeed;
-    QLineEdit *numSamples;
     QLineEdit *level;
+    QLabel *levelLabel;
     QComboBox* dataMethod;
-    QGridLayout *layout;
 
+    QLineEdit *randomSeedSampling;
+    QLineEdit *numSamplesSampling;
+    QLineEdit *levelSampling;
+    QComboBox* dataMethodSampling;
+
+    QGridLayout *trainingDataLayout;
+    QGridLayout *samplingDataLayout;
 };
 
 #endif // PCEINPUTWIDGET
