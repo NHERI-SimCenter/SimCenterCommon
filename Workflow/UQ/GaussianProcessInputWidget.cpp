@@ -40,6 +40,7 @@ GaussianProcessInputWidget::GaussianProcessInputWidget(QWidget *parent) : UQ_Met
     trainingDataGroup->setLayout(trainingDataLayout);
 
     layout->addWidget(trainingDataGroup);
+
     //    layout->addStretch();
 
     // create layout label and entry for # samples

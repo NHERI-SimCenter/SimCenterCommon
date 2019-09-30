@@ -192,5 +192,7 @@ QTreeView#treeViewOnTheLeft::item:selected:!active {
     background: rgb(63, 147, 168);
 }
 
-
+QComboBox {
+    min-width: 8em;
+}
 

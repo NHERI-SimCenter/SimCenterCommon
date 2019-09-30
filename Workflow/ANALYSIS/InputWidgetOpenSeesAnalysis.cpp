@@ -273,6 +273,7 @@ InputWidgetOpenSeesAnalysis::copyFiles(QString &dirName) {
         emit sendErrorMessage(QString("ERROR: OpenSees Analysis copyFiles: failed to copy file: ") +file->text());
         return false;
     }
+    return true;
 }
 
 // need to check if a random variable

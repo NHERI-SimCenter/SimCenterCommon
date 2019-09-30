@@ -200,19 +200,28 @@ bool
 OpenSeesBuildingModel::inputFromJSON(QJsonObject &jsonObject)
 {
     varNamesAndValues.clear();
-    std::cerr << "OPS_MODEL-1";
+
     this->clear();
     QString stringNodes;
     if (jsonObject.contains("centroidNodes")) {
         QJsonArray nodeTags = jsonObject["centroidNodes"].toArray();
+        int numCentroid = 0;
         foreach (const QJsonValue & value, nodeTags) {
             int tag = value.toInt();
             stringNodes = stringNodes + " " +  QString::number(tag);
+            numCentroid++;
         }
-        centroidNodes->setText(stringNodes);
+        if (numCentroid != 0) {
+            if (centroidNodes == NULL) {
+                QLabel *label2a = new QLabel();
+                label2a->setText("Centroid Nodes:");
+                centroidNodes = new QLineEdit;
+                layout->addWidget(label2a,4,0);
+                layout->addWidget(centroidNodes,4,1);
+            }
+            centroidNodes->setText(stringNodes);
+        }
     }
-    std::cerr << "OPS_MODEL-2";
-
 
     if (jsonObject.contains("responseNodes")) {
         QString stringResponseNodes;
@@ -224,7 +233,16 @@ OpenSeesBuildingModel::inputFromJSON(QJsonObject &jsonObject)
         responseNodes->setText(stringResponseNodes);
     }
 
-    std::cerr << "OPS_MODEL-3";
+    // backward compatability .. response nodes used to be nodes
+    if (jsonObject.contains("nodes")) {
+        QString stringResponseNodes;
+        QJsonArray nodeResponseTags = jsonObject["nodes"].toArray();
+        foreach (const QJsonValue & value, nodeResponseTags) {
+            int tag = value.toInt();
+            stringResponseNodes = stringResponseNodes + " " +  QString::number(tag);
+        }
+        responseNodes->setText(stringResponseNodes);
+    }
 
     if (jsonObject.contains("randomVar")) {
         QJsonArray randomVars = jsonObject["randomVar"].toArray();
@@ -236,7 +254,7 @@ OpenSeesBuildingModel::inputFromJSON(QJsonObject &jsonObject)
             varNamesAndValues.append(zero);
         }
     }
-    qDebug() << "OPS_MODEL-4";
+
     int theNDM = jsonObject["ndm"].toInt();
     int theNDF = 1;
     if (theNDM == 2)
@@ -292,7 +310,6 @@ OpenSeesBuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
         QString fileName;
         QString filePath;
 
-
         if (dataObject.contains("fileName")) {
             QJsonValue theName = dataObject["fileName"];
             fileName = theName.toString();
@@ -307,19 +324,10 @@ OpenSeesBuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
 
         file1->setText(QDir(filePath).filePath(fileName));
 
-        //
-        // get nodes and set QLineEdit
-        //
-
-        if (dataObject.contains("centroidNodes")) {
-            QJsonValue theName = dataObject["centroidNodes"];
-            centroidNodes->setText(theName.toString());
-        } else
-            return false;
-
     } else {
         return false;
     }
+    return true;
 }
 
 

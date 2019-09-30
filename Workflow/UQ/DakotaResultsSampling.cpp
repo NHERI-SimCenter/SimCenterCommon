@@ -63,6 +63,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <fstream>
 #include <string>
 
+#include <QHeaderView>
 #include <QMessageBox>
 #include <QVBoxLayout>
 #include <QLineEdit>
@@ -131,7 +132,7 @@ void DakotaResultsSampling::clear(void)
   theKurtosis.clear();
 
   tabWidget->clear();
-  
+  spreadsheet = NULL;
 }
 
 
@@ -189,12 +190,46 @@ static int mergesort(double *input, int size)
 
 int DakotaResultsSampling::processResults(QString &filenameResults, QString &filenameTab)
 {
-    emit sendStatusMessage(tr("Processing SampingResults"));
+    emit sendStatusMessage(tr("Processing Sampling Results"));
 
     this->clear();
     mLeft = true;
     col1 = 0;
     col2 = 0;
+
+    //
+    // check it actually ran with errors
+    //
+
+    QFileInfo fileTabInfo(filenameTab);
+    QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
+
+    QFileInfo filenameErrorInfo(filenameErrorString);
+    if (!filenameErrorInfo.exists()) {
+        emit sendErrorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applicatins failed with inputs provided");
+        return 0;
+    }
+    QFile fileError(filenameErrorString);
+    QString line("");
+    if (fileError.open(QIODevice::ReadOnly)) {
+       QTextStream in(&fileError);
+       while (!in.atEnd()) {
+          line = in.readLine();
+       }
+       fileError.close();
+    }
+
+    if (line.length() != 0) {
+        qDebug() << line.length() << " " << line;
+        emit sendErrorMessage(QString(QString("Error Running Dakota: ") + line));
+        return 0;
+    }
+
+    QFileInfo filenameTabInfo(filenameTab);
+    if (!filenameTabInfo.exists()) {
+        emit sendErrorMessage("No dakotaTab.out file - dakota failed .. possibly no QoI");
+        return 0;
+    }
 
     //
     // create summary, a QWidget for summary data, the EDP name, mean, stdDev, kurtosis info
@@ -210,7 +245,6 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
     QVBoxLayout *summaryLayout = new QVBoxLayout();
     summaryLayout->setContentsMargins(0,0,0,0); // adding back
     summary->setLayout(summaryLayout);
-
     sa->setWidget(summary);
 
     //
@@ -258,11 +292,11 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
     else
         colCount = colCount -1;
 
-    qDebug() << "colCount: " << colCount << " " << includesInterface;
-    qDebug() << "HEADINGS: " << theHeadings;
 
     spreadsheet->setColumnCount(colCount);
     spreadsheet->setHorizontalHeaderLabels(theHeadings);
+    spreadsheet->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    spreadsheet->verticalHeader()->setVisible(false);
 
     // now until end of file, read lines and place data into spreadsheet
 
@@ -370,6 +404,8 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
     tabWidget->addTab(sa,tr("Summary"));
     tabWidget->addTab(widget, tr("Data Values"));
     tabWidget->adjustSize();
+
+    emit sendStatusMessage(tr(""));
 
     return 0;
 }
@@ -810,6 +846,9 @@ DakotaResultsSampling::outputToJSON(QJsonObject &jsonObject)
 {
     bool result = true;
 
+    if (spreadsheet == NULL)
+        return true;
+
     jsonObject["resultType"]=QString(tr("DakotaResultsSampling"));
 
     //
@@ -874,6 +913,14 @@ DakotaResultsSampling::inputFromJSON(QJsonObject &jsonObject)
     bool result = true;
 
     this->clear();
+
+    //
+    // check any data exists
+    //
+
+    QJsonValue spreadsheetValue = jsonObject["spreadsheet"];
+    if (spreadsheetValue.isNull())
+        return true;
 
     //
     // create a summary widget in which place basic output (name, mean, stdDev)

@@ -58,6 +58,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QDir>
 #include <QFileDialog>
+#include <QProcessEnvironment>
 
 LocalApplication::LocalApplication(QString workflowScriptName, QWidget *parent)
 : Application(parent)
@@ -104,27 +105,27 @@ LocalApplication::onRunButtonPressed(void)
   messageLabel->setText("Setting up temporary directory");
 
   QString workingDir = SimCenterPreferences::getInstance()->getLocalWorkDir();
-    QDir dirWork(workingDir);
-    if (!dirWork.exists())
-        if (!dirWork.mkpath(workingDir)) {
-            emit sendErrorMessage(QString("Could not create Working Dir: ") + workingDir + QString(" . Try using an existing directory or make sure you have permission to create the working directory."));
-            return;
-        }
+  QDir dirWork(workingDir);
+  if (!dirWork.exists())
+    if (!dirWork.mkpath(workingDir)) {
+      emit sendErrorMessage(QString("Could not create Working Dir: ") + workingDir + QString(" . Try using an existing directory or make sure you have permission to create the working directory."));
+      return;
+    }
     
+  
+  //   QString appDir = appDirName->text();
+  QString appDir = SimCenterPreferences::getInstance()->getAppDir();
 
-    //   QString appDir = appDirName->text();
-    QString appDir = SimCenterPreferences::getInstance()->getAppDir();
-
-   QDir dirApp(appDir);
-   if (!dirApp.exists()) {
-       emit sendErrorMessage(QString("The application directory, ") + appDir +QString(" specified does not exist!"));
-       return;
-   }
-
-    QString templateDir("templatedir");
-    messageLabel->setText("Gathering files to local workdir"); messageLabel->repaint();
-    emit sendStatusMessage("Gathering Files to local workdir");
-    emit setupForRun(workingDir, templateDir);
+  QDir dirApp(appDir);
+  if (!dirApp.exists()) {
+    emit sendErrorMessage(QString("The application directory, ") + appDir +QString(" specified does not exist!"));
+    return;
+  }
+  
+  QString templateDir("templatedir");
+  messageLabel->setText("Gathering files to local workdir"); messageLabel->repaint();
+  emit sendStatusMessage("Gathering Files to local workdir");
+  emit setupForRun(workingDir, templateDir);
 }
 
 
@@ -136,6 +137,8 @@ LocalApplication::onRunButtonPressed(void)
 bool
 LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile) {
 
+  QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+  qDebug() << "ENVIRONMENT " << env.toStringList();
 
   QString appDir = SimCenterPreferences::getInstance()->getAppDir();
 

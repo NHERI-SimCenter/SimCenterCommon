@@ -334,8 +334,8 @@ SimCenterPreferences::savePreferences(bool) {
 
     QSettings settingsApp("SimCenter", QCoreApplication::applicationName());
     settingsApp.setValue("appDir", appDir->text());
-    settingsApp.setValue("remoteAppDir-June2019", remoteAppDir->text());
-    settingsApp.setValue("remoteAgaveApp-June2019", remoteAgaveApp->text());
+    settingsApp.setValue("remoteAppDir-Sept2019", remoteAppDir->text());
+    settingsApp.setValue("remoteAgaveApp-Sept2019", remoteAgaveApp->text());
     settingsApp.setValue("localWorkDir", localWorkDir->text());
     settingsApp.setValue("remoteWorkDir", remoteWorkDir->text());
     
@@ -371,7 +371,7 @@ SimCenterPreferences::resetPreferences(bool) {
     settingsApplication.setValue("appDir", appDirLocation);
     appDir->setText(appDirLocation);
     
-    QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/June-2019");
+    QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/Sept-2019");
     settingsApplication.setValue("remoteAppDir", remoteAppDirLocation);
     remoteAppDir->setText(remoteAppDirLocation);
 
@@ -440,7 +440,7 @@ SimCenterPreferences::loadPreferences() {
     // remoteAppDir NOT quite as before as need to allow future releases to bring new ones
     QVariant  remoteAppDirVariant = settingsApplication.value("remoteAppDir-June2019");
     if (!remoteAppDirVariant.isValid()) {
-      QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/June-2019");
+      QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/Sept-2019");
       settingsApplication.setValue("remoteAppDir-JUne2019", remoteAppDirLocation);
       remoteAppDir->setText(remoteAppDirLocation);
     } else {
@@ -504,7 +504,7 @@ SimCenterPreferences::getRemoteAppDir(void) {
 
     // if not set, use default & set default as application directory
     if (!remoteAppDirVariant.isValid()) {
-      QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/June-2019");
+      QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/Sept-2019");
       settingsApplication.setValue("remoteAppDir-June2019", remoteAppDirLocation);
       return remoteAppDirLocation;
     } 

@@ -46,8 +46,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QHBoxLayout>
 #include <SimCenterTableWidget.h>
 #include <QComboBox>
-#include <QSpinBox>
-#include <QDoubleSpinBox>
+
+class QLineEdit;
 
 class GeneralInformationWidget : public SimCenterWidget
 {
@@ -114,14 +114,14 @@ private:
     QStringList   tableHeader;
 
     QLineEdit *nameEdit;
-    QSpinBox  *storiesBox;
+    QLineEdit *storiesEdit;
     QLineEdit *heightEdit;
     QLineEdit *widthEdit;
     QLineEdit *depthEdit;
     QLineEdit *planAreaEdit;
 
-    QDoubleSpinBox *latitudeBox;
-    QDoubleSpinBox *longitudeBox;
+    QLineEdit *latitudeEdit;
+    QLineEdit *longitudeEdit;
 
     QComboBox *unitsForceCombo;
     QComboBox *unitsLengthCombo;

@@ -145,36 +145,12 @@ bool
 SIM_Selection::inputFromJSON(QJsonObject &jsonObject)
 {
     bool result = false;
-    this->clear();
-
-    //
-    // get type, determine index & invoke setCurrentIndex on combobox
-    //
-
-    QString type;
-    if (jsonObject.contains("type")) {
-        QJsonValue theName = jsonObject["type"];
-        type = theName.toString();
-    } else
-        return false;
-
-    int index = 0;
-    if (type == QString("SimCenterSIM")) {
-       index = 2;
-    } else if (type == QString("OpenSeesInput")) {
-       index = 1;
-    } else if (type == QString("MDOF_BuildingModel")) {
-       index = 0;
-    } else {
-        return false;
-    }
-
-    bimSelection->setCurrentIndex(index);
-
-    // if worked, just invoke method on new type
-
     if (bimInput != 0) {
-        result = bimInput->inputFromJSON(jsonObject);
+        result =  bimInput->inputFromJSON(jsonObject);
+        if (result == false) {
+            qDebug() << "SIM_Selection inputFromJSON failed in object " << bimSelection->currentText();
+        } else
+            return true;
     }
 
     return result;
@@ -197,10 +173,37 @@ SIM_Selection::outputAppDataToJSON(QJsonObject &jsonObject)
 bool
 SIM_Selection::inputAppDataFromJSON(QJsonObject &jsonObject)
 {
-    bool result = true;
+    bool result = false;
+    this->clear();
+
+    //
+    // get type, determine index & invoke setCurrentIndex on combobox
+    //
+
+    QString type;
+    if (jsonObject.contains("Application")) {
+        QJsonValue theName = jsonObject["Application"];
+        type = theName.toString();
+    } else
+        return false;
+
+    int index = 0;
+    if (type == QString("SimCenterSIM")) {
+       index = 2;
+    } else if (type == QString("OpenSeesInput")) {
+       index = 1;
+    } else if (type == QString("MDOF_BuildingModel")) {
+       index = 0;
+    } else {
+        return false;
+    }
+
+    bimSelection->setCurrentIndex(index);
 
     if (bimInput != 0) {
         result = bimInput->inputAppDataFromJSON(jsonObject);
+        if (result == false)
+            qDebug() << "SIM_SELECTION: failed inputAppData type, index: " << type << " " << index;
     }
 
     return result;
