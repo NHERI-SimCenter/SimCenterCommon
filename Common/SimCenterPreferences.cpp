@@ -381,7 +381,7 @@ SimCenterPreferences::resetPreferences(bool) {
     else
       remoteAppName = QString("simcenter-dakota-1.0.0u1");
 
-    settingsApplication.setValue("remoteAgaveApp-June2019", remoteAppName);
+    settingsApplication.setValue("remoteAgaveApp-Sept2019", remoteAppName);
     remoteAgaveApp->setText(remoteAppName);
 }
 
@@ -438,7 +438,7 @@ SimCenterPreferences::loadPreferences() {
     }
 
     // remoteAppDir NOT quite as before as need to allow future releases to bring new ones
-    QVariant  remoteAppDirVariant = settingsApplication.value("remoteAppDir-June2019");
+    QVariant  remoteAppDirVariant = settingsApplication.value("remoteAppDir-Sept2019");
     if (!remoteAppDirVariant.isValid()) {
       QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/Sept-2019");
       settingsApplication.setValue("remoteAppDir-JUne2019", remoteAppDirLocation);
@@ -447,10 +447,10 @@ SimCenterPreferences::loadPreferences() {
         remoteAppDir->setText(remoteAppDirVariant.toString());
     }
 
-    QVariant  remoteAppNameVariant = settingsApplication.value("remoteAgaveApp-June2019");
+    QVariant  remoteAppNameVariant = settingsApplication.value("remoteAgaveApp-Sept2019");
     if (!remoteAppNameVariant.isValid()) {
       QString remoteAppName = QString("simcenter-dakota-1.0.0u1");
-      settingsApplication.setValue("remoteAgaveApp-June2019", remoteAppName);
+      settingsApplication.setValue("remoteAgaveApp-Sept2019", remoteAppName);
       remoteAgaveApp->setText(remoteAppName);
     } else {
         remoteAgaveApp->setText(remoteAppNameVariant.toString());
@@ -500,12 +500,12 @@ QString
 SimCenterPreferences::getRemoteAppDir(void) {
 
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
-    QVariant  remoteAppDirVariant = settingsApplication.value("remoteAppDir-June2019");
+    QVariant  remoteAppDirVariant = settingsApplication.value("remoteAppDir-Sept2019");
 
     // if not set, use default & set default as application directory
     if (!remoteAppDirVariant.isValid()) {
       QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/Sept-2019");
-      settingsApplication.setValue("remoteAppDir-June2019", remoteAppDirLocation);
+      settingsApplication.setValue("remoteAppDir-Sept2019", remoteAppDirLocation);
       return remoteAppDirLocation;
     } 
     
@@ -516,7 +516,7 @@ QString
 SimCenterPreferences::getRemoteAgaveApp(void) {
 
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
-    QVariant  remoteAppNameVariant = settingsApplication.value("remoteAgaveApp-June2019");
+    QVariant  remoteAppNameVariant = settingsApplication.value("remoteAgaveApp-Sept2019");
 
     // if not set, use default & set default as application directory
     if (!remoteAppNameVariant.isValid()) {
@@ -526,7 +526,7 @@ SimCenterPreferences::getRemoteAgaveApp(void) {
       else
 	remoteAppName = QString("simcenter-dakota-1.0.0u1");
 
-      settingsApplication.setValue("remoteAgaveApp-June2019", remoteAppName);
+      settingsApplication.setValue("remoteAgaveApp-Sept2019", remoteAppName);
       return remoteAppName;
     } 
     
