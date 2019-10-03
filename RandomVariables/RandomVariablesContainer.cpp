@@ -199,7 +199,6 @@ RandomVariablesContainer::makeRV(void)
 
     flag_for_correlationMatrix=0;
 
-
     /********************* moving to sampling method input ***************************
     QCheckBox *checkbox =new QCheckBox("Sobolev Index", this);
     connect(checkbox,SIGNAL(clicked(bool)),this,SLOT(addSobolevIndices(bool)));
@@ -213,8 +212,8 @@ RandomVariablesContainer::makeRV(void)
     titleLayout->addWidget(removeRV);
     titleLayout->addItem(spacer3);
 
-   //FMK
-    titleLayout->addWidget(addCorrelation,0,Qt::AlignTop);
+    //FMK - removing correlation matrix
+    // titleLayout->addWidget(addCorrelation,0,Qt::AlignTop);
 
 
     //titleLayout->addItem(spacer4);

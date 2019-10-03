@@ -131,7 +131,7 @@ GlWidget2D::drawBuffers()
 }
 
 void
-GlWidget2D::drawPoint(int tag, float x1, float y1, int numPixels, float r, float g, float b)
+GlWidget2D::drawPoint(int tag, float x1, float y1, int numPixels, float r, float g, float b, float w, float h)
 {
 
     numPoint++;
@@ -216,7 +216,7 @@ void GlWidget2D::drawText(int tag, float x1, float y1, char *text, float r, floa
 }
 
 void
-GlWidget2D::drawLine(int tag, float x1, float y1, float x2, float y2, float thick, float r, float g, float b)
+GlWidget2D::drawLine(int tag, float x1, float y1, float x2, float y2, float thick, float r, float g, float b, float w)
 {
 
     numLine++;

@@ -60,8 +60,13 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 using namespace std;
 #include <QGridLayout>
 #include <SpreadsheetWidget.h>
-//#include <GlWidget2D.h>
-#include <GraphicView2D.h>
+#ifdef _GRAPHICS_Qt3D
+   #include <GraphicView2D.h>
+#else
+#include <GlWidget2D.h>
+#endif
+
+
 
 #include <QHeaderView>
 #include <RandomVariable.h>
@@ -345,10 +350,18 @@ MDOF_BuildingModel::MDOF_BuildingModel(RandomVariablesContainer *theRandomVariab
 
     inputLayout->addStretch();
     theView = 0;
+
+#ifdef _GRAPHICS_Qt3D
+   theView = new GraphicView2D();
+#else
+    theView = new GlWidget2D();
+    theView->setController(this);
+#endif
+
     //theView = new GlWidget2D();
     //theView->setController(this);
 
-   theView = new GraphicView2D();
+
    //  theView->setMinimumHeight(250);
    //  theView->setMinimumWidth(250);
 
@@ -526,7 +539,9 @@ MDOF_BuildingModel::on_inFloors_editingFinished()
 
     if (theView != 0) {
         this->draw();
-       // theView->update();
+#ifndef _GRAPHICS_Qt3D
+        theView->update();
+#endif
     }
 
 }
@@ -1616,8 +1631,10 @@ MDOF_BuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
          }
      }
      theView->drawLine(0, -10., 0.0, 10., 0.0, 1.0, 0., 0., 0.);
-
-   // theView->drawBuffers();
+#ifndef _GRAPHICS_Qt3D
+        theView->drawBuffers();
+#endif
+   //
  }
 
  void

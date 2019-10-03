@@ -52,6 +52,7 @@ class InputWidgetParameters;
 class RandomVariablesContainer;
 class QTableWidget;
 class GraphicView2D;
+class GlWidget2D;
 
 class MDOF_BuildingModel : public SimCenterAppWidget, public Controller2D
 {
@@ -182,7 +183,13 @@ private:
     double *storyHeights;
 
     int fMinSelected, fMaxSelected, sMinSelected,sMaxSelected,floorSelected, storySelected;
+
+#ifdef _GRAPHICS_Qt3D
     GraphicView2D *theView;
+#else
+     GlWidget2D *theView;
+#endif
+
 };
 
 #endif // MDOF_BUILDING_MODEL_H

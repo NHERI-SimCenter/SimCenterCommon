@@ -9,7 +9,7 @@ ImportanceSamplingInputWidget::ImportanceSamplingInputWidget(QWidget *parent) : 
 
     // create layout label and entry for # samples
     numSamples = new QLineEdit();
-    numSamples->setText(tr("16"));
+    numSamples->setText(tr("500"));
     numSamples->setValidator(new QIntValidator);
     numSamples->setToolTip("Specify the number of samples");
 
@@ -78,5 +78,5 @@ bool ImportanceSamplingInputWidget::inputFromJSON(QJsonObject &jsonObject)
 
 int ImportanceSamplingInputWidget::getNumberTasks()
 {
-    return 0;
+    return numSamples->text().toInt();
 }
