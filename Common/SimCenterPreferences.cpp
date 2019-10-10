@@ -377,7 +377,7 @@ SimCenterPreferences::resetPreferences(bool) {
 
     QString remoteAppName;
     if (QCoreApplication::applicationName() == QString("WE-UQ")) 
-      remoteAppName = QString("simcenter-openfoam-dakota-1.0.0u1");
+      remoteAppName = QString("simcenter-openfoam-dakota-1.1.0u1");
     else
       remoteAppName = QString("simcenter-dakota-1.0.0u1");
 
@@ -441,7 +441,7 @@ SimCenterPreferences::loadPreferences() {
     QVariant  remoteAppDirVariant = settingsApplication.value("remoteAppDir-Sept2019");
     if (!remoteAppDirVariant.isValid()) {
       QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/Sept-2019");
-      settingsApplication.setValue("remoteAppDir-JUne2019", remoteAppDirLocation);
+      settingsApplication.setValue("remoteAppDir-Sept2019", remoteAppDirLocation);
       remoteAppDir->setText(remoteAppDirLocation);
     } else {
         remoteAppDir->setText(remoteAppDirVariant.toString());
@@ -522,7 +522,7 @@ SimCenterPreferences::getRemoteAgaveApp(void) {
     if (!remoteAppNameVariant.isValid()) {
       QString remoteAppName;
       if (QCoreApplication::applicationName() == QString("WE-UQ")) 
-	remoteAppName = QString("simcenter-openfoam-dakota-1.0.0u1");
+    remoteAppName = QString("simcenter-openfoam-dakota-1.1.0u1");
       else
 	remoteAppName = QString("simcenter-dakota-1.0.0u1");
 
