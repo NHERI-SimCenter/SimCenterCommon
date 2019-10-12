@@ -50,6 +50,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QCoreApplication>
+#include <QFileInfo>
 
 SimCenterPreferences *
 SimCenterPreferences::getInstance(QWidget *parent) {
@@ -351,7 +352,14 @@ SimCenterPreferences::resetPreferences(bool) {
 #ifdef Q_OS_WIN
     QString pythonPath = QStandardPaths::findExecutable("python.exe");
 #else
-    QString pythonPath = QStandardPaths::findExecutable("python");
+    QString pythonPath = QStandardPaths::findExecutable("python3");
+    if (pythonPath.isEmpty()) {
+        QFileInfo localPython3("/usr/local/bin/python3");
+        if (localPython3.exists())
+            pythonPath = localPython3.filePath();
+        else
+            pythonPath = QStandardPaths::findExecutable("python");
+    }
 #endif
     settingsCommon.setValue("pythonExePath", pythonPath);
     python->setText(pythonPath);
