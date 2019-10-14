@@ -55,7 +55,8 @@ public:
     explicit LocalApplication(QString workflowScriptName, QWidget *parent = nullptr);
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
-    bool setupDoneRunApplication(QString &tmpDirectory, QString &inputFile);
+    bool setupDoneRunApplication(QString &tmpDirectory, QString &inputFile,
+                                 QString runType = QString("run"));
     void displayed(void);
 
 signals:
