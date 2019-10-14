@@ -47,10 +47,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QFileDialog>
 #include <QPushButton>
 #include <sectiontitle.h>
-#include <InputWidgetSheetSIM.h>
 
 #include <SimCenterWidget.h>
-//#include <InputWidgetSheetSIM.h>
+
 #include <OpenSeesBuildingModel.h>
 #include <MDOF_BuildingModel.h>
 
@@ -236,14 +235,11 @@ void SIM_Selection::bimSelectionChanged(const QString &arg1)
     //
     // note type output in json and name in pull down are not the same and hence the ||
     //
-/*
-    if (arg1 == QString("Spreadsheet") || arg1 == QString("SimCenterSIM")) {
-        delete bimInput;
-        bimInput = new InputWidgetSheetSIM(theRandomVariablesContainer);
 
-    } else
-        */
-        if (arg1 == QString("OpenSees") || (arg1 == QString("OpenSeesInput"))) {
+
+
+    if (arg1 == QString("OpenSees") || (arg1 == QString("OpenSeesInput"))) {
+
         delete bimInput;
         bimInput = new OpenSeesBuildingModel(theRandomVariablesContainer, includeCentroid);
     } else if (arg1 == QString("MDOF") || (arg1 == QString("MDOF_BuildingModel"))) {

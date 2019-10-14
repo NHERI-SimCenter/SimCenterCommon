@@ -27,6 +27,10 @@ macx{
     }
 }
 
-unix:!macx{
-    LIBS+="/usr/lib/x86_64-linux-gnu/libjansson.a"
-}
+SOURCES += \
+$$PWD/GeneralInformationWidget.cpp
+
+HEADERS += \
+$$PWD/GeneralInformationWidget.h
+
+
