@@ -50,6 +50,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QCoreApplication>
+#include <QFileInfo>
 
 SimCenterPreferences *
 SimCenterPreferences::getInstance(QWidget *parent) {
@@ -351,7 +352,14 @@ SimCenterPreferences::resetPreferences(bool) {
 #ifdef Q_OS_WIN
     QString pythonPath = QStandardPaths::findExecutable("python.exe");
 #else
-    QString pythonPath = QStandardPaths::findExecutable("python");
+    QString pythonPath = QStandardPaths::findExecutable("python3");
+    if (pythonPath.isEmpty()) {
+        QFileInfo localPython3("/usr/local/bin/python3");
+        if (localPython3.exists())
+            pythonPath = localPython3.filePath();
+        else
+            pythonPath = QStandardPaths::findExecutable("python");
+    }
 #endif
     settingsCommon.setValue("pythonExePath", pythonPath);
     python->setText(pythonPath);
@@ -377,7 +385,7 @@ SimCenterPreferences::resetPreferences(bool) {
 
     QString remoteAppName;
     if (QCoreApplication::applicationName() == QString("WE-UQ")) 
-      remoteAppName = QString("simcenter-openfoam-dakota-1.0.0u1");
+      remoteAppName = QString("simcenter-openfoam-dakota-1.1.0u1");
     else
       remoteAppName = QString("simcenter-dakota-1.0.0u1");
 
@@ -441,7 +449,7 @@ SimCenterPreferences::loadPreferences() {
     QVariant  remoteAppDirVariant = settingsApplication.value("remoteAppDir-Sept2019");
     if (!remoteAppDirVariant.isValid()) {
       QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/Sept-2019");
-      settingsApplication.setValue("remoteAppDir-JUne2019", remoteAppDirLocation);
+      settingsApplication.setValue("remoteAppDir-Sept2019", remoteAppDirLocation);
       remoteAppDir->setText(remoteAppDirLocation);
     } else {
         remoteAppDir->setText(remoteAppDirVariant.toString());
@@ -522,7 +530,7 @@ SimCenterPreferences::getRemoteAgaveApp(void) {
     if (!remoteAppNameVariant.isValid()) {
       QString remoteAppName;
       if (QCoreApplication::applicationName() == QString("WE-UQ")) 
-	remoteAppName = QString("simcenter-openfoam-dakota-1.0.0u1");
+    remoteAppName = QString("simcenter-openfoam-dakota-1.1.0u1");
       else
 	remoteAppName = QString("simcenter-dakota-1.0.0u1");
 

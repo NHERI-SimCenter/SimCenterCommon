@@ -213,7 +213,7 @@ MDOF_BuildingModel::MDOF_BuildingModel(RandomVariablesContainer *theRandomVariab
     Ky ="100.0";
     Fyy = "10.0";
     by = "0.1";
-    K_theta = "1e6";
+    K_theta = "1e15";
 
     QHBoxLayout *layout = new QHBoxLayout();
 
