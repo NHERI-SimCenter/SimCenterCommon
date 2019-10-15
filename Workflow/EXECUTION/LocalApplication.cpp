@@ -135,7 +135,7 @@ LocalApplication::onRunButtonPressed(void)
 //
 
 bool
-LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile) {
+LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile, QString runType) {
 
   QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
   qDebug() << "ENVIRONMENT " << env.toStringList();
@@ -194,7 +194,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 #ifdef Q_OS_WIN
     python = QString("\"") + python + QString("\"");
     qDebug() << python;
-    QStringList args{pySCRIPT, "run",inputFile,registryFile};
+    QStringList args{pySCRIPT, runType, inputFile, registryFile};
     qDebug() << args;
 
     proc->setProcessChannelMode(QProcess::SeparateChannels);
@@ -231,7 +231,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     // note the above not working under linux because basrc not being called so no env variables!!
 
     QString command = QString("source $HOME/.bash_profile; \"") + python + QString("\" \"" ) + 
-      pySCRIPT + QString("\" run \"") + inputFile + QString("\" \"") + registryFile + QString("\"");
+      pySCRIPT + runType + inputFile + QString("\" \"") + registryFile + QString("\"");
 
     QDebug debug = qDebug();
     debug.noquote();
