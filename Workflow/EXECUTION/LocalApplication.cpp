@@ -228,10 +228,10 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     qDebug().noquote() << proc->readAllStandardOutput();
     qDebug().noquote() << proc->readAllStandardError();
 #else
-    // note the above not working under linux because basrc not being called so no env variables!!
 
+    // note the above not working under linux because bash_profile not being called so no env variables!!
     QString command = QString("source $HOME/.bash_profile; \"") + python + QString("\" \"" ) + 
-      pySCRIPT + runType + inputFile + QString("\" \"") + registryFile + QString("\"");
+      pySCRIPT + QString("\" " ) + runType + QString(" \"" ) + inputFile + QString("\" \"") + registryFile + QString("\"");
 
     QDebug debug = qDebug();
     debug.noquote();
