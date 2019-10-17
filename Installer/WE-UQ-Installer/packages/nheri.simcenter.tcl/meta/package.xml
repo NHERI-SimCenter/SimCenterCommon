@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package>
+    <DisplayName>ActiveTcl x64 8.6.9</DisplayName>
+    <Description>A Tcl distribution from ActiveTCL</Description>
+    <Version>8.6.9</Version>
+    <ReleaseDate>2019-09-06</ReleaseDate>
+    <Script>installTcl.qs</Script>
+    <Default>false</Default>
+    <AutoDependOn>nheri.simcenter.opensees</AutoDependOn>
+    <SortingPriority>10</SortingPriority>
+</Package>

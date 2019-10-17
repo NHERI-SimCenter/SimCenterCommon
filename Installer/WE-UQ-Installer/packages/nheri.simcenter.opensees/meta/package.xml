@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package>
+    <DisplayName>OpenSees</DisplayName>
+    <Description>Install an OpenSees binary</Description>
+    <Version>3.0.3</Version>
+    <ReleaseDate>2019-09-06</ReleaseDate>
+    <Licenses>
+        <License name="OpenSees License Agreement" file="license.txt" />
+    </Licenses>
+    <Dependencies>nheri.simcenter.tcl</Dependencies>
+    <RequiresAdminRights>true</RequiresAdminRights>
+    <Default>true</Default>
+    <Script>installOpenSees.qs</Script>
+    <SortingPriority>50</SortingPriority>
+</Package>
