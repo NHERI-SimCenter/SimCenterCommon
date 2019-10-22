@@ -6,6 +6,6 @@ Component.prototype.createOperations = function()
 
     if (systemInfo.productType === "windows")
     {
-        component.addOperation("CreateShortcut", "@TargetDir@/TurbulentInflowTool.exe", "@StartMenuDir@/Turbulent Inflow Tool.lnk", "workingDirectory=@TargetDir@", "description=Start SimCenter Turbulent Inflow Tool");
+        component.addOperation("CreateShortcut", "@TargetDir@/TurbulenceInflowTool.exe", "@StartMenuDir@/Turbulence Inflow Tool.lnk", "workingDirectory=@TargetDir@", "description=Start SimCenter Turbulence Inflow Tool");
     }
 }
