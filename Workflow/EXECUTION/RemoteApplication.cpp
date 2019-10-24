@@ -190,7 +190,7 @@ RemoteApplication::onRunButtonPressed(void)
 //
 
 bool
-RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile) {
+RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile, QString runType) {
 
      //    QString appDir = localAppDirName->text();
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
