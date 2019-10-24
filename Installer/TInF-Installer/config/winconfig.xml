@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Installer>
-    <Name>Turbulent Inflow Tool</Name>
-    <Version>1.0.0</Version>
-    <Title>Turbulent Inflow Tool Installer</Title>
+    <Name>Turbulence Inflow Tool</Name>
+    <Version>1.0.2</Version>
+    <Title>Turbulence Inflow Tool Installer</Title>
     <Publisher>NHERI SimCenter</Publisher>
-    <ProductUrl>https://simcenter.designsafe-ci.org/learning-tools/pile-group-tool</ProductUrl>
+    <ProductUrl>https://simcenter.designsafe-ci.org/research-tools/tinf/</ProductUrl>
     <InstallerApplicationIcon>NHERI-TInF-icon</InstallerApplicationIcon>
     <InstallerWindowIcon>NHERI-TInF-icon</InstallerWindowIcon>
-    <Logo>NHERI-TInF-icon.png</Logo>
-    <Background>TInFInstallerLogo.bmp</Background>
+    <Watermark>TInFInstallerLogo.bmp</Watermark>
     <WizardStyle>Modern</WizardStyle>
-    <StartMenuDir>SimCenter Apps\Turbulent Inflow Tool</StartMenuDir>
+    <StartMenuDir>SimCenter Apps\Turbulence Inflow Tool</StartMenuDir>
     <TargetDir>@HomeDir@/Applications/SimCenterTools/TInF</TargetDir>
 </Installer>

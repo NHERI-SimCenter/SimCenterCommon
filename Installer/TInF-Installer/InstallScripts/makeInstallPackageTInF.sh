@@ -4,8 +4,9 @@
 # set system specific configuration
 #
 
-APP=TurbulentInflowTool
-SOURCEDIR=../../../TurbulentInflowTool
+APP=TurbulenceInflowTool
+SOURCEDIR=../../../TurbulenceInflowTool
+VERSION=v1.0.2
 
 QT_DEPLOY=/Users/pmackenz/Qt/5.13.1/clang_64/bin/macdeployqt
 #
@@ -47,7 +48,7 @@ then
 	else
 
 	    echo
-	    echo "*** Build Release version of TurbulentInflowTool before running this script. ***"
+	    echo "*** Build Release version of TurbulenceInflowTool before running this script. ***"
 	    echo
 	    exit 1
 
@@ -62,7 +63,7 @@ then
 		-c config/macconfig.xml \
 		-p packages \
 		--offline-only \
-		TInF-installer.dmg
+		TInF-MacOS_installer-${VERSION}.dmg
 
 	echo done.
 
