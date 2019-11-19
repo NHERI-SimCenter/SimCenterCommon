@@ -45,79 +45,96 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <RandomVariablesContainer.h>
 #include <SimCenterWidget.h>
 
+#include "SimCenterComboBox.h"
+#include "SimCenterRVLineEdit.h"
+#include "SimCenterFileInput.h"
+
+namespace JsonWidget {
+  enum class Type { ComboBox, RVLineEdit, FileInput, ForkComboBox};
+}
+
 class JsonConfiguredWidget : public SimCenterWidget {
   Q_OBJECT
-  
- public:
+
+public:
   /**
    * @constructor Create new JsonConfiguredWidget
    * @param[in, out] random_variables Widget to store random variables to
    * @param[in] configFile String specifying config file location
    * @param[in] parent Parent widget. Defaults to null pointer
    */
-  JsonConfiguredWidget(RandomVariablesContainer* random_variables, QWidget * parent = nullptr);
+  JsonConfiguredWidget(RandomVariablesContainer *random_variables,
+                       QWidget *parent = nullptr);
 
   /**
    * @destructor Default destructor
    */
-  virtual ~JsonConfiguredWidget() {};
+  virtual ~JsonConfiguredWidget(){};
 
   /**
    * Instantiate widget generator from input JSON object
    * @param[in] rvObject JSON object containing input information
    * @return Returns true if successful, false otherwise
    */
-  bool inputFromJSON(QJsonObject& rvObject) override;
+  bool inputFromJSON(QJsonObject &rvObject) override;
 
   /**
    * Write all current class data to JSON required to reconstruct class
    * @param[in, out] rvObject JSON object to write output to
    * @return Returns true if successful, false otherwise
    */
-  bool outputToJSON(QJsonObject& rvObject) override;
-
+  bool outputToJSON(QJsonObject &rvObject) override;
 
   /**
    * Set config file based on user selection
    */
-  void chooseConfigFile();  
+  void chooseConfigFile();
 
- protected:
+  /**
+   * Get enum based on input string
+   * @param[in] inputString String that should be converted to enum
+   * @return Enum corresponding to input string
+   */
+  JsonWidget::Type getEnumIndex(const QString& inputString) const;
+
+protected:
   /**
    * Initialize the widget based on configuration specified in input config file
    * @param[in] configFile JSON configuration file specifying widget layout
    */
-  virtual void initialize(const QString& configFile);
+  virtual void initialize(const QString &configFile);
 
   /**
    * Generate widget based on input JSON object
    * @param[in] inputObject JSON object describing widget to be generated
    * @return Pointer to generated widget
    */
-  SimCenterWidget* generateWidget(const QJsonObject& inputObject) const;
+  QStackedWidget *generateStackedWidget(const QJsonObject &inputObject) const;
 
   /**
    * Generate combo box based on input JSON object
    * @param[in] inputObject JSON object describing combo box to be generated
    * @return Pointer to generated combo box
    */
-  QComboBox* generateComboBox(const QJsonObject& inputObject) const;
+  SimCenterWidget *generateComboBox(const QJsonObject &inputObject) const;
 
   /**
    * Generate random variable line edit based on input JSON object
-   * @param[in] inputObject JSON object describing random variable line edit to be generated
+   * @param[in] inputObject JSON object describing random variable line edit to
+   * be generated
    * @return Pointer to generated random variable line edit
    */
-  LineEditRV* generateRVLineEdit(const QJsonObject& inputObject) const;
+  SimCenterWidget *generateRVLineEdit(const QJsonObject &inputObject) const;
 
   /**
    * Generate line edit for opening input files based on input JSON object
-   * @param[in] inputObject JSON object describing file line edit to be generated
+   * @param[in] inputObject JSON object describing file line edit to be
+   * generated
    * @return Pointer to generated file line edit
    */
-  QLineEdit* generateFileInput(const QJsonObject& inputObject) const;
+  SimCenterWidget *generateFileInput(const QJsonObject &inputObject) const;
 
-  QLineEdit* theConfigFile; /**< Path to file specifying widget configuration */ 
+  QLineEdit *theConfigFile; /**< Path to file specifying widget configuration */
   RandomVariablesContainer *theRVInputWidget; /**< Widget for inputting random
                                                 variables */
   QStackedWidget *theStackedWidget; /**< Stacked widget containing inputs

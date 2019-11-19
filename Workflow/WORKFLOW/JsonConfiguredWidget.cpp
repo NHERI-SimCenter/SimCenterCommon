@@ -36,6 +36,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: Michael Gardner
 
+#include <exception>
+#include <unordered_map>
+
 #include <QComboBox>
 #include <QFile>
 #include <QFileDialog>
@@ -60,14 +63,17 @@ JsonConfiguredWidget::JsonConfiguredWidget(
   // Add file selection widget
   QHBoxLayout * theConfigFileLayout = new QHBoxLayout();
   QLabel * configFileLabel = new QLabel();
-  label->setText(tr("Configuration Input File"));
+  configFileLabel->setText(tr("Configuration Input File"));
   theConfigFile = new QLineEdit();
   theConfigFile->setToolTip(tr("User-provided JSON file specifying input layout"));
   QPushButton * chooseFile = new QPushButton();
   chooseFile->setText(tr("Choose"));
   theConfigFileLayout->addWidget(configFileLabel);
   theConfigFileLayout->addWidget(theConfigFile);
+  theConfigFileLayout->addWidget(chooseFile);
   connect(chooseFile, SIGNAL(clicked(bool)), this, SLOT(chooseConfigFile()));
+
+  theStackedWidget = new QStackedWidget();
 }
 
 bool JsonConfiguredWidget::inputFromJSON(QJsonObject& rvObject) {}
@@ -82,6 +88,25 @@ void JsonConfiguredWidget::chooseConfigFile() {
   initialize(fileName);
 }
 
+JsonWidget::Type JsonConfiguredWidget::getEnumIndex(const QString& inputString) const {
+  static std::unordered_map<QString, JsonWidget::Type> stringToEnum{
+      {"ComboBox", JsonWidget::Type::ComboBox},
+      {"RVLineEdit", JsonWidget::Type::RVLineEdit},
+      {"FileInput", JsonWidget::Type::FileInput},
+      {"ForkComboBox", JsonWidget::Type::ForkComboBox}};
+
+  auto enumValue = stringToEnum.find(inputString);
+
+  if (enumValue != stringToEnum.end()) {
+    return enumValue->second;
+  } else {
+    qDebug() << "ERROR: JsonConfiguredWidget::getEnumIndex: Input string not "
+                "recognized, check input JSON config file!";
+    throw std::invalid_argument("ERROR: JsonConfiguredWidget::getEnumIndex: "
+                                "Check input JSON configuration!");
+  }
+}
+
 void JsonConfiguredWidget::initialize(const QString& configFile) {
   QFile configuration(configFile);
   QJsonObject inputConfig;
@@ -94,4 +119,57 @@ void JsonConfiguredWidget::initialize(const QString& configFile) {
     qDebug() << "ERROR: JsonConfiguredWidget::initialize: Failed to open input "
                 "configuration file!";
   }
+
+  auto oldStackedWidget = theStackedWidget;
+  theStackedWidget = generateStackedWidget(inputConfig);
+  delete oldStackedWidget;
+
+  // CONTINUE HERE WHEN DONE WITH WIDGET GENERATION FUNCTIONS
+}
+
+QStackedWidget* JsonConfiguredWidget::generateStackedWidget(
+    const QJsonObject &inputObject) {
+
+  auto stackedWidget = new QStackedWidget();
+  
+  try {
+    switch (getEnumIndex(inputObject["type"])) {
+    case JsonWidget::Type::ComboBox:
+      stackedWidget->addWidget(generateComboBox(inputObject));
+      return stackedWidget;
+
+    case JsonWidget::Type::RVLineEdit:
+      stackedWidget->addWidget(generateRVLineEdit(inputObject));
+      return stackedWidget;
+      
+    case JsonWidget::Type::FileInput: {
+      stackedWidget->addWidget(generageFileInput(inputObject));
+      return stackedWidget;
+    }
+      
+    case JsonWidget::Type::ForkComboBox:
+      stackedWidget->addWidget(generateStackedWidget(inputObject));
+      return stackedWidget;
+    }
+  } catch (const std::exception &e) {
+    std::cout << "\nERROR: In JsonConfiguredWidget::generateStackedWidget: An "
+                 "exception was caught while generating widgets based on the "
+                 "input configuration file: "
+              << e.what();
+  }
+}
+
+SimCenterWidget *
+JsonConfiguredWidget::generateComboBox(const QJsonValue &inputObject) const {
+  return new SimCenterComboBox(inputObject);
+}
+
+SimCenterWidget *
+JsonConfiguredWidget::generateRVLineEdit(const QJsonObject &inputObject) const {
+  return new SimCenterLineEditRV(theRVInputWidget, inputObject);
+}
+
+SimCenterWidget *
+JsonConfiguredWidget::generateFileInput(const QJsonObject &inputObject) const {
+  return new SimCenterFileInput(inputObject);
 }
