@@ -1,6 +1,6 @@
-The SimCenter Turbulent Inflow Tool, in source and binary forms, are copyright "The Regents of the University of California".
+The SimCenter Turbulence Inflow Tool, in source and binary forms, are copyright "The Regents of the University of California".
 
-The SimCenter TurbulentInflowTool Program makes use of the Qt packages (unmodified): core, gui, and network libraries.
+The SimCenter TurbulenceInflowTool Program makes use of the Qt packages (unmodified): core, gui, and network libraries.
 
 Qt is copyright "The Qt Company Ltd" and licensed under the GNU Lesser General Public License (version 3) which references the GNU General Public License (version 3)
 
@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ------------------------------------------------------------------------------------
 
-The SimCenter TurbulentInflowTool Program makes use of the Qt packages (unmodified): core, gui, and network libraries.
+The SimCenter TurbulenceInflowTool Program makes use of the Qt packages (unmodified): core, gui, and network libraries.
 
 Qt is copyright "The Qt Company Ltd" and licensed under the GNU Lesser General Public License (version 3) which references the GNU General Public License (version 3)
 
