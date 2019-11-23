@@ -10,6 +10,7 @@ QT += widgets network
 include($$PWD/Common/common.pri)
 include($$PWD/InputSheetBM/InputSheetBM.pri)
 include($$PWD/RandomVariables/RandomVariables.pri)
+include($$PWD/Workflow/Workflow.pri)
 
 #Builing a library
 TEMPLATE = lib
