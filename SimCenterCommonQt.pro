@@ -4,7 +4,7 @@ CONFIG += conan_basic_setup
 include($$OUT_PWD/conanbuildinfo.pri)
 
 #Adding the widgets and network modules as prerequisites
-QT += widgets network
+QT += widgets network charts
 
 #Include the common pri file
 include($$PWD/Common/common.pri)
