@@ -1,5 +1,5 @@
-#ifndef 	INPUT_WIDGET_UQ_H
-#define 	INPUT_WIDGET_UQ_H
+#ifndef UQ_ENGINE_H
+#define UQ_ENGINE_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -39,38 +39,30 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <QWidget>
+#include <SimCenterAppWidget.h>
 
-class QTabWidget;
+class UQ_Results;
 class RandomVariablesContainer;
-class UQ_EngineSelection;
-class QVBoxLayout;
-class QGroupBox;
 
-
-class InputWidgetUQ : public QWidget
+class UQ_Engine : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
-  explicit InputWidgetUQ(UQ_EngineSelection *, RandomVariablesContainer *, QWidget *parent = 0);
-    ~InputWidgetUQ();
+    explicit UQ_Engine(QWidget *parent = 0);
+    virtual ~UQ_Engine();
+
+    virtual int getMaxNumParallelTasks(void) =0;
+    virtual int processResults(QString &filenameResults, QString &filenameTab) =0;
+    virtual RandomVariablesContainer *getParameters() =0;
+    virtual UQ_Results *getResults(void) = 0;
+    virtual QString getProcessingScript();
 
 signals:
 
 public slots:
 
-
-signals:
-
 private:
-    QTabWidget *theTab;
-    RandomVariablesContainer *theRVs;
-    UQ_EngineSelection *theUQ;
 
-    QVBoxLayout *layout;
-    QGroupBox *rvGroupBox;
-} ; 
+};
 
-#endif
-
-
+#endif // UQ_ENGINE_H

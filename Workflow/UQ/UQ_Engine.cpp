@@ -1,5 +1,4 @@
-#ifndef 	INPUT_WIDGET_UQ_H
-#define 	INPUT_WIDGET_UQ_H
+// Written: fmckenna
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -39,38 +38,29 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <QWidget>
-
-class QTabWidget;
-class RandomVariablesContainer;
-class UQ_EngineSelection;
-class QVBoxLayout;
-class QGroupBox;
+#include "UQ_Engine.h"
 
 
-class InputWidgetUQ : public QWidget
+
+UQ_Engine::UQ_Engine(QWidget *parent)
+: SimCenterAppWidget(parent)
 {
-    Q_OBJECT
-public:
-  explicit InputWidgetUQ(UQ_EngineSelection *, RandomVariablesContainer *, QWidget *parent = 0);
-    ~InputWidgetUQ();
 
-signals:
+}
 
-public slots:
+UQ_Engine::~UQ_Engine()
+{
+
+}
 
 
-signals:
+QString
+UQ_Engine::getProcessingScript() {
+    return QString("UNKNOWN.py");
+}
 
-private:
-    QTabWidget *theTab;
-    RandomVariablesContainer *theRVs;
-    UQ_EngineSelection *theUQ;
 
-    QVBoxLayout *layout;
-    QGroupBox *rvGroupBox;
-} ; 
 
-#endif
+
 
 

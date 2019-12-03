@@ -1,5 +1,5 @@
-#ifndef 	INPUT_WIDGET_UQ_H
-#define 	INPUT_WIDGET_UQ_H
+#ifndef UQ_ENGINE_SELECTION_H
+#define UQ_ENGINE_SELECTION_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -39,38 +39,53 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <QWidget>
+#include <SimCenterAppWidget.h>
 
-class QTabWidget;
+class QComboBox;
+class QStackedWidget;
 class RandomVariablesContainer;
-class UQ_EngineSelection;
-class QVBoxLayout;
-class QGroupBox;
+class UQ_Results;
+class UQ_Engine;
+class RandomVariablesContainer;
 
-
-class InputWidgetUQ : public QWidget
+class UQ_EngineSelection : public  SimCenterAppWidget
 {
-    Q_OBJECT
-public:
-  explicit InputWidgetUQ(UQ_EngineSelection *, RandomVariablesContainer *, QWidget *parent = 0);
-    ~InputWidgetUQ();
+  Q_OBJECT
 
-signals:
+    public:
 
-public slots:
+  explicit UQ_EngineSelection(RandomVariablesContainer *, QWidget *parent = 0);
+  ~UQ_EngineSelection();
 
+  RandomVariablesContainer  *getParameters();
+  UQ_Results  *getResults();
+  UQ_Engine  *getCurrentEngine();
 
-signals:
+  int getNumParallelTasks(void);
+  
+  bool outputAppDataToJSON(QJsonObject &jsonObject);
+  bool inputAppDataFromJSON(QJsonObject &jsonObject);
 
+  bool outputToJSON(QJsonObject &rvObject);
+  bool inputFromJSON(QJsonObject &rvObject);
+  bool copyFiles(QString &destName);
+  
+  void clear(void);
+  
+ signals:
+  void onUQ_EngineChanged(void);
+
+ public slots:
+  void engineSelectionChanged(const QString &arg1);
+  void enginesEngineSelectionChanged(void);
+  
 private:
-    QTabWidget *theTab;
-    RandomVariablesContainer *theRVs;
-    UQ_EngineSelection *theUQ;
+   QComboBox   *theEngineSelectionBox;
+   QStackedWidget *theStackedWidget;
 
-    QVBoxLayout *layout;
-    QGroupBox *rvGroupBox;
-} ; 
+   UQ_Engine *theCurrentEngine;
+   UQ_Engine *theDakotaEngine;
+   UQ_Engine *theUQpyEngine;
+};
 
-#endif
-
-
+#endif // WIND_SELECTION_H

@@ -1,5 +1,5 @@
-#ifndef 	INPUT_WIDGET_UQ_H
-#define 	INPUT_WIDGET_UQ_H
+#ifndef DAKOTA_INPUT_SAMPLING_H
+#define DAKOTA_INPUT_SAMPLING_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -37,40 +37,69 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+#include <UQ_Engine.h>
 
-#include <QWidget>
+#include <QGroupBox>
+#include <QVector>
+#include <QVBoxLayout>
+#include <QComboBox>
+#include <QPushButton>
 
-class QTabWidget;
+class DakotaSamplingResults;
+class DakotaResults;
+class QCheckBox;
 class RandomVariablesContainer;
-class UQ_EngineSelection;
-class QVBoxLayout;
-class QGroupBox;
+class QStackedWidget;
+class UQ_MethodInputWidget;
 
-
-class InputWidgetUQ : public QWidget
+class DakotaInputSampling : public UQ_Engine
 {
     Q_OBJECT
 public:
-  explicit InputWidgetUQ(UQ_EngineSelection *, RandomVariablesContainer *, QWidget *parent = 0);
-    ~InputWidgetUQ();
+  explicit DakotaInputSampling(RandomVariablesContainer *, QWidget *parent = 0);
+    ~DakotaInputSampling();
+
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+    bool outputAppDataToJSON(QJsonObject &rvObject);
+    bool inputAppDataFromJSON(QJsonObject &rvObject);
+
+    int processResults(QString &filenameResults, QString &filenameTab);
+
+    UQ_Results *getResults(void);
+    RandomVariablesContainer  *getParameters();
+
+    int getMaxNumParallelTasks(void);
+
+    QVBoxLayout *mLayout;
 
 signals:
 
 public slots:
-
-
-signals:
+   void clear(void);
+   void onTextChanged(const QString &arg1);
 
 private:
-    QTabWidget *theTab;
-    RandomVariablesContainer *theRVs;
-    UQ_EngineSelection *theUQ;
-
     QVBoxLayout *layout;
-    QGroupBox *rvGroupBox;
-} ; 
+    QWidget     *methodSpecific;
+    QComboBox   *samplingMethod;
+    QLineEdit   *numSamples;
+    QLineEdit   *randomSeed;
+    //    QPushButton *run;
 
-#endif
+    QComboBox   *uqSelection;
+    QWidget     *uqSpecific;
 
+    RandomVariablesContainer *theRandomVariables;
+    DakotaSamplingResults *results;
 
+    QStackedWidget *theStackedWidget;
+    UQ_MethodInputWidget *theCurrentMethod;
+    UQ_MethodInputWidget *theMC;
+    UQ_MethodInputWidget *theLHS;
+    UQ_MethodInputWidget *theIS;
+    UQ_MethodInputWidget *theGP;
+    UQ_MethodInputWidget *thePCE;
+};
+
+#endif // DAKOTA_INPUT_SAMPLING_H

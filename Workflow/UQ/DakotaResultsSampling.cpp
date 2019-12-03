@@ -96,11 +96,11 @@ using namespace QtCharts;
 
 
 
-QLabel *best_fit_label_text;
+static QLabel *best_fit_label_text;
 
 
 DakotaResultsSampling::DakotaResultsSampling(RandomVariablesContainer *theRandomVariables, QWidget *parent)
-  : DakotaResults(parent), theRVs(theRandomVariables)
+  : UQ_Results(parent), theRVs(theRandomVariables)
 {
     // title & add button
     tabWidget = new QTabWidget(this);

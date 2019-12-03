@@ -36,44 +36,102 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include "InputWidgetUQ.h"
-#include <QTabWidget>
+// essentially an abstract class, if no results are available this is the widget that shows up
+
+#include "UQ_Results.h"
+#include <QVBoxLayout>
+#include <QJsonObject>
+#include <UQ_Results.h>
+#include <QMessageBox>
+#include <QDebug>
 #include <RandomVariablesContainer.h>
-#include <UQ_EngineSelection.h>
 
-
-InputWidgetUQ::InputWidgetUQ(UQ_EngineSelection *UQ, RandomVariablesContainer *RV, QWidget *parent)
-    :QWidget(parent),theRVs(RV),theUQ(UQ)
+UQ_Results::UQ_Results(QWidget *parent)
+: SimCenterWidget(parent), resultWidget(0)
 {
     layout = new QVBoxLayout();
-
-    QGroupBox* methodGroupBox = new QGroupBox("UQ Engine", this);
-    QVBoxLayout *methodLayout = new QVBoxLayout();
-    methodLayout->addWidget(UQ);
-    methodGroupBox->setLayout(methodLayout);
-    layout->addWidget(methodGroupBox);
-
-    rvGroupBox = new QGroupBox("Random Variables", this);
-    QVBoxLayout *rvLayout = new QVBoxLayout();
-    rvLayout->addWidget(RV);
-    rvGroupBox->setLayout(rvLayout);
-    layout->addWidget(rvGroupBox, 1.0);
-
-    //layout->addStretch();
-    layout->setMargin(0);
-
+    layout->setContentsMargins(0,0,0,0);
     this->setLayout(layout);
+    resultWidget = 0;
 }
 
-InputWidgetUQ::~InputWidgetUQ()
+UQ_Results::~UQ_Results()
 {
-  //
-  // remove the widget before destructor as causing seg faults on shutdown .. no control over when Qt deletes the things
-  // this is a  memory leak BUT constructor in running pogram is only called once and desctructor once
-  // 
 
-  layout->removeWidget(rvGroupBox);
-  rvGroupBox->setParent(NULL);
 }
 
+
+bool
+UQ_Results::outputToJSON(QJsonObject &jsonObject)
+{
+    QJsonObject uq;
+    bool result = true;
+
+    if (resultWidget != 0) {
+        result = resultWidget->outputToJSON(uq);
+    } else {
+        uq["resultType"]=QString(tr("NONE"));
+    }
+    jsonObject["uqResults"]=uq;
+    return result;
+}
+
+
+bool
+UQ_Results::inputFromJSON(QJsonObject &jsonObject)
+{   
+    bool result = false;
+    if (jsonObject.contains("uqResults")) {
+        QJsonValue uqValue = jsonObject["uqResults"];
+
+        QJsonObject uq = uqValue.toObject();
+        QString resultType = uq["resultType"].toString();
+        UQ_Results *newResultWidget = 0;
+
+        if (resultType == "NONE") {
+          return true; // no results saved
+        }
+
+	if (resultWidget != 0) {
+	  result = resultWidget->inputFromJSON(uq);
+	} else {
+	  emit sendErrorMessage("ERROR: reading Dakota Results - no result widget set!");
+	}
+
+    } else {
+        emit sendErrorMessage("ERROR: Dakota Results - no \"uqResults\" entry");
+        return false;
+    }
+
+
+    // no error if no results .. maybe none actually in file
+    return result;
+}
+
+int 
+UQ_Results::processResults(QString &filenameResults, QString &filenameTab) {
+
+    if (resultWidget != 0)
+        return resultWidget->processResults(filenameResults, filenameTab);
+    else {
+        QMessageBox::warning(this, tr("Application"),
+                             tr("BUG - No Results Set!"));
+
+        return 0;
+    }
+}
+
+void
+UQ_Results::setResultWidget(UQ_Results *result) {
+    if (resultWidget != 0) {
+        layout->removeWidget(resultWidget);
+        delete resultWidget;
+        resultWidget = 0;
+    }
+
+    if (result != 0) {
+        layout->addWidget(result);
+        resultWidget = result;
+    }
+}
 
