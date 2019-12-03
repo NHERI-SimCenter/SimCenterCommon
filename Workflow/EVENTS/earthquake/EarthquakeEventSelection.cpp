@@ -61,7 +61,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <InputWidgetExistingEvent.h>
 #include <ExistingSimCenterEvents.h>
-#include <UniformMotionInput.h>
 #include <ExistingPEER_Events.h>
 #include "SHAMotionWidget.h"
 #include <UserDefinedApplication.h>
