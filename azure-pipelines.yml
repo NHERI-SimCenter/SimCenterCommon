@@ -1,0 +1,64 @@
+# Ant
+# Build your Java projects and run tests with Apache Ant.
+# Add steps that save build artifacts and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+
+trigger:
+- master
+- azure-pipelines
+- release*
+- stable*
+
+pr:
+- master
+
+strategy:
+  matrix:
+    linux:
+      imageName: "ubuntu-18.04"
+      CONAN_GCC_VERSIONS: 7
+      CONAN_CLANG_VERSIONS: ""
+    macHighSierra:
+      imageName: "macos-10.13"
+      CONAN_APPLE_CLANG_VERSIONS: 10.0
+    macMojave:
+      imageName: "macos-10.14"
+      CONAN_APPLE_CLANG_VERSIONS: 11.0
+    windows:
+      imageName: "vs2017-win2016"
+      CONAN_VISUAL_VERSIONS: 15
+  maxParallel: 4
+
+pool:
+  vmImage: $(imageName)
+
+variables:
+  CONAN_USERNAME: "simcenter"
+  CONAN_LOGIN_USERNAME: "elhaddad"
+  CONAN_CHANNEL: "testing"
+  CONAN_UPLOAD: "https://api.bintray.com/conan/nheri-simcenter/simcenter"
+  CONAN_UPLOAD_ONLY_WHEN_STABLE: false
+  CONAN_STABLE_BRANCH_PATTERN: "release/*"
+  
+# Use Python version
+- task: UsePythonVersion@0
+  displayName: Switch to Python 3.7
+  inputs:
+    versionSpec: '3.7' 
+    addToPath: true 
+    architecture: 'x64'
+
+- script: |
+    pip install wheel
+    pip install conan --upgrade
+    pip install conan_package_tools bincrafters_package_tools
+  displayName: Conan Installation
+  failOnStderr: false
+
+- script: |
+    conan user
+    python build.py
+  displayName: Conan Packaging
+  failOnStderr: false
+  env:
+    CONAN_PASSWORD: $(ConanPassword)
