@@ -13,7 +13,8 @@ class CommonConan(ConanFile):
     build_requires = "qt/5.9.8@bincrafters/stable"
     requires = "jansson/2.11@simcenter/stable", "libcurl/7.64.1@bincrafters/stable"
     default_options = {"qt:qtcharts":True, "qt:qt3d":True}
-
+    build_policy = "missing"
+    
     def configure(self):
         if self.settings.os == "Windows":
            self.options["libcurl"].with_winssl = True
