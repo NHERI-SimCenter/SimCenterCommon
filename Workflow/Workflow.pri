@@ -60,24 +60,11 @@ SOURCES += $$PWD/UQ/DakotaResults.cpp \
     $$PWD/EXECUTION/RemoteJobManager.cpp \
     $$PWD/EVENTS/ExistingSimCenterEvents.cpp \
     $$PWD/EVENTS/InputWidgetExistingEvent.cpp \
-    $$PWD/EVENTS/earthquake/EarthquakeEventSelection.cpp \
-    $$PWD/EVENTS/earthquake/ExistingPEER_Events.cpp \
-    $$PWD/EVENTS/earthquake/SHAMotionWidget.cpp \
-    $$PWD/EVENTS/earthquake/StochasticMotionInput/src/StochasticMotionInputWidget.cpp \
-    $$PWD/EVENTS/earthquake/StochasticMotionInput/src/StochasticModelWidget.cpp \
-    $$PWD/EVENTS/earthquake/StochasticMotionInput/src/VlachosEtAlModel.cpp \
-    $$PWD/EVENTS/earthquake/StochasticMotionInput/src/DabaghiDerKiureghianPulse.cpp \
-    $$PWD/EVENTS/earthquake/peerNGA/PeerLoginDialog.cpp \
-    $$PWD/EVENTS/earthquake/peerNGA/PeerNgaRecordsWidget.cpp \
-    $$PWD/EVENTS/earthquake/peerNGA/RecordSelectionPlot.cpp \
-    $$PWD/EVENTS/earthquake/peerNGA/PeerNgaWest2Client.cpp \
     $$PWD/EXECUTION/UserDefinedApplication.cpp \
     $$PWD/GRAPHICS/Controller2D.cpp \
     $$PWD/GRAPHICS/GlWidget2D.cpp \
     $$PWD/GRAPHICS/MyTableWidget.cpp \
     $$PWD/GRAPHICS/GraphicView2D.cpp \
-    $$PWD/EDP/EDP_EarthquakeSelection.cpp \
-    $$PWD/EDP/StandardEarthquakeEDP.cpp \
     $$PWD/EDP/UserDefinedEDP.cpp \
     $$PWD/EDP/EDP.cpp
 
@@ -120,23 +107,10 @@ HEADERS += $$PWD/UQ/DakotaResults.h \
     $$PWD/EXECUTION/UserDefinedApplication.h \
     $$PWD/EVENTS/ExistingSimCenterEvents.h \
     $$PWD/EVENTS/InputWidgetExistingEvent.h \
-    $$PWD/EVENTS/earthquake/EarthquakeEventSelection.h \
-    $$PWD/EVENTS/earthquake/ExistingPEER_Events.h \
-    $$PWD/EVENTS/earthquake/SHAMotionWidget.h \
-    $$PWD/EVENTS/earthquake/StochasticMotionInput/include/StochasticMotionInputWidget.h \
-    $$PWD/EVENTS/earthquake/StochasticMotionInput/include/StochasticModelWidget.h \
-    $$PWD/EVENTS/earthquake/StochasticMotionInput/include/VlachosEtAlModel.h \
-    $$PWD/EVENTS/earthquake/StochasticMotionInput/include/DabaghiDerKiureghianPulse.h \
-    $$PWD/EVENTS/earthquake/peerNGA/PeerLoginDialog.h \
-    $$PWD/EVENTS/earthquake/peerNGA/PeerNgaRecordsWidget.h \
-    $$PWD/EVENTS/earthquake/peerNGA/RecordSelectionPlot.h \
-    $$PWD/EVENTS/earthquake/peerNGA/PeerNgaWest2Client.h \
     $$PWD/GRAPHICS/Controller2D.h \
     $$PWD/GRAPHICS/GlWidget2D.h \
     $$PWD/GRAPHICS/MyTableWidget.h \
     $$PWD/GRAPHICS/GraphicView2D.h \
-    $$PWD/EDP/EDP_EarthquakeSelection.h \
-    $$PWD/EDP/StandardEarthquakeEDP.h \
     $$PWD/EDP/UserDefinedEDP.h \
     $$PWD/EDP/EDP.h
 
