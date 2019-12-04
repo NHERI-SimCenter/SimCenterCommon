@@ -45,13 +45,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <RandomVariablesContainer.h>
 #include <SimCenterWidget.h>
 
+#include "JsonWidgetEnums.h"
 #include "SimCenterComboBox.h"
 #include "SimCenterRVLineEdit.h"
 #include "SimCenterFileInput.h"
-
-namespace JsonWidget {
-  enum class Type { ComboBox, RVLineEdit, FileInput, ForkComboBox};
-}
 
 class JsonConfiguredWidget : public SimCenterWidget {
   Q_OBJECT
@@ -106,10 +103,10 @@ protected:
 
   /**
    * Generate widget based on input JSON object
-   * @param[in] inputObject JSON object describing widget to be generated
+   * @param[in] inputArray JSON array describing widget to be generated
    * @return Pointer to generated widget
    */
-  QStackedWidget *generateStackedWidget(const QJsonObject &inputObject) const;
+  QStackedWidget *generateStackedWidget(const QJsonArray &inputArray) const;
 
   /**
    * Generate combo box based on input JSON object
@@ -133,6 +130,14 @@ protected:
    * @return Pointer to generated file line edit
    */
   SimCenterWidget *generateFileInput(const QJsonObject &inputObject) const;
+
+  /**
+   * Write the input stacked widget to JSON. Assumes that stacked widget
+   * contains only other stacked widgets or SimCenter widgets
+   * @param[in] inputWidget Input stacked widget to write to JSON object
+   * @return JSON object of stacked widget
+   */
+  QJsonArray stackedWidgetToJson(QStackedWidget *inputWidget);
 
   QLineEdit *theConfigFile; /**< Path to file specifying widget configuration */
   RandomVariablesContainer *theRVInputWidget; /**< Widget for inputting random

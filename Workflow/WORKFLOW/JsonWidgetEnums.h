@@ -1,3 +1,6 @@
+#ifndef JSON_WIDGET_ENUMS_H
+#define JSON_WIDGET_ENUMS_H
+
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -36,48 +39,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: Michael Gardner
 
-#include <QComboBox>
-#include <QHBoxLayout>
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QLabel>
-#include <QString>
-
-#include "SimCenterComboBox.h"
-
-SimCenterComboBox::SimCenterComboBox(const QJsonValue &inputObject,
-                                     QWidget *parent)
-    : SimCenterWidget(parent)
-{
-  // Configure ComboBox based on input JSON object
-  theComboBox = new QComboBox();
-  theComboBox->setObjectName(tr(inputObject["name"]));
-
-  for (auto it = inputObject["values"].begin(); it != inputObject["values"].end(); ++it) {
-    theComboBox->addItem(tr(*it));
-  }
-
-  auto layout = new QHBoxLayout();
-  layout->addWidget(theComboBox);
-
-  this->setLayout(layout);
+namespace JsonWidget {
+  enum class Type { ComboBox, RVLineEdit, FileInput, ForkComboBox};
 }
 
-bool SimCenterComboBox::inputFromJSON(QJsonObject& jsonObject) {
-  bool result = true;
-
-  theComboBox->setObjectName(tr(jsonObject["name"]));
-  theComboBox->setCurrentIndex(theComboBox->findText(jsonObject["value"]));
-
-  return result;
-}
-
-bool SimCenterComboBox::outputToJSON(QJsonObject& jsonObject) {
-  bool result = true;
-
-  jsonObject.insert("name", theComboBox->objectName());
-  jsonObject.insert("type", "ComboBox");
-  jsonObject.insert("value", theComboBox->currentText());
-
-  return true;
-}
+#endif // JSON_WIDGET_ENUMS_H
