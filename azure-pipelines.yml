@@ -39,7 +39,8 @@ variables:
   CONAN_UPLOAD: "https://api.bintray.com/conan/nheri-simcenter/simcenter"
   CONAN_UPLOAD_ONLY_WHEN_STABLE: false
   CONAN_STABLE_BRANCH_PATTERN: "release/*"
-  
+
+steps:
 # Use Python version
 - task: UsePythonVersion@0
   displayName: Switch to Python 3.7
