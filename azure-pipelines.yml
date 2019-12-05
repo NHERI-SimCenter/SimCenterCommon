@@ -27,6 +27,8 @@ strategy:
     windows:
       imageName: "vs2017-win2016"
       CONAN_VISUAL_VERSIONS: 15
+      CONAN_VISUAL_RUNTIMES: MD,MDd
+
   maxParallel: 4
 
 pool:
