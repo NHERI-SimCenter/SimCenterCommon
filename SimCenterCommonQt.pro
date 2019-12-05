@@ -7,7 +7,7 @@ include($$OUT_PWD/conanbuildinfo.pri)
 QT += widgets network charts
 
 #Include the common pri file
-include($$PWD/Common/common.pri)
+include($$PWD/Common/Common.pri)
 include($$PWD/InputSheetBM/InputSheetBM.pri)
 include($$PWD/RandomVariables/RandomVariables.pri)
 include($$PWD/Workflow/Workflow.pri)
