@@ -31,11 +31,11 @@ class CommonConan(ConanFile):
                 vcvars = tools.vcvars_command(self.settings)
             self.output.info("Using vcvars: %s" % (vcvars))
             self.run("qmake -v", run_environment=True)
-            self.run("%s && qmake  %s/SimCenterCommon/SimCenterCommonQt.pro" % (vcvars, self.source_folder), run_environment=True)
-            self.run("%s && nmake %s" % (vcvars, self.settings.build_type), run_environment=True)
+            self.run('%s && qmake  "CONFIG+=%s" %s/SimCenterCommon/SimCenterCommonQt.pro' % (vcvars, self.settings.build_type, self.source_folder), run_environment=True)
+            self.run("%s && nmake" % (vcvars), run_environment=True)
         else:
-            self.run("qmake  %s/SimCenterCommon/SimCenterCommonQt.pro" % (self.source_folder), run_environment=True)
-            self.run("make %s" % (self.settings.build_type), run_environment=True)
+            self.run('qmake "CONFIG+=%s" %s/SimCenterCommon/SimCenterCommonQt.pro' % (self.settings.build_type, self.source_folder), run_environment=True)
+            self.run("make", run_environment=True)
             
     def package(self):
         self.copy("*.h", src="SimCenterCommon/Common", dst="include", keep_path=False)
