@@ -8,6 +8,7 @@ trigger:
 - azure-pipelines
 - release*
 - stable*
+- conan
 
 pr:
 - master
