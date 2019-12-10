@@ -149,6 +149,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     scriptDir.cd("applications");
     scriptDir.cd("Workflow");
     pySCRIPT = scriptDir.absoluteFilePath(workflowScript);
+
    // pySCRIPT = scriptDir.absoluteFilePath("EE-UQ.py");
     QFileInfo check_script(pySCRIPT);
     // check if file exists and if yes: Is it really a file and no directory?
