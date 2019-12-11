@@ -28,8 +28,7 @@ strategy:
     windows:
       imageName: "vs2017-win2016"
       CONAN_VISUAL_VERSIONS: 15
-      CONAN_VISUAL_RUNTIMES: MD,MDd
-
+      CONAN_VISUAL_RUNTIMES: MD
   maxParallel: 4
 
 pool:
@@ -44,6 +43,7 @@ variables:
   CONAN_STABLE_BRANCH_PATTERN: "release/*"
   CONAN_BUILD_TYPES: "Release"
   CONAN_BUILD_POLICY: "missing"
+  CONAN_ARCHS: "x86_64"
 
 steps:
 # Use Python version
