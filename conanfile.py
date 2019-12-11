@@ -3,45 +3,58 @@ import os
 
 class CommonConan(ConanFile):
     name = "SimCenterCommonQt"
-    version = "0.0.1"
+    version = "0.0.2"
     license = "BSD"
     author = "Wael Elhaddad (elhaddad@berkeley.edu)"
     url = ""
     description = "SimCenter Common Qt Library"
     settings = "os", "compiler", "build_type", "arch"
     generators = "qmake", "cmake"
-    build_requires = "qt/5.9.8@bincrafters/stable"
-    requires = "jansson/2.11@simcenter/stable", "libcurl/7.64.1@bincrafters/stable"
-    default_options = {"qt:qtcharts":True, "qt:qt3d":True}
+    build_requires = "qt/5.11.3@bincrafters/stable"
+    requires = "jansson/2.11@bincrafters/stable", "libcurl/7.64.1@bincrafters/stable"
     build_policy = "missing"
+    
+    options = {
+        "MDOFwithQt3D": [True, False]
+    }
+
+    default_options = {"qt:qtcharts":True, "qt:qt3d":True, "MDOFwithQt3D": False}
+
+    scm = {
+         "type": "git",  # Use "type": "svn", if local repo is managed using SVN
+         "url": "auto",
+         "revision": "auto"
+      }
     
     def configure(self):
         if self.settings.os == "Windows":
            self.options["libcurl"].with_winssl = True
            self.options["libcurl"].with_openssl = False
 
-
-    def source(self):
-        self.run("git clone --single-branch --branch conan https://github.com/el7addad/SimCenterCommon.git")
-
     def build(self):
         if self.settings.os == "Windows":
             env_build = VisualStudioBuildEnvironment(self)
             with tools.environment_append(env_build.vars):
                 vcvars = tools.vcvars_command(self.settings)
-            self.output.info("Using vcvars: %s" % (vcvars))
-            self.run("qmake -v", run_environment=True)
-            self.run('%s && qmake  "CONFIG+=%s" %s/SimCenterCommon/SimCenterCommonQt.pro' % (vcvars, self.settings.build_type, self.source_folder), run_environment=True)
-            self.run("%s && nmake" % (vcvars), run_environment=True)
-        else:
-            self.run('qmake "CONFIG+=%s" %s/SimCenterCommon/SimCenterCommonQt.pro' % (self.settings.build_type, self.source_folder), run_environment=True)
-            self.run("make", run_environment=True)
             
+            qmake = "%s && qmake" % (vcvars)
+            makeCommand = "%s && nmake" % (vcvars)
+        else:
+            qmake = 'qmake'
+            makeCommand = 'make'
+
+        qmakeCommand = '%s "CONFIG+=%s" %s/SimCenterCommonQt.pro' % (qmake, self.settings.build_type, self.source_folder)
+        if(self.options.MDOFwithQt3D):
+            qmakeCommand += ' "DEFINES+=_GRAPHICS_Qt3D"'
+
+        self.run(qmakeCommand, run_environment=True) 
+        self.run(makeCommand, run_environment=True) 
+
     def package(self):
-        self.copy("*.h", src="SimCenterCommon/Common", dst="include", keep_path=False)
-        self.copy("*.h", src="SimCenterCommon/InputSheetBM", dst="include", keep_path=False)
-        self.copy("*.h", src="SimCenterCommon/RandomVariables", dst="include", keep_path=False)
-        self.copy("*/*.h", src="SimCenterCommon/Workflow", dst="include", keep_path=False)
+        self.copy("*.h", src="Common", dst="include", keep_path=False)
+        self.copy("*.h", src="InputSheetBM", dst="include", keep_path=False)
+        self.copy("*.h", src="RandomVariables", dst="include", keep_path=False)
+        self.copy("*/*.h", src="Workflow", dst="include", keep_path=False)
         self.copy("*SimCenterCommonQt.lib", dst="lib", keep_path=False)
         self.copy("*SimCenterCommonQt.a", dst="lib", keep_path=False)
 
