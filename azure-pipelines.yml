@@ -44,7 +44,7 @@ variables:
   CONAN_STABLE_BRANCH_PATTERN: "release/*"
   CONAN_BUILD_TYPES: "Release"
   CONAN_BUILD_POLICY: "missing"
-  
+
 steps:
 # Use Python version
 - task: UsePythonVersion@0
@@ -58,6 +58,7 @@ steps:
     pip install wheel
     pip install conan --upgrade
     pip install conan_package_tools bincrafters_package_tools
+    conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
   displayName: Conan Installation
   failOnStderr: false
 
