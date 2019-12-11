@@ -43,8 +43,8 @@ variables:
   CONAN_UPLOAD_ONLY_WHEN_STABLE: false
   CONAN_STABLE_BRANCH_PATTERN: "release/*"
   CONAN_BUILD_TYPES: "Release"
-  CONAN_OPTIONS: "SimCenterCommonQt:MDOFwithQt3D=True,SimCenterCommonQt:MDOFwithQt3D=False"
-
+  CONAN_BUILD_POLICY: "missing"
+  
 steps:
 # Use Python version
 - task: UsePythonVersion@0

@@ -1,9 +1,15 @@
 #!/usr/bin/env python
 
-from bincrafters import build_template_default
+from cpt.packager import ConanMultiPackager
 
 if __name__ == "__main__":
-
-    builder = build_template_default.get_builder(build_policy='missing')
-
+    builder = ConanMultiPackager()
+    builder.add_common_builds()
+    buildsWithOptions = []
+    for settings, options, env_vars, build_requires, reference in builder.items:
+        options['SimCenterCommonQt:MDOFwithQt3D'] = False
+        buildsWithOptions.append([settings, options, env_vars, build_requires, reference])
+        options['SimCenterCommonQt:MDOFwithQt3D'] = True
+        buildsWithOptions.append([settings, options, env_vars, build_requires, reference])
+    builder.builds = buildsWithOptions
     builder.run()
