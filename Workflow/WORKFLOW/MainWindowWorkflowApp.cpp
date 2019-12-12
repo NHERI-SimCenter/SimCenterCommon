@@ -51,11 +51,25 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     //
     // resize to primary screen
     //
-      
+    /*************************** keep around
+    QSize availableSize = qApp->desktop()->availableGeometry().size();
+    int availWidth = availableSize.width();
+    int availHeight = availableSize.height();
+    QSize newSize( availWidth*.85, availHeight*.65 );
+    
+    setGeometry(QStyle::alignedRect(Qt::LeftToRight,
+				    Qt::AlignCenter,
+				    newSize,
+				    qApp->desktop()->availableGeometry()
+				     )
+		);
+        ********************************************************/
+
     QRect rec = QGuiApplication::primaryScreen()->geometry();
-    int height = this->height()<int(0.85*rec.height())?int(0.85*rec.height()):this->height();
-    int width  = this->width()<int(0.85*rec.width())?int(0.85*rec.width()):this->width();
+    int height = this->height()<int(0.75*rec.height())?int(0.75*rec.height()):this->height();
+    int width  = this->width()<int(0.75*rec.width())?int(0.75*rec.width()):this->width();
     this->resize(width, height);
+
 
     //
     // add SimCenter Header

@@ -358,6 +358,7 @@ MDOF_BuildingModel::MDOF_BuildingModel(RandomVariablesContainer *theRandomVariab
     theView->setController(this);
 #endif
 
+
     //theView = new GlWidget2D();
     //theView->setController(this);
 

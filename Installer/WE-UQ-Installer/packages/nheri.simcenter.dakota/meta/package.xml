@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package>
+    <DisplayName>Dakota</DisplayName>
+    <Description>The Dakota project delivers both state-of-the-art research and robust, usable software for optimization and UQ.</Description>
+    <Version>6.10.0</Version>
+    <ReleaseDate>2019-05-15</ReleaseDate>
+    <Default>false</Default>
+    <Script>installDakota.qs</Script>
+    <SortingPriority>25</SortingPriority>
+</Package>
