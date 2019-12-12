@@ -65,6 +65,7 @@ SOURCES += $$PWD/UQ/DakotaResults.cpp \
     $$PWD/GRAPHICS/GlWidget2D.cpp \
     $$PWD/GRAPHICS/MyTableWidget.cpp \
     $$PWD/GRAPHICS/GraphicView2D.cpp \
+    $$PWD/GRAPHICS/SimCenterGraphPlot.cpp \
     $$PWD/EDP/EDP_EarthquakeSelection.cpp \
     $$PWD/EDP/StandardEarthquakeEDP.cpp \
     $$PWD/EDP/UserDefinedEDP.cpp \
@@ -113,6 +114,7 @@ HEADERS += $$PWD/UQ/DakotaResults.h \
     $$PWD/GRAPHICS/GlWidget2D.h \
     $$PWD/GRAPHICS/MyTableWidget.h \
     $$PWD/GRAPHICS/GraphicView2D.h \
+    $$PWD/GRAPHICS/SimCenterGraphPlot.h \
     $$PWD/EDP/EDP_EarthquakeSelection.h \
     $$PWD/EDP/StandardEarthquakeEDP.h \
     $$PWD/EDP/UserDefinedEDP.h \
