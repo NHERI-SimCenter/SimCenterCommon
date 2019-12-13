@@ -252,7 +252,7 @@ QTreeView#treeViewOnTheLeft::item:selected:!active {
 QComboBox {
     font-size: 10pt;
     border:  solid gray;
-    min-width: 6em;
+    /*min-width: 6em;*/
 }
 
 QComboBox:editable {
