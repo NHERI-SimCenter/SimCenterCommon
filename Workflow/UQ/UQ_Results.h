@@ -1,5 +1,5 @@
-#ifndef 	INPUT_WIDGET_UQ_H
-#define 	INPUT_WIDGET_UQ_H
+#ifndef UQ_RESULTS_H
+#define UQ_RESULTS_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -39,38 +39,30 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <QWidget>
-
-class QTabWidget;
-class RandomVariablesContainer;
-class UQ_EngineSelection;
+#include <SimCenterWidget.h>
 class QVBoxLayout;
-class QGroupBox;
 
-
-class InputWidgetUQ : public QWidget
+class UQ_Results : public SimCenterWidget
 {
     Q_OBJECT
 public:
-  explicit InputWidgetUQ(UQ_EngineSelection *, RandomVariablesContainer *, QWidget *parent = 0);
-    ~InputWidgetUQ();
+    explicit UQ_Results(QWidget *parent = 0);
+    virtual ~UQ_Results();
+
+    virtual bool outputToJSON(QJsonObject &rvObject);
+    virtual bool inputFromJSON(QJsonObject &rvObject);
+
+    virtual int processResults(QString &filenameResults, QString &filenameTab);
+
+    void setResultWidget(UQ_Results *result);
 
 signals:
 
 public slots:
 
-
-signals:
-
-private:
-    QTabWidget *theTab;
-    RandomVariablesContainer *theRVs;
-    UQ_EngineSelection *theUQ;
-
+protected:
+    UQ_Results *resultWidget;
     QVBoxLayout *layout;
-    QGroupBox *rvGroupBox;
-} ; 
+};
 
-#endif
-
-
+#endif // UQ_RESULTS

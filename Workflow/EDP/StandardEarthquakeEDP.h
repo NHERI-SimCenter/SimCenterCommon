@@ -1,5 +1,5 @@
-#ifndef 	INPUT_WIDGET_UQ_H
-#define 	INPUT_WIDGET_UQ_H
+#ifndef STANDARD_EARTHQUAKE_EDP_H
+#define STANDARD_EARTHQUAKE_EDP_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -39,38 +39,38 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <QWidget>
+#include <SimCenterAppWidget.h>
 
-class QTabWidget;
+#include <QGroupBox>
+#include <QVector>
+#include <QGridLayout>
+#include <QComboBox>
+
+class InputWidgetParameters;
 class RandomVariablesContainer;
-class UQ_EngineSelection;
-class QVBoxLayout;
-class QGroupBox;
 
-
-class InputWidgetUQ : public QWidget
+class StandardEarthquakeEDP : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
-  explicit InputWidgetUQ(UQ_EngineSelection *, RandomVariablesContainer *, QWidget *parent = 0);
-    ~InputWidgetUQ();
+    explicit StandardEarthquakeEDP(RandomVariablesContainer *theRandomVariableIW, QWidget *parent = 0);
+    ~StandardEarthquakeEDP();
+
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+    bool outputAppDataToJSON(QJsonObject &rvObject);
+    bool inputAppDataFromJSON(QJsonObject &rvObject);
+    bool copyFiles(QString &dirName);
+
+    void clear(void);
 
 signals:
 
 public slots:
 
 
-signals:
-
 private:
-    QTabWidget *theTab;
-    RandomVariablesContainer *theRVs;
-    UQ_EngineSelection *theUQ;
+    RandomVariablesContainer *theRandomVariablesContainer;
+};
 
-    QVBoxLayout *layout;
-    QGroupBox *rvGroupBox;
-} ; 
-
-#endif
-
-
+#endif // STANDARD_EARTHQUAKE_EDP_H

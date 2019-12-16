@@ -1,5 +1,5 @@
-#ifndef 	INPUT_WIDGET_UQ_H
-#define 	INPUT_WIDGET_UQ_H
+#ifndef DAKOTA_INPUT_RELIABILITY_H
+#define DAKOTA_INPUT_RELIABILITY_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -37,40 +37,64 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+#include <UQ_Engine.h>
 
-#include <QWidget>
+#include <QGroupBox>
+#include <QVector>
+#include <QVBoxLayout>
+#include <QComboBox>
+#include <QPushButton>
 
-class QTabWidget;
+class DakotaSamplingResults;
+class UQ_Results;
+class QCheckBox;
 class RandomVariablesContainer;
-class UQ_EngineSelection;
-class QVBoxLayout;
-class QGroupBox;
+class QStackedWidget;
+class UQ_MethodInputWidget;
 
-
-class InputWidgetUQ : public QWidget
+class DakotaInputReliability : public UQ_Engine
 {
     Q_OBJECT
 public:
-  explicit InputWidgetUQ(UQ_EngineSelection *, RandomVariablesContainer *, QWidget *parent = 0);
-    ~InputWidgetUQ();
+  explicit DakotaInputReliability(RandomVariablesContainer *, QWidget *parent = 0);
+    ~DakotaInputReliability();
+
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+
+    int processResults(QString &filenameResults, QString &filenameTab);
+
+    UQ_Results *getResults(void);
+    RandomVariablesContainer  *getParameters();
+
+    int getMaxNumParallelTasks(void);
+
+    QVBoxLayout *mLayout;
 
 signals:
 
 public slots:
-
-
-signals:
+   void clear(void);
+   void onMethodChanged(QString);;
 
 private:
-    QTabWidget *theTab;
-    RandomVariablesContainer *theRVs;
-    UQ_EngineSelection *theUQ;
-
     QVBoxLayout *layout;
-    QGroupBox *rvGroupBox;
-} ; 
+    QWidget     *methodSpecific;
+    QComboBox   *samplingMethod;
+    QLineEdit   *numSamples;
+    QLineEdit   *randomSeed;
+    //    QPushButton *run;
 
-#endif
+    QComboBox   *uqSelection;
+    QWidget     *uqSpecific;
 
+    RandomVariablesContainer *theRandomVariables;
+    DakotaSamplingResults *results;
 
+    QStackedWidget *theStackedWidget;
+    UQ_MethodInputWidget *theCurrentMethod;
+    UQ_MethodInputWidget *theFORM;
+    UQ_MethodInputWidget *theSORM;
+};
+
+#endif // DAKOTA_INPUT_RELIABILITY_H

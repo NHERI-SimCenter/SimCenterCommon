@@ -96,11 +96,11 @@ using namespace QtCharts;
 
 
 
-QLabel *best_fit_label_text;
+static QLabel *best_fit_label_text;
 
 
 DakotaResultsSampling::DakotaResultsSampling(RandomVariablesContainer *theRandomVariables, QWidget *parent)
-  : DakotaResults(parent), theRVs(theRandomVariables)
+  : UQ_Results(parent), theRVs(theRandomVariables)
 {
     // title & add button
     tabWidget = new QTabWidget(this);
@@ -352,10 +352,11 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
             QTableWidgetItem *item_index = spreadsheet->item(row,col);
             double value_item = item_index->text().toDouble();
             kurtosis_value = (mean_value-value_item)*(mean_value-value_item)*(mean_value-value_item)*(mean_value-value_item);
+            kurtosis_value = (kurtosis_value/(sd_value*sd_value*sd_value*sd_value));
         }
 
-        kurtosis_value = kurtosis_value/rowCount;
-        kurtosis_value = (kurtosis_value/(sd_value*sd_value*sd_value*sd_value))-3;
+        //kurtosis_value = kurtosis_value/rowCount;
+        //kurtosis_value = (kurtosis_value/(sd_value*sd_value*sd_value*sd_value))-3;
         QString variableName = theHeadings.at(col);
         QWidget *theWidget = this->createResultEDPWidget(variableName, mean_value, sd_value, kurtosis_value);
         summaryLayout->addWidget(theWidget);

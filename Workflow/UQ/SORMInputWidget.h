@@ -1,5 +1,5 @@
-#ifndef 	INPUT_WIDGET_UQ_H
-#define 	INPUT_WIDGET_UQ_H
+#ifndef SORM_INPUT_WIDGET_H
+#define SORM_INPUT_WIDGET_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -20,7 +20,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -37,40 +37,33 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
 
-#include <QWidget>
+#include <UQ_MethodInputWidget.h>
+#include <QComboBox>
 
-class QTabWidget;
-class RandomVariablesContainer;
-class UQ_EngineSelection;
-class QVBoxLayout;
-class QGroupBox;
+class QLineEdit;
+class QCheckBox;
 
-
-class InputWidgetUQ : public QWidget
+class SORMInputWidget : public UQ_MethodInputWidget
 {
     Q_OBJECT
 public:
-  explicit InputWidgetUQ(UQ_EngineSelection *, RandomVariablesContainer *, QWidget *parent = 0);
-    ~InputWidgetUQ();
+    explicit SORMInputWidget(QWidget *parent = 0);
+    ~SORMInputWidget();
 
-signals:
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+    void clear(void);
 
-public slots:
-
-
-signals:
+    int getNumberTasks(void);
 
 private:
-    QTabWidget *theTab;
-    RandomVariablesContainer *theRVs;
-    UQ_EngineSelection *theUQ;
+    QComboBox *mppMethod;
+    QComboBox *reliabilityScheme;
+    QLineEdit *probabilityLevel;
+    QLineEdit *responseLevel;
+    QCheckBox *checkedResponseLevel;
+    QCheckBox *checkedProbabilityLevel;
+};
 
-    QVBoxLayout *layout;
-    QGroupBox *rvGroupBox;
-} ; 
-
-#endif
-
-
+#endif // SORM_INPUT_WIDGET_H

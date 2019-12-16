@@ -1,5 +1,5 @@
-#ifndef 	INPUT_WIDGET_UQ_H
-#define 	INPUT_WIDGET_UQ_H
+#ifndef DAKOTA_RESULTS_RELIABILITY_H
+#define DAKOTA_RESULTS_RELIABILITY_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -39,38 +39,56 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <QWidget>
+#include <UQ_Results.h>
+#include <QtCharts/QChart>
+#include <QMessageBox>
+#include <QPushButton>
 
+
+using namespace QtCharts;
+
+class QTextEdit;
 class QTabWidget;
+class MyTableWidget;
+class MainWindow;
 class RandomVariablesContainer;
-class UQ_EngineSelection;
-class QVBoxLayout;
-class QGroupBox;
 
+//class QChart;
 
-class InputWidgetUQ : public QWidget
+class DakotaResultsReliability : public UQ_Results
 {
     Q_OBJECT
 public:
-  explicit InputWidgetUQ(UQ_EngineSelection *, RandomVariablesContainer *, QWidget *parent = 0);
-    ~InputWidgetUQ();
+  explicit DakotaResultsReliability(RandomVariablesContainer *, QWidget *parent = 0);
+    ~DakotaResultsReliability();
+
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+
+    int processResults(QString &filenameResults, QString &filenameTab);
 
 signals:
 
 public slots:
+   void clear(void);
+   void onSpreadsheetCellClicked(int, int);
+   void onSaveSpreadsheetClicked();
 
-
-signals:
+   // modified by padhye 08/25/2018
 
 private:
-    QTabWidget *theTab;
-    RandomVariablesContainer *theRVs;
-    UQ_EngineSelection *theUQ;
+   RandomVariablesContainer *theRVs;
 
-    QVBoxLayout *layout;
-    QGroupBox *rvGroupBox;
-} ; 
+   MyTableWidget *spreadsheet;  
+   QChart *chart;
+   int numSpreadsheetRows;
+   int numSpreadsheetCols;
 
-#endif
+   int col1, col2;
+   bool mLeft;
+   QStringList theHeadings;
 
+   //   QVector<QString>theHeadings;
+};
 
+#endif // DAKOTA_RESULTS_RELIABILITY_H

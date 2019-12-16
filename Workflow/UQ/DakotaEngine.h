@@ -1,5 +1,5 @@
-#ifndef 	INPUT_WIDGET_UQ_H
-#define 	INPUT_WIDGET_UQ_H
+#ifndef DAKOTA_ENGINE_H
+#define DAKOTA_ENGINE_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -39,38 +39,48 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <QWidget>
+#include <UQ_Engine.h>
 
-class QTabWidget;
+class QComboBox;
+class QStackedWidget;
+class UQ_Results;
 class RandomVariablesContainer;
-class UQ_EngineSelection;
-class QVBoxLayout;
-class QGroupBox;
 
-
-class InputWidgetUQ : public QWidget
+class DakotaEngine : public UQ_Engine
 {
     Q_OBJECT
 public:
-  explicit InputWidgetUQ(UQ_EngineSelection *, RandomVariablesContainer *, QWidget *parent = 0);
-    ~InputWidgetUQ();
+  explicit DakotaEngine(RandomVariablesContainer *, QWidget *parent = 0);
+    virtual ~DakotaEngine();
+
+    int getMaxNumParallelTasks(void);
+    bool outputToJSON(QJsonObject &jsonObject);
+    bool inputFromJSON(QJsonObject &jsonObject);
+    bool outputAppDataToJSON(QJsonObject &jsonObject);
+    bool inputAppDataFromJSON(QJsonObject &jsonObject);
+
+    int processResults(QString &filenameResults, QString &filenameTab);
+    RandomVariablesContainer *getParameters();
+    UQ_Results *getResults(void);
+
+     QString getProcessingScript();
 
 signals:
+    void onUQ_EngineChanged(void);
 
 public slots:
-
-
-signals:
+    void engineSelectionChanged(const QString &arg1);
 
 private:
-    QTabWidget *theTab;
-    RandomVariablesContainer *theRVs;
-    UQ_EngineSelection *theUQ;
+   QComboBox   *theEngineSelectionBox;
+   QStackedWidget *theStackedWidget;
 
-    QVBoxLayout *layout;
-    QGroupBox *rvGroupBox;
-} ; 
+   UQ_Engine *theCurrentEngine;
+   UQ_Engine *theSamplingEngine;
+   UQ_Engine *theReliabilityEngine;
+   UQ_Engine *theCalibrationEngine;
+   UQ_Engine *theBayesianCalibrationEngine;
+   UQ_Engine *theSensitivityEngine;
+};
 
-#endif
-
-
+#endif // DAKOTA_ENGINE_H

@@ -1,6 +1,3 @@
-#ifndef 	INPUT_WIDGET_UQ_H
-#define 	INPUT_WIDGET_UQ_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -39,38 +36,70 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <QWidget>
+#include "StandardEarthquakeEDP.h"
+#include <RandomVariablesContainer.h>
 
-class QTabWidget;
-class RandomVariablesContainer;
-class UQ_EngineSelection;
-class QVBoxLayout;
-class QGroupBox;
+//#include <InputWidgetParameters.h>
 
-
-class InputWidgetUQ : public QWidget
+StandardEarthquakeEDP::StandardEarthquakeEDP(RandomVariablesContainer *theRandomVariableIW, QWidget *parent)
+    : SimCenterAppWidget(parent), theRandomVariablesContainer(theRandomVariableIW)
 {
-    Q_OBJECT
-public:
-  explicit InputWidgetUQ(UQ_EngineSelection *, RandomVariablesContainer *, QWidget *parent = 0);
-    ~InputWidgetUQ();
 
-signals:
+}
 
-public slots:
+StandardEarthquakeEDP::~StandardEarthquakeEDP()
+{
+
+}
 
 
-signals:
+void
+StandardEarthquakeEDP::clear(void)
+{
 
-private:
-    QTabWidget *theTab;
-    RandomVariablesContainer *theRVs;
-    UQ_EngineSelection *theUQ;
+}
 
-    QVBoxLayout *layout;
-    QGroupBox *rvGroupBox;
-} ; 
 
-#endif
 
+bool
+StandardEarthquakeEDP::outputToJSON(QJsonObject &jsonObject)
+{
+    // just need to send the class type here.. type needed in object in case user screws up
+    jsonObject["type"]="StandardEarthquakeEDP";
+
+    return true;
+}
+
+
+bool
+StandardEarthquakeEDP::inputFromJSON(QJsonObject &jsonObject)
+{
+    return true;
+}
+
+
+bool
+StandardEarthquakeEDP::outputAppDataToJSON(QJsonObject &jsonObject) {
+
+    //
+    // per API, need to add name of application to be called in AppLication
+    // and all data to be used in ApplicationDate
+    //
+
+    jsonObject["Application"] = "StandardEarthquakeEDP";
+    QJsonObject dataObj;
+    jsonObject["ApplicationData"] = dataObj;
+
+    return true;
+}
+bool
+StandardEarthquakeEDP::inputAppDataFromJSON(QJsonObject &jsonObject) {
+    return true;
+}
+
+
+bool
+StandardEarthquakeEDP::copyFiles(QString &dirName) {
+    return true;
+}
 
