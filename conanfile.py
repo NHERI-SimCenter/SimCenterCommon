@@ -10,26 +10,45 @@ class CommonConan(ConanFile):
     description = "SimCenter Common Qt Library"
     settings = "os", "compiler", "build_type", "arch"
     generators = "qmake", "cmake"
-    build_requires = "qt/5.11.3@bincrafters/stable"
     requires = "jansson/2.11@bincrafters/stable", "libcurl/7.64.1@bincrafters/stable"
     build_policy = "missing"
     
     options = {
-        "MDOFwithQt3D": [True, False]
+        "MDOFwithQt3D": [True, False],
+        "withQt":[True, False]
     }
 
-    default_options = {"qt:qtcharts":True, "qt:qt3d":True, "MDOFwithQt3D": False}
+
+    default_options = {"MDOFwithQt3D": False, "withQt": False}
 
     scm = {
-         "type": "git",  # Use "type": "svn", if local repo is managed using SVN
+         "type": "git",
          "url": "auto",
          "revision": "auto"
       }
     
+
     def configure(self):
         if self.settings.os == "Windows":
            self.options["libcurl"].with_winssl = True
            self.options["libcurl"].with_openssl = False
+        
+        if self.options.withQt:
+           self.options["qt"].qtcharts = True
+           self.options["qt"].qt3d = True
+
+
+    def build_requirements(self):
+        if self.settings.os == "Windows":
+            self.build_requires("jom_installer/1.1.2@bincrafters/stable")
+        
+        if self.options.withQt:
+            self.build_requires("qt/5.11.3@bincrafters/stable")
+
+
+    def package_id(self):
+        del self.info.options.withQt
+
 
     def build(self):
         if self.settings.os == "Windows":
@@ -38,7 +57,7 @@ class CommonConan(ConanFile):
                 vcvars = tools.vcvars_command(self.settings)
             
             qmake = "%s && qmake" % (vcvars)
-            makeCommand = "%s && nmake" % (vcvars)
+            makeCommand = "%s && jom" % (vcvars)
         else:
             qmake = 'qmake'
             makeCommand = 'make'
@@ -50,6 +69,7 @@ class CommonConan(ConanFile):
         self.run(qmakeCommand, run_environment=True) 
         self.run(makeCommand, run_environment=True) 
 
+
     def package(self):
         self.copy("*.h", src="Common", dst="include", keep_path=False)
         self.copy("*.h", src="InputSheetBM", dst="include", keep_path=False)
@@ -58,6 +78,6 @@ class CommonConan(ConanFile):
         self.copy("*SimCenterCommonQt.lib", dst="lib", keep_path=False)
         self.copy("*SimCenterCommonQt.a", dst="lib", keep_path=False)
 
+
     def package_info(self):
         self.cpp_info.libs = ["SimCenterCommonQt"]
-

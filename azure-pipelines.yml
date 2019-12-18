@@ -44,6 +44,7 @@ variables:
   CONAN_BUILD_TYPES: "Release"
   CONAN_BUILD_POLICY: "missing"
   CONAN_ARCHS: "x86_64"
+  CONAN_OPTIONS: "SimCenterCommonQt:withQt=True"
 
 steps:
 # Use Python version
