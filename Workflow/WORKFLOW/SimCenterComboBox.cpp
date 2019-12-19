@@ -50,15 +50,18 @@ SimCenterComboBox::SimCenterComboBox(const QJsonValue &inputObject,
     : SimCenterWidget(parent)
 {
   // Configure ComboBox based on input JSON object
+  theComboBoxLabel = new QLabel();  
   theComboBox = new QComboBox();
-  theComboBox->setObjectName(tr(inputObject["name"]));
+  theComboBoxLabel->setText(inputObject["name"].toString());  
 
-  for (auto it = inputObject["values"].begin(); it != inputObject["values"].end(); ++it) {
-    theComboBox->addItem(tr(*it));
+  for (auto value : inputObject["values"].toArray()) {
+    theComboBox->addItem(value.toString());
   }
 
   auto layout = new QHBoxLayout();
+  layout->addWidget(theComboBoxLabel);
   layout->addWidget(theComboBox);
+  layout->addStretch();
 
   this->setLayout(layout);
 }
@@ -66,8 +69,8 @@ SimCenterComboBox::SimCenterComboBox(const QJsonValue &inputObject,
 bool SimCenterComboBox::inputFromJSON(QJsonObject& jsonObject) {
   bool result = true;
 
-  theComboBox->setObjectName(tr(jsonObject["name"]));
-  theComboBox->setCurrentIndex(theComboBox->findText(jsonObject["value"]));
+  theComboBox->setObjectName(jsonObject["name"].toString());
+  theComboBox->setCurrentIndex(theComboBox->findText(jsonObject["value"].toString()));
 
   return result;
 }
@@ -75,9 +78,15 @@ bool SimCenterComboBox::inputFromJSON(QJsonObject& jsonObject) {
 bool SimCenterComboBox::outputToJSON(QJsonObject& jsonObject) {
   bool result = true;
 
-  jsonObject.insert("name", theComboBox->objectName());
+  jsonObject.insert("name", theComboBoxLabel->text());
   jsonObject.insert("type", "ComboBox");
   jsonObject.insert("value", theComboBox->currentText());
+
+  QJsonArray comboBoxOptions;
+  for (unsigned int i = 0; i < theComboBox->count(); ++i) {
+    comboBoxOptions.append(theComboBox->itemText(i));
+  }
+  jsonObject.insert("values", comboBoxOptions);
 
   return true;
 }

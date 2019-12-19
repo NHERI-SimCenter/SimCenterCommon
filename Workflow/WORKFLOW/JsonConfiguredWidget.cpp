@@ -37,15 +37,19 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: Michael Gardner
 
 #include <exception>
+#include <string>
 #include <unordered_map>
 
 #include <QComboBox>
 #include <QFile>
 #include <QFileDialog>
 #include <QHBoxLayout>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonValue>
 #include <QLabel>
 #include <QPushButton>
-#include <QStackedWidget>
 #include <QString>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -54,9 +58,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "JsonConfiguredWidget.h"
 
 JsonConfiguredWidget::JsonConfiguredWidget(
-    RandomVariablesContainer *random_variables const QString &configFile,
-    QWidget *parent)
-    : QWidget(parent),
+    RandomVariablesContainer *random_variables, QWidget *parent)
+    : SimCenterWidget(parent),
       theRVInputWidget(random_variables) {
   QVBoxLayout * layout = new QVBoxLayout();
 
@@ -66,31 +69,40 @@ JsonConfiguredWidget::JsonConfiguredWidget(
   configFileLabel->setText(tr("Configuration Input File"));
   theConfigFile = new QLineEdit();
   theConfigFile->setToolTip(tr("User-provided JSON file specifying input layout"));
+  
   QPushButton * chooseFile = new QPushButton();
   chooseFile->setText(tr("Choose"));
+  connect(chooseFile, &QPushButton::clicked, this, &JsonConfiguredWidget::chooseConfigFile);  
+  
   theConfigFileLayout->addWidget(configFileLabel);
   theConfigFileLayout->addWidget(theConfigFile);
   theConfigFileLayout->addWidget(chooseFile);
-  connect(chooseFile, SIGNAL(clicked(bool)), this, SLOT(chooseConfigFile()));
 
-  theStackedWidget = new QStackedWidget();
+  theWidget = new QWidget(); 
+
+  layout->addLayout(theConfigFileLayout);
+  layout->addWidget(theWidget);
+  layout->addStretch();
+  this->setLayout(layout);
 }
 
 bool JsonConfiguredWidget::inputFromJSON(QJsonObject& rvObject) {
-  auto oldStackedWidget = theStackedWidget;
+  theConfigFile->setText(rvObject["Config File"].toString());
 
-  for (int i = oldStackedWidget.count(); i >= 0; --i) {
-    oldStackedWidget->removeWidget(oldStackedWidget->widget(i));
-    oldStackedWidget->widget(i)->deleteLater();
-  }
+  auto oldWidget = theWidget;
+  auto newWidget = generateWidgetLayout(rvObject["Parameters"].toArray(), true);
   
-  theStackedWidget = generateStackedWidget(rvObject["Parameters"]);
-  oldStackedWidget->deleteLater();
+  this->layout()->replaceWidget(theWidget, newWidget);
+  theWidget = newWidget;
+  oldWidget->deleteLater();  
+
+  return true;
 }
 
 bool JsonConfiguredWidget::outputToJSON(QJsonObject &rvObject) {
   // Output the stacked widget to JSON
-  jsonObject.insert("Parameters", stackedWidgetToJson(theStackedWidget));
+  rvObject.insert("Config File", theConfigFile->text());
+  rvObject.insert("Parameters", widgetToJson(theWidget));
   return true;
 }
 
@@ -103,13 +115,12 @@ void JsonConfiguredWidget::chooseConfigFile() {
 }
 
 JsonWidget::Type JsonConfiguredWidget::getEnumIndex(const QString& inputString) const {
-  static std::unordered_map<QString, JsonWidget::Type> stringToEnum{
+  static std::unordered_map<std::string, JsonWidget::Type> stringToEnum{
       {"ComboBox", JsonWidget::Type::ComboBox},
       {"RVLineEdit", JsonWidget::Type::RVLineEdit},
-      {"FileInput", JsonWidget::Type::FileInput},
-      {"ForkComboBox", JsonWidget::Type::ForkComboBox}};
+      {"FileInput", JsonWidget::Type::FileInput}};
 
-  auto enumValue = stringToEnum.find(inputString);
+  auto enumValue = stringToEnum.find(inputString.toStdString());
 
   if (enumValue != stringToEnum.end()) {
     return enumValue->second;
@@ -125,90 +136,97 @@ void JsonConfiguredWidget::initialize(const QString& configFile) {
   QFile configuration(configFile);
   QJsonObject inputConfig;
   
-  if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    QJsonDocument fileValues = QJsonDocument::fromJson(file.readAll().toUtf8());    
-    file.close();
+  if (configuration.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    QJsonDocument fileValues = QJsonDocument::fromJson(configuration.readAll());    
+    configuration.close();
     inputConfig = fileValues.object();
   } else {
     qDebug() << "ERROR: JsonConfiguredWidget::initialize: Failed to open input "
                 "configuration file!";
   }
 
-  auto oldStackedWidget = theStackedWidget;
-
-  for (int i = oldStackedWidget.count(); i >= 0; --i) {
-    oldStackedWidget->removeWidget(oldStackedWidget->widget(i));
-    oldStackedWidget->widget(i)->deleteLater();
-  }
+  auto oldWidget = theWidget;
+  auto newWidget = generateWidgetLayout(inputConfig["Parameters"].toArray());
   
-  theStackedWidget = generateStackedWidget(rvObject["Parameters"]);
-  oldStackedWidget->deleteLater();  
+  this->layout()->replaceWidget(theWidget, newWidget);
+  theWidget = newWidget;
+  oldWidget->deleteLater();  
 }
 
-QStackedWidget *
-JsonConfiguredWidget::generateStackedWidget(const QJsonArray &inputArray) {
+QWidget *
+JsonConfiguredWidget::generateWidgetLayout(const QJsonArray &inputArray,
+                                           bool set) const {
 
-  auto stackedWidget = new QStackedWidget();
+  auto generatedWidget = new QWidget();
+  QVBoxLayout * layout = new QVBoxLayout();  
 
-  for (int i = 0; i < inputArray.size(); ++i) {
-    switch (getEnumIndex(inputArray[i]["type"])) {
-    case JsonWidget::Type::ComboBox:
-      stackedWidget->addWidget(generateComboBox(inputArray[i]));
-      break;
+  for (auto const& value : inputArray) {
+    switch (getEnumIndex(value["type"].toString())) {
+    case JsonWidget::Type::ComboBox: {
+      auto comboBox = generateComboBox(value);
+      if (set) {
+	auto jsonObject = value.toObject();	
+	comboBox->inputFromJSON(jsonObject);
+      }
+      layout->addWidget(comboBox);
+      break;      
+    }
 
-    case JsonWidget::Type::RVLineEdit:
-      stackedWidget->addWidget(generateRVLineEdit(inputArray[i]));
-      break;
+    case JsonWidget::Type::RVLineEdit: {
+      auto rvLineEdit = generateRVLineEdit(value);
+      if (set) {
+	auto jsonObject = value.toObject();
+	rvLineEdit->inputFromJSON(jsonObject);
+      }
+      layout->addWidget(rvLineEdit);
+      break;      
+    }
 
     case JsonWidget::Type::FileInput: {
-      stackedWidget->addWidget(generageFileInput(inputArray[i]));
-      break;
-    }
-
-    case JsonWidget::Type::ForkComboBox:
-      stackedWidget->addWidget(generateStackedWidget(inputArray[i]));
-      break;
+      auto fileInput = generateFileInput(value);
+      if (set) {
+	auto jsonObject = value.toObject();
+	fileInput->inputFromJSON(jsonObject);
+      }
+      layout->addWidget(fileInput);
+      break;	
+      }
     }
   }
 
-  return stackedWidget;
+  layout->addStretch();
+  generatedWidget->setLayout(layout);
+  
+  return generatedWidget;
 }
 
 SimCenterWidget *
-JsonConfiguredWidget::generateComboBox(const QJsonValue &inputObject) const {
-  return new SimCenterComboBox(inputObject);
+JsonConfiguredWidget::generateComboBox(const QJsonValue &inputValue) const {
+  return new SimCenterComboBox(inputValue);
 }
 
 SimCenterWidget *
-JsonConfiguredWidget::generateRVLineEdit(const QJsonObject &inputObject) const {
-  return new SimCenterLineEditRV(theRVInputWidget, inputObject);
+JsonConfiguredWidget::generateRVLineEdit(const QJsonValue &inputValue) const {
+  return new SimCenterRVLineEdit(theRVInputWidget, inputValue);
 }
 
 SimCenterWidget *
-JsonConfiguredWidget::generateFileInput(const QJsonObject &inputObject) const {
-  return new SimCenterFileInput(inputObject);
+JsonConfiguredWidget::generateFileInput(const QJsonValue &inputValue) const {
+  return new SimCenterFileInput(inputValue);
 }
 
 QJsonArray
-JsonConfiguredWidget::stackedWidgetToJson(QStackedWidget *inputWidget) {
+JsonConfiguredWidget::widgetToJson(QWidget *inputWidget) {
 
   QJsonArray paramsArray;
 
-  // Loop over stacked widgets
-  for (int i = inputWidget->count(); i >= 0; --i) {
-    // If SimCenter widget, add to JSON array
-    if (qobject_cast<SimCenterWidget *>(inputWidget->widget(i))) {
+  auto widgetList = inputWidget->findChildren<QWidget *>();
+
+  for (auto& child : widgetList) {
+    if (qobject_cast<SimCenterWidget *>(child)) {
       QJsonObject widgetJson;
-      inputWidget->widget(i)->outputToJSON(widgetJson);
+      qobject_cast<SimCenterWidget *>(child)->outputToJSON(widgetJson);
       paramsArray.push_back(widgetJson);
-      // If stacked widget, loop over stacked widget and add resulting JSON to
-      // array
-    } else if (qobject_cast<QStackedWidget *>(inputWidget->widget(i))) {
-      paramsArray.push_back(stackedWidgetToJson(inputWidget->widget(i)));
-    } else {
-      throw std::invalid_argument(
-          "ERROR: In JsonConfiguredWidget::stackedWidgetToJson: Widget is "
-          "neither QStackedWidget nor SimCenterWidget\n");
     }
   }
 

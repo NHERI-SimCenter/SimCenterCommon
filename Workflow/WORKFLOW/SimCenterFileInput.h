@@ -39,6 +39,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: Michael Gardner
 
+#include <QLabel>
 #include <QLineEdit>
 #include <QJsonObject>
 #include <SimCenterWidget.h>
@@ -81,6 +82,6 @@ public:
 protected:
   QLineEdit *theFileLineEdit;
   QLabel *theFileLabel;
-}
+};
 
 #endif // SIM_CENTER_FILE_INPUT_H

@@ -39,6 +39,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: Michael Gardner
 
+#include <LineEditRV.h>
 #include <QLineEdit>
 #include <QJsonObject>
 #include <RandomVariablesContainer.h>
@@ -79,6 +80,6 @@ public:
 protected:
   LineEditRV *theRVLineEdit;
   QLabel *theRVLabel;
-}
+};
 
 #endif // SIM_CENTER_RV_LINE_EDIT_H

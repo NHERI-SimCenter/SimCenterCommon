@@ -37,10 +37,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: Michael Gardner
 
 #include <QComboBox>
+#include <QFileDialog>
 #include <QHBoxLayout>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLabel>
+#include <QPushButton>
 #include <QString>
 
 #include "SimCenterFileInput.h"
@@ -52,22 +54,22 @@ SimCenterFileInput::SimCenterFileInput(const QJsonValue &inputObject,
   // Configure file line edit based on input JSON object
   theFileLineEdit = new QLineEdit();
   theFileLabel = new QLabel();
-  theFileLabel->setText(tr(inputObject["name"]));
+  theFileLabel->setText(inputObject["name"].toString());
   QPushButton * chooseFile = new QPushButton();
-  chooseFile->setText(tr("Choose"));
+  chooseFile->setText("Choose");
 
   QHBoxLayout * layout = new QHBoxLayout();
   layout->addWidget(theFileLabel);
   layout->addWidget(theFileLineEdit);
   layout->addWidget(chooseFile);
 
-  connect(chooseFile, SIGNAL(clicked(bool)), this, SLOT(chooseInputFile()));
+  connect(chooseFile, &QPushButton::clicked, this, &SimCenterFileInput::chooseInputFile);
 
   this->setLayout(layout);
 }
 
 void SimCenterFileInput::chooseInputFile() {
-  QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "C://",
+  QString fileName = QFileDialog::getOpenFileName(this, "Open File", "C://",
                                                   "All files (*.*)");
   theFileLineEdit->setText(fileName);
 }
@@ -75,8 +77,8 @@ void SimCenterFileInput::chooseInputFile() {
 bool SimCenterFileInput::inputFromJSON(QJsonObject& jsonObject) {
   bool result = true;
 
-  theFileLabel->setText(tr(jsonObject["name"]));
-  theFileLineEdit->setText(tr(jsonObject["value"]));
+  theFileLabel->setText(jsonObject["name"].toString());
+  theFileLineEdit->setText(jsonObject["value"].toString());
 
   return result;
 }

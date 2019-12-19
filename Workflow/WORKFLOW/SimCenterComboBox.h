@@ -40,6 +40,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: Michael Gardner
 
 #include <QComboBox>
+#include <QLabel>
 #include <QJsonObject>
 #include <SimCenterWidget.h>
 
@@ -74,7 +75,8 @@ public:
   bool outputToJSON(QJsonObject &jsonObject) override;
 
 protected:
+  QLabel *theComboBoxLabel;
   QComboBox* theComboBox;
-}
+};
 
 #endif // SIM_CENTER_COMBO_BOX_H

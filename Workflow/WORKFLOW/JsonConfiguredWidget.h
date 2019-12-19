@@ -42,6 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QComboBox>
 #include <QLineEdit>
 #include <QString>
+#include <QWidget>
 #include <RandomVariablesContainer.h>
 #include <SimCenterWidget.h>
 
@@ -104,46 +105,47 @@ protected:
   /**
    * Generate widget based on input JSON object
    * @param[in] inputArray JSON array describing widget to be generated
+   * @param[in] set Flag indicating whether to set values of widgets 
    * @return Pointer to generated widget
    */
-  QStackedWidget *generateStackedWidget(const QJsonArray &inputArray) const;
+  QWidget *generateWidgetLayout(const QJsonArray &inputArray, bool set = false) const;
 
   /**
    * Generate combo box based on input JSON object
-   * @param[in] inputObject JSON object describing combo box to be generated
+   * @param[in] inputObject JSON value describing combo box to be generated
    * @return Pointer to generated combo box
    */
-  SimCenterWidget *generateComboBox(const QJsonObject &inputObject) const;
+  SimCenterWidget *generateComboBox(const QJsonValue &inputValue) const;
 
   /**
-   * Generate random variable line edit based on input JSON object
-   * @param[in] inputObject JSON object describing random variable line edit to
+   * Generate random variable line edit based on input JSON value
+   * @param[in] inputValue JSON value describing random variable line edit to
    * be generated
    * @return Pointer to generated random variable line edit
    */
-  SimCenterWidget *generateRVLineEdit(const QJsonObject &inputObject) const;
+  SimCenterWidget *generateRVLineEdit(const QJsonValue &inputValue) const;
 
   /**
-   * Generate line edit for opening input files based on input JSON object
-   * @param[in] inputObject JSON object describing file line edit to be
+   * Generate line edit for opening input files based on input JSON value
+   * @param[in] inputValue JSON value describing file line edit to be
    * generated
    * @return Pointer to generated file line edit
    */
-  SimCenterWidget *generateFileInput(const QJsonObject &inputObject) const;
+  SimCenterWidget *generateFileInput(const QJsonValue &inputValue) const;
 
   /**
-   * Write the input stacked widget to JSON. Assumes that stacked widget
-   * contains only other stacked widgets or SimCenter widgets
-   * @param[in] inputWidget Input stacked widget to write to JSON object
-   * @return JSON object of stacked widget
+   * Write the input widget to JSON. Assumes that widget
+   * contains only other widgets or SimCenter widgets
+   * @param[in] inputWidget Input widget to write to JSON object
+   * @return JSON object of widget
    */
-  QJsonArray stackedWidgetToJson(QStackedWidget *inputWidget);
+  QJsonArray widgetToJson(QWidget *inputWidget);
 
   QLineEdit *theConfigFile; /**< Path to file specifying widget configuration */
   RandomVariablesContainer *theRVInputWidget; /**< Widget for inputting random
                                                 variables */
-  QStackedWidget *theStackedWidget; /**< Stacked widget containing inputs
-                                       specified to JSON config file */
-}
+  QWidget *theWidget; /**< Stacked widget containing inputs
+			 specified to JSON config file */
+};
 
 #endif // JSON_CONFIGURED_WIDGET_H

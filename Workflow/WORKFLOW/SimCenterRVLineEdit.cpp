@@ -54,7 +54,7 @@ SimCenterRVLineEdit::SimCenterRVLineEdit(
   // Configure file line edit based on input JSON object
   theRVLineEdit = new LineEditRV(random_variables);
   theRVLabel = new QLabel();
-  theRVLabel->setText(tr(inputObject["name"]));
+  theRVLabel->setText(inputObject["name"].toString());
 
   QHBoxLayout * layout = new QHBoxLayout();
   layout->addWidget(theRVLabel);
@@ -66,7 +66,7 @@ SimCenterRVLineEdit::SimCenterRVLineEdit(
 bool SimCenterRVLineEdit::inputFromJSON(QJsonObject& jsonObject) {
   bool result = true;
 
-  theRVLabel->setText(tr(jsonObject["name"]));
+  theRVLabel->setText(jsonObject["name"].toString());
   theRVLineEdit->inputFromJSON(jsonObject, "value");
 
   return result;
@@ -76,7 +76,7 @@ bool SimCenterRVLineEdit::outputToJSON(QJsonObject& jsonObject) {
   bool result = true;
 
   jsonObject.insert("name", theRVLabel->text());
-  jsonObject.insert("type", "FileInput");
+  jsonObject.insert("type", "RVLineEdit");
   theRVLineEdit->outputToJSON(jsonObject, QString("value"));
 
   return true;
