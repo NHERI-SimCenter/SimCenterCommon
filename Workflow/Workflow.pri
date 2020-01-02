@@ -45,6 +45,10 @@ SOURCES += $$PWD/UQ/DakotaResults.cpp \
     $$PWD/WORKFLOW/MainWindowWorkflowApp.cpp \
     $$PWD/WORKFLOW/WorkflowAppWidget.cpp \
     $$PWD/WORKFLOW/CustomizedItemModel.cpp \
+    $$PWD/WORKFLOW/JsonConfiguredWidget.cpp \
+    $$PWD/WORKFLOW/SimCenterComboBox.cpp \
+    $$PWD/WORKFLOW/SimCenterFileInput.cpp \
+    $$PWD/WORKFLOW/SimCenterRVLineEdit.cpp \
     $$PWD/SIM/OpenSeesBuildingModel.cpp \
     $$PWD/SIM/MDOF_BuildingModel.cpp \
     $$PWD/SIM/SIM_Selection.cpp \
@@ -95,6 +99,10 @@ HEADERS += $$PWD/UQ/DakotaResults.h \
     $$PWD/WORKFLOW/MainWindowWorkflowApp.h \
     $$PWD/WORKFLOW/WorkflowAppWidget.h \
     $$PWD/WORKFLOW/CustomizedItemModel.h \
+    $$PWD/WORKFLOW/JsonConfiguredWidget.h \
+    $$PWD/WORKFLOW/SimCenterComboBox.h \
+    $$PWD/WORKFLOW/SimCenterFileInput.h \
+    $$PWD/WORKFLOW/SimCenterRVLineEdit.h \    
     $$PWD/SIM/OpenSeesBuildingModel.h \
     $$PWD/SIM/MDOF_BuildingModel.h \
     $$PWD/SIM/SIM_Selection.h \
