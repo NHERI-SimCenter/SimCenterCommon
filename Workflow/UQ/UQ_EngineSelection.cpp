@@ -72,8 +72,11 @@ UQ_EngineSelection::UQ_EngineSelection(RandomVariablesContainer *theRVs, QWidget
     //
 
     QHBoxLayout *theSelectionLayout = new QHBoxLayout();
-    QLabel *label = new QLabel();
+    //    QLabel *label = new QLabel();
+    SectionTitle *label = new SectionTitle();
     label->setText(QString("UQ Engine"));
+    label->setMinimumWidth(150);
+
     theEngineSelectionBox = new QComboBox();
     theEngineSelectionBox->addItem(tr("Dakota"));
     // theEngineSelectionBox->addItem(tr("UQpy"));
@@ -82,6 +85,8 @@ UQ_EngineSelection::UQ_EngineSelection(RandomVariablesContainer *theRVs, QWidget
     // theEngineSelectionBox->setItemData(1, "uqPY engine", Qt::ToolTipRole);
     
     theSelectionLayout->addWidget(label);
+    QSpacerItem *spacer = new QSpacerItem(50,10);
+    theSelectionLayout->addItem(spacer);
     theSelectionLayout->addWidget(theEngineSelectionBox);
     theSelectionLayout->addStretch();
     layout->addLayout(theSelectionLayout);
