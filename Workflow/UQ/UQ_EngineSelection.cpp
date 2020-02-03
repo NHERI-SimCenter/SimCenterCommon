@@ -62,7 +62,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //#include <UQpyEngine.h>
 #include <RandomVariablesContainer.h>
 
-UQ_EngineSelection::UQ_EngineSelection(RandomVariablesContainer *theRVs, QWidget *parent)
+UQ_EngineSelection::UQ_EngineSelection(RandomVariablesContainer *theRVs, UQ_EngineType type, QWidget *parent)
     : SimCenterAppWidget(parent), theCurrentEngine(0)
 {
     QVBoxLayout *layout = new QVBoxLayout();
@@ -101,7 +101,7 @@ UQ_EngineSelection::UQ_EngineSelection(RandomVariablesContainer *theRVs, QWidget
     // create the individual widgets add to stacked widget
     //
 
-    theDakotaEngine = new DakotaEngine(theRVs);
+    theDakotaEngine = new DakotaEngine(theRVs, type);
     //theUQpyEngine = new UQpyEngine();
 
     theStackedWidget->addWidget(theDakotaEngine);

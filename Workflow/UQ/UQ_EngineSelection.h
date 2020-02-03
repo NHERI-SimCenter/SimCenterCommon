@@ -40,6 +40,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include <SimCenterAppWidget.h>
+#include <UQ_Engine.h>
 
 class QComboBox;
 class QStackedWidget;
@@ -48,13 +49,14 @@ class UQ_Results;
 class UQ_Engine;
 class RandomVariablesContainer;
 
+
 class UQ_EngineSelection : public  SimCenterAppWidget
 {
   Q_OBJECT
 
     public:
 
-  explicit UQ_EngineSelection(RandomVariablesContainer *, QWidget *parent = 0);
+  explicit UQ_EngineSelection(RandomVariablesContainer *, UQ_EngineType = ForwardReliabilitySensivity, QWidget *parent = 0);
   ~UQ_EngineSelection();
 
   RandomVariablesContainer  *getParameters();
