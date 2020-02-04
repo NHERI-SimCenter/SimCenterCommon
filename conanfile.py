@@ -3,7 +3,7 @@ import os
 
 class CommonConan(ConanFile):
     name = "SimCenterCommonQt"
-    version = "0.0.3"
+    version = "0.1.0"
     license = "BSD"
     author = "Wael Elhaddad (elhaddad@berkeley.edu)"
     url = ""
