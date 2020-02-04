@@ -96,11 +96,11 @@ using namespace QtCharts;
 
 
 
-QLabel *best_fit_label_text;
+static QLabel *best_fit_label_text;
 
 
 DakotaResultsSampling::DakotaResultsSampling(RandomVariablesContainer *theRandomVariables, QWidget *parent)
-  : DakotaResults(parent), theRVs(theRandomVariables)
+  : UQ_Results(parent), theRVs(theRandomVariables)
 {
     // title & add button
     tabWidget = new QTabWidget(this);
@@ -352,10 +352,11 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
             QTableWidgetItem *item_index = spreadsheet->item(row,col);
             double value_item = item_index->text().toDouble();
             kurtosis_value = (mean_value-value_item)*(mean_value-value_item)*(mean_value-value_item)*(mean_value-value_item);
+            kurtosis_value = (kurtosis_value/(sd_value*sd_value*sd_value*sd_value));
         }
 
-        kurtosis_value = kurtosis_value/rowCount;
-        kurtosis_value = (kurtosis_value/(sd_value*sd_value*sd_value*sd_value))-3;
+        //kurtosis_value = kurtosis_value/rowCount;
+        //kurtosis_value = (kurtosis_value/(sd_value*sd_value*sd_value*sd_value))-3;
         QString variableName = theHeadings.at(col);
         QWidget *theWidget = this->createResultEDPWidget(variableName, mean_value, sd_value, kurtosis_value);
         summaryLayout->addWidget(theWidget);
@@ -455,10 +456,7 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
     mLeft = spreadsheet->wasLeftKeyPressed();
 
     //  best_fit_instructions->clear();
-    //see the file MyTableWiget.cpp in order to find the function wasLeftKeyPressed();
-    //qDebug()<<"\n the value of mLeft       "<<mLeft;
-    //qDebug()<<"\n I am inside the onSpreadsheetCellClicked routine  and I am exiting!!  ";
-    //  exit(1);
+
     // create a new series
     chart->removeAllSeries();
     //chart->removeA
@@ -472,17 +470,10 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
 
     // QScatterSeries *series;//= new QScatterSeries;
 
-    int oldCol;
+    int oldCol = 0;
     if (mLeft == true) {
         oldCol= col2;   //
-        //oldCol=0;   // padhye trying. I don't think it makes sense to use coldCol as col2, i.e., something that was
-        // previously selected?
         col2 = col; // col is the one that comes in te function, based on the click made after clicking
-
-        //    qDebug()<<"\n the value of oldcol is  "<<oldCol;
-        //    qDebug()<<"\n the value of col2 is    "<<col2;
-        //    qDebug()<<"\t the value of col is     "<<col;
-
     } else {
         oldCol= col1;
         col1 = col;
@@ -547,23 +538,11 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
         double xRange=maxX-minX;
         double yRange=maxY-minY;
 
-        //  qDebug()<<"\n the value of xRange is     ";
-        //qDebug()<<xRange;
-
-        //qDebug()<<"\n the value of yRange is     ";
-        //qDebug()<<yRange;
-
-        // if the column is not the run number, i.e., 0 column, then adjust the x-axis differently
-
-        if(col1!=0)
-        {
-            axisX->setRange(minX - 0.01*xRange, maxX + 0.1*xRange);
+        if(col1!=0) {
+	  axisX->setRange(minX - 0.01*xRange, maxX + 0.1*xRange);
         }
         else{
-
-            axisX->setRange(int (minX - 1), int (maxX +1));
-            // axisX->setTickCount(1);
-
+	  axisX->setRange(int (minX - 1), int (maxX +1));
         }
         // adjust y with some fine precision
         axisY->setRange(minY - 0.1*yRange, maxY + 0.1*yRange);
@@ -642,41 +621,28 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
             chart->setAxisX(axisX, series);
             chart->setAxisY(axisY, series);
 
-            //calling external python script to find the best fit, generating the data and then plotting it.
+	    /* ************************************ BEST FIT  ***********************************8
 
+            //calling external python script to find the best fit, generating the data and then plotting it.
             // this will be done in the application directory
 
             QString appDIR = qApp->applicationDirPath(); // this is where the .exe is and also the parseJson.py, and now the fit_distribution.py
-
-            // qDebug()<<"\n the value of appDIR is    "<<appDIR;
-            //  exit(1);
             QString data_input_file = appDIR +  QDir::separator() + QString("data_input.txt");
             QString pySCRIPT_dist_fit =  appDIR +  QDir::separator() + QString("fit.py");
-
-            //QString tDirectory = appDIR + QDir::separator() + QString("tmp.distributionfit");
-            // dump the data into a file
-
-
-            //QDir mDir; // an object of the class
-            //mDir.mkdir(tDirectory);
-            //qDebug()<<"\n the value of tDirectory is  "<<pySCRIPT_dist_fit;
 
             QFile file(data_input_file);
             QTextStream stream(&file);
 
-            //qDebug()<<"\n the data values are   \n";
-            if (file.open(QIODevice::ReadWrite))
-            {
-                for(int i=0;i<rowCount;++i)
-                {
-
-                    stream<<dataValues[i];
-                    stream<< endl;
-
-                    //qDebug()<<"\n the dataValues is"<<dataValues[i];
-                }
-            }else {qDebug()<<"\n error in opening file data file for histogram fit  ";exit(1);}
-
+            if (file.open(QIODevice::ReadWrite)) {
+	      for(int i=0;i<rowCount;++i) {
+		stream<<dataValues[i];
+		stream<< endl;
+		
+	      }
+            } else {
+	      qDebug()<<"\n error in opening file data file for histogram fit  ";
+	      exit(1);
+	    }
 
             delete [] dataValues;
 
@@ -711,16 +677,14 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
 
 
             QFile file_fitted_data("Best_fit.out");
-            if(!file_fitted_data.exists())
-            {
+            if(!file_fitted_data.exists()) {
                 qDebug()<<"\n The file does not exist and hence exiting";
                 exit(1);
 
             }
             QLineSeries *series_best_fit = new QLineSeries();
             series_best_fit->setName("Best Fit");
-            if(file_fitted_data.open(QIODevice::ReadOnly |QIODevice::Text ))
-            {
+            if(file_fitted_data.open(QIODevice::ReadOnly |QIODevice::Text )) {
 
                 QTextStream txtStream(&file_fitted_data);
                 while(!txtStream.atEnd())
@@ -771,49 +735,9 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
                     }
                     //line_from_file=line_from_file+info_fit_file.readLine()+"\n";
                 }
-                qDebug() << line_from_file;
-
-                // best_fit_label_text->setText(line_from_file);
-                // best_fit_label_text->setStyleSheet("QLabel { background-color : white; color : gray; }");
-
-                // QFont f2("Helvetica [Cronyx]", 10, QFont::Normal);
-                // best_fit_label_text->setFont(f2);
-
-                //msgBox.show();
-                //  msgBox.exec();
-
-                //     best_fit_instructions->setText("I am fitting the best fit info. here");
-                //qDebug()<<"\n\n\n I am about to exit from here   \n\n\n";
-                // exit(1);
             }
-            //std::ifstream fitted_data_file("Best_fit.out");
-            //if(!fitted_data_file.exists)
-            // process.execute("python C:/Users/nikhil/NHERI/build-uqFEM-Desktop_Qt_5_11_0_MSVC2015_32bit-Release/debug\\fit.py");
-            // exit(1);
-            //qDebug()<<"\n   the value of pySCRIPT_dist_fit   is         "<<pySCRIPT_dist_fit;
-            //#ifdef Q_OS_WIN
-            //   QProcess process;
-            //String command = "notepad";
-            //process.execute("cmd", QStringList() << "/C" << command);
-            //process.start("cmd", QStringList(), QIODevice::ReadWrite);
-            //std::cerr << command << "\n";
+	    ****************************** BEST FIT ****************************************** */
 
-            //     process.waitForStarted();
-
-            //     qDebug()<<"process has been completed       ";
-            //         exit(1);
-            /*
-    #else
-    QString command = QString("source $HOME/.bashrc; python ") + pySCRIPT + QString(" ") + tDirectory + QString(" ") +
-            tmpDirectory + QString(" runningLocal");
-    //QString command = QString("python ") + pySCRIPT + QString(" ") + tDirectory + QString(" ") +
-    //        tmpDirectory + QString(" runningLocal");
-    proc->execute("bash", QStringList() << "-c" <<  command);
-    qInfo() << command;
-    // proc->start("bash", QStringList("-i"), QIODevice::ReadWrite);
-    #endif
-    proc->waitForStarted();
-*/
         } else {
             // cumulative distribution
             mergesort(dataValues, rowCount);

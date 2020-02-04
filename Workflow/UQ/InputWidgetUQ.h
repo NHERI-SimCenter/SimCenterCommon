@@ -43,19 +43,16 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class QTabWidget;
 class RandomVariablesContainer;
-class InputWidgetSampling;
+class UQ_EngineSelection;
 class QVBoxLayout;
 class QGroupBox;
-
-// this class is just a tabbed widget for GI and SIM widgets
-//
 
 
 class InputWidgetUQ : public QWidget
 {
     Q_OBJECT
 public:
-  explicit InputWidgetUQ(InputWidgetSampling *, RandomVariablesContainer *, QWidget *parent = 0);
+  explicit InputWidgetUQ(UQ_EngineSelection *, RandomVariablesContainer *, QWidget *parent = 0);
     ~InputWidgetUQ();
 
 signals:
@@ -68,7 +65,7 @@ signals:
 private:
     QTabWidget *theTab;
     RandomVariablesContainer *theRVs;
-    InputWidgetSampling *theUQ;
+    UQ_EngineSelection *theUQ;
 
     QVBoxLayout *layout;
     QGroupBox *rvGroupBox;

@@ -41,11 +41,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-
 #include <QStringList>
 #include <QHBoxLayout>
-#include <SimCenterTableWidget.h>
 #include <QComboBox>
+#include <SimCenterWidget.h>
 
 class QLineEdit;
 
