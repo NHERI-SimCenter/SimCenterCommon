@@ -7,11 +7,13 @@
 |Status|[![Build Status](https://el7addad.visualstudio.com/NHERI%20SimCenter/_apis/build/status/el7addad.SimCenterCommon?branchName=master&jobName=Job&configuration=Job%20windows)](https://el7addad.visualstudio.com/NHERI%20SimCenter/_build/latest?definitionId=2&branchName=master)|[![Build Status](https://el7addad.visualstudio.com/NHERI%20SimCenter/_apis/build/status/el7addad.SimCenterCommon?branchName=master&jobName=Job&configuration=Job%20macHighSierra)](https://el7addad.visualstudio.com/NHERI%20SimCenter/_build/latest?definitionId=2&branchName=master)|[![Build Status](https://el7addad.visualstudio.com/NHERI%20SimCenter/_apis/build/status/el7addad.SimCenterCommon?branchName=master&jobName=Job&configuration=Job%20linux)](https://el7addad.visualstudio.com/NHERI%20SimCenter/_build/latest?definitionId=2&branchName=master)|
 
 ## Developer's Guide
+
 This repository is a common library of Qt classes used by the SimCenter Desktop applications.
 The repository is organized into separate subfolders, each has a QMake project include file.
 All the codes are built into a single static library using QMake and are packaged using Conan package manager.
 
 ### Using SimCenterCommon as a dependency
+
 Consuming SimCenterCommon as a dependency can be done using a Conan recipe. The library can be added as a requirement in a ```conanfile.txt``` or ```conanfile.py```. An example ```conanfile.txt``` for consume SimCenterCommon is:
 
 ```
@@ -23,7 +25,9 @@ qmake
 ```
 
 ### Package options
+
 Conan package for SimCenterCommon supports the following options:
+
 |Option Name|Values|Description|
 |---|---|---|
 |MDOFwithQt3D|```True``` or ```False```| Rendering MDOF widget using Qt3D|
