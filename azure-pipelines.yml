@@ -1,7 +1,4 @@
-# Ant
-# Build your Java projects and run tests with Apache Ant.
-# Add steps that save build artifacts and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+# This pipeline builds SimCenterCommon and package it using Conan
 
 trigger:
 - master
@@ -35,16 +32,12 @@ pool:
   vmImage: $(imageName)
 
 variables:
-  CONAN_USERNAME: "simcenter"
-  CONAN_LOGIN_USERNAME: "elhaddad"
-  CONAN_CHANNEL: "testing"
-  CONAN_UPLOAD: "https://api.bintray.com/conan/nheri-simcenter/simcenter"
-  CONAN_UPLOAD_ONLY_WHEN_STABLE: false
-  CONAN_STABLE_BRANCH_PATTERN: "release/*"
-  CONAN_BUILD_TYPES: "Release"
-  CONAN_BUILD_POLICY: "missing"
-  CONAN_ARCHS: "x86_64"
-  CONAN_OPTIONS: "SimCenterCommonQt:withQt=True"
+- group: ConanVariables
+- name: CONAN_OPTIONS
+  value: "SimCenterCommonQt:withQt=True"
+- name: CONAN_LOGIN_USERNAME
+  value: $(BintrayUsername)
+
 
 steps:
 # Use Python version
@@ -69,4 +62,4 @@ steps:
   displayName: Conan Packaging
   failOnStderr: false
   env:
-    CONAN_PASSWORD: $(ConanPassword)
+    CONAN_PASSWORD: $(BintrayAPIKey)
