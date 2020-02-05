@@ -28,10 +28,10 @@ qmake
 
 Conan package for SimCenterCommon supports the following options:
 
-|Option Name|Values|Description|
-|---|---|---|
-|MDOFwithQt3D|```True``` or ```False```| Rendering MDOF widget using Qt3D|
-|withQt|```True``` or ```False```|Use Qt as a dependency. This allows building the package without having pre-installed Qt (e.g. suitable for automated builds)|
+|Option Name|Values|Default|Description|
+|---|---|---|---|
+|MDOFwithQt3D|```True``` or ```False``` |```False```| Rendering MDOF widget using Qt3D|
+|withQt|```True``` or ```False```|```False```|Use Qt as a dependency. This allows building the package without having pre-installed Qt (e.g. suitable for automated builds)|
 ---
 
 ### Building and packaging locally
