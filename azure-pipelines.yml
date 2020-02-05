@@ -1,0 +1,65 @@
+# This pipeline builds SimCenterCommon and package it using Conan
+
+trigger:
+- master
+- azure-pipelines
+- release*
+- stable*
+- conan
+
+pr:
+- master
+
+strategy:
+  matrix:
+    linux:
+      imageName: "ubuntu-18.04"
+      CONAN_GCC_VERSIONS: 7
+      CONAN_CLANG_VERSIONS: ""
+    macHighSierra:
+      imageName: "macos-10.13"
+      CONAN_APPLE_CLANG_VERSIONS: 10.0
+    macMojave:
+      imageName: "macos-10.14"
+      CONAN_APPLE_CLANG_VERSIONS: 11.0
+    windows:
+      imageName: "vs2017-win2016"
+      CONAN_VISUAL_VERSIONS: 15
+      CONAN_VISUAL_RUNTIMES: MD
+  maxParallel: 4
+
+pool:
+  vmImage: $(imageName)
+
+variables:
+- group: ConanVariables
+- name: CONAN_OPTIONS
+  value: "SimCenterCommonQt:withQt=True"
+- name: CONAN_LOGIN_USERNAME
+  value: $(BintrayUsername)
+
+
+steps:
+# Use Python version
+- task: UsePythonVersion@0
+  displayName: Switch to Python 3.7
+  inputs:
+    versionSpec: '3.7' 
+    addToPath: true 
+    architecture: 'x64'
+
+- script: |
+    pip install wheel
+    pip install conan --upgrade
+    pip install conan_package_tools bincrafters_package_tools
+    conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
+  displayName: Conan Installation
+  failOnStderr: false
+
+- script: |
+    conan user
+    python build.py
+  displayName: Conan Packaging
+  failOnStderr: false
+  env:
+    CONAN_PASSWORD: $(BintrayAPIKey)

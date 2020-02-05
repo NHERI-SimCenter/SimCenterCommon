@@ -4,15 +4,12 @@
 #
 #-------------------------------------------------
 
-#message($$_PRO_FILE_PWD_)
-#message($$PWD)
 
 INCLUDEPATH += $$PWD
-
 INCLUDEPATH += "../SimCenterCommon/Common"
 INCLUDEPATH += "../Common"
 
-#INCLUDEPATH += "./../widgets/Common/"
+include($$PWD/ZipUtils/ZipUtils.pri)
 
 SOURCES += $$PWD/HeaderWidget.cpp \
     $$PWD/sectiontitle.cpp \
