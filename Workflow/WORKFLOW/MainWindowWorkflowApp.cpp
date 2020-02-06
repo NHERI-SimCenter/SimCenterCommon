@@ -35,6 +35,7 @@
 
 #include <RemoteService.h>
 #include <SimCenterPreferences.h>
+#include <Utils/RelativePathResolver.h>
 
 MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theService, QWidget *parent)
   : QMainWindow(parent), theRemoteInterface(theService), inputWidget(theApp), loggedIn(false), isAutoLogin(false)
@@ -393,6 +394,11 @@ bool MainWindowWorkflowApp::saveFile(const QString &fileName)
 
     QJsonObject json;
     inputWidget->outputToJSON(json);
+
+    //Resolve relative paths before saving
+    QFileInfo fileInfo(fileName);
+    SCUtils::ResolveRelativePaths(json, fileInfo.dir());
+
     QJsonDocument doc(json);
     file.write(doc.toJson());
 
@@ -432,6 +438,10 @@ void MainWindowWorkflowApp::loadFile(const QString &fileName)
     val=file.readAll();
     QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
     QJsonObject jsonObj = doc.object();
+
+    //
+    QFileInfo fileInfo(fileName);
+    SCUtils::ResolveAbsolutePaths(jsonObj, fileInfo.dir());
 
     // close file
     file.close();
