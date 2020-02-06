@@ -62,7 +62,7 @@ class CommonConan(ConanFile):
             qmake = 'qmake'
             makeCommand = 'make'
 
-        qmakeCommand = '%s "CONFIG+=%s" %s/SimCenterCommonQt.pro' % (qmake, self.settings.build_type, self.source_folder)
+        qmakeCommand = '%s "CONFIG+=%s" %s/SimCenterCommonQt.pro' % (qmake, str(self.settings.build_type).lower(), self.source_folder)
         if(self.options.MDOFwithQt3D):
             qmakeCommand += ' "DEFINES+=_GRAPHICS_Qt3D"'
 
