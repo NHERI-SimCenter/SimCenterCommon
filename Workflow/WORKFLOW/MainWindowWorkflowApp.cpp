@@ -325,9 +325,14 @@ bool MainWindowWorkflowApp::saveAs()
     // get filename
     //
 
-    QFileDialog dialog(this);
+    QFileDialog dialog(this, "Save Simulation Model");
     dialog.setWindowModality(Qt::WindowModal);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
+    QStringList filters;
+    filters << "Json files (*.json)"
+            << "All files (*)";
+    dialog.setNameFilters(filters);
+
     if (dialog.exec() != QDialog::Accepted)
         return false;
 
@@ -337,7 +342,10 @@ bool MainWindowWorkflowApp::saveAs()
 
 void MainWindowWorkflowApp::open()
 {
-    QString fileName = QFileDialog::getOpenFileName(this);
+    QStringList filters;
+    filters << "Json files (*.json)"
+            << "All files (*)";
+    QString fileName = QFileDialog::getOpenFileName(this, "Open Simulation Model", "",  "Json files (*.json);;All files (*)");
     if (!fileName.isEmpty())
         loadFile(fileName);
 }

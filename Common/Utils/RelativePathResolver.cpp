@@ -1,7 +1,6 @@
 #include "RelativePathResolver.h"
 #include <QJsonArray>
 #include <QFileInfo>
-#include  <QDebug>
 
 
 namespace SCUtils {
@@ -10,15 +9,11 @@ const QString CurrentDirPrefix = "{Current_Dir}/";
 
 QString ResolveAbsolutePaths(QString string, QDir baseDir)
 {
-    qDebug() << "string:" << string;
-    qDebug() << "BaseDir:" << baseDir.path();
-
     if(string.startsWith(CurrentDirPrefix))
     {
         auto filepath = baseDir.absoluteFilePath(string.remove(CurrentDirPrefix));
         string = QDir(filepath).canonicalPath();
     }
-    qDebug() << "new string:" << string;
 
     return string;
 }
@@ -52,7 +47,6 @@ void ResolveAbsolutePaths(QJsonValueRef jsonValueRef, QDir baseDir)
 
 void ResolveAbsolutePaths(QJsonObject& jsonObject, QDir baseDir)
 {
-    qDebug() << baseDir.path();
     for(QJsonValueRef jsonValueRef: jsonObject)
     {
         ResolveAbsolutePaths(jsonValueRef, baseDir);
@@ -62,15 +56,11 @@ void ResolveAbsolutePaths(QJsonObject& jsonObject, QDir baseDir)
 
 QString ResolveRelativePaths(QString string, QDir baseDir)
 {
-    qDebug() << "string:" << string;
-    qDebug() << "BaseDir:" << baseDir.path();
-
     QFileInfo fileInfo (string);
     if(fileInfo.exists() && fileInfo.isAbsolute())
     {
         QDir rootDir(baseDir);
         QString relPath = rootDir.relativeFilePath(string);
-        qDebug() << "rel Path: " << relPath;
 
         if(!relPath.startsWith(".."))
             string = relPath.prepend(CurrentDirPrefix);
@@ -107,7 +97,6 @@ void ResolveRelativePaths(QJsonValueRef jsonValueRef, QDir baseDir)
 
 void ResolveRelativePaths(QJsonObject& jsonObject, QDir baseDir)
 {
-    qDebug() << baseDir.path();
     for(QJsonValueRef jsonValueRef: jsonObject)
     {
         ResolveRelativePaths(jsonValueRef, baseDir);
