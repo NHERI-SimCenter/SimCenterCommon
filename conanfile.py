@@ -3,10 +3,10 @@ import os
 
 class CommonConan(ConanFile):
     name = "SimCenterCommonQt"
-    version = "0.1.0"
+    version = "0.1.1"
     license = "BSD"
     author = "Wael Elhaddad (elhaddad@berkeley.edu)"
-    url = ""
+    url = "https://github.com/NHERI-SimCenter/SimCenterCommon.git"
     description = "SimCenter Common Qt Library"
     settings = "os", "compiler", "build_type", "arch"
     generators = "qmake", "cmake"
