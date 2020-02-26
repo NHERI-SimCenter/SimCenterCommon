@@ -1,5 +1,5 @@
-#ifndef UQ_ENGINE_SELECTION_H
-#define UQ_ENGINE_SELECTION_H
+#ifndef SIM_CENTER_RV_LINE_EDIT_H
+#define SIM_CENTER_RV_LINE_EDIT_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -20,7 +20,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -37,57 +37,49 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: Michael Gardner
 
-#include <SimCenterAppWidget.h>
-#include <UQ_Engine.h>
+#include <LineEditRV.h>
+#include <QLineEdit>
+#include <QJsonObject>
+#include <RandomVariablesContainer.h>
+#include <SimCenterWidget.h>
 
-class QComboBox;
-class QStackedWidget;
-class RandomVariablesContainer;
-class UQ_Results;
-class UQ_Engine;
-class RandomVariablesContainer;
-
-
-class UQ_EngineSelection : public  SimCenterAppWidget
-{
+class SimCenterRVLineEdit : public SimCenterWidget {
   Q_OBJECT
 
-    public:
+public:
+  /**
+   * @constructor Create new SimCenterRVLineEdit widget
+   * @param[in, out] random_variables Widget to store random variables to
+   * @param[in] inputObject Input JSON object
+   * @param[in] parent Parent widget. Defaults to null pointer
+   */
+  SimCenterRVLineEdit(RandomVariablesContainer *random_variables,
+                      const QJsonValue &inputObject, QWidget *parent = nullptr);
 
-  explicit UQ_EngineSelection(RandomVariablesContainer *, UQ_EngineType = ForwardReliabilitySensivity, QWidget *parent = 0);
-  ~UQ_EngineSelection();
-
-  RandomVariablesContainer  *getParameters();
-  UQ_Results  *getResults();
-  UQ_Engine  *getCurrentEngine();
-
-  int getNumParallelTasks(void);
+  /**
+   * @destructor Default destructor
+   */
+  virtual ~SimCenterRVLineEdit(){};
   
-  bool outputAppDataToJSON(QJsonObject &jsonObject);
-  bool inputAppDataFromJSON(QJsonObject &jsonObject);
+  /**
+   * Instantiate the random variable line edit from from input JSON object
+   * @param[in] jsonObject JSON object containing input information
+   * @return Returns true if successful, false otherwise
+   */
+  bool inputFromJSON(QJsonObject &jsonObject) override;
 
-  bool outputToJSON(QJsonObject &rvObject);
-  bool inputFromJSON(QJsonObject &rvObject);
-  bool copyFiles(QString &destName);
-  
-  void clear(void);
-  
- signals:
-  void onUQ_EngineChanged(void);
+  /**
+   * Write all current class data to JSON required to reconstruct class
+   * @param[in, out] jsonObject JSON object to write output to
+   * @return Returns true if successful, false otherwise
+   */
+  bool outputToJSON(QJsonObject &jsonObject) override;
 
- public slots:
-  void engineSelectionChanged(const QString &arg1);
-  void enginesEngineSelectionChanged(void);
-  
-private:
-   QComboBox   *theEngineSelectionBox;
-   QStackedWidget *theStackedWidget;
-
-   UQ_Engine *theCurrentEngine;
-   UQ_Engine *theDakotaEngine;
-   UQ_Engine *theUQpyEngine;
+protected:
+  LineEditRV *theRVLineEdit;
+  QLabel *theRVLabel;
 };
 
-#endif // WIND_SELECTION_H
+#endif // SIM_CENTER_RV_LINE_EDIT_H

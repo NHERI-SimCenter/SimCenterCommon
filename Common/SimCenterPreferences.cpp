@@ -208,7 +208,11 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     appDirButton->setToolTip(tr("Select Directory containing the Backend directory named applications"));
     appDirLayout->addWidget(appDirButton);
 
-    locationDirectoriesLayout->addRow(tr("Local Applications Directory:"), appDirLayout);
+    customAppDirCheckBox = new QCheckBox("Custom Local Applications:");
+    customAppDirCheckBox->setChecked(false);
+    appDir->setEnabled(false);
+    appDirButton->setEnabled(false);
+    locationDirectoriesLayout->addRow(customAppDirCheckBox, appDirLayout);
     locationDirectoriesLayout->setAlignment(Qt::AlignLeft);
     locationDirectoriesLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     locationDirectoriesLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
@@ -234,6 +238,13 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     }
     );
 
+    connect(customAppDirCheckBox, &QCheckBox::toggled, this, [this, appDirButton](bool checked)
+    {
+        this->appDir->setEnabled(checked);
+        appDirButton->setEnabled(checked);
+        appDirButton->setFlat(!checked);
+        this->appDir->setText(this->getAppDir());
+    });
 
     //
     // entry for remoteAppDir location .. basically as before
@@ -335,6 +346,7 @@ SimCenterPreferences::savePreferences(bool) {
 
     QSettings settingsApp("SimCenter", QCoreApplication::applicationName());
     settingsApp.setValue("appDir", appDir->text());
+    settingsApp.setValue("customAppDir", customAppDirCheckBox->isChecked());
     settingsApp.setValue("remoteAppDir-Oct2019", remoteAppDir->text());
     settingsApp.setValue("remoteAgaveApp-Oct2019", remoteAgaveApp->text());
     settingsApp.setValue("localWorkDir", localWorkDir->text());
@@ -375,7 +387,8 @@ SimCenterPreferences::resetPreferences(bool) {
     settingsApplication.setValue("localWorkDir", localWorkDirLocation);
     localWorkDir->setText(localWorkDirLocation);
 
-    QString appDirLocation = QCoreApplication::applicationDirPath();
+    customAppDirCheckBox->setChecked(false);
+    QString appDirLocation = getAppDir();
     settingsApplication.setValue("appDir", appDirLocation);
     appDir->setText(appDirLocation);
     
@@ -385,12 +398,13 @@ SimCenterPreferences::resetPreferences(bool) {
 
     QString remoteAppName;
     if (QCoreApplication::applicationName() == QString("WE-UQ")) 
-      remoteAppName = QString("simcenter-openfoam-dakota-1.1.0u1");
+      remoteAppName = QString("simcenter-openfoam-dakota-1.1.0u2");
     else
       remoteAppName = QString("simcenter-dakota-1.0.0u1");
 
     settingsApplication.setValue("remoteAgaveApp-Oct2019", remoteAppName);
     remoteAgaveApp->setText(remoteAppName);
+
 }
 
 
@@ -436,14 +450,21 @@ SimCenterPreferences::loadPreferences() {
     }
 
     // appDir
-    QVariant  appDirVariant = settingsApplication.value("appDir");
-    if (!appDirVariant.isValid()) {
-      QString appDirLocation = QCoreApplication::applicationDirPath();
-      settingsApplication.setValue("appDir", appDirLocation);
-      appDir->setText(appDirLocation);
-    } else {
-        appDir->setText(appDirVariant.toString());
+    QString currentAppDir = QCoreApplication::applicationDirPath();
+    auto customAppDir = settingsApplication.value("customAppDir", false);
+
+    if(customAppDir.isValid() && customAppDir.toBool() == true)
+    {
+        customAppDirCheckBox->setChecked(true);
+        QVariant  appDirVariant = settingsApplication.value("appDir");
+        if (appDirVariant.isValid())
+            currentAppDir = appDirVariant.toString();
     }
+    else
+        customAppDirCheckBox->setChecked(false);
+
+    appDir->setText(currentAppDir);
+
 
     // remoteAppDir NOT quite as before as need to allow future releases to bring new ones
     QVariant  remoteAppDirVariant = settingsApplication.value("remoteAppDir-Oct2019");
@@ -490,17 +511,21 @@ SimCenterPreferences::getPython(void) {
 QString
 SimCenterPreferences::getAppDir(void) {
 
-    QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
-    QVariant  appDirVariant = settingsApplication.value("appDir");
+    //Default appDir is the location of the application
+    auto currentAppDir = QCoreApplication::applicationDirPath();
 
-    // if not set, use default & set default as application directory
-    if (!appDirVariant.isValid()) {
-        QString appDirLocation = QCoreApplication::applicationDirPath();
-        settingsApplication.setValue("appDir", appDirLocation);
-	return appDirLocation;
-    } 
+    //If custom is checked we will try to get the custom app dir defined
+    if (customAppDirCheckBox->checkState() == Qt::CheckState::Checked)
+    {
+        QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
+        QVariant  customAppDirSetting = settingsApplication.value("AppDir");
 
-    return appDirVariant.toString();
+        // if valid use it, otherwise it remains the default
+        if (customAppDirSetting.isValid())
+            currentAppDir = customAppDirSetting.toString();
+    }
+
+    return currentAppDir;
 }
 
 QString

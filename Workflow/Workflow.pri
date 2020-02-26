@@ -44,12 +44,18 @@ SOURCES += $$PWD/UQ/DakotaResults.cpp \
     $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/WORKFLOW/MainWindowWorkflowApp.cpp \
     $$PWD/WORKFLOW/WorkflowAppWidget.cpp \
+    $$PWD/WORKFLOW/SimCenterComponentSelection.cpp \
     $$PWD/WORKFLOW/CustomizedItemModel.cpp \
+    $$PWD/WORKFLOW/JsonConfiguredWidget.cpp \
+    $$PWD/WORKFLOW/SimCenterComboBox.cpp \
+    $$PWD/WORKFLOW/SimCenterFileInput.cpp \
+    $$PWD/WORKFLOW/SimCenterRVLineEdit.cpp \
     $$PWD/SIM/OpenSeesBuildingModel.cpp \
     $$PWD/SIM/MDOF_BuildingModel.cpp \
     $$PWD/SIM/SIM_Selection.cpp \
     $$PWD/SIM/InputWidgetBIM.cpp \
     $$PWD/SIM/OpenSeesParser.cpp \
+    $$PWD/ANALYSIS/FEM_Selection.cpp \
     $$PWD/ANALYSIS/InputWidgetOpenSeesAnalysis.cpp \
     $$PWD/EXECUTION/RunLocalWidget.cpp \
     $$PWD/EXECUTION/AgaveCurl.cpp \
@@ -94,12 +100,18 @@ HEADERS += $$PWD/UQ/DakotaResults.h \
     $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/WORKFLOW/MainWindowWorkflowApp.h \
     $$PWD/WORKFLOW/WorkflowAppWidget.h \
+    $$PWD/WORKFLOW/SimCenterComponentSelection.h \
     $$PWD/WORKFLOW/CustomizedItemModel.h \
+    $$PWD/WORKFLOW/JsonConfiguredWidget.h \
+    $$PWD/WORKFLOW/SimCenterComboBox.h \
+    $$PWD/WORKFLOW/SimCenterFileInput.h \
+    $$PWD/WORKFLOW/SimCenterRVLineEdit.h \    
     $$PWD/SIM/OpenSeesBuildingModel.h \
     $$PWD/SIM/MDOF_BuildingModel.h \
     $$PWD/SIM/SIM_Selection.h \
     $$PWD/SIM/InputWidgetBIM.h \
     $$PWD/SIM/OpenSeesParser.h \
+    $$PWD/ANALYSIS/FEM_Selection.h \
     $$PWD/ANALYSIS/InputWidgetOpenSeesAnalysis.h \
     $$PWD/EXECUTION/RunLocalWidget.h \
     $$PWD/EXECUTION/AgaveCurl.h \

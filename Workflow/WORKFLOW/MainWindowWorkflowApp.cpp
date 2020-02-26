@@ -242,7 +242,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
 
     manualURL = QString("");
     feedbackURL = QString("https://docs.google.com/forms/d/e/1FAIpQLSfh20kBxDmvmHgz9uFwhkospGLCeazZzL770A2GuYZ2KgBZBA/viewform");
-    featureRequestURL = QString("https://docs.google.com/forms/d/e/1FAIpQLScTLkSwDjPNzH8wx8KxkyhoIT7AI9KZ16Wg9TuW1GOhSYFOag/viewform");
+    //    featureRequestURL = QString("https://docs.google.com/forms/d/e/1FAIpQLScTLkSwDjPNzH8wx8KxkyhoIT7AI9KZ16Wg9TuW1GOhSYFOag/viewform");
     versionText = QString("");
     citeText = QString("");
     aboutText = QString(tr("This is a SeimCenter Workflow Applicatios"));
@@ -498,8 +498,8 @@ void MainWindowWorkflowApp::createActions() {
     QAction *versionAct = helpMenu->addAction(tr("&Version"), this, &MainWindowWorkflowApp::version);
     QAction *aboutAct = helpMenu->addAction(tr("&About"), this, &MainWindowWorkflowApp::about);
     QAction *manualAct = helpMenu->addAction(tr("&Manual"), this, &MainWindowWorkflowApp::manual);
-    QAction *submitAct = helpMenu->addAction(tr("&Provide Feedback"), this, &MainWindowWorkflowApp::submitFeedback);
-    QAction *submitFeature = helpMenu->addAction(tr("&Submit Feature Request"), this, &MainWindowWorkflowApp::submitFeatureRequest);
+    QAction *submitAct = helpMenu->addAction(tr("&Submit Bug/Feature Request"), this, &MainWindowWorkflowApp::submitFeedback);
+    // QAction *submitFeature = helpMenu->addAction(tr("&Submit Bug/Feature Request"), this, &MainWindowWorkflowApp::submitFeatureRequest);
     QAction *citeAct = helpMenu->addAction(tr("&How to Cite"), this, &MainWindowWorkflowApp::cite);
     QAction *copyrightAct = helpMenu->addAction(tr("&License"), this, &MainWindowWorkflowApp::copyright);
 }
@@ -679,6 +679,7 @@ void MainWindowWorkflowApp::preferences()
   thePreferences->show();
 }
 
+
 void MainWindowWorkflowApp::submitFeedback()
 {
     QDesktopServices::openUrl(QUrl(feedbackURL, QUrl::TolerantMode));
@@ -688,12 +689,6 @@ void MainWindowWorkflowApp::submitFeedback()
 void MainWindowWorkflowApp::manual()
 {
     QDesktopServices::openUrl(QUrl(manualURL, QUrl::TolerantMode));
-    //QDesktopServices::openUrl(QUrl("https://www.designsafe-ci.org/help/new-ticket/", QUrl::TolerantMode));
-}
-
-void MainWindowWorkflowApp::submitFeatureRequest()
-{
-    QDesktopServices::openUrl(QUrl(featureRequestURL, QUrl::TolerantMode));
     //QDesktopServices::openUrl(QUrl("https://www.designsafe-ci.org/help/new-ticket/", QUrl::TolerantMode));
 }
 
@@ -736,12 +731,6 @@ void
 MainWindowWorkflowApp::setFeedbackURL(QString &newText)
 {
   feedbackURL = newText;
-}
-
-void
-MainWindowWorkflowApp::setFeatureURL(QString &newText)
-{
-  featureRequestURL = newText;
 }
 
 void

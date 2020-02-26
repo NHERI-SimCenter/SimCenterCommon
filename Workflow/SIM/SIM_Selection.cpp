@@ -67,7 +67,7 @@ SIM_Selection::SIM_Selection(RandomVariablesContainer *theRandomVariableIW,
     QHBoxLayout *titleLayout = new QHBoxLayout();
 
     SectionTitle *textBIM=new SectionTitle();
-    textBIM->setText(tr("Building Model Input"));
+    textBIM->setText(tr("Building Model Generator"));
     textBIM->setMinimumWidth(250);
     QSpacerItem *spacer = new QSpacerItem(50,10);
 

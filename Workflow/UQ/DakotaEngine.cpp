@@ -56,7 +56,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //#include <DakotaInputCalibration.h>
 //#include <DakotaInputBayesianCalibration.h>
 
-DakotaEngine::DakotaEngine(RandomVariablesContainer *theRVs, QWidget *parent)
+DakotaEngine::DakotaEngine(RandomVariablesContainer *theRVs, UQ_EngineType type, QWidget *parent)
 : UQ_Engine(parent), theCurrentEngine(0)
 {
 
@@ -71,8 +71,10 @@ DakotaEngine::DakotaEngine(RandomVariablesContainer *theRVs, QWidget *parent)
     label->setText(QString("Dakota Method Catagory"));
     theEngineSelectionBox = new QComboBox();
     theEngineSelectionBox->addItem(tr("Forward Propagation"));
-    theEngineSelectionBox->addItem(tr("Reliability Analysis"));
-    theEngineSelectionBox->addItem(tr("Sensitivity Analysis"));
+    if (type == ForwardReliabilitySensivity) {
+        theEngineSelectionBox->addItem(tr("Reliability Analysis"));
+        theEngineSelectionBox->addItem(tr("Sensitivity Analysis"));
+    }
     theEngineSelectionBox->setMinimumWidth(600);
 
     theSelectionLayout->addWidget(label);

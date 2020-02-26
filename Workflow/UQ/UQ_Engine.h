@@ -44,6 +44,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class UQ_Results;
 class RandomVariablesContainer;
 
+enum UQ_EngineType {All, ForwardOnly, ForwardReliabilitySensivity};
+
 class UQ_Engine : public SimCenterAppWidget
 {
     Q_OBJECT

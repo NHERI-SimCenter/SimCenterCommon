@@ -1,6 +1,3 @@
-#ifndef UQ_ENGINE_SELECTION_H
-#define UQ_ENGINE_SELECTION_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -20,7 +17,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -37,57 +34,50 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: Michael Gardner
 
-#include <SimCenterAppWidget.h>
-#include <UQ_Engine.h>
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QLabel>
+#include <QString>
 
-class QComboBox;
-class QStackedWidget;
-class RandomVariablesContainer;
-class UQ_Results;
-class UQ_Engine;
-class RandomVariablesContainer;
+#include <RandomVariablesContainer.h>
 
+#include "SimCenterRVLineEdit.h"
 
-class UQ_EngineSelection : public  SimCenterAppWidget
-{
-  Q_OBJECT
+SimCenterRVLineEdit::SimCenterRVLineEdit(
+    RandomVariablesContainer *random_variables, const QJsonValue &inputObject,
+    QWidget *parent)
+    : SimCenterWidget(parent) {
+  // Configure file line edit based on input JSON object
+  theRVLineEdit = new LineEditRV(random_variables);
+  theRVLabel = new QLabel();
+  theRVLabel->setText(inputObject["name"].toString());
 
-    public:
+  QHBoxLayout * layout = new QHBoxLayout();
+  layout->addWidget(theRVLabel);
+  layout->addWidget(theRVLineEdit);
 
-  explicit UQ_EngineSelection(RandomVariablesContainer *, UQ_EngineType = ForwardReliabilitySensivity, QWidget *parent = 0);
-  ~UQ_EngineSelection();
+  this->setLayout(layout);
+}
 
-  RandomVariablesContainer  *getParameters();
-  UQ_Results  *getResults();
-  UQ_Engine  *getCurrentEngine();
+bool SimCenterRVLineEdit::inputFromJSON(QJsonObject& jsonObject) {
+  bool result = true;
 
-  int getNumParallelTasks(void);
-  
-  bool outputAppDataToJSON(QJsonObject &jsonObject);
-  bool inputAppDataFromJSON(QJsonObject &jsonObject);
+  theRVLabel->setText(jsonObject["name"].toString());
+  theRVLineEdit->inputFromJSON(jsonObject, "value");
 
-  bool outputToJSON(QJsonObject &rvObject);
-  bool inputFromJSON(QJsonObject &rvObject);
-  bool copyFiles(QString &destName);
-  
-  void clear(void);
-  
- signals:
-  void onUQ_EngineChanged(void);
+  return result;
+}
 
- public slots:
-  void engineSelectionChanged(const QString &arg1);
-  void enginesEngineSelectionChanged(void);
-  
-private:
-   QComboBox   *theEngineSelectionBox;
-   QStackedWidget *theStackedWidget;
+bool SimCenterRVLineEdit::outputToJSON(QJsonObject& jsonObject) {
+  bool result = true;
 
-   UQ_Engine *theCurrentEngine;
-   UQ_Engine *theDakotaEngine;
-   UQ_Engine *theUQpyEngine;
-};
+  jsonObject.insert("name", theRVLabel->text());
+  jsonObject.insert("type", "RVLineEdit");
+  theRVLineEdit->outputToJSON(jsonObject, QString("value"));
 
-#endif // WIND_SELECTION_H
+  return true;
+}

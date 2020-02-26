@@ -1,6 +1,3 @@
-#ifndef UQ_ENGINE_SELECTION_H
-#define UQ_ENGINE_SELECTION_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -20,7 +17,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -37,57 +34,61 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: Michael Gardner
 
-#include <SimCenterAppWidget.h>
-#include <UQ_Engine.h>
+#include <QComboBox>
+#include <QFileDialog>
+#include <QHBoxLayout>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QLabel>
+#include <QPushButton>
+#include <QString>
 
-class QComboBox;
-class QStackedWidget;
-class RandomVariablesContainer;
-class UQ_Results;
-class UQ_Engine;
-class RandomVariablesContainer;
+#include "SimCenterFileInput.h"
 
-
-class UQ_EngineSelection : public  SimCenterAppWidget
+SimCenterFileInput::SimCenterFileInput(const QJsonValue &inputObject,
+                                     QWidget *parent)
+    : SimCenterWidget(parent)
 {
-  Q_OBJECT
+  // Configure file line edit based on input JSON object
+  theFileLineEdit = new QLineEdit();
+  theFileLabel = new QLabel();
+  theFileLabel->setText(inputObject["name"].toString());
+  QPushButton * chooseFile = new QPushButton();
+  chooseFile->setText("Choose");
 
-    public:
+  QHBoxLayout * layout = new QHBoxLayout();
+  layout->addWidget(theFileLabel);
+  layout->addWidget(theFileLineEdit);
+  layout->addWidget(chooseFile);
 
-  explicit UQ_EngineSelection(RandomVariablesContainer *, UQ_EngineType = ForwardReliabilitySensivity, QWidget *parent = 0);
-  ~UQ_EngineSelection();
+  connect(chooseFile, &QPushButton::clicked, this, &SimCenterFileInput::chooseInputFile);
 
-  RandomVariablesContainer  *getParameters();
-  UQ_Results  *getResults();
-  UQ_Engine  *getCurrentEngine();
+  this->setLayout(layout);
+}
 
-  int getNumParallelTasks(void);
-  
-  bool outputAppDataToJSON(QJsonObject &jsonObject);
-  bool inputAppDataFromJSON(QJsonObject &jsonObject);
+void SimCenterFileInput::chooseInputFile() {
+  QString fileName = QFileDialog::getOpenFileName(this, "Open File", "C://",
+                                                  "All files (*.*)");
+  theFileLineEdit->setText(fileName);
+}
 
-  bool outputToJSON(QJsonObject &rvObject);
-  bool inputFromJSON(QJsonObject &rvObject);
-  bool copyFiles(QString &destName);
-  
-  void clear(void);
-  
- signals:
-  void onUQ_EngineChanged(void);
+bool SimCenterFileInput::inputFromJSON(QJsonObject& jsonObject) {
+  bool result = true;
 
- public slots:
-  void engineSelectionChanged(const QString &arg1);
-  void enginesEngineSelectionChanged(void);
-  
-private:
-   QComboBox   *theEngineSelectionBox;
-   QStackedWidget *theStackedWidget;
+  theFileLabel->setText(jsonObject["name"].toString());
+  theFileLineEdit->setText(jsonObject["value"].toString());
 
-   UQ_Engine *theCurrentEngine;
-   UQ_Engine *theDakotaEngine;
-   UQ_Engine *theUQpyEngine;
-};
+  return result;
+}
 
-#endif // WIND_SELECTION_H
+bool SimCenterFileInput::outputToJSON(QJsonObject& jsonObject) {
+  bool result = true;
+
+  jsonObject.insert("name", theFileLabel->text());
+  jsonObject.insert("type", "FileInput");
+  jsonObject.insert("value", theFileLineEdit->text());
+
+  return true;
+}

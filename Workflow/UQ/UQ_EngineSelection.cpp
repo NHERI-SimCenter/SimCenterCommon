@@ -62,7 +62,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //#include <UQpyEngine.h>
 #include <RandomVariablesContainer.h>
 
-UQ_EngineSelection::UQ_EngineSelection(RandomVariablesContainer *theRVs, QWidget *parent)
+UQ_EngineSelection::UQ_EngineSelection(RandomVariablesContainer *theRVs, UQ_EngineType type, QWidget *parent)
     : SimCenterAppWidget(parent), theCurrentEngine(0)
 {
     QVBoxLayout *layout = new QVBoxLayout();
@@ -72,8 +72,11 @@ UQ_EngineSelection::UQ_EngineSelection(RandomVariablesContainer *theRVs, QWidget
     //
 
     QHBoxLayout *theSelectionLayout = new QHBoxLayout();
-    QLabel *label = new QLabel();
+    //    QLabel *label = new QLabel();
+    SectionTitle *label = new SectionTitle();
     label->setText(QString("UQ Engine"));
+    label->setMinimumWidth(150);
+
     theEngineSelectionBox = new QComboBox();
     theEngineSelectionBox->addItem(tr("Dakota"));
     // theEngineSelectionBox->addItem(tr("UQpy"));
@@ -82,6 +85,8 @@ UQ_EngineSelection::UQ_EngineSelection(RandomVariablesContainer *theRVs, QWidget
     // theEngineSelectionBox->setItemData(1, "uqPY engine", Qt::ToolTipRole);
     
     theSelectionLayout->addWidget(label);
+    QSpacerItem *spacer = new QSpacerItem(50,10);
+    theSelectionLayout->addItem(spacer);
     theSelectionLayout->addWidget(theEngineSelectionBox);
     theSelectionLayout->addStretch();
     layout->addLayout(theSelectionLayout);
@@ -96,7 +101,7 @@ UQ_EngineSelection::UQ_EngineSelection(RandomVariablesContainer *theRVs, QWidget
     // create the individual widgets add to stacked widget
     //
 
-    theDakotaEngine = new DakotaEngine(theRVs);
+    theDakotaEngine = new DakotaEngine(theRVs, type);
     //theUQpyEngine = new UQpyEngine();
 
     theStackedWidget->addWidget(theDakotaEngine);

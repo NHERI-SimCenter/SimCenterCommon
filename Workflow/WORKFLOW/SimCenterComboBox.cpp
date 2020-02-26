@@ -1,6 +1,3 @@
-#ifndef UQ_ENGINE_SELECTION_H
-#define UQ_ENGINE_SELECTION_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -20,7 +17,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -37,57 +34,59 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: Michael Gardner
 
-#include <SimCenterAppWidget.h>
-#include <UQ_Engine.h>
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QLabel>
+#include <QString>
 
-class QComboBox;
-class QStackedWidget;
-class RandomVariablesContainer;
-class UQ_Results;
-class UQ_Engine;
-class RandomVariablesContainer;
+#include "SimCenterComboBox.h"
 
-
-class UQ_EngineSelection : public  SimCenterAppWidget
+SimCenterComboBox::SimCenterComboBox(const QJsonValue &inputObject,
+                                     QWidget *parent)
+    : SimCenterWidget(parent)
 {
-  Q_OBJECT
+  // Configure ComboBox based on input JSON object
+  theComboBoxLabel = new QLabel();  
+  theComboBox = new QComboBox();
+  theComboBoxLabel->setText(inputObject["name"].toString());  
 
-    public:
+  for (auto value : inputObject["values"].toArray()) {
+    theComboBox->addItem(value.toString());
+  }
 
-  explicit UQ_EngineSelection(RandomVariablesContainer *, UQ_EngineType = ForwardReliabilitySensivity, QWidget *parent = 0);
-  ~UQ_EngineSelection();
+  auto layout = new QHBoxLayout();
+  layout->addWidget(theComboBoxLabel);
+  layout->addWidget(theComboBox);
+  layout->addStretch();
 
-  RandomVariablesContainer  *getParameters();
-  UQ_Results  *getResults();
-  UQ_Engine  *getCurrentEngine();
+  this->setLayout(layout);
+}
 
-  int getNumParallelTasks(void);
-  
-  bool outputAppDataToJSON(QJsonObject &jsonObject);
-  bool inputAppDataFromJSON(QJsonObject &jsonObject);
+bool SimCenterComboBox::inputFromJSON(QJsonObject& jsonObject) {
+  bool result = true;
 
-  bool outputToJSON(QJsonObject &rvObject);
-  bool inputFromJSON(QJsonObject &rvObject);
-  bool copyFiles(QString &destName);
-  
-  void clear(void);
-  
- signals:
-  void onUQ_EngineChanged(void);
+  theComboBox->setObjectName(jsonObject["name"].toString());
+  theComboBox->setCurrentIndex(theComboBox->findText(jsonObject["value"].toString()));
 
- public slots:
-  void engineSelectionChanged(const QString &arg1);
-  void enginesEngineSelectionChanged(void);
-  
-private:
-   QComboBox   *theEngineSelectionBox;
-   QStackedWidget *theStackedWidget;
+  return result;
+}
 
-   UQ_Engine *theCurrentEngine;
-   UQ_Engine *theDakotaEngine;
-   UQ_Engine *theUQpyEngine;
-};
+bool SimCenterComboBox::outputToJSON(QJsonObject& jsonObject) {
+  bool result = true;
 
-#endif // WIND_SELECTION_H
+  jsonObject.insert("name", theComboBoxLabel->text());
+  jsonObject.insert("type", "ComboBox");
+  jsonObject.insert("value", theComboBox->currentText());
+
+  QJsonArray comboBoxOptions;
+  for (unsigned int i = 0; i < theComboBox->count(); ++i) {
+    comboBoxOptions.append(theComboBox->itemText(i));
+  }
+  jsonObject.insert("values", comboBoxOptions);
+
+  return true;
+}

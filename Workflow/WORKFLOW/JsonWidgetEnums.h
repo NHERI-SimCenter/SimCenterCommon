@@ -1,5 +1,5 @@
-#ifndef UQ_ENGINE_SELECTION_H
-#define UQ_ENGINE_SELECTION_H
+#ifndef JSON_WIDGET_ENUMS_H
+#define JSON_WIDGET_ENUMS_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -20,7 +20,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -37,57 +37,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: Michael Gardner
 
-#include <SimCenterAppWidget.h>
-#include <UQ_Engine.h>
+namespace JsonWidget {
+  enum class Type { ComboBox, RVLineEdit, FileInput, ForkComboBox};
+}
 
-class QComboBox;
-class QStackedWidget;
-class RandomVariablesContainer;
-class UQ_Results;
-class UQ_Engine;
-class RandomVariablesContainer;
-
-
-class UQ_EngineSelection : public  SimCenterAppWidget
-{
-  Q_OBJECT
-
-    public:
-
-  explicit UQ_EngineSelection(RandomVariablesContainer *, UQ_EngineType = ForwardReliabilitySensivity, QWidget *parent = 0);
-  ~UQ_EngineSelection();
-
-  RandomVariablesContainer  *getParameters();
-  UQ_Results  *getResults();
-  UQ_Engine  *getCurrentEngine();
-
-  int getNumParallelTasks(void);
-  
-  bool outputAppDataToJSON(QJsonObject &jsonObject);
-  bool inputAppDataFromJSON(QJsonObject &jsonObject);
-
-  bool outputToJSON(QJsonObject &rvObject);
-  bool inputFromJSON(QJsonObject &rvObject);
-  bool copyFiles(QString &destName);
-  
-  void clear(void);
-  
- signals:
-  void onUQ_EngineChanged(void);
-
- public slots:
-  void engineSelectionChanged(const QString &arg1);
-  void enginesEngineSelectionChanged(void);
-  
-private:
-   QComboBox   *theEngineSelectionBox;
-   QStackedWidget *theStackedWidget;
-
-   UQ_Engine *theCurrentEngine;
-   UQ_Engine *theDakotaEngine;
-   UQ_Engine *theUQpyEngine;
-};
-
-#endif // WIND_SELECTION_H
+#endif // JSON_WIDGET_ENUMS_H

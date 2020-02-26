@@ -65,8 +65,10 @@ EDP_EarthquakeSelection::EDP_EarthquakeSelection(RandomVariablesContainer *theRa
   //
 
   QHBoxLayout *theSelectionLayout = new QHBoxLayout();
-  QLabel *label = new QLabel();
-  label->setText(QString("Engineering Demand Paramaters"));
+  //QLabel *label = new QLabel();
+  SectionTitle *label = new SectionTitle();
+  label->setMinimumWidth(250);
+  label->setText(QString("Engineering Demand Paramater Generator"));
   edpSelection = new QComboBox();
   edpSelection->addItem(tr("Standard Earthquake"));
   edpSelection->addItem(tr("User Defined"));
@@ -75,6 +77,8 @@ EDP_EarthquakeSelection::EDP_EarthquakeSelection(RandomVariablesContainer *theRa
   edpSelection->setItemData(1, "A Seismic event using Seismic Hazard Analysis and Record Selection/Scaling", Qt::ToolTipRole);
 
   theSelectionLayout->addWidget(label);
+  QSpacerItem *spacer = new QSpacerItem(50,10);
+  theSelectionLayout->addItem(spacer);
   theSelectionLayout->addWidget(edpSelection);
   theSelectionLayout->addStretch();
   layout->addLayout(theSelectionLayout);

@@ -1,5 +1,5 @@
-#ifndef UQ_ENGINE_SELECTION_H
-#define UQ_ENGINE_SELECTION_H
+#ifndef FEM_SELECTION_H
+#define FEM_SELECTION_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -40,7 +40,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include <SimCenterAppWidget.h>
-#include <UQ_Engine.h>
 
 class QComboBox;
 class QStackedWidget;
@@ -49,25 +48,17 @@ class UQ_Results;
 class UQ_Engine;
 class RandomVariablesContainer;
 
-
-class UQ_EngineSelection : public  SimCenterAppWidget
+class FEM_Selection : public  SimCenterAppWidget
 {
   Q_OBJECT
 
     public:
 
-  explicit UQ_EngineSelection(RandomVariablesContainer *, UQ_EngineType = ForwardReliabilitySensivity, QWidget *parent = 0);
-  ~UQ_EngineSelection();
+  explicit FEM_Selection(RandomVariablesContainer *, QWidget *parent = 0);
+  ~FEM_Selection();
 
-  RandomVariablesContainer  *getParameters();
-  UQ_Results  *getResults();
-  UQ_Engine  *getCurrentEngine();
-
-  int getNumParallelTasks(void);
-  
   bool outputAppDataToJSON(QJsonObject &jsonObject);
   bool inputAppDataFromJSON(QJsonObject &jsonObject);
-
   bool outputToJSON(QJsonObject &rvObject);
   bool inputFromJSON(QJsonObject &rvObject);
   bool copyFiles(QString &destName);
@@ -75,19 +66,18 @@ class UQ_EngineSelection : public  SimCenterAppWidget
   void clear(void);
   
  signals:
-  void onUQ_EngineChanged(void);
+  void onSelectionChanged(void);
 
  public slots:
-  void engineSelectionChanged(const QString &arg1);
-  void enginesEngineSelectionChanged(void);
+  void selectionChanged(const QString &arg1);
+  void selectionChanged(void);
   
 private:
-   QComboBox   *theEngineSelectionBox;
+   QComboBox   *theSelectionBox;
    QStackedWidget *theStackedWidget;
 
-   UQ_Engine *theCurrentEngine;
-   UQ_Engine *theDakotaEngine;
-   UQ_Engine *theUQpyEngine;
+   SimCenterAppWidget *theCurrentSelection;
+   SimCenterAppWidget *theOpenSeesApplication;
 };
 
-#endif // WIND_SELECTION_H
+#endif // FEM_SELECTION_H

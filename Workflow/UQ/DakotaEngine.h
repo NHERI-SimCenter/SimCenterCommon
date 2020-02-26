@@ -50,7 +50,7 @@ class DakotaEngine : public UQ_Engine
 {
     Q_OBJECT
 public:
-  explicit DakotaEngine(RandomVariablesContainer *, QWidget *parent = 0);
+  explicit DakotaEngine(RandomVariablesContainer *, UQ_EngineType type, QWidget *parent = 0);
     virtual ~DakotaEngine();
 
     int getMaxNumParallelTasks(void);
