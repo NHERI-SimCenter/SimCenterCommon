@@ -518,7 +518,7 @@ SimCenterPreferences::getAppDir(void) {
     if (customAppDirCheckBox->checkState() == Qt::CheckState::Checked)
     {
         QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
-        QVariant  customAppDirSetting = settingsApplication.value("AppDir");
+        QVariant  customAppDirSetting = settingsApplication.value("appDir");
 
         // if valid use it, otherwise it remains the default
         if (customAppDirSetting.isValid())
