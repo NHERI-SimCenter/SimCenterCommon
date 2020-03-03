@@ -1,5 +1,8 @@
 #This project will build common as a static library
 
+#Making sure we are not using multi configuration
+CONFIG -= debug_and_release
+
 CONFIG += conan_basic_setup
 include($$OUT_PWD/conanbuildinfo.pri)
 

@@ -3,10 +3,10 @@ import os
 
 class CommonConan(ConanFile):
     name = "SimCenterCommonQt"
-    version = "0.1.0"
+    version = "0.1.1"
     license = "BSD"
     author = "Wael Elhaddad (elhaddad@berkeley.edu)"
-    url = ""
+    url = "https://github.com/NHERI-SimCenter/SimCenterCommon.git"
     description = "SimCenter Common Qt Library"
     settings = "os", "compiler", "build_type", "arch"
     generators = "qmake", "cmake"
@@ -62,7 +62,7 @@ class CommonConan(ConanFile):
             qmake = 'qmake'
             makeCommand = 'make'
 
-        qmakeCommand = '%s "CONFIG+=%s" %s/SimCenterCommonQt.pro' % (qmake, self.settings.build_type, self.source_folder)
+        qmakeCommand = '%s "CONFIG+=%s" %s/SimCenterCommonQt.pro' % (qmake, str(self.settings.build_type).lower(), self.source_folder)
         if(self.options.MDOFwithQt3D):
             qmakeCommand += ' "DEFINES+=_GRAPHICS_Qt3D"'
 
