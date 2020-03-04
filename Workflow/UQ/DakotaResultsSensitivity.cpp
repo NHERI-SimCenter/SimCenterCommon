@@ -322,7 +322,7 @@ Node_2_Disp Sobol' indices:
 
             // Labels & QlineEdit Option in a QGrid
             trainingDataLayout = new QGridLayout();
-            QLabel *l1 = new QLabel("Random Variabnle");
+            QLabel *l1 = new QLabel("Random Variable");
             QLabel *l2 = new QLabel("Main");
             QLabel *l3 = new QLabel("Total");
             trainingDataLayout->addWidget(l1, 0,0);
@@ -1080,7 +1080,7 @@ Node_2_Disp Sobol' indices:
 
         chart = new QChart();
         chart->setAnimationOptions(QChart::AllAnimations);
-        QScatterSeries *series = new QScatterSeries;
+        // QScatterSeries *series = new QScatterSeries;
         col1 = 0;           // col1 is initialied as the first column in spread sheet
         col2 = numCol-1;    // col2 is initialized as the second column in spread sheet
         mLeft = true;       // left click

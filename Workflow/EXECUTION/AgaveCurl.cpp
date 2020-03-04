@@ -125,8 +125,7 @@ AgaveCurl::~AgaveCurl()
         curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
         curl_easy_setopt(hnd, CURLOPT_USERPWD, user_passwd.toStdString().c_str());
         curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "DELETE");
-        bool ok = this->invokeCurl();
-
+        this->invokeCurl();
     }
 
     curl_slist_free_all(slist1);
@@ -390,7 +389,11 @@ AgaveCurl::logout()
     curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "DELETE");
     bool ok = this->invokeCurl();
 
-    emit statusMessage("STATUS: contacting Agave to revoke auth tokens");
+    if (ok == false) {
+        emit statusMessage("ERROR: Failed to invokeCurl when deleting remote client app");
+    } else {
+        emit statusMessage("STATUS: contacting Agave to revoke auth tokens");
+    }
 
     curl_slist_free_all(slist1);
     slist1 = NULL;

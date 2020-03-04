@@ -53,7 +53,6 @@ FORMInputWidget::FORMInputWidget(QWidget *parent)
   QGridLayout *layout = new QGridLayout();
 
   // create layout label and entry for # samples
-  QHBoxLayout *methodLayout= new QHBoxLayout;
   QLabel *label2 = new QLabel();
   label2->setText(QString("Reliability Scheme"));
   reliabilityScheme = new QComboBox();

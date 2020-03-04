@@ -222,8 +222,6 @@ void SIM_Selection::bimSelectionChanged(const QString &arg1)
 {
     selectionChangeOK = true;
 
-    SimCenterWidget *oldMethod = bimInput;
-
     if (bimInput != 0)
         layout->removeWidget(bimInput);
 

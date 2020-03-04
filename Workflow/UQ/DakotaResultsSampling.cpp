@@ -204,6 +204,7 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
     QFileInfo fileTabInfo(filenameTab);
     QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
 
+
     QFileInfo filenameErrorInfo(filenameErrorString);
     if (!filenameErrorInfo.exists()) {
         emit sendErrorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applicatins failed with inputs provided");
@@ -215,10 +216,11 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
        QTextStream in(&fileError);
        while (!in.atEnd()) {
           line = in.readLine();
+          qDebug() << line;
        }
        fileError.close();
     }
-
+    qDebug() << line.length() << " " << line;
     if (line.length() != 0) {
         qDebug() << line.length() << " " << line;
         emit sendErrorMessage(QString(QString("Error Running Dakota: ") + line));
@@ -508,8 +510,8 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
         // finding the range for X and Y axis
         // now the axes will look a bit clean.
 
-        double minX, maxX;
-        double minY, maxY;
+        double minX = 0., maxX = 0.;
+        double minY = 0., maxY = 0.;
 
         for (int i=0; i<rowCount; i++) {
 
@@ -539,10 +541,10 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
         double yRange=maxY-minY;
 
         if(col1!=0) {
-	  axisX->setRange(minX - 0.01*xRange, maxX + 0.1*xRange);
+            axisX->setRange(minX - 0.01*xRange, maxX + 0.1*xRange);
         }
         else{
-	  axisX->setRange(int (minX - 1), int (maxX +1));
+            axisX->setRange(int (minX - 1), int (maxX +1));
         }
         // adjust y with some fine precision
         axisY->setRange(minY - 0.1*yRange, maxY + 0.1*yRange);
@@ -913,7 +915,7 @@ DakotaResultsSampling::inputFromJSON(QJsonObject &jsonObject)
 
     chart = new QChart();
     chart->setAnimationOptions(QChart::AllAnimations);
-    QScatterSeries *series = new QScatterSeries;
+     // QScatterSeries *series = new QScatterSeries;
     col1 = 0;           // col1 is initialied as the first column in spread sheet
     col2 = numCol-1;    // col2 is initialized as the second column in spread sheet
     mLeft = true;       // left click

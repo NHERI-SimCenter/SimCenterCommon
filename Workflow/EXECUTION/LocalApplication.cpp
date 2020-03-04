@@ -107,10 +107,15 @@ LocalApplication::onRunButtonPressed(void)
   QString workingDir = SimCenterPreferences::getInstance()->getLocalWorkDir();
   QDir dirWork(workingDir);
   if (!dirWork.exists())
-    if (!dirWork.mkpath(workingDir)) {
-      emit sendErrorMessage(QString("Could not create Working Dir: ") + workingDir + QString(" . Try using an existing directory or make sure you have permission to create the working directory."));
-      return;
-    }
+      if (!dirWork.mkpath(workingDir)) {
+          QString errorMessage = QString("Could not create Working Dir: ") + workingDir
+                  + QString(". Change the Local Jobs Directory location in preferences.");
+          messageLabel->setText(errorMessage);
+
+          emit sendErrorMessage(errorMessage);;
+
+          return;
+      }
     
   
   //   QString appDir = appDirName->text();
@@ -118,8 +123,10 @@ LocalApplication::onRunButtonPressed(void)
 
   QDir dirApp(appDir);
   if (!dirApp.exists()) {
-    emit sendErrorMessage(QString("The application directory, ") + appDir +QString(" specified does not exist!"));
-    return;
+      QString errorMessage = QString("The application directory, ") + appDir +QString(" specified does not exist!. Check Local Application Directory im Preferences");
+      messageLabel->setText(errorMessage);
+      emit sendErrorMessage(errorMessage);;
+      return;
   }
   
   QString templateDir("templatedir");
