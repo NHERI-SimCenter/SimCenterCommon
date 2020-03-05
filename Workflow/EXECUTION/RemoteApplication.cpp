@@ -343,7 +343,7 @@ RemoteApplication::uploadDirReturn(bool result)
       parameters["outputFile"]="dakota.out";
       parameters["errorFile"]="dakota.err";
       parameters["driverFile"]="workflow_driver";
-      parameters["modules"]="petsc";
+      parameters["modules"]="petsc,python3";
       for (auto parameterName : extraParameters.keys())
       {
           parameters[parameterName] = extraParameters[parameterName];
