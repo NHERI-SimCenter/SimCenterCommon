@@ -129,8 +129,6 @@ RandomVariable::RandomVariable(const QString &type, QWidget *parent)
     // the RandomVAriableDistribution widget line up visually, there could be a Qt way to deal with this
     //
 
-    // create this widget & a hozizontal layout and place our 2 verticaal layouts inside
-    QWidget *theWidget = new QWidget();
     //QHBoxLayout *widgetLayout = new QHBoxLayout;
 
     // create the main layout inside which we place a spacer & main widget
@@ -225,7 +223,6 @@ RandomVariable::outputToJSON(QJsonObject &rvObject){
 
 bool
 RandomVariable::inputFromJSON(QJsonObject &rvObject){
-    bool result = false;
     QString distributionType;
     if (rvObject.contains("name")) {
         QJsonValue theName = rvObject["name"];

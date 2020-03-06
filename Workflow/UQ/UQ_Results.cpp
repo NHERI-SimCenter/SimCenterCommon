@@ -86,7 +86,6 @@ UQ_Results::inputFromJSON(QJsonObject &jsonObject)
 
         QJsonObject uq = uqValue.toObject();
         QString resultType = uq["resultType"].toString();
-        UQ_Results *newResultWidget = 0;
 
         if (resultType == "NONE") {
           return true; // no results saved

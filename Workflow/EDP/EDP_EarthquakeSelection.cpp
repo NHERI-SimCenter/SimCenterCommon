@@ -197,6 +197,8 @@ EDP_EarthquakeSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
   if (theCurrentEDP != 0) {
     return theCurrentEDP->inputAppDataFromJSON(jsonObject);
   }
+
+  return true;
 }
 
 bool

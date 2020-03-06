@@ -170,6 +170,7 @@ RemoteJobManager::jobsListReturn(QJsonObject theJobs){
 
 void
 RemoteJobManager::bringUpJobActionMenu(int row, int col){
+    Q_UNUSED(col);
 
     triggeredRow = row;
     QMenu jobMenu;
@@ -227,7 +228,6 @@ RemoteJobManager::deleteJobReturn(bool result) {
 
 void
 RemoteJobManager::deleteJobAndData(void){
-    bool result = false;
 
     if (triggeredRow != -1) {
 
@@ -332,7 +332,7 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
         // download data to temp files & then process them as normal
         //
 
-        archiveDir = archiveDir + QString("/") + inputDir.remove(QRegExp(".*\/")); // regex to remove up till last /
+        archiveDir = archiveDir + QString("/") + inputDir.remove(QRegExp(".*\\/")); // regex to remove up till last /
 
         QString dakotaJSON = archiveDir + QString("/dakota.json");
         QString dakotaOUT = archiveDir + QString("/dakota.out");
@@ -375,8 +375,6 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
 
 void
 RemoteJobManager::getJobData(void) {
-
-    bool result = false;
 
     if (triggeredRow != -1) {
 

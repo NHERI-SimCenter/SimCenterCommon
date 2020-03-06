@@ -73,12 +73,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLabel>
 //#include <InputWidgetFEM.h>
 #include <InputWidgetUQ.h>
-#include <MainWindow.h>
 
 //#include <InputWidgetFEM.h>
 #include <InputWidgetUQ.h>
-#include <MainWindow.h>
-
 
 #include <QtCharts/QChart>
 #include <QtCharts/QChartView>
@@ -94,9 +91,6 @@ using namespace QtCharts;
 
 #define NUM_DIVISIONS 10
 
-
-
-static QLabel *best_fit_label_text;
 
 
 DakotaResultsSampling::DakotaResultsSampling(RandomVariablesContainer *theRandomVariables, QWidget *parent)
@@ -190,6 +184,7 @@ static int mergesort(double *input, int size)
 
 int DakotaResultsSampling::processResults(QString &filenameResults, QString &filenameTab)
 {
+    Q_UNUSED(filenameResults);
     emit sendStatusMessage(tr("Processing Sampling Results"));
 
     this->clear();
@@ -455,20 +450,16 @@ DakotaResultsSampling::onSaveSpreadsheetClicked()
 
 void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
 {
+    Q_UNUSED(row);
     mLeft = spreadsheet->wasLeftKeyPressed();
-
-    //  best_fit_instructions->clear();
 
     // create a new series
     chart->removeAllSeries();
-    //chart->removeA
 
-    QAbstractAxis *oldAxisX=chart->axisX();
-    if (oldAxisX != 0)
-        chart->removeAxis(oldAxisX);
-    QAbstractAxis *oldAxisY=chart->axisY();
-    if (oldAxisY != 0)
-        chart->removeAxis(oldAxisY);
+    //Remove all axes
+    for(auto axis: chart->axes())
+        chart->removeAxis(axis);
+
 
     // QScatterSeries *series;//= new QScatterSeries;
 
@@ -548,8 +539,11 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
         }
         // adjust y with some fine precision
         axisY->setRange(minY - 0.1*yRange, maxY + 0.1*yRange);
-        chart->setAxisX(axisX, series);
-        chart->setAxisY(axisY, series);
+
+        chart->addAxis(axisX, Qt::AlignBottom);
+        series->attachAxis(axisX);
+        chart->addAxis(axisY, Qt::AlignLeft);
+        series->attachAxis(axisY);
 
     } else {
 
@@ -597,7 +591,6 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
 
             double maxPercent = 0;
             for (int i=0; i<NUM_DIVISIONS; i++) {
-                histogram[i]/rowCount;
                 if (histogram[i] > maxPercent)
                     maxPercent = histogram[i];
             }
@@ -620,8 +613,10 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
             axisY->setTitleText("Frequency %");
             axisX->setTitleText(theHeadings.at(col1));
             axisX->setTickCount(NUM_DIVISIONS+1);
-            chart->setAxisX(axisX, series);
-            chart->setAxisY(axisY, series);
+            chart->addAxis(axisX, Qt::AlignBottom);
+            series->attachAxis(axisX);
+            chart->addAxis(axisY, Qt::AlignLeft);
+            series->attachAxis(axisY);
 
 	    /* ************************************ BEST FIT  ***********************************8
 
@@ -757,8 +752,10 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
             axisY->setTitleText("Cumulative Probability");
             axisX->setTitleText(theHeadings.at(col1));
             axisX->setTickCount(NUM_DIVISIONS+1);
-            chart->setAxisX(axisX, series);
-            chart->setAxisY(axisY, series);
+            chart->addAxis(axisX, Qt::AlignBottom);
+            series->attachAxis(axisX);
+            chart->addAxis(axisY, Qt::AlignLeft);
+            series->attachAxis(axisY);
             series->setName("Cumulative Frequency Distribution");
         }
     }
@@ -915,7 +912,6 @@ DakotaResultsSampling::inputFromJSON(QJsonObject &jsonObject)
 
     chart = new QChart();
     chart->setAnimationOptions(QChart::AllAnimations);
-     // QScatterSeries *series = new QScatterSeries;
     col1 = 0;           // col1 is initialied as the first column in spread sheet
     col2 = numCol-1;    // col2 is initialized as the second column in spread sheet
     mLeft = true;       // left click

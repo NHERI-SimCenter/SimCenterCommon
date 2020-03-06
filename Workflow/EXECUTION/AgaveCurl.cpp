@@ -434,8 +434,6 @@ AgaveCurl::uploadDirectoryCall(const QString &local, const QString &remote)
 bool
 AgaveCurl::uploadDirectory(const QString &local, const QString &remote)
 {
-    bool result = false;
-
     //
     // check local exists
     //
@@ -501,8 +499,6 @@ AgaveCurl::removeDirectory(const QString &remote)
 {
     QString message = QString("Contacting ") + tenant + QString(" to remove dir ") + remote;
     emit statusMessage(message);
-
-    bool result = false;
 
     // invoke curl to remove the file or directory
     QString url = tenantURL + QString("files/v2/media/") + remote;
@@ -656,8 +652,6 @@ AgaveCurl::uploadFile(const QString &local, const QString &remote) {
     QString message = QString("Contacting ") + tenant + QString(" to upload file ") + localName;
     emit statusMessage(message);
 
-    bool result = false;
-
     //
     // obtain filename and remote path from the remote string
     // note: for upload we need to remove the agave storage URL if there
@@ -766,7 +760,6 @@ AgaveCurl::downloadFile(const QString &remoteFile, const QString &localFile)
 {
     // this method does not invoke the invokeCurl() as want to write to local file directtly
 
-    bool result = true;
     CURLcode ret;
 
     QFileInfo remoteFileInfo(remoteFile);
@@ -1027,6 +1020,8 @@ AgaveCurl::getJobListCall(const QString &matchingName) {
 QJsonObject
 AgaveCurl::getJobList(const QString &matchingName)
 {
+    //TODO: implement matching
+    Q_UNUSED(matchingName);
     QString message = QString("Contacting ") + tenant + QString(" to Get Job list");
     emit statusMessage(message);
 

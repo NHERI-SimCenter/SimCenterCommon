@@ -198,7 +198,8 @@ DakotaInputSensitivity::inputFromJSON(QJsonObject &jsonObject)
 
 
 int DakotaInputSensitivity::processResults(QString &filenameResults, QString &filenameTab) {
-
+    Q_UNUSED(filenameResults);
+    Q_UNUSED(filenameTab);
     return 0;
 }
 

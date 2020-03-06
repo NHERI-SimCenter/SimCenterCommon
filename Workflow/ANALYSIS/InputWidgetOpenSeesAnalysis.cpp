@@ -254,6 +254,7 @@ InputWidgetOpenSeesAnalysis::outputAppDataToJSON(QJsonObject &jsonObject)
 bool
 InputWidgetOpenSeesAnalysis::inputAppDataFromJSON(QJsonObject &jsonObject)
 {
+    Q_UNUSED(jsonObject);
     return true;
 }
 
@@ -281,6 +282,7 @@ void InputWidgetOpenSeesAnalysis::dampingEditingFinished() {
     QString text = dampingRatio->text();
     bool ok;
     double dampDouble = text.QString::toDouble(&ok);
+    Q_UNUSED(dampDouble);
 
     if (ok == false) {
         qDebug() << text << " " << lastDampingRatio;
@@ -299,6 +301,7 @@ void InputWidgetOpenSeesAnalysis::toleranceEditingFinished() {
     QString text = theTolerance->text();
     bool ok;
     double tolDouble = text.QString::toDouble(&ok);
+    Q_UNUSED(tolDouble);
 
     if (ok == false) {
         if (text != lastTolerance) {

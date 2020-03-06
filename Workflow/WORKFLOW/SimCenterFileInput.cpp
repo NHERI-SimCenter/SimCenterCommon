@@ -84,7 +84,6 @@ bool SimCenterFileInput::inputFromJSON(QJsonObject& jsonObject) {
 }
 
 bool SimCenterFileInput::outputToJSON(QJsonObject& jsonObject) {
-  bool result = true;
 
   jsonObject.insert("name", theFileLabel->text());
   jsonObject.insert("type", "FileInput");

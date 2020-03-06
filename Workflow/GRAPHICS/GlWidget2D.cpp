@@ -133,6 +133,9 @@ GlWidget2D::drawBuffers()
 void
 GlWidget2D::drawPoint(int tag, float x1, float y1, int numPixels, float r, float g, float b, float w, float h)
 {
+    Q_UNUSED(w);
+    Q_UNUSED(h);
+    Q_UNUSED(numPixels);
 
     numPoint++;
     if (numPoint > maxNumPoint) {
@@ -209,6 +212,14 @@ GlWidget2D::drawPoint(int tag, float x1, float y1, int numPixels, float r, float
 
 void GlWidget2D::drawText(int tag, float x1, float y1, char *text, float r, float g, float b)
 {
+    Q_UNUSED(tag);
+    Q_UNUSED(x1);
+    Q_UNUSED(y1);
+    Q_UNUSED(text);
+    Q_UNUSED(r);
+    Q_UNUSED(g);
+    Q_UNUSED(b);
+
   //  glPushMatrix();
   //  glColor3f(r, g, b);
     //renderText(x1, y1, 0, text);
@@ -218,6 +229,9 @@ void GlWidget2D::drawText(int tag, float x1, float y1, char *text, float r, floa
 void
 GlWidget2D::drawLine(int tag, float x1, float y1, float x2, float y2, float thick, float r, float g, float b, float w)
 {
+    Q_UNUSED(tag);
+    Q_UNUSED(thick);
+    Q_UNUSED(w);
 
     numLine++;
     if (numLine > maxNumLine) {
@@ -348,7 +362,7 @@ void GlWidget2D::resizeGL(int width, int height) {
         if (boundW == 0)
             boundW = 10.0;
 
-        boundW *= 1.1;
+        boundW *= 1.1f;
 
         orthoProjectionMatrix.setToIdentity();
         orthoProjectionMatrix.ortho(-boundW, boundW, -boundH, boundH+heightB, -boundW, boundW);
@@ -366,7 +380,7 @@ void GlWidget2D::update() {
         if (boundW == 0)
             boundW = 10.0;
 
-        boundW *= 1.1;
+        boundW *= 1.1f;
         orthoProjectionMatrix.setToIdentity();
         orthoProjectionMatrix.ortho(-boundW, boundW, -boundH, boundH+height, -boundW, boundW);
     }
@@ -374,6 +388,9 @@ void GlWidget2D::update() {
 }
 
 void GlWidget2D::paintGL() {
+
+    Q_UNUSED(vertexShaderSource1);
+    Q_UNUSED(fragmentShaderSource1);
 
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -468,11 +485,13 @@ void GlWidget2D::mouseReleaseEvent(QMouseEvent *event)
 
 void GlWidget2D::mouseMoveEvent(QMouseEvent *event)
 {
+    Q_UNUSED(event);
     // not used yet
 }
 
 void GlWidget2D::mouseDoubleClickEvent(QMouseEvent *event)
 {
+    Q_UNUSED(event);
     // not used yet
     timer.stop();
     doubleClicked = 0; // this is to discard another press event coming

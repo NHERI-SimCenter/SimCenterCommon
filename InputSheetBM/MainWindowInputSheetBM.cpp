@@ -6,7 +6,7 @@
 #include <QStandardItemModel>
 #include <QItemSelectionModel>
 #include <QDebug>
-#include "MainWindow.h"
+#include "MainWindowInputSheetBM.h"
 #include <QHBoxLayout>
 #include <QFileDialog>
 #include <QMessageBox>

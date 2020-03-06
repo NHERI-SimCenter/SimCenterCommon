@@ -3,8 +3,7 @@
 #Making sure we are not using multi configuration
 CONFIG -= debug_and_release
 
-CONFIG += conan_basic_setup
-include($$OUT_PWD/conanbuildinfo.pri)
+include($$PWD/ConanHelper.pri)
 
 #Adding the widgets and network modules as prerequisites
 QT += widgets network charts
@@ -20,3 +19,5 @@ TEMPLATE = lib
 
 #Configure the library to be static
 CONFIG += staticlib
+
+OTHER_FILES += conanfile.py

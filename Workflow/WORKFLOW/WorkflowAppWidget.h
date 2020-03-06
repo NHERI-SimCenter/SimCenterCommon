@@ -41,8 +41,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <QWidget>
 
-#include "MainWindow.h"
-
 class MainWindowWorkflowApp;
 class RemoteService;
 

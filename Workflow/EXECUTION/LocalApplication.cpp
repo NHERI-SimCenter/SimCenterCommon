@@ -93,6 +93,7 @@ LocalApplication::outputToJSON(QJsonObject &jsonObject)
 bool
 LocalApplication::inputFromJSON(QJsonObject &dataObject) {
 
+    Q_UNUSED(dataObject);
     return true;
 }
 
