@@ -5,6 +5,8 @@ CONFIG -= debug_and_release
 
 include($$PWD/ConanHelper.pri)
 
+win32: DEFINES+=_CRT_SECURE_NO_DEPRECATE #silence MSVC warning for fopen and stncpy
+
 #Adding the widgets and network modules as prerequisites
 QT += widgets network charts
 
