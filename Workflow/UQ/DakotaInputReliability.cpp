@@ -187,7 +187,8 @@ DakotaInputReliability::inputFromJSON(QJsonObject &jsonObject)
 
 
 int DakotaInputReliability::processResults(QString &filenameResults, QString &filenameTab) {
-
+    Q_UNUSED(filenameResults);
+    Q_UNUSED(filenameTab);
     return 0;
 }
 

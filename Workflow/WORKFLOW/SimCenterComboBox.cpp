@@ -76,14 +76,13 @@ bool SimCenterComboBox::inputFromJSON(QJsonObject& jsonObject) {
 }
 
 bool SimCenterComboBox::outputToJSON(QJsonObject& jsonObject) {
-  bool result = true;
 
   jsonObject.insert("name", theComboBoxLabel->text());
   jsonObject.insert("type", "ComboBox");
   jsonObject.insert("value", theComboBox->currentText());
 
   QJsonArray comboBoxOptions;
-  for (unsigned int i = 0; i < theComboBox->count(); ++i) {
+  for (int i = 0; i < theComboBox->count(); ++i) {
     comboBoxOptions.append(theComboBox->itemText(i));
   }
   jsonObject.insert("values", comboBoxOptions);

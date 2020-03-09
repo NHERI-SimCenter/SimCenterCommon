@@ -54,6 +54,7 @@ LineEditRV::~LineEditRV()
     bool ok;
     QString currentText = this->text();
     double value = currentText.toDouble(&ok);
+    Q_UNUSED(value);
     if (!ok)
       theRVC->removeRandomVariable(currentText);
 }

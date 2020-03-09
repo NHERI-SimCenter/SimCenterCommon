@@ -2,7 +2,7 @@
 
 // Purpose: the typical Qt main for running a QMainWindow
 
-#include "MainWindow.h"
+#include "MainWindowInputSheetBM.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])

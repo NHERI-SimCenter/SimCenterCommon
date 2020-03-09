@@ -131,7 +131,7 @@ void DakotaResultsReliability::clear(void)
 
 int DakotaResultsReliability::processResults(QString &filenameResults, QString &filenameTab)
 {
-
+  Q_UNUSED(filenameTab);
   emit sendStatusMessage(tr("Processing Reliability Results"));
 
   // clear current
@@ -216,10 +216,6 @@ int DakotaResultsReliability::processResults(QString &filenameResults, QString &
       while (std::getline(fileResults, haystack)) {
           if (haystack.find(needleStart) != std::string::npos) {
               break;
-          }
-          else {
-              if (numSpreadsheetRows > 0)
-                  ;
           }
       }
 
@@ -438,8 +434,6 @@ DakotaResultsReliability::outputToJSON(QJsonObject &jsonObject)
 
     QJsonObject spreadsheetData;
 
-    int numCol = spreadsheet->columnCount();
-    int numRow = spreadsheet->rowCount();
 
     spreadsheetData["numRow"]=numSpreadsheetRows;
     spreadsheetData["numCol"]=numSpreadsheetCols;
@@ -474,6 +468,7 @@ DakotaResultsReliability::outputToJSON(QJsonObject &jsonObject)
 bool
 DakotaResultsReliability::inputFromJSON(QJsonObject &jsonObject)
 {
+    Q_UNUSED(jsonObject);
     bool result = true;
 
     /*

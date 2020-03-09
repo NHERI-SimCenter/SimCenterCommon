@@ -74,6 +74,8 @@ StandardEarthquakeEDP::outputToJSON(QJsonObject &jsonObject)
 bool
 StandardEarthquakeEDP::inputFromJSON(QJsonObject &jsonObject)
 {
+    Q_UNUSED(jsonObject);
+
     return true;
 }
 
@@ -94,12 +96,14 @@ StandardEarthquakeEDP::outputAppDataToJSON(QJsonObject &jsonObject) {
 }
 bool
 StandardEarthquakeEDP::inputAppDataFromJSON(QJsonObject &jsonObject) {
+    Q_UNUSED(jsonObject);
     return true;
 }
 
 
 bool
 StandardEarthquakeEDP::copyFiles(QString &dirName) {
+    Q_UNUSED(dirName);
     return true;
 }
 

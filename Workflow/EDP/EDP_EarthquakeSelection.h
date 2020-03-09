@@ -51,11 +51,11 @@ class EDP_EarthquakeSelection : public  SimCenterAppWidget
   explicit EDP_EarthquakeSelection(RandomVariablesContainer *, QWidget *parent = 0);
   ~EDP_EarthquakeSelection();
 
-  bool outputToJSON(QJsonObject &rvObject);
-  bool inputFromJSON(QJsonObject &rvObject);
-  bool outputAppDataToJSON(QJsonObject &rvObject);
-  bool inputAppDataFromJSON(QJsonObject &rvObject);
-  bool copyFiles(QString &destName);
+  bool outputToJSON(QJsonObject &jsonObject) override;
+  bool inputFromJSON(QJsonObject &jsonObject) override;
+  bool outputAppDataToJSON(QJsonObject &jsonObject) override;
+  bool inputAppDataFromJSON(QJsonObject &jsonObject) override;
+  bool copyFiles(QString &destName) override;
 
   void clear(void);
 

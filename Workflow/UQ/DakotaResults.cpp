@@ -84,7 +84,6 @@ DakotaResults::inputFromJSON(QJsonObject &jsonObject)
 
         QJsonObject uq = uqValue.toObject();
         QString resultType = uq["resultType"].toString();
-        DakotaResults *newResultWidget = 0;
 
         if (resultType == "NONE") {
           return true; // no results saved

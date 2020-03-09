@@ -52,5 +52,7 @@ Controller2D::~Controller2D()
 void
 Controller2D::setSelectionBoundary(float y1, float y2)
 {
+  (void)y1;
+  (void)y2;
   return;
 }

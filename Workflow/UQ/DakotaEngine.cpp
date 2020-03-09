@@ -190,6 +190,7 @@ DakotaEngine::outputAppDataToJSON(QJsonObject &jsonObject)
 bool
 DakotaEngine::inputAppDataFromJSON(QJsonObject &jsonObject)
 {
+    Q_UNUSED(jsonObject);
     return true;
 }
 

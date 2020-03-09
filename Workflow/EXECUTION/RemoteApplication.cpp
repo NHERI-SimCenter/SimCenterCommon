@@ -153,6 +153,7 @@ RemoteApplication::outputToJSON(QJsonObject &jsonObject)
 bool
 RemoteApplication::inputFromJSON(QJsonObject &dataObject) {
 
+    Q_UNUSED(dataObject);
     return true;
 }
 

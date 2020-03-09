@@ -166,6 +166,7 @@ createTextEntry(QString text,
                 QString *unitText = NULL,
                 bool itemRight = false)
 {
+    Q_UNUSED(itemRight);
     //QHBoxLayout *entryLayout = new QHBoxLayout();
     QLabel *entryLabel = new QLabel();
 
@@ -621,6 +622,7 @@ MDOF_BuildingModel::on_storyHeight_editingFinished()
         QString oldText=item->text();
         bool okOld;
         double value = oldText.toDouble(&okOld);
+        Q_UNUSED(value);
         if (okOld != true) {
             this->removeRandmVariable(oldText);
         }
@@ -979,7 +981,6 @@ void MDOF_BuildingModel::on_inStoryHeight_editingFinished()
         return;
 
     double newStoryHeight = text.toDouble();
-    double currentStoryHeight = 0;
     double *newFloorHeights = new double[numStories+1];
 
     // determine new floor heights, cludgy can rewrite now store storyHeights
@@ -1027,7 +1028,6 @@ void MDOF_BuildingModel::on_inStoryKx_editingFinished()
     //
 
     bool ok;
-    double value;
     updatingPropertiesTable = true;
 
     for (int i=sMinSelected; i<=sMaxSelected; i++) {
@@ -1036,12 +1036,15 @@ void MDOF_BuildingModel::on_inStoryKx_editingFinished()
 
         if (oldText != text) {
             // if old text not double, remove random Variable
+            double value;
             value = oldText.toDouble(&ok);
+            Q_UNUSED(value);
             if (!ok) {
                 this->removeRandmVariable(oldText);
             }
             // if new text not double, add random variable
             value = text.toDouble(&ok);
+            Q_UNUSED(value);
             if (!ok) {
                 this->addRandomVariable(text);
             }
@@ -1288,17 +1291,19 @@ void MDOF_BuildingModel::on_theSpreadsheet_cellChanged(int row, int column)
 
         bool ok;
         double textToDouble = text.toDouble(&ok);
-        double buildingWeight = 0;
+        Q_UNUSED(textToDouble);
 
         if (cellText != text) {
-            bool ok;
             // if old text not double, remove random Variable
             double value = cellText.toDouble(&ok);
+            Q_UNUSED(value);
             if (!ok) {
                 this->removeRandmVariable(cellText);
             }
             // if new text not double, add random variable
             value = text.toDouble(&ok);
+            Q_UNUSED(value);
+
             if (!ok) {
                 this->addRandomVariable(text);
             } else {
@@ -1581,6 +1586,7 @@ MDOF_BuildingModel::outputAppDataToJSON(QJsonObject &jsonObject) {
 bool
 MDOF_BuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
 
+    Q_UNUSED(jsonObject);
     //
     // from ApplicationData
     //
@@ -1592,6 +1598,7 @@ MDOF_BuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
 
  bool
  MDOF_BuildingModel::copyFiles(QString &dirName) {
+     Q_UNUSED(dirName);
     return true;
  }
 
@@ -1777,9 +1784,10 @@ MDOF_BuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
 
  void
  MDOF_BuildingModel::setBuildingDimensions(double newW, double newD, double planArea) {
-
+    Q_UNUSED(planArea);
     buildingW = newW;
     buildingD = newD;
+
     this->draw();
  }
 

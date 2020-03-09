@@ -270,6 +270,8 @@ DakotaInputSampling::inputAppDataFromJSON(QJsonObject &jsonObject)
 
 int DakotaInputSampling::processResults(QString &filenameResults, QString &filenameTab) {
 
+    Q_UNUSED(filenameResults);
+    Q_UNUSED(filenameTab);
     return 0;
 }
 

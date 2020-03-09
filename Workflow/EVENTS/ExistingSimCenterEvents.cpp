@@ -282,7 +282,6 @@ void ExistingSimCenterEvents::loadEventsFromDir(void) {
 
         QStringList fileList= directory.entryList(QStringList() << "*.json",QDir::Files);
         foreach(QString fileName, fileList) {
-            // InputWidgetExistingEvent *theExisting = new InputWidgetExistingEvent(theRandVariableIW);
             ExistingEvent *theEvent = new ExistingEvent(theRandVariableIW);
             QFileInfo infoFile(fileName);
             QString name = infoFile.baseName();
@@ -404,6 +403,7 @@ ExistingSimCenterEvents::outputAppDataToJSON(QJsonObject &jsonObject) {
 
 bool
 ExistingSimCenterEvents::inputAppDataFromJSON(QJsonObject &jsonObject) {
+    Q_UNUSED(jsonObject);
     return true;
 }
 

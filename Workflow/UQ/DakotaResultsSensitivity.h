@@ -62,10 +62,10 @@ public:
     explicit DakotaResultsSensitivity(QWidget *parent = 0);
     ~DakotaResultsSensitivity();
 
-    bool outputToJSON(QJsonObject &rvObject);
-    bool inputFromJSON(QJsonObject &rvObject);
+    bool outputToJSON(QJsonObject &rvObject) override;
+    bool inputFromJSON(QJsonObject &rvObject) override;
 
-    int processResults(QString &filenameResults, QString &filenameTab);
+    int processResults(QString &filenameResults, QString &filenameTab) override;
     QWidget *createResultEDPWidget(QString &name, double mean, double stdDev, double kurtosis);
 
 signals:
@@ -78,7 +78,6 @@ public slots:
    // modified by padhye 08/25/2018
 
 private:
-   RandomVariablesContainer *theRVs;
    QTabWidget *tabWidget;
 
    MyTableWidget *spreadsheet;  // MyTableWidget inherits the QTableWidget
