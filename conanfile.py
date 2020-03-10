@@ -1,9 +1,8 @@
 from conans import ConanFile, tools, VisualStudioBuildEnvironment
-import os
 
 class CommonConan(ConanFile):
     name = "SimCenterCommonQt"
-    version = "0.1.2"
+    version = "0.1.3"
     license = "BSD"
     author = "Wael Elhaddad (elhaddad@berkeley.edu)"
     url = "https://github.com/NHERI-SimCenter/SimCenterCommon.git"
