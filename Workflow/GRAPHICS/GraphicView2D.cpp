@@ -160,7 +160,7 @@ GraphicView2D::drawPoint(int tag, float x1, float y1, int numPixels, float r, fl
     *positions++ = y1;
     *positions++ = 0;
 
-    auto *coordsBuffer = new Qt3DRender::QBuffer(Qt3DRender::QBuffer::BufferType::VertexBuffer);
+    auto *coordsBuffer = new Qt3DRender::QBuffer();
     coordsBuffer->setData(coordsBytes);
 
     auto pointVerticesAttribute = new Qt3DRender::QAttribute(
@@ -269,7 +269,7 @@ GraphicView2D::drawLine(int tag, float x1, float y1, float x2, float y2, float t
     *positions++ = y2;
     *positions++ = 0;
 
-    auto *buf = new Qt3DRender::QBuffer(Qt3DRender::QBuffer::BufferType::VertexBuffer, geometry);
+    auto *buf = new Qt3DRender::QBuffer(geometry);
     buf->setData(bufferBytes);
 
     auto *positionAttribute = new Qt3DRender::QAttribute(geometry);
@@ -289,7 +289,7 @@ GraphicView2D::drawLine(int tag, float x1, float y1, float x2, float y2, float t
     *indices++ = 0;
     *indices++ = 1;
 
-    auto *indexBuffer = new Qt3DRender::QBuffer(Qt3DRender::QBuffer::BufferType::IndexBuffer, geometry);
+    auto *indexBuffer = new Qt3DRender::QBuffer(geometry);
     indexBuffer->setData(indexBytes);
 
     auto *indexAttribute = new Qt3DRender::QAttribute(geometry);
@@ -404,7 +404,7 @@ GraphicView2D::drawCube(int tag, float x1, float y1, int numPixels, float r, flo
 
     QByteArray connectivityBytes(reinterpret_cast<const char *>(&connectivity), sizeof (uint) * 8);
     connectivityBuffer->setData(connectivityBytes);
-    /*
+
     auto indexAttribute = new Qt3DRender::QAttribute(
                 connectivityBuffer,
                 Qt3DRender::QAttribute::defaultJointIndicesAttributeName(),

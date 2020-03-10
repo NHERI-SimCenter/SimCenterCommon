@@ -273,6 +273,7 @@ AgaveCurl::login(QString uname, QString upassword)
         consumerSecret.remove("\"");
         retry = false;
     }
+    Q_UNUSED(retry);
 
 
     //
@@ -1213,6 +1214,7 @@ AgaveCurl::deleteJob(const QString &jobID, const QStringList &dirToRemove)
     foreach(QString item, dirToRemove) {
         result = this->removeDirectory(item);
     }
+    Q_UNUSED(result);
 
     //
     // invoke curl to delete the job

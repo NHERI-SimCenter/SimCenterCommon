@@ -189,13 +189,12 @@ local void init_linkedlist(ll)
     ll->first_block = ll->last_block = NULL;
 }
 
-local void free_linkedlist(ll)
+static inline void free_linkedlist(ll)
     linkedlist_data* ll;
 {
     free_datablock(ll->first_block);
     ll->first_block = ll->last_block = NULL;
 }
-
 
 local int add_data_in_datablock(ll,buf,len)
     linkedlist_data* ll;
@@ -319,6 +318,7 @@ local uLong ziplocal_TmzDateToDosDate(ptm,dosDate)
     const tm_zip* ptm;
     uLong dosDate;
 {
+    (void)dosDate;
     uLong year = (uLong)ptm->tm_year;
     if (year>1980)
         year-=1980;
@@ -756,11 +756,11 @@ extern int ZEXPORT zipOpenNewFileInZip3 (file, filename, zipfi,
     }
 
     zi->ci.flag = 0;
-    if ((level==8) || (level==9))
+    if (level==8 || level==9)
       zi->ci.flag |= 2;
-    if ((level==2))
+    if (level==2)
       zi->ci.flag |= 4;
-    if ((level==1))
+    if (level==1)
       zi->ci.flag |= 6;
     if (password != NULL)
       zi->ci.flag |= 1;
@@ -880,7 +880,7 @@ extern int ZEXPORT zipOpenNewFileInZip3 (file, filename, zipfi,
         unsigned char bufHead[RAND_HEAD_LEN];
         unsigned int sizeHead;
         zi->ci.encrypt = 1;
-        zi->ci.pcrc_32_tab = get_crc_table();
+        zi->ci.pcrc_32_tab = (const long unsigned int*)get_crc_table();
         /*init_keys(password,zi->ci.keys,zi->ci.pcrc_32_tab);*/
 
         sizeHead=crypthead(password,bufHead,RAND_HEAD_LEN,zi->ci.keys,zi->ci.pcrc_32_tab,crcForCrypting);

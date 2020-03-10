@@ -22,4 +22,4 @@ TEMPLATE = lib
 #Configure the library to be static
 CONFIG += staticlib
 
-OTHER_FILES += conanfile.py
+OTHER_FILES += conanfile.py azure-pipelines.yml

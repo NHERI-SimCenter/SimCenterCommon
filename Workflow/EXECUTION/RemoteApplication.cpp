@@ -192,7 +192,7 @@ RemoteApplication::onRunButtonPressed(void)
 
 bool
 RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile, QString runType) {
-
+    Q_UNUSED(runType);
      //    QString appDir = localAppDirName->text();
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
     qDebug() << "REMOTEAPP: setupDone " << tmpDirectory << " " << inputFile << " " << appDir;
@@ -396,6 +396,7 @@ RemoteApplication::getHomeDirReturned(QString path){
 
 void
 RemoteApplication::startJobReturn(QString result) {
+    Q_UNUSED(result);
    pushButton->setEnabled(true);
    emit successfullJobStart();
 }

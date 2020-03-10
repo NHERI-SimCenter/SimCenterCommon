@@ -61,13 +61,13 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 
 RandomVariable::RandomVariable()
-    :SimCenterWidget(0),variableClass(QString(""))
+    :SimCenterWidget(0), refCount(0), variableClass(QString(""))
 {
 
 }
 
 RandomVariable::RandomVariable(const QString &type, QWidget *parent)
-    :SimCenterWidget(parent),variableClass(type), refCount(0)
+    :SimCenterWidget(parent), refCount(0), variableClass(type)
 {
     //
     // create a vertical layout to deal with variable name
