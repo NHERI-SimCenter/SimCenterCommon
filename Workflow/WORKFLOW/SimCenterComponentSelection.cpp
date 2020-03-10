@@ -106,7 +106,6 @@ SimCenterComponentSelection::addComponent(QString text, QWidget *theWidget)
 {
     if (textIndices.indexOf(text) == -1) {
         QStandardItem *theItem = new QStandardItem(text);
-        QModelIndex index = theItem->index();
         rootNode->appendRow(theItem);
         QModelIndex modelIndex = theItem->index();
         theStackedWidget->addWidget(theWidget);

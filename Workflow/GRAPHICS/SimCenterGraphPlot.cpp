@@ -29,7 +29,7 @@ SimCenterGraphPlot::SimCenterGraphPlot(
     thePlot->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
     thePlot->setInteractions(QCP::iSelectPlottables);
 
-    QRect rec = QApplication::desktop()->screenGeometry();
+    QRect rec = QGuiApplication::screens()[0]->geometry();
 
     int height = 0.2*rec.height();
     int width = 0.5*rec.width();

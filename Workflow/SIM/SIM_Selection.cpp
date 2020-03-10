@@ -56,8 +56,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 SIM_Selection::SIM_Selection(RandomVariablesContainer *theRandomVariableIW, 
 			     bool includeC,
 			     QWidget *parent)
-: SimCenterAppWidget(parent), bimInput(0), theRandomVariablesContainer(theRandomVariableIW),
-   includeCentroid(includeC)
+: SimCenterAppWidget(parent), bimInput(0),
+  includeCentroid(includeC), theRandomVariablesContainer(theRandomVariableIW)
 {
     layout = new QVBoxLayout();
 

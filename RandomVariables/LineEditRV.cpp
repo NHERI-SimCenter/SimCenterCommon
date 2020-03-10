@@ -107,12 +107,14 @@ LineEditRV::on_editingFinished() {
 
     // if old text not double, remove random Variable
     double value = oldText.toDouble(&ok);
+    Q_UNUSED(value);
     if (!ok) {
       theRVC->removeRandomVariable(oldText);
     }
 
     // if new text not double, add random variable
     value = currentText.toDouble(&ok);
+    Q_UNUSED(value);
     if (!ok) {
       theRVC->addRandomVariable(currentText);
     }

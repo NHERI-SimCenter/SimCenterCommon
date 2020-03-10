@@ -62,7 +62,7 @@ using namespace std;
 OpenSeesBuildingModel::OpenSeesBuildingModel(RandomVariablesContainer *theRandomVariableIW, 
 					     bool includeC,
 					     QWidget *parent)
-  : SimCenterAppWidget(parent), theRandomVariablesContainer(theRandomVariableIW), responseNodes(0)
+  : SimCenterAppWidget(parent), responseNodes(0), theRandomVariablesContainer(theRandomVariableIW)
 {
   includeCentroid = includeC;
   femSpecific = 0;

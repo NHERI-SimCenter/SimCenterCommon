@@ -56,7 +56,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QRect>
 #include <QApplication>
 #include <QDesktopWidget>
-
+#include <QScreen>
 #include <SimCenterPreferences.h>
 
 #include <QMenu>
@@ -84,7 +84,7 @@ RemoteJobManager::RemoteJobManager(RemoteService *theRemoteInterface, QWidget *p
     layout->addWidget(jobsTable, 1.0);
     //jobsTable->setSizePolicy(QSizePolicy::Ignored);
     this->setLayout(layout);
-    QRect rec = QApplication::desktop()->screenGeometry();
+    QRect rec = QGuiApplication::primaryScreen()->geometry();
 
     int height = 0.5*rec.height();
     int width = 0.5*rec.width();
