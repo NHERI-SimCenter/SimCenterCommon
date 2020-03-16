@@ -43,6 +43,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class QLineEdit;
 class RandomVariablesContainer;
+class QComboBox;
+class QStackedWidget;
 
 class InputWidgetOpenSeesAnalysis : public  SimCenterAppWidget
 {
@@ -65,19 +67,33 @@ public slots:
    void dampingEditingFinished();
    void toleranceEditingFinished();
 
+   void changedDampingMethod(QString);
+
 
 private:
-    QLineEdit   *theTolerance;
+    //QLineEdit   *theTolerance;
     QLineEdit   *theConvergenceTest;
     QLineEdit   *theAlgorithm;
     QLineEdit   *theIntegration;
-    QLineEdit   *dampingRatio;
+    QLineEdit   *theSolver;
 
     QLineEdit *file;
     RandomVariablesContainer *theRandomVariablesContainer;
 
     QString lastDampingRatio;
     QString lastTolerance;
+
+    QStackedWidget *theStackedWidget;
+    QComboBox *theSelectionBox;
+
+    QLineEdit *dampingRatio;
+    QLineEdit *firstMode;
+    QLineEdit *secondMode;
+    QComboBox *theRayleighStiffness;
+
+    QLineEdit *numModesModal;
+    QLineEdit *dampingRatioModal;
+    QLineEdit *dampingRatioModalTangent;
 };
 
 #endif // INPUTWIDGET_OPENSEES_ANALYSIS_H
