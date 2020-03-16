@@ -41,6 +41,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <SimCenterGraphPlot.h>
+#include <math.h>
+#include <QPushButton>
+#include <QValidator>
 
 BetaDistribution::BetaDistribution(QWidget *parent)
     : RandomVariableDistribution(parent)
@@ -56,17 +60,32 @@ BetaDistribution::BetaDistribution(QWidget *parent)
     betas = this->createTextEntry(tr("betas"), mainLayout);
     lowerBound = this->createTextEntry(tr("lowerbound"), mainLayout, 100, 100);
     upperBound = this->createTextEntry(tr("upperbound"), mainLayout, 100, 100);
+
+    QPushButton *showPlotButton = new QPushButton("Show PDF");
+    mainLayout->addWidget(showPlotButton);
+
     mainLayout->addStretch();
 
     // set some defaults, and set layout for widget to be the horizontal layout
     mainLayout->setSpacing(10);
     mainLayout->setMargin(0);
     this->setLayout(mainLayout);
+
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"), 500, 500);
+
+    alphas->setValidator(new QDoubleValidator);
+    betas->setValidator(new QDoubleValidator);
+    lowerBound->setValidator(new QDoubleValidator);
+    upperBound->setValidator(new QDoubleValidator);
+
+    connect(alphas,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+    connect(betas,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+    connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
 }
 
 BetaDistribution::~BetaDistribution()
 {
-
+    delete thePlot;
 }
 
 
@@ -131,4 +150,30 @@ BetaDistribution::inputFromJSON(QJsonObject &rvObject){
 QString 
 BetaDistribution::getAbbreviatedName(void) {
   return QString("Beta");
+}
+
+void
+BetaDistribution::updateDistributionPlot() {
+    double a = alphas->text().toDouble();
+    double b = betas->text().toDouble();
+    double u = upperBound->text().toDouble();
+    double l = lowerBound->text().toDouble();
+
+    if (a >= 0.0 && a > 0.0 && u != l) {
+        double min = l;
+        double max = u;
+        QVector<double> x(100);
+        QVector<double> y(100);
+        double gammaAB = tgamma(a+b);
+        double gammaA = tgamma(a);
+        double gammaB = tgamma(b);
+
+        for (int i=0; i<100; i++) {
+            double xi = min + i*(max-min)/99;
+            x[i] = xi;
+            y[i]=gammaAB*pow((xi-l),(a-1.0))*pow((u-xi),(b-1.0))/(gammaA*gammaB*pow((u-l),(a+b-1)));
+        }
+        thePlot->clear();
+        thePlot->addLine(x,y);
+    }
 }

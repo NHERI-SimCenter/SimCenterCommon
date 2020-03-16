@@ -42,6 +42,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLabel>
 #include <QLineEdit>
 #include <QDebug>
+#include <SimCenterGraphPlot.h>
+#include <math.h>
+#include <QPushButton>
+#include <QValidator>
 
 
 GumbelDistribution::GumbelDistribution(QWidget *parent) :RandomVariableDistribution(parent)
@@ -55,16 +59,29 @@ GumbelDistribution::GumbelDistribution(QWidget *parent) :RandomVariableDistribut
     alphaparam = this->createTextEntry(tr("Alpha"), mainLayout);
     betaparam = this->createTextEntry(tr("Beta"), mainLayout);
 
+    QPushButton *showPlotButton = new QPushButton("Show PDF");
+    mainLayout->addWidget(showPlotButton);
+
     mainLayout->addStretch();
 
     // set some defaults, and set layout for widget to be the horizontal layout
     mainLayout->setSpacing(10);
     mainLayout->setMargin(0);
     this->setLayout(mainLayout);
+
+    alphaparam->setValidator(new QDoubleValidator);
+    betaparam->setValidator(new QDoubleValidator);
+
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"), 500, 500);
+
+
+    connect(alphaparam,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+    connect(betaparam,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+    connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
 }
 GumbelDistribution::~GumbelDistribution()
 {
-
+    delete thePlot;
 }
 
 bool
@@ -109,4 +126,26 @@ GumbelDistribution::inputFromJSON(QJsonObject &rvObject){
 QString
 GumbelDistribution::getAbbreviatedName(void) {
   return QString("Gumbel");
+}
+
+void
+GumbelDistribution::updateDistributionPlot() {
+    double a = alphaparam->text().toDouble();
+    double b = betaparam->text().toDouble();
+    double u = b + .5772/a;
+    double s = 3.14159/(sqrt(6)*a);
+    if (s > 0.0) {
+        double min = u - 5*s;
+        double max = u + 5*s;
+        QVector<double> x(100);
+        QVector<double> y(100);
+        for (int i=0; i<100; i++) {
+            double xi = min + i*(max-min)/99;
+            double zi = exp(-a*(xi-b));
+            x[i] = xi;
+            y[i] = a*zi*exp(-zi);
+        }
+        thePlot->clear();
+        thePlot->addLine(x,y);
+    }
 }

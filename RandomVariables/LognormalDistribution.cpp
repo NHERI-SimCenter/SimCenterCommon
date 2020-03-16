@@ -43,6 +43,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLabel>
 #include <QLineEdit>
 #include <QDoubleValidator>
+#include <SimCenterGraphPlot.h>
+#include <math.h>
+#include <QPushButton>
 
 LognormalDistribution::LognormalDistribution(QWidget *parent)
     : RandomVariableDistribution(parent)
@@ -56,17 +59,30 @@ LognormalDistribution::LognormalDistribution(QWidget *parent)
     mean = this->createTextEntry(tr("mean"), mainLayout);
     standardDev = this->createTextEntry(tr("standardDev"), mainLayout);
 
+    QPushButton *showPlotButton = new QPushButton("Show PDF");
+    mainLayout->addWidget(showPlotButton);
+
     mainLayout->addStretch();
 
     // set some defaults, and set layout for widget to be the horizontal layout
     mainLayout->setSpacing(10);
     mainLayout->setMargin(0);
     this->setLayout(mainLayout);
+
+    mean->setValidator(new QDoubleValidator);
+    standardDev->setValidator(new QDoubleValidator);
+
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"), 500, 500);
+
+
+    connect(mean,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+    connect(standardDev,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+    connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
 }
 
 LognormalDistribution::~LognormalDistribution()
 {
-
+    delete thePlot;
 }
 
 bool
@@ -104,4 +120,28 @@ LognormalDistribution::inputFromJSON(QJsonObject &rvObject){
 QString 
 LognormalDistribution::getAbbreviatedName(void) {
   return QString("Lognormal");
+}
+
+void
+LognormalDistribution::updateDistributionPlot() {
+    double u = mean->text().toDouble();
+    double s =standardDev->text().toDouble();
+    double square_zeta = log(s*s/(u*u) + 1);
+    double zeta = sqrt(square_zeta);
+    double lambda = log(u)-square_zeta/2.0;
+    if (s > 0.0) {
+        double min = u - 5*s;
+        if (min < 0) min = 0.0;
+        double max = u + 5*s;
+        QVector<double> x(100);
+        QVector<double> y(100);
+        for (int i=0; i<100; i++) {
+            double xi = min + i*(max-min)/99;
+            x[i] = xi;
+            y[i] =1.0/(sqrt(2*3.14156)*zeta*xi)*exp(-(.5*pow(((log(xi)-lambda)/zeta),2)));
+        }
+        thePlot->clear();
+        thePlot->addLine(x,y);
+    }
+
 }
