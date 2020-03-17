@@ -145,9 +145,6 @@ LocalApplication::onRunButtonPressed(void)
 bool
 LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile, QString runType) {
 
-  QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-  qDebug() << "ENVIRONMENT " << env.toStringList();
-
   QString appDir = SimCenterPreferences::getInstance()->getAppDir();
 
     //TODO: recognize if it is PBE or EE-UQ -> probably smarter to do it inside the python file
@@ -207,6 +204,33 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     qDebug() << args;
 
     proc->setProcessChannelMode(QProcess::SeparateChannels);
+    auto procEnv = QProcessEnvironment::systemEnvironment();
+    QString pathEnv = procEnv.value("PATH");
+
+    //Adding local Python to PATH
+    auto localPythonDir = appDir + "/applications/python";
+    if(QDir(localPythonDir).exists())
+        pathEnv = localPythonDir + ';' + pathEnv;
+
+    //Adding OpenSees to PATH
+    auto openSeesDir = appDir + "/applications/OpenSees";
+    if(QDir(openSeesDir).exists())
+        pathEnv = openSeesDir + ';' + pathEnv;
+
+    //Adding Tcl to PATH
+    auto tclDir = appDir + "/applications/Tcl/bin";
+    if(QDir(tclDir).exists())
+        pathEnv = tclDir + ';' + pathEnv;
+
+    //Adding Dakota to PATH
+    auto dakotaDir = appDir + "/applications/Dakota";
+    if(QDir(dakotaDir).exists())
+        pathEnv = dakotaDir + ';' + pathEnv;
+
+    procEnv.insert("PATH", pathEnv);
+
+    proc->setProcessEnvironment(procEnv);
+
     proc->start(python,args);
 
     if (!proc->waitForStarted(-1))

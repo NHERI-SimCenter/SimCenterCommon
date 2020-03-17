@@ -362,7 +362,10 @@ SimCenterPreferences::resetPreferences(bool) {
 
 
 #ifdef Q_OS_WIN
-    QString pythonPath = QStandardPaths::findExecutable("python.exe");
+    QStringList paths{QCoreApplication::applicationDirPath().append("/applications/python")};
+    QString pythonPath = QStandardPaths::findExecutable("python.exe", paths);
+    if(pythonPath.isEmpty())
+        pythonPath = QStandardPaths::findExecutable("python.exe");
 #else
     QString pythonPath = QStandardPaths::findExecutable("python3");
     if (pythonPath.isEmpty()) {
@@ -494,7 +497,10 @@ SimCenterPreferences::getPython(void) {
     // if python not set .. get default
     if (!pythonPathVariant.isValid()) {
 #ifdef Q_OS_WIN
-        QString pythonPath = QStandardPaths::findExecutable("python.exe");
+        QStringList paths{QCoreApplication::applicationDirPath().append("/applications/python")};
+        QString pythonPath = QStandardPaths::findExecutable("python.exe", paths);
+        if(pythonPath.isEmpty())
+            pythonPath = QStandardPaths::findExecutable("python.exe");
 #else
         QString pythonPath = QStandardPaths::findExecutable("python");
 #endif
