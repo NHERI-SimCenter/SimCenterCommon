@@ -145,9 +145,6 @@ LocalApplication::onRunButtonPressed(void)
 bool
 LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile, QString runType) {
 
-  QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-  qDebug() << "ENVIRONMENT " << env.toStringList();
-
   QString appDir = SimCenterPreferences::getInstance()->getAppDir();
 
     //TODO: recognize if it is PBE or EE-UQ -> probably smarter to do it inside the python file
@@ -207,14 +204,51 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     qDebug() << args;
 
     proc->setProcessChannelMode(QProcess::SeparateChannels);
+    auto procEnv = QProcessEnvironment::systemEnvironment();
+    QString pathEnv = procEnv.value("PATH");
+
+    //Adding local Python to PATH
+    auto localPythonDir = appDir + "/applications/python";
+    if(QDir(localPythonDir).exists())
+        pathEnv = localPythonDir + ';' + pathEnv;
+
+    //This code helps set the environment for Anaconda
+    //Where DLLs needs to be loaded from Library/bin folder
+    //This should work for users using Anaconda without activating Anaconda environment
+    QFileInfo pythonFileInfo(python.remove('"'));
+    auto pythonDir = pythonFileInfo.dir();
+    auto pythonLibDir = pythonDir.absolutePath() + "/Library/bin";
+    if(QDir(pythonLibDir).exists())
+        pathEnv = pythonLibDir + ';' + pathEnv;
+
+    //Adding OpenSees to PATH
+    auto openSeesDir = appDir + "/applications/OpenSees";
+    if(QDir(openSeesDir).exists())
+        pathEnv = openSeesDir + ';' + pathEnv;
+
+    //Adding Tcl to PATH
+    auto tclDir = appDir + "/applications/Tcl/bin";
+    if(QDir(tclDir).exists())
+        pathEnv = tclDir + ';' + pathEnv;
+
+    //Adding Dakota to PATH
+    auto dakotaDir = appDir + "/applications/Dakota";
+    if(QDir(dakotaDir).exists())
+        pathEnv = dakotaDir + ';' + pathEnv;
+
+    procEnv.insert("PATH", pathEnv);
+
+    proc->setProcessEnvironment(procEnv);
+
     proc->start(python,args);
 
+    bool failed = false;
     if (!proc->waitForStarted(-1))
     {
         qDebug() << "Failed to start the workflow!!! exit code returned: " << proc->exitCode();
         qDebug() << proc->errorString().split('\n');
         emit sendStatusMessage("Failed to start the workflow!!!");
-        return false;
+        failed = true;
     }
 
     if(!proc->waitForFinished(-1))
@@ -222,7 +256,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
         qDebug() << "Failed to finish running the workflow!!! exit code returned: " << proc->exitCode();
         qDebug() << proc->errorString();
         emit sendStatusMessage("Failed to finish running the workflow!!!");
-        return false;
+        failed = true;
     }
 
 
@@ -231,11 +265,15 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
         qDebug() << "Failed to run the workflow!!! exit code returned: " << proc->exitCode();
         qDebug() << proc->errorString();
         emit sendStatusMessage("Failed to run the workflow!!!");
-        return false;
+        failed = true;
     }
 
-    qDebug().noquote() << proc->readAllStandardOutput();
-    qDebug().noquote() << proc->readAllStandardError();
+    if(failed)
+    {
+        qDebug().noquote() << proc->readAllStandardOutput();
+        qDebug().noquote() << proc->readAllStandardError();
+        return false;
+    }
 #else
 
     // note the above not working under linux because bash_profile not being called so no env variables!!
