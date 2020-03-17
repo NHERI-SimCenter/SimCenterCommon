@@ -242,12 +242,13 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
     proc->start(python,args);
 
+    bool failed = false;
     if (!proc->waitForStarted(-1))
     {
         qDebug() << "Failed to start the workflow!!! exit code returned: " << proc->exitCode();
         qDebug() << proc->errorString().split('\n');
         emit sendStatusMessage("Failed to start the workflow!!!");
-        return false;
+        failed = true;
     }
 
     if(!proc->waitForFinished(-1))
@@ -255,7 +256,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
         qDebug() << "Failed to finish running the workflow!!! exit code returned: " << proc->exitCode();
         qDebug() << proc->errorString();
         emit sendStatusMessage("Failed to finish running the workflow!!!");
-        return false;
+        failed = true;
     }
 
 
@@ -264,11 +265,15 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
         qDebug() << "Failed to run the workflow!!! exit code returned: " << proc->exitCode();
         qDebug() << proc->errorString();
         emit sendStatusMessage("Failed to run the workflow!!!");
-        return false;
+        failed = true;
     }
 
-    qDebug().noquote() << proc->readAllStandardOutput();
-    qDebug().noquote() << proc->readAllStandardError();
+    if(failed)
+    {
+        qDebug().noquote() << proc->readAllStandardOutput();
+        qDebug().noquote() << proc->readAllStandardError();
+        return false;
+    }
 #else
 
     // note the above not working under linux because bash_profile not being called so no env variables!!
