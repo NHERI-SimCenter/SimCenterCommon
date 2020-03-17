@@ -212,6 +212,15 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     if(QDir(localPythonDir).exists())
         pathEnv = localPythonDir + ';' + pathEnv;
 
+    //This code helps set the environment for Anaconda
+    //Where DLLs needs to be loaded from Library/bin folder
+    //This should work for users using Anaconda without activating Anaconda environment
+    QFileInfo pythonFileInfo(python.remove('"'));
+    auto pythonDir = pythonFileInfo.dir();
+    auto pythonLibDir = pythonDir.absolutePath() + "/Library/bin";
+    if(QDir(pythonLibDir).exists())
+        pathEnv = pythonLibDir + ';' + pathEnv;
+
     //Adding OpenSees to PATH
     auto openSeesDir = appDir + "/applications/OpenSees";
     if(QDir(openSeesDir).exists())
