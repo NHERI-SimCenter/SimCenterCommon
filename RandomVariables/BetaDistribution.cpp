@@ -98,10 +98,10 @@ BetaDistribution::outputToJSON(QJsonObject &rvObject){
         return false;
     }
 
-    rvObject["alphas"]=alphas->text();
-    rvObject["betas"]=betas->text();
-    rvObject["lowerbound"]=lowerBound->text();
-    rvObject["upperbound"]=upperBound->text();
+    rvObject["alphas"]=alphas->text().toDouble();
+    rvObject["betas"]=betas->text().toDouble();
+    rvObject["lowerbound"]=lowerBound->text().toDouble();
+    rvObject["upperbound"]=upperBound->text().toDouble();
     return true;
 }
 
