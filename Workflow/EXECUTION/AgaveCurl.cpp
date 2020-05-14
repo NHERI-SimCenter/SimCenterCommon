@@ -1013,13 +1013,13 @@ AgaveCurl::startJob(const QJsonObject &theJob)
 
 
 void
-AgaveCurl::getJobListCall(const QString &matchingName) {
-  QJsonObject result = getJobList(matchingName);
+AgaveCurl::getJobListCall(const QString &matchingName, QString appIdFilter) {
+  QJsonObject result = getJobList(matchingName, appIdFilter);
   emit getJobListReturn(result);
 }
 
 QJsonObject
-AgaveCurl::getJobList(const QString &matchingName)
+AgaveCurl::getJobList(const QString &matchingName, QString appIdFilter)
 {
     //TODO: implement matching
     Q_UNUSED(matchingName);
@@ -1029,6 +1029,11 @@ AgaveCurl::getJobList(const QString &matchingName)
     QJsonObject result;
 
     QString url = tenantURL + QString("jobs/v2");
+    if (!appIdFilter.isEmpty())
+    {
+        QString params = QString("?appId.like=%1").arg(appIdFilter);
+        url.append(params);
+    }
     curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
     this->invokeCurl();
 

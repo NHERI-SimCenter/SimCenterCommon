@@ -81,7 +81,7 @@ public slots:
 
     // jobs
     virtual void startJobCall(const QJsonObject &theJob) =0;
-    virtual void getJobListCall(const QString &matchingName) =0;
+    virtual void getJobListCall(const QString &matchingName, QString appIdFilter = QString("")) =0;
     virtual void getJobDetailsCall(const QString &jobID) =0;
     virtual void getJobStatusCall(const QString &jobID) =0;
     virtual void deleteJobCall(const QString &jobID, const QStringList &dirToRemove) =0;
