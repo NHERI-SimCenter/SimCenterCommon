@@ -2,7 +2,7 @@ from conans import ConanFile, tools, VisualStudioBuildEnvironment
 
 class CommonConan(ConanFile):
     name = "SimCenterCommonQt"
-    version = "0.1.3"
+    version = "0.1.5"
     license = "BSD"
     author = "Wael Elhaddad (elhaddad@berkeley.edu)"
     url = "https://github.com/NHERI-SimCenter/SimCenterCommon.git"
@@ -29,12 +29,12 @@ class CommonConan(ConanFile):
 
     def configure(self):
         if self.settings.os == "Windows":
-           self.options["libcurl"].with_winssl = True
-           self.options["libcurl"].with_openssl = False
+            self.options["libcurl"].with_winssl = True
+            self.options["libcurl"].with_openssl = False
         
         if self.options.withQt:
-           self.options["qt"].qtcharts = True
-           self.options["qt"].qt3d = True
+            self.options["qt"].qtcharts = True
+            self.options["qt"].qt3d = True
 
 
     def build_requirements(self):
