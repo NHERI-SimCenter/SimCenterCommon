@@ -115,6 +115,7 @@ WeibullDistribution::inputFromJSON(QJsonObject &rvObject){
         return false;
     }
 
+    this->updateDistributionPlot();
     return true;
 }
 
