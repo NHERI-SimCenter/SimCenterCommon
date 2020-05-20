@@ -333,6 +333,7 @@ UserDefinedEDP::outputAppDataToJSON(QJsonObject &jsonObject) {
 }
 bool
 UserDefinedEDP::inputAppDataFromJSON(QJsonObject &jsonObject) {
+    Q_UNUSED(jsonObject);
 
     //
     // from ApplicationData
@@ -345,8 +346,8 @@ UserDefinedEDP::inputAppDataFromJSON(QJsonObject &jsonObject) {
 
 
 
-int
-UserDefinedEDP::setProcessingScript(QString name){
+bool
+UserDefinedEDP::setProcessingScript(QString filename){
 
     // set file name & ebtry in qLine edit
     //filenameProcessingScript = name;
@@ -362,10 +363,10 @@ UserDefinedEDP::setProcessingScript(QString name){
     }
 
     // set filename
-    processingScriptLE->setText(name);
+    processingScriptLE->setText(filename);
 
     // process file looking for line with EDPs
-    std::ifstream in_file(name.toStdString());
+    std::ifstream in_file(filename.toStdString());
     unsigned int max_iters = 100;
     unsigned int count = 0;
     bool found_line = false;
@@ -400,29 +401,30 @@ UserDefinedEDP::setProcessingScript(QString name){
 
     // close file
     in_file.close();
-    if (found_line) {
-      return 0;
-    } else {
-      return 1;
-    }
+
+    if(!found_line)
+        return false;
+
+    return true;
 }
 
 void
 UserDefinedEDP::chooseProcessingScript(void) {
     QString fileName=QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)");
-    int ok = this->setProcessingScript(fileName);
+    this->setProcessingScript(fileName);
 }
 
-int
+void
 UserDefinedEDP::setAdditionalInput(QString filename) {
     additionalInputLE->setText(filename);
-    return 0;
+    return;
 }
 
 void
 UserDefinedEDP::chooseAdditionalInput(void) {
     QString fileName=QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)");
-    int ok = this->setAdditionalInput(fileName);
+    this->setAdditionalInput(fileName);
+
 }
 
  bool

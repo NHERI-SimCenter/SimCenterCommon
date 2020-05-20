@@ -252,13 +252,12 @@ GeneralInformationWidget::outputToJSON(QJsonObject &jsonObj){
 
     jsonObj["units"] = units;
 
-    return(true);
+    return true;
 }
 
 bool
 GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
     qDebug() << "General Information";
-    double rev;
 
     QJsonValue nameValue = jsonObject["name"];
     nameEdit->setText(nameValue.toString());
@@ -329,7 +328,7 @@ GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
     int tempUnitIndex = unitsTemperatureCombo->findData(tempUnit);
     unitsTemperatureCombo->setCurrentIndex(tempUnitIndex);
 
-    return(true);
+    return true;
 }
 
 void

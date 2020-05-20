@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>Turbulence Inflow Tool</Name>
+    <Version>1.0.2</Version>
+    <Title>Turbulence Inflow Tool Installer</Title>
+    <Publisher>NHERI SimCenter</Publisher>
+    <ProductUrl>https://simcenter.designsafe-ci.org/research-tools/tinf/</ProductUrl>
+    <InstallerApplicationIcon>NHERI-TInF-icon</InstallerApplicationIcon>
+    <InstallerWindowIcon>NHERI-TInF-icon</InstallerWindowIcon>
+    <Logo>NHERI-TInF-icon.png</Logo>
+    <Background>TInFInstallerLogo.png</Background>
+    <StartMenuDir>SimCenter Apps</StartMenuDir>
+    <TargetDir>@RootDir@/Applications/SimCenter Apps/SimCenterTInF</TargetDir>
+</Installer>

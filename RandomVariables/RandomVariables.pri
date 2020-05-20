@@ -35,7 +35,6 @@ HEADERS += $$PWD/RandomVariableDistribution.h \
     $$PWD/UniformDistribution.h \
     $$PWD/ConstantDistribution.h \
     $$PWD/ContinuousDesignDistribution.h \
-    $$PWD/ConstantDistribution.h \
     $$PWD/WeibullDistribution.h \
     $$PWD/GumbelDistribution.h \
     $$PWD/UserDef.h \

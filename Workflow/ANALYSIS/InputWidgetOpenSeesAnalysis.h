@@ -43,6 +43,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class QLineEdit;
 class RandomVariablesContainer;
+class QComboBox;
+class QStackedWidget;
 
 class InputWidgetOpenSeesAnalysis : public  SimCenterAppWidget
 {
@@ -51,11 +53,11 @@ public:
     explicit InputWidgetOpenSeesAnalysis(RandomVariablesContainer *theRandomVariableIW, QWidget *parent = 0);
     ~InputWidgetOpenSeesAnalysis();
 
-    bool outputToJSON(QJsonObject &rvObject);
-    bool inputFromJSON(QJsonObject &rvObject);
-    bool outputAppDataToJSON(QJsonObject &rvObject);
-    bool inputAppDataFromJSON(QJsonObject &rvObject);
-    bool copyFiles(QString &dirName);
+    bool outputToJSON(QJsonObject &jsonObject) override;
+    bool inputFromJSON(QJsonObject &jsonObject) override;
+    bool outputAppDataToJSON(QJsonObject &jsonObject) override;
+    bool inputAppDataFromJSON(QJsonObject &jsonObject) override;
+    bool copyFiles(QString &dirName) override;
 
 signals:
 
@@ -65,19 +67,33 @@ public slots:
    void dampingEditingFinished();
    void toleranceEditingFinished();
 
+   void changedDampingMethod(QString);
+
 
 private:
-    QLineEdit   *theTolerance;
+    //QLineEdit   *theTolerance;
     QLineEdit   *theConvergenceTest;
     QLineEdit   *theAlgorithm;
     QLineEdit   *theIntegration;
-    QLineEdit   *dampingRatio;
+    QLineEdit   *theSolver;
 
     QLineEdit *file;
     RandomVariablesContainer *theRandomVariablesContainer;
 
     QString lastDampingRatio;
     QString lastTolerance;
+
+    QStackedWidget *theStackedWidget;
+    QComboBox *theSelectionBox;
+
+    QLineEdit *dampingRatio;
+    QLineEdit *firstMode;
+    QLineEdit *secondMode;
+    QComboBox *theRayleighStiffness;
+
+    QLineEdit *numModesModal;
+    QLineEdit *dampingRatioModal;
+    QLineEdit *dampingRatioModalTangent;
 };
 
 #endif // INPUTWIDGET_OPENSEES_ANALYSIS_H

@@ -42,6 +42,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLabel>
 #include <QLineEdit>
 #include <QDebug>
+#include <SimCenterGraphPlot.h>
+#include <math.h>
+#include <QPushButton>
 
 
 UniformDistribution::UniformDistribution(QWidget *parent) :RandomVariableDistribution(parent)
@@ -54,7 +57,11 @@ UniformDistribution::UniformDistribution(QWidget *parent) :RandomVariableDistrib
 
     min = this->createTextEntry(tr("Min."), mainLayout);
     max = this->createTextEntry(tr("Max."), mainLayout);
-   // initialPoint = this->createTextEntry(tr("Initial Point"), mainLayout);
+
+    QPushButton *showPlotButton = new QPushButton("Show PDF");
+    mainLayout->addWidget(showPlotButton);
+
+    // initialPoint = this->createTextEntry(tr("Initial Point"), mainLayout);
 
     mainLayout->addStretch();
 
@@ -62,10 +69,17 @@ UniformDistribution::UniformDistribution(QWidget *parent) :RandomVariableDistrib
     mainLayout->setSpacing(10);
     mainLayout->setMargin(0);
     this->setLayout(mainLayout);
+
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"), 500, 500);
+
+
+    connect(min,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+    connect(max,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+    connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
 }
 UniformDistribution::~UniformDistribution()
 {
-
+    delete thePlot;
 }
 
 bool
@@ -108,10 +122,34 @@ UniformDistribution::inputFromJSON(QJsonObject &rvObject){
         return false;
     }
 
+    this->updateDistributionPlot();
     return true;
 }
 
 QString 
 UniformDistribution::getAbbreviatedName(void) {
   return QString("Uniform");
+}
+
+void
+UniformDistribution::updateDistributionPlot() {
+    double minV = min->text().toDouble();
+    double maxV = max->text().toDouble();
+
+    if (maxV > minV) {
+
+        QVector<double> x(103);
+        QVector<double> y(103);
+        double delta = (maxV-minV)/10;
+        x[0]=minV-delta; x[101]=maxV;
+        x[1]=minV; x[102]=maxV+delta;
+        y[0]=y[100]=y[101]=y[102]=0.;
+        for (int i=1; i<100; i++) {
+            double xi = minV + (i-1)*(maxV-minV)/98;
+            x[i+1] = xi;
+            y[i+1] =1.0/(maxV-minV);
+        }
+        thePlot->clear();
+        thePlot->addLine(x,y);
+    }
 }

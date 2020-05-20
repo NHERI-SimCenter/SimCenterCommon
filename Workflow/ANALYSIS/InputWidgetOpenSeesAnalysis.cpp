@@ -50,6 +50,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QPushButton>
 #include <QFileDialog>
 #include <QFile>
+#include <QStackedWidget>
+#include <QComboBox>
+#include <QFrame>
+
 
 
 InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(RandomVariablesContainer *theRandomVariableIW, QWidget *parent)
@@ -65,67 +69,169 @@ InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(RandomVariablesContaine
     // for each QlineEdit create a label, the Qline Edit and set some defaults
     //
 
-    QLabel *label1 = new QLabel();
-    label1->setText(QString("Algorithm: "));
+    QLabel *label1 = new QLabel("Algorithm: ");
     layout->addWidget(label1, 0, 0);
-    theAlgorithm = new QLineEdit();
-    theAlgorithm->setText("Newton");
+    theAlgorithm = new QLineEdit("Newton");
     theAlgorithm->setToolTip(tr("Nonlinear Solution Algorithm"));
     layout->addWidget(theAlgorithm, 0, 1);
 
+    QLabel *labelSolver = new QLabel("Solver: ");
+    layout->addWidget(labelSolver, 1, 0);
+    theSolver = new QLineEdit("Umfpack");
+    theSolver->setToolTip(tr("Equation Solver, Umfpack, ProfileSPD, BandGeneral, BandSPD, FullGeneral"));
+    layout->addWidget(theSolver, 1, 1);
+
     QLabel *label2 = new QLabel();
     label2->setText(QString("Integration: "));
-    layout->addWidget(label2, 1, 0);
+    layout->addWidget(label2, 2, 0);
     theIntegration = new QLineEdit();
     theIntegration->setText("Newmark 0.5 0.25");
     theIntegration->setToolTip(tr("Command specifying integration scheme"));
-    layout->addWidget(theIntegration, 1, 1);
+    layout->addWidget(theIntegration, 2, 1);
 
     QLabel *label3 = new QLabel();
     label3->setText(QString("ConvergenceTest: "));
-    layout->addWidget(label3, 2, 0);
+    layout->addWidget(label3, 3, 0);
     theConvergenceTest = new QLineEdit();
-    theConvergenceTest->setText("NormUnbalance");
-    theConvergenceTest->setToolTip(tr("Convergence test used in script, NormUnbalance, NormDispIncr, NormEnergy are options"));
-    layout->addWidget(theConvergenceTest, 2, 1);
+    theConvergenceTest->setText("NormUnbalance 1.0e-2 10");
+    theConvergenceTest->setToolTip(tr("Convergence test command used in script: type tolerance and # iterations, valid types are NormUnbalance, NormDispIncr, NormEnergy are options"));
+    layout->addWidget(theConvergenceTest, 3, 1);
 
+    /*
     QLabel *label4 = new QLabel();
     label4->setText(QString("Tolerance: "));
-    layout->addWidget(label4, 3, 0);
+    layout->addWidget(label4, 4, 0);
     theTolerance = new QLineEdit();
     theTolerance->setToolTip(tr("2Norm on the unbalance used in convergence check"));
     theTolerance->setText("0.01");
-    layout->addWidget(theTolerance, 3, 1);
+    layout->addWidget(theTolerance, 4, 1);
+    */
 
-    QLabel *label5 = new QLabel();
-    label5->setText(QString("Damping Ratio: "));
-    layout->addWidget(label5, 4, 0);
+    //
+    // Damping Options
+    //    Modal or Rayleigh
+
+    QLabel *labelDampingSelection = new QLabel("Damping Model");
+
+    theSelectionBox = new QComboBox();
+    theSelectionBox->addItem(tr("Rayleigh Damping"));
+    theSelectionBox->addItem(tr("Modal Damping"));
+    theStackedWidget = new QStackedWidget();
+
+    layout->addWidget(labelDampingSelection, 5, 0);
+    layout->addWidget(theSelectionBox, 5, 1);
+
+    layout->addWidget(theStackedWidget, 6,0,1,2);
+
+    //
+    // rayleigh option
+    //
+
+    QFrame *theRayleighWidget = new QFrame();
+    //theRayleighWidget->setFrameStyle(QFrame::Panel | QFrame::Plain);
+    //theRayleighWidget->setLineWidth(1);
+    QGridLayout *layoutRayleigh = new QGridLayout();
+
+    QLabel *labelRD = new QLabel();
+    labelRD->setText(QString("Damping Ratio: "));
+    layoutRayleigh->addWidget(labelRD, 0, 0);
     dampingRatio = new QLineEdit();
     dampingRatio->setText("0.02");
     dampingRatio->setToolTip(tr("Damp ratio, 0.02 = 2% damping"));
-    layout->addWidget(dampingRatio, 4, 1);
+    layoutRayleigh->addWidget(dampingRatio, 0, 1);
+
+    QLabel *labelRM1 = new QLabel();
+    labelRM1->setText(QString("Mode 1: "));
+    layoutRayleigh->addWidget(labelRM1, 2, 0);
+    QLabel *labelRM2 = new QLabel();
+    labelRM2->setText(QString("Mode 2: "));
+    layoutRayleigh->addWidget(labelRM2, 3, 0);
+    theRayleighStiffness = new QComboBox();
+
+    QLabel *labelStiffness = new QLabel(QString("Selected Tangent Stiffness: "));
+    theRayleighStiffness->addItem(tr("Initial"));
+    theRayleighStiffness->addItem(tr("Current"));
+    theRayleighStiffness->addItem(tr("Committed"));
+    layoutRayleigh->addWidget(labelStiffness, 1,0);
+    layoutRayleigh->addWidget(theRayleighStiffness, 1,1);
+
+    firstMode = new QLineEdit();
+    firstMode->setText("1");
+    firstMode->setToolTip(tr("First Mode to to determine damping ratio, if 0 stiffness proportional damping"));
+    secondMode = new QLineEdit();
+    secondMode->setText("0");
+    secondMode->setToolTip(tr("Second Mode to to determine damping ratio, if 0 mass proportional damping"));
+    firstMode->setValidator(new QIntValidator);
+    secondMode->setValidator(new QIntValidator);
+
+    layoutRayleigh->addWidget(firstMode, 2, 1);
+    layoutRayleigh->addWidget(secondMode, 3, 1);
+    theRayleighWidget->setLayout(layoutRayleigh);
+
+    theStackedWidget->addWidget(theRayleighWidget);
+
+    //
+    // modal option
+    //
+
+    QFrame *theModalWidget = new QFrame();
+    //theModalWidget->setFrameStyle(QFrame::Panel | QFrame::Plain);
+    //theModalWidget->setLineWidth(1);
+    QGridLayout *layoutModal = new QGridLayout();
+
+    QLabel *labelMDR = new QLabel();
+    labelMDR->setText(QString("Damping Ratio: "));
+    layoutModal->addWidget(labelMDR, 0, 0);
+    dampingRatioModal = new QLineEdit();
+    dampingRatioModal->setText("0.02");
+    dampingRatioModal->setToolTip(tr("Damp ratio, 0.02 = 2% damping"));
+    layoutModal->addWidget(dampingRatioModal, 0, 1);
+
+    QLabel *labelNumModes = new QLabel();
+    labelNumModes->setText(QString("# Modes: "));
+    layoutModal->addWidget(labelNumModes, 1, 0);
+    numModesModal = new QLineEdit();
+    numModesModal->setText("1");
+    numModesModal->setToolTip(tr("number of modes to include"));
+    numModesModal->setValidator(new QIntValidator);
+
+    QLabel *labelMDRT = new QLabel(QString("Tangent Stiffness Damping Ratio: "));
+    layoutModal->addWidget(labelMDRT, 2, 0);
+    dampingRatioModalTangent = new QLineEdit();
+    dampingRatioModalTangent->setText("0.0");
+    dampingRatioModalTangent->setToolTip(tr("Tangent Stiffness Damp ratio at last mode, 0.02 = 2% damping"));
+    dampingRatioModalTangent->setValidator(new QDoubleValidator);
+    layoutModal->addWidget(dampingRatioModalTangent, 2, 1);
+
+    layoutModal->addWidget(numModesModal, 1, 1);
+    theModalWidget->setLayout(layoutModal);
+
+    theStackedWidget->addWidget(theModalWidget);
+
 
     QLabel *labelFile = new QLabel();
     labelFile->setText("Analysis Script: ");
     file = new QLineEdit;
     file->setToolTip(tr("User provided analysis script, replaces OpenSees default"));
-    layout->addWidget(labelFile, 5, 0);
-    layout->addWidget(file, 5, 1);
+    layout->addWidget(labelFile, 7, 0);
+    layout->addWidget(file, 7, 1);
 
     QPushButton *chooseFile = new QPushButton();
     chooseFile->setText(tr("Choose"));
-    layout->addWidget(chooseFile, 5, 2);
+    layout->addWidget(chooseFile, 7, 2);
 
     connect(dampingRatio,SIGNAL(editingFinished()), this, SLOT(dampingEditingFinished()));
-    connect(theTolerance,SIGNAL(editingFinished()), this, SLOT(toleranceEditingFinished()));
+    //connect(theTolerance,SIGNAL(editingFinished()), this, SLOT(toleranceEditingFinished()));
     connect(chooseFile, SIGNAL(clicked(bool)), this, SLOT(chooseFileName()));
+    connect(theSelectionBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(changedDampingMethod(QString)));
 
     QWidget *dummy = new QWidget();
-    layout->addWidget(dummy,6,0);
-    layout->setRowStretch(6,1);
+    layout->addWidget(dummy,8,0);
+    layout->setRowStretch(8,1);
 
     // set the widgets layout
     this->setLayout(layout);
+
 
     this->setMinimumWidth(200);
     this->setMaximumWidth(400);
@@ -135,13 +241,28 @@ InputWidgetOpenSeesAnalysis::~InputWidgetOpenSeesAnalysis() {
 
 }
 
+void InputWidgetOpenSeesAnalysis::changedDampingMethod(QString newMethod) {
+    if (newMethod == "Rayleigh Damping")
+        theStackedWidget->setCurrentIndex(0);
+    else
+        theStackedWidget->setCurrentIndex(1);
 
+}
 void InputWidgetOpenSeesAnalysis::clear(void) {
     theIntegration->setText("Newmark 0.5 0.25");
+    theSolver->setText("Umfpack");
     theAlgorithm->setText("Newmark");
-    theConvergenceTest->setText("NormUnbalance");
-    theTolerance->setText("0.01");
+    theConvergenceTest->setText("NormUnbalance 1.0e-2 10");
+    //theTolerance->setText("0.01");
     dampingRatio->setText("0.02");
+    firstMode->setText("1");
+    secondMode->setText("0");
+    dampingRatioModal->setText("0.02");
+    numModesModal->setText("1");
+    theSelectionBox->setCurrentIndex(0);
+    dampingRatioModalTangent->setText("0.0");
+    theRayleighStiffness->setCurrentIndex(0);
+
     file->setText("");
 }
 
@@ -154,6 +275,8 @@ InputWidgetOpenSeesAnalysis::outputToJSON(QJsonObject &jsonObject)
     jsonObject["algorithm"]=theAlgorithm->text();
     jsonObject["convergenceTest"]=theConvergenceTest->text();
 
+    bool ok;
+    /*
     QString tolText = theTolerance->text();
     bool ok;
     double tolDouble = tolText.QString::toDouble(&ok);
@@ -161,6 +284,7 @@ InputWidgetOpenSeesAnalysis::outputToJSON(QJsonObject &jsonObject)
         jsonObject["tolerance"]=tolDouble;
     else
         jsonObject["tolerance"]= QString("RV.") + tolText;
+    */
 
     QString dampText = dampingRatio->text();
     double dampDouble = dampText.QString::toDouble(&ok);
@@ -168,6 +292,21 @@ InputWidgetOpenSeesAnalysis::outputToJSON(QJsonObject &jsonObject)
         jsonObject["dampingRatio"]=dampDouble;
     else
         jsonObject["dampingRatio"]= QString("RV.") + dampText;
+
+    QString dampModalText = dampingRatioModal->text();
+    double dampModalDouble = dampModalText.QString::toDouble(&ok);
+    if (ok == true)
+        jsonObject["dampingRatioModal"]=dampModalDouble;
+    else
+        jsonObject["dampingRatioModal"]= QString("RV.") + dampModalText;
+
+    jsonObject["dampingModel"]= theSelectionBox->currentText();
+    jsonObject["firstMode"]=firstMode->text().QString::toInt();
+    jsonObject["secondMode"]=secondMode->text().QString::toInt();
+    jsonObject["numModesModal"]=numModesModal->text().QString::toInt();
+    jsonObject["rayleighTangent"]=theRayleighStiffness->currentText();
+    jsonObject["modalRayleighTangentRatio"]=dampingRatioModalTangent->text().QString::toDouble();
+
 
     if (!file->text().isEmpty() && !file->text().isNull()) {
         QFileInfo fileInfo(file->text());
@@ -197,6 +336,7 @@ InputWidgetOpenSeesAnalysis::inputFromJSON(QJsonObject &jsonObject)
         return false;
     }
 
+    /*
     if (jsonObject.contains("tolerance")) {
         QJsonValue theValue = jsonObject["tolerance"];
         if (theValue.isString()) {
@@ -209,6 +349,7 @@ InputWidgetOpenSeesAnalysis::inputFromJSON(QJsonObject &jsonObject)
       emit sendErrorMessage("ERROR: InputWidgetOpenSeesAnalysis - no \"tolerance\" data");
         return false;
     }
+    */
 
     if (jsonObject.contains("dampingRatio")) {
         QJsonValue theValue = jsonObject["dampingRatio"];
@@ -221,6 +362,74 @@ InputWidgetOpenSeesAnalysis::inputFromJSON(QJsonObject &jsonObject)
     } else {
       emit sendErrorMessage("ERROR: InputWidgetOpenSeesAnalysis - no \"dampingRatio\" data");
         return false;
+    }
+
+    if (jsonObject.contains("dampingRatioModal")) {
+        QJsonValue theValue = jsonObject["dampingRatioModal"];
+        if (theValue.isString()) {
+            QString text = theValue.toString();
+            text.remove(0,3); // remove RV.
+            dampingRatioModal->setText(text);
+       } else if (theValue.isDouble())
+            dampingRatioModal->setText(QString::number(theValue.toDouble()));
+    } else {
+        // old code, use defaults
+        ;
+    }
+
+    if (jsonObject.contains("dampingModel")) {
+        QJsonValue theValue = jsonObject["dampingModel"];
+        if (theValue.isString())
+            theSelectionBox->setCurrentText(theValue.toString());
+    } else {
+
+        // old file .. use defaults
+        firstMode->setText("1");
+        secondMode->setText("0");
+        dampingRatioModal->setText("0.02");
+        numModesModal->setText("1");
+        theSelectionBox->setCurrentIndex(0);
+        theConvergenceTest->setText("NormUnbalance 1.0e-2 10");
+    }
+
+    if (jsonObject.contains("firstMode")) {
+        QJsonValue theValue = jsonObject["firstMode"];
+         if (theValue.isDouble())
+            firstMode->setText(QString::number(theValue.toInt()));
+    } else {
+        ; // old code
+    }
+
+    if (jsonObject.contains("secondMode")) {
+        QJsonValue theValue = jsonObject["secondMode"];
+        if (theValue.isDouble())
+            secondMode->setText(QString::number(theValue.toInt()));
+    } else {
+        ; // old code
+    }
+
+    if (jsonObject.contains("numModesModal")) {
+        QJsonValue theValue = jsonObject["numModesModal"];
+        if (theValue.isDouble())
+            numModesModal->setText(QString::number(theValue.toInt()));
+    } else {
+        ; // old code
+    }
+
+    if (jsonObject.contains("rayleighTangent")) {
+        QJsonValue theValue = jsonObject["rayleighTangent"];
+        if (theValue.isString())
+            theRayleighStiffness->setCurrentText(theValue.toString());
+    } else {
+        ; // old code
+    }
+
+    if (jsonObject.contains("modalRayleighTangentRatio")) {
+        QJsonValue theValue = jsonObject["modalRayleighTangentRatio"];
+        if (theValue.isDouble())
+            dampingRatioModalTangent->setText(QString::number(theValue.toDouble()));
+    } else {
+        ; // old code
     }
 
     if (jsonObject.contains("fileName")) {
@@ -254,6 +463,7 @@ InputWidgetOpenSeesAnalysis::outputAppDataToJSON(QJsonObject &jsonObject)
 bool
 InputWidgetOpenSeesAnalysis::inputAppDataFromJSON(QJsonObject &jsonObject)
 {
+    Q_UNUSED(jsonObject);
     return true;
 }
 
@@ -281,6 +491,7 @@ void InputWidgetOpenSeesAnalysis::dampingEditingFinished() {
     QString text = dampingRatio->text();
     bool ok;
     double dampDouble = text.QString::toDouble(&ok);
+    Q_UNUSED(dampDouble);
 
     if (ok == false) {
         qDebug() << text << " " << lastDampingRatio;
@@ -296,9 +507,10 @@ void InputWidgetOpenSeesAnalysis::dampingEditingFinished() {
 }
 
 void InputWidgetOpenSeesAnalysis::toleranceEditingFinished() {
-    QString text = theTolerance->text();
+    QString text = "BLAH"; // theTolerance->text();
     bool ok;
     double tolDouble = text.QString::toDouble(&ok);
+    Q_UNUSED(tolDouble);
 
     if (ok == false) {
         if (text != lastTolerance) {

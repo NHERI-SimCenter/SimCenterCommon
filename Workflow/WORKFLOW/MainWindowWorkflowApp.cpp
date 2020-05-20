@@ -35,9 +35,10 @@
 
 #include <RemoteService.h>
 #include <SimCenterPreferences.h>
+#include <Utils/RelativePathResolver.h>
 
 MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theService, QWidget *parent)
-  : QMainWindow(parent), theRemoteInterface(theService), inputWidget(theApp), loggedIn(false), isAutoLogin(false)
+  : QMainWindow(parent), loggedIn(false), inputWidget(theApp),   theRemoteInterface(theService), isAutoLogin(false)
 {
     //
     // create a layout & widget for central area of this QMainWidget
@@ -51,11 +52,25 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     //
     // resize to primary screen
     //
-      
+    /*************************** keep around
+    QSize availableSize = qApp->desktop()->availableGeometry().size();
+    int availWidth = availableSize.width();
+    int availHeight = availableSize.height();
+    QSize newSize( availWidth*.85, availHeight*.65 );
+    
+    setGeometry(QStyle::alignedRect(Qt::LeftToRight,
+				    Qt::AlignCenter,
+				    newSize,
+				    qApp->desktop()->availableGeometry()
+				     )
+		);
+        ********************************************************/
+
     QRect rec = QGuiApplication::primaryScreen()->geometry();
-    int height = this->height()<int(0.85*rec.height())?int(0.85*rec.height()):this->height();
-    int width  = this->width()<int(0.85*rec.width())?int(0.85*rec.width()):this->width();
+    int height = this->height()<int(0.75*rec.height())?int(0.75*rec.height()):this->height();
+    int width  = this->width()<int(0.75*rec.width())?int(0.75*rec.width()):this->width();
     this->resize(width, height);
+
 
     //
     // add SimCenter Header
@@ -228,7 +243,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
 
     manualURL = QString("");
     feedbackURL = QString("https://docs.google.com/forms/d/e/1FAIpQLSfh20kBxDmvmHgz9uFwhkospGLCeazZzL770A2GuYZ2KgBZBA/viewform");
-    featureRequestURL = QString("https://docs.google.com/forms/d/e/1FAIpQLScTLkSwDjPNzH8wx8KxkyhoIT7AI9KZ16Wg9TuW1GOhSYFOag/viewform");
+    //    featureRequestURL = QString("https://docs.google.com/forms/d/e/1FAIpQLScTLkSwDjPNzH8wx8KxkyhoIT7AI9KZ16Wg9TuW1GOhSYFOag/viewform");
     versionText = QString("");
     citeText = QString("");
     aboutText = QString(tr("This is a SeimCenter Workflow Applicatios"));
@@ -310,9 +325,14 @@ bool MainWindowWorkflowApp::saveAs()
     // get filename
     //
 
-    QFileDialog dialog(this);
+    QFileDialog dialog(this, "Save Simulation Model");
     dialog.setWindowModality(Qt::WindowModal);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
+    QStringList filters;
+    filters << "Json files (*.json)"
+            << "All files (*)";
+    dialog.setNameFilters(filters);
+
     if (dialog.exec() != QDialog::Accepted)
         return false;
 
@@ -322,7 +342,7 @@ bool MainWindowWorkflowApp::saveAs()
 
 void MainWindowWorkflowApp::open()
 {
-    QString fileName = QFileDialog::getOpenFileName(this);
+    QString fileName = QFileDialog::getOpenFileName(this, "Open Simulation Model", "",  "Json files (*.json);;All files (*)");
     if (!fileName.isEmpty())
         loadFile(fileName);
 }
@@ -379,6 +399,11 @@ bool MainWindowWorkflowApp::saveFile(const QString &fileName)
 
     QJsonObject json;
     inputWidget->outputToJSON(json);
+
+    //Resolve relative paths before saving
+    QFileInfo fileInfo(fileName);
+    SCUtils::ResolveRelativePaths(json, fileInfo.dir());
+
     QJsonDocument doc(json);
     file.write(doc.toJson());
 
@@ -418,6 +443,10 @@ void MainWindowWorkflowApp::loadFile(const QString &fileName)
     val=file.readAll();
     QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
     QJsonObject jsonObj = doc.object();
+
+    //
+    QFileInfo fileInfo(fileName);
+    SCUtils::ResolveAbsolutePaths(jsonObj, fileInfo.dir());
 
     // close file
     file.close();
@@ -481,13 +510,13 @@ void MainWindowWorkflowApp::createActions() {
     fileMenu->addAction(exitAction);
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
-    QAction *versionAct = helpMenu->addAction(tr("&Version"), this, &MainWindowWorkflowApp::version);
-    QAction *aboutAct = helpMenu->addAction(tr("&About"), this, &MainWindowWorkflowApp::about);
-    QAction *manualAct = helpMenu->addAction(tr("&Manual"), this, &MainWindowWorkflowApp::manual);
-    QAction *submitAct = helpMenu->addAction(tr("&Provide Feedback"), this, &MainWindowWorkflowApp::submitFeedback);
-    QAction *submitFeature = helpMenu->addAction(tr("&Submit Feature Request"), this, &MainWindowWorkflowApp::submitFeatureRequest);
-    QAction *citeAct = helpMenu->addAction(tr("&How to Cite"), this, &MainWindowWorkflowApp::cite);
-    QAction *copyrightAct = helpMenu->addAction(tr("&License"), this, &MainWindowWorkflowApp::copyright);
+    helpMenu->addAction(tr("&Version"), this, &MainWindowWorkflowApp::version);
+    helpMenu->addAction(tr("&About"), this, &MainWindowWorkflowApp::about);
+    helpMenu->addAction(tr("&Manual"), this, &MainWindowWorkflowApp::manual);
+    helpMenu->addAction(tr("&Submit Bug/Feature Request"), this, &MainWindowWorkflowApp::submitFeedback);
+    // QAction *submitFeature = helpMenu->addAction(tr("&Submit Bug/Feature Request"), this, &MainWindowWorkflowApp::submitFeatureRequest);
+    helpMenu->addAction(tr("&How to Cite"), this, &MainWindowWorkflowApp::cite);
+    helpMenu->addAction(tr("&License"), this, &MainWindowWorkflowApp::copyright);
 }
 
 
@@ -665,6 +694,7 @@ void MainWindowWorkflowApp::preferences()
   thePreferences->show();
 }
 
+
 void MainWindowWorkflowApp::submitFeedback()
 {
     QDesktopServices::openUrl(QUrl(feedbackURL, QUrl::TolerantMode));
@@ -674,12 +704,6 @@ void MainWindowWorkflowApp::submitFeedback()
 void MainWindowWorkflowApp::manual()
 {
     QDesktopServices::openUrl(QUrl(manualURL, QUrl::TolerantMode));
-    //QDesktopServices::openUrl(QUrl("https://www.designsafe-ci.org/help/new-ticket/", QUrl::TolerantMode));
-}
-
-void MainWindowWorkflowApp::submitFeatureRequest()
-{
-    QDesktopServices::openUrl(QUrl(featureRequestURL, QUrl::TolerantMode));
     //QDesktopServices::openUrl(QUrl("https://www.designsafe-ci.org/help/new-ticket/", QUrl::TolerantMode));
 }
 
@@ -722,12 +746,6 @@ void
 MainWindowWorkflowApp::setFeedbackURL(QString &newText)
 {
   feedbackURL = newText;
-}
-
-void
-MainWindowWorkflowApp::setFeatureURL(QString &newText)
-{
-  featureRequestURL = newText;
 }
 
 void

@@ -50,7 +50,7 @@ MonteCarloInputWidget::MonteCarloInputWidget(QWidget *parent)
 
     // create layout label and entry for # samples
     numSamples = new QLineEdit();
-    numSamples->setText(tr("500"));
+    numSamples->setText(tr("20"));
     numSamples->setValidator(new QIntValidator);
     numSamples->setToolTip("Specify the number of samples");
 

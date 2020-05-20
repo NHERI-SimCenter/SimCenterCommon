@@ -153,6 +153,7 @@ RemoteApplication::outputToJSON(QJsonObject &jsonObject)
 bool
 RemoteApplication::inputFromJSON(QJsonObject &dataObject) {
 
+    Q_UNUSED(dataObject);
     return true;
 }
 
@@ -190,8 +191,8 @@ RemoteApplication::onRunButtonPressed(void)
 //
 
 bool
-RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile) {
-
+RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile, QString runType) {
+    Q_UNUSED(runType);
      //    QString appDir = localAppDirName->text();
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
     qDebug() << "REMOTEAPP: setupDone " << tmpDirectory << " " << inputFile << " " << appDir;
@@ -343,7 +344,7 @@ RemoteApplication::uploadDirReturn(bool result)
       parameters["outputFile"]="dakota.out";
       parameters["errorFile"]="dakota.err";
       parameters["driverFile"]="workflow_driver";
-      parameters["modules"]="petsc";
+      parameters["modules"]="petsc,python3";
       for (auto parameterName : extraParameters.keys())
       {
           parameters[parameterName] = extraParameters[parameterName];
@@ -395,6 +396,7 @@ RemoteApplication::getHomeDirReturned(QString path){
 
 void
 RemoteApplication::startJobReturn(QString result) {
+    Q_UNUSED(result);
    pushButton->setEnabled(true);
    emit successfullJobStart();
 }

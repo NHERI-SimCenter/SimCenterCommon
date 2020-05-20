@@ -4,17 +4,15 @@
 #
 #-------------------------------------------------
 
-#message($$_PRO_FILE_PWD_)
-#message($$PWD)
 
 INCLUDEPATH += $$PWD
-
 INCLUDEPATH += "../SimCenterCommon/Common"
 INCLUDEPATH += "../Common"
 
-#INCLUDEPATH += "./../widgets/Common/"
+include($$PWD/ZipUtils/ZipUtils.pri)
 
 SOURCES += $$PWD/HeaderWidget.cpp \
+    $$PWD/Utils/RelativePathResolver.cpp \
     $$PWD/sectiontitle.cpp \
     $$PWD/FooterWidget.cpp \
     $$PWD/SimCenterWidget.cpp \
@@ -23,6 +21,7 @@ SOURCES += $$PWD/HeaderWidget.cpp \
     $$PWD/GoogleAnalytics.cpp
 
 HEADERS += $$PWD/HeaderWidget.h \
+    $$PWD/Utils/RelativePathResolver.h \
     $$PWD/sectiontitle.h \
     $$PWD/FooterWidget.h \
     $$PWD/SimCenterWidget.h \

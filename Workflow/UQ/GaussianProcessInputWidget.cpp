@@ -15,7 +15,7 @@ GaussianProcessInputWidget::GaussianProcessInputWidget(QWidget *parent) : UQ_Met
     QGroupBox *trainingDataGroup = new QGroupBox("Surrogate Training Data");
     QGridLayout * trainingDataLayout = new QGridLayout();
     numSamples = new QLineEdit();
-    numSamples->setText(tr("500"));
+    numSamples->setText(tr("20"));
     numSamples->setValidator(new QIntValidator);
     numSamples->setToolTip("Specify the number of samples");
     trainingDataLayout->addWidget(new QLabel("# Samples "), 0, 0);
@@ -35,7 +35,7 @@ GaussianProcessInputWidget::GaussianProcessInputWidget(QWidget *parent) : UQ_Met
     dataMethod = new QComboBox();
     dataMethod->addItem("LHS");
     dataMethod->addItem("Monte Carlo");
-    dataMethod->addItem("Other");
+    //    dataMethod->addItem("Other");
     trainingDataLayout->addWidget(dataMethod,2,1);
     trainingDataGroup->setLayout(trainingDataLayout);
 
@@ -67,7 +67,7 @@ GaussianProcessInputWidget::GaussianProcessInputWidget(QWidget *parent) : UQ_Met
     dataMethod2 = new QComboBox();
     dataMethod2->addItem("LHS");
     dataMethod2->addItem("Monte Carlo");
-    dataMethod2->addItem("Other");
+    //    dataMethod2->addItem("Other");
     sampleDataLayout->addWidget(dataMethod2,2,1);
     sampleDataGroup->setLayout(sampleDataLayout);
 

@@ -57,8 +57,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 SIM_Selection::SIM_Selection(RandomVariablesContainer *theRandomVariableIW, 
 			     bool includeC,
 			     QWidget *parent)
-: SimCenterAppWidget(parent), bimInput(0), theRandomVariablesContainer(theRandomVariableIW),
-   includeCentroid(includeC)
+: SimCenterAppWidget(parent), bimInput(0),
+  includeCentroid(includeC), theRandomVariablesContainer(theRandomVariableIW)
 {
     layout = new QVBoxLayout();
 
@@ -68,7 +68,7 @@ SIM_Selection::SIM_Selection(RandomVariablesContainer *theRandomVariableIW,
     QHBoxLayout *titleLayout = new QHBoxLayout();
 
     SectionTitle *textBIM=new SectionTitle();
-    textBIM->setText(tr("Building Model Input"));
+    textBIM->setText(tr("Building Model Generator"));
     textBIM->setMinimumWidth(250);
     QSpacerItem *spacer = new QSpacerItem(50,10);
 
@@ -226,8 +226,6 @@ SIM_Selection::copyFiles(QString &destDir) {
 void SIM_Selection::bimSelectionChanged(const QString &arg1)
 {
     selectionChangeOK = true;
-
-    SimCenterWidget *oldMethod = bimInput;
 
     if (bimInput != 0)
         layout->removeWidget(bimInput);

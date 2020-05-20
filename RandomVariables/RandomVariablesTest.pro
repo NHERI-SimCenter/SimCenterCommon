@@ -14,9 +14,9 @@ TEMPLATE = app
 include(RandomVariables.pri)
 include(../Common/Common.pri)
 
-SOURCES += main.cpp \
-        MainWindow.cpp
+SOURCES += mainRV.cpp \
+        MainWindowRV.cpp
 
-HEADERS  += MainWindow.h
+HEADERS  += MainWindowRV.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindowRV.ui
