@@ -12,16 +12,16 @@ TARGET = Common
 TEMPLATE = app
 
 
-SOURCES += main.cpp\
-        mainwindow.cpp \
+SOURCES += mainCommon.cpp\
+        mainWindowCommon.cpp \
     HeaderWidget.cpp \
     FooterWidget.cpp
 
-HEADERS  += mainwindow.h \
+HEADERS  += mainWindowCommon.h \
     HeaderWidget.h \
     FooterWidget.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainWindowCommon.ui
 
 RESOURCES += \
     images.qrc \

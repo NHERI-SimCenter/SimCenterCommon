@@ -42,6 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "RandomVariableDistribution.h"
 class QLineEdit;
 class QLabel;
+class SimCenterGraphPlot;
 
 class NormalDistribution : public RandomVariableDistribution
 {
@@ -58,10 +59,13 @@ public:
 signals:
 
 public slots:
+    void updateDistributionPlot();
 
 private:
     QLineEdit *mean;
     QLineEdit *standardDev;
+
+    SimCenterGraphPlot *thePlot;
 };
 
 #endif // NORMALDISTRIBUTION_H

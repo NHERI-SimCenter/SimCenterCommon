@@ -53,20 +53,28 @@ SimCenterAppWidget::~SimCenterAppWidget()
 
 
 bool
-SimCenterAppWidget::outputAppDataToJSON(QJsonObject &rvObject)
+SimCenterAppWidget::outputAppDataToJSON(QJsonObject &jsonObject)
 {
+    Q_UNUSED(jsonObject);
     return true;
 }
 
 bool
-SimCenterAppWidget::inputAppDataFromJSON(QJsonObject &rvObject)
+SimCenterAppWidget::inputAppDataFromJSON(QJsonObject &jsonObject)
 {
+    Q_UNUSED(jsonObject);
     return true;
 }
 
 
 bool
-SimCenterAppWidget::copyFiles(QString &path)
+SimCenterAppWidget::copyFiles(QString &destDir)
+{
+    Q_UNUSED(destDir);
+    return true;
+}
+
+bool SimCenterAppWidget::supportsLocalRun()
 {
     return true;
 }

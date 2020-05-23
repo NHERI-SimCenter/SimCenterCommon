@@ -16,8 +16,8 @@ include(../RandomVariables/RandomVariables.pri)
 INCLUDEPATH+="Users/fmk/NHERI/widgets/Common"
 #INCLUDEPATH+="/Users/mauricemanning/Dev/code/simcenter/widgets/Common"
 
-SOURCES += main.cpp\
-        MainWindow.cpp\
+SOURCES += mainCommon.cpp\
+        MainWindowCommon.cpp\
         InputWidgetSheetBM.cpp \
     ClineInputWidget.cpp \
     BeamInputWidget.cpp \
@@ -39,7 +39,7 @@ SOURCES += main.cpp\
     ConnectionInputWidget.cpp \
     PointInputWidget.cpp
 
-HEADERS  += MainWindow.h\
+HEADERS  += MainWindowCommon.h\
         InputWidgetSheetBM.h \
     ClineInputWidget.h \
     BeamInputWidget.h \
@@ -62,7 +62,7 @@ HEADERS  += MainWindow.h\
     PointInputWidget.h
 
 
-#FORMS    += mainwindow.ui
+#FORMS    += mainwindowCommon.ui
 
 #RESOURCES += \
 #    schema.qrc

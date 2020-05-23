@@ -65,13 +65,13 @@ public:
      *   @return bool - true for success, otherwise false
      */  
 
-    virtual bool outputToJSON(QJsonObject &rvObject);
+    virtual bool outputToJSON(QJsonObject &jsonObject);
     /** 
      *   @brief inputFromJSON method to instantiate itself from a JSON object
-     *   @param rvObject the JSON object contaiing data to instantiate the object
+     *   @param jsonObject the JSON object contaiing data to instantiate the object
      *   @return bool - true for success, otherwise false
      */  
-    virtual bool inputFromJSON(QJsonObject &rvObject);
+    virtual bool inputFromJSON(QJsonObject &jsonObject);
 
 signals:
 
@@ -88,6 +88,15 @@ signals:
      *   @return void
      */
     void sendErrorMessage(QString message);
+
+    /**
+     *   @brief sendStatusMessage signal to be emitted when object needs to communicate status with user
+     *   @param message to be passed
+     *   @return void
+     */
+    void sendStatusMessage(QString message);
+
+
 
 public slots:
 

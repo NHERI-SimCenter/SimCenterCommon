@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package>
+    <DisplayName>Strawberry Perl</DisplayName>
+    <Description>
+    Perl is a programming language suitable for writing simple scripts as well as complex applications - see https://www.perl.orgStrawberry Perl is a perl environment for MS Windows containing all you need to run and develop perl applications. It is designed to be as close as possible to perl environment on UNIX systems.
+    </Description>
+    <Version>5.30.0.1</Version>
+    <ReleaseDate>2019-05-23</ReleaseDate>
+    <Default>false</Default>
+    <Script>installPerl.qs</Script>
+    <SortingPriority>40</SortingPriority>
+</Package>

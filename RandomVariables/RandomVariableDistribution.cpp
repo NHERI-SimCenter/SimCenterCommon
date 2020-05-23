@@ -36,7 +36,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-
 #include "RandomVariableDistribution.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -63,6 +62,7 @@ RandomVariableDistribution::createTextEntry(QString text,
                                             int maxL)
 {
     QVBoxLayout *entryLayout = new QVBoxLayout();
+    //QHBoxLayout *entryLayout = new QHBoxLayout();
     QLabel *entryLabel = new QLabel();
     entryLabel->setText(text);
 

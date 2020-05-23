@@ -64,13 +64,13 @@ public:
      *   @return bool - true for success, otherwise false
      */  
 
-    virtual bool outputAppDataToJSON(QJsonObject &rvObject);
+    virtual bool outputAppDataToJSON(QJsonObject &jsonObject);
     /** 
      *   @brief inputFromJSON method to read applications specific data from a JSON object
      *   @param rvObject the JSON object contaiing data to instantiate the object
      *   @return bool - true for success, otherwise false
      */  
-    virtual bool inputAppDataFromJSON(QJsonObject &rvObject);
+    virtual bool inputAppDataFromJSON(QJsonObject &jsonObject);
 
     /**
      *   @brief copyFiles method invoked to copy all files aapplication will need to run directory
@@ -79,26 +79,16 @@ public:
      */
     virtual bool copyFiles(QString &destDir);
 
+    /**
+     *   @brief returns a boolean indicating whether or not this app can run locally
+     *   @return bool - true means the app can run locally, otherwise false
+     */
+    virtual bool supportsLocalRun();
+
     static bool copyPath(QString sourceDir, QString destinationDir, bool overWriteDirectory);
     static bool copyFile(QString filename, QString destinationDir);
 
 signals:
-
-    /**
-     *   @brief sendFatalMessage signal to be emitted when object needs to shut program down
-     *   @param message to be returned
-     *   @return void
-     */
-    void sendFatalMessage(QString message);
-
-    /**
-     *   @brief sendErrorMessage signal to be emitted when object needs to communicate error with user
-     *   @param message to be returned
-     *   @return void
-     */
-    void sendErrorMessage(QString message);
-
-
 
 public slots:
 

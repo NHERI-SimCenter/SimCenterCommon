@@ -183,6 +183,7 @@ int BIM_writeStringToDouble(json_t *obj, const char *jsonKey, double *values, in
          json_array_append(theArray, json_real(values[i]));
      }
      json_object_set(obj,jsonKey, theArray);
+     return 0;
 }
 
 

@@ -1,0 +1,39 @@
+TODO:
+=====
+
+1) I can select the curves and need to send the respective signal with the proper curve index.
+   +++  done: 05/28/2019
+
+2) unselect needs to recover the original color and line width
+    - introduce a select buffer that stores
+        (1) pointer to object
+        (2) pen settings
+        (3) brudh settings
+    - a new selection needs to check whether a previously selected object exists (nullptr)
+    - if previous object exists, restore pen and brush settings
+    +++ done: 05/28/2019
+
+3) a private map between curve objects (C++-pointers) and plot IDs (MATLAB STYLE)
+    - this includes an inverse map for quick identification of selected objects
+    +++ done: 05/28/2019
+
+4) some helper functions for changing line width and style for existing curves
+   - lineWidth()
+   - setLineWidth(int)
+   - lineStyle()
+   - setLineStyle(LineStyle)
+   - lineMarker()
+   - setLineMarker(LineStyle)
+   +++ done: 05/28/2019
+
+5) provide a demo app to illustrate all features and show th eprogrammer how to use them
+   +++ this is SimPlotDemo.App
+   - keep updating as new features become available
+
+6) let user check and change axisStyle (default, logx, logy, loglog)
+   +++ done: 05/28/2019
+
+7) add doxygen documentation
+
+
+

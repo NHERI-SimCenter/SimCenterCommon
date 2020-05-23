@@ -41,20 +41,31 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-
 #include <QStringList>
 #include <QHBoxLayout>
-#include <SimCenterTableWidget.h>
 #include <QComboBox>
-#include <QSpinBox>
-#include <QDoubleSpinBox>
+#include <SimCenterWidget.h>
+
+class QLineEdit;
 
 class GeneralInformationWidget : public SimCenterWidget
 {
     Q_OBJECT
-public:
+
+private:
     explicit GeneralInformationWidget(QWidget *parent = 0);
     ~GeneralInformationWidget();
+    static GeneralInformationWidget *theInstance;
+
+public:
+    static GeneralInformationWidget *getInstance(void);
+
+    void setDefaultProperties(int numStory,
+			      double height,
+			      double width,
+			      double depth,
+			      double latit,
+			      double longit);
 
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
@@ -72,25 +83,44 @@ public:
     enum TemperatureUnit{C, F, K};
     Q_ENUM(TemperatureUnit)
 
-
-signals:
+    int getNumFloors(void);
+    double getHeight(void);
+    void getBuildingDimensions(double &newWidth, double &newDepth, double &planArea);
+    void getBuildingLocation(double &latitude, double &longitude);
+    QString getLengthUnit();
+    QString getForceUnit();
 
 public slots:
+    void numStoriesEditingFinished(void);
+    void heightEditingFinished(void);
+    void buildingDimensionsEditingFinished(void);
+    // void setNumFloors(int newNumFloors);
+    // void setHeight(double newHeight);
+    void setNumStoriesAndHeight(int numFloors, double height);
+    void setBuildingDimensions(double newWidth, double newDepth, double planArea);
+    void setBuildingLocation(double latitude, double longitude);
+
+signals:
+    //    void numFloorsChanged(int newNumFloors);
+    //    void buildingHeightChanged(double newHeight);
+    void numStoriesOrHeightChanged(int numFloors, double height);
+    void buildingDimensionsChanged(double newWidth, double newDepth, double planArea);
+    void buildingLocationChanged(double latitude, double longitude);
+
+    void unitsChanged(QString lengthUnit, QString ForceUnit);
 
 private:
     QStringList   tableHeader;
 
     QLineEdit *nameEdit;
-    QLineEdit *revEdit;
-    QLineEdit *typeEdit;
-    QSpinBox *yearBox;
-    QSpinBox *storiesBox;
+    QLineEdit *storiesEdit;
     QLineEdit *heightEdit;
+    QLineEdit *widthEdit;
+    QLineEdit *depthEdit;
     QLineEdit *planAreaEdit;
 
-    QLineEdit *locationNameEdit;
-    QDoubleSpinBox *locationLatBox;
-    QDoubleSpinBox *locationLonBox;
+    QLineEdit *latitudeEdit;
+    QLineEdit *longitudeEdit;
 
     QComboBox *unitsForceCombo;
     QComboBox *unitsLengthCombo;

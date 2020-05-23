@@ -57,16 +57,17 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "UniformDistribution.h"
 #include "ConstantDistribution.h"
 #include "ContinuousDesignDistribution.h"
+#include "UserDef.h"
 #include <QDebug>
 
 RandomVariable::RandomVariable()
-    :SimCenterWidget(0),variableClass(QString(""))
+    :SimCenterWidget(0), refCount(0), variableClass(QString(""))
 {
 
 }
 
 RandomVariable::RandomVariable(const QString &type, QWidget *parent)
-    :SimCenterWidget(parent),variableClass(type)
+    :SimCenterWidget(parent), refCount(0), variableClass(type)
 {
     //
     // create a vertical layout to deal with variable name
@@ -84,7 +85,7 @@ RandomVariable::RandomVariable(const QString &type, QWidget *parent)
     nameLayout->addWidget(variableName);
     nameLayout->setSpacing(1);
     nameLayout->setMargin(0);
-  //nameLayout->addStretch();
+    //nameLayout->addStretch();
 
     //
     // another vertical layout to deal with distribution selection
@@ -118,6 +119,7 @@ RandomVariable::RandomVariable(const QString &type, QWidget *parent)
         distributionComboBox->addItem(tr("Constant"));
         distributionComboBox->addItem(tr("Weibull"));
         distributionComboBox->addItem(tr("Gumbel"));
+        distributionComboBox->addItem(tr("UserDef"));
     }
     connect(distributionComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(distributionChanged(QString)));
 
@@ -127,8 +129,6 @@ RandomVariable::RandomVariable(const QString &type, QWidget *parent)
     // the RandomVAriableDistribution widget line up visually, there could be a Qt way to deal with this
     //
 
-    // create this widget & a hozizontal layout and place our 2 verticaal layouts inside
-    QWidget *theWidget = new QWidget();
     //QHBoxLayout *widgetLayout = new QHBoxLayout;
 
     // create the main layout inside which we place a spacer & main widget
@@ -151,12 +151,21 @@ RandomVariable::RandomVariable(const QString &type, QWidget *parent)
     mainLayout->setMargin(0);
 
     this->setLayout(mainLayout);
-  //  this->setStyleSheet("border: 1px solid red");
   // mainLayout->setSizeConstraint(QLayout::SetMaximumSize);
 }
 
 RandomVariable::~RandomVariable()
 {
+
+}
+
+
+RandomVariable::RandomVariable(const QString &type,
+                               const QString &rvName,
+                               QWidget *parent)
+    :RandomVariable(type, parent)
+{
+    variableName->setText(rvName);
 
 }
 
@@ -171,7 +180,12 @@ RandomVariable::RandomVariable(const QString &type,
     // now change the distribution to constant and set value
     int index = distributionComboBox->findText(theD.getAbbreviatedName());
     distributionComboBox->setCurrentIndex(index);
+
+    // remove old
+    mainLayout->removeWidget(theDistribution);
     delete theDistribution;
+
+    // set new
     theDistribution = &theD;
     mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
@@ -198,6 +212,7 @@ RandomVariable::outputToJSON(QJsonObject &rvObject){
         rvObject["value"]=QString("RV.") + variableName->text();
         rvObject["distribution"]=distributionComboBox->currentText();
         rvObject["variableClass"]=variableClass;
+        rvObject["refCount"]=refCount;
         result = theDistribution->outputToJSON(rvObject);
     } else {
         emit sendErrorMessage("ERROR: RandomVariable - cannot output as no \"name\" entry!");
@@ -208,7 +223,6 @@ RandomVariable::outputToJSON(QJsonObject &rvObject){
 
 bool
 RandomVariable::inputFromJSON(QJsonObject &rvObject){
-    bool result = false;
     QString distributionType;
     if (rvObject.contains("name")) {
         QJsonValue theName = rvObject["name"];
@@ -216,9 +230,17 @@ RandomVariable::inputFromJSON(QJsonObject &rvObject){
     } else {
         return false;
     }
+
     if (rvObject.contains("distribution")) {
         QJsonValue theDistributionValue = rvObject["distribution"];
         distributionType = theDistributionValue.toString();
+    } else {
+        return false;
+    }
+
+    if (rvObject.contains("refCount")) {
+        QJsonValue theCount= rvObject["refCount"];
+        refCount = theCount.toInt();
     } else {
         return false;
     }
@@ -254,28 +276,26 @@ void RandomVariable::distributionChanged(const QString &arg1)
          mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
          // padhye added 4/32/18
           //qDebug () <<"Hello world I am degbuging this is BetaDistribution"; // padhye
-
-
     } else if (arg1 == QString("Uniform")) {
          theDistribution = new UniformDistribution();
          mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
            // padhye added 4/32/18
             //qDebug () <<"Hello world I am degbuging this is Uniform"; // padhye
             //qDebug () <<QString("Uniform"); // padhy
-
     } else if (arg1 == QString("Constant")) {
          theDistribution = new ConstantDistribution();
          mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
-
     } else if (arg1 == QString("ContinuousDesign")) {
          theDistribution = new ContinuousDesignDistribution();
          mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     } else if (arg1 == QString("Weibull")) {
         theDistribution = new WeibullDistribution();
         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
-
     } else if (arg1 == QString("Gumbel")) {
         theDistribution = new GumbelDistribution();
+        mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+    } else if (arg1 == QString("UserDef")) {
+        theDistribution = new UserDef();
         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     }
 

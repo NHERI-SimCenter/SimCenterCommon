@@ -54,6 +54,7 @@ class RandomVariable : public SimCenterWidget
 public:
     explicit RandomVariable();
     explicit RandomVariable(const QString &variableClass, QWidget *parent = 0);
+    explicit RandomVariable(const QString &variableClass, const QString &name, QWidget *parent = 0);
     explicit RandomVariable(const QString &variableClass, 
 			    const QString &name, 
                 RandomVariableDistribution &theDistribution,
@@ -66,6 +67,8 @@ public:
     bool isSelectedForRemoval(void);
     QString getVariableName(void);
     QLineEdit *variableName;
+    int refCount;
+
 signals:
 
 public slots:

@@ -34,7 +34,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: padhye
 
 #include "WeibullDistribution.h"
 #include <QVBoxLayout>
@@ -42,7 +42,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLabel>
 #include <QLineEdit>
 #include <QDebug>
-
+#include <SimCenterGraphPlot.h>
+#include <math.h>
+#include <QPushButton>
 
 WeibullDistribution::WeibullDistribution(QWidget *parent) :RandomVariableDistribution(parent)
 {
@@ -54,6 +56,8 @@ WeibullDistribution::WeibullDistribution(QWidget *parent) :RandomVariableDistrib
 
     shapeparam = this->createTextEntry(tr("Shape"), mainLayout);
     scaleparam = this->createTextEntry(tr("Scale"), mainLayout);
+    QPushButton *showPlotButton = new QPushButton("Show PDF");
+    mainLayout->addWidget(showPlotButton);
 
     mainLayout->addStretch();
 
@@ -61,10 +65,18 @@ WeibullDistribution::WeibullDistribution(QWidget *parent) :RandomVariableDistrib
     mainLayout->setSpacing(10);
     mainLayout->setMargin(0);
     this->setLayout(mainLayout);
+
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"), 500, 500);
+
+    connect(shapeparam,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+    connect(scaleparam,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+    connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
 }
+
+
 WeibullDistribution::~WeibullDistribution()
 {
-
+    delete thePlot;
 }
 
 bool
@@ -103,10 +115,34 @@ WeibullDistribution::inputFromJSON(QJsonObject &rvObject){
         return false;
     }
 
+    this->updateDistributionPlot();
     return true;
 }
 
 QString
 WeibullDistribution::getAbbreviatedName(void) {
   return QString("Weibull");
+}
+
+void
+WeibullDistribution::updateDistributionPlot() {
+    double k = shapeparam->text().toDouble();
+    double l = scaleparam->text().toDouble();
+    double u = l*tgamma(1+1/k);
+    double s = sqrt(tgamma(1+2/k)/pow(tgamma(1+1/l),2));
+
+    if (k > 0.0 && l > 0.0) {
+        double min = u - 5*s;
+        if (min < 0.0) min = 1.0e-6;
+        double max = u + 5*s;
+        QVector<double> x(100);
+        QVector<double> y(100);
+        for (int i=0; i<100; i++) {
+            double xi = min + i*(max-min)/99;
+            x[i] = xi;
+            y[i] =(k/l)*(pow((xi/l),(k-1))*exp(-(pow((xi/l),k))));
+        }
+        thePlot->clear();
+        thePlot->addLine(x,y);
+    }
 }

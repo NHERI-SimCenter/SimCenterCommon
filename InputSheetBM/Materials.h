@@ -5,15 +5,15 @@
 #include <map>
 
 using namespace std;
-#include <jansson.h>;
+#include <jansson.h>
 
 #define CONCRETE_TYPE 1
 #define STEEL_TYPE 2
 
-class Material {
+class Materiall {
  public:
-  Material();
-  virtual ~Material();
+  Materiall();
+  virtual ~Materiall();
 
   int matType;
   string name;
@@ -26,11 +26,11 @@ class Material {
   virtual int writeUniaxialJSON(json_t *uniaxialArray) =0;
   virtual int writeNDJSON(json_t *ndArray) =0;
 
-  static int readObjects(json_t *, map<string, Material *> &theMaterials);
+  static int readObjects(json_t *, map<string, Materiall *> &theMaterials);
   static int writeObjects(json_t *);
-  static map<string, Material *>theMaterials;
+  static map<string, Materiall *>theMaterials;
   static int removeMaterial(string name);
-  static Material *getMaterial(string name);
+  static Materiall *getMaterial(string name);
   static int removeAllMaterial(void);
 
  protected:
@@ -41,7 +41,7 @@ class Material {
   int uniaxialTag, ndTag;
 };
 
-class Steel: public Material {
+class Steel: public Materiall {
  public:
   double E;
   double fy;
@@ -67,7 +67,7 @@ class Steel: public Material {
                                         string *rvE, string *rvFy, string *rvFu, string *rvNu, string *rvMass);
 };
 
-class SteelRebar: public Material {
+class SteelRebar: public Materiall {
  public:
   double E;
   double fy;
@@ -80,7 +80,7 @@ class SteelRebar: public Material {
 };
 
 
-class Concrete: public Material {
+class Concrete: public Materiall {
  public:
   Concrete();
   virtual ~Concrete();

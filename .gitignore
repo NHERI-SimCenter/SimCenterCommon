@@ -7,9 +7,8 @@
 # Qt created files
 moc*
 build*
-Makefile*
-.qmake.stash
-target_wrapper.sh
+*.qmake.stash
+*.pro.user
 
 # Compiled Object files
 *.slo
@@ -46,5 +45,8 @@ unit_tests
 *.pro.user
 *.#
 
-# Text files
-*.txt
+*.swp
+*.dmg
+.DS_Store
+
+*.qm
