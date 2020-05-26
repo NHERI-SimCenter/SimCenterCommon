@@ -66,6 +66,7 @@ public:
 public slots:
     void savePreferences(bool);
     void resetPreferences(bool);
+    void quitPreferences(bool);
     void loadPreferences(void);
 
 private:

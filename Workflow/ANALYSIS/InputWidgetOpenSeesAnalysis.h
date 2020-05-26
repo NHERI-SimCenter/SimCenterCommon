@@ -72,6 +72,7 @@ public slots:
 
 private:
     //QLineEdit   *theTolerance;
+    QLineEdit   *theAnalysis;
     QLineEdit   *theConvergenceTest;
     QLineEdit   *theAlgorithm;
     QLineEdit   *theIntegration;

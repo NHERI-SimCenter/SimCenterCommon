@@ -288,6 +288,12 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     connect(saveButton, SIGNAL(clicked(bool)), this, SLOT(savePreferences(bool)));
     buttonsLayout->addWidget(saveButton);
 
+    QPushButton *quitButton = new QPushButton();
+    quitButton->setText("Cancel");
+    quitButton->setToolTip(tr("Quit withoy Saving"));
+    connect(quitButton, SIGNAL(clicked(bool)), this, SLOT(quitPreferences(bool)));
+    buttonsLayout->addWidget(quitButton);
+
     //
     // add boxes to layout, set widgets layout to layout and load existing to fill in QLineEdits
     //
@@ -351,6 +357,12 @@ SimCenterPreferences::savePreferences(bool) {
     settingsApp.setValue("remoteAgaveApp-Mar2020", remoteAgaveApp->text());
     settingsApp.setValue("localWorkDir", localWorkDir->text());
     settingsApp.setValue("remoteWorkDir", remoteWorkDir->text());
+    
+    this->close();
+}
+
+void
+SimCenterPreferences::quitPreferences(bool) {
     
     this->close();
 }

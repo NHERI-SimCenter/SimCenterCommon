@@ -65,47 +65,51 @@ InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(RandomVariablesContaine
 
     QGridLayout *layout = new QGridLayout();
 
+
     //
     // for each QlineEdit create a label, the Qline Edit and set some defaults
     //
 
-    QLabel *label1 = new QLabel("Algorithm: ");
-    layout->addWidget(label1, 0, 0);
-    theAlgorithm = new QLineEdit("Newton");
-    theAlgorithm->setToolTip(tr("Nonlinear Solution Algorithm"));
-    layout->addWidget(theAlgorithm, 0, 1);
+    int row = 0;
 
-    QLabel *labelSolver = new QLabel("Solver: ");
-    layout->addWidget(labelSolver, 1, 0);
-    theSolver = new QLineEdit("Umfpack");
-    theSolver->setToolTip(tr("Equation Solver, Umfpack, ProfileSPD, BandGeneral, BandSPD, FullGeneral"));
-    layout->addWidget(theSolver, 1, 1);
+    QLabel *labelAnalysis = new QLabel("Analysis: ");
+    layout->addWidget(labelAnalysis, row, 0);
+    theAnalysis = new QLineEdit("Transient -numSubLevels 2 -numSubSteps 10");
+    theAnalysis->setToolTip(tr("Command for creating the analysis"));
+    layout->addWidget(theAnalysis, row, 1);
+    row++;
 
-    QLabel *label2 = new QLabel();
-    label2->setText(QString("Integration: "));
-    layout->addWidget(label2, 2, 0);
+    QLabel *label2 = new QLabel("Integration: ");
+    layout->addWidget(label2, row, 0);
     theIntegration = new QLineEdit();
     theIntegration->setText("Newmark 0.5 0.25");
     theIntegration->setToolTip(tr("Command specifying integration scheme"));
-    layout->addWidget(theIntegration, 2, 1);
+    layout->addWidget(theIntegration, row, 1);
+    row++;
+
+    QLabel *label1 = new QLabel("Algorithm: ");
+    layout->addWidget(label1, row, 0);
+    theAlgorithm = new QLineEdit("Newton");
+    theAlgorithm->setToolTip(tr("Nonlinear Solution Algorithm"));
+    layout->addWidget(theAlgorithm, row, 1);
+    row++;
 
     QLabel *label3 = new QLabel();
     label3->setText(QString("ConvergenceTest: "));
-    layout->addWidget(label3, 3, 0);
+    layout->addWidget(label3, row, 0);
     theConvergenceTest = new QLineEdit();
     theConvergenceTest->setText("NormUnbalance 1.0e-2 10");
     theConvergenceTest->setToolTip(tr("Convergence test command used in script: type tolerance and # iterations, valid types are NormUnbalance, NormDispIncr, NormEnergy are options"));
-    layout->addWidget(theConvergenceTest, 3, 1);
+    layout->addWidget(theConvergenceTest, row, 1);
+    row++;
 
-    /*
-    QLabel *label4 = new QLabel();
-    label4->setText(QString("Tolerance: "));
-    layout->addWidget(label4, 4, 0);
-    theTolerance = new QLineEdit();
-    theTolerance->setToolTip(tr("2Norm on the unbalance used in convergence check"));
-    theTolerance->setText("0.01");
-    layout->addWidget(theTolerance, 4, 1);
-    */
+    QLabel *labelSolver = new QLabel("Solver: ");
+    layout->addWidget(labelSolver, row, 0);
+    theSolver = new QLineEdit("Umfpack");
+    theSolver->setToolTip(tr("Equation Solver, Umfpack, ProfileSPD, BandGeneral, BandSPD, FullGeneral"));
+    layout->addWidget(theSolver, row, 1);
+    row++;
+
 
     //
     // Damping Options
@@ -118,17 +122,19 @@ InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(RandomVariablesContaine
     theSelectionBox->addItem(tr("Modal Damping"));
     theStackedWidget = new QStackedWidget();
 
-    layout->addWidget(labelDampingSelection, 5, 0);
-    layout->addWidget(theSelectionBox, 5, 1);
+    layout->addWidget(labelDampingSelection, row, 0);
+    layout->addWidget(theSelectionBox, row, 1);
+    row++;
 
-    layout->addWidget(theStackedWidget, 6,0,1,2);
+    layout->addWidget(theStackedWidget, row, 0, 1, 2);
+    row++;
 
     //
     // rayleigh option
     //
 
     QFrame *theRayleighWidget = new QFrame();
-    //theRayleighWidget->setFrameStyle(QFrame::Panel | QFrame::Plain);
+    theRayleighWidget->setFrameStyle(QFrame::Panel | QFrame::Sunken);
     //theRayleighWidget->setLineWidth(1);
     QGridLayout *layoutRayleigh = new QGridLayout();
 
@@ -175,7 +181,7 @@ InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(RandomVariablesContaine
     //
 
     QFrame *theModalWidget = new QFrame();
-    //theModalWidget->setFrameStyle(QFrame::Panel | QFrame::Plain);
+    theModalWidget->setFrameStyle(QFrame::Panel | QFrame::Sunken);
     //theModalWidget->setLineWidth(1);
     QGridLayout *layoutModal = new QGridLayout();
 
@@ -195,11 +201,11 @@ InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(RandomVariablesContaine
     numModesModal->setToolTip(tr("number of modes to include"));
     numModesModal->setValidator(new QIntValidator);
 
-    QLabel *labelMDRT = new QLabel(QString("Tangent Stiffness Damping Ratio: "));
+    QLabel *labelMDRT = new QLabel(QString("Stiffness Proportional Damping Ratio: "));
     layoutModal->addWidget(labelMDRT, 2, 0);
     dampingRatioModalTangent = new QLineEdit();
     dampingRatioModalTangent->setText("0.0");
-    dampingRatioModalTangent->setToolTip(tr("Tangent Stiffness Damp ratio at last mode, 0.02 = 2% damping"));
+    dampingRatioModalTangent->setToolTip(tr("Stiffness Proportional Damping ratio at last mode, 0.02 = 2% damping"));
     dampingRatioModalTangent->setValidator(new QDoubleValidator);
     layoutModal->addWidget(dampingRatioModalTangent, 2, 1);
 
@@ -208,17 +214,17 @@ InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(RandomVariablesContaine
 
     theStackedWidget->addWidget(theModalWidget);
 
-
     QLabel *labelFile = new QLabel();
     labelFile->setText("Analysis Script: ");
     file = new QLineEdit;
     file->setToolTip(tr("User provided analysis script, replaces OpenSees default"));
-    layout->addWidget(labelFile, 7, 0);
-    layout->addWidget(file, 7, 1);
+    layout->addWidget(labelFile, row, 0);
+    layout->addWidget(file, row, 1);
 
     QPushButton *chooseFile = new QPushButton();
     chooseFile->setText(tr("Choose"));
-    layout->addWidget(chooseFile, 7, 2);
+    layout->addWidget(chooseFile, row, 2);
+    row++;
 
     connect(dampingRatio,SIGNAL(editingFinished()), this, SLOT(dampingEditingFinished()));
     //connect(theTolerance,SIGNAL(editingFinished()), this, SLOT(toleranceEditingFinished()));
@@ -227,14 +233,16 @@ InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(RandomVariablesContaine
 
     QWidget *dummy = new QWidget();
     layout->addWidget(dummy,8,0);
-    layout->setRowStretch(8,1);
+    layout->setRowStretch(row,1);
+    layout->setColumnStretch(3,2);
+    layout->setColumnStretch(1,1);
 
     // set the widgets layout
     this->setLayout(layout);
 
 
-    this->setMinimumWidth(200);
-    this->setMaximumWidth(400);
+   //this->setMinimumWidth(200);
+   // this->setMaximumWidth(400);
 }
 
 InputWidgetOpenSeesAnalysis::~InputWidgetOpenSeesAnalysis() {
@@ -249,11 +257,12 @@ void InputWidgetOpenSeesAnalysis::changedDampingMethod(QString newMethod) {
 
 }
 void InputWidgetOpenSeesAnalysis::clear(void) {
+    theAnalysis->setText("Transient -numSubLevels 2 -numSubSteps 10");
     theIntegration->setText("Newmark 0.5 0.25");
     theSolver->setText("Umfpack");
     theAlgorithm->setText("Newmark");
     theConvergenceTest->setText("NormUnbalance 1.0e-2 10");
-    //theTolerance->setText("0.01");
+
     dampingRatio->setText("0.02");
     firstMode->setText("1");
     secondMode->setText("0");
@@ -271,20 +280,20 @@ InputWidgetOpenSeesAnalysis::outputToJSON(QJsonObject &jsonObject)
 {
     bool result = true;
     jsonObject["Application"] = "OpenSees-Simulation";
+    jsonObject["analysis"]=theAnalysis->text();
     jsonObject["integration"]=theIntegration->text();
     jsonObject["algorithm"]=theAlgorithm->text();
+    jsonObject["solver"]=theSolver->text();
     jsonObject["convergenceTest"]=theConvergenceTest->text();
+    jsonObject["dampingModel"]= theSelectionBox->currentText();
+    jsonObject["firstMode"]=firstMode->text().QString::toInt();
+    jsonObject["secondMode"]=secondMode->text().QString::toInt();
+    jsonObject["numModesModal"]=numModesModal->text().QString::toInt();
+    jsonObject["rayleighTangent"]=theRayleighStiffness->currentText();
+    jsonObject["modalRayleighTangentRatio"]=dampingRatioModalTangent->text().QString::toDouble();
 
     bool ok;
-    /*
-    QString tolText = theTolerance->text();
-    bool ok;
-    double tolDouble = tolText.QString::toDouble(&ok);
-    if (ok == true)
-        jsonObject["tolerance"]=tolDouble;
-    else
-        jsonObject["tolerance"]= QString("RV.") + tolText;
-    */
+
 
     QString dampText = dampingRatio->text();
     double dampDouble = dampText.QString::toDouble(&ok);
@@ -300,12 +309,7 @@ InputWidgetOpenSeesAnalysis::outputToJSON(QJsonObject &jsonObject)
     else
         jsonObject["dampingRatioModal"]= QString("RV.") + dampModalText;
 
-    jsonObject["dampingModel"]= theSelectionBox->currentText();
-    jsonObject["firstMode"]=firstMode->text().QString::toInt();
-    jsonObject["secondMode"]=secondMode->text().QString::toInt();
-    jsonObject["numModesModal"]=numModesModal->text().QString::toInt();
-    jsonObject["rayleighTangent"]=theRayleighStiffness->currentText();
-    jsonObject["modalRayleighTangentRatio"]=dampingRatioModalTangent->text().QString::toDouble();
+
 
 
     if (!file->text().isEmpty() && !file->text().isNull()) {
@@ -336,20 +340,6 @@ InputWidgetOpenSeesAnalysis::inputFromJSON(QJsonObject &jsonObject)
         return false;
     }
 
-    /*
-    if (jsonObject.contains("tolerance")) {
-        QJsonValue theValue = jsonObject["tolerance"];
-        if (theValue.isString()) {
-            QString text = theValue.toString();
-            text.remove(0,3); // remove RV.
-           theTolerance->setText(text);
-       } else if (theValue.isDouble())
-            theTolerance->setText(QString::number(theValue.toDouble()));
-    } else {
-      emit sendErrorMessage("ERROR: InputWidgetOpenSeesAnalysis - no \"tolerance\" data");
-        return false;
-    }
-    */
 
     if (jsonObject.contains("dampingRatio")) {
         QJsonValue theValue = jsonObject["dampingRatio"];
@@ -373,8 +363,7 @@ InputWidgetOpenSeesAnalysis::inputFromJSON(QJsonObject &jsonObject)
        } else if (theValue.isDouble())
             dampingRatioModal->setText(QString::number(theValue.toDouble()));
     } else {
-        // old code, use defaults
-        ;
+           dampingRatioModal->setText("0.02");// old code, use defaults
     }
 
     if (jsonObject.contains("dampingModel")) {
@@ -384,12 +373,13 @@ InputWidgetOpenSeesAnalysis::inputFromJSON(QJsonObject &jsonObject)
     } else {
 
         // old file .. use defaults
-        firstMode->setText("1");
-        secondMode->setText("0");
-        dampingRatioModal->setText("0.02");
+
+
         numModesModal->setText("1");
         theSelectionBox->setCurrentIndex(0);
         theConvergenceTest->setText("NormUnbalance 1.0e-2 10");
+        theSolver->setText("Umfpack");
+        theAnalysis->setText("Transient -numSubLevels 2 -numSubSteps 10");
     }
 
     if (jsonObject.contains("firstMode")) {
@@ -397,7 +387,7 @@ InputWidgetOpenSeesAnalysis::inputFromJSON(QJsonObject &jsonObject)
          if (theValue.isDouble())
             firstMode->setText(QString::number(theValue.toInt()));
     } else {
-        ; // old code
+        firstMode->setText("1"); // old code default
     }
 
     if (jsonObject.contains("secondMode")) {
@@ -405,7 +395,7 @@ InputWidgetOpenSeesAnalysis::inputFromJSON(QJsonObject &jsonObject)
         if (theValue.isDouble())
             secondMode->setText(QString::number(theValue.toInt()));
     } else {
-        ; // old code
+        secondMode->setText("0"); // old code
     }
 
     if (jsonObject.contains("numModesModal")) {
@@ -429,6 +419,22 @@ InputWidgetOpenSeesAnalysis::inputFromJSON(QJsonObject &jsonObject)
         if (theValue.isDouble())
             dampingRatioModalTangent->setText(QString::number(theValue.toDouble()));
     } else {
+        ; // old code
+    }
+
+    if (jsonObject.contains("analysis")) {
+        QJsonValue theValue = jsonObject["analysis"];
+        theAnalysis->setText(theValue.toString());
+    } else {
+        theAnalysis->setText("Transient -numSubLevels 2 -numSubSteps 10");
+        ; // old code
+    }
+
+    if (jsonObject.contains("solver")) {
+        QJsonValue theValue = jsonObject["solver"];
+        theSolver->setText(theValue.toString());
+    } else {
+        theSolver->setText("Umfpack");
         ; // old code
     }
 

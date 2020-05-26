@@ -79,22 +79,15 @@ public slots:
 
 private:
     QVBoxLayout *layout;
-    QWidget     *methodSpecific;
-    QComboBox   *samplingMethod;
-    QLineEdit   *numSamples;
-    QLineEdit   *randomSeed;
-    //    QPushButton *run;
-
-    QComboBox   *uqSelection;
-    QWidget     *uqSpecific;
-
+    QComboBox   *reliabilityMethod;
+  \
     RandomVariablesContainer *theRandomVariables;
     DakotaSamplingResults *results;
 
     QStackedWidget *theStackedWidget;
     UQ_MethodInputWidget *theCurrentMethod;
-    UQ_MethodInputWidget *theFORM;
-    UQ_MethodInputWidget *theSORM;
+    UQ_MethodInputWidget *theLocal;
+    UQ_MethodInputWidget *theGlobal;
 };
 
 #endif // DAKOTA_INPUT_RELIABILITY_H
