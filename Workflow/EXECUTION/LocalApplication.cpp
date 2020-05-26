@@ -276,12 +276,24 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     }
 #else
 
+    // check for bashrc or bash profile
+    QDir homeDir(QDir::homePath());
+    QString sourceBash("\"");
+    if (homeDir.exists(".bash_profile")) {
+        sourceBash = QString("source $HOME/.bash_profile; \"");
+    } else if (homeDir.exists(".bashrc")) {
+        sourceBash = QString("source $HOME/.bashrc; \"");
+    } else {
+       emit sendErrorMessage( "No .bash_profile or .bashrc file found. This may not find Dakota or OpenSees");
+    }
+
     // note the above not working under linux because bash_profile not being called so no env variables!!
-    QString command = QString("source $HOME/.bash_profile; \"") + python + QString("\" \"" ) + 
+    QString command = sourceBash + python + QString("\" \"" ) +
       pySCRIPT + QString("\" " ) + runType + QString(" \"" ) + inputFile + QString("\" \"") + registryFile + QString("\"");
 
     QDebug debug = qDebug();
     debug.noquote();
+
     debug << "PYTHON COMMAND: " << command;
     proc->execute("bash", QStringList() << "-c" <<  command);
 
