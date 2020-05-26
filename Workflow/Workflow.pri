@@ -39,8 +39,8 @@ SOURCES += $$PWD/UQ/DakotaResults.cpp \
     $$PWD/UQ/UQ_Results.cpp \
     $$PWD/UQ/UQ_Engine.cpp \
     $$PWD/UQ/DakotaEngine.cpp \
-    $$PWD/UQ/FORMInputWidget.cpp \
-    $$PWD/UQ/SORMInputWidget.cpp \
+    $$PWD/UQ/LocalReliabilityWidget.cpp \
+    $$PWD/UQ/GlobalReliabilityWidget.cpp \
     $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/WORKFLOW/MainWindowWorkflowApp.cpp \
     $$PWD/WORKFLOW/WorkflowAppWidget.cpp \
@@ -95,8 +95,8 @@ HEADERS += $$PWD/UQ/DakotaResults.h \
     $$PWD/UQ/UQ_Results.h \
     $$PWD/UQ/UQ_Engine.h \
     $$PWD/UQ/DakotaEngine.h \
-    $$PWD/UQ/FORMInputWidget.h \
-    $$PWD/UQ/SORMInputWidget.h \
+    $$PWD/UQ/LocalReliabilityWidget.h \
+    $$PWD/UQ/GlobalReliabilityWidget.h \
     $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/WORKFLOW/MainWindowWorkflowApp.h \
     $$PWD/WORKFLOW/WorkflowAppWidget.h \
