@@ -166,9 +166,10 @@ int DakotaResultsReliability::processResults(QString &filenameResults, QString &
      fileError.close();
   }
 
-  if ((line.length() != 0) && (!line.contains("Warning: unit probability", Qt::CaseInsensitive))){
+  if ((line.length() != 0) && (!line.contains("Warning: unit probability", Qt::CaseInsensitive)
+                               && !line.contains("We set the probability to 1.0 in this case", Qt::CaseInsensitive))){
       qDebug() << line.length() << " " << line;
-      emit sendErrorMessage(QString(QString("Error Rnning Dakota: ") + line));
+      emit sendErrorMessage(QString(QString("Error Running Dakota: ") + line));
       return 0;
   }
 
@@ -207,23 +208,37 @@ int DakotaResultsReliability::processResults(QString &filenameResults, QString &
   const std::string needleStart = "Cumulative Distribution Function (CDF)";
   std::string haystack;
 
-  while(fileResults.eof() != true) {
+  bool foundResults = false;
+  bool endResponses = false;
+  while(foundResults == false && fileResults.eof() != true) {
 
       std::vector<double>col1;
       std::vector<double>col2;
 
-
       while (std::getline(fileResults, haystack)) {
           if (haystack.find(needleStart) != std::string::npos) {
+              foundResults = true;
               break;
           }
       }
 
       if (fileResults.eof()) {
+          endResponses = true;
           break;
       }
+  }
 
-      // get descriptor name
+  if (foundResults == false || endResponses == true) {
+      emit sendErrorMessage("ProcessingResults: No Results found in output file & no error .. Dakota crashed");
+      return -1;
+  }
+
+  /*
+   * for each response quantity enter prob levels into spreadsheet
+   */
+
+  while(endResponses == false && fileResults.eof() != true) {
+
       std::istringstream iss(haystack);
       std::string subs;
 
@@ -232,36 +247,42 @@ int DakotaResultsReliability::processResults(QString &filenameResults, QString &
       } while (iss);
 
       theHeadings << subs.c_str();
+      qDebug() << "HEADINGS" << theHeadings << " numCols: " << numSpreadsheetCols;
+
 
       // read next 2 lines of drivel
       std::getline(fileResults, haystack);
       std::getline(fileResults, haystack);
 
       // for some reason
-       std::getline(fileResults, haystack);
+      // std::getline(fileResults, haystack);
 
       const std::string needleEnd = "---------------------------------------";
 
        spreadsheet->insertColumn(numSpreadsheetCols);
        numSpreadsheetCols++;
 
-       qDebug() << "numCOL" << numSpreadsheetCols;
        QMap<float,float> data;
        // now read the data till end of data encountered
        int numRows = 0;
-       while (std::getline(fileResults, haystack)) {
-           if (haystack.find(needleEnd) != std::string::npos) {
-               qDebug() << "FOUND END";
-               break;
 
+       while (std::getline(fileResults, haystack)) {
+           if (haystack.find(needleStart) != std::string::npos) {
+               break;
+           } else if (haystack.find(needleEnd) != std::string::npos) {
+               qDebug() << "FOUND END";
+               endResponses = true;
+               break;
            } else {
                // read column entries
                if (numSpreadsheetCols == 2)
                    spreadsheet->insertRow(numRows);
+
                std::string data1, data2, data3, data4;
                std::istringstream is(haystack);
 
                is >> data1 >> data2 >> data3 >> data4;
+
                if (numSpreadsheetCols == 2) {
                    data.insert(std::stod(data2),std::stod(data1));
                    QModelIndex index = spreadsheet->model()->index(numRows, numSpreadsheetCols-2);
@@ -269,15 +290,10 @@ int DakotaResultsReliability::processResults(QString &filenameResults, QString &
                }
                QModelIndex index = spreadsheet->model()->index(numRows, numSpreadsheetCols-1);
                spreadsheet->model()->setData(index, data1.c_str());
+
                numRows++;
            }
        }
-       //QMap<QString, int>::iterator i;
-       /*
-       qDebug() << "DATA";
-       for (auto i = data.begin(); i != data.end(); ++i)
-           qDebug() << i.key() << ": " << i.value() << endl;
-           */
 
        numSpreadsheetRows = numRows;
   }
@@ -287,7 +303,7 @@ int DakotaResultsReliability::processResults(QString &filenameResults, QString &
 
   fileResults.close();
 
-  this->onSpreadsheetCellClicked(0,1);
+  this->onSpreadsheetCellClicked(0,numSpreadsheetCols-1);
   if (numSpreadsheetRows == 0)
       emit sendStatusMessage(tr("No Result Data Found .. dakota failed .. possibly no QoI provided"));
 
@@ -329,73 +345,85 @@ DakotaResultsReliability::onSaveSpreadsheetClicked()
   }
 }
 
+
 void DakotaResultsReliability::onSpreadsheetCellClicked(int row, int col)
 {
-    if (numSpreadsheetRows == 0)
-        return;
-
-    qDebug() << "row,col " << row << " " << col;
-    mLeft = spreadsheet->wasLeftKeyPressed();
-
-    // leave alone if pressed i first column
+    Q_UNUSED(row);
+    col2 = 0;
+    int oldCol = col1;
     if (col == 0)
         return;
     else
-        col2 = col;
+        col1 = col;
 
-    //
-    // remove old
-    //
+    mLeft = spreadsheet->wasLeftKeyPressed();
 
+    // create a new series
     chart->removeAllSeries();
 
     //Remove all axes
     for(auto axis: chart->axes())
         chart->removeAxis(axis);
 
-    //
-    // create new line series & plot
-    //
-
     int rowCount = spreadsheet->rowCount();
 
-    QLineSeries *series= new QLineSeries;
+    if (col1 != col2) {
+        QScatterSeries *series = new QScatterSeries;
+        QLineSeries *lineSeries= new QLineSeries;
 
-    double minX = 1e6;
-    double maxX = -1e6;
+        double minX = 0, maxX = 0;
 
-    for (int i=0; i<rowCount; i++) {
-        QTableWidgetItem *itemY = spreadsheet->item(i,col1);
-        QTableWidgetItem *itemX = spreadsheet->item(i,col2);
+        for (int i=0; i<rowCount; i++) {
+            QTableWidgetItem *itemX = spreadsheet->item(i,col1);    //col1 goes in x-axis, col2 on y-axis
+            //col1=0;
+            QTableWidgetItem *itemY = spreadsheet->item(i,col2);
+            QTableWidgetItem *itemOld = spreadsheet->item(i,oldCol);
+            itemOld->setData(Qt::BackgroundRole, QColor(Qt::white));
+            itemX->setData(Qt::BackgroundRole, QColor(Qt::lightGray));
+            itemY->setData(Qt::BackgroundRole, QColor(Qt::lightGray));
+            double xVal = itemX->text().toDouble();
+            double yVal = itemY->text().toDouble();
 
-        double value1 = itemX->text().toDouble();
-        double value2 = itemY->text().toDouble();
-        if (value1 > maxX) maxX = value1;
-        if (value1 < minX) minX = value1;
+            series->append(xVal,yVal);
+            lineSeries->append(xVal,yVal);
 
-        series->append(value1, value2);
-    }
+            if (i == 0) {
+                maxX = xVal;
+                minX = xVal;
+            } else {
+                if(xVal<minX){minX=xVal;}
+                if(xVal>maxX){maxX=xVal;}
+            }
+        }
 
-    chart->addSeries(series);
-    series->setName("CDF");
+        chart->addSeries(series);
+        chart->addSeries(lineSeries);
+        series->setName("Samples");
 
-    QValueAxis *axisX = new QValueAxis();
-    QValueAxis *axisY = new QValueAxis();
+        QValueAxis *axisX = new QValueAxis();
+        QValueAxis *axisY = new QValueAxis();
 
-    axisX->setRange(minX, maxX);
-    axisY->setRange(0., 1.);
+        axisX->setTitleText(theHeadings.at(col1));
+        axisY->setTitleText("Probability");
 
+        if (maxX == minX) {
+            maxX = maxX*1.1;
+            minX = minX*0.9;
+        }
 
-    axisY->setTitleText("Probability Level");
-    axisX->setTitleText(theHeadings.at(col2));
+        double xRange=maxX-minX;
 
-    axisY->setTickCount(5);
-    axisX->setTickCount(NUM_DIVISIONS+1);
+        //axisX->setRange(minX - 0.01*xRange, maxX + 0.1*xRange);
+        axisX->setRange(minX, maxX);
+        axisY->setRange(0, 1.0);
 
-    chart->addAxis(axisX, Qt::AlignBottom);
-    series->attachAxis(axisX);
-    chart->addAxis(axisY, Qt::AlignLeft);
-    series->attachAxis(axisY);
+        chart->addAxis(axisX, Qt::AlignBottom);
+        series->attachAxis(axisX);
+        lineSeries->attachAxis(axisX);
+        chart->addAxis(axisY, Qt::AlignLeft);
+        lineSeries->attachAxis(axisY);
+        series->attachAxis(axisY);
+   }
 }
 
 
