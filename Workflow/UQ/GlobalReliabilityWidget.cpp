@@ -36,7 +36,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SORMInputWidget.h>
+#include <GlobalReliabilityWidget.h>
 #include <QLineEdit>
 #include <QVBoxLayout>
 #include <QLabel>
@@ -46,34 +46,27 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonArray>
 #include <QButtonGroup>
 #include <QCheckBox>
+#include <QIntValidator>
 
 
-SORMInputWidget::SORMInputWidget(QWidget *parent) 
+GlobalReliabilityWidget::GlobalReliabilityWidget(QWidget *parent) 
 : UQ_MethodInputWidget(parent)
 {
      QGridLayout *layout = new QGridLayout();
 
     // create layout label and entry for # samples
+    QHBoxLayout *methodLayout= new QHBoxLayout;
     QLabel *label2 = new QLabel();
-    label2->setText(QString("Reliability Scheme"));
-    reliabilityScheme = new QComboBox();
-    reliabilityScheme->addItem(tr("Local"));
-    reliabilityScheme->addItem(tr("Global"));
-    reliabilityScheme->setToolTip("Set reliability scheme:  local vs global");
+    label2->setText(QString("GP Approximation"));
+    gpApproximation = new QComboBox();
+    gpApproximation->addItem(tr("x_gaussian_process"));
+    gpApproximation->addItem(tr("u-gaussian_process"));
+    gpApproximation->setToolTip("Create Gaussian Proccess Approximation in x-space or u-space");
 
     layout->addWidget(label2, 0,1);
-    layout->addWidget(reliabilityScheme, 0,2);
+    layout->addWidget(gpApproximation, 0,2);
 
-    QLabel *label3 = new QLabel();
-    label3->setText(QString("MPP Search Method"));
-    mppMethod = new QComboBox();
-    //  mppMethod->setMaximumWidth(100);
-    //  mppMethod->setMinimumWidth(100);
-    mppMethod->addItem(tr("no_approx"));
-    mppMethod->addItem(tr("x_taylor_mean"));
-    mppMethod->addItem(tr("u_taylor_mean"));
-    mppMethod->setToolTip("Set the search method for the Most Probable Point");
-
+    /*
     QButtonGroup *theButtonGroup = new QButtonGroup();
     checkedResponseLevel = new QCheckBox();
     checkedProbabilityLevel = new QCheckBox();
@@ -82,9 +75,6 @@ SORMInputWidget::SORMInputWidget(QWidget *parent)
     theButtonGroup->addButton(checkedProbabilityLevel);
 
     responseLevel = new QLineEdit();
-    probabilityLevel = new QLineEdit();
-    probabilityLevel->setText(".02 .20 .40 .60 0.80 0.99");
-
     layout->addWidget(label3, 1,1);
     layout->addWidget(mppMethod, 1,2);
 
@@ -92,69 +82,100 @@ SORMInputWidget::SORMInputWidget(QWidget *parent)
     layout->addWidget(new QLabel("Response Levels"), 2, 1);
     layout->addWidget(responseLevel, 2, 2);
     layout->addWidget(checkedProbabilityLevel, 3,0);
-    layout->addWidget(new QLabel("Probability Levels"), 3, 1);
-    layout->addWidget(probabilityLevel, 3, 2);
+    */
 
-    layout->setColumnStretch(2,2);
+    /*
+    probabilityLevel = new QLineEdit();
+    probabilityLevel->setText(".02 .20 .40 .60 0.80 0.99");
+
+    layout->addWidget(new QLabel("Probability Levels"), 1, 1);
+    layout->addWidget(probabilityLevel, 1, 2);
+    */
+
+    responseLevel = new QLineEdit();
+    responseLevel->setText("");
+    //responseLevel->setText(".02 .20 .40 .60 0.80 0.99");
+    responseLevel->setToolTip("Response level for which probability of exceedence is to be computed");
+    layout->addWidget(new QLabel("Response Levels"), 1, 1);
+    layout->addWidget(responseLevel, 1, 2);
+
+    layout->addWidget(new QLabel("Seed"), 2, 1);
+
+    srand(time(NULL));
+    int randomNumber = rand() % 1000 + 1;
+    seedEdit = new QLineEdit();
+    seedEdit->setText(QString::number(randomNumber));
+    seedEdit->setValidator(new QIntValidator);
+    seedEdit->setToolTip("seed value, use of same seed in different studies will result in identical results");
+    layout->addWidget(seedEdit, 2, 2);
+
     layout->setColumnStretch(3,4);
-    layout->setRowStretch(5,1);
-
+    layout->setRowStretch(3,1);
 
     this->setLayout(layout);
 }
 
-SORMInputWidget::~SORMInputWidget()
+GlobalReliabilityWidget::~GlobalReliabilityWidget()
 {
 
 }
 
 bool
-SORMInputWidget::outputToJSON(QJsonObject &jsonObj){
+GlobalReliabilityWidget::outputToJSON(QJsonObject &jsonObj){
 
     bool result = true;
-    jsonObj["reliability_Scheme"]=reliabilityScheme->currentText();
-    jsonObj["mpp_Method"]=mppMethod->currentText();
+    jsonObj["gpApproximation"]=gpApproximation->currentText();
 
     QJsonArray probLevel;
-    QStringList probLevelList = QStringList(probabilityLevel->text().split(" "));
+    if (responseLevel->text() == "") {
+        qDebug() << "GlobalReliability - At least one response value must be set";
+        emit sendErrorMessage("GlobalReliability - At least one response value must be set");
+        return false;
+    }
+    QStringList probLevelList = QStringList(responseLevel->text().split(" "));
+    qDebug() << "SIZE:" << probLevelList.size();
+    if (probLevelList.size() == 0) {
+        emit sendErrorMessage("GlobalReliability - At least one response value must be set");
+        return false;
+    }
+
     for (int i = 0; i < probLevelList.size(); ++i)
         probLevel.push_back(probLevelList.at(i).toDouble());
+    jsonObj["responseLevel"]=probLevel;
+    jsonObj["seed"]=seedEdit->text().toInt();
 
+    /*
     QJsonArray respLevel;
     QStringList respLevelList = QStringList(responseLevel->text().split(" "));
     for (int i = 0; i < respLevelList.size(); ++i)
         respLevel.push_back(respLevelList.at(i).toDouble());
-
-    jsonObj["probabilityLevel"]=probLevel;
     jsonObj["responseLevel"]=respLevel;
+
     if (checkedResponseLevel->isChecked())
         jsonObj["activeLevel"]=QString("ResponseLevel");
     else
         jsonObj["activeLevel"]=QString("ProbabilityLevel");
+    */
 
     return result;    
 }
 
 bool
-SORMInputWidget::inputFromJSON(QJsonObject &jsonObject){
+GlobalReliabilityWidget::inputFromJSON(QJsonObject &jsonObject){
 
     bool result = false;
-    if ( (jsonObject.contains("reliability_Scheme"))
-         && (jsonObject.contains("mpp_Method"))
-         && (jsonObject.contains("activeLevel"))
-         && (jsonObject.contains("probabilityLevel"))
-         && (jsonObject.contains("responseLevel"))
+    if ( (jsonObject.contains("gpApproximation"))
+         && (jsonObject.contains("reliabilityLevel"))
+         && (jsonObject.contains("seed"))
          ) {
 
+        //responseLevel->setText("");
         responseLevel->setText("");
-        probabilityLevel->setText("");
 
-        QString scheme=jsonObject["reliability_Scheme"].toString();
-        reliabilityScheme->setCurrentIndex(reliabilityScheme->findText(scheme));
+        QString scheme=jsonObject["gpApproximation"].toString();
+        gpApproximation->setCurrentIndex(gpApproximation->findText(scheme));
 
-        QString method=jsonObject["mpp_Method"].toString();
-        mppMethod->setCurrentIndex(mppMethod->findText(method));
-
+        /*
          QString activeLevel=jsonObject["activeLevel"].toString();
          if (activeLevel ==  QString("ProbabilityLevel"))
              checkedProbabilityLevel->setChecked(true);
@@ -162,9 +183,14 @@ SORMInputWidget::inputFromJSON(QJsonObject &jsonObject){
              checkedResponseLevel->setChecked(true);
 
         QStringList respLevelList;
+        */
+
+        QJsonValue seedVal = jsonObject["seed"];
+        seedEdit->setText(seedVal.toString());
+
         QJsonArray probLevels;
 
-        QJsonValue probLevelVal = jsonObject["probabilityLevel"];
+        QJsonValue probLevelVal = jsonObject["responseLevel"];
         if (probLevelVal.isArray()) {
 
             QStringList levelList;
@@ -175,11 +201,13 @@ SORMInputWidget::inputFromJSON(QJsonObject &jsonObject){
                 double levelV = value.toDouble();
                 levelList << QString::number(levelV);
             }
-            probabilityLevel->setText(levelList.join(" "));
+            responseLevel->setText(levelList.join(" "));
         } else {
-            qDebug() << "FORM Input: Probability level not json array";
+            qDebug() << "FORM Input: Response level not a json array";
         }
 
+
+    /*
         QJsonValue respLevelVal = jsonObject["responseLevel"];
         if (respLevelVal.isArray()) {
 
@@ -195,7 +223,7 @@ SORMInputWidget::inputFromJSON(QJsonObject &jsonObject){
         } else {
             qDebug() << "FORM Input: Response level not json array";
         }
-
+*/
 
         return true;
     }
@@ -204,7 +232,7 @@ SORMInputWidget::inputFromJSON(QJsonObject &jsonObject){
 }
 
 void
-SORMInputWidget::clear(void)
+GlobalReliabilityWidget::clear(void)
 {
 
 }
@@ -212,7 +240,7 @@ SORMInputWidget::clear(void)
 
 
 int
-SORMInputWidget::getNumberTasks()
+GlobalReliabilityWidget::getNumberTasks()
 {
     return 1;
 }
