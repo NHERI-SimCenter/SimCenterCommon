@@ -296,7 +296,6 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
         return false;
     }
 
-    qDebug() << "newName: " << newName;
     tempDirectory = theDirectory.absoluteFilePath(newName);
 
     theDirectory.cd(newName);
