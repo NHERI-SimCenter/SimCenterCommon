@@ -180,7 +180,7 @@ DakotaEngine::inputFromJSON(QJsonObject &jsonObject) {
 bool
 DakotaEngine::outputAppDataToJSON(QJsonObject &jsonObject)
 {
-    jsonObject["Application"] = "Dakota-UQ";
+    jsonObject["Application"] = "Dakota-UQ1";
     QJsonObject dataObj;
     jsonObject["ApplicationData"] = dataObj;
 

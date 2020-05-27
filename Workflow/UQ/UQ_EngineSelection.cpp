@@ -87,8 +87,8 @@ UQ_EngineSelection::UQ_EngineSelection(RandomVariablesContainer *theRVs, UQ_Engi
     theSelectionLayout->addWidget(label);
     QSpacerItem *spacer = new QSpacerItem(50,10);
     theSelectionLayout->addItem(spacer);
-    theSelectionLayout->addWidget(theEngineSelectionBox);
-    theSelectionLayout->addStretch();
+    theSelectionLayout->addWidget(theEngineSelectionBox,1);
+    theSelectionLayout->addStretch(1);
     layout->addLayout(theSelectionLayout);
 
     //

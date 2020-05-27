@@ -73,13 +73,13 @@ SIM_Selection::SIM_Selection(RandomVariablesContainer *theRandomVariableIW,
     QSpacerItem *spacer = new QSpacerItem(50,10);
 
     bimSelection = new QComboBox();
-    bimSelection->setMaximumWidth(200);
-    bimSelection->setMinimumWidth(200);
+   // bimSelection->setMaximumWidth(200);
+   // bimSelection->setMinimumWidth(200);
 
     titleLayout->addWidget(textBIM);
     titleLayout->addItem(spacer);
-    titleLayout->addWidget(bimSelection);
-    titleLayout->addStretch();
+    titleLayout->addWidget(bimSelection, 1);
+    titleLayout->addStretch(1);
     titleLayout->setSpacing(0);
     titleLayout->setMargin(0);
 
