@@ -63,10 +63,10 @@ Application::Application(QWidget *parent)
 }
 
 bool
-Application::setupDoneRunApplication(QString &tmpDir, QString &inputFile, QString runType) {
+Application::setupDoneRunApplication(QString &tmpDir, QString &inputFile) {
     Q_UNUSED(tmpDir);
     Q_UNUSED(inputFile);
-    Q_UNUSED(runType);
+    //Q_UNUSED(runType);
 
     qDebug() << "Appliation::setupDoneRunAppliction";
     return true;

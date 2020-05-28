@@ -85,7 +85,7 @@ LocalApplication::outputToJSON(QJsonObject &jsonObject)
   jsonObject["remoteAppDir"]=SimCenterPreferences::getInstance()->getAppDir();
   jsonObject["workingDir"]=SimCenterPreferences::getInstance()->getLocalWorkDir();
 
-  jsonObject["runType"]=QString("local");
+  jsonObject["runType"]=QString("runningLocal");
 
     return true;
 }
@@ -143,11 +143,12 @@ LocalApplication::onRunButtonPressed(void)
 //
 
 bool
-LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile, QString runType) {
+LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile) {
 
-    qDebug() << "RUNTYPE" << runType;
-
-  QString appDir = SimCenterPreferences::getInstance()->getAppDir();
+    // qDebug() << "RUNTYPE" << runType;
+    QString runType("runningLocal");
+   qDebug() << "RUNTYPE" << runType;
+    QString appDir = SimCenterPreferences::getInstance()->getAppDir();
 
     //TODO: recognize if it is PBE or EE-UQ -> probably smarter to do it inside the python file
     QString pySCRIPT;

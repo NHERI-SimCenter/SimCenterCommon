@@ -145,7 +145,7 @@ RemoteApplication::outputToJSON(QJsonObject &jsonObject)
   jsonObject["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();
   jsonObject["remoteAppWorkingDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();
   jsonObject["workingDir"]=SimCenterPreferences::getInstance()->getRemoteWorkDir();
-  jsonObject["runType"]=QString("HPC");
+  jsonObject["runType"]=QString("runningRemote");
 
   return true;
 }
@@ -191,9 +191,11 @@ RemoteApplication::onRunButtonPressed(void)
 //
 
 bool
-RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile, QString runType) {
-    Q_UNUSED(runType);
+RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile) {
+    //Q_UNUSED(runType);
      //    QString appDir = localAppDirName->text();
+    QString runType("runningRemote");
+
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
     qDebug() << "REMOTEAPP: setupDone " << tmpDirectory << " " << inputFile << " " << appDir;
     QString pySCRIPT;
@@ -235,7 +237,7 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
     //
 
     QProcess *proc = new QProcess();
-    QStringList args{pySCRIPT, "set_up",inputFile,registryFile};
+    QStringList args{pySCRIPT, runType, inputFile, registryFile};
     //    proc->execute("python",args);
     QString python;
     QSettings settings("SimCenter", "Common"); //These names will need to be constants to be shared
