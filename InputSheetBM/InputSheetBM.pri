@@ -12,8 +12,6 @@ INCLUDEPATH+=$$PWD
 
 SOURCES += $$PWD/GeneralInformationWidget.cpp
 
-
-
 HEADERS += $$PWD/GeneralInformationWidget.h
 
 macx{
@@ -27,10 +25,5 @@ macx{
     }
 }
 
-SOURCES += \
-$$PWD/GeneralInformationWidget.cpp
-
-HEADERS += \
-$$PWD/GeneralInformationWidget.h
 
 
