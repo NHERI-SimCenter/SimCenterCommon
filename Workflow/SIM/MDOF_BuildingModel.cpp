@@ -209,12 +209,12 @@ MDOF_BuildingModel::MDOF_BuildingModel(RandomVariablesContainer *theRandomVariab
     floorW = "144";
     storyH = "144.0";
     Kx = "100.0";
-    Fyx = "10.0";
+    Fyx = "1.0e6";
     bx = "0.1";
     Ky ="100.0";
-    Fyy = "10.0";
+    Fyy = "1.0e6";
     by = "0.1";
-    K_theta = "1e15";
+    K_theta = "1e10";
 
     QHBoxLayout *layout = new QHBoxLayout();
 
