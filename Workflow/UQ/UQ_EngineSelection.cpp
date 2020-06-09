@@ -223,6 +223,7 @@ UQ_EngineSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
             int index = 0;
             if ((type == QString("Dakota")) ||
                     (type == QString("DakotaEngine")) ||
+                    (type == QString("Dakota-UQ1")) ||
                     (type == QString("Dakota-UQ"))) {
                 index = 0;
             } else if ((type == QString("UQpy")) || (type == QString("UQpyEngine"))) {
