@@ -45,6 +45,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include <QPushButton>
 #include <QValidator>
+#include <QDebug>
 
 BetaDistribution::BetaDistribution(QWidget *parent)
     : RandomVariableDistribution(parent)
@@ -80,6 +81,8 @@ BetaDistribution::BetaDistribution(QWidget *parent)
 
     connect(alphas,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
     connect(betas,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+    connect(lowerBound,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+    connect(upperBound,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
     connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
 }
 
@@ -160,9 +163,10 @@ BetaDistribution::updateDistributionPlot() {
     double u = upperBound->text().toDouble();
     double l = lowerBound->text().toDouble();
 
+    qDebug() << a << " " << b << " " << u << " " << l;
     if (a >= 0.0 && a > 0.0 && u != l) {
-        double min = l;
-        double max = u;
+        double minV = l;
+        double maxV = u;
         QVector<double> x(100);
         QVector<double> y(100);
         double gammaAB = tgamma(a+b);
@@ -170,11 +174,25 @@ BetaDistribution::updateDistributionPlot() {
         double gammaB = tgamma(b);
 
         for (int i=0; i<100; i++) {
-            double xi = min + i*(max-min)/99;
+            double xi = minV + i*(maxV-minV)/99.0;
             x[i] = xi;
             y[i]=gammaAB*pow((xi-l),(a-1.0))*pow((u-xi),(b-1.0))/(gammaA*gammaB*pow((u-l),(a+b-1)));
         }
         thePlot->clear();
         thePlot->addLine(x,y);
+    } else {
+        QVector<double> x(100);
+        QVector<double> y(100);
+        QVector<double> x1(100);
+        QVector<double> y1(100);
+        for (int i=0; i<100; i++) {
+            x[i] =  a+1;
+            y[i] =  b+10;
+            x1[i] =  u+1;
+            y1[i] =  l+10;
+        }
+        thePlot->clear();
+        thePlot->addLine(x,y);
+        thePlot->addLine(x1,y1);
     }
 }

@@ -129,7 +129,7 @@ WeibullDistribution::updateDistributionPlot() {
     double k = shapeparam->text().toDouble();
     double l = scaleparam->text().toDouble();
     double u = l*tgamma(1+1/k);
-    double s = sqrt(tgamma(1+2/k)/pow(tgamma(1+1/l),2));
+    double s = l*sqrt(tgamma(1+2/k)-pow(tgamma(1+1/k),2));
 
     if (k > 0.0 && l > 0.0) {
         double min = u - 5*s;
@@ -138,7 +138,7 @@ WeibullDistribution::updateDistributionPlot() {
         QVector<double> x(100);
         QVector<double> y(100);
         for (int i=0; i<100; i++) {
-            double xi = min + i*(max-min)/99;
+            double xi = min + i*(max-min)/99.0;
             x[i] = xi;
             y[i] =(k/l)*(pow((xi/l),(k-1))*exp(-(pow((xi/l),k))));
         }
