@@ -87,8 +87,8 @@ UQ_EngineSelection::UQ_EngineSelection(RandomVariablesContainer *theRVs, UQ_Engi
     theSelectionLayout->addWidget(label);
     QSpacerItem *spacer = new QSpacerItem(50,10);
     theSelectionLayout->addItem(spacer);
-    theSelectionLayout->addWidget(theEngineSelectionBox);
-    theSelectionLayout->addStretch();
+    theSelectionLayout->addWidget(theEngineSelectionBox,1);
+    theSelectionLayout->addStretch(1);
     layout->addLayout(theSelectionLayout);
 
     //
@@ -223,6 +223,7 @@ UQ_EngineSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
             int index = 0;
             if ((type == QString("Dakota")) ||
                     (type == QString("DakotaEngine")) ||
+                    (type == QString("Dakota-UQ1")) ||
                     (type == QString("Dakota-UQ"))) {
                 index = 0;
             } else if ((type == QString("UQpy")) || (type == QString("UQpyEngine"))) {

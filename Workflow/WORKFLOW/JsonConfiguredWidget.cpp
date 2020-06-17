@@ -191,6 +191,8 @@ JsonConfiguredWidget::generateWidgetLayout(const QJsonArray &inputArray,
       layout->addWidget(fileInput);
       break;	
       }
+    default:
+        break;
     }
   }
 

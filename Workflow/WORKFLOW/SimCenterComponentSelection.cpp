@@ -97,7 +97,10 @@ SimCenterComponentSelection::SimCenterComponentSelection(QWidget *parent)
 
 SimCenterComponentSelection::~SimCenterComponentSelection()
 {
-
+ qDebug() << "SimCenterComponentSelection::DESCTRUCTOR";
+ QLayout *layout = this->layout();
+ layout->removeWidget(theStackedWidget);
+ theStackedWidget->setParent(NULL);
 }
 
 
@@ -107,8 +110,10 @@ SimCenterComponentSelection::addComponent(QString text, QWidget *theWidget)
     if (textIndices.indexOf(text) == -1) {
         QStandardItem *theItem = new QStandardItem(text);
         rootNode->appendRow(theItem);
+        QModelIndex modelIndex = theItem->index();
         theStackedWidget->addWidget(theWidget);
         textIndices.append(text);
+        modelIndices.append(modelIndex);
         return true;
     } else
         qDebug() << "ComponentSelection: text: " << text << " option already exists";
@@ -124,10 +129,11 @@ SimCenterComponentSelection::selectionChangedSlot(const QItemSelection &, const 
     //
 
     const QModelIndex index = treeView->selectionModel()->currentIndex();
+
     QString selectedText = index.data(Qt::DisplayRole).toString();
 
     //
-    // find text iin list
+    // find text in list
     //
 
     int stackIndex = textIndices.lastIndexOf(selectedText);
@@ -150,16 +156,16 @@ SimCenterComponentSelection::swapComponent(QString text, QWidget *theWidget)
     //
 
     int index = textIndices.indexOf(text);
-
     //
     // get stacked widget to display current if of course it exists
     //
 
     if (index != -1) {
         theRes=theStackedWidget->widget(index);
-        if (theRes != NULL)
+        if (theRes != NULL) {
             theStackedWidget->removeWidget(theRes);
-        theStackedWidget->insertWidget(index, theWidget);
+        }
+       theStackedWidget->insertWidget(index, theWidget);
     }
     return theRes;
 }
@@ -174,8 +180,12 @@ SimCenterComponentSelection::displayComponent(QString text)
     int index = textIndices.indexOf(text);
 
     if (index != -1) {
-        theStackedWidget->setCurrentIndex(index);
-	return true;
+
+        QModelIndex index1 = modelIndices.at(index);
+        treeView->setCurrentIndex(index1);
+        // theStackedWidget->setCurrentIndex(index);
+        return true;
     }
+
     return false;
 }

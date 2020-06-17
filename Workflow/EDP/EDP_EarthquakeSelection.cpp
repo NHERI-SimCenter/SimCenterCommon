@@ -79,8 +79,8 @@ EDP_EarthquakeSelection::EDP_EarthquakeSelection(RandomVariablesContainer *theRa
   theSelectionLayout->addWidget(label);
   QSpacerItem *spacer = new QSpacerItem(50,10);
   theSelectionLayout->addItem(spacer);
-  theSelectionLayout->addWidget(edpSelection);
-  theSelectionLayout->addStretch();
+  theSelectionLayout->addWidget(edpSelection,1);
+  theSelectionLayout->addStretch(1);
   layout->addLayout(theSelectionLayout);
 
   //
@@ -197,6 +197,8 @@ EDP_EarthquakeSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
   if (theCurrentEDP != 0) {
     return theCurrentEDP->inputAppDataFromJSON(jsonObject);
   }
+
+  return true;
 }
 
 bool

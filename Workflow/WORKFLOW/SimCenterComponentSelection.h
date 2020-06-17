@@ -118,6 +118,7 @@ private:
     QStackedWidget *theStackedWidget;
     QModelIndex infoItemIdx;
     QList<QString> textIndices;
+    QList<QModelIndex> modelIndices;
 };
 
 #endif // SIMCENTER_COMPONENT_SELECTION_H

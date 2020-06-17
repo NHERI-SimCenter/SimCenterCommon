@@ -19,7 +19,6 @@ class GraphicView2D : public QWidget
     Q_OBJECT
 public:
     explicit GraphicView2D(QWidget *parent = nullptr);
-    void setView(QVector3D buildingSize, QVector3D domainSize, QVector3D domainCenter);
 
     void update();
     void reset();
@@ -40,7 +39,7 @@ private:
     Qt3DCore::QEntity *rootEntity;
 
     void setup3DView();
-    void setCamera(Qt3DCore::QEntity* rootEntity);
+    void setCamera();
     void setLights(Qt3DCore::QEntity* rootEntity);
 
     int *pointIDs;

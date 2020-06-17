@@ -73,7 +73,6 @@ bool SimCenterRVLineEdit::inputFromJSON(QJsonObject& jsonObject) {
 }
 
 bool SimCenterRVLineEdit::outputToJSON(QJsonObject& jsonObject) {
-  bool result = true;
 
   jsonObject.insert("name", theRVLabel->text());
   jsonObject.insert("type", "RVLineEdit");

@@ -72,11 +72,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLabel>
 //#include <InputWidgetFEM.h>
 #include <InputWidgetUQ.h>
-#include <MainWindow.h>
 
 //#include <InputWidgetFEM.h>
 #include <InputWidgetUQ.h>
-#include <MainWindow.h>
 #include <QHeaderView>
 
 #include <QtCharts/QChart>
@@ -95,7 +93,6 @@ using namespace QtCharts;
 
 
 
-static QLabel *best_fit_label_text;
 
 
 DakotaResultsSensitivity::DakotaResultsSensitivity(QWidget *parent)
@@ -295,8 +292,6 @@ Node_2_Disp Sobol' indices:
     QGroupBox *groupBox = NULL;
     int numEDP = 0;
     QGridLayout * trainingDataLayout = NULL;
-    QHBoxLayout *tableLayout = NULL;
-    MyTableWidget *table = NULL;
     QStringList theTableHeadings;
     theTableHeadings << "Random Variable" << "Main" << "Total";
     while (done == false) {
@@ -322,7 +317,7 @@ Node_2_Disp Sobol' indices:
 
             // Labels & QlineEdit Option in a QGrid
             trainingDataLayout = new QGridLayout();
-            QLabel *l1 = new QLabel("Random Variabnle");
+            QLabel *l1 = new QLabel("Random Variable");
             QLabel *l2 = new QLabel("Main");
             QLabel *l3 = new QLabel("Total");
             trainingDataLayout->addWidget(l1, 0,0);
@@ -362,8 +357,8 @@ Node_2_Disp Sobol' indices:
                 trainingDataLayout->addWidget(e1, numEDP+1,0);
                 trainingDataLayout->addWidget(e2, numEDP+1,1);
                 trainingDataLayout->addWidget(e3, numEDP+1,2);
-                trainingDataLayout->setColumnStretch(1,.5);
-                trainingDataLayout->setColumnStretch(2,.5);
+                trainingDataLayout->setColumnStretch(1,0);
+                trainingDataLayout->setColumnStretch(2,0);
                 trainingDataLayout->setColumnStretch(3,1);
 
                 /* *** Table Widget option
@@ -547,6 +542,7 @@ Node_2_Disp Sobol' indices:
 
     void DakotaResultsSensitivity::onSpreadsheetCellClicked(int row, int col)
     {
+        Q_UNUSED(row);
         mLeft = spreadsheet->wasLeftKeyPressed();
 
         //  best_fit_instructions->clear();
@@ -558,12 +554,9 @@ Node_2_Disp Sobol' indices:
         chart->removeAllSeries();
         //chart->removeA
 
-        QAbstractAxis *oldAxisX=chart->axisX();
-        if (oldAxisX != 0)
-            chart->removeAxis(oldAxisX);
-        QAbstractAxis *oldAxisY=chart->axisY();
-        if (oldAxisY != 0)
-            chart->removeAxis(oldAxisY);
+        auto axes = chart->axes();
+        for (auto axis: axes)
+            chart->removeAxis(axis);
 
         // QScatterSeries *series;//= new QScatterSeries;
 
@@ -662,8 +655,10 @@ Node_2_Disp Sobol' indices:
             }
             // adjust y with some fine precision
             axisY->setRange(minY - 0.1*yRange, maxY + 0.1*yRange);
-            chart->setAxisX(axisX, series);
-            chart->setAxisY(axisY, series);
+            chart->addAxis(axisX, Qt::AlignBottom);
+            series->attachAxis(axisX);
+            chart->addAxis(axisY, Qt::AlignLeft);
+            series->attachAxis(axisY);
 
         } else {
 
@@ -711,7 +706,6 @@ Node_2_Disp Sobol' indices:
 
                 double maxPercent = 0;
                 for (int i=0; i<NUM_DIVISIONS; i++) {
-                    histogram[i]/rowCount;
                     if (histogram[i] > maxPercent)
                         maxPercent = histogram[i];
                 }
@@ -734,8 +728,10 @@ Node_2_Disp Sobol' indices:
                 axisY->setTitleText("Frequency %");
                 axisX->setTitleText(theHeadings.at(col1));
                 axisX->setTickCount(NUM_DIVISIONS+1);
-                chart->setAxisX(axisX, series);
-                chart->setAxisY(axisY, series);
+                chart->addAxis(axisX, Qt::AlignBottom);
+                series->attachAxis(axisX);
+                chart->addAxis(axisY, Qt::AlignLeft);
+                series->attachAxis(axisY);
 
                 //calling external python script to find the best fit, generating the data and then plotting it.
 
@@ -926,8 +922,10 @@ Node_2_Disp Sobol' indices:
                 axisY->setTitleText("Cumulative Probability");
                 axisX->setTitleText(theHeadings.at(col1));
                 axisX->setTickCount(NUM_DIVISIONS+1);
-                chart->setAxisX(axisX, series);
-                chart->setAxisY(axisY, series);
+                chart->addAxis(axisX, Qt::AlignBottom);
+                series->attachAxis(axisX);
+                chart->addAxis(axisY, Qt::AlignLeft);
+                series->attachAxis(axisY);
                 series->setName("Cumulative Frequency Distribution");
             }
         }
@@ -1080,7 +1078,6 @@ Node_2_Disp Sobol' indices:
 
         chart = new QChart();
         chart->setAnimationOptions(QChart::AllAnimations);
-        QScatterSeries *series = new QScatterSeries;
         col1 = 0;           // col1 is initialied as the first column in spread sheet
         col2 = numCol-1;    // col2 is initialized as the second column in spread sheet
         mLeft = true;       // left click

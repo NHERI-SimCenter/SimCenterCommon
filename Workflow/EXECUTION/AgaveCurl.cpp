@@ -125,8 +125,7 @@ AgaveCurl::~AgaveCurl()
         curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
         curl_easy_setopt(hnd, CURLOPT_USERPWD, user_passwd.toStdString().c_str());
         curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "DELETE");
-        bool ok = this->invokeCurl();
-
+        this->invokeCurl();
     }
 
     curl_slist_free_all(slist1);
@@ -274,6 +273,7 @@ AgaveCurl::login(QString uname, QString upassword)
         consumerSecret.remove("\"");
         retry = false;
     }
+    Q_UNUSED(retry);
 
 
     //
@@ -390,7 +390,11 @@ AgaveCurl::logout()
     curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "DELETE");
     bool ok = this->invokeCurl();
 
-    emit statusMessage("STATUS: contacting Agave to revoke auth tokens");
+    if (ok == false) {
+        emit statusMessage("ERROR: Failed to invokeCurl when deleting remote client app");
+    } else {
+        emit statusMessage("STATUS: contacting Agave to revoke auth tokens");
+    }
 
     curl_slist_free_all(slist1);
     slist1 = NULL;
@@ -431,8 +435,6 @@ AgaveCurl::uploadDirectoryCall(const QString &local, const QString &remote)
 bool
 AgaveCurl::uploadDirectory(const QString &local, const QString &remote)
 {
-    bool result = false;
-
     //
     // check local exists
     //
@@ -498,8 +500,6 @@ AgaveCurl::removeDirectory(const QString &remote)
 {
     QString message = QString("Contacting ") + tenant + QString(" to remove dir ") + remote;
     emit statusMessage(message);
-
-    bool result = false;
 
     // invoke curl to remove the file or directory
     QString url = tenantURL + QString("files/v2/media/") + remote;
@@ -653,8 +653,6 @@ AgaveCurl::uploadFile(const QString &local, const QString &remote) {
     QString message = QString("Contacting ") + tenant + QString(" to upload file ") + localName;
     emit statusMessage(message);
 
-    bool result = false;
-
     //
     // obtain filename and remote path from the remote string
     // note: for upload we need to remove the agave storage URL if there
@@ -763,7 +761,6 @@ AgaveCurl::downloadFile(const QString &remoteFile, const QString &localFile)
 {
     // this method does not invoke the invokeCurl() as want to write to local file directtly
 
-    bool result = true;
     CURLcode ret;
 
     QFileInfo remoteFileInfo(remoteFile);
@@ -1016,20 +1013,27 @@ AgaveCurl::startJob(const QJsonObject &theJob)
 
 
 void
-AgaveCurl::getJobListCall(const QString &matchingName) {
-  QJsonObject result = getJobList(matchingName);
+AgaveCurl::getJobListCall(const QString &matchingName, QString appIdFilter) {
+  QJsonObject result = getJobList(matchingName, appIdFilter);
   emit getJobListReturn(result);
 }
 
 QJsonObject
-AgaveCurl::getJobList(const QString &matchingName)
+AgaveCurl::getJobList(const QString &matchingName, QString appIdFilter)
 {
+    //TODO: implement matching
+    Q_UNUSED(matchingName);
     QString message = QString("Contacting ") + tenant + QString(" to Get Job list");
     emit statusMessage(message);
 
     QJsonObject result;
 
     QString url = tenantURL + QString("jobs/v2");
+    if (!appIdFilter.isEmpty())
+    {
+        QString params = QString("?appId.like=%1").arg(appIdFilter);
+        url.append(params);
+    }
     curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
     this->invokeCurl();
 
@@ -1215,6 +1219,7 @@ AgaveCurl::deleteJob(const QString &jobID, const QStringList &dirToRemove)
     foreach(QString item, dirToRemove) {
         result = this->removeDirectory(item);
     }
+    Q_UNUSED(result);
 
     //
     // invoke curl to delete the job

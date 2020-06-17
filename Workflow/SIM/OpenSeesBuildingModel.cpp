@@ -62,7 +62,7 @@ using namespace std;
 OpenSeesBuildingModel::OpenSeesBuildingModel(RandomVariablesContainer *theRandomVariableIW, 
 					     bool includeC,
 					     QWidget *parent)
-  : SimCenterAppWidget(parent), theRandomVariablesContainer(theRandomVariableIW), responseNodes(0)
+  : SimCenterAppWidget(parent), responseNodes(0), theRandomVariablesContainer(theRandomVariableIW)
 {
   includeCentroid = includeC;
   femSpecific = 0;
@@ -332,7 +332,7 @@ OpenSeesBuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
 
 
 
-int
+void
 OpenSeesBuildingModel::setFilename1(QString name1){
 
     // remove old random variables
@@ -357,13 +357,13 @@ OpenSeesBuildingModel::setFilename1(QString name1){
 
     theRandomVariablesContainer->addConstantRVs(varNamesAndValues);
 
-    return 0;
+    return;
 }
 
 void
 OpenSeesBuildingModel::chooseFileName1(void) {
     fileName1=QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)");
-    int ok = this->setFilename1(fileName1);
+    this->setFilename1(fileName1);
 }
 
 void
@@ -402,5 +402,7 @@ QString OpenSeesBuildingModel::getMainInput() {
      OpenSeesParser theParser;
      QString copiedFile = dirName + QDir::separator() + theFile;
      theParser.writeFile(fileName, copiedFile, varNames);
+
+     return true;
  }
 

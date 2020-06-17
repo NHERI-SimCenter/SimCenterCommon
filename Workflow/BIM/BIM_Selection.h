@@ -1,5 +1,5 @@
-#ifndef FORM_INPUT_WIDGET_H
-#define FORM_INPUT_WIDGET_H
+#ifndef BIM_SELECTION_H
+#define BIM_SELECTION_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -20,7 +20,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -37,33 +37,47 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
+// Written: fmckenna
 
-#include <UQ_MethodInputWidget.h>
-#include <QComboBox>
+#include <SimCenterAppWidget.h>
 
-class QLineEdit;
-class QCheckBox;
+class QComboBox;
+class QStackedWidget;
+class RandomVariablesContainer;
+class UQ_Results;
+class UQ_Engine;
+class RandomVariablesContainer;
 
-class FORMInputWidget : public UQ_MethodInputWidget
+class BIM_Selection : public  SimCenterAppWidget
 {
-    Q_OBJECT
-public:
-    explicit FORMInputWidget(QWidget *parent = 0);
-    ~FORMInputWidget();
+  Q_OBJECT
 
-    bool outputToJSON(QJsonObject &rvObject);
-    bool inputFromJSON(QJsonObject &rvObject);
-    void clear(void);
+    public:
 
-    int getNumberTasks(void);
+  explicit BIM_Selection(RandomVariablesContainer *, QWidget *parent = 0);
+  ~BIM_Selection();
 
+  bool outputAppDataToJSON(QJsonObject &jsonObject);
+  bool inputAppDataFromJSON(QJsonObject &jsonObject);
+  bool outputToJSON(QJsonObject &rvObject);
+  bool inputFromJSON(QJsonObject &rvObject);
+  bool copyFiles(QString &destName);
+  
+  void clear(void);
+  
+ signals:
+  void onSelectionChanged(void);
+
+ public slots:
+  void selectionChanged(const QString &arg1);
+  void selectionChanged(void);
+  
 private:
-    QComboBox *mppMethod;
-    QComboBox *reliabilityScheme;
-    QLineEdit *probabilityLevel;
-    QLineEdit *responseLevel;
-    QCheckBox *checkedResponseLevel;
-    QCheckBox *checkedProbabilityLevel;
+   QComboBox   *theSelectionBox;
+   QStackedWidget *theStackedWidget;
+
+   SimCenterAppWidget *theCurrentSelection;
+   SimCenterAppWidget *theOpenSeesApplication;
 };
 
-#endif // FORM_INPUT_WIDGET_H
+#endif // BIM_SELECTION_H

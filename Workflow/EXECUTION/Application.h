@@ -54,8 +54,7 @@ public:
     explicit Application(QWidget *parent = nullptr);
 
    virtual void setNumTasks(int numTasks);
-   virtual bool setupDoneRunApplication(QString &tmpDirectory, QString &inputFile,
-                                        QString runType = QString("run"));
+   virtual bool setupDoneRunApplication(QString &tmpDirectory, QString &inputFile);
    virtual void displayed(void);
 
 signals:

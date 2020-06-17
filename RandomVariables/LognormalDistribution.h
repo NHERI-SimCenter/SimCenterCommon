@@ -43,6 +43,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class QLineEdit;
 class QLabel;
+class SimCenterGraphPlot;
 
 class LognormalDistribution : public RandomVariableDistribution
 {
@@ -59,11 +60,14 @@ public:
 signals:
 
 public slots:
+    void updateDistributionPlot();
 
 private:
 
     QLineEdit *mean;
     QLineEdit *standardDev;
+
+    SimCenterGraphPlot *thePlot;
 
 };
 

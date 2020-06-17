@@ -38,7 +38,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include "FEM_Selection.h"
+#include "BIM_Selection.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -60,7 +60,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <InputWidgetOpenSeesAnalysis.h>
 
-FEM_Selection::FEM_Selection(RandomVariablesContainer *theRVs, QWidget *parent)
+BIM_Selection::BIM_Selection(RandomVariablesContainer *theRVs, QWidget *parent)
     : SimCenterAppWidget(parent), theCurrentSelection(0)
 {
     QVBoxLayout *layout = new QVBoxLayout();
@@ -72,17 +72,17 @@ FEM_Selection::FEM_Selection(RandomVariablesContainer *theRVs, QWidget *parent)
     QHBoxLayout *theSelectionLayout = new QHBoxLayout();
     //    QLabel *label = new QLabel();
     SectionTitle *label = new SectionTitle();
-    label->setText(QString("FE Application"));
+    label->setText(QString("BIM Application"));
     label->setMinimumWidth(200);
 
     theSelectionBox = new QComboBox();
-    theSelectionBox->addItem(tr("OpenSees"));
+    theSelectionBox->addItem(tr("Basic"));
 
     theSelectionLayout->addWidget(label);
     QSpacerItem *spacer = new QSpacerItem(50,10);
     theSelectionLayout->addItem(spacer);
-    theSelectionLayout->addWidget(theSelectionBox,1);
-    theSelectionLayout->addStretch(1);
+    theSelectionLayout->addWidget(theSelectionBox);
+    theSelectionLayout->addStretch();
     layout->addLayout(theSelectionLayout);
 
     //
@@ -106,14 +106,14 @@ FEM_Selection::FEM_Selection(RandomVariablesContainer *theRVs, QWidget *parent)
             SLOT(engineSelectionChanged(QString)));
 }
 
-FEM_Selection::~FEM_Selection()
+BIM_Selection::~BIM_Selection()
 {
 
 }
 
 
 bool
-FEM_Selection::outputToJSON(QJsonObject &jsonObject)
+BIM_Selection::outputToJSON(QJsonObject &jsonObject)
 {
     QJsonObject fem;
     theCurrentSelection->outputToJSON(fem);
@@ -124,7 +124,7 @@ FEM_Selection::outputToJSON(QJsonObject &jsonObject)
 
 
 bool
-FEM_Selection::inputFromJSON(QJsonObject &jsonObject) {
+BIM_Selection::inputFromJSON(QJsonObject &jsonObject) {
 
     if (jsonObject.contains("Simulation")) {
         QJsonObject femObject = jsonObject["Simulation"].toObject();
@@ -137,7 +137,7 @@ FEM_Selection::inputFromJSON(QJsonObject &jsonObject) {
     return false;
 }
 
-void FEM_Selection::selectionChanged(const QString &arg1)
+void BIM_Selection::selectionChanged(const QString &arg1)
 {
     //
     // switch stacked widgets depending on text
@@ -151,18 +151,18 @@ void FEM_Selection::selectionChanged(const QString &arg1)
     }
 
     else {
-        qDebug() << "ERROR .. FEM_Selection selection .. type unknown: " << arg1;
+        qDebug() << "ERROR .. BIM_Selection selection .. type unknown: " << arg1;
     }
 }
 
 
 void
-FEM_Selection::selectionChanged(void){
+BIM_Selection::selectionChanged(void){
     emit onSelectionChanged();
 }
 
 bool
-FEM_Selection::outputAppDataToJSON(QJsonObject &jsonObject)
+BIM_Selection::outputAppDataToJSON(QJsonObject &jsonObject)
 {
     QJsonObject appsUQ;
     theCurrentSelection->outputAppDataToJSON(appsUQ);
@@ -173,7 +173,7 @@ FEM_Selection::outputAppDataToJSON(QJsonObject &jsonObject)
 
 
 bool
-FEM_Selection::inputAppDataFromJSON(QJsonObject &jsonObject)
+BIM_Selection::inputAppDataFromJSON(QJsonObject &jsonObject)
 {
     // get name from "Application" key
 
@@ -192,7 +192,7 @@ FEM_Selection::inputAppDataFromJSON(QJsonObject &jsonObject)
                 (type == QString("OpenSees-Simulation"))) {
                 index = 0;
             } else {
-                emit sendErrorMessage("FEM_Selection - no valid type found");
+                emit sendErrorMessage("BIM_Selection - no valid type found");
                 return false;
             }
 
@@ -203,12 +203,12 @@ FEM_Selection::inputAppDataFromJSON(QJsonObject &jsonObject)
                 return theCurrentSelection->inputAppDataFromJSON(theObject);
             }
         } else {
-            emit sendErrorMessage("FEM_Selection - no Application key found");
+            emit sendErrorMessage("BIM_Selection - no Application key found");
             return false;
         }
 
     } else {
-        emit sendErrorMessage("FEM_Selection: failed to find FEM application");
+        emit sendErrorMessage("BIM_Selection: failed to find BIM application");
         return false;
     }
 
@@ -217,7 +217,7 @@ FEM_Selection::inputAppDataFromJSON(QJsonObject &jsonObject)
 }
 
 bool
-FEM_Selection::copyFiles(QString &destDir) {
+BIM_Selection::copyFiles(QString &destDir) {
 
   if (theCurrentSelection != 0) {
     return  theCurrentSelection->copyFiles(destDir);

@@ -1,3 +1,6 @@
+#ifndef LOCAL_RELIABILITY_WIDGET_H
+#define LOCAL_RELIABILITY_WIDGET_H
+
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -34,31 +37,42 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
 
-#include <SimCenterWidget.h>
-SimCenterWidget::SimCenterWidget(QWidget *parent)
-    :QWidget(parent)
+#include <UQ_MethodInputWidget.h>
+#include <QComboBox>
+
+class QLineEdit;
+class QCheckBox;
+class QGridLayout;
+
+class LocalReliabilityWidget : public UQ_MethodInputWidget
 {
+    Q_OBJECT
+public:
+    explicit LocalReliabilityWidget(QWidget *parent = 0);
+    ~LocalReliabilityWidget();
 
-}
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+    void clear(void);
 
-SimCenterWidget::~SimCenterWidget()
-{
+    int getNumberTasks(void);
 
-}
+public slots:
+    void onMethodSelectionChanged(const QString &method);
 
+private:
+    QGridLayout *layout;
+    QComboBox *method;
+    QComboBox *mppMethod;
+    QComboBox *integrationMethod;
+    QLineEdit *reliabilityLevel;
+    QLineEdit *probabilityLevel;
+    QComboBox *levelType;
 
-bool
-SimCenterWidget::outputToJSON(QJsonObject &jsonObject)
-{
-    Q_UNUSED(jsonObject);
-    return true;
-}
+    //QLineEdit *responseLevel;
+    //QCheckBox *checkedResponseLevel;
+    //QCheckBox *checkedProbabilityLevel;
+};
 
-bool
-SimCenterWidget::inputFromJSON(QJsonObject &jsonObject)
-{
-    Q_UNUSED(jsonObject);
-    return true;
-}
+#endif // LOCAL_RELIABILITY_WIDGET_H

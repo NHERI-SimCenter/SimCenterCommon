@@ -1,3 +1,6 @@
+#ifndef GLOBAL_RELIABILITY_WIDGET_H
+#define GLOBAL_RELIABILITY_WIDGET_H
+
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -34,31 +37,33 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
 
-#include <SimCenterWidget.h>
-SimCenterWidget::SimCenterWidget(QWidget *parent)
-    :QWidget(parent)
+#include <UQ_MethodInputWidget.h>
+#include <QComboBox>
+
+class QLineEdit;
+class QCheckBox;
+
+class GlobalReliabilityWidget : public UQ_MethodInputWidget
 {
+    Q_OBJECT
+public:
+    explicit GlobalReliabilityWidget(QWidget *parent = 0);
+    ~GlobalReliabilityWidget();
 
-}
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+    void clear(void);
 
-SimCenterWidget::~SimCenterWidget()
-{
+    int getNumberTasks(void);
 
-}
+private:
+    QComboBox *gpApproximation;
+    //QLineEdit *probabilityLevel;
+    QLineEdit *responseLevel;
+    QLineEdit *seedEdit;
+    //QCheckBox *checkedResponseLevel;
+    //QCheckBox *checkedProbabilityLevel;
+};
 
-
-bool
-SimCenterWidget::outputToJSON(QJsonObject &jsonObject)
-{
-    Q_UNUSED(jsonObject);
-    return true;
-}
-
-bool
-SimCenterWidget::inputFromJSON(QJsonObject &jsonObject)
-{
-    Q_UNUSED(jsonObject);
-    return true;
-}
+#endif // GLOBAL_RELIABILITY_WIDGET_H

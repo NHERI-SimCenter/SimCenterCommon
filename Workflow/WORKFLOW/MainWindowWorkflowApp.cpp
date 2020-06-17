@@ -38,7 +38,7 @@
 #include <Utils/RelativePathResolver.h>
 
 MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theService, QWidget *parent)
-  : QMainWindow(parent), theRemoteInterface(theService), inputWidget(theApp), loggedIn(false), isAutoLogin(false)
+  : QMainWindow(parent), loggedIn(false), inputWidget(theApp),   theRemoteInterface(theService), isAutoLogin(false)
 {
     //
     // create a layout & widget for central area of this QMainWidget
@@ -342,9 +342,6 @@ bool MainWindowWorkflowApp::saveAs()
 
 void MainWindowWorkflowApp::open()
 {
-    QStringList filters;
-    filters << "Json files (*.json)"
-            << "All files (*)";
     QString fileName = QFileDialog::getOpenFileName(this, "Open Simulation Model", "",  "Json files (*.json);;All files (*)");
     if (!fileName.isEmpty())
         loadFile(fileName);
@@ -513,13 +510,13 @@ void MainWindowWorkflowApp::createActions() {
     fileMenu->addAction(exitAction);
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
-    QAction *versionAct = helpMenu->addAction(tr("&Version"), this, &MainWindowWorkflowApp::version);
-    QAction *aboutAct = helpMenu->addAction(tr("&About"), this, &MainWindowWorkflowApp::about);
-    QAction *manualAct = helpMenu->addAction(tr("&Manual"), this, &MainWindowWorkflowApp::manual);
-    QAction *submitAct = helpMenu->addAction(tr("&Submit Bug/Feature Request"), this, &MainWindowWorkflowApp::submitFeedback);
+    helpMenu->addAction(tr("&Version"), this, &MainWindowWorkflowApp::version);
+    helpMenu->addAction(tr("&About"), this, &MainWindowWorkflowApp::about);
+    helpMenu->addAction(tr("&Manual"), this, &MainWindowWorkflowApp::manual);
+    helpMenu->addAction(tr("&Submit Bug/Feature Request"), this, &MainWindowWorkflowApp::submitFeedback);
     // QAction *submitFeature = helpMenu->addAction(tr("&Submit Bug/Feature Request"), this, &MainWindowWorkflowApp::submitFeatureRequest);
-    QAction *citeAct = helpMenu->addAction(tr("&How to Cite"), this, &MainWindowWorkflowApp::cite);
-    QAction *copyrightAct = helpMenu->addAction(tr("&License"), this, &MainWindowWorkflowApp::copyright);
+    helpMenu->addAction(tr("&How to Cite"), this, &MainWindowWorkflowApp::cite);
+    helpMenu->addAction(tr("&License"), this, &MainWindowWorkflowApp::copyright);
 }
 
 

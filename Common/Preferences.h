@@ -1,11 +1,11 @@
-#ifndef SORM_INPUT_WIDGET_H
-#define SORM_INPUT_WIDGET_H
+#ifndef SIMCENTER_PREFERENCES_H
+#define SIMCENTER_PREFERENCES_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -29,41 +29,55 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
+// Written: fmckenna
 
-#include <UQ_MethodInputWidget.h>
-#include <QComboBox>
+#include <QDialog>
+#include <QCheckBox>
 
 class QLineEdit;
-class QCheckBox;
+class QVBoxLayout;
 
-class SORMInputWidget : public UQ_MethodInputWidget
+class SimCenterPreferences : public QDialog
 {
     Q_OBJECT
-public:
-    explicit SORMInputWidget(QWidget *parent = 0);
-    ~SORMInputWidget();
-
-    bool outputToJSON(QJsonObject &rvObject);
-    bool inputFromJSON(QJsonObject &rvObject);
-    void clear(void);
-
-    int getNumberTasks(void);
 
 private:
-    QComboBox *mppMethod;
-    QComboBox *reliabilityScheme;
-    QLineEdit *probabilityLevel;
-    QLineEdit *responseLevel;
-    QCheckBox *checkedResponseLevel;
-    QCheckBox *checkedProbabilityLevel;
+    explicit SimCenterPreferences(QWidget *parent = 0);
+    ~SimCenterPreferences();
+    static SimCenterPreferences *theInstance;
+
+public:
+    static SimCenterPreferences *getInstance(QWidget *parent = 0);
+    QString getPython(void);
+    QString getAppDir(void);
+    QString getRemoteAppDir(void);
+    QString getRemoteAgaveApp(void);
+    QString getLocalWorkDir(void);
+    QString getRemoteWorkDir(void);
+
+public slots:
+    void savePreferences(bool);
+    void resetPreferences(bool);
+    void loadPreferences(void);
+
+private:
+    QLineEdit *python;
+    QLineEdit *localWorkDir;
+    QLineEdit *remoteWorkDir;
+    QLineEdit *appDir;
+    QLineEdit *remoteAppDir;
+    QLineEdit *remoteAgaveApp;
+    QVBoxLayout *layout;
+    QCheckBox* customAppDirCheckBox;
 };
 
-#endif // SORM_INPUT_WIDGET_H
+
+#endif // SIMCENTER_PREFERENCES_H

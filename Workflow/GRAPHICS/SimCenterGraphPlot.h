@@ -21,6 +21,7 @@ class SimCenterGraphPlot : public QWidget
     Q_OBJECT
 public:
     SimCenterGraphPlot(QString xAxis, QString yAxis, QWidget *parent = 0);
+    SimCenterGraphPlot(QString xAxis, QString yAxis, int minWidth, int minHeight, QWidget *parent = 0);
     ~SimCenterGraphPlot();
 
     void clear();
