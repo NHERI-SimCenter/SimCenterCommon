@@ -95,7 +95,7 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
     layout->addWidget(numCPU_LineEdit,1,1);
 
     QLabel *numProcessorsLabel = new QLabel();
-    numProcessorsLabel->setText(QString("Total # Processes:"));
+    numProcessorsLabel->setText(QString("# Processes Per Node:"));
 
     layout->addWidget(numProcessorsLabel,2,0);
 
@@ -330,7 +330,7 @@ RemoteApplication::uploadDirReturn(bool result)
       int nodeCount = numCPU_LineEdit->text().toInt();
       int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
       job["nodeCount"]=nodeCount;
-      job["processorsPerNode"]=nodeCount*numProcessorsPerNode;
+      //job["processorsPerNode"]=nodeCount*numProcessorsPerNode; // DesignSafe has inconsistant documentation
       job["processorsOnEachNode"]=numProcessorsPerNode;
       job["maxRunTime"]=runtimeLineEdit->text();
       

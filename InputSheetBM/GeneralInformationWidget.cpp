@@ -177,6 +177,14 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent)
     connect(widthEdit,SIGNAL(editingFinished()),this,SLOT(buildingDimensionsEditingFinished()));
     connect(depthEdit,SIGNAL(editingFinished()),this,SLOT(buildingDimensionsEditingFinished()));
     connect(planAreaEdit,SIGNAL(editingFinished()), this, SLOT(buildingDimensionsEditingFinished()));
+
+    connect(longitudeEdit, &QLineEdit::editingFinished, this, [this](){
+        GeneralInformationWidget::buildingLocationChanged(latitudeEdit->text().toDouble(), longitudeEdit->text().toDouble());
+    });
+
+    connect(latitudeEdit, &QLineEdit::editingFinished, this, [this](){
+        GeneralInformationWidget::buildingLocationChanged(latitudeEdit->text().toDouble(), longitudeEdit->text().toDouble());
+    });
 }
 
 GeneralInformationWidget::~GeneralInformationWidget()
