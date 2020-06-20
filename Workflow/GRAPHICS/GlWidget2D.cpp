@@ -321,8 +321,6 @@ static const char *fragmentShaderSource =
 
 void GlWidget2D::initializeGL() {
 
-    qDebug() << "initializeGL";
-
     initializeOpenGLFunctions();
     glEnable(0x8642);
 

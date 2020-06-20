@@ -49,6 +49,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <sectiontitle.h>
 
 #include <SimCenterWidget.h>
+
 #include <OpenSeesBuildingModel.h>
 #include <MDOF_BuildingModel.h>
 
@@ -72,13 +73,13 @@ SIM_Selection::SIM_Selection(RandomVariablesContainer *theRandomVariableIW,
     QSpacerItem *spacer = new QSpacerItem(50,10);
 
     bimSelection = new QComboBox();
-    bimSelection->setMaximumWidth(200);
-    bimSelection->setMinimumWidth(200);
+   // bimSelection->setMaximumWidth(200);
+   // bimSelection->setMinimumWidth(200);
 
     titleLayout->addWidget(textBIM);
     titleLayout->addItem(spacer);
-    titleLayout->addWidget(bimSelection);
-    titleLayout->addStretch();
+    titleLayout->addWidget(bimSelection, 1);
+    titleLayout->addStretch(1);
     titleLayout->setSpacing(0);
     titleLayout->setMargin(0);
 
@@ -186,9 +187,13 @@ SIM_Selection::inputAppDataFromJSON(QJsonObject &jsonObject)
         return false;
 
     int index = 0;
+    /*
     if (type == QString("SimCenterSIM")) {
        index = 2;
-    } else if (type == QString("OpenSeesInput")) {
+    } else
+
+*/
+    if (type == QString("OpenSeesInput")) {
        index = 1;
     } else if (type == QString("MDOF_BuildingModel")) {
        index = 0;
@@ -228,15 +233,11 @@ void SIM_Selection::bimSelectionChanged(const QString &arg1)
     //
     // note type output in json and name in pull down are not the same and hence the ||
     //
-    /*
-    if (arg1 == QString("Spreadsheet") || arg1 == QString("SimCenterSIM")) {
-        delete bimInput;
-        bimInput = new InputWidgetSheetSIM(theRandomVariablesContainer);
 
-    } else 
-    */ 
+
 
     if (arg1 == QString("OpenSees") || (arg1 == QString("OpenSeesInput"))) {
+
         delete bimInput;
         bimInput = new OpenSeesBuildingModel(theRandomVariablesContainer, includeCentroid);
     } else if (arg1 == QString("MDOF") || (arg1 == QString("MDOF_BuildingModel"))) {

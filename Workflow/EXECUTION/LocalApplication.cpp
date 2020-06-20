@@ -78,14 +78,14 @@ LocalApplication::LocalApplication(QString workflowScriptName, QWidget *parent)
 bool
 LocalApplication::outputToJSON(QJsonObject &jsonObject)
 {
-  //    jsonObject["localAppDir"]=appDirName->text();
-  //    jsonObject["remoteAppDir"]=appDirName->text();
-  //    jsonObject["workingDir"]=workingDirName->text();
-  jsonObject["localAppDir"]=SimCenterPreferences::getInstance()->getAppDir();
-  jsonObject["remoteAppDir"]=SimCenterPreferences::getInstance()->getAppDir();
-  jsonObject["workingDir"]=SimCenterPreferences::getInstance()->getLocalWorkDir();
+    //    jsonObject["localAppDir"]=appDirName->text();
+    //    jsonObject["remoteAppDir"]=appDirName->text();
+    //    jsonObject["workingDir"]=workingDirName->text();
+    jsonObject["localAppDir"]=SimCenterPreferences::getInstance()->getAppDir();
+    jsonObject["remoteAppDir"]=SimCenterPreferences::getInstance()->getAppDir();
+    jsonObject["workingDir"]=SimCenterPreferences::getInstance()->getLocalWorkDir();
 
-  jsonObject["runType"]=QString("local");
+    jsonObject["runType"]=QString("runningLocal");
 
     return true;
 }
@@ -143,9 +143,12 @@ LocalApplication::onRunButtonPressed(void)
 //
 
 bool
-LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile, QString runType) {
+LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile) {
 
-  QString appDir = SimCenterPreferences::getInstance()->getAppDir();
+    // qDebug() << "RUNTYPE" << runType;
+    QString runType("runningLocal");
+   qDebug() << "RUNTYPE" << runType;
+    QString appDir = SimCenterPreferences::getInstance()->getAppDir();
 
     //TODO: recognize if it is PBE or EE-UQ -> probably smarter to do it inside the python file
     QString pySCRIPT;
@@ -276,13 +279,30 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     }
 #else
 
+    // check for bashrc or bash profile
+    QDir homeDir(QDir::homePath());
+    QString sourceBash("\"");
+    if (homeDir.exists(".bash_profile")) {
+      sourceBash = QString("source $HOME/.bash_profile; \"");
+    } else if (homeDir.exists(".bashrc")) {
+      sourceBash = QString("source $HOME/.bashrc; \"");
+    } else if (homeDir.exists(".zprofile")) {
+      sourceBash = QString("source $HOME/.zprofile; \"");
+    } else if (homeDir.exists(".zshrc")) {
+      sourceBash = QString("source $HOME/.zshrc; \"");
+    } else
+       emit sendErrorMessage( "No .bash_profile, .bashrc or .zshrc file found. This may not find Dakota or OpenSees");
+
     // note the above not working under linux because bash_profile not being called so no env variables!!
-    QString command = QString("source $HOME/.bash_profile; \"") + python + QString("\" \"" ) + 
+    QString command = sourceBash + python + QString("\" \"" ) +
       pySCRIPT + QString("\" " ) + runType + QString(" \"" ) + inputFile + QString("\" \"") + registryFile + QString("\"");
 
-    QDebug debug = qDebug();
-    debug.noquote();
-    debug << "PYTHON COMMAND: " << command;
+    qDebug() << "PYTHON COMMAND" << command;
+
+    // QDebug debug = qDebug();
+    // debug.noquote();
+    // debug << "PYTHON COMMAND: " << command;
+
     proc->execute("bash", QStringList() << "-c" <<  command);
 
 #endif

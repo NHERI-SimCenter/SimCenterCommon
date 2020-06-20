@@ -119,7 +119,7 @@ RandomVariable::RandomVariable(const QString &type, QWidget *parent)
         distributionComboBox->addItem(tr("Constant"));
         distributionComboBox->addItem(tr("Weibull"));
         distributionComboBox->addItem(tr("Gumbel"));
-        distributionComboBox->addItem(tr("UserDef"));
+        //distributionComboBox->addItem(tr("UserDef"));
     }
     connect(distributionComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(distributionChanged(QString)));
 

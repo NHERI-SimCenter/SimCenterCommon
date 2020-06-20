@@ -72,8 +72,8 @@ DakotaEngine::DakotaEngine(RandomVariablesContainer *theRVs, UQ_EngineType type,
     theEngineSelectionBox = new QComboBox();
     theEngineSelectionBox->addItem(tr("Forward Propagation"));
     if (type == ForwardReliabilitySensivity) {
-        theEngineSelectionBox->addItem(tr("Reliability Analysis"));
         theEngineSelectionBox->addItem(tr("Sensitivity Analysis"));
+        theEngineSelectionBox->addItem(tr("Reliability Analysis"));
     }
     theEngineSelectionBox->setMinimumWidth(600);
 
@@ -97,8 +97,8 @@ DakotaEngine::DakotaEngine(RandomVariablesContainer *theRVs, UQ_EngineType type,
     theSensitivityEngine = new DakotaInputSensitivity(theRVs);
 
     theStackedWidget->addWidget(theSamplingEngine);
-    theStackedWidget->addWidget(theReliabilityEngine);
     theStackedWidget->addWidget(theSensitivityEngine);
+    theStackedWidget->addWidget(theReliabilityEngine);
 
     layout->addWidget(theStackedWidget);
     this->setLayout(layout);
@@ -124,10 +124,10 @@ void DakotaEngine::engineSelectionChanged(const QString &arg1)
       theStackedWidget->setCurrentIndex(0);
       theCurrentEngine = theSamplingEngine;   
     } else if ((arg1 == QString("Reliability")) || (arg1 == QString("Reliability Analysis"))) {
-      theStackedWidget->setCurrentIndex(1);
+      theStackedWidget->setCurrentIndex(2);
       theCurrentEngine = theReliabilityEngine;
     } else if ((arg1 == QString("Sensitivity")) || (arg1 == QString("Sensitivity Analysis"))) {
-      theStackedWidget->setCurrentIndex(2);
+      theStackedWidget->setCurrentIndex(1);
       theCurrentEngine = theSensitivityEngine;
     } else {
       qDebug() << "ERROR .. DakotaEngine selection .. type unknown: " << arg1;
@@ -180,7 +180,7 @@ DakotaEngine::inputFromJSON(QJsonObject &jsonObject) {
 bool
 DakotaEngine::outputAppDataToJSON(QJsonObject &jsonObject)
 {
-    jsonObject["Application"] = "Dakota-UQ";
+    jsonObject["Application"] = "Dakota-UQ1";
     QJsonObject dataObj;
     jsonObject["ApplicationData"] = dataObj;
 

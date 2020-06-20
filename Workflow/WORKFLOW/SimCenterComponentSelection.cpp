@@ -97,7 +97,10 @@ SimCenterComponentSelection::SimCenterComponentSelection(QWidget *parent)
 
 SimCenterComponentSelection::~SimCenterComponentSelection()
 {
-
+ qDebug() << "SimCenterComponentSelection::DESCTRUCTOR";
+ QLayout *layout = this->layout();
+ layout->removeWidget(theStackedWidget);
+ theStackedWidget->setParent(NULL);
 }
 
 
@@ -153,16 +156,16 @@ SimCenterComponentSelection::swapComponent(QString text, QWidget *theWidget)
     //
 
     int index = textIndices.indexOf(text);
-
     //
     // get stacked widget to display current if of course it exists
     //
 
     if (index != -1) {
         theRes=theStackedWidget->widget(index);
-        if (theRes != NULL)
+        if (theRes != NULL) {
             theStackedWidget->removeWidget(theRes);
-        theStackedWidget->insertWidget(index, theWidget);
+        }
+       theStackedWidget->insertWidget(index, theWidget);
     }
     return theRes;
 }

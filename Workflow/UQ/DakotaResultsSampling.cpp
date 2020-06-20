@@ -63,7 +63,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <fstream>
 #include <string>
 
-#include <QHeaderView>
 #include <QMessageBox>
 #include <QVBoxLayout>
 #include <QLineEdit>
@@ -73,9 +72,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLabel>
 //#include <InputWidgetFEM.h>
 #include <InputWidgetUQ.h>
+#include <MainWindow.h>
 
 //#include <InputWidgetFEM.h>
 #include <InputWidgetUQ.h>
+#include <MainWindow.h>
+#include <QHeaderView>
 
 #include <QtCharts/QChart>
 #include <QtCharts/QChartView>
@@ -88,10 +90,10 @@ using namespace QtCharts;
 
 #include <QXYSeries>
 #include <RandomVariablesContainer.h>
+#include <QFileInfo>
+#include <QFile>
 
-#define NUM_DIVISIONS 10
-
-
+//#define NUM_DIVISIONS 10
 
 DakotaResultsSampling::DakotaResultsSampling(RandomVariablesContainer *theRandomVariables, QWidget *parent)
   : UQ_Results(parent), theRVs(theRandomVariables)
@@ -112,21 +114,22 @@ DakotaResultsSampling::~DakotaResultsSampling()
 
 void DakotaResultsSampling::clear(void)
 {
-  // delete any existing widgets
-  int count = tabWidget->count();
-  if (count > 0) {
-    for (int i=0; i<count; i++) {
-      QWidget *theWidget = tabWidget->widget(count);
-      delete theWidget;
+    // delete any existing widgets
+    int count = tabWidget->count();
+    if (count > 0) {
+        for (int i=0; i<count; i++) {
+            QWidget *theWidget = tabWidget->widget(count);
+            delete theWidget;
+        }
     }
-  }
-  theHeadings.clear();
-  theMeans.clear();
-  theStdDevs.clear();
-  theKurtosis.clear();
+    theHeadings.clear();
+    theMeans.clear();
+    theStdDevs.clear();
+    theKurtosis.clear();
+    theSkewness.clear();
 
-  tabWidget->clear();
-  spreadsheet = NULL;
+    tabWidget->clear();
+    spreadsheet = NULL;
 }
 
 
@@ -184,7 +187,6 @@ static int mergesort(double *input, int size)
 
 int DakotaResultsSampling::processResults(QString &filenameResults, QString &filenameTab)
 {
-    Q_UNUSED(filenameResults);
     emit sendStatusMessage(tr("Processing Sampling Results"));
 
     this->clear();
@@ -193,16 +195,16 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
     col2 = 0;
 
     //
-    // check it actually ran with errors
+    // check it actually ran with n errors
     //
+
 
     QFileInfo fileTabInfo(filenameTab);
     QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
 
-
     QFileInfo filenameErrorInfo(filenameErrorString);
     if (!filenameErrorInfo.exists()) {
-        emit sendErrorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applicatins failed with inputs provided");
+        emit sendErrorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applicatins failed with inputs provied");
         return 0;
     }
     QFile fileError(filenameErrorString);
@@ -211,11 +213,10 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
        QTextStream in(&fileError);
        while (!in.atEnd()) {
           line = in.readLine();
-          qDebug() << line;
        }
        fileError.close();
     }
-    qDebug() << line.length() << " " << line;
+
     if (line.length() != 0) {
         qDebug() << line.length() << " " << line;
         emit sendErrorMessage(QString(QString("Error Running Dakota: ") + line));
@@ -242,6 +243,7 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
     QVBoxLayout *summaryLayout = new QVBoxLayout();
     summaryLayout->setContentsMargins(0,0,0,0); // adding back
     summary->setLayout(summaryLayout);
+
     sa->setWidget(summary);
 
     //
@@ -272,7 +274,6 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
     do {
         std::string subs;
         iss >> subs;
-        qDebug() << "subs: " << QString(subs.c_str());
         if (colCount > 0) {
             if (subs != " ") {
                 if (subs != "interface")
@@ -289,19 +290,16 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
     else
         colCount = colCount -1;
 
-
     spreadsheet->setColumnCount(colCount);
     spreadsheet->setHorizontalHeaderLabels(theHeadings);
     spreadsheet->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     spreadsheet->verticalHeader()->setVisible(false);
-
     // now until end of file, read lines and place data into spreadsheet
 
     int rowCount = 0;
     while (std::getline(tabResults, inputLine)) {
         std::istringstream is(inputLine);
         int col=0;
-        //qDebug()<<"\n the inputLine is        "<<inputLine.c_str();
 
         spreadsheet->insertRow(rowCount);
         for (int i=0; i<colCount+2; i++) {
@@ -335,27 +333,41 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
         double mean_value=sum_value/rowCount;
 
         double sd_value=0;
+        double kurtosis_value=0;
+        double skewness_value = 0;
         for(int row=0; row<rowCount;++row) {
             QTableWidgetItem *item_index = spreadsheet->item(row,col);
             double value_item = item_index->text().toDouble();
-            sd_value = sd_value+(mean_value-value_item)*(mean_value-value_item);
+            double tmp = value_item - mean_value;
+            double tmp2 = tmp*tmp;
+            sd_value += tmp2;
+            skewness_value += tmp*tmp2;
+            kurtosis_value += tmp2*tmp2;
         }
-        sd_value = sd_value/rowCount;
+
+
+        double n = rowCount;
+        double tmpV = sd_value/n;
+
+        if (rowCount > 1)
+            sd_value = sd_value/(n-1);
         sd_value=sqrt(sd_value);
 
+        // biased Kurtosis
+        kurtosis_value = kurtosis_value/(n*tmpV*tmpV);
+        // unbiased kurtosis value as calculated by Matlab
+        if (n > 3)
+            kurtosis_value = (n-1)/((n-2)*(n-3))*((n+1)*kurtosis_value - 3*(n-1)) + 3;
 
-        double kurtosis_value=0;
-        for(int row=0;row<rowCount;++row) {
-            QTableWidgetItem *item_index = spreadsheet->item(row,col);
-            double value_item = item_index->text().toDouble();
-            kurtosis_value = (mean_value-value_item)*(mean_value-value_item)*(mean_value-value_item)*(mean_value-value_item);
-            kurtosis_value = (kurtosis_value/(sd_value*sd_value*sd_value*sd_value));
-        }
+        tmpV = sqrt(tmpV);
+        // biased skewness
+        skewness_value = skewness_value/(n*tmpV*tmpV*tmpV);
+        // unbiased skewness like Matlab
+        if (n > 3)
+            skewness_value *= sqrt(n*(n-1))/(n-2);
 
-        //kurtosis_value = kurtosis_value/rowCount;
-        //kurtosis_value = (kurtosis_value/(sd_value*sd_value*sd_value*sd_value))-3;
         QString variableName = theHeadings.at(col);
-        QWidget *theWidget = this->createResultEDPWidget(variableName, mean_value, sd_value, kurtosis_value);
+        QWidget *theWidget = this->createResultEDPWidget(variableName, mean_value, sd_value, skewness_value, kurtosis_value);
         summaryLayout->addWidget(theWidget);
     }
 
@@ -436,37 +448,34 @@ DakotaResultsSampling::onSaveSpreadsheetClicked()
                 QTableWidgetItem *item_value = spreadsheet->item(i,j);
                 double value = item_value->text().toDouble();
                 stream << value << ",\t";
-                //     qDebug()<<value;
             }
             stream<<endl;
         }
     }
-
-    //    QFileDialog::getOpenFileName( this, tr("Open Document"), QDir::currentPath(), tr("Document files (*.doc *.rtf);;All files (*.*)"), 0, QFileDialog::DontUseNativeDialog );
-
-    //  qDebug()<<QDir::currentPath();
-
 }
 
 void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
 {
-    Q_UNUSED(row);
     mLeft = spreadsheet->wasLeftKeyPressed();
 
-    // create a new series
     chart->removeAllSeries();
 
-    //Remove all axes
-    for(auto axis: chart->axes())
-        chart->removeAxis(axis);
-
+    QAbstractAxis *oldAxisX=chart->axisX();
+    if (oldAxisX != 0)
+        chart->removeAxis(oldAxisX);
+    QAbstractAxis *oldAxisY=chart->axisY();
+    if (oldAxisY != 0)
+        chart->removeAxis(oldAxisY);
 
     // QScatterSeries *series;//= new QScatterSeries;
 
-    int oldCol = 0;
+    int oldCol;
     if (mLeft == true) {
         oldCol= col2;   //
+        //oldCol=0;   // padhye trying. I don't think it makes sense to use coldCol as col2, i.e., something that was
+        // previously selected?
         col2 = col; // col is the one that comes in te function, based on the click made after clicking
+
     } else {
         oldCol= col1;
         col1 = col;
@@ -501,8 +510,8 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
         // finding the range for X and Y axis
         // now the axes will look a bit clean.
 
-        double minX = 0., maxX = 0.;
-        double minY = 0., maxY = 0.;
+        double minX, maxX;
+        double minY, maxY;
 
         for (int i=0; i<rowCount; i++) {
 
@@ -531,27 +540,37 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
         double xRange=maxX-minX;
         double yRange=maxY-minY;
 
-        if(col1!=0) {
+        // if the column is not the run number, i.e., 0 column, then adjust the x-axis differently
+
+        if(col1!=0)
+        {
             axisX->setRange(minX - 0.01*xRange, maxX + 0.1*xRange);
         }
         else{
+
             axisX->setRange(int (minX - 1), int (maxX +1));
+            // axisX->setTickCount(1);
+
         }
         // adjust y with some fine precision
         axisY->setRange(minY - 0.1*yRange, maxY + 0.1*yRange);
-
-        chart->addAxis(axisX, Qt::AlignBottom);
-        series->attachAxis(axisX);
-        chart->addAxis(axisY, Qt::AlignLeft);
-        series->attachAxis(axisY);
+        chart->setAxisX(axisX, series);
+        chart->setAxisY(axisY, series);
 
     } else {
 
         QLineSeries *series= new QLineSeries;
 
-        static double NUM_DIVISIONS_FOR_DIVISION = 10.0;
+        double NUM_DIVISIONS_FOR_DIVISION = ceil(sqrt(rowCount));
+        if (NUM_DIVISIONS_FOR_DIVISION < 10)
+            NUM_DIVISIONS_FOR_DIVISION = 10;
+        else if (NUM_DIVISIONS_FOR_DIVISION > 20)
+            NUM_DIVISIONS_FOR_DIVISION = 20;
+
+        int NUM_DIVISIONS = NUM_DIVISIONS_FOR_DIVISION;
+
         double *dataValues = new double[rowCount];
-        double histogram[NUM_DIVISIONS];
+        double histogram[20];
         for (int i=0; i<NUM_DIVISIONS; i++)
             histogram[i] = 0;
 
@@ -591,6 +610,7 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
 
             double maxPercent = 0;
             for (int i=0; i<NUM_DIVISIONS; i++) {
+                histogram[i] = histogram[i]/rowCount;
                 if (histogram[i] > maxPercent)
                     maxPercent = histogram[i];
             }
@@ -600,7 +620,6 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
                 series->append(min+(i+1)*dRange, histogram[i]);
                 series->append(min+(i+1)*dRange, 0);
             }
-
 
             chart->addSeries(series);
             series->setName("Histogram");
@@ -613,33 +632,31 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
             axisY->setTitleText("Frequency %");
             axisX->setTitleText(theHeadings.at(col1));
             axisX->setTickCount(NUM_DIVISIONS+1);
-            chart->addAxis(axisX, Qt::AlignBottom);
-            series->attachAxis(axisX);
-            chart->addAxis(axisY, Qt::AlignLeft);
-            series->attachAxis(axisY);
+            chart->setAxisX(axisX, series);
+            chart->setAxisY(axisY, series);
 
-	    /* ************************************ BEST FIT  ***********************************8
-
+	    /* ************************************* REMVING BUGGY BEST FIT
             //calling external python script to find the best fit, generating the data and then plotting it.
             // this will be done in the application directory
 
             QString appDIR = qApp->applicationDirPath(); // this is where the .exe is and also the parseJson.py, and now the fit_distribution.py
+
             QString data_input_file = appDIR +  QDir::separator() + QString("data_input.txt");
             QString pySCRIPT_dist_fit =  appDIR +  QDir::separator() + QString("fit.py");
 
             QFile file(data_input_file);
             QTextStream stream(&file);
 
-            if (file.open(QIODevice::ReadWrite)) {
-	      for(int i=0;i<rowCount;++i) {
-		stream<<dataValues[i];
-		stream<< endl;
-		
-	      }
-            } else {
-	      qDebug()<<"\n error in opening file data file for histogram fit  ";
-	      exit(1);
-	    }
+            if (file.open(QIODevice::ReadWrite))
+            {
+                for(int i=0;i<rowCount;++i)
+                {
+
+                    stream<<dataValues[i];
+                    stream<< endl;
+                }
+            }else {qDebug()<<"\n error in opening file data file for histogram fit  ";exit(1);}
+
 
             delete [] dataValues;
 
@@ -674,14 +691,16 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
 
 
             QFile file_fitted_data("Best_fit.out");
-            if(!file_fitted_data.exists()) {
+            if(!file_fitted_data.exists())
+            {
                 qDebug()<<"\n The file does not exist and hence exiting";
                 exit(1);
 
             }
             QLineSeries *series_best_fit = new QLineSeries();
             series_best_fit->setName("Best Fit");
-            if(file_fitted_data.open(QIODevice::ReadOnly |QIODevice::Text )) {
+            if(file_fitted_data.open(QIODevice::ReadOnly |QIODevice::Text ))
+            {
 
                 QTextStream txtStream(&file_fitted_data);
                 while(!txtStream.atEnd())
@@ -732,9 +751,39 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
                     }
                     //line_from_file=line_from_file+info_fit_file.readLine()+"\n";
                 }
-            }
-	    ****************************** BEST FIT ****************************************** */
+                qDebug() << line_from_file;
 
+                // best_fit_label_text->setText(line_from_file);
+                // best_fit_label_text->setStyleSheet("QLabel { background-color : white; color : gray; }");
+
+                // QFont f2("Helvetica [Cronyx]", 10, QFont::Normal);
+                // best_fit_label_text->setFont(f2);
+
+                //msgBox.show();
+                //  msgBox.exec();
+
+                //     best_fit_instructions->setText("I am fitting the best fit info. here");
+                //qDebug()<<"\n\n\n I am about to exit from here   \n\n\n";
+                // exit(1);
+            }
+            //std::ifstream fitted_data_file("Best_fit.out");
+            //if(!fitted_data_file.exists)
+            // process.execute("python C:/Users/nikhil/NHERI/build-uqFEM-Desktop_Qt_5_11_0_MSVC2015_32bit-Release/debug\\fit.py");
+            // exit(1);
+            //qDebug()<<"\n   the value of pySCRIPT_dist_fit   is         "<<pySCRIPT_dist_fit;
+            //#ifdef Q_OS_WIN
+            //   QProcess process;
+            //String command = "notepad";
+            //process.execute("cmd", QStringList() << "/C" << command);
+            //process.start("cmd", QStringList(), QIODevice::ReadWrite);
+            //std::cerr << command << "\n";
+
+            //     process.waitForStarted();
+
+            //     qDebug()<<"process has been completed       ";
+            //         exit(1);
+
+	    ************************************ */
         } else {
             // cumulative distribution
             mergesort(dataValues, rowCount);
@@ -752,10 +801,8 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
             axisY->setTitleText("Cumulative Probability");
             axisX->setTitleText(theHeadings.at(col1));
             axisX->setTickCount(NUM_DIVISIONS+1);
-            chart->addAxis(axisX, Qt::AlignBottom);
-            series->attachAxis(axisX);
-            chart->addAxis(axisY, Qt::AlignLeft);
-            series->attachAxis(axisY);
+            chart->setAxisX(axisX, series);
+            chart->setAxisY(axisY, series);
             series->setName("Cumulative Frequency Distribution");
         }
     }
@@ -786,6 +833,7 @@ DakotaResultsSampling::outputToJSON(QJsonObject &jsonObject)
         edpData["mean"]=theMeans.at(i);
         edpData["stdDev"]=theStdDevs.at(i);
         edpData["kurtosis"]=theKurtosis.at(i);
+        edpData["skewness"]=theSkewness.at(i);
         resultsData.append(edpData);
     }
 
@@ -794,6 +842,8 @@ DakotaResultsSampling::outputToJSON(QJsonObject &jsonObject)
     //
     // add spreadsheet data
     //
+
+
 
     QJsonObject spreadsheetData;
 
@@ -841,9 +891,20 @@ DakotaResultsSampling::inputFromJSON(QJsonObject &jsonObject)
     // check any data exists
     //
 
-    QJsonValue spreadsheetValue = jsonObject["spreadsheet"];
-    if (spreadsheetValue.isNull())
+    QJsonObject &theObject = jsonObject;
+
+    QJsonValue uqValue;
+    if (jsonObject.contains("uqResults")) {
+        uqValue = jsonObject["uqResults"];
+        jsonObject = uqValue.toObject();
+    } else
+        theObject = jsonObject;
+    
+
+    QJsonValue spreadsheetValue = theObject["spreadsheet"];
+    if (spreadsheetValue.isNull()) { // ok .. if saved files but did not run a simulation
         return true;
+    }
 
     //
     // create a summary widget in which place basic output (name, mean, stdDev)
@@ -853,7 +914,7 @@ DakotaResultsSampling::inputFromJSON(QJsonObject &jsonObject)
     QVBoxLayout *summaryLayout = new QVBoxLayout();
     summary->setLayout(summaryLayout);
 
-    QJsonArray edpArray = jsonObject["summary"].toArray();
+    QJsonArray edpArray = theObject["summary"].toArray();
     foreach (const QJsonValue &edpValue, edpArray) {
         QString name;
         double mean, stdDev;
@@ -870,7 +931,10 @@ DakotaResultsSampling::inputFromJSON(QJsonObject &jsonObject)
         QJsonValue theKurtosis = edpObject["kurtosis"];
         double kurtosis = theKurtosis.toDouble();
 
-        QWidget *theWidget = this->createResultEDPWidget(name, mean, stdDev, kurtosis);
+        QJsonValue theSkewness = edpObject["skewness"];
+        double skewness = theSkewness.toDouble();
+
+        QWidget *theWidget = this->createResultEDPWidget(name, mean, stdDev, skewness, kurtosis);
         summaryLayout->addWidget(theWidget);
     }
     summaryLayout->addStretch();
@@ -881,7 +945,8 @@ DakotaResultsSampling::inputFromJSON(QJsonObject &jsonObject)
     //
 
     spreadsheet = new MyTableWidget();
-    QJsonObject spreadsheetData = jsonObject["spreadsheet"].toObject();
+    QJsonObject spreadsheetData = spreadsheetValue.toObject();
+
     int numRow = spreadsheetData["numRow"].toInt();
     int numCol = spreadsheetData["numCol"].toInt();
     spreadsheet->setColumnCount(numCol);
@@ -912,6 +977,7 @@ DakotaResultsSampling::inputFromJSON(QJsonObject &jsonObject)
 
     chart = new QChart();
     chart->setAnimationOptions(QChart::AllAnimations);
+    QScatterSeries *series = new QScatterSeries;
     col1 = 0;           // col1 is initialied as the first column in spread sheet
     col2 = numCol-1;    // col2 is initialized as the second column in spread sheet
     mLeft = true;       // left click
@@ -941,8 +1007,6 @@ DakotaResultsSampling::inputFromJSON(QJsonObject &jsonObject)
 
     tabWidget->adjustSize();
 
-    //qDebug()<<"\n debugging the values: result is  \n"<<result<<"\n";
-
     return result;
 }
 
@@ -950,7 +1014,7 @@ DakotaResultsSampling::inputFromJSON(QJsonObject &jsonObject)
 extern QWidget *addLabeledLineEdit(QString theLabelName, QLineEdit **theLineEdit);
 
 QWidget *
-DakotaResultsSampling::createResultEDPWidget(QString &name, double mean, double stdDev, double kurtosis) {
+DakotaResultsSampling::createResultEDPWidget(QString &name, double mean, double stdDev, double skewness, double kurtosis) {
     QWidget *edp = new QWidget;
     QHBoxLayout *edpLayout = new QHBoxLayout();
 
@@ -976,6 +1040,13 @@ DakotaResultsSampling::createResultEDPWidget(QString &name, double mean, double 
     stdDevLineEdit->setDisabled(true);
     theStdDevs.append(stdDev);
     edpLayout->addWidget(stdDevWidget);
+
+    QLineEdit *skewnessLineEdit;
+    QWidget *skewnessWidget = addLabeledLineEdit(QString("Skewness"), &skewnessLineEdit);
+    skewnessLineEdit->setText(QString::number(skewness));
+    skewnessLineEdit->setDisabled(true);
+    theSkewness.append(skewness);
+    edpLayout->addWidget(skewnessWidget);
 
     QLineEdit *kurtosisLineEdit;
     QWidget *kurtosisWidget = addLabeledLineEdit(QString("Kurtosis"), &kurtosisLineEdit);

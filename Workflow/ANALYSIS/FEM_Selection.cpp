@@ -81,8 +81,8 @@ FEM_Selection::FEM_Selection(RandomVariablesContainer *theRVs, QWidget *parent)
     theSelectionLayout->addWidget(label);
     QSpacerItem *spacer = new QSpacerItem(50,10);
     theSelectionLayout->addItem(spacer);
-    theSelectionLayout->addWidget(theSelectionBox);
-    theSelectionLayout->addStretch();
+    theSelectionLayout->addWidget(theSelectionBox,1);
+    theSelectionLayout->addStretch(1);
     layout->addLayout(theSelectionLayout);
 
     //
