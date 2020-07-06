@@ -39,15 +39,15 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "InputWidgetUQ.h"
 #include <QTabWidget>
 #include <RandomVariablesContainer.h>
-#include <InputWidgetSampling.h>
+#include <UQ_EngineSelection.h>
 
 
-InputWidgetUQ::InputWidgetUQ(InputWidgetSampling *UQ, RandomVariablesContainer *RV, QWidget *parent)
+InputWidgetUQ::InputWidgetUQ(UQ_EngineSelection *UQ, RandomVariablesContainer *RV, QWidget *parent)
     :QWidget(parent),theRVs(RV),theUQ(UQ)
 {
     layout = new QVBoxLayout();
 
-    QGroupBox* methodGroupBox = new QGroupBox("Sampling Method", this);
+    QGroupBox* methodGroupBox = new QGroupBox("UQ Engine", this);
     QVBoxLayout *methodLayout = new QVBoxLayout();
     methodLayout->addWidget(UQ);
     methodGroupBox->setLayout(methodLayout);

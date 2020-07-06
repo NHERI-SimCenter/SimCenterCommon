@@ -10,9 +10,20 @@
 
 INCLUDEPATH+=$$PWD
 
-SOURCES += \
-$$PWD/GeneralInformationWidget.cpp
+SOURCES += $$PWD/GeneralInformationWidget.cpp
 
-HEADERS += \
-$$PWD/GeneralInformationWidget.h
+HEADERS += $$PWD/GeneralInformationWidget.h
+
+macx{
+    exists("/usr/local/jansson/lib/libjansson.a"){
+        INCLUDEPATH += "/usr/local/jansson/include"
+        LIBS+="/usr/local/jansson/lib/libjansson.a"
+    }
+    exists("/usr/local/lib/libjansson.a"){
+        INCLUDEPATH += "/usr/local/include"
+        LIBS+="/usr/local/lib/libjansson.a"
+    }
+}
+
+
 

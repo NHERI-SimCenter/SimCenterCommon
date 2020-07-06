@@ -70,6 +70,7 @@ UserDef::~UserDef()
 bool
 UserDef::outputToJSON(QJsonObject &rvObject){
 
+    Q_UNUSED(rvObject);
     // check for error condition, an entry had no value
    // if (alphaparam->text().isEmpty() || betaparam->text().isEmpty()) {
      //   emit sendErrorMessage("ERROR: UserDef - data has not been set");
@@ -83,6 +84,7 @@ UserDef::outputToJSON(QJsonObject &rvObject){
 bool
 UserDef::inputFromJSON(QJsonObject &rvObject){
 
+    Q_UNUSED(rvObject);
     //
     // for all entries, make sure i exists and if it does get it, otherwise return error
     //

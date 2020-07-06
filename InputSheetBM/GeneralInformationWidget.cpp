@@ -177,6 +177,14 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent)
     connect(widthEdit,SIGNAL(editingFinished()),this,SLOT(buildingDimensionsEditingFinished()));
     connect(depthEdit,SIGNAL(editingFinished()),this,SLOT(buildingDimensionsEditingFinished()));
     connect(planAreaEdit,SIGNAL(editingFinished()), this, SLOT(buildingDimensionsEditingFinished()));
+
+    connect(longitudeEdit, &QLineEdit::editingFinished, this, [this](){
+        GeneralInformationWidget::buildingLocationChanged(latitudeEdit->text().toDouble(), longitudeEdit->text().toDouble());
+    });
+
+    connect(latitudeEdit, &QLineEdit::editingFinished, this, [this](){
+        GeneralInformationWidget::buildingLocationChanged(latitudeEdit->text().toDouble(), longitudeEdit->text().toDouble());
+    });
 }
 
 GeneralInformationWidget::~GeneralInformationWidget()
@@ -252,13 +260,12 @@ GeneralInformationWidget::outputToJSON(QJsonObject &jsonObj){
 
     jsonObj["units"] = units;
 
-    return(true);
+    return true;
 }
 
 bool
 GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
     qDebug() << "General Information";
-    double rev;
 
     QJsonValue nameValue = jsonObject["name"];
     nameEdit->setText(nameValue.toString());
@@ -329,7 +336,7 @@ GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
     int tempUnitIndex = unitsTemperatureCombo->findData(tempUnit);
     unitsTemperatureCombo->setCurrentIndex(tempUnitIndex);
 
-    return(true);
+    return true;
 }
 
 void

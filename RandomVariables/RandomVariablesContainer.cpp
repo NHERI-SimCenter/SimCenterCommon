@@ -170,7 +170,6 @@ RandomVariablesContainer::makeRV(void)
     QSpacerItem *spacer1 = new QSpacerItem(50,10);
     QSpacerItem *spacer2 = new QSpacerItem(20,10);
     QSpacerItem *spacer3 = new QSpacerItem(50,10);
-    QSpacerItem *spacer4 = new QSpacerItem(20,10);
 
 
     QPushButton *addRV = new QPushButton();
@@ -248,6 +247,7 @@ RandomVariablesContainer::makeRV(void)
 void
 RandomVariablesContainer::variableNameChanged(const QString &newValue) {
 
+    Q_UNUSED(newValue);
 
     int numRandomVariables = theRandomVariables.size();
 

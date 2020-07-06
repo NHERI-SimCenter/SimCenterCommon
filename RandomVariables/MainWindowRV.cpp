@@ -1,8 +1,8 @@
 
 // Written: fmckenna
 
-#include "MainWindow.h"
-#include "ui_mainwindow.h"
+#include "MainWindowRV.h"
+#include "ui_mainwindowRV.h"
 
 #include "RandomVariable.h"
 #include "RandomVariableInputWidget.h"
