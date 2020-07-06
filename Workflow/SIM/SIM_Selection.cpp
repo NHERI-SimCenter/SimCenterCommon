@@ -49,6 +49,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <sectiontitle.h>
 
 #include <SimCenterWidget.h>
+
 #include <OpenSeesBuildingModel.h>
 #include <MDOF_BuildingModel.h>
 
@@ -56,8 +57,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 SIM_Selection::SIM_Selection(RandomVariablesContainer *theRandomVariableIW, 
 			     bool includeC,
 			     QWidget *parent)
-: SimCenterAppWidget(parent), bimInput(0), theRandomVariablesContainer(theRandomVariableIW),
-   includeCentroid(includeC)
+: SimCenterAppWidget(parent), bimInput(0),
+  includeCentroid(includeC), theRandomVariablesContainer(theRandomVariableIW)
 {
     layout = new QVBoxLayout();
 
@@ -67,18 +68,18 @@ SIM_Selection::SIM_Selection(RandomVariablesContainer *theRandomVariableIW,
     QHBoxLayout *titleLayout = new QHBoxLayout();
 
     SectionTitle *textBIM=new SectionTitle();
-    textBIM->setText(tr("Building Model Input"));
+    textBIM->setText(tr("Building Model Generator"));
     textBIM->setMinimumWidth(250);
     QSpacerItem *spacer = new QSpacerItem(50,10);
 
     bimSelection = new QComboBox();
-    bimSelection->setMaximumWidth(200);
-    bimSelection->setMinimumWidth(200);
+   // bimSelection->setMaximumWidth(200);
+   // bimSelection->setMinimumWidth(200);
 
     titleLayout->addWidget(textBIM);
     titleLayout->addItem(spacer);
-    titleLayout->addWidget(bimSelection);
-    titleLayout->addStretch();
+    titleLayout->addWidget(bimSelection, 1);
+    titleLayout->addStretch(1);
     titleLayout->setSpacing(0);
     titleLayout->setMargin(0);
 
@@ -186,9 +187,13 @@ SIM_Selection::inputAppDataFromJSON(QJsonObject &jsonObject)
         return false;
 
     int index = 0;
+    /*
     if (type == QString("SimCenterSIM")) {
        index = 2;
-    } else if (type == QString("OpenSeesInput")) {
+    } else
+
+*/
+    if (type == QString("OpenSeesInput")) {
        index = 1;
     } else if (type == QString("MDOF_BuildingModel")) {
        index = 0;
@@ -222,23 +227,17 @@ void SIM_Selection::bimSelectionChanged(const QString &arg1)
 {
     selectionChangeOK = true;
 
-    SimCenterWidget *oldMethod = bimInput;
-
     if (bimInput != 0)
         layout->removeWidget(bimInput);
 
     //
     // note type output in json and name in pull down are not the same and hence the ||
     //
-    /*
-    if (arg1 == QString("Spreadsheet") || arg1 == QString("SimCenterSIM")) {
-        delete bimInput;
-        bimInput = new InputWidgetSheetSIM(theRandomVariablesContainer);
 
-    } else 
-    */ 
+
 
     if (arg1 == QString("OpenSees") || (arg1 == QString("OpenSeesInput"))) {
+
         delete bimInput;
         bimInput = new OpenSeesBuildingModel(theRandomVariablesContainer, includeCentroid);
     } else if (arg1 == QString("MDOF") || (arg1 == QString("MDOF_BuildingModel"))) {

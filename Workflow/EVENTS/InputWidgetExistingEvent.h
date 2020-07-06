@@ -56,17 +56,17 @@ public:
     explicit InputWidgetExistingEvent(RandomVariablesContainer *theRandomVariableIW, QWidget *parent = 0);
     ~InputWidgetExistingEvent();
 
-    bool outputToJSON(QJsonObject &rvObject);
-    bool inputFromJSON(QJsonObject &rvObject);
-    bool outputAppDataToJSON(QJsonObject &rvObject);
-    bool inputAppDataFromJSON(QJsonObject &rvObject);
-    bool copyFiles(QString &dirName);
+    bool outputToJSON(QJsonObject &rvObject) override;
+    bool inputFromJSON(QJsonObject &rvObject) override;
+    bool outputAppDataToJSON(QJsonObject &rvObject) override;
+    bool inputAppDataFromJSON(QJsonObject &rvObject) override;
+    bool copyFiles(QString &dirName) override;
 
     QString getMainInput();
 
      // copy main file to new filename ONLY if varNamesAndValues not empy
     void specialCopyMainInput(QString fileName, QStringList varNamesAndValues);
-    int setFilename1(QString filnema1);
+    void setFilename1(QString filename1);
 
 signals:
 

@@ -40,6 +40,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include <QDialog>
+#include <QCheckBox>
 
 class QLineEdit;
 class QVBoxLayout;
@@ -65,6 +66,7 @@ public:
 public slots:
     void savePreferences(bool);
     void resetPreferences(bool);
+    void quitPreferences(bool);
     void loadPreferences(void);
 
 private:
@@ -75,6 +77,7 @@ private:
     QLineEdit *remoteAppDir;
     QLineEdit *remoteAgaveApp;
     QVBoxLayout *layout;
+    QCheckBox* customAppDirCheckBox;
 };
 
 

@@ -52,11 +52,13 @@ SimCenterWidget::~SimCenterWidget()
 bool
 SimCenterWidget::outputToJSON(QJsonObject &jsonObject)
 {
+    Q_UNUSED(jsonObject);
     return true;
 }
 
 bool
 SimCenterWidget::inputFromJSON(QJsonObject &jsonObject)
 {
+    Q_UNUSED(jsonObject);
     return true;
 }

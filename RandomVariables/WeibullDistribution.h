@@ -43,6 +43,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "RandomVariableDistribution.h"
 class QLineEdit;
 class QLabel;
+class SimCenterGraphPlot;
 
 class WeibullDistribution : public RandomVariableDistribution
 {
@@ -59,10 +60,13 @@ public:
 signals:
 
 public slots:
+    void updateDistributionPlot();
 
 private:
     QLineEdit *shapeparam;
     QLineEdit *scaleparam;
+
+    SimCenterGraphPlot *thePlot;
 };
 
 

@@ -51,11 +51,11 @@ public:
     explicit UserDefinedApplication(RandomVariablesContainer *theRandomVariableIW, QWidget *parent = 0);
     ~UserDefinedApplication();
 
-    bool outputToJSON(QJsonObject &rvObject);
-    bool inputFromJSON(QJsonObject &rvObject);
-    bool outputAppDataToJSON(QJsonObject &rvObject);
-    bool inputAppDataFromJSON(QJsonObject &rvObject);
-    bool copyFiles(QString &dirName);
+    bool outputToJSON(QJsonObject &jsonObject) override;
+    bool inputFromJSON(QJsonObject &jsonObject) override;
+    bool outputAppDataToJSON(QJsonObject &jsonObject) override;
+    bool inputAppDataFromJSON(QJsonObject &jsonObject) override;
+    bool copyFiles(QString &dirName) override;
 
 signals:
 

@@ -60,8 +60,7 @@ public:
     explicit RemoteApplication(QString name, RemoteService *theRemoteService, QWidget *parent = nullptr);
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
-    bool setupDoneRunApplication(QString &tmpDirectory, QString &inputFile,
-                                  QString runType = QString("run"));
+    bool setupDoneRunApplication(QString &tmpDirectory, QString &inputFile);
     void setNumTasks(int numTasks);
     void setExtraInputs(QMap<QString, QString> extraInputs);
     void setExtraParameters(QMap<QString, QString> extraParameters);

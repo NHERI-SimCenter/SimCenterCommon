@@ -53,9 +53,9 @@ void SetTrackingId(QString atrackingId)
 
 void Report(QString eventAction, QString category, SessionControl sessionControl)
 {
-  // no tracking if no tracking ID set
-  if (trackingId.isEmpty())
-    return;
+    // no tracking if no tracking ID set
+    if (trackingId.isEmpty())
+        return;
 
     QNetworkRequest request;
     QUrl host("http://www.google-analytics.com/collect");

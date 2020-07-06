@@ -208,7 +208,11 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     appDirButton->setToolTip(tr("Select Directory containing the Backend directory named applications"));
     appDirLayout->addWidget(appDirButton);
 
-    locationDirectoriesLayout->addRow(tr("Local Applications Directory:"), appDirLayout);
+    customAppDirCheckBox = new QCheckBox("Custom Local Applications:");
+    customAppDirCheckBox->setChecked(false);
+    appDir->setEnabled(false);
+    appDirButton->setEnabled(false);
+    locationDirectoriesLayout->addRow(customAppDirCheckBox, appDirLayout);
     locationDirectoriesLayout->setAlignment(Qt::AlignLeft);
     locationDirectoriesLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     locationDirectoriesLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
@@ -234,6 +238,13 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     }
     );
 
+    connect(customAppDirCheckBox, &QCheckBox::toggled, this, [this, appDirButton](bool checked)
+    {
+        this->appDir->setEnabled(checked);
+        appDirButton->setEnabled(checked);
+        appDirButton->setFlat(!checked);
+        this->appDir->setText(this->getAppDir());
+    });
 
     //
     // entry for remoteAppDir location .. basically as before
@@ -276,6 +287,12 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     saveButton->setToolTip(tr("Save Preferences"));
     connect(saveButton, SIGNAL(clicked(bool)), this, SLOT(savePreferences(bool)));
     buttonsLayout->addWidget(saveButton);
+
+    QPushButton *quitButton = new QPushButton();
+    quitButton->setText("Cancel");
+    quitButton->setToolTip(tr("Quit without Saving"));
+    connect(quitButton, SIGNAL(clicked(bool)), this, SLOT(quitPreferences(bool)));
+    buttonsLayout->addWidget(quitButton);
 
     //
     // add boxes to layout, set widgets layout to layout and load existing to fill in QLineEdits
@@ -335,10 +352,17 @@ SimCenterPreferences::savePreferences(bool) {
 
     QSettings settingsApp("SimCenter", QCoreApplication::applicationName());
     settingsApp.setValue("appDir", appDir->text());
-    settingsApp.setValue("remoteAppDir-Oct2019", remoteAppDir->text());
-    settingsApp.setValue("remoteAgaveApp-Oct2019", remoteAgaveApp->text());
+    settingsApp.setValue("customAppDir", customAppDirCheckBox->isChecked());
+    settingsApp.setValue("remoteAppDir-May2020", remoteAppDir->text());
+    settingsApp.setValue("remoteAgaveApp-May2020", remoteAgaveApp->text());
     settingsApp.setValue("localWorkDir", localWorkDir->text());
     settingsApp.setValue("remoteWorkDir", remoteWorkDir->text());
+    
+    this->close();
+}
+
+void
+SimCenterPreferences::quitPreferences(bool) {
     
     this->close();
 }
@@ -350,7 +374,10 @@ SimCenterPreferences::resetPreferences(bool) {
 
 
 #ifdef Q_OS_WIN
-    QString pythonPath = QStandardPaths::findExecutable("python.exe");
+    QStringList paths{QCoreApplication::applicationDirPath().append("/applications/python")};
+    QString pythonPath = QStandardPaths::findExecutable("python.exe", paths);
+    if(pythonPath.isEmpty())
+        pythonPath = QStandardPaths::findExecutable("python.exe");
 #else
     QString pythonPath = QStandardPaths::findExecutable("python3");
     if (pythonPath.isEmpty()) {
@@ -375,22 +402,24 @@ SimCenterPreferences::resetPreferences(bool) {
     settingsApplication.setValue("localWorkDir", localWorkDirLocation);
     localWorkDir->setText(localWorkDirLocation);
 
-    QString appDirLocation = QCoreApplication::applicationDirPath();
+    customAppDirCheckBox->setChecked(false);
+    QString appDirLocation = getAppDir();
     settingsApplication.setValue("appDir", appDirLocation);
     appDir->setText(appDirLocation);
     
-    QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/Oct-2019");
+    QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/May-2020");
     settingsApplication.setValue("remoteAppDir", remoteAppDirLocation);
     remoteAppDir->setText(remoteAppDirLocation);
 
     QString remoteAppName;
     if (QCoreApplication::applicationName() == QString("WE-UQ")) 
-      remoteAppName = QString("simcenter-openfoam-dakota-1.1.0u1");
+      remoteAppName = QString("simcenter-openfoam-dakota-1.1.0u2");
     else
       remoteAppName = QString("simcenter-dakota-1.0.0u1");
 
-    settingsApplication.setValue("remoteAgaveApp-Oct2019", remoteAppName);
+    settingsApplication.setValue("remoteAgaveApp-May2020", remoteAppName);
     remoteAgaveApp->setText(remoteAppName);
+
 }
 
 
@@ -436,29 +465,36 @@ SimCenterPreferences::loadPreferences() {
     }
 
     // appDir
-    QVariant  appDirVariant = settingsApplication.value("appDir");
-    if (!appDirVariant.isValid()) {
-      QString appDirLocation = QCoreApplication::applicationDirPath();
-      settingsApplication.setValue("appDir", appDirLocation);
-      appDir->setText(appDirLocation);
-    } else {
-        appDir->setText(appDirVariant.toString());
+    QString currentAppDir = QCoreApplication::applicationDirPath();
+    auto customAppDir = settingsApplication.value("customAppDir", false);
+
+    if(customAppDir.isValid() && customAppDir.toBool() == true)
+    {
+        customAppDirCheckBox->setChecked(true);
+        QVariant  appDirVariant = settingsApplication.value("appDir");
+        if (appDirVariant.isValid())
+            currentAppDir = appDirVariant.toString();
     }
+    else
+        customAppDirCheckBox->setChecked(false);
+
+    appDir->setText(currentAppDir);
+
 
     // remoteAppDir NOT quite as before as need to allow future releases to bring new ones
-    QVariant  remoteAppDirVariant = settingsApplication.value("remoteAppDir-Oct2019");
+    QVariant  remoteAppDirVariant = settingsApplication.value("remoteAppDir-May2020");
     if (!remoteAppDirVariant.isValid()) {
-      QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/Oct-2019");
-      settingsApplication.setValue("remoteAppDir-Oct2019", remoteAppDirLocation);
+      QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/May-2020");
+      settingsApplication.setValue("remoteAppDir-May2020", remoteAppDirLocation);
       remoteAppDir->setText(remoteAppDirLocation);
     } else {
         remoteAppDir->setText(remoteAppDirVariant.toString());
     }
 
-    QVariant  remoteAppNameVariant = settingsApplication.value("remoteAgaveApp-Oct2019");
+    QVariant  remoteAppNameVariant = settingsApplication.value("remoteAgaveApp-May2020");
     if (!remoteAppNameVariant.isValid()) {
       QString remoteAppName = QString("simcenter-dakota-1.0.0u1");
-      settingsApplication.setValue("remoteAgaveApp-Oct2019", remoteAppName);
+      settingsApplication.setValue("remoteAgaveApp-May2020", remoteAppName);
       remoteAgaveApp->setText(remoteAppName);
     } else {
         remoteAgaveApp->setText(remoteAppNameVariant.toString());
@@ -473,7 +509,10 @@ SimCenterPreferences::getPython(void) {
     // if python not set .. get default
     if (!pythonPathVariant.isValid()) {
 #ifdef Q_OS_WIN
-        QString pythonPath = QStandardPaths::findExecutable("python.exe");
+        QStringList paths{QCoreApplication::applicationDirPath().append("/applications/python")};
+        QString pythonPath = QStandardPaths::findExecutable("python.exe", paths);
+        if(pythonPath.isEmpty())
+            pythonPath = QStandardPaths::findExecutable("python.exe");
 #else
         QString pythonPath = QStandardPaths::findExecutable("python");
 #endif
@@ -490,30 +529,33 @@ SimCenterPreferences::getPython(void) {
 QString
 SimCenterPreferences::getAppDir(void) {
 
-    QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
-    QVariant  appDirVariant = settingsApplication.value("appDir");
+    //Default appDir is the location of the application
+    auto currentAppDir = QCoreApplication::applicationDirPath();
 
-    // if not set, use default & set default as application directory
-    if (!appDirVariant.isValid()) {
-        QString appDirLocation = QCoreApplication::applicationDirPath();
-        settingsApplication.setValue("appDir", appDirLocation);
-	return appDirLocation;
-    } 
+    //If custom is checked we will try to get the custom app dir defined
+    if (customAppDirCheckBox->checkState() == Qt::CheckState::Checked)
+    {
+        QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
+        QVariant  customAppDirSetting = settingsApplication.value("appDir");
 
-    return appDirVariant.toString();
+        // if valid use it, otherwise it remains the default
+        if (customAppDirSetting.isValid())
+            currentAppDir = customAppDirSetting.toString();
+    }
+
+    return currentAppDir;
 }
 
 QString
-
 SimCenterPreferences::getRemoteAppDir(void) {
 
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
-    QVariant  remoteAppDirVariant = settingsApplication.value("remoteAppDir-Oct2019");
+    QVariant  remoteAppDirVariant = settingsApplication.value("remoteAppDir-May2020");
 
     // if not set, use default & set default as application directory
     if (!remoteAppDirVariant.isValid()) {
       QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/Oct-2019");
-      settingsApplication.setValue("remoteAppDir-Oct2019", remoteAppDirLocation);
+      settingsApplication.setValue("remoteAppDir-May2020", remoteAppDirLocation);
       return remoteAppDirLocation;
     } 
     
@@ -524,7 +566,7 @@ QString
 SimCenterPreferences::getRemoteAgaveApp(void) {
 
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
-    QVariant  remoteAppNameVariant = settingsApplication.value("remoteAgaveApp-Oct2019");
+    QVariant  remoteAppNameVariant = settingsApplication.value("remoteAgaveApp-May2020");
 
     // if not set, use default & set default as application directory
     if (!remoteAppNameVariant.isValid()) {
@@ -534,7 +576,7 @@ SimCenterPreferences::getRemoteAgaveApp(void) {
       else
 	remoteAppName = QString("simcenter-dakota-1.0.0u1");
 
-      settingsApplication.setValue("remoteAgaveApp-Oct2019", remoteAppName);
+      settingsApplication.setValue("remoteAgaveApp-May2020", remoteAppName);
       return remoteAppName;
     } 
     
