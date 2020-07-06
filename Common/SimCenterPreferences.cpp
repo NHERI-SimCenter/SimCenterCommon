@@ -290,7 +290,7 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
 
     QPushButton *quitButton = new QPushButton();
     quitButton->setText("Cancel");
-    quitButton->setToolTip(tr("Quit withoy Saving"));
+    quitButton->setToolTip(tr("Quit without Saving"));
     connect(quitButton, SIGNAL(clicked(bool)), this, SLOT(quitPreferences(bool)));
     buttonsLayout->addWidget(quitButton);
 
@@ -547,7 +547,6 @@ SimCenterPreferences::getAppDir(void) {
 }
 
 QString
-
 SimCenterPreferences::getRemoteAppDir(void) {
 
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());

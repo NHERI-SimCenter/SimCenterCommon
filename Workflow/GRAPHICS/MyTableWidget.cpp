@@ -39,11 +39,11 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "MyTableWidget.h"
 #include <QMouseEvent>
 #include <QDebug>
+#include <QHeaderView>
 
 MyTableWidget::MyTableWidget(QWidget *parent)
     :QTableWidget(parent),mLeft(true)
 {
-
 }
 
 MyTableWidget::~MyTableWidget()
