@@ -8,9 +8,9 @@
     <InstallerApplicationIcon>nheri-weuq-icon</InstallerApplicationIcon>
     <InstallerWindowIcon>nheri-weuq-icon</InstallerWindowIcon>
     <Logo>nheri_weuq_icon</Logo>
-    <Background>WEUQInstallerLogo</Background>
+    <Background>WEUQInstallerLogo_small</Background>
     <WizardStyle>Modern</WizardStyle>
-    <Watermark>WEUQInstallerLogo</Watermark>
+    <Watermark>WEUQInstallerLogo_small</Watermark>
     <StartMenuDir>SimCenter Apps</StartMenuDir>
     <TargetDir>@ApplicationsDir@/SimCenterTools/WEUQ</TargetDir>
 </Installer>
