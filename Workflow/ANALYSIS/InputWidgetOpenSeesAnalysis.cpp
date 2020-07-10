@@ -89,8 +89,14 @@ InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(RandomVariablesContaine
 
     QLabel *label1 = new QLabel("Algorithm: ");
     layout->addWidget(label1, row, 0);
-    theAlgorithm = new QLineEdit("Newton");
+    //theAlgorithm = new QLineEdit("Newton");
+    theAlgorithm = new QComboBox();
     theAlgorithm->setToolTip(tr("Nonlinear Solution Algorithm"));
+    theAlgorithm->addItem("Linear");
+    theAlgorithm->addItem("Newton");
+    theAlgorithm->addItem("Newmark");
+    theAlgorithm->setEditable(false);
+    theAlgorithm->setCurrentText("Newton");
     layout->addWidget(theAlgorithm, row, 1);
     row++;
 
@@ -260,7 +266,8 @@ void InputWidgetOpenSeesAnalysis::clear(void) {
     theAnalysis->setText("Transient -numSubLevels 2 -numSubSteps 10");
     theIntegration->setText("Newmark 0.5 0.25");
     theSolver->setText("Umfpack");
-    theAlgorithm->setText("Newmark");
+    //theAlgorithm->setText("Newmark");
+    theAlgorithm->setCurrentText("Newmark");
     theConvergenceTest->setText("NormUnbalance 1.0e-2 10");
 
     dampingRatio->setText("0.02");
@@ -282,7 +289,8 @@ InputWidgetOpenSeesAnalysis::outputToJSON(QJsonObject &jsonObject)
     jsonObject["Application"] = "OpenSees-Simulation";
     jsonObject["analysis"]=theAnalysis->text();
     jsonObject["integration"]=theIntegration->text();
-    jsonObject["algorithm"]=theAlgorithm->text();
+    //jsonObject["algorithm"]=theAlgorithm->text();
+    jsonObject["algorithm"]=theAlgorithm->currentText();
     jsonObject["solver"]=theSolver->text();
     jsonObject["convergenceTest"]=theConvergenceTest->text();
     jsonObject["dampingModel"]= theSelectionBox->currentText();
@@ -331,7 +339,8 @@ InputWidgetOpenSeesAnalysis::inputFromJSON(QJsonObject &jsonObject)
     if (jsonObject.contains("integration") && jsonObject.contains("algorithm")
 	&& jsonObject.contains("convergenceTest")) {
 
-        theAlgorithm->setText(jsonObject["algorithm"].toString());
+        // theAlgorithm->setText(jsonObject["algorithm"].toString());
+        theAlgorithm->setCurrentText(jsonObject["algorithm"].toString());
         theConvergenceTest->setText(jsonObject["convergenceTest"].toString());
         theIntegration->setText(jsonObject["integration"].toString());
 
