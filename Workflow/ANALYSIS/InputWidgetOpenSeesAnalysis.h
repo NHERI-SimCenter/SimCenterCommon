@@ -74,7 +74,8 @@ private:
     //QLineEdit   *theTolerance;
     QLineEdit   *theAnalysis;
     QLineEdit   *theConvergenceTest;
-    QLineEdit   *theAlgorithm;
+    //QLineEdit   *theAlgorithm;
+    QComboBox   *theAlgorithm;
     QLineEdit   *theIntegration;
     QLineEdit   *theSolver;
 
