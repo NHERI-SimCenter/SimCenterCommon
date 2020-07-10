@@ -35,6 +35,10 @@ private slots:
 
     void on_actionSave_PDF_triggered();
 
+    void on_actionShow_axis_controls_triggered();
+
+    void on_actionHide_axis_controls_triggered();
+
 private:
     Ui::MainWindow *ui;
     int currentLegend   = 0;
