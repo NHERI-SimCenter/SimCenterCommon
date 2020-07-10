@@ -9,47 +9,45 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    location    "constant";
-    object      turbulenceProperties;
+    class       volVectorField;
+    object      U;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-simulationType  LES;
+Uinlet          (10 0 0);
 
-LES
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
 {
-    LESModel        kEqn;
-
-    turbulence      on;
-
-    printCoeffs     on;
-
-    delta           vanDriest;
-
-    vanDriestCoeffs
+    inlet
     {
-        delta           cubeRootVol;
-        cubeRootVolCoeffs
-        {
-            deltaCoeff      1;
-        }
+        type            fixedValue;
+        value           uniform $Uinlet;
+    }
 
-        smoothCoeffs
-        {
-            delta           cubeRootVol;
-            cubeRootVolCoeffs
-            {
-                deltaCoeff      1;
-            }
+    outlet
+    {
+        type            pressureInletOutletVelocity;
+        value           uniform (0 0 0);
+    }
 
-            maxDeltaRatio   1.1;
-        }
+    building
+    {
+        type            noSlip;
+    }
 
-        Aplus           26;
-        Cdelta          0.158;
+    ground
+    {
+        type            noSlip;
+    }
+    
+    frontAndBack
+    {
+        type            symmetry;
     }
 }
-
 
 // ************************************************************************* //
