@@ -660,6 +660,12 @@ void SimFigure::on_picker_changed (const QPolygon &selection)
     //qWarning() << "picker changed " << selection;
 }
 
+
+void SimFigure::showAxisControls(bool show)
+{
+    this->ui->axisControls->setVisible(show);
+}
+
 /*! returns a pointer to the QwtPlotItem selected by the last mouse click (private)*/
 QwtPlotItem* SimFigure::itemAt( const QPoint& pos ) const
 {
