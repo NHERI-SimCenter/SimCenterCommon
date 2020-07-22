@@ -13,6 +13,7 @@ include($$PWD/ZipUtils/ZipUtils.pri)
 
 SOURCES += $$PWD/HeaderWidget.cpp \
     $$PWD/Utils/RelativePathResolver.cpp \
+    $$PWD/Utils/dialogabout.cpp \
     $$PWD/sectiontitle.cpp \
     $$PWD/FooterWidget.cpp \
     $$PWD/SimCenterWidget.cpp \
@@ -22,12 +23,16 @@ SOURCES += $$PWD/HeaderWidget.cpp \
 
 HEADERS += $$PWD/HeaderWidget.h \
     $$PWD/Utils/RelativePathResolver.h \
+    $$PWD/Utils/dialogabout.h \
     $$PWD/sectiontitle.h \
     $$PWD/FooterWidget.h \
     $$PWD/SimCenterWidget.h \
     $$PWD/SimCenterAppWidget.h \
     $$PWD/SimCenterPreferences.h \
     $$PWD/GoogleAnalytics.h
+
+FORMS += \
+    $$PWD/Utils/dialogabout.ui
 
 RESOURCES += \
     $$PWD/images1.qrc \
