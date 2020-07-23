@@ -9,12 +9,6 @@ DialogAbout::DialogAbout(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    QFile file(":/help/About/PGTabout.html");
-    if (file.open(QFile::ReadOnly))
-    {
-        ui->textBrowser->setHtml(file.readAll());
-    }
-
 }
 
 DialogAbout::~DialogAbout()
@@ -25,4 +19,18 @@ DialogAbout::~DialogAbout()
 void DialogAbout::on_btn_backToTop_clicked()
 {
     ui->textBrowser->setSource(QUrl("#top"));
+}
+
+void DialogAbout::setTextSource(const QString source)
+{
+    QFile file(source);
+    if (file.open(QFile::ReadOnly))
+    {
+        ui->textBrowser->setHtml(file.readAll());
+    }
+}
+
+void DialogAbout::setTitle(const QString theTitle)
+{
+    ui->label_about->setText(theTitle);
 }
