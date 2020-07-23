@@ -247,7 +247,11 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     //    featureRequestURL = QString("https://docs.google.com/forms/d/e/1FAIpQLScTLkSwDjPNzH8wx8KxkyhoIT7AI9KZ16Wg9TuW1GOhSYFOag/viewform");
     versionText = QString("");
     citeText = QString("");
-    aboutText = QString(tr("This is a SimCenter Workflow Applicatios"));
+    aboutText = QString(tr("This is a SimCenter Workflow Applicatios"));  // DEPRECATED
+
+    aboutTitle = "About the SimCenter WE-UQ Application"; // this is the title displayed in the on About dialog
+    aboutSource = ":/Resources/docs/textAboutWEUQ.html";  // this is an HTML file stored under resources
+
     copyrightText = QString("\
                             <p>\
                             The source code is licensed under a BSD 2-Clause License:<p>\
@@ -693,8 +697,8 @@ void MainWindowWorkflowApp::about()
 
 
     DialogAbout *dlg = new DialogAbout();
-    dlg->setTitle("About WE-UQ");
-    dlg->setTextSource(":/Resources/docs/textAboutWEUQ.html");
+    dlg->setTitle(aboutTitle);
+    dlg->setTextSource(aboutSource);
 
     //
     // adjust size of application window to the available display
