@@ -49,6 +49,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     QWidget *centralWidget = new QWidget();
     QVBoxLayout *layout = new QVBoxLayout();
     centralWidget->setLayout(layout);
+    centralWidget->setContentsMargins(0,0,0,0);
 
     //
     // resize to primary screen
