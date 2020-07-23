@@ -247,10 +247,10 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     //    featureRequestURL = QString("https://docs.google.com/forms/d/e/1FAIpQLScTLkSwDjPNzH8wx8KxkyhoIT7AI9KZ16Wg9TuW1GOhSYFOag/viewform");
     versionText = QString("");
     citeText = QString("");
-    aboutText = QString(tr("This is a SimCenter Workflow Applicatios"));  // DEPRECATED
+    aboutText = QString(tr("This is a SimCenter Workflow Applicatios"));
 
-    aboutTitle = "About the SimCenter WE-UQ Application"; // this is the title displayed in the on About dialog
-    aboutSource = ":/Resources/docs/textAboutWEUQ.html";  // this is an HTML file stored under resources
+    aboutTitle = "About this SimCenter Application"; // this is the title displayed in the on About dialog
+    aboutSource = ":/Resources/docs/textAbout.html";  // this is an HTML file stored under resources
 
     copyrightText = QString("\
                             <p>\
@@ -753,10 +753,17 @@ MainWindowWorkflowApp::setVersion(QString &newText)
   versionText = newText;
 }
 
-void 
+void
 MainWindowWorkflowApp::setAbout(QString &newText)
 {
   aboutText = newText;
+}
+
+void
+MainWindowWorkflowApp::setAbout(QString &newTitle, QString &newTextSource)
+{
+  aboutTitle  = newTitle;
+  aboutSource = newTextSource;
 }
 
 void
