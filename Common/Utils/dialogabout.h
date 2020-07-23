@@ -14,6 +14,8 @@ class DialogAbout : public QDialog
 public:
     explicit DialogAbout(QWidget *parent = 0);
     ~DialogAbout();
+    void setTextSource(const QString);
+    void setTitle(const QString);
 
 private slots:
     void on_btn_backToTop_clicked();
