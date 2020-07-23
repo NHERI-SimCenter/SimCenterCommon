@@ -36,6 +36,7 @@
 #include <RemoteService.h>
 #include <SimCenterPreferences.h>
 #include <Utils/RelativePathResolver.h>
+#include "Utils/dialogabout.h"
 
 MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theService, QWidget *parent)
   : QMainWindow(parent), loggedIn(false), inputWidget(theApp),   theRemoteInterface(theService), isAutoLogin(false)
@@ -246,7 +247,11 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     //    featureRequestURL = QString("https://docs.google.com/forms/d/e/1FAIpQLScTLkSwDjPNzH8wx8KxkyhoIT7AI9KZ16Wg9TuW1GOhSYFOag/viewform");
     versionText = QString("");
     citeText = QString("");
-    aboutText = QString(tr("This is a SeimCenter Workflow Applicatios"));
+    aboutText = QString(tr("This is a SimCenter Workflow Applicatios"));  // DEPRECATED
+
+    aboutTitle = "About the SimCenter WE-UQ Application"; // this is the title displayed in the on About dialog
+    aboutSource = ":/Resources/docs/textAboutWEUQ.html";  // this is an HTML file stored under resources
+
     copyrightText = QString("\
                             <p>\
                             The source code is licensed under a BSD 2-Clause License:<p>\
@@ -681,12 +686,30 @@ void MainWindowWorkflowApp::cite()
 
 void MainWindowWorkflowApp::about()
 {
+    /*
     QMessageBox msgBox;
     QSpacerItem *theSpacer = new QSpacerItem(700, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
     msgBox.setText(aboutText);
     QGridLayout *layout = (QGridLayout*)msgBox.layout();
     layout->addItem(theSpacer, layout->rowCount(),0,1,layout->columnCount());
     msgBox.exec();
+    */
+
+
+    DialogAbout *dlg = new DialogAbout();
+    dlg->setTitle(aboutTitle);
+    dlg->setTextSource(aboutSource);
+
+    //
+    // adjust size of application window to the available display
+    //
+    QRect rec = QApplication::desktop()->screenGeometry();
+    int height = 0.50*rec.height();
+    int width  = 0.50*rec.width();
+    dlg->resize(width, height);
+
+    dlg->exec();
+    delete dlg;
 }
 
 void MainWindowWorkflowApp::preferences()

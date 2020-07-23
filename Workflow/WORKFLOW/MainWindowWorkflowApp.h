@@ -105,6 +105,8 @@ public:
 
     QString versionText;
     QString aboutText;
+    QString aboutTitle;
+    QString aboutSource;
     QString copyrightText;
     QString manualURL;
     QString feedbackURL;
