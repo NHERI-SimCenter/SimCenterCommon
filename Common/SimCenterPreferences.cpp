@@ -505,13 +505,23 @@ SimCenterPreferences::resetPreferences(bool) {
     settingsApplication.setValue("remoteAgaveApp-May2020", remoteAppName);
     remoteAgaveApp->setText(remoteAppName);
 
-    QString openseesPath = appDirLocation + QDir::separator() + "applications" +
-      QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees";
+#ifdef Q_OS_WIN
+    QString openseesPath = appDirLocation + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees.exe";
+#else
+    QString openseesPath = appDirLocation + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees";
+#endif
+
     settingsApplication.setValue("openseesPath", openseesPath);
     opensees->setText(openseesPath);
 
+#ifdef Q_OS_WIN
+    QString dakotaPath = appDirLocation + QDir::separator() + "applications" +
+      QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota.exe";
+#else
     QString dakotaPath = appDirLocation + QDir::separator() + "applications" +
       QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota";
+#endif
+
     settingsApplication.setValue("dakotaPath", dakotaPath);
     dakota->setText(dakotaPath);
 
@@ -598,25 +608,32 @@ SimCenterPreferences::loadPreferences() {
     // opensees
     QVariant  openseesPathVariant = settingsApplication.value("openseesPath");
     if (!openseesPathVariant.isValid()) {
-      QString openseesPath = currentAppDir + QDir::separator() + "applications" +
-    QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees";
-        settingsApplication.setValue("openseesPath", openseesPath);
-        opensees->setText(openseesPath);
+
+#ifdef Q_OS_WIN
+      QString openseesPath = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees.exe";
+#else
+      QString openseesPath = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees";
+#endif
+      settingsApplication.setValue("openseesPath", openseesPath);
+      opensees->setText(openseesPath);
     } else {
-        opensees->setText(openseesPathVariant.toString());
+      opensees->setText(openseesPathVariant.toString());
     }
 
     // dakota
     QVariant  dakotaPathVariant = settingsApplication.value("dakotaPath");
     if (!dakotaPathVariant.isValid()) {
-      QString dakotaPath = currentAppDir + QDir::separator() + "applications" +
-    QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota";
-        settingsApplication.setValue("dakotaPath", dakotaPath);
-        dakota->setText(dakotaPath);
-    } else {
-        dakota->setText(dakotaPathVariant.toString());
-    }
 
+#ifdef Q_OS_WIN
+      QString dakotaPath = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota.exe";
+#else
+      QString dakotaPath = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota";
+#endif
+      settingsApplication.setValue("dakotaPath", dakotaPath);
+      dakota->setText(dakotaPath);
+    } else {
+      dakota->setText(dakotaPathVariant.toString());
+    }
 }
 
 QString
