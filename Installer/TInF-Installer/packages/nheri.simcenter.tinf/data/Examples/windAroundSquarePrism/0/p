@@ -27,29 +27,23 @@ boundaryField
 
     outlet
     {
-        type            fixedValue;
+        type            totalPressure;
+        p0              uniform 0;
+        gamma           1.4;
         value           uniform 0;
     }
 
-    cylinder
+    building
     {
         type            zeroGradient;
     }
 
-    top
+    ground
     {
         type            zeroGradient;
     }
 
-    bottom
-    {
-        type            zeroGradient;
-    }
-
-    side
-    {
-        type            zeroGradient;
-    }
+    #includeEtc "caseDicts/setConstraintTypes"
 }
 
 // ************************************************************************* //

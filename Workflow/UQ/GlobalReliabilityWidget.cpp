@@ -133,7 +133,6 @@ GlobalReliabilityWidget::outputToJSON(QJsonObject &jsonObj){
         return false;
     }
     QStringList probLevelList = QStringList(responseLevel->text().split(" "));
-    qDebug() << "SIZE:" << probLevelList.size();
     if (probLevelList.size() == 0) {
         emit sendErrorMessage("GlobalReliability - At least one response value must be set");
         return false;
@@ -165,7 +164,7 @@ GlobalReliabilityWidget::inputFromJSON(QJsonObject &jsonObject){
 
     bool result = false;
     if ( (jsonObject.contains("gpApproximation"))
-         && (jsonObject.contains("reliabilityLevel"))
+         && (jsonObject.contains("responseLevel"))
          && (jsonObject.contains("seed"))
          ) {
 
@@ -186,7 +185,8 @@ GlobalReliabilityWidget::inputFromJSON(QJsonObject &jsonObject){
         */
 
         QJsonValue seedVal = jsonObject["seed"];
-        seedEdit->setText(seedVal.toString());
+        int seedV = seedVal.toInt(); qDebug() << "SEED" << seedV;
+        seedEdit->setText(QString::number(seedVal.toInt()));
 
         QJsonArray probLevels;
 

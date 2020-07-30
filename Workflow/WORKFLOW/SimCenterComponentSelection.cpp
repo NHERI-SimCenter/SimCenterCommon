@@ -53,6 +53,9 @@ SimCenterComponentSelection::SimCenterComponentSelection(QWidget *parent)
 
   QHBoxLayout *horizontalLayout = new QHBoxLayout();
 
+  horizontalLayout->setMargin(0);
+  this->setContentsMargins(0,5,0,5);
+
   //  
   // create a TreeView widget 
   //

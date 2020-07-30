@@ -2,7 +2,7 @@ from conans import ConanFile, tools, VisualStudioBuildEnvironment
 
 class CommonConan(ConanFile):
     name = "SimCenterCommonQt"
-    version = "0.1.5"
+    version = "0.1.10"
     license = "BSD"
     author = "Wael Elhaddad (elhaddad@berkeley.edu)"
     url = "https://github.com/NHERI-SimCenter/SimCenterCommon.git"
@@ -59,7 +59,7 @@ class CommonConan(ConanFile):
             makeCommand = "%s && jom" % (vcvars)
         else:
             qmake = 'qmake'
-            makeCommand = 'make'
+            makeCommand = 'make -j'
 
         qmakeCommand = '%s "CONFIG+=%s" %s/SimCenterCommonQt.pro' % (qmake, str(self.settings.build_type).lower(), self.source_folder)
         if(self.options.MDOFwithQt3D):

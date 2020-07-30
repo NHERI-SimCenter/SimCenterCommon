@@ -36,6 +36,7 @@
 #include <RemoteService.h>
 #include <SimCenterPreferences.h>
 #include <Utils/RelativePathResolver.h>
+#include "Utils/dialogabout.h"
 
 MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theService, QWidget *parent)
   : QMainWindow(parent), loggedIn(false), inputWidget(theApp),   theRemoteInterface(theService), isAutoLogin(false)
@@ -48,6 +49,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     QWidget *centralWidget = new QWidget();
     QVBoxLayout *layout = new QVBoxLayout();
     centralWidget->setLayout(layout);
+    centralWidget->setContentsMargins(0,0,0,0);
 
     //
     // resize to primary screen
@@ -105,8 +107,8 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
 
     // create the buttons widget and a layout for it
     QHBoxLayout *pushButtonLayout = new QHBoxLayout();
-    QWidget *buttonWidget = new QWidget();
-    buttonWidget->setLayout(pushButtonLayout);
+    //QWidget *buttonWidget = new QWidget();
+    //buttonWidget->setLayout(pushButtonLayout);
 
     // create a bunch of buttons
 
@@ -206,14 +208,17 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
    */
 
     // add button widget to layout
-    layout->addWidget(buttonWidget);
+    //layout->addWidget(buttonWidget);
+    pushButtonLayout->setSpacing(10);
+    layout->addLayout(pushButtonLayout);
 
     //
     // add SimCenter footer
     //
 
-    FooterWidget *footer = new FooterWidget();
-    layout->addWidget(footer);
+    //FooterWidget *footer = new FooterWidget();
+    //layout->addWidget(footer);
+    layout->setSpacing(0);
 
     this->setCentralWidget(centralWidget);
 
@@ -246,7 +251,11 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     //    featureRequestURL = QString("https://docs.google.com/forms/d/e/1FAIpQLScTLkSwDjPNzH8wx8KxkyhoIT7AI9KZ16Wg9TuW1GOhSYFOag/viewform");
     versionText = QString("");
     citeText = QString("");
-    aboutText = QString(tr("This is a SeimCenter Workflow Applicatios"));
+    aboutText = QString(tr("This is a SimCenter Workflow Applicatios"));
+
+    aboutTitle = "About this SimCenter Application"; // this is the title displayed in the on About dialog
+    aboutSource = ":/Resources/docs/textAbout.html";  // this is an HTML file stored under resources
+
     copyrightText = QString("\
                             <p>\
                             The source code is licensed under a BSD 2-Clause License:<p>\
@@ -681,12 +690,29 @@ void MainWindowWorkflowApp::cite()
 
 void MainWindowWorkflowApp::about()
 {
+    /*
     QMessageBox msgBox;
     QSpacerItem *theSpacer = new QSpacerItem(700, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
-    msgBox.setText(aboutText);
-    QGridLayout *layout = (QGridLayout*)msgBox.layout();
+    msgBox.setText(aboutText);    QGridLayout *layout = (QGridLayout*)msgBox.layout();
     layout->addItem(theSpacer, layout->rowCount(),0,1,layout->columnCount());
     msgBox.exec();
+    */
+
+
+    DialogAbout *dlg = new DialogAbout();
+    dlg->setTitle(aboutTitle);
+    dlg->setTextSource(aboutSource);
+
+    //
+    // adjust size of application window to the available display
+    //
+    QRect rec = QApplication::desktop()->screenGeometry();
+    int height = 0.50*rec.height();
+    int width  = 0.50*rec.width();
+    dlg->resize(width, height);
+
+    dlg->exec();
+    delete dlg;
 }
 
 void MainWindowWorkflowApp::preferences()
@@ -730,10 +756,18 @@ MainWindowWorkflowApp::setVersion(QString &newText)
   versionText = newText;
 }
 
-void 
+void
 MainWindowWorkflowApp::setAbout(QString &newText)
 {
-  aboutText = newText;
+  aboutText = newText +QString("<p> This work is based on material supported by the National Science Foundation under grant 1612843<p>");
+  qDebug() << "ABOUT: " << aboutText;
+}
+
+void
+MainWindowWorkflowApp::setAbout(QString &newTitle, QString &newTextSource)
+{
+  aboutTitle  = newTitle;
+  aboutSource = newTextSource;
 }
 
 void

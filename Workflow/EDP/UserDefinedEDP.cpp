@@ -340,7 +340,7 @@ UserDefinedEDP::inputAppDataFromJSON(QJsonObject &jsonObject) {
     //
 
     this->clear();
-    return 0;
+    return true;
 
 }
 

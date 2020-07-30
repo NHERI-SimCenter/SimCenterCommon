@@ -169,6 +169,7 @@ public slots:
     void on_picker_moved (const QPoint &pos);
     void on_picker_removed (const QPoint &pos);
     void on_picker_changed (const QPolygon &selection);
+    void showAxisControls(bool show);
 
 signals:
     void curve_selected(int ID);

@@ -71,6 +71,8 @@ public slots:
 
 private:
     QLineEdit *python;
+    QLineEdit *opensees;
+    QLineEdit *dakota;
     QLineEdit *localWorkDir;
     QLineEdit *remoteWorkDir;
     QLineEdit *appDir;

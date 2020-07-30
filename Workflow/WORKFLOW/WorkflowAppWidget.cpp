@@ -7,7 +7,7 @@
 WorkflowAppWidget::WorkflowAppWidget(RemoteService *theService, QWidget *parent)
   :QWidget(parent), theRemoteService(theService)
 {
-
+  this->setContentsMargins(0,0,0,0);
 }
 
 WorkflowAppWidget::~WorkflowAppWidget()

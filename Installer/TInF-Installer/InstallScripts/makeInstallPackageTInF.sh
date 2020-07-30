@@ -6,9 +6,9 @@
 
 APP=TurbulenceInflowTool
 SOURCEDIR=../../../TurbulenceInflowTool
-VERSION=v1.0.2
+VERSION=v1.1.0
 
-QT_DEPLOY=/Users/pmackenz/Qt/5.13.1/clang_64/bin/macdeployqt
+QT_DEPLOY=/Users/pmackenz/Qt/5.14.2/clang_64/bin/macdeployqt
 #
 # ---- do not change anything below this line -----------------------------------
 #
@@ -17,7 +17,7 @@ QT_DEPLOY=/Users/pmackenz/Qt/5.13.1/clang_64/bin/macdeployqt
 # identify release build directory
 #
 
-LONG=`grep BuildConfiguration $SOURCEDIR/$APP.pro.user | grep Release`
+LONG=`grep BuildConfiguration $SOURCEDIR/$APP.pro.user | grep shadowDir | grep Release`
 START=${LONG#*">"}
 build_folder=${START%"<"*}
 
@@ -59,7 +59,7 @@ then
 
 	cp -r $build_folder/$APP.app ./packages/nheri.simcenter.tinf/data/.
 
-        $HOME/Qt/Tools/QtInstallerFramework/3.1/bin/binarycreator \
+        $HOME/Qt/Tools/QtInstallerFramework/3.2/bin/binarycreator \
 		-c config/macconfig.xml \
 		-p packages \
 		--offline-only \

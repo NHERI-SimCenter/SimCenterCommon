@@ -121,7 +121,6 @@ LocalApplication::onRunButtonPressed(void)
   
   //   QString appDir = appDirName->text();
   QString appDir = SimCenterPreferences::getInstance()->getAppDir();
-
   QDir dirApp(appDir);
   if (!dirApp.exists()) {
       QString errorMessage = QString("The application directory, ") + appDir +QString(" specified does not exist!. Check Local Application Directory im Preferences");
@@ -147,7 +146,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
     // qDebug() << "RUNTYPE" << runType;
     QString runType("runningLocal");
-   qDebug() << "RUNTYPE" << runType;
+    qDebug() << "RUNTYPE" << runType;
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
 
     //TODO: recognize if it is PBE or EE-UQ -> probably smarter to do it inside the python file
@@ -189,59 +188,60 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     //
 
     QProcess *proc = new QProcess();
-    // keeping old python code call
-    // QStringList args{pySCRIPT, "run",inputFile,registryFile};
-    // proc->execute("python",args);
+
+    proc->setProcessChannelMode(QProcess::SeparateChannels);
+    auto procEnv = QProcessEnvironment::systemEnvironment();
+    QString pathEnv = procEnv.value("PATH");
+    QString pythonPathEnv = procEnv.value("PYTHONPATH");
+
 
     QString python = QString("python");
+    QString exportPath("export PATH=$PATH");
+
     QSettings settings("SimCenter", "Common"); //These names will need to be constants to be shared
     QVariant  pythonLocationVariant = settings.value("pythonExePath");
     if (pythonLocationVariant.isValid()) {
       python = pythonLocationVariant.toString();
     }
 
-#ifdef Q_OS_WIN
-    python = QString("\"") + python + QString("\"");
-    qDebug() << python;
-    QStringList args{pySCRIPT, runType, inputFile, registryFile};
-    qDebug() << args;
+    QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
+    QVariant  openseesPathVariant = settingsApplication.value("openseesPath");
+    if (openseesPathVariant.isValid()) {
+        QFileInfo openseesFile(openseesPathVariant.toString());
+        if (openseesFile.exists()) {
+            QString openseesPath = openseesFile.absolutePath();
+            pathEnv = openseesPath + ';' + pathEnv;
+	    exportPath += ":" + openseesPath;
+        }
+    }
 
-    proc->setProcessChannelMode(QProcess::SeparateChannels);
-    auto procEnv = QProcessEnvironment::systemEnvironment();
-    QString pathEnv = procEnv.value("PATH");
-
-    //Adding local Python to PATH
-    auto localPythonDir = appDir + "/applications/python";
-    if(QDir(localPythonDir).exists())
-        pathEnv = localPythonDir + ';' + pathEnv;
-
-    //This code helps set the environment for Anaconda
-    //Where DLLs needs to be loaded from Library/bin folder
-    //This should work for users using Anaconda without activating Anaconda environment
-    QFileInfo pythonFileInfo(python.remove('"'));
-    auto pythonDir = pythonFileInfo.dir();
-    auto pythonLibDir = pythonDir.absolutePath() + "/Library/bin";
-    if(QDir(pythonLibDir).exists())
-        pathEnv = pythonLibDir + ';' + pathEnv;
-
-    //Adding OpenSees to PATH
-    auto openSeesDir = appDir + "/applications/OpenSees";
-    if(QDir(openSeesDir).exists())
-        pathEnv = openSeesDir + ';' + pathEnv;
-
-    //Adding Tcl to PATH
-    auto tclDir = appDir + "/applications/Tcl/bin";
-    if(QDir(tclDir).exists())
-        pathEnv = tclDir + ';' + pathEnv;
-
-    //Adding Dakota to PATH
-    auto dakotaDir = appDir + "/applications/Dakota";
-    if(QDir(dakotaDir).exists())
-        pathEnv = dakotaDir + ';' + pathEnv;
+    QVariant  dakotaPathVariant = settingsApplication.value("dakotaPath");
+    if (dakotaPathVariant.isValid()) {
+        QFileInfo dakotaFile(dakotaPathVariant.toString());
+        if (dakotaFile.exists()) {
+            QString dakotaPath = dakotaFile.absolutePath();
+            QString dakotaPythonPath = QFileInfo(dakotaPath).absolutePath() + QDir::separator() +
+                      "share" + QDir::separator() + "Dakota" + QDir::separator() + "Python";
+	    exportPath += ":" + dakotaPath;
+            pathEnv = dakotaPath + ';' + pathEnv;
+            pythonPathEnv = dakotaPythonPath + ";" + pythonPathEnv;
+        }
+    }
 
     procEnv.insert("PATH", pathEnv);
-
+    procEnv.insert("PYTHONPATH", pythonPathEnv);
     proc->setProcessEnvironment(procEnv);
+
+    qDebug() << "PATH: " << pathEnv;
+    qDebug() << "PYTHON_PATH" << pythonPathEnv;
+
+    QStringList args{pySCRIPT, runType, inputFile, registryFile};
+
+#ifdef Q_OS_WIN
+    python = QString("\"") + python + QString("\"");
+
+    qDebug() << python;
+    qDebug() << args;
 
     proc->start(python,args);
 
@@ -277,37 +277,35 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
         qDebug().noquote() << proc->readAllStandardError();
         return false;
     }
+
 #else
 
     // check for bashrc or bash profile
     QDir homeDir(QDir::homePath());
     QString sourceBash("\"");
     if (homeDir.exists(".bash_profile")) {
-      sourceBash = QString("source $HOME/.bash_profile; \"");
+      sourceBash = QString("source $HOME/.bash_profile; ");
     } else if (homeDir.exists(".bashrc")) {
-      sourceBash = QString("source $HOME/.bashrc; \"");
+      sourceBash = QString("source $HOME/.bashrc; ");
     } else if (homeDir.exists(".zprofile")) {
-      sourceBash = QString("source $HOME/.zprofile; \"");
+      sourceBash = QString("source $HOME/.zprofile; ");
     } else if (homeDir.exists(".zshrc")) {
-      sourceBash = QString("source $HOME/.zshrc; \"");
+      sourceBash = QString("source $HOME/.zshrc; ");
     } else
-       emit sendErrorMessage( "No .bash_profile, .bashrc or .zshrc file found. This may not find Dakota or OpenSees");
+      emit sendErrorMessage( "No .bash_profile, .bashrc or .zshrc file found. This may not find Dakota or OpenSees");
 
     // note the above not working under linux because bash_profile not being called so no env variables!!
-    QString command = sourceBash + python + QString("\" \"" ) +
+    QString command = sourceBash + exportPath + "; \"" + python + QString("\" \"" ) +
       pySCRIPT + QString("\" " ) + runType + QString(" \"" ) + inputFile + QString("\" \"") + registryFile + QString("\"");
 
     qDebug() << "PYTHON COMMAND" << command;
 
-    // QDebug debug = qDebug();
-    // debug.noquote();
-    // debug << "PYTHON COMMAND: " << command;
-
     proc->execute("bash", QStringList() << "-c" <<  command);
+    proc->waitForStarted();
 
 #endif
 
-    proc->waitForStarted();
+    //proc->waitForStarted();
 
     //
     // copy input file to main directory

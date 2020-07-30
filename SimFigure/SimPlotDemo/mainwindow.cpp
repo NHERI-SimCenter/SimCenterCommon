@@ -230,3 +230,13 @@ void MainWindow::on_actionSave_PDF_triggered()
 {
     ui->theFigure->saveToFile("SimPlotDemo4.pdf", SimFigure::FileType::PNG, QSizeF(300,200), 150);
 }
+
+void MainWindow::on_actionShow_axis_controls_triggered()
+{
+    ui->theFigure->showAxisControls(true);
+}
+
+void MainWindow::on_actionHide_axis_controls_triggered()
+{
+    ui->theFigure->showAxisControls(false);
+}
