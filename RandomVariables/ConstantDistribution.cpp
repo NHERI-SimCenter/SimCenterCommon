@@ -52,7 +52,7 @@ ConstantDistribution::ConstantDistribution(QWidget *parent) :RandomVariableDistr
 
     QHBoxLayout *mainLayout = new QHBoxLayout();
 
-    value = this->createTextEntry(tr("ConstantDistribution Value"), mainLayout);
+    value = this->createTextEntry(tr("Constant Value"), mainLayout);
 
     mainLayout->addStretch();
 

@@ -58,19 +58,20 @@ RandomVariablesContainer::RandomVariablesContainer(QWidget *parent)
     : SimCenterWidget(parent), correlationDialog(NULL), correlationMatrix(NULL), checkbox(NULL)
 {
     randomVariableClass = QString("Uncertain");
-
+    uq="Dakota";
     verticalLayout = new QVBoxLayout();
     this->setLayout(verticalLayout);
     this->makeRV();
 }
 
-RandomVariablesContainer::RandomVariablesContainer(QString &theClass, QWidget *parent)
+RandomVariablesContainer::RandomVariablesContainer(QString &theClass, QString uqgin, QWidget *parent)
     : SimCenterWidget(parent), correlationDialog(NULL), correlationMatrix(NULL), checkbox(NULL)
 {
     randomVariableClass = theClass;
+    uq=uqgin;
     verticalLayout = new QVBoxLayout();
     this->setLayout(verticalLayout);
-    this->makeRV(); 
+    this->makeRV();
 }
 
 void
@@ -84,7 +85,7 @@ RandomVariablesContainer::addConstantRVs(QStringList &varNamesAndValues)
 
         double dValue = value.toDouble();
         ConstantDistribution *theDistribution = new ConstantDistribution(dValue, 0);
-        RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution);
+        RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution,uq);
 
         this->addRandomVariable(theRV);
     }
@@ -94,7 +95,7 @@ void
 RandomVariablesContainer::addRandomVariable(QString &varName) {
 
     NormalDistribution *theDistribution = new NormalDistribution();
-    RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution);
+    RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution, uq);
 
     this->addRandomVariable(theRV);
 }
@@ -280,7 +281,7 @@ RandomVariablesContainer::variableNameChanged(const QString &newValue) {
 void
 RandomVariablesContainer::addRandomVariable(void) {
 
-    RandomVariable *theRV = new RandomVariable(randomVariableClass);
+    RandomVariable *theRV = new RandomVariable(randomVariableClass, uq);
     theRandomVariables.append(theRV);
     rvLayout->insertWidget(rvLayout->count()-1, theRV);
     connect(this,SLOT(randomVariableErrorMessage(QString)), theRV, SIGNAL(sendErrorMessage(QString)));
@@ -614,7 +615,7 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
                   QJsonValue typeRV = rvObject["variableClass"];
                   RandomVariable *theRV = 0;
                   QString classType = typeRV.toString();
-                  theRV = new RandomVariable(classType);
+                  theRV = new RandomVariable(classType,uq);
                   connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(variableNameChanged(const QString &)));
 
                   connect(theRV,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));

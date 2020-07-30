@@ -23,7 +23,9 @@ SOURCES += $$PWD/RandomVariableDistribution.cpp \
     $$PWD/WeibullDistribution.cpp \
     $$PWD/GumbelDistribution.cpp \
     $$PWD/UserDef.cpp \
-    $$PWD/LineEditRV.cpp
+    $$PWD/LineEditRV.cpp \
+    $$PWD/ExponentialDistribution.cpp \
+    $$PWD/DiscreteDistribution.cpp
 
 
 HEADERS += $$PWD/RandomVariableDistribution.h \
@@ -38,5 +40,7 @@ HEADERS += $$PWD/RandomVariableDistribution.h \
     $$PWD/WeibullDistribution.h \
     $$PWD/GumbelDistribution.h \
     $$PWD/UserDef.h \
-    $$PWD/LineEditRV.h
+    $$PWD/LineEditRV.h \
+    $$PWD/ExponentialDistribution.h \
+    $$PWD/DiscreteDistribution.h
 

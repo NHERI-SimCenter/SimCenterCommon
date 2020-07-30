@@ -1,5 +1,5 @@
-#ifndef WEIBULLDISTRIBUTION_H
-#define WEIBULLDISTRIBUTION_H
+#ifndef DISCRETEDISTRIBUTION_H
+#define DISCRETEDISTRIBUTION_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -40,16 +40,18 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include "RandomVariableDistribution.h"
+#include <QValidator>
+
 class QLineEdit;
 class QLabel;
 class SimCenterGraphPlot;
 
-class WeibullDistribution : public RandomVariableDistribution
+class DiscreteDistribution : public RandomVariableDistribution
 {
     Q_OBJECT
 public:
-    explicit WeibullDistribution(QString inpType, QWidget *parent = 0);
-    ~WeibullDistribution();
+    explicit DiscreteDistribution(QWidget *parent = 0);
+    ~DiscreteDistribution();
 
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
@@ -62,11 +64,29 @@ public slots:
     void updateDistributionPlot();
 
 private:
-    QLineEdit *mean, *standardDev;
-    QLineEdit *an, *k ;
-    QLineEdit *dataDir;
-    QString inpty ;
+    QLineEdit *values;
+    QLineEdit *weights;
+    //QLineEdit *standardDev;
+
     SimCenterGraphPlot *thePlot;
 };
 
-#endif // WEIBULLDISTRIBUTION_H
+
+// input form
+
+class myDoubleArrayValidator : public QValidator
+{
+    Q_OBJECT
+public:
+    explicit myDoubleArrayValidator(QObject *parent = 0);
+
+signals:
+
+public slots:
+public:
+    QValidator::State validate(QString & input, int & pos) const;
+
+};
+
+
+#endif // DISCRETEDISTRIBUTION_H

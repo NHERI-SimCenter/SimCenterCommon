@@ -1,6 +1,5 @@
-#ifndef WEIBULLDISTRIBUTION_H
-#define WEIBULLDISTRIBUTION_H
-
+#ifndef EXPONENTIALDISTRIBUTION_H
+#define EXPONENTIALDISTRIBUTION_H
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -44,12 +43,12 @@ class QLineEdit;
 class QLabel;
 class SimCenterGraphPlot;
 
-class WeibullDistribution : public RandomVariableDistribution
+class ExponentialDistribution : public RandomVariableDistribution
 {
     Q_OBJECT
 public:
-    explicit WeibullDistribution(QString inpType, QWidget *parent = 0);
-    ~WeibullDistribution();
+    explicit ExponentialDistribution(QString inpType, QWidget *parent = 0);
+    ~ExponentialDistribution();
 
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
@@ -62,11 +61,11 @@ public slots:
     void updateDistributionPlot();
 
 private:
-    QLineEdit *mean, *standardDev;
-    QLineEdit *an, *k ;
+    QLineEdit *mean;
+    QLineEdit *lambda;
     QLineEdit *dataDir;
     QString inpty ;
     SimCenterGraphPlot *thePlot;
 };
 
-#endif // WEIBULLDISTRIBUTION_H
+#endif // EXPONENTIALDISTRIBUTION_H

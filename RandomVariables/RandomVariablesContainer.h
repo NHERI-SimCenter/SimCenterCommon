@@ -63,7 +63,7 @@ class RandomVariablesContainer : public SimCenterWidget
     Q_OBJECT
 public:
     explicit RandomVariablesContainer(QWidget *parent = 0);
-    explicit RandomVariablesContainer(QString &randomVariableClass, QWidget *parent = 0);
+    explicit RandomVariablesContainer(QString &randomVariableClass, QString uqengin="Dakota", QWidget *parent = 0);
 
     ~RandomVariablesContainer();
 
@@ -98,7 +98,7 @@ private:
     QVBoxLayout *rvLayout;
     QWidget *rv;
 
-    QString randomVariableClass;
+    QString randomVariableClass, uq;
     QVector<RandomVariable *>theRandomVariables;
     QDialog *correlationDialog;
     QTableWidget *correlationMatrix;
