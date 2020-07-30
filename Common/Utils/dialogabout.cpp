@@ -2,6 +2,7 @@
 #include "ui_dialogabout.h"
 #include <QApplication>
 #include <QFile>
+#include <QDebug>
 
 DialogAbout::DialogAbout(QWidget *parent) :
     QDialog(parent),
@@ -27,7 +28,10 @@ void DialogAbout::setTextSource(const QString source)
     if (file.open(QFile::ReadOnly))
     {
         ui->textBrowser->setHtml(file.readAll());
+    } else {
+      qDebug() << "DialogAbout no file: " << source << "exists";
     }
+
 }
 
 void DialogAbout::setTitle(const QString theTitle)

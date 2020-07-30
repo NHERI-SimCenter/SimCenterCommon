@@ -194,7 +194,10 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     QString pathEnv = procEnv.value("PATH");
     QString pythonPathEnv = procEnv.value("PYTHONPATH");
 
+
     QString python = QString("python");
+    QString exportPath("export PATH=$PATH");
+
     QSettings settings("SimCenter", "Common"); //These names will need to be constants to be shared
     QVariant  pythonLocationVariant = settings.value("pythonExePath");
     if (pythonLocationVariant.isValid()) {
@@ -208,6 +211,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
         if (openseesFile.exists()) {
             QString openseesPath = openseesFile.absolutePath();
             pathEnv = openseesPath + ';' + pathEnv;
+	    exportPath += ":" + openseesPath;
         }
     }
 
@@ -218,6 +222,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
             QString dakotaPath = dakotaFile.absolutePath();
             QString dakotaPythonPath = QFileInfo(dakotaPath).absolutePath() + QDir::separator() +
                       "share" + QDir::separator() + "Dakota" + QDir::separator() + "Python";
+	    exportPath += ":" + dakotaPath;
             pathEnv = dakotaPath + ';' + pathEnv;
             pythonPathEnv = dakotaPythonPath + ";" + pythonPathEnv;
         }
@@ -227,12 +232,13 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     procEnv.insert("PYTHONPATH", pythonPathEnv);
     proc->setProcessEnvironment(procEnv);
 
-     QStringList args{pySCRIPT, runType, inputFile, registryFile};
+    qDebug() << "PATH: " << pathEnv;
+    qDebug() << "PYTHON_PATH" << pythonPathEnv;
+
+    QStringList args{pySCRIPT, runType, inputFile, registryFile};
 
 #ifdef Q_OS_WIN
     python = QString("\"") + python + QString("\"");
-
-#endif
 
     qDebug() << python;
     qDebug() << args;
@@ -271,6 +277,33 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
         qDebug().noquote() << proc->readAllStandardError();
         return false;
     }
+
+#else
+
+    // check for bashrc or bash profile
+    QDir homeDir(QDir::homePath());
+    QString sourceBash("\"");
+    if (homeDir.exists(".bash_profile")) {
+      sourceBash = QString("source $HOME/.bash_profile; ");
+    } else if (homeDir.exists(".bashrc")) {
+      sourceBash = QString("source $HOME/.bashrc; ");
+    } else if (homeDir.exists(".zprofile")) {
+      sourceBash = QString("source $HOME/.zprofile; ");
+    } else if (homeDir.exists(".zshrc")) {
+      sourceBash = QString("source $HOME/.zshrc; ");
+    } else
+      emit sendErrorMessage( "No .bash_profile, .bashrc or .zshrc file found. This may not find Dakota or OpenSees");
+
+    // note the above not working under linux because bash_profile not being called so no env variables!!
+    QString command = sourceBash + exportPath + "; \"" + python + QString("\" \"" ) +
+      pySCRIPT + QString("\" " ) + runType + QString(" \"" ) + inputFile + QString("\" \"") + registryFile + QString("\"");
+
+    qDebug() << "PYTHON COMMAND" << command;
+
+    proc->execute("bash", QStringList() << "-c" <<  command);
+    proc->waitForStarted();
+
+#endif
 
     //proc->waitForStarted();
 

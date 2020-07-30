@@ -49,6 +49,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     QWidget *centralWidget = new QWidget();
     QVBoxLayout *layout = new QVBoxLayout();
     centralWidget->setLayout(layout);
+    centralWidget->setContentsMargins(0,0,0,0);
 
     //
     // resize to primary screen
@@ -106,8 +107,8 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
 
     // create the buttons widget and a layout for it
     QHBoxLayout *pushButtonLayout = new QHBoxLayout();
-    QWidget *buttonWidget = new QWidget();
-    buttonWidget->setLayout(pushButtonLayout);
+    //QWidget *buttonWidget = new QWidget();
+    //buttonWidget->setLayout(pushButtonLayout);
 
     // create a bunch of buttons
 
@@ -207,14 +208,17 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
    */
 
     // add button widget to layout
-    layout->addWidget(buttonWidget);
+    //layout->addWidget(buttonWidget);
+    pushButtonLayout->setSpacing(10);
+    layout->addLayout(pushButtonLayout);
 
     //
     // add SimCenter footer
     //
 
-    FooterWidget *footer = new FooterWidget();
-    layout->addWidget(footer);
+    //FooterWidget *footer = new FooterWidget();
+    //layout->addWidget(footer);
+    layout->setSpacing(0);
 
     this->setCentralWidget(centralWidget);
 
@@ -689,8 +693,7 @@ void MainWindowWorkflowApp::about()
     /*
     QMessageBox msgBox;
     QSpacerItem *theSpacer = new QSpacerItem(700, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
-    msgBox.setText(aboutText);
-    QGridLayout *layout = (QGridLayout*)msgBox.layout();
+    msgBox.setText(aboutText);    QGridLayout *layout = (QGridLayout*)msgBox.layout();
     layout->addItem(theSpacer, layout->rowCount(),0,1,layout->columnCount());
     msgBox.exec();
     */
@@ -756,7 +759,8 @@ MainWindowWorkflowApp::setVersion(QString &newText)
 void
 MainWindowWorkflowApp::setAbout(QString &newText)
 {
-  aboutText = newText;
+  aboutText = newText +QString("<p> This work is based on material supported by the National Science Foundation under grant 1612843<p>");
+  qDebug() << "ABOUT: " << aboutText;
 }
 
 void
