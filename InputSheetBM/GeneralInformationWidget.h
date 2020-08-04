@@ -41,13 +41,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-
 #include <QStringList>
 #include <QHBoxLayout>
-#include <SimCenterTableWidget.h>
 #include <QComboBox>
-#include <QSpinBox>
-#include <QDoubleSpinBox>
+#include <SimCenterWidget.h>
+
+class QLineEdit;
 
 class GeneralInformationWidget : public SimCenterWidget
 {
@@ -94,6 +93,7 @@ public:
 public slots:
     void numStoriesEditingFinished(void);
     void heightEditingFinished(void);
+    void buildingDimensionsEditingFinished(void);
     // void setNumFloors(int newNumFloors);
     // void setHeight(double newHeight);
     void setNumStoriesAndHeight(int numFloors, double height);
@@ -113,14 +113,14 @@ private:
     QStringList   tableHeader;
 
     QLineEdit *nameEdit;
-    QSpinBox  *storiesBox;
+    QLineEdit *storiesEdit;
     QLineEdit *heightEdit;
     QLineEdit *widthEdit;
     QLineEdit *depthEdit;
     QLineEdit *planAreaEdit;
 
-    QDoubleSpinBox *latitudeBox;
-    QDoubleSpinBox *longitudeBox;
+    QLineEdit *latitudeEdit;
+    QLineEdit *longitudeEdit;
 
     QComboBox *unitsForceCombo;
     QComboBox *unitsLengthCombo;

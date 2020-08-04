@@ -42,6 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "RandomVariableDistribution.h"
 
 class QLineEdit;
+class SimCenterGraphPlot;
 
 class BetaDistribution : public RandomVariableDistribution
 {
@@ -58,12 +59,15 @@ public:
 signals:
 
 public slots:
+    void updateDistributionPlot();
 
 private:
     QLineEdit *alphas;
     QLineEdit *betas;
     QLineEdit *lowerBound;
     QLineEdit *upperBound;
+
+     SimCenterGraphPlot *thePlot;
 };
 
 #endif // BETADISTRIBUTION_H

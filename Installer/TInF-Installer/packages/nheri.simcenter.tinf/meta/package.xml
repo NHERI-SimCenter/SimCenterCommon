@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package>
+    <DisplayName>Turbulence Inflow Tool</DisplayName>
+    <Description>Research tool to add definition for turbulence inflow models to existing OpenFOAM models.</Description>
+    <Version>1.0.2</Version>
+    <ReleaseDate>2019-10-22</ReleaseDate>
+    <Licenses>
+        <License name="BSD License Agreement" file="license.txt" />
+    </Licenses>
+    <Default>true</Default>
+    <Script>installTInF.qs</Script>
+</Package>

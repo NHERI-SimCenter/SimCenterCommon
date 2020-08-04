@@ -41,6 +41,11 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <SimCenterGraphPlot.h>
+#include <math.h>
+#include <QPushButton>
+#include <QValidator>
+#include <QDebug>
 
 BetaDistribution::BetaDistribution(QWidget *parent)
     : RandomVariableDistribution(parent)
@@ -56,17 +61,34 @@ BetaDistribution::BetaDistribution(QWidget *parent)
     betas = this->createTextEntry(tr("betas"), mainLayout);
     lowerBound = this->createTextEntry(tr("lowerbound"), mainLayout, 100, 100);
     upperBound = this->createTextEntry(tr("upperbound"), mainLayout, 100, 100);
+
+    QPushButton *showPlotButton = new QPushButton("Show PDF");
+    mainLayout->addWidget(showPlotButton);
+
     mainLayout->addStretch();
 
     // set some defaults, and set layout for widget to be the horizontal layout
     mainLayout->setSpacing(10);
     mainLayout->setMargin(0);
     this->setLayout(mainLayout);
+
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"), 500, 500);
+
+    alphas->setValidator(new QDoubleValidator);
+    betas->setValidator(new QDoubleValidator);
+    lowerBound->setValidator(new QDoubleValidator);
+    upperBound->setValidator(new QDoubleValidator);
+
+    connect(alphas,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+    connect(betas,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+    connect(lowerBound,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+    connect(upperBound,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+    connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
 }
 
 BetaDistribution::~BetaDistribution()
 {
-
+    delete thePlot;
 }
 
 
@@ -79,10 +101,10 @@ BetaDistribution::outputToJSON(QJsonObject &rvObject){
         return false;
     }
 
-    rvObject["alphas"]=alphas->text();
-    rvObject["betas"]=betas->text();
-    rvObject["lowerbound"]=lowerBound->text();
-    rvObject["upperbound"]=upperBound->text();
+    rvObject["alphas"]=alphas->text().toDouble();
+    rvObject["betas"]=betas->text().toDouble();
+    rvObject["lowerbound"]=lowerBound->text().toDouble();
+    rvObject["upperbound"]=upperBound->text().toDouble();
     return true;
 }
 
@@ -125,10 +147,52 @@ BetaDistribution::inputFromJSON(QJsonObject &rvObject){
         return false;
     }
 
+    this->updateDistributionPlot();
     return true;
 }
 
 QString 
 BetaDistribution::getAbbreviatedName(void) {
   return QString("Beta");
+}
+
+void
+BetaDistribution::updateDistributionPlot() {
+    double a = alphas->text().toDouble();
+    double b = betas->text().toDouble();
+    double u = upperBound->text().toDouble();
+    double l = lowerBound->text().toDouble();
+
+    qDebug() << a << " " << b << " " << u << " " << l;
+    if (a >= 0.0 && a > 0.0 && u != l) {
+        double minV = l;
+        double maxV = u;
+        QVector<double> x(100);
+        QVector<double> y(100);
+        double gammaAB = tgamma(a+b);
+        double gammaA = tgamma(a);
+        double gammaB = tgamma(b);
+
+        for (int i=0; i<100; i++) {
+            double xi = minV + i*(maxV-minV)/99.0;
+            x[i] = xi;
+            y[i]=gammaAB*pow((xi-l),(a-1.0))*pow((u-xi),(b-1.0))/(gammaA*gammaB*pow((u-l),(a+b-1)));
+        }
+        thePlot->clear();
+        thePlot->addLine(x,y);
+    } else {
+        QVector<double> x(100);
+        QVector<double> y(100);
+        QVector<double> x1(100);
+        QVector<double> y1(100);
+        for (int i=0; i<100; i++) {
+            x[i] =  a+1;
+            y[i] =  b+10;
+            x1[i] =  u+1;
+            y1[i] =  l+10;
+        }
+        thePlot->clear();
+        thePlot->addLine(x,y);
+        thePlot->addLine(x1,y1);
+    }
 }

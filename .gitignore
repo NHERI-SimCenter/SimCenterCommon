@@ -43,7 +43,11 @@ build*
 # QT
 *.pro.user
 *.#
-icons/\.DS_Store
 
 *.swp
+*.dmg
+.DS_Store
 
+*.qm
+
+SimFigure/SimPlotDemo/SimPlotDemo.pro.user.4.10-pre1

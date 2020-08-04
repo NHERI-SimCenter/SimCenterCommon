@@ -42,6 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "RandomVariableDistribution.h"
 class QLineEdit;
 class QLabel;
+class SimCenterGraphPlot;
 
 class UniformDistribution : public RandomVariableDistribution
 {
@@ -58,11 +59,14 @@ public:
 signals:
 
 public slots:
+    void updateDistributionPlot();
 
 private:
     QLineEdit *min;
     QLineEdit *max;
     QLineEdit *initialPoint;
+
+     SimCenterGraphPlot *thePlot;
 };
 
 #endif // UNIFORMDISTRIBUTION_H

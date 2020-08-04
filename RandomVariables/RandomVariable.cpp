@@ -61,13 +61,13 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 
 RandomVariable::RandomVariable()
-    :SimCenterWidget(0),variableClass(QString(""))
+    :SimCenterWidget(0), refCount(0), variableClass(QString(""))
 {
 
 }
 
 RandomVariable::RandomVariable(const QString &type, QWidget *parent)
-    :SimCenterWidget(parent),variableClass(type), refCount(0)
+    :SimCenterWidget(parent), refCount(0), variableClass(type)
 {
     //
     // create a vertical layout to deal with variable name
@@ -119,7 +119,7 @@ RandomVariable::RandomVariable(const QString &type, QWidget *parent)
         distributionComboBox->addItem(tr("Constant"));
         distributionComboBox->addItem(tr("Weibull"));
         distributionComboBox->addItem(tr("Gumbel"));
-        distributionComboBox->addItem(tr("UserDef"));
+        //distributionComboBox->addItem(tr("UserDef"));
     }
     connect(distributionComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(distributionChanged(QString)));
 
@@ -129,8 +129,6 @@ RandomVariable::RandomVariable(const QString &type, QWidget *parent)
     // the RandomVAriableDistribution widget line up visually, there could be a Qt way to deal with this
     //
 
-    // create this widget & a hozizontal layout and place our 2 verticaal layouts inside
-    QWidget *theWidget = new QWidget();
     //QHBoxLayout *widgetLayout = new QHBoxLayout;
 
     // create the main layout inside which we place a spacer & main widget
@@ -225,7 +223,6 @@ RandomVariable::outputToJSON(QJsonObject &rvObject){
 
 bool
 RandomVariable::inputFromJSON(QJsonObject &rvObject){
-    bool result = false;
     QString distributionType;
     if (rvObject.contains("name")) {
         QJsonValue theName = rvObject["name"];
