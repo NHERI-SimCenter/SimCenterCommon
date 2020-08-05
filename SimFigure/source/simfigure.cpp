@@ -389,6 +389,21 @@ void SimFigure::rescale(void)
         m_plot->setAxisScale(QwtPlot::yLeft,   1, 100);
         m_plot->setAxisScale(QwtPlot::xBottom, 1, 100);
     }
+
+}
+
+/*! set limits for x axis (private) */
+void SimFigure::setXLim(double xmin, double xmax)
+{
+    m_plot->setAxisScale(QwtPlot::xBottom, xmin, xmax);
+    m_plot->replot();
+}
+
+/*! set limits for y axis (private) */
+void SimFigure::setYLim(double ymin, double ymax)
+{
+    m_plot->setAxisScale(QwtPlot::yLeft, ymin, ymax);
+    m_plot->replot();
 }
 
 /*! Regenerate th egrid with new settings (Type, limits) - (private) */
@@ -910,10 +925,10 @@ void SimFigure::setLineStyle(QwtPlotCurve *curve, LineType lt)
  * @param ID ... unique handle for the curve of interest
  * @return SimFigure::Marker enum to identify the marker for curve with handle=ID
  */
-SimFigure::Marker SimFigure::marker(int ID)
-{
-
-}
+// SimFigure::Marker SimFigure::marker(int ID)
+// {
+//
+// }
 
 /**
  * @brief SimFigure::markerSize
