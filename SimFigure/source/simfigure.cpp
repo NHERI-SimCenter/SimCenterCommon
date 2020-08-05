@@ -925,10 +925,39 @@ void SimFigure::setLineStyle(QwtPlotCurve *curve, LineType lt)
  * @param ID ... unique handle for the curve of interest
  * @return SimFigure::Marker enum to identify the marker for curve with handle=ID
  */
-// SimFigure::Marker SimFigure::marker(int ID)
-// {
-//
-// }
+SimFigure::Marker SimFigure::marker(int ID)
+{
+    if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
+    {
+        const QwtSymbol *sym = m_curves.value(ID-1)->symbol();
+        int mk = sym->style();
+        switch (mk) {
+            case QwtSymbol::NoSymbol:
+                return Marker::None;
+            case QwtSymbol::XCross:
+                return Marker::Ex;
+            case QwtSymbol::Rect:
+                return Marker::Box;
+            case QwtSymbol::Cross:
+                return Marker::Plus;
+            case QwtSymbol::Ellipse:
+                return Marker::Circle;
+            case QwtSymbol::Star1:
+                return Marker::Asterisk;
+            case QwtSymbol::Triangle:
+                return Marker::Triangle;
+            case QwtSymbol::DTriangle:
+                return Marker::DownTriangle;
+            case QwtSymbol::LTriangle:
+                return Marker::LeftTriangle;
+            case QwtSymbol::RTriangle:
+                return Marker::RightTriangle;
+        }
+    }
+    else {
+        return Marker::None;
+    }
+}
 
 /**
  * @brief SimFigure::markerSize
