@@ -57,6 +57,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "UniformDistribution.h"
 #include "ExponentialDistribution.h"
 #include "DiscreteDistribution.h"
+#include "GammaDistribution.h"
+#include "ChiSquaredDistribution.h"
+#include "TruncatedExponentialDistribution.h"
+
 #include "ConstantDistribution.h"
 #include "ContinuousDesignDistribution.h"
 #include "UserDef.h"
@@ -146,6 +150,9 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     if (uqengin==QString("SimCenterUQ")){
         distributionComboBox->addItem(tr("Exponential"));
         distributionComboBox->addItem(tr("Discrete"));
+        distributionComboBox->addItem(tr("Gamma"));
+        distributionComboBox->addItem(tr("Chi-squared"));
+        distributionComboBox->addItem(tr("Truncated exponential"));
     }
 
     connect(distributionComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(distributionChanged(QString)));
@@ -366,6 +373,15 @@ void RandomVariable::distributionChanged(const QString &arg1)
         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     } else if (arg1 == QString("Discrete")) {
         theDistribution = new DiscreteDistribution();
+        mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+    } else if (arg1 == QString("Gamma")) {
+        theDistribution = new GammaDistribution(typeOpt);
+        mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+    } else if (arg1 == QString("Chi-squared")) {
+        theDistribution = new ChiSquaredDistribution(typeOpt);
+        mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+    } else if (arg1 == QString("Truncated exponential")) {
+        theDistribution = new TruncatedExponentialDistribution(typeOpt);
         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     }
     connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));

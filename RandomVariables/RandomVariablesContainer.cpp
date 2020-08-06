@@ -54,11 +54,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QGridLayout>
 #include <QHeaderView>
 
+// To check validity of correlation matrix
+#include <Eigen/Dense>
+
 RandomVariablesContainer::RandomVariablesContainer(QWidget *parent)
     : SimCenterWidget(parent), correlationDialog(NULL), correlationMatrix(NULL), checkbox(NULL)
 {
     randomVariableClass = QString("Uncertain");
-    uq="Dakota";
+    uq=QString("Dakota");
     verticalLayout = new QVBoxLayout();
     this->setLayout(verticalLayout);
     this->makeRV();
@@ -213,7 +216,7 @@ RandomVariablesContainer::makeRV(void)
     titleLayout->addItem(spacer3);
 
     //FMK - removing correlation matrix
-    // titleLayout->addWidget(addCorrelation,0,Qt::AlignTop);
+    titleLayout->addWidget(addCorrelation,0,Qt::AlignTop);
 
 
     //titleLayout->addItem(spacer4);
@@ -241,7 +244,9 @@ RandomVariablesContainer::makeRV(void)
      verticalLayout->setSpacing(0);
      verticalLayout->setMargin(0);
 
-
+    //if(correlationMatrix!=NULL) {
+        //connect(correlationMatrix,SIGNAL(itemChanged(QTableWidgetItem*)),this,SLOT(makeCorrSymmetric()));
+    //}
 }
 
 
@@ -323,21 +328,28 @@ RandomVariablesContainer::addRandomVariable(void) {
                 QTableWidgetItem *newItem1,*newItem2;
                 newItem1 = new QTableWidgetItem("0.0");
                 newItem2 = new QTableWidgetItem("0.0");
+
+
                 correlationMatrix->setItem(numRandomVariables-1,i,newItem1);
+                newItem2->setFlags(newItem2->flags() ^ Qt::ItemIsEditable);
                 correlationMatrix->setItem(i,numRandomVariables-1,newItem2);
+                correlationMatrix->item(i,numRandomVariables-1)->setBackground(Qt::gray);
             }
 
             correlationMatrix->setColumnWidth(numRandomVariables-1,100);
             QTableWidgetItem *newItem;
 
             newItem = new QTableWidgetItem("1.0");
+            newItem->setFlags(newItem->flags() ^ Qt::ItemIsEditable);
             correlationMatrix->setItem(numRandomVariables-1,numRandomVariables-1, newItem);
+            correlationMatrix->item(numRandomVariables-1,numRandomVariables-1)->setBackground(Qt::gray);
 
             correlationMatrix->resizeColumnsToContents();
             correlationMatrix->resizeRowsToContents();
 
         }
     }
+    //
 }
 
 
@@ -456,10 +468,23 @@ void RandomVariablesContainer::addCorrelationMatrix(void) {
         correlationDialog->setModal(true);
         correlationDialog->setWindowTitle(tr("Correlation Matrix"));
         QGridLayout *correlationLayout = new QGridLayout();
+        QHBoxLayout *checkCorrLayout = new QHBoxLayout();
+
+        // correlation matrix
         correlationMatrix = new QTableWidget;
 
+        // push button
+        QPushButton *correlationButton = new QPushButton("  OK  ");
+
+        // error message
+        correlationError = new QLabel();
+
+        checkCorrLayout->addWidget(correlationButton,0);
+        checkCorrLayout->addWidget(correlationError,1);
         correlationLayout->addWidget(correlationMatrix,0,0);
+        correlationLayout->addLayout(checkCorrLayout,1,0);
         correlationDialog->setLayout(correlationLayout);
+
         flag_for_correlationMatrix=1;
 
         correlationMatrix->setRowCount(numRandomVariables);
@@ -479,22 +504,97 @@ void RandomVariablesContainer::addCorrelationMatrix(void) {
 
         for(int i = 0; i < numRandomVariables; i++) {
             correlationMatrix->setColumnWidth(i,100 );
-            for(int j = 0; j < numRandomVariables; j++) {
-                QTableWidgetItem *newItem;
+            for(int j = 0; j < i+1; j++) {
+                QTableWidgetItem *newItem, *newItem2;
 
-                if (i==j)
+                if (i==j) { // Not editable
                     newItem = new QTableWidgetItem("1.0");
-                else
+                    newItem->setFlags(newItem->flags() ^ Qt::ItemIsEditable);
+                    correlationMatrix->setItem(i,j, newItem);
+                    correlationMatrix->item(i,j)->setBackground(Qt::gray);
+                } else {
                     newItem = new QTableWidgetItem("0.0");
-                correlationMatrix->setItem(i,j, newItem);
+                    correlationMatrix->setItem(i,j, newItem);
+                    newItem2 = new QTableWidgetItem("0.0");
+                    newItem2->setFlags(newItem2->flags() ^ Qt::ItemIsEditable);
+                    correlationMatrix->setItem(j,i, newItem2);
+                    correlationMatrix->item(j,i)->setBackground(Qt::gray);
+                }
             }
         }
 
         correlationMatrix->resizeColumnsToContents();
         correlationMatrix->resizeRowsToContents();
+
+        connect(correlationMatrix,SIGNAL(cellChanged(int, int)),this,SLOT(makeCorrSymmetric(int,int)));
+        connect(correlationButton,SIGNAL(clicked()),this,SLOT(checkCorrValidity()));
     }
     if (correlationDialog != NULL)
         correlationDialog->show();
+
+}
+
+// automatically fill in the upper triangle of corr. matrix
+
+void RandomVariablesContainer::makeCorrSymmetric(int i, int j) {
+    // If lower triangle part changes, make this matrix symmetric
+    if (i>j) {
+        // Check validity of input
+        QString valueStr = (((correlationMatrix->item(i,j))->text()));
+        bool isdouble = 1;
+        if ((valueStr.toDouble()-("1"+valueStr+"1").toDouble())==0.0) {
+            isdouble = 0;
+        }
+        double value = valueStr.toDouble();
+
+        // If input is invalid, make it zero
+        if ((abs(value)>=1.0) || !isdouble) {
+            valueStr="0.0";
+            QTableWidgetItem *cellItem1= new QTableWidgetItem(valueStr);
+            correlationMatrix->setItem(i,j, cellItem1);
+
+            correlationError->setText("should be in range (-1,1)");
+            correlationError->setStyleSheet("color : red; }");
+        } else {
+            QTableWidgetItem *cellItem2= new QTableWidgetItem(valueStr);
+            cellItem2->setFlags(cellItem2->flags() ^ Qt::ItemIsEditable);
+
+            correlationMatrix->setItem(j,i, cellItem2);
+            correlationMatrix->item(j,i)->setBackground(Qt::gray);
+            correlationError->setText("");
+        }
+    }
+}
+
+// Check validity of corr. matrix (Valid if all eigen values are non-negative)
+
+void
+RandomVariablesContainer::checkCorrValidity(void) {
+
+    int dim=theRandomVariables.size();
+    Eigen::MatrixXd correlationData(dim,dim);
+    for (int i = 0; i <dim; ++i) {
+        for (int j = 0; j <dim; ++j) {
+            QTableWidgetItem *cellItemFromTable=correlationMatrix->item(i,j);
+            if (cellItemFromTable!=NULL) {
+                correlationData(i,j)=((cellItemFromTable->text()).toDouble());
+            } else {
+                correlationData(i,j) = 0.;
+            }
+        }
+    }
+
+    // compute the Cholesky decomposition of correlation matrix
+    Eigen::LLT<Eigen::MatrixXd> llt(correlationData);
+    if(llt.info() == Eigen::NumericalIssue)
+    {
+        correlationError->setText("should be positive definite.");
+        correlationError->setStyleSheet("color : red; }");
+    } else {
+        correlationError->setText("");
+        correlationDialog->hide();
+    }
+
 }
 
 // loop over random variables, removing from layout & deleting
