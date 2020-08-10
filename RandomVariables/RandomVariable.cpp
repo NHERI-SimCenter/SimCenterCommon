@@ -151,7 +151,7 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
         distributionComboBox->addItem(tr("Exponential"));
         distributionComboBox->addItem(tr("Discrete"));
         distributionComboBox->addItem(tr("Gamma"));
-        distributionComboBox->addItem(tr("Chi-squared"));
+        distributionComboBox->addItem(tr("Chisquared"));
         distributionComboBox->addItem(tr("Truncated exponential"));
     }
 
@@ -377,7 +377,7 @@ void RandomVariable::distributionChanged(const QString &arg1)
     } else if (arg1 == QString("Gamma")) {
         theDistribution = new GammaDistribution(typeOpt);
         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
-    } else if (arg1 == QString("Chi-squared")) {
+    } else if (arg1 == QString("Chisquared")) {
         theDistribution = new ChiSquaredDistribution(typeOpt);
         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     } else if (arg1 == QString("Truncated exponential")) {

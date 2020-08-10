@@ -75,14 +75,14 @@ ExponentialDistribution::ExponentialDistribution(QString inpType, QWidget *paren
     } else if (inpty==QString("Dataset")) {
 
 
-        dataDir = this->createTextEntry(tr("Data dir"), mainLayout);
+        dataDir = this->createTextEntry(tr("Data File"), mainLayout);
         dataDir->setMinimumWidth(200);
         dataDir->setMaximumWidth(200);
         // Layout
         /*
         QVBoxLayout *entryLayout = new QVBoxLayout();
         QLabel *entryLabel = new QLabel();
-        entryLabel->setText("Data dir");
+        entryLabel->setText("Data File");
         QLineEdit *dataDir = new QLineEdit();
         dataDir->setMinimumWidth(500);
         dataDir->setMaximumWidth(500);

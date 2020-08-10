@@ -79,7 +79,7 @@ UniformDistribution::UniformDistribution(QString inpType, QWidget *parent) :Rand
     } else if (inpty==QString("Dataset")) {
 
 
-        dataDir = this->createTextEntry(tr("Data dir"), mainLayout);
+        dataDir = this->createTextEntry(tr("Data File"), mainLayout);
         dataDir->setMinimumWidth(200);
         dataDir->setMaximumWidth(200);
 

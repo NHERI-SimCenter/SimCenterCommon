@@ -91,7 +91,7 @@ BetaDistribution::BetaDistribution(QString inpType, QWidget *parent) :RandomVari
         b  = this->createTextEntry(tr("Max."), mainLayout);
         b->setValidator(new QDoubleValidator);
 
-        dataDir = this->createTextEntry(tr("Data dir"), mainLayout);
+        dataDir = this->createTextEntry(tr("Data File"), mainLayout);
         //dataDir->setMinimumWidth(500);
         //dataDir->setMaximumWidth(500);
 
@@ -154,13 +154,15 @@ BetaDistribution::outputToJSON(QJsonObject &rvObject){
         }
         rvObject["mean"]=mean->text().toDouble();
         rvObject["standardDev"]=standardDev->text().toDouble();
-        rvObject["upperBound"]=alpha->text().toDouble();
+        rvObject["lowerBound"]=alpha->text().toDouble();
         rvObject["upperBound"]=beta->text().toDouble();
     } else if (inpty==QString("Dataset")) {
         if (dataDir->text().isEmpty()) {
             emit sendErrorMessage("ERROR: BetaDistribution - data has not been set");
             return false;
         }
+        rvObject["lowerBound"]=alpha->text().toDouble();
+        rvObject["upperBound"]=beta->text().toDouble();
         rvObject["dataDir"]=QString(dataDir->text());
     }
     return true;

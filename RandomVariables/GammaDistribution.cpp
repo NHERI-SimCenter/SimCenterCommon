@@ -80,7 +80,7 @@ GammaDistribution::GammaDistribution(QString inpType, QWidget *parent) :RandomVa
     } else if (inpty==QString("Dataset")) {
 
 
-        dataDir = this->createTextEntry(tr("Data dir"), mainLayout);
+        dataDir = this->createTextEntry(tr("Data File"), mainLayout);
         dataDir->setMinimumWidth(200);
         dataDir->setMinimumWidth(200);
 

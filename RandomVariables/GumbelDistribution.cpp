@@ -79,7 +79,7 @@ GumbelDistribution::GumbelDistribution(QString inpType, QWidget *parent) :Random
     } else if (inpty==QString("Dataset")) {
 
 
-        dataDir = this->createTextEntry(tr("Data dir"), mainLayout);
+        dataDir = this->createTextEntry(tr("Data File"), mainLayout);
         dataDir->setMinimumWidth(200);
         dataDir->setMaximumWidth(200);
 

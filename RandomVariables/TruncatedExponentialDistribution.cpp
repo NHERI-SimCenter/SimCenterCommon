@@ -88,7 +88,7 @@ TruncatedExponentialDistribution::TruncatedExponentialDistribution(QString inpTy
         a->setValidator(new QDoubleValidator(0.0,1.e10,1000));
         b  = this->createTextEntry(tr("Max."), mainLayout);
         b->setValidator(new QDoubleValidator(0.0,1.e10,1000));
-        dataDir = this->createTextEntry(tr("Data dir"), mainLayout);
+        dataDir = this->createTextEntry(tr("Data File"), mainLayout);
         dataDir->setMinimumWidth(200);
         dataDir->setMinimumWidth(200);
 

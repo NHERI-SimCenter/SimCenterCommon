@@ -71,7 +71,7 @@ NormalDistribution::NormalDistribution(QString inpType, QWidget *parent) :Random
 
     } else if (inpty==QString("Dataset")) {
 
-        dataDir = this->createTextEntry(tr("Data dir"), mainLayout);
+        dataDir = this->createTextEntry(tr("Data File"), mainLayout);
         dataDir->setMinimumWidth(200);
         dataDir->setMaximumWidth(200);
         QPushButton *chooseFileButton = new QPushButton("Choose");
