@@ -65,6 +65,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "ContinuousDesignDistribution.h"
 #include "UserDef.h"
 
+
 RandomVariable::RandomVariable()
     :SimCenterWidget(0), refCount(0), variableClass(QString(""))
 {
@@ -72,13 +73,11 @@ RandomVariable::RandomVariable()
 }
 
 RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *parent)
-    :SimCenterWidget(parent), refCount(0), variableClass(type)
+    :SimCenterWidget(parent), refCount(0), variableClass(type), uqEngineName(uqengin)
 {
     //
     // create a vertical layout to deal with variable name
     //
-
-    uq=uqengin;
 
     QVBoxLayout *nameLayout = new QVBoxLayout();
     variableLabel = new QLabel();
@@ -147,7 +146,7 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
             distributionComboBox->addItem(tr("Constant"));
     }
 
-    if (uqengin==QString("SimCenterUQ")){
+    if (uqEngineName==QString("SimCenterUQ")){
         distributionComboBox->addItem(tr("Exponential"));
         distributionComboBox->addItem(tr("Discrete"));
         distributionComboBox->addItem(tr("Gamma"));
@@ -292,6 +291,18 @@ RandomVariable::inputFromJSON(QJsonObject &rvObject){
         return false;
     }
 
+    if ((distributionType==tr("Exponential")) ||
+        (distributionType==tr("Discrete")) ||
+        (distributionType==tr("Gamma")) ||
+        (distributionType==tr("Chisquared")) ||
+        (distributionType==tr("Truncated exponential")))
+    {
+        distributionComboBox->addItem(tr("Exponential"));
+        distributionComboBox->addItem(tr("Discrete"));
+        distributionComboBox->addItem(tr("Gamma"));
+        distributionComboBox->addItem(tr("Chisquared"));
+        distributionComboBox->addItem(tr("Truncated exponential"));
+    }
 
     int index1 = typeComboBox->findText(inputType);
     this->typeChanged(inputType);
@@ -334,8 +345,7 @@ void RandomVariable::distributionChanged(const QString &arg1)
         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
 
     } else if (arg1 == QString("Lognormal")) {
-        QString a=this->uq;
-        if (this->uq==QString("Dakota")) {
+        if (this->uqEngineName==QString("Dakota")) {
             theDistribution = new LognormalDistribution(QString("Moments"));
             // Dakota gets moments for lognormal
         } else {

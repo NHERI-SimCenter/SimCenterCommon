@@ -102,7 +102,7 @@ private:
     QVBoxLayout *rvLayout;
     QWidget *rv;
 
-    QString randomVariableClass, uq;
+    QString randomVariableClass, uqEngineName;
     QVector<RandomVariable *>theRandomVariables;
     QDialog *correlationDialog;
     QTableWidget *correlationMatrix;

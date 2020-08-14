@@ -126,7 +126,8 @@ NormalDistribution::inputFromJSON(QJsonObject &rvObject){
     // for all entries, make sure i exists and if it does get it, otherwise return error
     //
 
-    if ((this->inpty==QString("Parameters")) || (this->inpty==QString("Moments"))) {
+    inpty=rvObject["inputType"].toString();
+    if ((inpty==QString("Parameters")) || (inpty==QString("Moments"))) {
 
         if (rvObject.contains("mean")) {
             QJsonValue theMeanValue = rvObject["mean"];
@@ -144,7 +145,7 @@ NormalDistribution::inputFromJSON(QJsonObject &rvObject){
             return false;
         }
 
-    } else if (this->inpty==QString("Dataset")) {
+    } else if (inpty==QString("Dataset")) {
 
       if (rvObject.contains("dataDir")) {
           QString theDataDir = rvObject["dataDir"].toString();

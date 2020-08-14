@@ -80,7 +80,7 @@ public slots:
 private:
     RandomVariableDistribution *theDistribution;
 
-    QString variableClass, typeOpt, uq; //=QString("Parameters");
+    QString variableClass, typeOpt, uqEngineName; //=QString("Parameters");
     QLabel *variableLabel;
     QLabel *distributionLabel, *typeLabel;
 

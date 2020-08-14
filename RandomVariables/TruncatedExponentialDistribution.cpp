@@ -168,7 +168,8 @@ TruncatedExponentialDistribution::inputFromJSON(QJsonObject &rvObject){
     // for all entries, make sure i exists and if it does get it, otherwise return error
     //
 
-    if (this->inpty==QString("Parameters")) {
+    inpty=rvObject["inputType"].toString();
+    if (inpty==QString("Parameters")) {
         if (rvObject.contains("lambda")) {
             double thelambdaValue = rvObject["lambda"].toDouble();
             lambda->setText(QString::number(thelambdaValue));
@@ -192,7 +193,7 @@ TruncatedExponentialDistribution::inputFromJSON(QJsonObject &rvObject){
         }
 
 
-      } else if (this->inpty==QString("Moments")) {
+      } else if (inpty==QString("Moments")) {
 
         if (rvObject.contains("mean")) {
             double theMeanValue = rvObject["mean"].toDouble();
@@ -216,7 +217,7 @@ TruncatedExponentialDistribution::inputFromJSON(QJsonObject &rvObject){
             return false;
         }
 
-    } else if (this->inpty==QString("Dataset")) {
+    } else if (inpty==QString("Dataset")) {
 
         if (rvObject.contains("a")) {
             double thezetaValue = rvObject["a"].toDouble();

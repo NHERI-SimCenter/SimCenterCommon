@@ -145,8 +145,8 @@ BetaDistribution::outputToJSON(QJsonObject &rvObject){
         }
         rvObject["alphas"]=alpha->text().toDouble();
         rvObject["betas"]=beta->text().toDouble();
-        rvObject["upperBound"]=alpha->text().toDouble();
-        rvObject["upperBound"]=beta->text().toDouble();
+        rvObject["upperBound"]=a->text().toDouble();
+        rvObject["upperBound"]=b->text().toDouble();
     } else if (inpty==QString("Moments")) {
         if ((mean->text().isEmpty())||(standardDev->text().isEmpty())||(a->text().isEmpty())||(b->text().isEmpty())) {
             emit sendErrorMessage("ERROR: BetaDistribution - data has not been set");
@@ -154,15 +154,15 @@ BetaDistribution::outputToJSON(QJsonObject &rvObject){
         }
         rvObject["mean"]=mean->text().toDouble();
         rvObject["standardDev"]=standardDev->text().toDouble();
-        rvObject["lowerBound"]=alpha->text().toDouble();
-        rvObject["upperBound"]=beta->text().toDouble();
+        rvObject["lowerBound"]=a->text().toDouble();
+        rvObject["upperBound"]=b->text().toDouble();
     } else if (inpty==QString("Dataset")) {
         if (dataDir->text().isEmpty()) {
             emit sendErrorMessage("ERROR: BetaDistribution - data has not been set");
             return false;
         }
-        rvObject["lowerBound"]=alpha->text().toDouble();
-        rvObject["upperBound"]=beta->text().toDouble();
+        rvObject["lowerBound"]=a->text().toDouble();
+        rvObject["upperBound"]=b->text().toDouble();
         rvObject["dataDir"]=QString(dataDir->text());
     }
     return true;
@@ -175,7 +175,8 @@ BetaDistribution::inputFromJSON(QJsonObject &rvObject){
     // for all entries, make sure i exists and if it does get it, otherwise return error
     //
 
-    if (this->inpty==QString("Parameters")) {
+    inpty=rvObject["inputType"].toString();
+    if (inpty==QString("Parameters")) {
         if (rvObject.contains("alphas")) {
             double theAlphaValue = rvObject["alphas"].toDouble();
             alpha->setText(QString::number(theAlphaValue));
@@ -205,7 +206,7 @@ BetaDistribution::inputFromJSON(QJsonObject &rvObject){
             return false;
         }
 
-      } else if (this->inpty==QString("Moments")) {
+      } else if (inpty==QString("Moments")) {
 
         if (rvObject.contains("mean")) {
             double theMeanValue = rvObject["mean"].toDouble();
@@ -236,7 +237,7 @@ BetaDistribution::inputFromJSON(QJsonObject &rvObject){
             return false;
         }
 
-    } else if (this->inpty==QString("Dataset")) {
+    } else if (inpty==QString("Dataset")) {
 
       if (rvObject.contains("dataDir")) {
           QString theDataDir = rvObject["dataDir"].toString();

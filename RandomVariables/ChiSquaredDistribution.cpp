@@ -146,7 +146,8 @@ ChiSquaredDistribution::inputFromJSON(QJsonObject &rvObject){
     // for all entries, make sure i exists and if it does get it, otherwise return error
     //
 
-    if (this->inpty==QString("Parameters")) {
+    inpty=rvObject["inputType"].toString();
+    if (inpty==QString("Parameters")) {
         if (rvObject.contains("k")) {
             double thekValue = rvObject["k"].toDouble();
             k->setText(QString::number(thekValue));
@@ -155,7 +156,7 @@ ChiSquaredDistribution::inputFromJSON(QJsonObject &rvObject){
             return false;
         }
 
-      } else if (this->inpty==QString("Moments")) {
+      } else if (inpty==QString("Moments")) {
 
         if (rvObject.contains("mean")) {
             double theMeanValue = rvObject["mean"].toDouble();
@@ -165,7 +166,7 @@ ChiSquaredDistribution::inputFromJSON(QJsonObject &rvObject){
             return false;
         }
 
-    } else if (this->inpty==QString("Dataset")) {
+    } else if (inpty==QString("Dataset")) {
 
       if (rvObject.contains("dataDir")) {
           QString theDataDir = rvObject["dataDir"].toString();

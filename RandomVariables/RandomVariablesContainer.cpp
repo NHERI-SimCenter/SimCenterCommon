@@ -61,7 +61,7 @@ RandomVariablesContainer::RandomVariablesContainer(QWidget *parent)
     : SimCenterWidget(parent), correlationDialog(NULL), correlationMatrix(NULL), checkbox(NULL)
 {
     randomVariableClass = QString("Uncertain");
-    uq=QString("Dakota");
+    uqEngineName=QString("Dakota");
     verticalLayout = new QVBoxLayout();
     this->setLayout(verticalLayout);
     this->makeRV();
@@ -71,7 +71,7 @@ RandomVariablesContainer::RandomVariablesContainer(QString &theClass, QString uq
     : SimCenterWidget(parent), correlationDialog(NULL), correlationMatrix(NULL), checkbox(NULL)
 {
     randomVariableClass = theClass;
-    uq=uqgin;
+    uqEngineName=uqgin;
     verticalLayout = new QVBoxLayout();
     this->setLayout(verticalLayout);
     this->makeRV();
@@ -88,7 +88,7 @@ RandomVariablesContainer::addConstantRVs(QStringList &varNamesAndValues)
 
         double dValue = value.toDouble();
         ConstantDistribution *theDistribution = new ConstantDistribution(dValue, 0);
-        RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution,uq);
+        RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution, uqEngineName);
 
         this->addRandomVariable(theRV);
     }
@@ -98,7 +98,7 @@ void
 RandomVariablesContainer::addRandomVariable(QString &varName) {
 
     NormalDistribution *theDistribution = new NormalDistribution();
-    RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution, uq);
+    RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution, uqEngineName);
 
     this->addRandomVariable(theRV);
 }
@@ -286,7 +286,7 @@ RandomVariablesContainer::variableNameChanged(const QString &newValue) {
 void
 RandomVariablesContainer::addRandomVariable(void) {
 
-    RandomVariable *theRV = new RandomVariable(randomVariableClass, uq);
+    RandomVariable *theRV = new RandomVariable(randomVariableClass, uqEngineName);
     theRandomVariables.append(theRV);
     rvLayout->insertWidget(rvLayout->count()-1, theRV);
     connect(this,SLOT(randomVariableErrorMessage(QString)), theRV, SIGNAL(sendErrorMessage(QString)));
@@ -715,7 +715,7 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
                   QJsonValue typeRV = rvObject["variableClass"];
                   RandomVariable *theRV = 0;
                   QString classType = typeRV.toString();
-                  theRV = new RandomVariable(classType,uq);
+                  theRV = new RandomVariable(classType,uqEngineName);
                   connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(variableNameChanged(const QString &)));
 
                   connect(theRV,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
@@ -739,22 +739,32 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
 
   // get correlationMatrix if present and add data if it is int
   if (rvObject.contains("correlationMatrix")) {
-      if (rvObject["correlationMatrix"].isArray()) {
 
+      if (rvObject["correlationMatrix"].isArray()) {
           this->addCorrelationMatrix();
           QJsonArray rvArray = rvObject["correlationMatrix"].toArray();
           // foreach object in array
           int row = 0; int col = 0;
 
-          foreach (const QJsonValue &rvValue, rvArray) {
-              double value = rvValue.toDouble();
-              QTableWidgetItem *item = correlationMatrix->item(row,col);
-              item->setText(QString::number(value));
-              col++;
-              if (col == numRandomVariables) {
-                  row++; col=0;
-              }
-          }
+          //foreach (const QJsonValue &rvValue, rvArray) {
+         //     double value = rvValue.toDouble();
+         //     QTableWidgetItem *item = correlationMatrix->item(row,col);
+          //    item->setText(QString::number(value));
+          //    col++;
+         //     if (col == numRandomVariables) {
+          //        row++; col=0;
+          //    }
+         // }
+
+      for (int row=0; row<numRandomVariables; row++) {
+             for (int col=0; col<row; col++) {
+                 double value = rvArray[col+row*numRandomVariables].toDouble();
+                 QTableWidgetItem *item = correlationMatrix->item(row,col);
+                 item->setText(QString::number(value));
+             }
+      }
+
+
       }
       // hide the dialog so matrix not shown
       correlationDialog->hide();
