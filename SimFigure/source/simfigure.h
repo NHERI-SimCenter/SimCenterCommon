@@ -112,6 +112,7 @@ public:
     int plot(QVector<double> &, QVector<double> &, LineType lt = LineType::Solid, QColor col = Qt::red, Marker mk = Marker::None);
     int scatter(QVector<double> &, QVector<double> &, QColor col = Qt::blue, Marker mk = Marker::Circle);
 
+
     void clear(void);
     void cla(void);
 
@@ -136,6 +137,8 @@ public:
 
     void setXLabel(QString lbl);
     void setYLabel(QString lbl);
+    void setXLim(double xmin, double xmax);
+    void setYLim(double ymin, double ymax);
     void setLabelFontSize(int);
     void setTitle(QString title);
     void setTitleFontSize(int);
