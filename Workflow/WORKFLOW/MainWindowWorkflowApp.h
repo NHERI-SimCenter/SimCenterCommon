@@ -28,6 +28,7 @@ public:
     void setVersion(QString &version);
     void setDocumentationURL(QString &version);
     void setAbout(QString &about);
+    void setAbout(QString &, QString&);
     void setFeedbackURL(QString &feedback);
     void setCite(QString &cite);
 

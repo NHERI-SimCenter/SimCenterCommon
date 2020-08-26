@@ -147,7 +147,7 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
         QString selectedFile = QFileDialog::getOpenFileName(this,
                                                             tr("Select Opensees Interpreter"),
                                                             existingDir,
-                                                            "All files (*.*)");
+                                                            "All files (*)");
 
         if(!selectedFile.isEmpty()) {
             opensees->setText(selectedFile);
@@ -188,7 +188,7 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
         QString selectedFile = QFileDialog::getOpenFileName(this,
                                                             tr("Select Dakota Interpreter"),
                                                             existingDir,
-                                                            "All files (*.*)");
+                                                            "All files (*)");
 
         if(!selectedFile.isEmpty()) {
             dakota->setText(selectedFile);
@@ -466,11 +466,20 @@ SimCenterPreferences::resetPreferences(bool) {
 #else
     QString pythonPath = QStandardPaths::findExecutable("python3");
     if (pythonPath.isEmpty()) {
+      // this is where python.org installer puts it
+      QFileInfo installedPython3("/Library/Frameworks/Python.framework/Versions/3.7/bin/python3");
+      if (installedPython3.exists()) {
+	pythonPath = installedPython3.filePath();
+      } else {
+	// maybe user has a local installed copy .. look in standard path
         QFileInfo localPython3("/usr/local/bin/python3");
-        if (localPython3.exists())
+        if (localPython3.exists()) {
             pythonPath = localPython3.filePath();
-        else
-            pythonPath = QStandardPaths::findExecutable("python");
+        } else {
+	  // assume user has it correct in shell startup script 
+	  pythonPath = QStandardPaths::findExecutable("python3");
+	}
+      }
     }
 #endif
     settingsCommon.setValue("pythonExePath", pythonPath);
@@ -505,13 +514,23 @@ SimCenterPreferences::resetPreferences(bool) {
     settingsApplication.setValue("remoteAgaveApp-May2020", remoteAppName);
     remoteAgaveApp->setText(remoteAppName);
 
-    QString openseesPath = appDirLocation + QDir::separator() + "applications" +
-      QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees";
+#ifdef Q_OS_WIN
+    QString openseesPath = appDirLocation + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees.exe";
+#else
+    QString openseesPath = appDirLocation + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees";
+#endif
+
     settingsApplication.setValue("openseesPath", openseesPath);
     opensees->setText(openseesPath);
 
+#ifdef Q_OS_WIN
+    QString dakotaPath = appDirLocation + QDir::separator() + "applications" +
+      QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota.exe";
+#else
     QString dakotaPath = appDirLocation + QDir::separator() + "applications" +
       QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota";
+#endif
+
     settingsApplication.setValue("dakotaPath", dakotaPath);
     dakota->setText(dakotaPath);
 
@@ -598,25 +617,34 @@ SimCenterPreferences::loadPreferences() {
     // opensees
     QVariant  openseesPathVariant = settingsApplication.value("openseesPath");
     if (!openseesPathVariant.isValid()) {
-      QString openseesPath = currentAppDir + QDir::separator() + "applications" +
-    QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees";
-        settingsApplication.setValue("openseesPath", openseesPath);
-        opensees->setText(openseesPath);
+
+#ifdef Q_OS_WIN
+      QString openseesPath = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees.exe";
+#else
+      QString openseesPath = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees";
+      qDebug() << "openseespath: :" << openseesPath;
+#endif
+      settingsApplication.setValue("openseesPath", openseesPath);
+      opensees->setText(openseesPath);
     } else {
-        opensees->setText(openseesPathVariant.toString());
+      opensees->setText(openseesPathVariant.toString());
     }
 
     // dakota
     QVariant  dakotaPathVariant = settingsApplication.value("dakotaPath");
     if (!dakotaPathVariant.isValid()) {
-      QString dakotaPath = currentAppDir + QDir::separator() + "applications" +
-    QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota";
-        settingsApplication.setValue("dakotaPath", dakotaPath);
-        dakota->setText(dakotaPath);
-    } else {
-        dakota->setText(dakotaPathVariant.toString());
-    }
 
+#ifdef Q_OS_WIN
+      QString dakotaPath = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota.exe";
+#else
+      QString dakotaPath = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota";
+      qDebug() << "dakotaPath: :" << dakotaPath;
+#endif
+      settingsApplication.setValue("dakotaPath", dakotaPath);
+      dakota->setText(dakotaPath);
+    } else {
+      dakota->setText(dakotaPathVariant.toString());
+    }
 }
 
 QString

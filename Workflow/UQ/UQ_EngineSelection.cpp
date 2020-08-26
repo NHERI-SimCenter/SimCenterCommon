@@ -66,6 +66,7 @@ UQ_EngineSelection::UQ_EngineSelection(RandomVariablesContainer *theRVs, UQ_Engi
     : SimCenterAppWidget(parent), theCurrentEngine(0)
 {
     QVBoxLayout *layout = new QVBoxLayout();
+    layout->setMargin(0);
 
     //
     // the selection part

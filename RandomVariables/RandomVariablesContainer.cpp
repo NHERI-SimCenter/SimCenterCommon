@@ -64,6 +64,7 @@ RandomVariablesContainer::RandomVariablesContainer(QWidget *parent)
     uqEngineName=QString("Dakota");
     verticalLayout = new QVBoxLayout();
     this->setLayout(verticalLayout);
+    verticalLayout->setMargin(0);
     this->makeRV();
 }
 
