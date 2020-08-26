@@ -145,7 +145,7 @@ BetaDistribution::outputToJSON(QJsonObject &rvObject){
         }
         rvObject["alphas"]=alpha->text().toDouble();
         rvObject["betas"]=beta->text().toDouble();
-        rvObject["upperBound"]=a->text().toDouble();
+        rvObject["lowerBound"]=a->text().toDouble();
         rvObject["upperBound"]=b->text().toDouble();
     } else if (inpty==QString("Moments")) {
         if ((mean->text().isEmpty())||(standardDev->text().isEmpty())||(a->text().isEmpty())||(b->text().isEmpty())) {

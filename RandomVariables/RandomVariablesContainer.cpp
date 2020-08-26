@@ -200,7 +200,7 @@ RandomVariablesContainer::makeRV(void)
     addCorrelation->setText(tr("Correlation Matrix"));
     connect(addCorrelation,SIGNAL(clicked()),this,SLOT(addCorrelationMatrix()));
 
-    flag_for_correlationMatrix=0;
+    flag_for_correlationMatrix=1;
 
     /********************* moving to sampling method input ***************************
     QCheckBox *checkbox =new QCheckBox("Sobolev Index", this);
@@ -215,7 +215,6 @@ RandomVariablesContainer::makeRV(void)
     titleLayout->addWidget(removeRV);
     titleLayout->addItem(spacer3);
 
-    //FMK - removing correlation matrix
     titleLayout->addWidget(addCorrelation,0,Qt::AlignTop);
 
 
@@ -244,9 +243,6 @@ RandomVariablesContainer::makeRV(void)
      verticalLayout->setSpacing(0);
      verticalLayout->setMargin(0);
 
-    //if(correlationMatrix!=NULL) {
-        //connect(correlationMatrix,SIGNAL(itemChanged(QTableWidgetItem*)),this,SLOT(makeCorrSymmetric()));
-    //}
 }
 
 
@@ -326,21 +322,19 @@ RandomVariablesContainer::addRandomVariable(void) {
             {
                 correlationMatrix->setColumnWidth(i,100);
                 QTableWidgetItem *newItem1,*newItem2;
-                newItem1 = new QTableWidgetItem("0.0");
-                newItem2 = new QTableWidgetItem("0.0");
-
-
+                newItem1 = new QTableWidgetItem("0.0");                      // lower triangle
                 correlationMatrix->setItem(numRandomVariables-1,i,newItem1);
-                newItem2->setFlags(newItem2->flags() ^ Qt::ItemIsEditable);
+                newItem2 = new QTableWidgetItem("0.0");                      // upper triangle
+                newItem2->setFlags(newItem2->flags() ^ Qt::ItemIsEditable);  // FIX upper triangle
                 correlationMatrix->setItem(i,numRandomVariables-1,newItem2);
-                correlationMatrix->item(i,numRandomVariables-1)->setBackground(Qt::gray);
+                correlationMatrix->item(i,numRandomVariables-1)->setBackground(Qt::gray); // fix values
             }
 
             correlationMatrix->setColumnWidth(numRandomVariables-1,100);
             QTableWidgetItem *newItem;
 
-            newItem = new QTableWidgetItem("1.0");
-            newItem->setFlags(newItem->flags() ^ Qt::ItemIsEditable);
+            newItem = new QTableWidgetItem("1.0");                          // diagonal
+            newItem->setFlags(newItem->flags() ^ Qt::ItemIsEditable);       // FIX diagonal
             correlationMatrix->setItem(numRandomVariables-1,numRandomVariables-1, newItem);
             correlationMatrix->item(numRandomVariables-1,numRandomVariables-1)->setBackground(Qt::gray);
 
@@ -556,6 +550,7 @@ void RandomVariablesContainer::makeCorrSymmetric(int i, int j) {
             correlationError->setText("should be in range (-1,1)");
             correlationError->setStyleSheet("color : red; }");
         } else {
+        // Make value at (j,i) = value at (i,j)
             QTableWidgetItem *cellItem2= new QTableWidgetItem(valueStr);
             cellItem2->setFlags(cellItem2->flags() ^ Qt::ItemIsEditable);
 
@@ -741,10 +736,11 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
   if (rvObject.contains("correlationMatrix")) {
 
       if (rvObject["correlationMatrix"].isArray()) {
+
           this->addCorrelationMatrix();
           QJsonArray rvArray = rvObject["correlationMatrix"].toArray();
           // foreach object in array
-          int row = 0; int col = 0;
+          //int row = 0; int col = 0;
 
           //foreach (const QJsonValue &rvValue, rvArray) {
          //     double value = rvValue.toDouble();
