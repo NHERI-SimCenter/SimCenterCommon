@@ -97,6 +97,7 @@ var class_sim_figure =
     [ "setTitleFontSize", "class_sim_figure.html#a18254bd1d4112454a39414dd9e84c56e", null ],
     [ "setXLabel", "class_sim_figure.html#ab5fd943a5addf51f9e82c764cb1705fa", null ],
     [ "setYLabel", "class_sim_figure.html#ad8929bce26d02feb640b62a06d1d0dec", null ],
+    [ "showAxisControls", "class_sim_figure.html#ab7cd859da4fc1f7e5a4205d13fc8c11a", null ],
     [ "showLegend", "class_sim_figure.html#adfd4bd553792c9e0fc985299034f67e7", null ],
     [ "title", "class_sim_figure.html#a84d3287fbe5f8478dd014cc2e8ae7cd1", null ],
     [ "titleFontSize", "class_sim_figure.html#a112a8c3cddfbb596a857872c79ed28dd", null ],
