@@ -26,6 +26,7 @@
 
 #include "qwt_picker.h"
 #include "qwt_plot_picker.h"
+#include "qwt_plot_zoomer.h"
 #include "qwt_plot_item.h"
 #include "qwt_plot_shapeitem.h"
 #include "qwt_picker_machine.h"
@@ -79,6 +80,8 @@ SimFigure::SimFigure(QWidget *parent) :
     //m_picker->setTrackerMode(QwtPicker::AlwaysOff);
     m_picker->setTrackerMode(QwtPicker::AlwaysOn);
     m_picker->setRubberBand(QwtPicker::RectRubberBand);
+
+    m_zoomer = new QwtPlotZoomer(m_plot->canvas());
 
     connect(m_picker, SIGNAL(activated(bool)), this, SLOT(on_picker_activated(bool)));
     connect(m_picker, SIGNAL(selected(const QPolygon &)), this, SLOT(on_picker_selected(const QPolygon &)));
@@ -271,6 +274,33 @@ int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor 
 int SimFigure::scatter(QVector<double> &x, QVector<double> &y, QColor color, Marker mk)
 {
     return plot(x, y, SimFigure::LineType::None, color, mk);
+}
+
+/**
+ * @brief Sets x-axis limits to given values.  xmax must be larger than xmin.
+ * @brief See maxX() and minX() on how to obtain the current limits.
+ */
+void SimFigure::setXlimits(double xmin, double xmax)
+{
+    if (xmin<xmax) {
+        m_xmax = xmax;
+        m_xmin = xmin;
+        this->rescale();
+    }
+}
+
+
+/**
+ * @brief Sets y-axis limits to given values.  ymax must be larger than ymin.
+ * @brief See maxY() and minY() on how to obtain the current limits.
+ */
+void SimFigure::setYlimits(double ymin, double ymax)
+{
+    if (ymin<ymax) {
+        m_ymax = ymax;
+        m_ymin = ymin;
+        this->rescale();
+    }
 }
 
 /**
@@ -729,7 +759,7 @@ QwtPlotItem* SimFigure::itemAt( const QPoint& pos ) const
                     {
                         dist = sqrt(QPointF::dotProduct(r,r));
                         QPointF r2 = pos - x1;
-                        double d2  = sqrt(QPointF::dotProduct(r,r));
+                        double d2  = sqrt(QPointF::dotProduct(r2,r2));  // review
                         if ( d2 < dist ) { dist = d2; }
                     }
                 }

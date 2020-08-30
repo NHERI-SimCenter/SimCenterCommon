@@ -17,6 +17,7 @@ class QwtPlotCurve;
 class QwtPlotLegendItem;
 class QString;
 class QwtPlotPicker;
+class QwtPlotZoomer;
 
 
 namespace Ui {
@@ -140,6 +141,26 @@ public:
     void setTitle(QString title);
     void setTitleFontSize(int);
 
+    /**
+     * @brief returns the currently displayed minimum value of x
+     */
+    double minX() { return m_xmin; };
+    /**
+     * @brief returns the currently displayed maximum value of x
+     */
+    double maxX() { return m_xmax; };
+    /**
+     * @brief returns the currently displayed minimum value of y
+     */
+    double minY() { return m_ymin; };
+    /**
+     * @brief returns the currently displayed maximum value of y
+     */
+    double maxY() { return m_ymax; };
+
+    void setXlimits(double xmin, double xmax);
+    void setYlimits(double ymin, double ymax);
+
     int      lineWidth(int ID);
     void     setLineWidth(int ID, int wd);
 
@@ -188,6 +209,7 @@ private:
     QwtPlot       *m_plot;
     QwtPlotGrid   *m_grid;
     QwtPlotPicker *m_picker;
+    QwtPlotZoomer *m_zoomer;
     QwtPlotLegendItem  *m_legend;
     QMap<QwtPlotCurve *, int> m_plotInvMap;
     QMap<QwtPlotItem *, int>  m_itemInvMap;
