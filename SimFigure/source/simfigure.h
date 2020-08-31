@@ -18,6 +18,7 @@ class QwtPlotLegendItem;
 class QString;
 class QwtPlotPicker;
 class QwtPlotZoomer;
+class QwtPlotMagnifier;
 
 
 namespace Ui {
@@ -214,6 +215,8 @@ private:
     QwtPlotGrid   *m_grid;
     QwtPlotPicker *m_picker;
     QwtPlotZoomer *m_zoomer = nullptr;
+    QwtPlotMagnifier *m_zoom_shiftwheel = nullptr;
+    QwtPlotMagnifier *m_zoom_ctrlwheel = nullptr;
     QwtPlotLegendItem  *m_legend;
     QMap<QwtPlotCurve *, int> m_plotInvMap;
     QMap<QwtPlotItem *, int>  m_itemInvMap;
