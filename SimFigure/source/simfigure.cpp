@@ -420,9 +420,23 @@ void SimFigure::rescale(void)
         m_plot->setAxisScale(QwtPlot::yLeft,   1, 100);
         m_plot->setAxisScale(QwtPlot::xBottom, 1, 100);
     }
-
     m_plot->replot();
     m_plot->repaint();
+
+}
+
+/*! set limits for x axis (private) */
+void SimFigure::setXLim(double xmin, double xmax)
+{
+    m_plot->setAxisScale(QwtPlot::xBottom, xmin, xmax);
+    m_plot->replot();
+}
+
+/*! set limits for y axis (private) */
+void SimFigure::setYLim(double ymin, double ymax)
+{
+    m_plot->setAxisScale(QwtPlot::yLeft, ymin, ymax);
+    m_plot->replot();
 }
 
 /*! Regenerate th egrid with new settings (Type, limits) - (private) */
@@ -965,7 +979,36 @@ void SimFigure::setLineStyle(QwtPlotCurve *curve, LineType lt)
  */
 SimFigure::Marker SimFigure::marker(int ID)
 {
-    return SimFigure::Marker::Circle;  // for now, just a default; this needs to improve
+    if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
+    {
+        const QwtSymbol *sym = m_curves.value(ID-1)->symbol();
+        int mk = sym->style();
+        switch (mk) {
+            case QwtSymbol::NoSymbol:
+                return Marker::None;
+            case QwtSymbol::XCross:
+                return Marker::Ex;
+            case QwtSymbol::Rect:
+                return Marker::Box;
+            case QwtSymbol::Cross:
+                return Marker::Plus;
+            case QwtSymbol::Ellipse:
+                return Marker::Circle;
+            case QwtSymbol::Star1:
+                return Marker::Asterisk;
+            case QwtSymbol::Triangle:
+                return Marker::Triangle;
+            case QwtSymbol::DTriangle:
+                return Marker::DownTriangle;
+            case QwtSymbol::LTriangle:
+                return Marker::LeftTriangle;
+            case QwtSymbol::RTriangle:
+                return Marker::RightTriangle;
+        }
+    }
+    else {
+        return Marker::None;
+    }
 }
 
 /**
