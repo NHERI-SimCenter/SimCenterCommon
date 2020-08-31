@@ -138,6 +138,7 @@ void MainWindow::on_selectionView_clicked(const QModelIndex &index)
         break;
     }
 
+    ui->showLegend->setCheckState(Qt::CheckState::Checked);
 }
 
 void MainWindow::on_selection_changed(int ID)
@@ -169,21 +170,27 @@ void MainWindow::on_selection_changed(int ID)
 
 void MainWindow::on_btn_option1_clicked()
 {
-    ui->theFigure->showLegend(!ui->theFigure->legendVisible());
+    if (ui->theFigure->legendVisible()) {
+        ui->showLegend->setCheckState(Qt::CheckState::Unchecked);
+        //ui->theFigure->showLegend(false);
+    } else {
+        ui->showLegend->setCheckState(Qt::CheckState::Checked);
+        //ui->theFigure->showLegend(true);
+    }
 }
 
 void MainWindow::on_btn_option2_clicked()
 {
     QVector<SimFigure::Location> locList({
-                               SimFigure::Location::Top,
-                               SimFigure::Location::TopRight,
-                               SimFigure::Location::Right,
-                               SimFigure::Location::BottomRight,
-                               SimFigure::Location::Bottom,
-                               SimFigure::Location::BottomLeft,
-                               SimFigure::Location::Left,
-                               SimFigure::Location::TopLeft
-                              });
+                                             SimFigure::Location::BottomRight,
+                                             SimFigure::Location::Bottom,
+                                             SimFigure::Location::BottomLeft,
+                                             SimFigure::Location::Left,
+                                             SimFigure::Location::TopLeft,
+                                             SimFigure::Location::Top,
+                                             SimFigure::Location::TopRight,
+                                             SimFigure::Location::Right
+                                         });
 
     currentLocation++;
     if (currentLocation >= locList.length()) currentLocation -= locList.length();
@@ -239,4 +246,42 @@ void MainWindow::on_actionShow_axis_controls_triggered()
 void MainWindow::on_actionHide_axis_controls_triggered()
 {
     ui->theFigure->showAxisControls(false);
+}
+
+void MainWindow::on_btn_option4_clicked()
+{
+    ui->theFigure->fit_data();
+}
+
+void MainWindow::on_showLegend_stateChanged(int arg1)
+{
+    ui->theFigure->showLegend((ui->showLegend->checkState()==Qt::CheckState::Checked));
+}
+
+void MainWindow::on_zoomOut_clicked()
+{
+    double xmax = ui->theFigure->maxX();
+    double xmin = ui->theFigure->minX();
+    double ymax = ui->theFigure->maxY();
+    double ymin = ui->theFigure->minY();
+
+    double w=xmax-xmin;
+    double h=ymax-ymin;
+
+    ui->theFigure->setXlimits(xmin-w/10.,xmax+w/10.);
+    ui->theFigure->setYlimits(ymin-h/10.,ymax+h/10.);
+}
+
+void MainWindow::on_zoomIn_clicked()
+{
+    double xmax = ui->theFigure->maxX();
+    double xmin = ui->theFigure->minX();
+    double ymax = ui->theFigure->maxY();
+    double ymin = ui->theFigure->minY();
+
+    double w=xmax-xmin;
+    double h=ymax-ymin;
+
+    ui->theFigure->setXlimits(xmin+w/10.,xmax-w/10.);
+    ui->theFigure->setYlimits(ymin+h/10.,ymax-h/10.);
 }
