@@ -194,6 +194,7 @@ public slots:
     void on_picker_removed (const QPoint &pos);
     void on_picker_changed (const QPolygon &selection);
     void showAxisControls(bool show);
+    void fit_data();
 
 signals:
     void curve_selected(int ID);
@@ -212,7 +213,7 @@ private:
     QwtPlot       *m_plot;
     QwtPlotGrid   *m_grid;
     QwtPlotPicker *m_picker;
-    QwtPlotZoomer *m_zoomer;
+    QwtPlotZoomer *m_zoomer = nullptr;
     QwtPlotLegendItem  *m_legend;
     QMap<QwtPlotCurve *, int> m_plotInvMap;
     QMap<QwtPlotItem *, int>  m_itemInvMap;
@@ -224,6 +225,11 @@ private:
     double  m_xmax = 1.e-20;
     double  m_ymin = 1.e20;
     double  m_ymax = 1.e-20;
+
+    double  m_data_xmin = 1.e20;
+    double  m_data_xmax = 1.e-20;
+    double  m_data_ymin = 1.e20;
+    double  m_data_ymax = 1.e-20;
 
     struct SELECTION {
         QPen         pen;

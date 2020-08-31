@@ -58,6 +58,7 @@ var class_sim_figure =
     [ "clearSelection", "class_sim_figure.html#ae7e260a85fec8195b3df25061067d3ce", null ],
     [ "curve_selected", "class_sim_figure.html#ab9195d75fa5a25d0e43feb18b0bdf74a", null ],
     [ "exportToFile", "class_sim_figure.html#aeb9ee87c326f3cdb65d41cad6d7dd1d7", null ],
+    [ "fit_data", "class_sim_figure.html#a79ae9efd70a49f2c75f8cce0868ff7cf", null ],
     [ "grid", "class_sim_figure.html#abde918f82b8e33fe6ba53b3f0262baab", null ],
     [ "itemAt", "class_sim_figure.html#a937dcf129edd9dd32210a48e4a2413ff", null ],
     [ "labelFontSize", "class_sim_figure.html#aa078851550cef1fea9b794923d6d7211", null ],
