@@ -1,6 +1,6 @@
 # SimCenterCommon
 
-[![Documentation](https://img.shields.io/badge/docs-doxygen-blue.svg)]( https://nheri-simcenter.github.io/SimCenterCommon/index.html)
+Click the doxygen button for a full Class Documentation: [![Documentation](https://img.shields.io/badge/docs-doxygen-blue.svg)]( https://nheri-simcenter.github.io/SimCenterCommon/index.html)
 
 |Build OS|Windows|MacOS|Linux|
 |---|---|---|---|
