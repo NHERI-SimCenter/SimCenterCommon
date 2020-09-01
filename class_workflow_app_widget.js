@@ -1,0 +1,27 @@
+var class_workflow_app_widget =
+[
+    [ "WorkflowAppWidget", "class_workflow_app_widget.html#a608b16ad484318ed835bfc11a2d0d846", null ],
+    [ "~WorkflowAppWidget", "class_workflow_app_widget.html#a41fcc7b3d88ac55442543e15e0f4f2e4", null ],
+    [ "clear", "class_workflow_app_widget.html#ab60fa788859d883818c8da72a23cb4cc", null ],
+    [ "errorMessage", "class_workflow_app_widget.html#a4b46c7876be0d375db64742c9f8836e8", null ],
+    [ "fatalMessage", "class_workflow_app_widget.html#ac5abc0249893756b32c9c0d9cf1a7794", null ],
+    [ "getMaxNumParallelTasks", "class_workflow_app_widget.html#a816e828f7516c3cdbb0ba6015fa656b4", null ],
+    [ "inputFromJSON", "class_workflow_app_widget.html#a1ba574ff1c0f3b80597826d8b63a5fa0", null ],
+    [ "loadFile", "class_workflow_app_widget.html#a908855669c1aa2713a3c4c3123684765", null ],
+    [ "onExitButtonClicked", "class_workflow_app_widget.html#aee48273b30f0968fec87451263873d16", null ],
+    [ "onRemoteGetButtonClicked", "class_workflow_app_widget.html#ae72f50791f521eeea9b44f3c1fc946e2", null ],
+    [ "onRemoteRunButtonClicked", "class_workflow_app_widget.html#a418c6847a5c97331a25ac4036d44e982", null ],
+    [ "onRunButtonClicked", "class_workflow_app_widget.html#aef97932d8f8d035df7ca852b9426c7d4", null ],
+    [ "outputToJSON", "class_workflow_app_widget.html#a096082bcd3f28b03e3b79109445a65d3", null ],
+    [ "processResults", "class_workflow_app_widget.html#a1eea01e30b66c22420982ab7bb667cea", null ],
+    [ "sendErrorMessage", "class_workflow_app_widget.html#a55b2aa8cce9d0644520036be0ca920d2", null ],
+    [ "sendFatalMessage", "class_workflow_app_widget.html#a02fe5a85c8594b40746fcf451553e666", null ],
+    [ "sendLoadFile", "class_workflow_app_widget.html#ae4f7c2b927b05920cd7fd6e679196925", null ],
+    [ "sendStatusMessage", "class_workflow_app_widget.html#aa2ab51b275353a00bf0b498a4e7735aa", null ],
+    [ "setMainWindow", "class_workflow_app_widget.html#abd13cbc415ecea12249aa6390c333b20", null ],
+    [ "setUpForApplicationRun", "class_workflow_app_widget.html#af3fa31d077edbcf656a0f7516963d1c7", null ],
+    [ "setUpForApplicationRunDone", "class_workflow_app_widget.html#af76c42f271e778e77f94b31a9832fc7b", null ],
+    [ "statusMessage", "class_workflow_app_widget.html#ac6e079918023183eaee1ee34a4f6b785", null ],
+    [ "theMainWindow", "class_workflow_app_widget.html#abc48430b283da9d2870fe4dbe899b9d8", null ],
+    [ "theRemoteService", "class_workflow_app_widget.html#a53b7cca4f25afcf84d1855a88ef876ad", null ]
+];

@@ -1,0 +1,5 @@
+<map id="MDOF_BuildingModel" name="MDOF_BuildingModel">
+<area shape="rect" id="node2" href="$class_sim_center_app_widget.html" title="SimCenterAppWidget" alt="" coords="5,155,153,181"/>
+<area shape="rect" id="node3" href="$class_sim_center_widget.html" title="SimCenterWidget" alt="" coords="17,80,142,107"/>
+<area shape="rect" id="node5" href="$class_controller2_d.html" title="Controller2D" alt="" coords="177,155,272,181"/>
+</map>

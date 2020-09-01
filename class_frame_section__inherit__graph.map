@@ -1,0 +1,4 @@
+<map id="FrameSection" name="FrameSection">
+<area shape="rect" id="node2" href="$class_steel_tube_section.html" title="SteelTubeSection" alt="" coords="5,80,131,107"/>
+<area shape="rect" id="node3" href="$class_steel_w_section.html" title="SteelWSection" alt="" coords="155,80,264,107"/>
+</map>

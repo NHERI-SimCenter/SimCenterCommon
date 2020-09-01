@@ -1,0 +1,5 @@
+<map id="WallsectionInputWidget" name="WallsectionInputWidget">
+<area shape="rect" id="node2" href="$class_sim_center_table_widget.html" title="SimCenterTableWidget" alt="" coords="80,171,237,197"/>
+<area shape="rect" id="node3" href="$class_sim_center_widget.html" title="SimCenterWidget" alt="" coords="5,81,131,108"/>
+<area shape="rect" id="node5" href="$class_spreadsheet_widget.html" title="SpreadsheetWidget" alt="" coords="155,81,291,108"/>
+</map>

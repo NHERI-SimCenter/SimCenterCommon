@@ -1,0 +1,4 @@
+<map id="WorkflowAppWidget" name="WorkflowAppWidget">
+<area shape="rect" id="node3" href="$class_main_window_workflow_app.html" title="MainWindowWorkflowApp" alt="" coords="103,81,277,108"/>
+<area shape="rect" id="node5" href="$class_remote_service.html" title="RemoteService" alt="" coords="302,81,414,108"/>
+</map>

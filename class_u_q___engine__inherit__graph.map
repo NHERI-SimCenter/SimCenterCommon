@@ -1,0 +1,8 @@
+<map id="UQ_Engine" name="UQ_Engine">
+<area shape="rect" id="node5" href="$class_dakota_engine.html" title="DakotaEngine" alt="" coords="5,304,109,331"/>
+<area shape="rect" id="node6" href="$class_dakota_input_reliability.html" title="DakotaInputReliability" alt="" coords="134,304,285,331"/>
+<area shape="rect" id="node7" href="$class_dakota_input_sampling.html" title="DakotaInputSampling" alt="" coords="309,304,456,331"/>
+<area shape="rect" id="node8" href="$class_dakota_input_sensitivity.html" title="DakotaInputSensitivity" alt="" coords="480,304,635,331"/>
+<area shape="rect" id="node2" href="$class_sim_center_app_widget.html" title="SimCenterAppWidget" alt="" coords="222,155,370,181"/>
+<area shape="rect" id="node3" href="$class_sim_center_widget.html" title="SimCenterWidget" alt="" coords="233,80,359,107"/>
+</map>

@@ -1,0 +1,10 @@
+<map id="UQ_MethodInputWidget" name="UQ_MethodInputWidget">
+<area shape="rect" id="node4" href="$class_gaussian_process_input_widget.html" title="GaussianProcessInputWidget" alt="" coords="519,5,713,32"/>
+<area shape="rect" id="node5" href="$class_global_reliability_widget.html" title="GlobalReliabilityWidget" alt="" coords="537,56,695,83"/>
+<area shape="rect" id="node6" href="$class_importance_sampling_input_widget.html" title="ImportanceSamplingInputWidget" alt="" coords="511,107,721,133"/>
+<area shape="rect" id="node7" href="$class_latin_hypercube_input_widget.html" title="LatinHypercubeInputWidget" alt="" coords="525,157,707,184"/>
+<area shape="rect" id="node8" href="$class_local_reliability_widget.html" title="LocalReliabilityWidget" alt="" coords="541,208,691,235"/>
+<area shape="rect" id="node9" href="$class_monte_carlo_input_widget.html" title="MonteCarloInputWidget" alt="" coords="537,259,695,285"/>
+<area shape="rect" id="node10" href="$class_p_c_e_input_widget.html" title="PCEInputWidget" alt="" coords="556,309,676,336"/>
+<area shape="rect" id="node2" href="$class_sim_center_widget.html" title="SimCenterWidget" alt="" coords="127,157,252,184"/>
+</map>

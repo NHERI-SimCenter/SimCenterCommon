@@ -1,0 +1,11 @@
+<map id="Workflow/EXECUTION/RemoteService.h" name="Workflow/EXECUTION/RemoteService.h">
+<area shape="rect" id="node2" href="$_agave_curl_8h.html" title="Workflow/EXECUTION\l/AgaveCurl.h" alt="" coords="97,95,257,136"/>
+<area shape="rect" id="node5" href="$_remote_application_8cpp.html" title="Workflow/EXECUTION\l/RemoteApplication.cpp" alt="" coords="282,95,443,136"/>
+<area shape="rect" id="node6" href="$_remote_job_manager_8cpp.html" title="Workflow/EXECUTION\l/RemoteJobManager.cpp" alt="" coords="468,95,636,136"/>
+<area shape="rect" id="node7" href="$_remote_service_8cpp.html" title="Workflow/EXECUTION\l/RemoteService.cpp" alt="" coords="660,95,820,136"/>
+<area shape="rect" id="node8" href="$_main_window_workflow_app_8h.html" title="Workflow/WORKFLOW/MainWindow\lWorkflowApp.h" alt="" coords="844,95,1084,136"/>
+<area shape="rect" id="node9" href="$_main_window_workflow_app_8cpp.html" title="Workflow/WORKFLOW/MainWindow\lWorkflowApp.cpp" alt="" coords="923,184,1163,225"/>
+<area shape="rect" id="node10" href="$_workflow_app_widget_8cpp.html" title="Workflow/WORKFLOW/Workflow\lAppWidget.cpp" alt="" coords="1159,95,1379,136"/>
+<area shape="rect" id="node3" href="$_agave_curl_8cpp.html" title="Workflow/EXECUTION\l/AgaveCurl.cpp" alt="" coords="5,184,165,225"/>
+<area shape="rect" id="node4" href="$_local_application_8cpp.html" title="Workflow/EXECUTION\l/LocalApplication.cpp" alt="" coords="189,184,349,225"/>
+</map>

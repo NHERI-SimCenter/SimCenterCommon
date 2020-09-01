@@ -1,0 +1,26 @@
+var class_remote_job_manager =
+[
+    [ "RemoteJobManager", "class_remote_job_manager.html#a322dc2d9142441f637009b74bd97dab2", null ],
+    [ "addJob", "class_remote_job_manager.html#a8f031fa326d6d96020b5b1b5b349e8d3", null ],
+    [ "bringUpJobActionMenu", "class_remote_job_manager.html#a1eff8142c841b55bc0e2b86b6224035d", null ],
+    [ "clearTable", "class_remote_job_manager.html#af0932425d7f4419e5f9a0a19cf6a23a5", null ],
+    [ "deleteJob", "class_remote_job_manager.html#a03502c584981b0bec81541440f7cae24", null ],
+    [ "deleteJob", "class_remote_job_manager.html#a818f8007abff5c6404857f15b995a5dd", null ],
+    [ "deleteJobAndData", "class_remote_job_manager.html#ace92d11451148afff4b80c03003e3d69", null ],
+    [ "deleteJobReturn", "class_remote_job_manager.html#a6b2b835f76f784332283cc71d1664f4a", null ],
+    [ "downloadFiles", "class_remote_job_manager.html#a2437384b0214c31d6e26f185dacfea25", null ],
+    [ "downloadFilesReturn", "class_remote_job_manager.html#a24533cd08419ddac62a7498af8733770", null ],
+    [ "errorMessage", "class_remote_job_manager.html#a12a5b04ebd5b6badea7bc397fb34530a", null ],
+    [ "getJobData", "class_remote_job_manager.html#a14d0b627d6c23d06d0e89157d14b271c", null ],
+    [ "getJobDetails", "class_remote_job_manager.html#a8d64a82b21e5fcb96c77951b69df5269", null ],
+    [ "getJobDetailsReturn", "class_remote_job_manager.html#ae7e1880d3e3859d1e5c8de8661f1ac00", null ],
+    [ "getJobsList", "class_remote_job_manager.html#a11cc37df75c21c78683e7dba590f6ce8", null ],
+    [ "getJobStatus", "class_remote_job_manager.html#a411c82e7fde5b91db45741c69c3f4ddd", null ],
+    [ "jobsListReturn", "class_remote_job_manager.html#a6a1346110f366c9ebc7e836834dc11a9", null ],
+    [ "jobStatusReturn", "class_remote_job_manager.html#afc19cb3cd741326585cca8e3a780bad0", null ],
+    [ "loadFile", "class_remote_job_manager.html#a0d7da1521a66d5cbcf3bcf57e2381bc4", null ],
+    [ "processResults", "class_remote_job_manager.html#abce82d4667c350df1a93fd3f9d6e1767", null ],
+    [ "statusMessage", "class_remote_job_manager.html#addbee0378b4a074335c0950d63f55d61", null ],
+    [ "updateJobStatus", "class_remote_job_manager.html#afe221612161154fac7546bdefb2ed0fe", null ],
+    [ "updateJobTable", "class_remote_job_manager.html#adac489729354c4d6bd75215ef82298ee", null ]
+];

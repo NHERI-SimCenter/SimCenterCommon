@@ -1,0 +1,13 @@
+<map id="InputSheetBM/SteelWSectionInputWidget.cpp" name="InputSheetBM/SteelWSectionInputWidget.cpp">
+<area shape="rect" id="node2" href="$_steel_w_section_input_widget_8h.html" title="SteelWSectionInputWidget.h" alt="" coords="286,95,477,121"/>
+<area shape="rect" id="node17" href="$_bim_classes_8h.html" title="BimClasses.h" alt="" coords="1132,95,1236,121"/>
+<area shape="rect" id="node3" href="$_sim_center_table_widget_8h.html" title="SimCenterTableWidget.h" alt="" coords="87,169,255,196"/>
+<area shape="rect" id="node8" href="$_simple_spreadsheet_widget_8h.html" title="SimpleSpreadsheetWidget.h" alt="" coords="457,169,644,196"/>
+<area shape="rect" id="node4" href="$_sim_center_widget_8h.html" title="SimCenterWidget.h" alt="" coords="5,244,141,271"/>
+<area shape="rect" id="node6" href="$_spreadsheet_widget_8h.html" title="SpreadsheetWidget.h" alt="" coords="165,244,312,271"/>
+<area shape="rect" id="node21" href="$_materials_8h.html" title="Materials.h" alt="" coords="1222,169,1309,196"/>
+<area shape="rect" id="node22" href="$_frame_sections_8h.html" title="FrameSections.h" alt="" coords="1333,169,1454,196"/>
+<area shape="rect" id="node23" href="$_beam_8h.html" title="Beam.h" alt="" coords="893,169,960,196"/>
+<area shape="rect" id="node24" href="$_column_8h.html" title="Column.h" alt="" coords="985,169,1063,196"/>
+<area shape="rect" id="node25" href="$_wall_8h.html" title="Wall.h" alt="" coords="1088,169,1147,196"/>
+</map>

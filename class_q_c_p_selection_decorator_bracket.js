@@ -1,0 +1,37 @@
+var class_q_c_p_selection_decorator_bracket =
+[
+    [ "BracketStyle", "class_q_c_p_selection_decorator_bracket.html#aa6d18517ec0553575bbef0de4252336e", [
+      [ "bsSquareBracket", "class_q_c_p_selection_decorator_bracket.html#aa6d18517ec0553575bbef0de4252336eaa10a8d25d409b09256a13220a4d74f81", null ],
+      [ "bsHalfEllipse", "class_q_c_p_selection_decorator_bracket.html#aa6d18517ec0553575bbef0de4252336eafa8ad19b1822c9c03fbe5e9ff8eeeea2", null ],
+      [ "bsEllipse", "class_q_c_p_selection_decorator_bracket.html#aa6d18517ec0553575bbef0de4252336ea7cab0f2f406e293094a7a1e4903f6e8c", null ],
+      [ "bsPlus", "class_q_c_p_selection_decorator_bracket.html#aa6d18517ec0553575bbef0de4252336ea86eb6ae27e6296576fdc46d13c840530", null ],
+      [ "bsUserStyle", "class_q_c_p_selection_decorator_bracket.html#aa6d18517ec0553575bbef0de4252336ea5a627cacdaa30ce434371d6a034b991d", null ]
+    ] ],
+    [ "QCPSelectionDecoratorBracket", "class_q_c_p_selection_decorator_bracket.html#ad2cfbff98cc055311810ba357f6eef1b", null ],
+    [ "~QCPSelectionDecoratorBracket", "class_q_c_p_selection_decorator_bracket.html#add2764b01a029c64f08f34f08ea6d41b", null ],
+    [ "bracketBrush", "class_q_c_p_selection_decorator_bracket.html#a09805c4d1db2c5d0fcaf22e9e1e25a7c", null ],
+    [ "bracketHeight", "class_q_c_p_selection_decorator_bracket.html#a79045907e7387b2555e0a166190b26b7", null ],
+    [ "bracketPen", "class_q_c_p_selection_decorator_bracket.html#a005e0b95ead06dee20898ea925b31474", null ],
+    [ "bracketStyle", "class_q_c_p_selection_decorator_bracket.html#a749cd77f4e01a3aa8ecdfea0792e181b", null ],
+    [ "bracketWidth", "class_q_c_p_selection_decorator_bracket.html#a96e958e7a9caf3eef7722790ebd60e4d", null ],
+    [ "drawBracket", "class_q_c_p_selection_decorator_bracket.html#a8153966498e2a8d4c11c681e06d7d692", null ],
+    [ "drawDecoration", "class_q_c_p_selection_decorator_bracket.html#a1ceb893063ea3d7197a24098018f4bfb", null ],
+    [ "getPixelCoordinates", "class_q_c_p_selection_decorator_bracket.html#aba1d088001663f3a1c367aab59793773", null ],
+    [ "getTangentAngle", "class_q_c_p_selection_decorator_bracket.html#afa0dedceebf14787e4224ddecb0ed7cd", null ],
+    [ "setBracketBrush", "class_q_c_p_selection_decorator_bracket.html#a2f4ea0bfb0ea980252b76dd349dd53aa", null ],
+    [ "setBracketHeight", "class_q_c_p_selection_decorator_bracket.html#aed773ad737201cca40efc6fe451acad8", null ],
+    [ "setBracketPen", "class_q_c_p_selection_decorator_bracket.html#ac0e392a6097990f8aa978932a8fa05d6", null ],
+    [ "setBracketStyle", "class_q_c_p_selection_decorator_bracket.html#a04507697438f6ad8cc2aeea5422dcbe5", null ],
+    [ "setBracketWidth", "class_q_c_p_selection_decorator_bracket.html#a291b59cab98ce93a0a3c85963fe10f5e", null ],
+    [ "setTangentAverage", "class_q_c_p_selection_decorator_bracket.html#adb2d0876f25a77c88042b70818f1d6e4", null ],
+    [ "setTangentToData", "class_q_c_p_selection_decorator_bracket.html#a93bc6086e53a5e40a08641a7b2e2cdd5", null ],
+    [ "tangentAverage", "class_q_c_p_selection_decorator_bracket.html#a53bc3c7d6c5f59d1f893c22eabd215cf", null ],
+    [ "tangentToData", "class_q_c_p_selection_decorator_bracket.html#a3e443e880f0bac1580eb07a0889d7891", null ],
+    [ "mBracketBrush", "class_q_c_p_selection_decorator_bracket.html#ae905dd458b85ac529fb9c6ec879e5680", null ],
+    [ "mBracketHeight", "class_q_c_p_selection_decorator_bracket.html#a3887d29b82f4dec3bf2ddf97d5475b16", null ],
+    [ "mBracketPen", "class_q_c_p_selection_decorator_bracket.html#ac7da5610713e67e92d0a882ef743a453", null ],
+    [ "mBracketStyle", "class_q_c_p_selection_decorator_bracket.html#a5ed4965200caa115da1a49f2f860e23c", null ],
+    [ "mBracketWidth", "class_q_c_p_selection_decorator_bracket.html#a333983308322d10968c35bf2af4b392d", null ],
+    [ "mTangentAverage", "class_q_c_p_selection_decorator_bracket.html#a810900616f17964cab140cbc13f40203", null ],
+    [ "mTangentToData", "class_q_c_p_selection_decorator_bracket.html#ac08c7de0fd81b64b0f3fe31739688081", null ]
+];

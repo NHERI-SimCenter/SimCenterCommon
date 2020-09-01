@@ -1,0 +1,24 @@
+<map id="SimCenterAppWidget" name="SimCenterAppWidget">
+<area shape="rect" id="node4" href="$class_b_i_m___selection.html" title="BIM_Selection" alt="" coords="544,5,651,32"/>
+<area shape="rect" id="node5" href="$class_e_d_p___earthquake_selection.html" title="EDP_EarthquakeSelection" alt="" coords="509,56,686,83"/>
+<area shape="rect" id="node6" href="$class_e_d_p___selection.html" title="EDP_Selection" alt="" coords="542,107,653,133"/>
+<area shape="rect" id="node7" href="$class_existing_sim_center_events.html" title="ExistingSimCenterEvents" alt="" coords="511,157,683,184"/>
+<area shape="rect" id="node8" href="$class_f_e_m___selection.html" title="FEM_Selection" alt="" coords="542,208,653,235"/>
+<area shape="rect" id="node9" href="$class_input_widget_existing_event.html" title="InputWidgetExistingEvent" alt="" coords="511,259,684,285"/>
+<area shape="rect" id="node10" href="$class_input_widget_open_sees_analysis.html" title="InputWidgetOpenSeesAnalysis" alt="" coords="496,309,699,336"/>
+<area shape="rect" id="node11" href="$class_input_widget_sampling.html" title="InputWidgetSampling" alt="" coords="524,360,671,387"/>
+<area shape="rect" id="node12" href="$class_input_widget_sheet_s_i_m.html" title="InputWidgetSheetSIM" alt="" coords="522,411,673,437"/>
+<area shape="rect" id="node13" href="$class_m_d_o_f___building_model.html" title="MDOF_BuildingModel" alt="" coords="523,461,672,488"/>
+<area shape="rect" id="node14" href="$class_open_sees_building_model.html" title="OpenSeesBuildingModel" alt="" coords="515,512,679,539"/>
+<area shape="rect" id="node15" href="$class_s_i_m___selection.html" title="SIM_Selection" alt="" coords="544,563,651,589"/>
+<area shape="rect" id="node16" href="$class_standard_earthquake_e_d_p.html" title="StandardEarthquakeEDP" alt="" coords="513,613,681,640"/>
+<area shape="rect" id="node17" href="$class_u_q___engine.html" title="UQ_Engine" alt="" coords="553,664,642,691"/>
+<area shape="rect" id="node22" href="$class_u_q___engine_selection.html" title="UQ_EngineSelection" alt="" coords="526,715,669,741"/>
+<area shape="rect" id="node23" href="$class_user_defined_application.html" title="UserDefinedApplication" alt="" coords="518,765,677,792"/>
+<area shape="rect" id="node24" href="$class_user_defined_e_d_p.html" title="UserDefinedEDP" alt="" coords="536,816,659,843"/>
+<area shape="rect" id="node2" href="$class_sim_center_widget.html" title="SimCenterWidget" alt="" coords="127,411,252,437"/>
+<area shape="rect" id="node18" href="$class_dakota_engine.html" title="DakotaEngine" alt="" coords="772,588,876,615"/>
+<area shape="rect" id="node19" href="$class_dakota_input_reliability.html" title="DakotaInputReliability" alt="" coords="749,639,899,665"/>
+<area shape="rect" id="node20" href="$class_dakota_input_sampling.html" title="DakotaInputSampling" alt="" coords="751,689,897,716"/>
+<area shape="rect" id="node21" href="$class_dakota_input_sensitivity.html" title="DakotaInputSensitivity" alt="" coords="747,740,901,767"/>
+</map>

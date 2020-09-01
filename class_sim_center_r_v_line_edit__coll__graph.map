@@ -1,0 +1,4 @@
+<map id="SimCenterRVLineEdit" name="SimCenterRVLineEdit">
+<area shape="rect" id="node2" href="$class_sim_center_widget.html" title="SimCenterWidget" alt="" coords="5,81,131,108"/>
+<area shape="rect" id="node4" href="$class_line_edit_r_v.html" title="LineEditRV" alt="" coords="155,81,243,108"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="Application" name="Application">
+<area shape="rect" id="node4" href="$class_local_application.html" title="LocalApplication" alt="" coords="5,229,123,256"/>
+<area shape="rect" id="node5" href="$class_remote_application.html" title="RemoteApplication" alt="" coords="147,229,279,256"/>
+<area shape="rect" id="node2" href="$class_sim_center_widget.html" title="SimCenterWidget" alt="" coords="76,80,201,107"/>
+</map>

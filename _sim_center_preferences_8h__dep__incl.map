@@ -1,0 +1,8 @@
+<map id="Common/SimCenterPreferences.h" name="Common/SimCenterPreferences.h">
+<area shape="rect" id="node2" href="$_preferences_8cpp.html" title="Common/Preferences.cpp" alt="" coords="5,87,180,114"/>
+<area shape="rect" id="node3" href="$_sim_center_preferences_8cpp.html" title="Common/SimCenterPreferences.cpp" alt="" coords="204,87,440,114"/>
+<area shape="rect" id="node4" href="$_local_application_8cpp.html" title="Workflow/EXECUTION\l/LocalApplication.cpp" alt="" coords="463,80,623,121"/>
+<area shape="rect" id="node5" href="$_remote_application_8cpp.html" title="Workflow/EXECUTION\l/RemoteApplication.cpp" alt="" coords="648,80,809,121"/>
+<area shape="rect" id="node6" href="$_remote_job_manager_8cpp.html" title="Workflow/EXECUTION\l/RemoteJobManager.cpp" alt="" coords="834,80,1002,121"/>
+<area shape="rect" id="node7" href="$_main_window_workflow_app_8cpp.html" title="Workflow/WORKFLOW/MainWindow\lWorkflowApp.cpp" alt="" coords="1026,80,1266,121"/>
+</map>
