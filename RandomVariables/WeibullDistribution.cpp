@@ -135,7 +135,7 @@ WeibullDistribution::outputToJSON(QJsonObject &rvObject){
             return false;
         }
         rvObject["mean"]=mean->text().toDouble();
-        rvObject["standardDev"]=standardDev->text().toDouble();
+        rvObject["stdDev"]=standardDev->text().toDouble();
     } else if (inpty==QString("Dataset")) {
         if (dataDir->text().isEmpty()) {
             emit sendErrorMessage("ERROR: WeibullDistribution - data has not been set");

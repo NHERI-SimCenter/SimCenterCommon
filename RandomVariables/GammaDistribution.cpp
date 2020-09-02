@@ -136,7 +136,7 @@ GammaDistribution::outputToJSON(QJsonObject &rvObject){
             return false;
         }
         rvObject["mean"]=mean->text().toDouble();
-        rvObject["stdDev"]=standardDev->text().toDouble();
+        rvObject["standardDev"]=standardDev->text().toDouble();
     } else if (inpty==QString("Dataset")) {
         if (dataDir->text().isEmpty()) {
             emit sendErrorMessage("ERROR: GammaDistribution - data has not been set");
@@ -179,8 +179,8 @@ GammaDistribution::inputFromJSON(QJsonObject &rvObject){
             emit sendErrorMessage("ERROR: GammaDistribution - no \"mean\" entry");
             return false;
         }
-        if (rvObject.contains("stdDev")) {
-            double theStdValue = rvObject["stdDev"].toDouble();
+        if (rvObject.contains("standardDev")) {
+            double theStdValue = rvObject["standardDev"].toDouble();
             standardDev->setText(QString::number(theStdValue));
         } else {
             emit sendErrorMessage("ERROR: GammaDistribution - no \"mean\" entry");

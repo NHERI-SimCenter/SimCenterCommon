@@ -114,8 +114,15 @@ NormalDistribution::outputToJSON(QJsonObject &rvObject){
             return false;
         }
         rvObject["mean"]=mean->text().toDouble();
-        rvObject["stdDev"]=standardDev->text().toDouble();
+        rvObject["standardDev"]=standardDev->text().toDouble();
         return true;
+
+    } else if (inpty==QString("Dataset")) {
+        if (dataDir->text().isEmpty()) {
+            emit sendErrorMessage("ERROR: LognormalDistribution - data has not been set");
+            return false;
+        }
+        rvObject["dataDir"]=QString(dataDir->text());
     }
 }
 

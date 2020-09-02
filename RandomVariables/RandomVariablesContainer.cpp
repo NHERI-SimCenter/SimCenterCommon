@@ -168,6 +168,7 @@ RandomVariablesContainer::makeRV(void)
 {
     // title & add button
     QHBoxLayout *titleLayout = new QHBoxLayout();
+    titleLayout->setMargin(10);
 
     SectionTitle *title=new SectionTitle();
     title->setText(tr("Input Random Variables"));
@@ -738,7 +739,9 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
 
       if (rvObject["correlationMatrix"].isArray()) {
 
+          correlationDialog = NULL; // reset correlationDialog
           this->addCorrelationMatrix();
+
           QJsonArray rvArray = rvObject["correlationMatrix"].toArray();
           // foreach object in array
           //int row = 0; int col = 0;

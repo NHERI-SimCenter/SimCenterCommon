@@ -171,6 +171,17 @@ DiscreteDistribution::updateDistributionPlot() {
     QStringList listValues = values-> text().split(",");
     QStringList listWeights = weights->text().split(",");
 
+
+
+    if (listValues.size()<2) {
+        emit sendErrorMessage("ERROR: DiscreteDistribution - define more than two values");
+        return;
+        //QMessageBox::warning(this, tr("Application"),
+         //                    "ERROR: DiscreteDistribution - define more than two values");
+    } else {
+        //emit sendErrorMessage("");
+    }
+
     //
     // find vector points (x,w) to draw a barchart
     //

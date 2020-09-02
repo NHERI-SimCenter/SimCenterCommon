@@ -304,6 +304,7 @@ TruncatedExponentialDistribution::updateDistributionPlot() {
         if ((bb-aa)<0.0) {
             emit sendErrorMessage("ERROR: upperbound should be greater than lowebound");
         } else {
+            emit sendErrorMessage(" ");
             validIdx=1;
         }
 
