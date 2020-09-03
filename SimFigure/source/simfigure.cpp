@@ -31,6 +31,7 @@
 #include "qwt_plot_shapeitem.h"
 #include "qwt_picker_machine.h"
 #include "qwt_plot_magnifier.h"
+#include "qwt_scale_widget.h"
 
 #include <QDebug>
 
@@ -339,6 +340,22 @@ void SimFigure::setLabelFontSize(int sz)
         text = m_plot->axisTitle(QwtPlot::yLeft);
         text.setFont(font);
         m_plot->setAxisTitle(QwtPlot::yLeft, text);
+    }
+}
+
+/**
+ * @brief sets the current font size used for axis tick to sz
+ */
+void SimFigure::setTickFontSize(int sz)
+{
+    if (sz>0)
+    {
+        QwtText text = m_plot->axisTitle(QwtPlot::xBottom);
+        QFont font = text.font();
+        font.setPointSize(sz);
+        text.setFont(font);
+        m_plot->axisWidget(QwtPlot::yLeft)->setFont(font);
+        m_plot->axisWidget(QwtPlot::xBottom)->setFont(font);
     }
 }
 
