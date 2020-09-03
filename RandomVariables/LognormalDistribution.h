@@ -40,7 +40,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include "RandomVariableDistribution.h"
-
 class QLineEdit;
 class QLabel;
 class SimCenterGraphPlot;
@@ -49,7 +48,7 @@ class LognormalDistribution : public RandomVariableDistribution
 {
     Q_OBJECT
 public:
-    explicit LognormalDistribution(QWidget *parent = 0);
+    explicit LognormalDistribution(QString inpType, QWidget *parent = 0);
     ~LognormalDistribution();
 
     bool outputToJSON(QJsonObject &rvObject);
@@ -63,12 +62,11 @@ public slots:
     void updateDistributionPlot();
 
 private:
-
-    QLineEdit *mean;
-    QLineEdit *standardDev;
-
+    QLineEdit *mean, *standardDev;
+    QLineEdit *lambda, *zeta;
+    QLineEdit *dataDir;
+    QString inpty ;
     SimCenterGraphPlot *thePlot;
-
 };
 
 #endif // LOGNORMALDISTRIBUTION_H

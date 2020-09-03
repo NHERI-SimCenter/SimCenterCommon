@@ -48,7 +48,7 @@ class UniformDistribution : public RandomVariableDistribution
 {
     Q_OBJECT
 public:
-    explicit UniformDistribution(QWidget *parent = 0);
+    explicit UniformDistribution(QString inpType, QWidget *parent = 0);
     ~UniformDistribution();
 
     bool outputToJSON(QJsonObject &rvObject);
@@ -62,11 +62,11 @@ public slots:
     void updateDistributionPlot();
 
 private:
-    QLineEdit *min;
-    QLineEdit *max;
-    QLineEdit *initialPoint;
-
-     SimCenterGraphPlot *thePlot;
+    QLineEdit *mean, *standardDev;
+    QLineEdit *a, *b;
+    QLineEdit *dataDir;
+    QString inpty ;
+    SimCenterGraphPlot *thePlot;
 };
 
 #endif // UNIFORMDISTRIBUTION_H
