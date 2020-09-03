@@ -62,6 +62,7 @@ SimFigure::SimFigure(QWidget *parent) :
     m_plot = new QwtPlot(this);
     QVBoxLayout *lyt = new QVBoxLayout(ui->pltWidgetSpace);
     lyt->addWidget(m_plot);
+    lyt->setMargin(0);
     m_plot->setCanvasBackground(QBrush(Qt::white));
 
     ui->btn_standard->setChecked(true);
