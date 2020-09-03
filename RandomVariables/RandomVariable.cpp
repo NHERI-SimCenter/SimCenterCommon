@@ -274,7 +274,7 @@ RandomVariable::inputFromJSON(QJsonObject &rvObject){
         QJsonValue theInputTypeValue = rvObject["inputType"];
         inputType = theInputTypeValue.toString();
     } else {
-        return false;
+        inputType = "Parameters";
     }
 
     if (rvObject.contains("distribution")) {
