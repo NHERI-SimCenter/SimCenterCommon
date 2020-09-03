@@ -63,6 +63,7 @@ SimFigure::SimFigure(QWidget *parent) :
     m_plot = new QwtPlot(this);
     QVBoxLayout *lyt = new QVBoxLayout(ui->pltWidgetSpace);
     lyt->addWidget(m_plot);
+    lyt->setMargin(0);
     m_plot->setCanvasBackground(QBrush(Qt::white));
 
     ui->btn_standard->setChecked(true);
@@ -286,34 +287,6 @@ int SimFigure::scatter(QVector<double> &x, QVector<double> &y, QColor color, Mar
 {
     return plot(x, y, SimFigure::LineType::None, color, mk);
 }
-
-/**
- * @brief Sets x-axis limits to given values.  xmax must be larger than xmin.
- * @brief See maxX() and minX() on how to obtain the current limits.
- */
-void SimFigure::setXlimits(double xmin, double xmax)
-{
-    if (xmin<xmax) {
-        m_xmax = xmax;
-        m_xmin = xmin;
-        this->rescale();
-    }
-}
-
-
-/**
- * @brief Sets y-axis limits to given values.  ymax must be larger than ymin.
- * @brief See maxY() and minY() on how to obtain the current limits.
- */
-void SimFigure::setYlimits(double ymin, double ymax)
-{
-    if (ymin<ymax) {
-        m_ymax = ymax;
-        m_ymin = ymin;
-        this->rescale();
-    }
-}
-
 /**
  * @brief SimFigure::xLabel()
  * @return title of the current x-axis label
@@ -435,18 +408,30 @@ void SimFigure::rescale(void)
 
 }
 
-/*! set limits for x axis (private) */
+/**
+ * @brief Sets x-axis limits to given values.  xmax must be larger than xmin.
+ * @brief See maxX() and minX() on how to obtain the current limits.
+ */
 void SimFigure::setXLim(double xmin, double xmax)
 {
-    m_plot->setAxisScale(QwtPlot::xBottom, xmin, xmax);
-    m_plot->replot();
+    if (xmin<xmax) {
+        m_xmax = xmax;
+        m_xmin = xmin;
+        this->rescale();
+    }
 }
 
-/*! set limits for y axis (private) */
+/**
+ * @brief Sets y-axis limits to given values.  ymax must be larger than ymin.
+ * @brief See maxY() and minY() on how to obtain the current limits.
+ */
 void SimFigure::setYLim(double ymin, double ymax)
 {
-    m_plot->setAxisScale(QwtPlot::yLeft, ymin, ymax);
-    m_plot->replot();
+    if (ymin<ymax) {
+        m_ymax = ymax;
+        m_ymin = ymin;
+        this->rescale();
+    }
 }
 
 /*! Regenerate th egrid with new settings (Type, limits) - (private) */

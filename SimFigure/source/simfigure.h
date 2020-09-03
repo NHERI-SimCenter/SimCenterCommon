@@ -141,6 +141,12 @@ public:
     void setYLabel(QString lbl);
     void setXLim(double xmin, double xmax);
     void setYLim(double ymin, double ymax);
+
+    /**  @brief  alias for setXLim(xmin,xmax) */
+    void setXlimits(double xmin, double xmax) {setXLim(xmin,xmax);};
+
+    /**  @brief  alias for setYLim(ymin,ymax) */
+    void setYlimits(double ymin, double ymax) {setYLim(ymin,ymax);};
     void setLabelFontSize(int);
     void setTitle(QString title);
     void setTitleFontSize(int);
@@ -161,9 +167,6 @@ public:
      * @brief returns the currently displayed maximum value of y
      */
     double maxY() { return m_ymax; };
-
-    void setXlimits(double xmin, double xmax);
-    void setYlimits(double ymin, double ymax);
 
     int      lineWidth(int ID);
     void     setLineWidth(int ID, int wd);

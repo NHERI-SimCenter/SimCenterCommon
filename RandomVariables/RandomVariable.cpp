@@ -55,10 +55,16 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "LognormalDistribution.h"
 #include "BetaDistribution.h"
 #include "UniformDistribution.h"
+#include "ExponentialDistribution.h"
+#include "DiscreteDistribution.h"
+#include "GammaDistribution.h"
+#include "ChiSquaredDistribution.h"
+#include "TruncatedExponentialDistribution.h"
+
 #include "ConstantDistribution.h"
 #include "ContinuousDesignDistribution.h"
 #include "UserDef.h"
-#include <QDebug>
+
 
 RandomVariable::RandomVariable()
     :SimCenterWidget(0), refCount(0), variableClass(QString(""))
@@ -66,8 +72,8 @@ RandomVariable::RandomVariable()
 
 }
 
-RandomVariable::RandomVariable(const QString &type, QWidget *parent)
-    :SimCenterWidget(parent), refCount(0), variableClass(type)
+RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *parent)
+    :SimCenterWidget(parent), refCount(0), variableClass(type), uqEngineName(uqengin)
 {
     //
     // create a vertical layout to deal with variable name
@@ -79,13 +85,32 @@ RandomVariable::RandomVariable(const QString &type, QWidget *parent)
     variableName = new QLineEdit();
     variableName->setMaximumWidth(100);
     variableName->setMinimumWidth(100);
-   // variableLabel->setContentsMargins(1,1,1,1);
-   // variableName->setContentsMargins(1,1,1,1);
     nameLayout->addWidget(variableLabel);
     nameLayout->addWidget(variableName);
     nameLayout->setSpacing(1);
     nameLayout->setMargin(0);
     //nameLayout->addStretch();
+
+    //
+    // create a vertical layout to deal with data type
+    //
+
+
+    QVBoxLayout *typeLayout = new QVBoxLayout();
+    typeLabel = new QLabel();
+    typeLabel->setText(QString("Input Type"));
+    typeComboBox = new QComboBox();
+    typeComboBox->setMaximumWidth(200);
+    typeComboBox->setMinimumWidth(200);
+    typeLayout->addWidget(typeLabel);
+    typeLayout->addWidget(typeComboBox);
+    typeLayout->setSpacing(0);
+    typeLayout->setMargin(0);
+
+    typeComboBox->addItem(tr("Parameters"));
+    typeComboBox->addItem(tr("Moments"));
+    typeComboBox->addItem(tr("Dataset"));
+    connect(typeComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(typeChanged(QString)));
 
     //
     // another vertical layout to deal with distribution selection
@@ -112,15 +137,23 @@ RandomVariable::RandomVariable(const QString &type, QWidget *parent)
         distributionComboBox->addItem(tr("ContinuousDesign"));
         distributionComboBox->addItem(tr("Constant"));
     } else if (variableClass == QString("Uncertain")) {
-        distributionComboBox->addItem(tr("Normal"));
-        distributionComboBox->addItem(tr("Lognormal"));
-        distributionComboBox->addItem(tr("Beta"));
-        distributionComboBox->addItem(tr("Uniform"));
-        distributionComboBox->addItem(tr("Constant"));
-        distributionComboBox->addItem(tr("Weibull"));
-        distributionComboBox->addItem(tr("Gumbel"));
-        //distributionComboBox->addItem(tr("UserDef"));
+            distributionComboBox->addItem(tr("Normal"));
+            distributionComboBox->addItem(tr("Lognormal"));
+            distributionComboBox->addItem(tr("Beta"));
+            distributionComboBox->addItem(tr("Uniform"));
+            distributionComboBox->addItem(tr("Weibull"));
+            distributionComboBox->addItem(tr("Gumbel"));
+            distributionComboBox->addItem(tr("Constant"));
     }
+
+    if (uqEngineName==QString("SimCenterUQ")){
+        distributionComboBox->addItem(tr("Exponential"));
+        distributionComboBox->addItem(tr("Discrete"));
+        distributionComboBox->addItem(tr("Gamma"));
+        distributionComboBox->addItem(tr("Chisquare"));
+        distributionComboBox->addItem(tr("Truncated exponential"));
+    }
+
     connect(distributionComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(distributionChanged(QString)));
 
     //
@@ -140,13 +173,17 @@ RandomVariable::RandomVariable(const QString &type, QWidget *parent)
     mainLayout->addWidget(button);
 
     mainLayout->addLayout(nameLayout);
+
+    if (uqengin==QString("SimCenterUQ")){
+        mainLayout->addLayout(typeLayout);
+    }
+
     mainLayout->addLayout(distributionLayout);
     mainLayout->addStretch();
 
-    theDistribution = new NormalDistribution(this);
+    theDistribution = new NormalDistribution();
     mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
-     connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
-
+    connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
     mainLayout->setSpacing(10);
     mainLayout->setMargin(0);
 
@@ -159,11 +196,11 @@ RandomVariable::~RandomVariable()
 
 }
 
-
 RandomVariable::RandomVariable(const QString &type,
                                const QString &rvName,
+                               QString uqengin,
                                QWidget *parent)
-    :RandomVariable(type, parent)
+    :RandomVariable(type, uqengin, parent)
 {
     variableName->setText(rvName);
 
@@ -172,8 +209,9 @@ RandomVariable::RandomVariable(const QString &type,
 RandomVariable::RandomVariable(const QString &type,
                                const QString &rvName,
                                RandomVariableDistribution &theD,
+                               QString uqengin,
                                QWidget *parent)
-    :RandomVariable(type, parent)
+    :RandomVariable(type, uqengin, parent)
 {
     variableName->setText(rvName);
 
@@ -211,6 +249,7 @@ RandomVariable::outputToJSON(QJsonObject &rvObject){
         rvObject["name"]=variableName->text();
         rvObject["value"]=QString("RV.") + variableName->text();
         rvObject["distribution"]=distributionComboBox->currentText();
+        rvObject["inputType"]=typeComboBox->currentText();
         rvObject["variableClass"]=variableClass;
         rvObject["refCount"]=refCount;
         result = theDistribution->outputToJSON(rvObject);
@@ -223,10 +262,17 @@ RandomVariable::outputToJSON(QJsonObject &rvObject){
 
 bool
 RandomVariable::inputFromJSON(QJsonObject &rvObject){
-    QString distributionType;
+    QString distributionType, inputType;
     if (rvObject.contains("name")) {
         QJsonValue theName = rvObject["name"];
         variableName->setText(theName.toString());
+    } else {
+        return false;
+    }
+
+    if (rvObject.contains("inputType")) {
+        QJsonValue theInputTypeValue = rvObject["inputType"];
+        inputType = theInputTypeValue.toString();
     } else {
         return false;
     }
@@ -245,11 +291,41 @@ RandomVariable::inputFromJSON(QJsonObject &rvObject){
         return false;
     }
 
-    int index = distributionComboBox->findText(distributionType);
+    if ((distributionType==tr("Exponential")) ||
+        (distributionType==tr("Discrete")) ||
+        (distributionType==tr("Gamma")) ||
+        (distributionType==tr("Chisquare")) ||
+        (distributionType==tr("Truncated exponential")))
+    {
+        distributionComboBox->addItem(tr("Exponential"));
+        distributionComboBox->addItem(tr("Discrete"));
+        distributionComboBox->addItem(tr("Gamma"));
+        distributionComboBox->addItem(tr("Chisquare"));
+        distributionComboBox->addItem(tr("Truncated exponential"));
+    }
+
+    int index1 = typeComboBox->findText(inputType);
+    this->typeChanged(inputType);
+    typeComboBox->setCurrentIndex(index1);
+    typeOpt = QString(inputType);
+
+    int index2 = distributionComboBox->findText(distributionType);
     this->distributionChanged(distributionType);
-    distributionComboBox->setCurrentIndex(index);
+    distributionComboBox->setCurrentIndex(index2);
     return theDistribution->inputFromJSON(rvObject);
 
+}
+
+void RandomVariable::typeChanged(const QString &arg1) {
+    if (theDistribution != 0) {
+        delete theDistribution;
+        theDistribution = 0;
+    }
+    theDistribution = new NormalDistribution(arg1);
+    mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+    distributionComboBox->setCurrentIndex(0);
+
+    typeOpt = arg1;
 }
 
 // distributionChanged()
@@ -262,22 +338,27 @@ void RandomVariable::distributionChanged(const QString &arg1)
         delete theDistribution;
         theDistribution = 0;
     }
+    typeOpt = typeComboBox->currentText();
 
     if (arg1 == QString("Normal")) {
-        theDistribution = new NormalDistribution();
+        theDistribution = new NormalDistribution(typeOpt);
         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
 
     } else if (arg1 == QString("Lognormal")) {
-        theDistribution = new LognormalDistribution();
+        if (this->uqEngineName==QString("Dakota")) {
+            theDistribution = new LognormalDistribution(QString("Moments"));
+            // Dakota gets moments for lognormal
+        } else {
+            theDistribution = new LognormalDistribution(typeOpt);
+        }
         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
-
     } else if (arg1 == QString("Beta")) {
-         theDistribution = new BetaDistribution();
+         theDistribution = new BetaDistribution(typeOpt);
          mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
          // padhye added 4/32/18
           //qDebug () <<"Hello world I am degbuging this is BetaDistribution"; // padhye
     } else if (arg1 == QString("Uniform")) {
-         theDistribution = new UniformDistribution();
+         theDistribution = new UniformDistribution(typeOpt);
          mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
            // padhye added 4/32/18
             //qDebug () <<"Hello world I am degbuging this is Uniform"; // padhye
@@ -285,20 +366,34 @@ void RandomVariable::distributionChanged(const QString &arg1)
     } else if (arg1 == QString("Constant")) {
          theDistribution = new ConstantDistribution();
          mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
-    } else if (arg1 == QString("ContinuousDesign")) {
-         theDistribution = new ContinuousDesignDistribution();
-         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+    //} else if (arg1 == QString("ContinuousDesign")) {
+    //     theDistribution = new ContinuousDesignDistribution();
+    //     mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     } else if (arg1 == QString("Weibull")) {
-        theDistribution = new WeibullDistribution();
+        theDistribution = new WeibullDistribution(typeOpt);
         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     } else if (arg1 == QString("Gumbel")) {
-        theDistribution = new GumbelDistribution();
+        theDistribution = new GumbelDistribution(typeOpt);
         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
-    } else if (arg1 == QString("UserDef")) {
-        theDistribution = new UserDef();
+    //} else if (arg1 == QString("UserDef")) {
+    //    theDistribution = new UserDef();
+    //    mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+    } else if (arg1 == QString("Exponential")) {
+        theDistribution = new ExponentialDistribution(typeOpt);
+        mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+    } else if (arg1 == QString("Discrete")) {
+        theDistribution = new DiscreteDistribution();
+        mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+    } else if (arg1 == QString("Gamma")) {
+        theDistribution = new GammaDistribution(typeOpt);
+        mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+    } else if (arg1 == QString("Chisquare")) {
+        theDistribution = new ChiSquaredDistribution(typeOpt);
+        mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+    } else if (arg1 == QString("Truncated exponential")) {
+        theDistribution = new TruncatedExponentialDistribution(typeOpt);
         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     }
-
     connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 }
 

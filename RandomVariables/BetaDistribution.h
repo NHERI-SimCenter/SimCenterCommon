@@ -1,5 +1,5 @@
-#ifndef BETADISTRIBUTION_H
-#define BETADISTRIBUTION_H
+#ifndef BetaDistribution_H
+#define BetaDistribution_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -40,15 +40,15 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include "RandomVariableDistribution.h"
-
 class QLineEdit;
+class QLabel;
 class SimCenterGraphPlot;
 
 class BetaDistribution : public RandomVariableDistribution
 {
     Q_OBJECT
 public:
-    explicit BetaDistribution(QWidget *parent = 0);
+    explicit BetaDistribution(QString inpType, QWidget *parent = 0);
     ~BetaDistribution();
 
     bool outputToJSON(QJsonObject &rvObject);
@@ -62,12 +62,11 @@ public slots:
     void updateDistributionPlot();
 
 private:
-    QLineEdit *alphas;
-    QLineEdit *betas;
-    QLineEdit *lowerBound;
-    QLineEdit *upperBound;
-
-     SimCenterGraphPlot *thePlot;
+    QLineEdit *mean, *standardDev;
+    QLineEdit *alpha, *beta, *a, *b;
+    QLineEdit *dataDir;
+    QString inpty ;
+    SimCenterGraphPlot *thePlot;
 };
 
-#endif // BETADISTRIBUTION_H
+#endif // BetaDistribution_H

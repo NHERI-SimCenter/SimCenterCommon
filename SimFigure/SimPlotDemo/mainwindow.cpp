@@ -268,8 +268,8 @@ void MainWindow::on_zoomOut_clicked()
     double w=xmax-xmin;
     double h=ymax-ymin;
 
-    ui->theFigure->setXlimits(xmin-w/10.,xmax+w/10.);
-    ui->theFigure->setYlimits(ymin-h/10.,ymax+h/10.);
+    ui->theFigure->setXLim(xmin-w/10.,xmax+w/10.);
+    ui->theFigure->setYLim(ymin-h/10.,ymax+h/10.);
 }
 
 void MainWindow::on_zoomIn_clicked()
@@ -282,6 +282,6 @@ void MainWindow::on_zoomIn_clicked()
     double w=xmax-xmin;
     double h=ymax-ymin;
 
-    ui->theFigure->setXlimits(xmin+w/10.,xmax-w/10.);
-    ui->theFigure->setYlimits(ymin+h/10.,ymax-h/10.);
+    ui->theFigure->setXLim(xmin+w/10.,xmax-w/10.);
+    ui->theFigure->setYLim(ymin+h/10.,ymax-h/10.);
 }
