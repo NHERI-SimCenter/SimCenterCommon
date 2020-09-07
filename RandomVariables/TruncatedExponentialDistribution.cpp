@@ -168,7 +168,12 @@ TruncatedExponentialDistribution::inputFromJSON(QJsonObject &rvObject){
     // for all entries, make sure i exists and if it does get it, otherwise return error
     //
 
-    inpty=rvObject["inputType"].toString();
+    if (rvObject.contains("inputType")) {
+        inpty=rvObject["inputType"].toString();
+    } else {
+        inpty = "Parameters";
+    }
+
     if (inpty==QString("Parameters")) {
         if (rvObject.contains("lambda")) {
             double thelambdaValue = rvObject["lambda"].toDouble();

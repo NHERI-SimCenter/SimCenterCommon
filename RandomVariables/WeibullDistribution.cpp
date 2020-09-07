@@ -127,15 +127,15 @@ WeibullDistribution::outputToJSON(QJsonObject &rvObject){
             emit sendErrorMessage("ERROR: WeibullDistribution - data has not been set");
             return false;
         }
-        rvObject["an"]=an->text().toDouble();
-        rvObject["k"]=k->text().toDouble();
+        rvObject["scaleparam"]=an->text().toDouble();
+        rvObject["shapeparam"]=k->text().toDouble();
     } else if (inpty==QString("Moments")) {
         if ((mean->text().isEmpty())||(standardDev->text().isEmpty())) {
             emit sendErrorMessage("ERROR: WeibullDistribution - data has not been set");
             return false;
         }
         rvObject["mean"]=mean->text().toDouble();
-        rvObject["stdDev"]=standardDev->text().toDouble();
+        rvObject["standardDev"]=standardDev->text().toDouble();
     } else if (inpty==QString("Dataset")) {
         if (dataDir->text().isEmpty()) {
             emit sendErrorMessage("ERROR: WeibullDistribution - data has not been set");
@@ -153,17 +153,22 @@ WeibullDistribution::inputFromJSON(QJsonObject &rvObject){
     // for all entries, make sure i exists and if it does get it, otherwise return error
     //
 
-    inpty=rvObject["inputType"].toString();
+    if (rvObject.contains("inputType")) {
+        inpty=rvObject["inputType"].toString();
+    } else {
+        inpty = "Parameters";
+    }
+
     if (inpty==QString("Parameters")) {
-        if (rvObject.contains("an")) {
-            double theMuValue = rvObject["an"].toDouble();
+        if (rvObject.contains("shapeparam")) {
+            double theMuValue = rvObject["shapeparam"].toDouble();
             an->setText(QString::number(theMuValue));
         } else {
             emit sendErrorMessage("ERROR: WeibullDistribution - no \"a\" entry");
             return false;
         }
-        if (rvObject.contains("k")) {
-            double theSigValue = rvObject["k"].toDouble();
+        if (rvObject.contains("scaleparam")) {
+            double theSigValue = rvObject["scaleparam"].toDouble();
             k->setText(QString::number(theSigValue));
         } else {
             emit sendErrorMessage("ERROR: WeibullDistribution - no \"a\" entry");

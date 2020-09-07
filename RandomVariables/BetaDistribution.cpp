@@ -145,8 +145,8 @@ BetaDistribution::outputToJSON(QJsonObject &rvObject){
         }
         rvObject["alphas"]=alpha->text().toDouble();
         rvObject["betas"]=beta->text().toDouble();
-        rvObject["lowerBound"]=a->text().toDouble();
-        rvObject["upperBound"]=b->text().toDouble();
+        rvObject["lowerbound"]=a->text().toDouble();
+        rvObject["upperbound"]=b->text().toDouble();
     } else if (inpty==QString("Moments")) {
         if ((mean->text().isEmpty())||(standardDev->text().isEmpty())||(a->text().isEmpty())||(b->text().isEmpty())) {
             emit sendErrorMessage("ERROR: BetaDistribution - data has not been set");
@@ -154,15 +154,15 @@ BetaDistribution::outputToJSON(QJsonObject &rvObject){
         }
         rvObject["mean"]=mean->text().toDouble();
         rvObject["standardDev"]=standardDev->text().toDouble();
-        rvObject["lowerBound"]=a->text().toDouble();
-        rvObject["upperBound"]=b->text().toDouble();
+        rvObject["lowerbound"]=a->text().toDouble();
+        rvObject["upperbound"]=b->text().toDouble();
     } else if (inpty==QString("Dataset")) {
         if (dataDir->text().isEmpty()) {
             emit sendErrorMessage("ERROR: BetaDistribution - data has not been set");
             return false;
         }
-        rvObject["lowerBound"]=a->text().toDouble();
-        rvObject["upperBound"]=b->text().toDouble();
+        rvObject["lowerbound"]=a->text().toDouble();
+        rvObject["upperbound"]=b->text().toDouble();
         rvObject["dataDir"]=QString(dataDir->text());
     }
     return true;
@@ -175,7 +175,12 @@ BetaDistribution::inputFromJSON(QJsonObject &rvObject){
     // for all entries, make sure i exists and if it does get it, otherwise return error
     //
 
-    inpty=rvObject["inputType"].toString();
+    if (rvObject.contains("inputType")) {
+        inpty=rvObject["inputType"].toString();
+    } else {
+        inpty = "Parameters";
+    }
+
     if (inpty==QString("Parameters")) {
         if (rvObject.contains("alphas")) {
             double theAlphaValue = rvObject["alphas"].toDouble();
@@ -191,15 +196,15 @@ BetaDistribution::inputFromJSON(QJsonObject &rvObject){
             emit sendErrorMessage("ERROR: BetaDistribution - no \"beta\" entry");
             return false;
         }
-        if (rvObject.contains("upperBound")) {
-            double theAValue = rvObject["upperBound"].toDouble();
+        if (rvObject.contains("lowerbound")) {
+            double theAValue = rvObject["lowerbound"].toDouble();
             a->setText(QString::number(theAValue));
         } else {
             emit sendErrorMessage("ERROR: BetaDistribution - no \"a\" entry");
             return false;
         }
-        if (rvObject.contains("upperBound")) {
-            double theBValue = rvObject["upperBound"].toDouble();
+        if (rvObject.contains("upperbound")) {
+            double theBValue = rvObject["upperbound"].toDouble();
             b->setText(QString::number(theBValue));
         } else {
             emit sendErrorMessage("ERROR: BetaDistribution - no \"b\" entry");
@@ -222,15 +227,15 @@ BetaDistribution::inputFromJSON(QJsonObject &rvObject){
             emit sendErrorMessage("ERROR: BetaDistribution - no \"mean\" entry");
             return false;
         }
-        if (rvObject.contains("upperBound")) {
-            double theAValue = rvObject["upperBound"].toDouble();
+        if (rvObject.contains("lowerbound")) {
+            double theAValue = rvObject["lowerbound"].toDouble();
             a->setText(QString::number(theAValue));
         } else {
             emit sendErrorMessage("ERROR: BetaDistribution - no \"a\" entry");
             return false;
         }
-        if (rvObject.contains("upperBound")) {
-            double theBValue = rvObject["upperBound"].toDouble();
+        if (rvObject.contains("upperbound")) {
+            double theBValue = rvObject["upperbound"].toDouble();
             b->setText(QString::number(theBValue));
         } else {
             emit sendErrorMessage("ERROR: BetaDistribution - no \"b\" entry");
