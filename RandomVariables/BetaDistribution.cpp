@@ -41,9 +41,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QDebug>
+#include <QDoubleValidator>
+#include <SimCenterGraphPlot.h>
+#include <math.h>
+#include <QPushButton>
+#include <QFileDialog>
 
-BetaDistribution::BetaDistribution(QWidget *parent)
-    : RandomVariableDistribution(parent)
+BetaDistribution::BetaDistribution(QString inpType, QWidget *parent) :RandomVariableDistribution(parent)
 {
 
     //
@@ -51,38 +56,115 @@ BetaDistribution::BetaDistribution(QWidget *parent)
     //
 
     QHBoxLayout *mainLayout = new QHBoxLayout();
+    QPushButton *showPlotButton = new QPushButton("Show PDF");
 
-    alphas = this->createTextEntry(tr("alphas"), mainLayout);
-    betas = this->createTextEntry(tr("betas"), mainLayout);
-    lowerBound = this->createTextEntry(tr("lowerbound"), mainLayout, 100, 100);
-    upperBound = this->createTextEntry(tr("upperbound"), mainLayout, 100, 100);
+    this->inpty=inpType;
+
+    if (inpty==QString("Parameters"))
+    {
+        alpha = this->createTextEntry(tr("alpha"), mainLayout);
+        alpha->setValidator(new QDoubleValidator);
+        beta  = this->createTextEntry(tr("beta"), mainLayout);
+        beta->setValidator(new QDoubleValidator);
+        a = this->createTextEntry(tr("Min."), mainLayout);
+        a->setValidator(new QDoubleValidator);
+        b  = this->createTextEntry(tr("Max."), mainLayout);
+        b->setValidator(new QDoubleValidator);
+        mainLayout->addWidget(showPlotButton);
+
+    } else if (inpty==QString("Moments")) {
+
+        mean = this->createTextEntry(tr("Mean"), mainLayout);
+        mean->setValidator(new QDoubleValidator);        
+        standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout);
+        standardDev->setValidator(new QDoubleValidator);
+        a = this->createTextEntry(tr("Min."), mainLayout);
+        a->setValidator(new QDoubleValidator);
+        b  = this->createTextEntry(tr("Max."), mainLayout);
+        b->setValidator(new QDoubleValidator);
+        mainLayout->addWidget(showPlotButton);
+
+    } else if (inpty==QString("Dataset")) {
+
+        a = this->createTextEntry(tr("Min."), mainLayout);
+        a->setValidator(new QDoubleValidator);
+        b  = this->createTextEntry(tr("Max."), mainLayout);
+        b->setValidator(new QDoubleValidator);
+
+        dataDir = this->createTextEntry(tr("Data File"), mainLayout);
+        //dataDir->setMinimumWidth(500);
+        //dataDir->setMaximumWidth(500);
+
+        QPushButton *chooseFileButton = new QPushButton("Choose");
+        mainLayout->addWidget(chooseFileButton);
+
+        // Action
+        connect(chooseFileButton, &QPushButton::clicked, this, [=](){
+                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)"));
+        });
+    }
+
+
     mainLayout->addStretch();
 
     // set some defaults, and set layout for widget to be the horizontal layout
     mainLayout->setSpacing(10);
     mainLayout->setMargin(0);
     this->setLayout(mainLayout);
+
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
+
+    if (inpty==QString("Parameters")) {
+        connect(alpha,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+        connect(beta,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+        connect(a,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+        connect(b,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+        connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
+    } else if (inpty==QString("Moments")) {
+        connect(mean,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+        connect(standardDev,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+        connect(a,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+        connect(b,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+        connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
+    }
 }
 
 BetaDistribution::~BetaDistribution()
 {
-
+    delete thePlot;
 }
-
 
 bool
 BetaDistribution::outputToJSON(QJsonObject &rvObject){
-    // check for error condition, an entry had no value
-    if (alphas->text().isEmpty() || betas->text().isEmpty() ||
-            upperBound->text().isEmpty() || lowerBound->text().isEmpty()) {
-        emit sendErrorMessage("ERROR: BetaDistribution - data has not been set");
-        return false;
-    }
 
-    rvObject["alphas"]=alphas->text();
-    rvObject["betas"]=betas->text();
-    rvObject["lowerbound"]=lowerBound->text();
-    rvObject["upperbound"]=upperBound->text();
+    if (inpty==QString("Parameters")) {
+        // check for error condition, an entry had no value
+        if ((alpha->text().isEmpty())||(beta->text().isEmpty())||(a->text().isEmpty())||(b->text().isEmpty())) {
+            emit sendErrorMessage("ERROR: BetaDistribution - data has not been set");
+            return false;
+        }
+        rvObject["alphas"]=alpha->text().toDouble();
+        rvObject["betas"]=beta->text().toDouble();
+        rvObject["lowerbound"]=a->text().toDouble();
+        rvObject["upperbound"]=b->text().toDouble();
+    } else if (inpty==QString("Moments")) {
+        if ((mean->text().isEmpty())||(standardDev->text().isEmpty())||(a->text().isEmpty())||(b->text().isEmpty())) {
+            emit sendErrorMessage("ERROR: BetaDistribution - data has not been set");
+            return false;
+        }
+        rvObject["mean"]=mean->text().toDouble();
+        rvObject["standardDev"]=standardDev->text().toDouble();
+        rvObject["lowerbound"]=a->text().toDouble();
+        rvObject["upperbound"]=b->text().toDouble();
+    } else if (inpty==QString("Dataset")) {
+        if (dataDir->text().isEmpty()) {
+            emit sendErrorMessage("ERROR: BetaDistribution - data has not been set");
+            return false;
+        }
+        rvObject["lowerbound"]=a->text().toDouble();
+        rvObject["upperbound"]=b->text().toDouble();
+        rvObject["dataDir"]=QString(dataDir->text());
+    }
     return true;
 }
 
@@ -93,42 +175,139 @@ BetaDistribution::inputFromJSON(QJsonObject &rvObject){
     // for all entries, make sure i exists and if it does get it, otherwise return error
     //
 
-    if (rvObject.contains("alphas")) {
-        QJsonValue theValue = rvObject["alphas"];
-        alphas->setText(QString::number(theValue.toDouble()));
+    if (rvObject.contains("inputType")) {
+        inpty=rvObject["inputType"].toString();
     } else {
-        emit sendErrorMessage("ERROR: Beta Distribution - no \"alphas\" entry");
-        return false;
+        inpty = "Parameters";
     }
 
-    if (rvObject.contains("betas")) {
-        QJsonValue theValue = rvObject["betas"];
-        betas->setText(QString::number(theValue.toDouble()));
-    } else {
-        emit sendErrorMessage("ERROR: Beta Distribution - no \"betas\" entry");
-        return false;
+    if (inpty==QString("Parameters")) {
+        if (rvObject.contains("alphas")) {
+            double theAlphaValue = rvObject["alphas"].toDouble();
+            alpha->setText(QString::number(theAlphaValue));
+        } else {
+            emit sendErrorMessage("ERROR: BetaDistribution - no \"alpha\" entry");
+            return false;
+        }
+        if (rvObject.contains("betas")) {
+            double theBetaValue = rvObject["betas"].toDouble();
+            beta->setText(QString::number(theBetaValue));
+        } else {
+            emit sendErrorMessage("ERROR: BetaDistribution - no \"beta\" entry");
+            return false;
+        }
+        if (rvObject.contains("lowerbound")) {
+            double theAValue = rvObject["lowerbound"].toDouble();
+            a->setText(QString::number(theAValue));
+        } else {
+            emit sendErrorMessage("ERROR: BetaDistribution - no \"a\" entry");
+            return false;
+        }
+        if (rvObject.contains("upperbound")) {
+            double theBValue = rvObject["upperbound"].toDouble();
+            b->setText(QString::number(theBValue));
+        } else {
+            emit sendErrorMessage("ERROR: BetaDistribution - no \"b\" entry");
+            return false;
+        }
+
+      } else if (inpty==QString("Moments")) {
+
+        if (rvObject.contains("mean")) {
+            double theMeanValue = rvObject["mean"].toDouble();
+            mean->setText(QString::number(theMeanValue));
+        } else {
+            emit sendErrorMessage("ERROR: BetaDistribution - no \"mean\" entry");
+            return false;
+        }
+        if (rvObject.contains("standardDev")) {
+            double theStdValue = rvObject["standardDev"].toDouble();
+            standardDev->setText(QString::number(theStdValue));
+        } else {
+            emit sendErrorMessage("ERROR: BetaDistribution - no \"mean\" entry");
+            return false;
+        }
+        if (rvObject.contains("lowerbound")) {
+            double theAValue = rvObject["lowerbound"].toDouble();
+            a->setText(QString::number(theAValue));
+        } else {
+            emit sendErrorMessage("ERROR: BetaDistribution - no \"a\" entry");
+            return false;
+        }
+        if (rvObject.contains("upperbound")) {
+            double theBValue = rvObject["upperbound"].toDouble();
+            b->setText(QString::number(theBValue));
+        } else {
+            emit sendErrorMessage("ERROR: BetaDistribution - no \"b\" entry");
+            return false;
+        }
+
+    } else if (inpty==QString("Dataset")) {
+
+      if (rvObject.contains("dataDir")) {
+          QString theDataDir = rvObject["dataDir"].toString();
+          dataDir->setText(theDataDir);
+      } else {
+          emit sendErrorMessage("ERROR: BetaDistribution - no \"mean\" entry");
+          return false;
+      }
     }
 
-    if (rvObject.contains("lowerbound")) {
-        QJsonValue theValue = rvObject["lowerbound"];
-        lowerBound->setText(QString::number(theValue.toDouble()));
-    } else {
-        emit sendErrorMessage("ERROR: Beta Distribution - no \"lowerbound\" entry");
-        return false;
-    }
-
-    if (rvObject.contains("upperbound")) {
-        QJsonValue theValue = rvObject["upperbound"];
-        upperBound->setText(QString::number(theValue.toDouble()));
-    } else {
-        emit sendErrorMessage("ERROR: Beta Distribution - no \"lowerbound\" entry");
-        return false;
-    }
-
+    this->updateDistributionPlot();
     return true;
 }
 
 QString 
 BetaDistribution::getAbbreviatedName(void) {
   return QString("Beta");
+}
+
+void
+BetaDistribution::updateDistributionPlot() {
+    double alp=0, bet=0, aa=0, bb=0, me=0, st=0;
+    if ((this->inpty)==QString("Parameters")) {
+        alp=alpha->text().toDouble();
+        bet=beta->text().toDouble();
+        aa=a->text().toDouble();
+        bb=b->text().toDouble();
+        me = (aa*bet+bb*alp)/(alp+bet);
+        st = sqrt( alp*bet*(bb-aa)/pow(alp+bet,2)/(alp+bet+1)  );
+     } else if ((this->inpty)==QString("Moments")) {
+        me = mean->text().toDouble();
+        st = standardDev->text().toDouble();
+        aa=a->text().toDouble();
+        bb=b->text().toDouble();
+        alp = ((bb-me)*(me-aa)/pow(st,2)-1)*(me-aa)/(bb-aa);
+        bet = alp*(bb-me)/(me-aa);
+    }
+
+        if (alp >= 0.0 && bet > 0.0 && me != aa) {
+            double min = aa; // defined in x>0
+            double max = bb;
+            QVector<double> x(100);
+            QVector<double> y(100);
+            for (int i=0; i<100; i++) {
+                double xi = min + i*(max-min)/99;
+                x[i] = xi;
+                double betai=tgamma(alp)*tgamma(bet)/tgamma(alp+bet);
+                y[i] = pow(xi-aa,alp-1)*pow(bb-xi,bet-1)/betai/pow(bb-aa,alp+bet-1);
+            thePlot->clear();
+            thePlot->addLine(x,y);
+
+            }
+        } else {
+            QVector<double> x(100);
+            QVector<double> y(100);
+            QVector<double> x1(100);
+            QVector<double> y1(100);
+            for (int i=0; i<100; i++) {
+                x[i] =  aa+1;
+                y[i] =  bb+10;
+                x1[i] =  me+1;
+                y1[i] =  st+10;
+            }
+            thePlot->clear();
+            thePlot->addLine(x,y);
+            thePlot->addLine(x1,y1);
+        }
 }

@@ -83,22 +83,11 @@ void GraphicView2D::updateCameraPosition(){
     camera->setPosition(QVector3D(0., 0, 500.));
 }
 
-void GraphicView2D::setView(QVector3D buildingSize, QVector3D domainSize, QVector3D domainCenter)
-{
-    /*
-    buildingBox->setSize(buildingSize);
-    buildingBox->setTranslation(QVector3D(0.0f, buildingSize.y()/2.0f, 0.0f));
-
-    domainBox->setSize(domainSize);
-    domainBox->setTranslation(domainCenter);
-    */
-}
-
 void GraphicView2D::setup3DView()
 {
     rootEntity = new Qt3DCore::QEntity();
 
-    setCamera(rootEntity);
+    setCamera();
 
     setLights(rootEntity);
 
@@ -106,7 +95,7 @@ void GraphicView2D::setup3DView()
 }
 
 
-void GraphicView2D::setCamera(Qt3DCore::QEntity *rootEntity)
+void GraphicView2D::setCamera()
 {
     Qt3DRender::QCamera *camera = graphicsWindow->camera();
     float height = maxY-minY;
@@ -121,12 +110,6 @@ void GraphicView2D::setCamera(Qt3DCore::QEntity *rootEntity)
 
     camera->lens()->setOrthographicProjection(minX, maxX, minY, maxY,-1000.0f, 1000.0f);
     camera->setPosition(QVector3D((maxX+minX)/2., (maxY+minY)/2, 100.));
-
-    //auto camController = new Qt3DExtras::QOrbitCameraController(rootEntity);
-    //camController->setLinearSpeed(-150.0f);
-    //camController->setLookSpeed(-150.0f);
-
-   // camController->setCamera(camera);
 }
 
 void GraphicView2D::setLights(Qt3DCore::QEntity *rootEntity)
@@ -147,6 +130,10 @@ void GraphicView2D::setLights(Qt3DCore::QEntity *rootEntity)
 void
 GraphicView2D::drawPoint(int tag, float x1, float y1, int numPixels, float r, float g, float b, float w, float h)
 {
+    Q_UNUSED(tag);
+    Q_UNUSED(w);
+    Q_UNUSED(h);
+
     bool resetCamera = false;
 
     if (x1 < minX) {
@@ -233,6 +220,10 @@ GraphicView2D::drawPoint(int tag, float x1, float y1, int numPixels, float r, fl
 void
 GraphicView2D::drawLine(int tag, float x1, float y1, float x2, float y2, float thick, float r, float g, float b, float w)
 {
+    Q_UNUSED(tag);
+    Q_UNUSED(w);
+    Q_UNUSED(thick);
+
     bool resetCamera = false;
 
     if (x1 < minX) {
@@ -331,6 +322,9 @@ GraphicView2D::drawLine(int tag, float x1, float y1, float x2, float y2, float t
 void
 GraphicView2D::drawCube(int tag, float x1, float y1, int numPixels, float r, float g, float b, float w, float h)
 {
+    Q_UNUSED(tag);
+    Q_UNUSED(numPixels);
+
     bool resetCamera = false;
 
     if (x1 < minX) {
@@ -410,7 +404,7 @@ GraphicView2D::drawCube(int tag, float x1, float y1, int numPixels, float r, flo
 
     QByteArray connectivityBytes(reinterpret_cast<const char *>(&connectivity), sizeof (uint) * 8);
     connectivityBuffer->setData(connectivityBytes);
-    /*
+
     auto indexAttribute = new Qt3DRender::QAttribute(
                 connectivityBuffer,
                 Qt3DRender::QAttribute::defaultJointIndicesAttributeName(),

@@ -115,6 +115,7 @@ InputWidgetExistingEvent::outputToJSON(QJsonObject &jsonObject)
 bool
 InputWidgetExistingEvent::inputFromJSON(QJsonObject &jsonObject)
 {
+    Q_UNUSED(jsonObject);
     this->clear();
     return true;
 }
@@ -175,8 +176,8 @@ InputWidgetExistingEvent::inputAppDataFromJSON(QJsonObject &jsonObject) {
 
 
 
-int
-InputWidgetExistingEvent::setFilename1(QString name1){
+void
+InputWidgetExistingEvent::setFilename1(QString filename1){
 
     // remove old random variables
     QStringList names;
@@ -188,16 +189,16 @@ InputWidgetExistingEvent::setFilename1(QString name1){
 
     // set file name & ebtry in qLine edit
 
-    fileName1 = name1;
-    file1->setText(name1);
+    fileName1 = filename1;
+    file1->setText(filename1);
 
-    return 0;
+    return;
 }
 
 void
 InputWidgetExistingEvent::chooseFileName1(void) {
     fileName1=QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)");
-    int ok = this->setFilename1(fileName1);
+    this->setFilename1(fileName1);
 }
 
 

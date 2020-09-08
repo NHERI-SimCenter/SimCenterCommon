@@ -35,9 +35,11 @@
 
 #include <RemoteService.h>
 #include <SimCenterPreferences.h>
+#include <Utils/RelativePathResolver.h>
+#include "Utils/dialogabout.h"
 
 MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theService, QWidget *parent)
-  : QMainWindow(parent), theRemoteInterface(theService), inputWidget(theApp), loggedIn(false), isAutoLogin(false)
+  : QMainWindow(parent), loggedIn(false), inputWidget(theApp),   theRemoteInterface(theService), isAutoLogin(false)
 {
     //
     // create a layout & widget for central area of this QMainWidget
@@ -47,15 +49,30 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     QWidget *centralWidget = new QWidget();
     QVBoxLayout *layout = new QVBoxLayout();
     centralWidget->setLayout(layout);
+    centralWidget->setContentsMargins(0,0,0,0);
 
     //
     // resize to primary screen
     //
-      
+    /*************************** keep around
+    QSize availableSize = qApp->desktop()->availableGeometry().size();
+    int availWidth = availableSize.width();
+    int availHeight = availableSize.height();
+    QSize newSize( availWidth*.85, availHeight*.65 );
+    
+    setGeometry(QStyle::alignedRect(Qt::LeftToRight,
+				    Qt::AlignCenter,
+				    newSize,
+				    qApp->desktop()->availableGeometry()
+				     )
+		);
+        ********************************************************/
+
     QRect rec = QGuiApplication::primaryScreen()->geometry();
-    int height = this->height()<int(0.85*rec.height())?int(0.85*rec.height()):this->height();
-    int width  = this->width()<int(0.85*rec.width())?int(0.85*rec.width()):this->width();
+    int height = this->height()<int(0.75*rec.height())?int(0.75*rec.height()):this->height();
+    int width  = this->width()<int(0.75*rec.width())?int(0.75*rec.width()):this->width();
     this->resize(width, height);
+
 
     //
     // add SimCenter Header
@@ -90,8 +107,8 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
 
     // create the buttons widget and a layout for it
     QHBoxLayout *pushButtonLayout = new QHBoxLayout();
-    QWidget *buttonWidget = new QWidget();
-    buttonWidget->setLayout(pushButtonLayout);
+    //QWidget *buttonWidget = new QWidget();
+    //buttonWidget->setLayout(pushButtonLayout);
 
     // create a bunch of buttons
 
@@ -191,14 +208,17 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
    */
 
     // add button widget to layout
-    layout->addWidget(buttonWidget);
+    //layout->addWidget(buttonWidget);
+    pushButtonLayout->setSpacing(10);
+    layout->addLayout(pushButtonLayout);
 
     //
     // add SimCenter footer
     //
 
-    FooterWidget *footer = new FooterWidget();
-    layout->addWidget(footer);
+    //FooterWidget *footer = new FooterWidget();
+    //layout->addWidget(footer);
+    layout->setSpacing(0);
 
     this->setCentralWidget(centralWidget);
 
@@ -228,10 +248,14 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
 
     manualURL = QString("");
     feedbackURL = QString("https://docs.google.com/forms/d/e/1FAIpQLSfh20kBxDmvmHgz9uFwhkospGLCeazZzL770A2GuYZ2KgBZBA/viewform");
-    featureRequestURL = QString("https://docs.google.com/forms/d/e/1FAIpQLScTLkSwDjPNzH8wx8KxkyhoIT7AI9KZ16Wg9TuW1GOhSYFOag/viewform");
+    //    featureRequestURL = QString("https://docs.google.com/forms/d/e/1FAIpQLScTLkSwDjPNzH8wx8KxkyhoIT7AI9KZ16Wg9TuW1GOhSYFOag/viewform");
     versionText = QString("");
     citeText = QString("");
-    aboutText = QString(tr("This is a SeimCenter Workflow Applicatios"));
+    aboutText = QString(tr("This is a SimCenter Workflow Applicatios"));
+
+    aboutTitle = "About this SimCenter Application"; // this is the title displayed in the on About dialog
+    aboutSource = ":/Resources/docs/textAbout.html";  // this is an HTML file stored under resources
+
     copyrightText = QString("\
                             <p>\
                             The source code is licensed under a BSD 2-Clause License:<p>\
@@ -310,9 +334,14 @@ bool MainWindowWorkflowApp::saveAs()
     // get filename
     //
 
-    QFileDialog dialog(this);
+    QFileDialog dialog(this, "Save Simulation Model");
     dialog.setWindowModality(Qt::WindowModal);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
+    QStringList filters;
+    filters << "Json files (*.json)"
+            << "All files (*)";
+    dialog.setNameFilters(filters);
+
     if (dialog.exec() != QDialog::Accepted)
         return false;
 
@@ -322,7 +351,7 @@ bool MainWindowWorkflowApp::saveAs()
 
 void MainWindowWorkflowApp::open()
 {
-    QString fileName = QFileDialog::getOpenFileName(this);
+    QString fileName = QFileDialog::getOpenFileName(this, "Open Simulation Model", "",  "Json files (*.json);;All files (*)");
     if (!fileName.isEmpty())
         loadFile(fileName);
 }
@@ -379,6 +408,11 @@ bool MainWindowWorkflowApp::saveFile(const QString &fileName)
 
     QJsonObject json;
     inputWidget->outputToJSON(json);
+
+    //Resolve relative paths before saving
+    QFileInfo fileInfo(fileName);
+    SCUtils::ResolveRelativePaths(json, fileInfo.dir());
+
     QJsonDocument doc(json);
     file.write(doc.toJson());
 
@@ -418,6 +452,10 @@ void MainWindowWorkflowApp::loadFile(const QString &fileName)
     val=file.readAll();
     QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
     QJsonObject jsonObj = doc.object();
+
+    //
+    QFileInfo fileInfo(fileName);
+    SCUtils::ResolveAbsolutePaths(jsonObj, fileInfo.dir());
 
     // close file
     file.close();
@@ -481,13 +519,13 @@ void MainWindowWorkflowApp::createActions() {
     fileMenu->addAction(exitAction);
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
-    QAction *versionAct = helpMenu->addAction(tr("&Version"), this, &MainWindowWorkflowApp::version);
-    QAction *aboutAct = helpMenu->addAction(tr("&About"), this, &MainWindowWorkflowApp::about);
-    QAction *manualAct = helpMenu->addAction(tr("&Manual"), this, &MainWindowWorkflowApp::manual);
-    QAction *submitAct = helpMenu->addAction(tr("&Provide Feedback"), this, &MainWindowWorkflowApp::submitFeedback);
-    QAction *submitFeature = helpMenu->addAction(tr("&Submit Feature Request"), this, &MainWindowWorkflowApp::submitFeatureRequest);
-    QAction *citeAct = helpMenu->addAction(tr("&How to Cite"), this, &MainWindowWorkflowApp::cite);
-    QAction *copyrightAct = helpMenu->addAction(tr("&License"), this, &MainWindowWorkflowApp::copyright);
+    helpMenu->addAction(tr("&Version"), this, &MainWindowWorkflowApp::version);
+    helpMenu->addAction(tr("&About"), this, &MainWindowWorkflowApp::about);
+    helpMenu->addAction(tr("&Manual"), this, &MainWindowWorkflowApp::manual);
+    helpMenu->addAction(tr("&Submit Bug/Feature Request"), this, &MainWindowWorkflowApp::submitFeedback);
+    // QAction *submitFeature = helpMenu->addAction(tr("&Submit Bug/Feature Request"), this, &MainWindowWorkflowApp::submitFeatureRequest);
+    helpMenu->addAction(tr("&How to Cite"), this, &MainWindowWorkflowApp::cite);
+    helpMenu->addAction(tr("&License"), this, &MainWindowWorkflowApp::copyright);
 }
 
 
@@ -652,18 +690,36 @@ void MainWindowWorkflowApp::cite()
 
 void MainWindowWorkflowApp::about()
 {
+    /*
     QMessageBox msgBox;
     QSpacerItem *theSpacer = new QSpacerItem(700, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
-    msgBox.setText(aboutText);
-    QGridLayout *layout = (QGridLayout*)msgBox.layout();
+    msgBox.setText(aboutText);    QGridLayout *layout = (QGridLayout*)msgBox.layout();
     layout->addItem(theSpacer, layout->rowCount(),0,1,layout->columnCount());
     msgBox.exec();
+    */
+
+
+    DialogAbout *dlg = new DialogAbout();
+    dlg->setTitle(aboutTitle);
+    dlg->setTextSource(aboutSource);
+
+    //
+    // adjust size of application window to the available display
+    //
+    QRect rec = QApplication::desktop()->screenGeometry();
+    int height = 0.50*rec.height();
+    int width  = 0.50*rec.width();
+    dlg->resize(width, height);
+
+    dlg->exec();
+    delete dlg;
 }
 
 void MainWindowWorkflowApp::preferences()
 {
   thePreferences->show();
 }
+
 
 void MainWindowWorkflowApp::submitFeedback()
 {
@@ -674,12 +730,6 @@ void MainWindowWorkflowApp::submitFeedback()
 void MainWindowWorkflowApp::manual()
 {
     QDesktopServices::openUrl(QUrl(manualURL, QUrl::TolerantMode));
-    //QDesktopServices::openUrl(QUrl("https://www.designsafe-ci.org/help/new-ticket/", QUrl::TolerantMode));
-}
-
-void MainWindowWorkflowApp::submitFeatureRequest()
-{
-    QDesktopServices::openUrl(QUrl(featureRequestURL, QUrl::TolerantMode));
     //QDesktopServices::openUrl(QUrl("https://www.designsafe-ci.org/help/new-ticket/", QUrl::TolerantMode));
 }
 
@@ -706,10 +756,18 @@ MainWindowWorkflowApp::setVersion(QString &newText)
   versionText = newText;
 }
 
-void 
+void
 MainWindowWorkflowApp::setAbout(QString &newText)
 {
-  aboutText = newText;
+  aboutText = newText +QString("<p> This work is based on material supported by the National Science Foundation under grant 1612843<p>");
+  qDebug() << "ABOUT: " << aboutText;
+}
+
+void
+MainWindowWorkflowApp::setAbout(QString &newTitle, QString &newTextSource)
+{
+  aboutTitle  = newTitle;
+  aboutSource = newTextSource;
 }
 
 void
@@ -722,12 +780,6 @@ void
 MainWindowWorkflowApp::setFeedbackURL(QString &newText)
 {
   feedbackURL = newText;
-}
-
-void
-MainWindowWorkflowApp::setFeatureURL(QString &newText)
-{
-  featureRequestURL = newText;
 }
 
 void

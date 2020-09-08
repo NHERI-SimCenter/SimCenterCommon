@@ -17,6 +17,7 @@ class QwtPlotCurve;
 class QwtPlotLegendItem;
 class QString;
 class QwtPlotPicker;
+class QwtPlotZoomer;
 
 
 namespace Ui {
@@ -112,6 +113,7 @@ public:
     int plot(QVector<double> &, QVector<double> &, LineType lt = LineType::Solid, QColor col = Qt::red, Marker mk = Marker::None);
     int scatter(QVector<double> &, QVector<double> &, QColor col = Qt::blue, Marker mk = Marker::Circle);
 
+
     void clear(void);
     void cla(void);
 
@@ -136,9 +138,34 @@ public:
 
     void setXLabel(QString lbl);
     void setYLabel(QString lbl);
+    void setXLim(double xmin, double xmax);
+    void setYLim(double ymin, double ymax);
+
+    /**  @brief  alias for setXLim(xmin,xmax) */
+    void setXlimits(double xmin, double xmax) {setXLim(xmin,xmax);};
+
+    /**  @brief  alias for setYLim(ymin,ymax) */
+    void setYlimits(double ymin, double ymax) {setYLim(ymin,ymax);};
     void setLabelFontSize(int);
     void setTitle(QString title);
     void setTitleFontSize(int);
+
+    /**
+     * @brief returns the currently displayed minimum value of x
+     */
+    double minX() { return m_xmin; };
+    /**
+     * @brief returns the currently displayed maximum value of x
+     */
+    double maxX() { return m_xmax; };
+    /**
+     * @brief returns the currently displayed minimum value of y
+     */
+    double minY() { return m_ymin; };
+    /**
+     * @brief returns the currently displayed maximum value of y
+     */
+    double maxY() { return m_ymax; };
 
     int      lineWidth(int ID);
     void     setLineWidth(int ID, int wd);
@@ -169,6 +196,8 @@ public slots:
     void on_picker_moved (const QPoint &pos);
     void on_picker_removed (const QPoint &pos);
     void on_picker_changed (const QPolygon &selection);
+    void showAxisControls(bool show);
+    void fit_data();
 
 signals:
     void curve_selected(int ID);
@@ -187,6 +216,7 @@ private:
     QwtPlot       *m_plot;
     QwtPlotGrid   *m_grid;
     QwtPlotPicker *m_picker;
+    QwtPlotZoomer *m_zoomer = nullptr;
     QwtPlotLegendItem  *m_legend;
     QMap<QwtPlotCurve *, int> m_plotInvMap;
     QMap<QwtPlotItem *, int>  m_itemInvMap;
@@ -198,6 +228,11 @@ private:
     double  m_xmax = 1.e-20;
     double  m_ymin = 1.e20;
     double  m_ymax = 1.e-20;
+
+    double  m_data_xmin = 1.e20;
+    double  m_data_xmax = 1.e-20;
+    double  m_data_ymin = 1.e20;
+    double  m_data_ymax = 1.e-20;
 
     struct SELECTION {
         QPen         pen;

@@ -28,8 +28,8 @@ public:
     void setVersion(QString &version);
     void setDocumentationURL(QString &version);
     void setAbout(QString &about);
+    void setAbout(QString &, QString&);
     void setFeedbackURL(QString &feedback);
-    void setFeatureURL(QString &featureRequest);
     void setCite(QString &cite);
 
  protected:
@@ -49,7 +49,6 @@ public:
     void about();
     void manual();
     void submitFeedback();
-    void submitFeatureRequest();
     void version();
     void preferences();
     void copyright();
@@ -107,10 +106,11 @@ public:
 
     QString versionText;
     QString aboutText;
+    QString aboutTitle;
+    QString aboutSource;
     QString copyrightText;
     QString manualURL;
     QString feedbackURL;
-    QString featureRequestURL;
     QString citeText;
     bool isAutoLogin;
 

@@ -94,7 +94,7 @@ public:
     QString startJob(const QJsonObject &theJob);
 
     // methods neeed for dealing with remote jobs
-    QJsonObject getJobList(const QString &matchingName);
+    QJsonObject getJobList(const QString &matchingName, QString appIdFilter = QString(""));
     QJsonObject getJobDetails(const QString &jobID);
     QString getJobStatus(const QString &jobID);
     bool deleteJob(const QString &jobID, const QStringList &dirToRemove);
@@ -117,7 +117,7 @@ public slots:
 
     // jobs
     void startJobCall(const QJsonObject &theJob);
-    void getJobListCall(const QString &matchingName);
+    void getJobListCall(const QString &matchingName, QString appIdFilter = QString(""));
     void getJobDetailsCall(const QString &jobID);
     void getJobStatusCall(const QString &jobID);
     void deleteJobCall(const QString &jobID, const QStringList &dirToRemove);

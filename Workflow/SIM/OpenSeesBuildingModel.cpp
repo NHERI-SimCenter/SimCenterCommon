@@ -62,7 +62,7 @@ using namespace std;
 OpenSeesBuildingModel::OpenSeesBuildingModel(RandomVariablesContainer *theRandomVariableIW, 
 					     bool includeC,
 					     QWidget *parent)
-  : SimCenterAppWidget(parent), theRandomVariablesContainer(theRandomVariableIW), responseNodes(0)
+  : SimCenterAppWidget(parent), responseNodes(0), theRandomVariablesContainer(theRandomVariableIW)
 {
   includeCentroid = includeC;
   femSpecific = 0;
@@ -170,16 +170,20 @@ OpenSeesBuildingModel::outputToJSON(QJsonObject &jsonObject)
     string s1(nodeString); // this line is needed as nodeString cannot be passed directly to the line below!
     stringstream nodeStream(s1);
     int nodeTag;
+    int numStories = -1;
     while (nodeStream >> nodeTag) {
         responseNodeTags.append(QJsonValue(nodeTag));
-        if (nodeStream.peek() == ',')
+        if (nodeStream.peek() == ',') {
             nodeStream.ignore();
+        } else
+            numStories++;
     }
 
     jsonObject["centroidNodes"]=nodeTags;
     jsonObject["responseNodes"]=responseNodeTags;
     jsonObject["ndm"]=ndm->text().toInt();
     jsonObject["ndf"]=ndf->text().toInt();
+    //jsonObject["stories"]=numStories;
 
     QJsonArray rvArray;
     for (int i=0; i<varNamesAndValues.size()-1; i+=2) {
@@ -332,7 +336,7 @@ OpenSeesBuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
 
 
 
-int
+void
 OpenSeesBuildingModel::setFilename1(QString name1){
 
     // remove old random variables
@@ -357,13 +361,13 @@ OpenSeesBuildingModel::setFilename1(QString name1){
 
     theRandomVariablesContainer->addConstantRVs(varNamesAndValues);
 
-    return 0;
+    return;
 }
 
 void
 OpenSeesBuildingModel::chooseFileName1(void) {
     fileName1=QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)");
-    int ok = this->setFilename1(fileName1);
+    this->setFilename1(fileName1);
 }
 
 void
@@ -402,5 +406,7 @@ QString OpenSeesBuildingModel::getMainInput() {
      OpenSeesParser theParser;
      QString copiedFile = dirName + QDir::separator() + theFile;
      theParser.writeFile(fileName, copiedFile, varNames);
+
+     return true;
  }
 

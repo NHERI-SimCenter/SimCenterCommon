@@ -26,6 +26,7 @@
 
 #include "qwt_picker.h"
 #include "qwt_plot_picker.h"
+#include "qwt_plot_zoomer.h"
 #include "qwt_plot_item.h"
 #include "qwt_plot_shapeitem.h"
 #include "qwt_picker_machine.h"
@@ -61,6 +62,7 @@ SimFigure::SimFigure(QWidget *parent) :
     m_plot = new QwtPlot(this);
     QVBoxLayout *lyt = new QVBoxLayout(ui->pltWidgetSpace);
     lyt->addWidget(m_plot);
+    lyt->setMargin(0);
     m_plot->setCanvasBackground(QBrush(Qt::white));
 
     ui->btn_standard->setChecked(true);
@@ -80,13 +82,14 @@ SimFigure::SimFigure(QWidget *parent) :
     m_picker->setTrackerMode(QwtPicker::AlwaysOn);
     m_picker->setRubberBand(QwtPicker::RectRubberBand);
 
+    m_zoomer = new QwtPlotZoomer(m_plot->canvas());
+
     connect(m_picker, SIGNAL(activated(bool)), this, SLOT(on_picker_activated(bool)));
     connect(m_picker, SIGNAL(selected(const QPolygon &)), this, SLOT(on_picker_selected(const QPolygon &)));
     connect(m_picker, SIGNAL(appended(const QPoint &)), this, SLOT(on_picker_appended(const QPoint &)));
     connect(m_picker, SIGNAL(moved(const QPoint &)), this, SLOT(on_picker_moved(const QPoint &)));
     connect(m_picker, SIGNAL(removed(const QPoint &)), this, SLOT(on_picker_removed(const QPoint &)));
     connect(m_picker, SIGNAL(changed(const QPolygon &)), this, SLOT(on_picker_changed(const QPolygon &)));
-
 }
 
 /*! the SimFIgure destructor */
@@ -163,6 +166,8 @@ void SimFigure::axisTypeChanged(void)
 
     grid(true, true);
 
+    m_plot->repaint();
+
     //qDebug() << "signal axisTypeChanged received " << int(m_axisType);
 }
 
@@ -227,10 +232,10 @@ int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor 
 
     // update min and max values
 
-    if (MAX(x) > m_xmax) m_xmax=MAX(x);
-    if (MIN(x) < m_xmin) m_xmin=MIN(x);
-    if (MAX(y) > m_ymax) m_ymax=MAX(y);
-    if (MIN(y) < m_ymin) m_ymin=MIN(y);
+    if (MAX(x) > m_data_xmax) m_data_xmax=MAX(x);
+    if (MIN(x) < m_data_xmin) m_data_xmin=MIN(x);
+    if (MAX(y) > m_data_ymax) m_data_ymax=MAX(y);
+    if (MIN(y) < m_data_ymin) m_data_ymin=MIN(y);
 
     // now add that curve
 
@@ -246,7 +251,7 @@ int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor 
     m_curves.append(curve);
 
     //grid(true,true);
-    rescale();
+    fit_data();
     m_plot->replot();
 
     int idx = m_curves.length();
@@ -272,7 +277,6 @@ int SimFigure::scatter(QVector<double> &x, QVector<double> &y, QColor color, Mar
 {
     return plot(x, y, SimFigure::LineType::None, color, mk);
 }
-
 /**
  * @brief SimFigure::xLabel()
  * @return title of the current x-axis label
@@ -389,6 +393,35 @@ void SimFigure::rescale(void)
         m_plot->setAxisScale(QwtPlot::yLeft,   1, 100);
         m_plot->setAxisScale(QwtPlot::xBottom, 1, 100);
     }
+    m_plot->replot();
+    m_plot->repaint();
+
+}
+
+/**
+ * @brief Sets x-axis limits to given values.  xmax must be larger than xmin.
+ * @brief See maxX() and minX() on how to obtain the current limits.
+ */
+void SimFigure::setXLim(double xmin, double xmax)
+{
+    if (xmin<xmax) {
+        m_xmax = xmax;
+        m_xmin = xmin;
+        this->rescale();
+    }
+}
+
+/**
+ * @brief Sets y-axis limits to given values.  ymax must be larger than ymin.
+ * @brief See maxY() and minY() on how to obtain the current limits.
+ */
+void SimFigure::setYLim(double ymin, double ymax)
+{
+    if (ymin<ymax) {
+        m_ymax = ymax;
+        m_ymin = ymin;
+        this->rescale();
+    }
 }
 
 /*! Regenerate th egrid with new settings (Type, limits) - (private) */
@@ -477,6 +510,11 @@ void SimFigure::cla(void)
     lastSelection.object = nullptr;
     lastSelection.plotID = -1;
 
+    m_data_xmin = 1.e20;
+    m_data_xmax = 1.e-20;
+    m_data_ymin = 1.e20;
+    m_data_ymax = 1.e-20;
+
     m_xmin = 1.e20;
     m_xmax = 1.e-20;
     m_ymin = 1.e20;
@@ -552,6 +590,7 @@ void SimFigure::moveLegend(Location loc)
 
         m_legend->setAlignment(Qt::Alignment(alignment));
         m_plot->replot();
+        m_plot->repaint();
     }
 }
 
@@ -574,6 +613,7 @@ void SimFigure::showLegend(bool on)
     }
 
     m_plot->replot();
+    m_plot->repaint();
 }
 
 /*! check if legend is currently visible.*/
@@ -660,6 +700,24 @@ void SimFigure::on_picker_changed (const QPolygon &selection)
     //qWarning() << "picker changed " << selection;
 }
 
+
+void SimFigure::showAxisControls(bool show)
+{
+    this->ui->axisControls->setVisible(show);
+}
+
+
+void SimFigure::fit_data()
+{
+    m_xmax = m_data_xmax;
+    m_xmin = m_data_xmin;
+    m_ymax = m_data_ymax;
+    m_ymin = m_data_ymin;
+    rescale();
+
+    //m_zoomer->zoom(QRectF(m_xmin,m_ymax,m_xmax-m_xmin,m_ymax-m_ymin));
+}
+
 /*! returns a pointer to the QwtPlotItem selected by the last mouse click (private)*/
 QwtPlotItem* SimFigure::itemAt( const QPoint& pos ) const
 {
@@ -723,7 +781,7 @@ QwtPlotItem* SimFigure::itemAt( const QPoint& pos ) const
                     {
                         dist = sqrt(QPointF::dotProduct(r,r));
                         QPointF r2 = pos - x1;
-                        double d2  = sqrt(QPointF::dotProduct(r,r));
+                        double d2  = sqrt(QPointF::dotProduct(r2,r2));  // review
                         if ( d2 < dist ) { dist = d2; }
                     }
                 }
@@ -906,7 +964,36 @@ void SimFigure::setLineStyle(QwtPlotCurve *curve, LineType lt)
  */
 SimFigure::Marker SimFigure::marker(int ID)
 {
-
+    if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
+    {
+        const QwtSymbol *sym = m_curves.value(ID-1)->symbol();
+        int mk = sym->style();
+        switch (mk) {
+            case QwtSymbol::NoSymbol:
+                return Marker::None;
+            case QwtSymbol::XCross:
+                return Marker::Ex;
+            case QwtSymbol::Rect:
+                return Marker::Box;
+            case QwtSymbol::Cross:
+                return Marker::Plus;
+            case QwtSymbol::Ellipse:
+                return Marker::Circle;
+            case QwtSymbol::Star1:
+                return Marker::Asterisk;
+            case QwtSymbol::Triangle:
+                return Marker::Triangle;
+            case QwtSymbol::DTriangle:
+                return Marker::DownTriangle;
+            case QwtSymbol::LTriangle:
+                return Marker::LeftTriangle;
+            case QwtSymbol::RTriangle:
+                return Marker::RightTriangle;
+        }
+    }
+    else {
+        return Marker::None;
+    }
 }
 
 /**

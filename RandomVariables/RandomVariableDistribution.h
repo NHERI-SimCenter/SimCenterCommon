@@ -51,6 +51,7 @@ class RandomVariableDistribution : public SimCenterWidget
 public:
     explicit RandomVariableDistribution(QWidget *parent = 0);
     ~RandomVariableDistribution();
+    double TruncatedExponentialDistribution(QString inpType, QWidget *parent = 0);
 
     QLineEdit *createTextEntry(QString text,
 			       QHBoxLayout *theLayout,

@@ -63,7 +63,7 @@ class RandomVariablesContainer : public SimCenterWidget
     Q_OBJECT
 public:
     explicit RandomVariablesContainer(QWidget *parent = 0);
-    explicit RandomVariablesContainer(QString &randomVariableClass, QWidget *parent = 0);
+    explicit RandomVariablesContainer(QString &randomVariableClass, QString uqengin="Dakota", QWidget *parent = 0);
 
     ~RandomVariablesContainer();
 
@@ -80,6 +80,8 @@ public:
     void removeRandomVariable(QString &varName);
     void removeRandomVariables(QStringList &varNames);
 
+
+
     QStringList getRandomVariableNames(void);
     int getNumRandomVariables(void);
 
@@ -91,6 +93,8 @@ public slots:
    void addCorrelationMatrix(void); // added by padhye for correlation matrix
    //   void addSobolevIndices(bool);// added by padhye for sobolev indices
    void clear(void);
+   void makeCorrSymmetric(int i, int j);
+   void checkCorrValidity(void);
 
 private:
     void makeRV(void);
@@ -98,11 +102,12 @@ private:
     QVBoxLayout *rvLayout;
     QWidget *rv;
 
-    QString randomVariableClass;
+    QString randomVariableClass, uqEngineName;
     QVector<RandomVariable *>theRandomVariables;
     QDialog *correlationDialog;
     QTableWidget *correlationMatrix;
     QCheckBox *checkbox;
+    QLabel *correlationError;
 
     SectionTitle *correlationtabletitle;
     int flag_for_correlationMatrix;

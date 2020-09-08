@@ -42,12 +42,13 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "RandomVariableDistribution.h"
 class QLineEdit;
 class QLabel;
+class SimCenterGraphPlot;
 
 class UniformDistribution : public RandomVariableDistribution
 {
     Q_OBJECT
 public:
-    explicit UniformDistribution(QWidget *parent = 0);
+    explicit UniformDistribution(QString inpType, QWidget *parent = 0);
     ~UniformDistribution();
 
     bool outputToJSON(QJsonObject &rvObject);
@@ -58,11 +59,14 @@ public:
 signals:
 
 public slots:
+    void updateDistributionPlot();
 
 private:
-    QLineEdit *min;
-    QLineEdit *max;
-    QLineEdit *initialPoint;
+    QLineEdit *mean, *standardDev;
+    QLineEdit *a, *b;
+    QLineEdit *dataDir;
+    QString inpty ;
+    SimCenterGraphPlot *thePlot;
 };
 
 #endif // UNIFORMDISTRIBUTION_H

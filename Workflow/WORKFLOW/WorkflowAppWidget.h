@@ -41,8 +41,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <QWidget>
 
-#include "MainWindow.h"
-
 class MainWindowWorkflowApp;
 class RemoteService;
 
@@ -67,7 +65,8 @@ public:
     virtual int getMaxNumParallelTasks() =0;
     
 signals:
-    void setUpForApplicationRunDone(QString &tmpDirectory, QString &inputFile);
+    void setUpForApplicationRunDone(QString &tmpDirectory, QString &inputFile,
+                                     QString runType = QString("run"));
     void sendLoadFile(QString filename);
 
     void sendStatusMessage(QString message);

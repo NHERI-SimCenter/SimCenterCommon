@@ -114,6 +114,7 @@ UserDefinedApplication::outputToJSON(QJsonObject &jsonObject)
 bool
 UserDefinedApplication::inputFromJSON(QJsonObject &jsonObject)
 {
+    Q_UNUSED(jsonObject);
 
     return true;
 }
@@ -191,6 +192,8 @@ UserDefinedApplication::inputAppDataFromJSON(QJsonObject &jsonObject) {
     } else {
         return false;
     }
+
+    return true;
 }
 
 
