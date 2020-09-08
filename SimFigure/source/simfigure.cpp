@@ -30,6 +30,8 @@
 #include "qwt_plot_item.h"
 #include "qwt_plot_shapeitem.h"
 #include "qwt_picker_machine.h"
+#include "qwt_plot_magnifier.h"
+#include "qwt_scale_widget.h"
 
 #include <QDebug>
 
@@ -83,6 +85,15 @@ SimFigure::SimFigure(QWidget *parent) :
     m_picker->setRubberBand(QwtPicker::RectRubberBand);
 
     m_zoomer = new QwtPlotZoomer(m_plot->canvas());
+
+    m_zoom_shiftwheel = new QwtPlotMagnifier(m_plot->canvas());
+    m_zoom_ctrlwheel = new QwtPlotMagnifier(m_plot->canvas());
+    m_zoom_shiftwheel->setWheelModifiers(Qt::ShiftModifier);
+    m_zoom_shiftwheel->setAxisEnabled(QwtPlot::xBottom, true);
+    m_zoom_shiftwheel->setAxisEnabled(QwtPlot::yLeft,true);
+    m_zoom_ctrlwheel->setWheelModifiers(Qt::ControlModifier);
+    m_zoom_ctrlwheel->setAxisEnabled(QwtPlot::yLeft,true);
+    m_zoom_ctrlwheel->setAxisEnabled(QwtPlot::yLeft,true);
 
     connect(m_picker, SIGNAL(activated(bool)), this, SLOT(on_picker_activated(bool)));
     connect(m_picker, SIGNAL(selected(const QPolygon &)), this, SLOT(on_picker_selected(const QPolygon &)));
@@ -329,6 +340,22 @@ void SimFigure::setLabelFontSize(int sz)
         text = m_plot->axisTitle(QwtPlot::yLeft);
         text.setFont(font);
         m_plot->setAxisTitle(QwtPlot::yLeft, text);
+    }
+}
+
+/**
+ * @brief sets the current font size used for axis tick to sz
+ */
+void SimFigure::setTickFontSize(int sz)
+{
+    if (sz>0)
+    {
+        QwtText text = m_plot->axisTitle(QwtPlot::xBottom);
+        QFont font = text.font();
+        font.setPointSize(sz);
+        text.setFont(font);
+        m_plot->axisWidget(QwtPlot::yLeft)->setFont(font);
+        m_plot->axisWidget(QwtPlot::xBottom)->setFont(font);
     }
 }
 

@@ -18,6 +18,7 @@ class QwtPlotLegendItem;
 class QString;
 class QwtPlotPicker;
 class QwtPlotZoomer;
+class QwtPlotMagnifier;
 
 
 namespace Ui {
@@ -149,6 +150,7 @@ public:
     void setLabelFontSize(int);
     void setTitle(QString title);
     void setTitleFontSize(int);
+    void setTickFontSize(int);
 
     /**
      * @brief returns the currently displayed minimum value of x
@@ -217,6 +219,8 @@ private:
     QwtPlotGrid   *m_grid;
     QwtPlotPicker *m_picker;
     QwtPlotZoomer *m_zoomer = nullptr;
+    QwtPlotMagnifier *m_zoom_shiftwheel = nullptr;
+    QwtPlotMagnifier *m_zoom_ctrlwheel = nullptr;
     QwtPlotLegendItem  *m_legend;
     QMap<QwtPlotCurve *, int> m_plotInvMap;
     QMap<QwtPlotItem *, int>  m_itemInvMap;
