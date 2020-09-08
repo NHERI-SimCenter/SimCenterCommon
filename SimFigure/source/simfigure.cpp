@@ -343,6 +343,22 @@ void SimFigure::setLabelFontSize(int sz)
     }
 }
 
+
+/**
+ * @brief sets the current font size used for legend to sz
+ */
+void SimFigure::setLegendFontSize(int sz)
+{
+    if (sz>0)
+    {
+        QwtText text = m_plot->axisTitle(QwtPlot::xBottom);
+        QFont font = text.font();
+        font.setPointSize(sz);
+        text.setFont(font);
+        m_legend->setFont(font);
+    }
+}
+
 /**
  * @brief sets the current font size used for axis tick to sz
  */
@@ -563,6 +579,16 @@ void SimFigure::legend(QList<QString> labels, Location loc)
     if (labels.length()>0)
     {
         showLegend();
+
+        // update legend text
+        QwtLegendData data;
+        QList<QwtLegendData> list;
+        for (int i = 0; i < m_curves.length(); i++) {
+            data.setValue(QwtLegendData::Role::TitleRole, QVariant(labels[i]));
+            list << data;
+            m_legend->updateLegend(m_curves[i], list);
+            list.clear();
+        }
     }
 }
 

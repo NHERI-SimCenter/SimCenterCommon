@@ -151,6 +151,7 @@ public:
     void setTitle(QString title);
     void setTitleFontSize(int);
     void setTickFontSize(int);
+    void setLegendFontSize(int);
 
     /**
      * @brief returns the currently displayed minimum value of x
