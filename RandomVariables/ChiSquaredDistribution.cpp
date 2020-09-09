@@ -209,10 +209,12 @@ ChiSquaredDistribution::updateDistributionPlot() {
             double max = me + 5*st;
             QVector<double> x(100);
             QVector<double> y(100);
+            //QVector<double> y2(100);
             for (int i=0; i<100; i++) {
                 double xi = min + i*(max-min)/99;
                 x[i] = xi;
-                y[i] = 1/(pow(2,kk/2)*tgamma(kk/2)) * pow(xi,kk/2-1) * exp(-xi/2);
+                //y[i] = 1/(pow(2,kk/2)*tgamma(kk/2)) * pow(xi,kk/2-1) * exp(-xi/2);
+                y[i] = exp(-kk/2*log(2)-lgamma(kk/2) + (kk/2-1)*log(xi)+ (-xi/2));
             }
             thePlot->clear();
             thePlot->addLine(x,y);

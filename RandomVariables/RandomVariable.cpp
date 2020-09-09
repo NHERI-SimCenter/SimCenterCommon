@@ -382,7 +382,7 @@ void RandomVariable::distributionChanged(const QString &arg1)
         theDistribution = new ExponentialDistribution(typeOpt);
         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     } else if (arg1 == QString("Discrete")) {
-        theDistribution = new DiscreteDistribution();
+        theDistribution = new DiscreteDistribution(typeOpt);
         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     } else if (arg1 == QString("Gamma")) {
         theDistribution = new GammaDistribution(typeOpt);
