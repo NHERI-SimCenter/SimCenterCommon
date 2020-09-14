@@ -111,7 +111,7 @@ public:
     explicit SimFigure(QWidget *parent = nullptr);
     ~SimFigure();
 
-    int plot(QVector<double> &, QVector<double> &, LineType lt = LineType::Solid, QColor col = Qt::red, Marker mk = Marker::None);
+    int plot(QVector<double> &, QVector<double> &, LineType lt = LineType::Solid, QColor col = Qt::red, Marker mk = Marker::None, QString label = "default");
     int scatter(QVector<double> &, QVector<double> &, QColor col = Qt::blue, Marker mk = Marker::Circle);
 
 

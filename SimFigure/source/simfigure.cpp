@@ -237,7 +237,7 @@ void SimFigure::setAxisType(enum AxisType type)
  * @param color a QColor object defining the line color.  You may also use pre-defined colors like Qt::red, ...
  * @param mk a member of the SimFigure::Marker enum.
  */
-int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor color, Marker mk)
+int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor color, Marker mk, QString label)
 {
     if (x.length() <= 0 || y.length() <= 0) return -1;
 
@@ -250,7 +250,7 @@ int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor 
 
     // now add that curve
 
-    QwtPlotCurve *curve = new QwtPlotCurve("default");
+    QwtPlotCurve *curve = new QwtPlotCurve(label);
     curve->setSamples(x,y);
 
     setLineStyle(curve, lt);
