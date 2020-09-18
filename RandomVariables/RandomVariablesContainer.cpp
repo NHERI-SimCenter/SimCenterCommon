@@ -196,10 +196,7 @@ RandomVariablesContainer::makeRV(void)
     // that whether the uqMehod selected is that of Dakota and sampling type? only then we need correlation matrix
 
     /* FMK */
-    QPushButton *addCorrelation = new QPushButton();
-    //addCorrelation->setMinimumWidth(250);
-    //addCorrelation->setMaximumWidth(280);
-    addCorrelation->setText(tr("Correlation Matrix"));
+    QPushButton *addCorrelation = new QPushButton(tr("Correlation Matrix"));
     connect(addCorrelation,SIGNAL(clicked()),this,SLOT(addCorrelationMatrix()));
 
     flag_for_correlationMatrix=1;
@@ -217,11 +214,8 @@ RandomVariablesContainer::makeRV(void)
     titleLayout->addWidget(removeRV);
     titleLayout->addItem(spacer3);
 
-    titleLayout->addWidget(addCorrelation,0,Qt::AlignTop);
-
-
-    //titleLayout->addItem(spacer4);
-    //titleLayout->addWidget(checkbox);
+    //titleLayout->addWidget(addCorrelation,0,Qt::AlignTop);
+    titleLayout->addWidget(addCorrelation);
 
     titleLayout->addStretch();
 
