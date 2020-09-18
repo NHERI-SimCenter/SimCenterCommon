@@ -37,8 +37,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include "DiscreteDistribution.h"
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+#include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QDebug>
@@ -52,25 +51,25 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 DiscreteDistribution::DiscreteDistribution(QWidget *parent) :RandomVariableDistribution(parent)
 {
     //
-    // create the main horizontal layout and add the input entries
+    // create the main layout and add the input entries
     //
+    QGridLayout *mainLayout = new QGridLayout(this);
 
-    QHBoxLayout *mainLayout = new QHBoxLayout();
+    // set some defaults, and set layout for widget to be the horizontal layout
+    mainLayout->setHorizontalSpacing(10);
+    mainLayout->setVerticalSpacing(0);
+    mainLayout->setMargin(0);
 
-    values = this->createTextEntry(tr("Values"), mainLayout);
-    weights = this->createTextEntry(tr("Weights"), mainLayout);
+    QPushButton *showPlotButton = new QPushButton("Show PDF");
+
+    values = this->createTextEntry(tr("Values"), mainLayout, 0);
+    weights = this->createTextEntry(tr("Weights"), mainLayout, 1);
     values->setValidator(new myDoubleArrayValidator);
     weights->setValidator(new myDoubleArrayValidator);
 
-    QPushButton *showPlotButton = new QPushButton("Show PMF");
-    mainLayout->addWidget(showPlotButton);
+    mainLayout->addWidget(showPlotButton, 1,2);
 
-    mainLayout->addStretch();
-
-    // set some defaults, and set layout for widget to be the horizontal layout
-    mainLayout->setSpacing(10);
-    mainLayout->setMargin(0);
-    this->setLayout(mainLayout);
+    mainLayout->setColumnStretch(3,1);
 
     thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Mass Function"),500, 500);
 
