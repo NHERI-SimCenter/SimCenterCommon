@@ -48,7 +48,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QtCharts>
 #include <QJsonArray>
 
-DiscreteDistribution::DiscreteDistribution(QWidget *parent) :RandomVariableDistribution(parent)
+DiscreteDistribution::DiscreteDistribution(QString inpType, QWidget *parent) :RandomVariableDistribution(parent)
 {
     //
     // create the main layout and add the input entries
@@ -67,15 +67,54 @@ DiscreteDistribution::DiscreteDistribution(QWidget *parent) :RandomVariableDistr
     values->setValidator(new myDoubleArrayValidator);
     weights->setValidator(new myDoubleArrayValidator);
 
+    /*
+    QPushButton *showPlotButton = new QPushButton("Show PDF");
+    */
     mainLayout->addWidget(showPlotButton, 1,2);
+
+    this->inpty=inpType;
+
+    if (inpty==QString("Parameters"))
+    {
+      values = this->createTextEntry(tr("Values"), mainLayout, 0);
+      weights = this->createTextEntry(tr("Weights"), mainLayout, 1);
+      values->setValidator(new myDoubleArrayValidator);
+      weights->setValidator(new myDoubleArrayValidator);
+
+      mainLayout->addWidget(showPlotButton, 1, 2);
+    } else if (inpty==QString("Moments"))
+    {
+        QLabel *momentMessage = new QLabel();
+        momentMessage ->setText("Moments input is not supported for discrete distribution");
+        mainLayout->addWidget(momentMessage);
+    } else if (inpty==QString("Dataset"))
+    {
+      dataDir = this->createTextEntry(tr("Data File"), mainLayout, 0);
+        dataDir->setMinimumWidth(200);
+        dataDir->setMinimumWidth(200);
+
+        QPushButton *chooseFileButton = new QPushButton("Choose");
+        mainLayout->addWidget(chooseFileButton, 1, 1);
+
+        // Action
+        connect(chooseFileButton, &QPushButton::clicked, this, [=](){
+                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)"));
+        });
+    }
 
     mainLayout->setColumnStretch(3,1);
 
     thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Mass Function"),500, 500);
 
-    connect(values,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
-    connect(weights,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
-    connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
+    //connect(values,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+    //connect(weights,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+    //connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
+
+    if (inpty==QString("Parameters")) {
+        connect(values,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+        connect(weights,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+        connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
+    }
 }
 
 DiscreteDistribution::~DiscreteDistribution()
@@ -86,33 +125,48 @@ DiscreteDistribution::~DiscreteDistribution()
 bool
 DiscreteDistribution::outputToJSON(QJsonObject &rvObject){
 
-    // check for error condition, an entry had no value
-    if (values->text().isEmpty()) {
-        emit sendErrorMessage("ERROR: DiscreteDistribution - data (Values) has not been set");
+    if (inpty==QString("Parameters")) {
+
+        // check for error condition, an entry had no value
+        if (values->text().isEmpty()) {
+            emit sendErrorMessage("ERROR: DiscreteDistribution - data (Values) has not been set");
+            return false;
+        }
+        if (weights->text().isEmpty()) {
+            emit sendErrorMessage("ERROR: DiscreteDistribution - data (Weights) has not been set");
+            return false;
+        }
+
+        QStringList listValues = values-> text().split(",");
+        QStringList listWeights = weights->text().split(",");
+
+        if (!(listValues.length() == listWeights.length())) {
+            emit sendErrorMessage("ERROR: DiscreteDistribution - lengths of 'Values' and 'Weights' should be the same");
+            return false;
+        }
+
+        QJsonArray x, w;
+        for (int i=0; i<std::min(listValues.size(),listWeights.size()); i++) {
+            x.push_back(listValues[i].toDouble());
+            w.push_back(listWeights[i].toDouble());
+        }
+
+        rvObject["Values"]=x;
+        rvObject["Weights"]=w;
+
+    } else if (inpty==QString("Moments")) {
+        emit sendErrorMessage("ERROR: DiscreteDistribution - it does not support moment inputs");
         return false;
+    } else if (inpty==QString("Dataset")) {
+        if (dataDir->text().isEmpty()) {
+            emit sendErrorMessage("ERROR: DiscreteDistribution - data has not been set");
+            return false;
+        }
+        rvObject["dataDir"]=QString(dataDir->text());
     }
-    if (weights->text().isEmpty()) {
-        emit sendErrorMessage("ERROR: DiscreteDistribution - data (Weights) has not been set");
-        return false;
-    }
-
-    QStringList listValues = values-> text().split(",");
-    QStringList listWeights = weights->text().split(",");
-
-    if (!(listValues.length() == listWeights.length())) {
-        emit sendErrorMessage("ERROR: DiscreteDistribution - lengths of 'Values' and 'Weights' should be the same");
-        return false;
-    }
-
-    QJsonArray x, w;
-    for (int i=0; i<std::min(listValues.size(),listWeights.size()); i++) {
-        x.push_back(listValues[i].toDouble());
-        w.push_back(listWeights[i].toDouble());
-    }
-
-    rvObject["Values"]=x;
-    rvObject["Weights"]=w;
     return true;
+
+        //
 }
 
 bool
@@ -121,36 +175,57 @@ DiscreteDistribution::inputFromJSON(QJsonObject &rvObject){
     //
     // for all entries, make sure i exists and if it does get it, otherwise return error
     //
-
-    if (rvObject.contains("Weights")) {
-        QJsonValue weightVals = rvObject["Weights"];
-        QJsonArray weightArrs = weightVals.toArray();
-        QString weightString;
-        weightString.push_back(QString::number(weightVals[0].toDouble()));
-        for (int i=1; i < weightArrs.size() ; i++ ) {
-                weightString.push_back(",");
-                weightString.push_back(QString::number(weightVals[i].toDouble()));
-        }
-        weights->setText(weightString);
-
+    if (rvObject.contains("inputType")) {
+        inpty=rvObject["inputType"].toString();
     } else {
-        emit sendErrorMessage("ERROR: DiscreteDistribution - no \"weights\" entry");
-        return false;
+        inpty = "Parameters";
     }
 
-    if (rvObject.contains("Values")) {
-        QJsonValue valueVals = rvObject["Values"];
-        QJsonArray valueArrs = valueVals.toArray();
-        QString valueString;
-        valueString.push_back(QString::number(valueVals[0].toDouble()));
-        for (int i=1; i < valueArrs.size() ; i++ ) {
-                valueString.push_back(",");
-                valueString.push_back(QString::number(valueVals[i].toDouble()));
+    if (inpty==QString("Parameters")) {
+
+        if (rvObject.contains("Weights")) {
+            QJsonValue weightVals = rvObject["Weights"];
+            QJsonArray weightArrs = weightVals.toArray();
+            QString weightString;
+            weightString.push_back(QString::number(weightVals[0].toDouble()));
+            for (int i=1; i < weightArrs.size() ; i++ ) {
+                    weightString.push_back(",");
+                    weightString.push_back(QString::number(weightVals[i].toDouble()));
+            }
+            weights->setText(weightString);
+
+        } else {
+            emit sendErrorMessage("ERROR: DiscreteDistribution - no \"weights\" entry");
+            return false;
         }
-        values->setText(valueString);
-    } else {
-        emit sendErrorMessage("ERROR: DiscreteDistribution - no \"values\" entry");
+
+        if (rvObject.contains("Values")) {
+            QJsonValue valueVals = rvObject["Values"];
+            QJsonArray valueArrs = valueVals.toArray();
+            QString valueString;
+            valueString.push_back(QString::number(valueVals[0].toDouble()));
+            for (int i=1; i < valueArrs.size() ; i++ ) {
+                    valueString.push_back(",");
+                    valueString.push_back(QString::number(valueVals[i].toDouble()));
+            }
+            values->setText(valueString);
+        } else {
+            emit sendErrorMessage("ERROR: DiscreteDistribution - no \"values\" entry");
+            return false;
+        }
+
+    } else if (inpty==QString("Moments")) {
+        emit sendErrorMessage("ERROR: DiscreteDistribution - it does not support moment inputs");
         return false;
+
+    } else if (inpty==QString("Dataset")) {
+        if (rvObject.contains("dataDir")) {
+            QString theDataDir = rvObject["dataDir"].toString();
+            dataDir->setText(theDataDir);
+        } else {
+            emit sendErrorMessage("ERROR: TruncatedExponentialDistribution - no \"mean\" entry");
+            return false;
+        }
     }
 
     this->updateDistributionPlot();
