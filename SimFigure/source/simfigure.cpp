@@ -236,6 +236,8 @@ void SimFigure::setAxisType(enum AxisType type)
  * @param lt a member of the SimFigure::LineType enum
  * @param color a QColor object defining the line color.  You may also use pre-defined colors like Qt::red, ...
  * @param mk a member of the SimFigure::Marker enum.
+ * @param label defines the name listed when showLegend() is called.  The special label "_none_" will suppress the entry for the respective curce. The special label "_auto_" will generate a label "curve #ID" where ID is the curve ID.
+ *
  */
 int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor color, Marker mk, QString label)
 {
@@ -248,9 +250,13 @@ int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor 
     if (MAX(y) > m_data_ymax) m_data_ymax=MAX(y);
     if (MIN(y) < m_data_ymin) m_data_ymin=MIN(y);
 
-    // now add that curve
+    // curve attributes
+    uint attr;
+    attr = QwtPlotCurve::LegendAttribute::LegendShowLine|QwtPlotCurve::LegendAttribute::LegendShowSymbol;
 
-    QwtPlotCurve *curve = new QwtPlotCurve(label);
+    // now add that curve
+    QwtPlotCurve *curve = new QwtPlotCurve();
+
     curve->setSamples(x,y);
 
     setLineStyle(curve, lt);
@@ -268,6 +274,22 @@ int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor 
     int idx = m_curves.length();
     m_plotInvMap.insert(curve, idx);
 
+    if (label == "_auto_") {
+        curve->setTitle(QString("curve #%1").arg(idx));
+        curve->setLegendAttribute(QwtPlotCurve::LegendAttribute::LegendShowLine, true);
+        curve->setLegendAttribute(QwtPlotCurve::LegendAttribute::LegendShowSymbol, true);
+    }
+    else if (label != "_none_") {
+        curve->setTitle(label);
+        curve->setLegendAttribute(QwtPlotCurve::LegendAttribute::LegendShowLine, true);
+        curve->setLegendAttribute(QwtPlotCurve::LegendAttribute::LegendShowSymbol, true);
+    }
+    else {
+        curve->setLegendAttribute(QwtPlotCurve::LegendAttribute::LegendShowLine, false);
+        curve->setLegendAttribute(QwtPlotCurve::LegendAttribute::LegendShowSymbol, false);
+        curve->setItemAttribute(QwtPlotItem::Legend, false);
+    }
+
     return idx;
 }
 
@@ -283,10 +305,12 @@ int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor 
  *
  * @param color a QColor object defining the line color.  You may also use pre-defined colors like Qt::red, ...
  * @param mk a member of the SimFigure::Marker enum.
+ * @param label defines the name listed when showLegend() is called.  The special label "_none_" will suppress the entry for the respective curce. The special label "_auto_" will generate a label "curve #ID" where ID is the curve ID.
+ *
  */
-int SimFigure::scatter(QVector<double> &x, QVector<double> &y, QColor color, Marker mk)
+int SimFigure::scatter(QVector<double> &x, QVector<double> &y, QColor color, Marker mk, QString label)
 {
-    return plot(x, y, SimFigure::LineType::None, color, mk);
+    return plot(x, y, SimFigure::LineType::None, color, mk, label);
 }
 /**
  * @brief SimFigure::xLabel()
@@ -570,9 +594,10 @@ void SimFigure::cla(void)
 
 /*! Add a legend to the current plot.
  *
- * Location is an enum class.
+ * @param labels is a list of QStrings.  The special label "_none_" will suppress the entry for the respective curce. The special label "_auto_" will generate a label "curve #ID" where ID is the curve ID.
+ * @param loc Location is an enum class.
  */
-void SimFigure::legend(QList<QString> labels, Location loc)
+void SimFigure::legend(QStringList labels, Location loc)
 {
     moveLegend(loc);
 
@@ -581,13 +606,25 @@ void SimFigure::legend(QList<QString> labels, Location loc)
         showLegend();
 
         // update legend text
-        QwtLegendData data;
-        QList<QwtLegendData> list;
         for (int i = 0; i < m_curves.length(); i++) {
-            data.setValue(QwtLegendData::Role::TitleRole, QVariant(labels[i]));
-            list << data;
-            m_legend->updateLegend(m_curves[i], list);
-            list.clear();
+            QString label_text = labels[i];
+
+            if (label_text == "_auto_") {
+                label_text = QString("curve #%1").arg(i+1);
+                m_curves[i]->setLegendAttribute(QwtPlotCurve::LegendAttribute::LegendShowLine, true);
+                m_curves[i]->setLegendAttribute(QwtPlotCurve::LegendAttribute::LegendShowSymbol, true);
+                m_curves[i]->setTitle(label_text);
+            }
+            else if (label_text != "_none_") {
+                m_curves[i]->setLegendAttribute(QwtPlotCurve::LegendAttribute::LegendShowLine, true);
+                m_curves[i]->setLegendAttribute(QwtPlotCurve::LegendAttribute::LegendShowSymbol, true);
+                m_curves[i]->setTitle(label_text);
+            }
+            else {
+                m_curves[i]->setLegendAttribute(QwtPlotCurve::LegendAttribute::LegendShowLine, false);
+                m_curves[i]->setLegendAttribute(QwtPlotCurve::LegendAttribute::LegendShowSymbol, false);
+                m_curves[i]->setTitle("should not be any");
+            }
         }
     }
 }

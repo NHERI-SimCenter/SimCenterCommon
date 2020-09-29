@@ -63,6 +63,10 @@ void MainWindow::on_selectionView_clicked(const QModelIndex &index)
         ui->theFigure->setXLabel("x -->");
         ui->theFigure->setYLabel("f(x) -->");
         ui->theFigure->showLegend();
+        QStringList labels;
+        labels << "_auto_";
+        labels << "2+cos(x/10)";
+        ui->theFigure->legend(labels);
         ui->theFigure->setAxisType(SimFigure::AxisType::LogX);
 
         break; }
@@ -76,7 +80,7 @@ void MainWindow::on_selectionView_clicked(const QModelIndex &index)
             u.append( 200. + 175*0.5*s/PI * sin(s));
         }
         int idx;
-        idx = ui->theFigure->plot(y,z, SimFigure::LineType::DashDotted, Qt::green);
+        idx = ui->theFigure->plot(y,z, SimFigure::LineType::DashDotted, Qt::green, SimFigure::Marker::None, "_none_");
         idx = ui->theFigure->plot(d,u, SimFigure::LineType::Solid, Qt::blue, SimFigure::Marker::Triangle);
 
         ui->theFigure->setTitle("Demo #2: parametric plot");
