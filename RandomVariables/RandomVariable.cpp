@@ -80,14 +80,15 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     // implementation note: spacer added first to ensure it always lines up on left
 
     mainLayout = new QGridLayout(this);
-    mainLayout->setSpacing(10);
+    mainLayout->setSpacing(0);
     mainLayout->setMargin(0);
+    mainLayout->setHorizontalSpacing(10);
 
     //
     // create radio button
     //
     button = new QRadioButton();
-    mainLayout->addWidget(button,0,0);
+    mainLayout->addWidget(button,1,0);
 
     //
     // create variable name block
@@ -96,7 +97,7 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     variableName  = new QLineEdit();
     variableName->setMaximumWidth(100);
     variableName->setMinimumWidth(100);
-    variableName->setText(uqengin);
+    variableName->setText("");
     mainLayout->addWidget(variableLabel,0,1);
     mainLayout->addWidget(variableName,1,1);
 
