@@ -96,7 +96,7 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     variableName  = new QLineEdit();
     variableName->setMaximumWidth(100);
     variableName->setMinimumWidth(100);
-
+    variableName->setText(uqengin);
     mainLayout->addWidget(variableLabel,0,1);
     mainLayout->addWidget(variableName,1,1);
 
@@ -347,7 +347,7 @@ void RandomVariable::distributionChanged(const QString &arg1)
     } else if (arg1 == QString("Exponential")) {
         theDistribution = new ExponentialDistribution(typeOpt);
     } else if (arg1 == QString("Discrete")) {
-        theDistribution = new DiscreteDistribution();
+        theDistribution = new DiscreteDistribution(typeOpt);
     } else if (arg1 == QString("Gamma")) {
         theDistribution = new GammaDistribution(typeOpt);
     } else if (arg1 == QString("Chisquare")) {
@@ -356,7 +356,9 @@ void RandomVariable::distributionChanged(const QString &arg1)
         theDistribution = new TruncatedExponentialDistribution(typeOpt);
     }
 
-    if (theDistribution) { mainLayout->addWidget(theDistribution,0,4,2,1); }
+    if (theDistribution) {
+      mainLayout->addWidget(theDistribution,0,4,2,1);
+    }
 
     connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 }

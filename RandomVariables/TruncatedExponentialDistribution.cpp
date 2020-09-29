@@ -60,6 +60,8 @@ TruncatedExponentialDistribution::TruncatedExponentialDistribution(QString inpTy
     mainLayout->setMargin(0);
 
     QPushButton *showPlotButton = new QPushButton("Show PDF");
+    errorMsgLabel = new QLabel();
+    errorMsgLabel -> setStyleSheet("QLabel { color : red; }");
 
     this->inpty=inpType;
 
@@ -104,7 +106,11 @@ TruncatedExponentialDistribution::TruncatedExponentialDistribution(QString inpTy
         });
     }
 
+
+    mainLayout->addWidget(errorMsgLabel, 2, 0, 1, 4);
+	
     mainLayout->setColumnStretch(4,1);
+
 
     thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
 
@@ -128,6 +134,12 @@ TruncatedExponentialDistribution::~TruncatedExponentialDistribution()
 
 bool
 TruncatedExponentialDistribution::outputToJSON(QJsonObject &rvObject){
+
+    if (validIdx==0)
+    {
+        emit sendErrorMessage("ERROR: TruncatedExponentialDistribution - input parameters are not valid");
+        return false;
+    }
 
     if (inpty==QString("Parameters")) {
         // check for error condition, an entry had no value
@@ -257,10 +269,23 @@ TruncatedExponentialDistribution::getAbbreviatedName(void) {
 void
 TruncatedExponentialDistribution::updateDistributionPlot() {
     double la=0, aa=0,bb=0, me=0;
+    validIdx=0;
+    QString errorMsg;
+
     if ((this->inpty)==QString("Parameters")) {
         la=lambda->text().toDouble();
         aa=a->text().toDouble();
         bb=b->text().toDouble();
+
+        if ((bb-aa)<=0.0) {
+            errorMsg = tr("* Max. should be greater than Min.");
+            //emit sendErrorMessage("ERROR: Max. should be greater than Min.");
+        } else {
+            errorMsg = tr("");
+            //emit sendErrorMessage(" ");
+            validIdx=1;
+        }
+
      } else if ((this->inpty)==QString("Moments")) {
         me = mean->text().toDouble();
         aa=a->text().toDouble();
@@ -296,29 +321,21 @@ TruncatedExponentialDistribution::updateDistributionPlot() {
         }
         la = lam0 + (me - mean0)*(lam1-lam0)/(mean1 - mean0);
 
+        if ((bb-aa)<0.0) {
+            errorMsg = tr("* Max. should be greater than Min.");
+        } else if ((me <= aa) || (me >= aa+(bb-aa)/2)) {
+            errorMsg = tr("* Mean must lie in the valid range: (Min, Min+(Max-Min)/2)");
+        } else {
+            errorMsg = tr("");
+            validIdx=1;
+        }
     }
 
     //
     // CHECK user-input ERRORS
     //
-    bool validIdx=0;
-    if (inpty==QString("Parameters")) {
-        if ((bb-aa)<0.0) {
-            emit sendErrorMessage("ERROR: upperbound should be greater than lowebound");
-        } else {
-            emit sendErrorMessage(" ");
-            validIdx=1;
-        }
 
-    } else if (inpty==QString("Moments")) {
-        if ((bb-aa)<0.0) {
-            emit sendErrorMessage("ERROR: upperbound should be greater than lowebound");
-        } else if ((me < aa) || (me > aa+(aa+bb)/2)) {
-            emit sendErrorMessage("ERROR: mean must lie between the lowerbound and half point of valid range");
-        } else {
-            validIdx=1;
-        }
-    }
+    errorMsgLabel -> setText(errorMsg);
 
 
     if (validIdx==1) {

@@ -1,5 +1,5 @@
-#ifndef TruncatedExponentialDISTRIBUTION_H
-#define TruncatedExponentialDISTRIBUTION_H
+#ifndef READ_WRITE_RV_JSON
+#define READ_WRITE_RV_JSON
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -20,7 +20,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -39,38 +39,34 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include "RandomVariableDistribution.h"
+class QJsonObject;
 class QLineEdit;
-class QLabel;
-class SimCenterGraphPlot;
+class QTableWidgetItem;
+class QGridLayout;
 
-class TruncatedExponentialDistribution : public RandomVariableDistribution
-{
-    Q_OBJECT
-public:
-    explicit TruncatedExponentialDistribution(QString inpType, QWidget *parent = 0);
-    ~TruncatedExponentialDistribution();
+#include <QString>
 
-    double integrateMean(double lam1, double lower, double upper);
-    double integrateProb(double lam1, double lower, double upper);
-    bool outputToJSON(QJsonObject &rvObject);
-    bool inputFromJSON(QJsonObject &rvObject);
+// function to write to a json object a key-value pair. if value is not
+// a double it is treated as a RV
 
-    QString getAbbreviatedName(void);
+bool readLineEditRV(QJsonObject &jsonObject, const char *key, QLineEdit *value);
 
-signals:
+bool writeLineEditRV(QJsonObject &jsonObject, const char *key, QLineEdit *value);
 
-public slots:
-    void updateDistributionPlot();
+bool readCellRV(QJsonObject &jsonObject, const char *key, QTableWidgetItem *value);
 
-private:
-    QLineEdit *mean, *standardDev;
-    QLineEdit *lambda, *a, *b;
-    QLineEdit *dataDir;
-    QString inpty ;
-    SimCenterGraphPlot *thePlot;
-    QLabel *errorMsgLabel;
-    bool validIdx=1;
-};
 
-#endif // TruncatedExponentialDISTRIBUTION_H
+bool writeCellRV(QJsonObject &jsonObject, const char *key, QTableWidgetItem *value);
+
+
+QLineEdit * createTextEntry(QString text,
+                            QString toolTip,
+                            QGridLayout *theLayout,
+                            int row,
+                            int col =0,
+                            int minL=100,
+                            int maxL=100,
+                            QString *unitText = NULL,
+                            bool itemRight = false);
+
+#endif // READ_WRITE_RV_JSON

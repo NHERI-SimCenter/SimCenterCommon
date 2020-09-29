@@ -50,7 +50,7 @@ class DiscreteDistribution : public RandomVariableDistribution
 {
     Q_OBJECT
 public:
-    explicit DiscreteDistribution(QWidget *parent = 0);
+    explicit DiscreteDistribution(QString inpType, QWidget *parent = 0);
     ~DiscreteDistribution();
 
     bool outputToJSON(QJsonObject &rvObject);
@@ -67,8 +67,10 @@ private:
     QLineEdit *values;
     QLineEdit *weights;
     //QLineEdit *standardDev;
-
+    QString inpty ;
     SimCenterGraphPlot *thePlot;
+    QLineEdit *dataDir;
+
 };
 
 
