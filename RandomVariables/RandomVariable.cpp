@@ -96,7 +96,7 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     variableName  = new QLineEdit();
     variableName->setMaximumWidth(100);
     variableName->setMinimumWidth(100);
-
+    variableName->setText(uqengin);
     mainLayout->addWidget(variableLabel,0,1);
     mainLayout->addWidget(variableName,1,1);
 

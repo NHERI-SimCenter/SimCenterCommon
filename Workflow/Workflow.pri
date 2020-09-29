@@ -52,6 +52,7 @@ SOURCES += $$PWD/UQ/DakotaResults.cpp \
     $$PWD/WORKFLOW/SimCenterRVLineEdit.cpp \
     $$PWD/SIM/OpenSeesBuildingModel.cpp \
     $$PWD/SIM/MDOF_BuildingModel.cpp \
+    $$PWD/SIM/SteelBuildingModel.cpp \
     $$PWD/SIM/SIM_Selection.cpp \
     $$PWD/SIM/InputWidgetBIM.cpp \
     $$PWD/SIM/OpenSeesParser.cpp \
@@ -108,6 +109,8 @@ HEADERS += $$PWD/UQ/DakotaResults.h \
     $$PWD/WORKFLOW/SimCenterRVLineEdit.h \    
     $$PWD/SIM/OpenSeesBuildingModel.h \
     $$PWD/SIM/MDOF_BuildingModel.h \
+    $$PWD/SIM/ReadWriteRVJSON.h \
+    $$PWD/SIM/SteelBuildingModel.h \
     $$PWD/SIM/SIM_Selection.h \
     $$PWD/SIM/InputWidgetBIM.h \
     $$PWD/SIM/OpenSeesParser.h \
