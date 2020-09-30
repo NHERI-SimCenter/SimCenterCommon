@@ -435,8 +435,8 @@ SimCenterPreferences::savePreferences(bool) {
     QSettings settingsApp("SimCenter", QCoreApplication::applicationName());
     settingsApp.setValue("appDir", appDir->text());
     settingsApp.setValue("customAppDir", customAppDirCheckBox->isChecked());
-    settingsApp.setValue("remoteAppDir-May2020", remoteAppDir->text());
-    settingsApp.setValue("remoteAgaveApp-May2020", remoteAgaveApp->text());
+    settingsApp.setValue("remoteAppDir-v2.2.0", remoteAppDir->text());
+    settingsApp.setValue("remoteAgaveApp-v2.2.0", remoteAgaveApp->text());
     settingsApp.setValue("localWorkDir", localWorkDir->text());
     settingsApp.setValue("remoteWorkDir", remoteWorkDir->text());
 
@@ -464,21 +464,19 @@ SimCenterPreferences::resetPreferences(bool) {
     if(pythonPath.isEmpty())
         pythonPath = QStandardPaths::findExecutable("python.exe");
 #else
-    QString pythonPath = QStandardPaths::findExecutable("python3");
-    if (pythonPath.isEmpty()) {
-      // this is where python.org installer puts it
-      QFileInfo installedPython3("/Library/Frameworks/Python.framework/Versions/3.7/bin/python3");
-      if (installedPython3.exists()) {
-	pythonPath = installedPython3.filePath();
+    QString pythonPath;// = QStandardPaths::findExecutable("python3");
+    // this is where python.org installer puts it
+    QFileInfo installedPython3("/Library/Frameworks/Python.framework/Versions/3.7/bin/python3");
+    if (installedPython3.exists()) {
+      pythonPath = installedPython3.filePath();
+    } else {
+      // maybe user has a local installed copy .. look in standard path
+      QFileInfo localPython3("/usr/local/bin/python3");
+      if (localPython3.exists()) {
+	pythonPath = localPython3.filePath();
       } else {
-	// maybe user has a local installed copy .. look in standard path
-        QFileInfo localPython3("/usr/local/bin/python3");
-        if (localPython3.exists()) {
-            pythonPath = localPython3.filePath();
-        } else {
-	  // assume user has it correct in shell startup script 
-	  pythonPath = QStandardPaths::findExecutable("python3");
-	}
+	// assume user has it correct in shell startup script 
+	pythonPath = QStandardPaths::findExecutable("python3");
       }
     }
 #endif
@@ -501,7 +499,7 @@ SimCenterPreferences::resetPreferences(bool) {
     settingsApplication.setValue("appDir", appDirLocation);
     appDir->setText(appDirLocation);
     
-    QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/May-2020");
+    QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/v2.2.0");
     settingsApplication.setValue("remoteAppDir", remoteAppDirLocation);
     remoteAppDir->setText(remoteAppDirLocation);
 
@@ -511,7 +509,7 @@ SimCenterPreferences::resetPreferences(bool) {
     else
       remoteAppName = QString("simcenter-dakota-1.0.0u1");
 
-    settingsApplication.setValue("remoteAgaveApp-May2020", remoteAppName);
+    settingsApplication.setValue("remoteAgaveApp-v2.2.0", remoteAppName);
     remoteAgaveApp->setText(remoteAppName);
 
 #ifdef Q_OS_WIN
@@ -547,7 +545,21 @@ SimCenterPreferences::loadPreferences() {
 #ifdef Q_OS_WIN
         QString pythonPath = QStandardPaths::findExecutable("python.exe");
 #else
-        QString pythonPath = QStandardPaths::findExecutable("python");
+	QString pythonPath;// = QStandardPaths::findExecutable("python3");
+	// this is where python.org installer puts it
+	QFileInfo installedPython3("/Library/Frameworks/Python.framework/Versions/3.7/bin/python3");
+	if (installedPython3.exists()) {
+	  pythonPath = installedPython3.filePath();
+	} else {
+	  // maybe user has a local installed copy .. look in standard path
+	  QFileInfo localPython3("/usr/local/bin/python3");
+	  if (localPython3.exists()) {
+	    pythonPath = localPython3.filePath();
+	  } else {
+	    // assume user has it correct in shell startup script 
+	    pythonPath = QStandardPaths::findExecutable("python3");
+	  }
+	}
 #endif
         settingsCommon.setValue("pythonExePath", pythonPath);
         python->setText(pythonPath);
@@ -594,24 +606,30 @@ SimCenterPreferences::loadPreferences() {
 
     appDir->setText(currentAppDir);
 
+    
 
     // remoteAppDir NOT quite as before as need to allow future releases to bring new ones
-    QVariant  remoteAppDirVariant = settingsApplication.value("remoteAppDir-May2020");
+    QVariant  remoteAppDirVariant = settingsApplication.value("remoteAppDir-v2.2.0");
     if (!remoteAppDirVariant.isValid()) {
-      QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/May-2020");
-      settingsApplication.setValue("remoteAppDir-May2020", remoteAppDirLocation);
+      QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/v2.2.0");
+      settingsApplication.setValue("remoteAppDir-v2.2.0", remoteAppDirLocation);
       remoteAppDir->setText(remoteAppDirLocation);
     } else {
         remoteAppDir->setText(remoteAppDirVariant.toString());
     }
 
-    QVariant  remoteAppNameVariant = settingsApplication.value("remoteAgaveApp-May2020");
+    QString remoteAppName;
+    if (QCoreApplication::applicationName() == QString("WE-UQ")) 
+      remoteAppName = QString("simcenter-openfoam-dakota-1.2.2u1");
+    else
+      remoteAppName = QString("simcenter-dakota-1.0.0u1");
+    
+    QVariant  remoteAppNameVariant = settingsApplication.value("remoteAgaveApp-v2.2.0");
     if (!remoteAppNameVariant.isValid()) {
-      QString remoteAppName = QString("simcenter-dakota-1.0.0u1");
-      settingsApplication.setValue("remoteAgaveApp-May2020", remoteAppName);
+      settingsApplication.setValue("remoteAgaveApp-v2.2.0", remoteAppName);
       remoteAgaveApp->setText(remoteAppName);
     } else {
-        remoteAgaveApp->setText(remoteAppNameVariant.toString());
+      remoteAgaveApp->setText(remoteAppNameVariant.toString());
     }
 
     // opensees
@@ -696,12 +714,12 @@ QString
 SimCenterPreferences::getRemoteAppDir(void) {
 
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
-    QVariant  remoteAppDirVariant = settingsApplication.value("remoteAppDir-May2020");
+    QVariant  remoteAppDirVariant = settingsApplication.value("remoteAppDir-v2.2.0");
 
     // if not set, use default & set default as application directory
     if (!remoteAppDirVariant.isValid()) {
-      QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/Oct-2019");
-      settingsApplication.setValue("remoteAppDir-May2020", remoteAppDirLocation);
+      QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/v2.2.0");
+      settingsApplication.setValue("remoteAppDir-v2.2.0", remoteAppDirLocation);
       return remoteAppDirLocation;
     } 
     
@@ -712,7 +730,7 @@ QString
 SimCenterPreferences::getRemoteAgaveApp(void) {
 
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
-    QVariant  remoteAppNameVariant = settingsApplication.value("remoteAgaveApp-May2020");
+    QVariant  remoteAppNameVariant = settingsApplication.value("remoteAgaveApp-v2.2.0");
 
     // if not set, use default & set default as application directory
     if (!remoteAppNameVariant.isValid()) {
@@ -722,7 +740,7 @@ SimCenterPreferences::getRemoteAgaveApp(void) {
       else
 	remoteAppName = QString("simcenter-dakota-1.0.0u1");
 
-      settingsApplication.setValue("remoteAgaveApp-May2020", remoteAppName);
+      settingsApplication.setValue("remoteAgaveApp-v2.2.0", remoteAppName);
       return remoteAppName;
     } 
     
