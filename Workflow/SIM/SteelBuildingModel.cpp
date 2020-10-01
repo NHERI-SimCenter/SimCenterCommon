@@ -62,6 +62,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QFileDialog>
 #include <QPushButton>
 #include <QValidator>
+#include <QFileInfo>
 
 #include <math.h>
 #include <string>
@@ -353,7 +354,15 @@ bool SteelBuildingModel::outputToJSON(QJsonObject &jsonObject)
     jsonObject["randomVar"]=rvArray;
 
     // Output the path to the data folder
-    jsonObject["pathDataFolder"]=pathToDataFiles ;
+    QFileInfo fullPath(pathToDataFiles);
+    if (fullPath.exists()){
+        QString dirName = fullPath.fileName();
+        jsonObject["pathDataFolder"]=pathToDataFiles ;
+        jsonObject["folderName"]=dirName;
+    } else {
+        jsonObject["pathDataFolder"]="NULL";
+        jsonObject["folderName"]="NO-FILE";
+    }
 
     return true;
 }
@@ -422,7 +431,30 @@ bool SteelBuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
 
 
 bool SteelBuildingModel::copyFiles(QString &dirName) {
-    Q_UNUSED(dirName);
+
+    //
+    // copy files to directory in dirName so that they are copied when this runs remotely
+    //
+
+    QDir dir(dirName);
+    QFileInfo fullPath(pathToDataFiles);
+    QString name;
+
+    if (!fullPath.exists()){
+        // files not yet saved .. mkdir and use saveDataToFolder method to write files
+        name = "autosda_files";
+        pathToDataFiles = dirName + QDir::separator() + name;
+        dir.mkpath(pathToDataFiles);
+        this->saveDataToFolder();
+    } else {
+        //mkdir and copy
+        name = fullPath.fileName();
+        dir.mkdir(name);
+        copyPath(pathToDataFiles, dirName + QDir::separator() + name, true);
+    }
+
+
+
     return true;
 }
 
@@ -442,7 +474,7 @@ void SteelBuildingModel::addRandomVariable(QString &text, int numReferences)
     else
     {
         randomVariables[text] = numReferences;
-        RandomVariable *theRV = new RandomVariable(QString("Uncertain"), text);
+        RandomVariable *theRV = new RandomVariable(QString("Uncertain"), text, "Dakota");
         theRandomVariablesContainer->addRandomVariable(theRV);
     }
 }
