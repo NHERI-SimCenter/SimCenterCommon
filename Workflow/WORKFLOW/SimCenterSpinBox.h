@@ -1,5 +1,5 @@
-#ifndef JSON_WIDGET_ENUMS_H
-#define JSON_WIDGET_ENUMS_H
+#ifndef SIM_CENTER_SPIN_BOX_H
+#define SIM_CENTER_SPIN_BOX_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -39,8 +39,44 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: Michael Gardner
 
-namespace JsonWidget {
-  enum class Type { ComboBox, RVLineEdit, FileInput, ForkComboBox, LineEdit, DoubleSpinBox, SpinBox };
-}
+#include <QSpinBox>
+#include <QLabel>
+#include <QJsonObject>
+#include <SimCenterWidget.h>
 
-#endif // JSON_WIDGET_ENUMS_H
+class SimCenterSpinBox : public SimCenterWidget {
+  Q_OBJECT
+
+public:
+  /**
+   * @constructor Create new SimCenterSpinBox
+   * @param[in] inputObject Input JSON object
+   * @param[in] parent Parent widget. Defaults to null pointer
+   */
+  SimCenterSpinBox(const QJsonValue& inputObject, QWidget *parent = nullptr);
+
+  /**
+   * @destructor Default destructor
+   */
+  virtual ~SimCenterSpinBox(){};
+
+  /**
+   * Instantiate the combo box from from input JSON object
+   * @param[in] jsonObject JSON object containing input information
+   * @return Returns true if successful, false otherwise
+   */
+  bool inputFromJSON(QJsonObject &jsonObject) override;
+
+  /**
+   * Write all current class data to JSON required to reconstruct class
+   * @param[in, out] jsonObject JSON object to write output to
+   * @return Returns true if successful, false otherwise
+   */
+  bool outputToJSON(QJsonObject &jsonObject) override;
+
+protected:
+  QLabel *theSpinBoxLabel;
+  QSpinBox* theSpinBox;
+};
+
+#endif // SIM_CENTER_SPIN_BOX_H

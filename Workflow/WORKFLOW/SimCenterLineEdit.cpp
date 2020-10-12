@@ -1,6 +1,3 @@
-#ifndef JSON_WIDGET_ENUMS_H
-#define JSON_WIDGET_ENUMS_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -39,8 +36,44 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: Michael Gardner
 
-namespace JsonWidget {
-  enum class Type { ComboBox, RVLineEdit, FileInput, ForkComboBox, LineEdit, DoubleSpinBox, SpinBox };
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QLabel>
+#include <QString>
+
+#include "SimCenterLineEdit.h"
+
+SimCenterLineEdit::SimCenterLineEdit(
+    const QJsonValue &inputObject, QWidget *parent)
+    : SimCenterWidget(parent) {
+  // Configure file line edit based on input JSON object
+  theLineEdit = new QLineEdit();
+  theLineEditLabel = new QLabel();
+  theLineEditLabel->setText(inputObject["name"].toString());
+
+  QHBoxLayout * layout = new QHBoxLayout();
+  layout->addWidget(theLineEditLabel);
+  layout->addWidget(theLineEdit);
+
+  this->setLayout(layout);
 }
 
-#endif // JSON_WIDGET_ENUMS_H
+bool SimCenterLineEdit::inputFromJSON(QJsonObject& jsonObject) {
+  bool result = true;
+
+  theLineEditLabel->setText(jsonObject["name"].toString());
+  theLineEdit->setText(jsonObject["value"].toString());
+
+  return result;
+}
+
+bool SimCenterLineEdit::outputToJSON(QJsonObject& jsonObject) {
+
+  jsonObject.insert("name", theLineEditLabel->text());
+  jsonObject.insert("type", "RVLineEdit");
+  jsonObject.insert("value", theLineEdit->text());
+
+  return true;
+}
