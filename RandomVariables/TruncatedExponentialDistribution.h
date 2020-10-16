@@ -69,6 +69,8 @@ private:
     QLineEdit *dataDir;
     QString inpty ;
     SimCenterGraphPlot *thePlot;
+    QLabel *errorMsgLabel;
+    bool validIdx=1;
 };
 
 #endif // TruncatedExponentialDISTRIBUTION_H

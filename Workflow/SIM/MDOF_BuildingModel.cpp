@@ -43,6 +43,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include "MDOF_BuildingModel.h"
+#include "ReadWriteRVJSON.h"
+
 #include <QPushButton>
 #include <QScrollArea>
 #include <QJsonArray>
@@ -155,16 +157,16 @@ writeCellRV(QJsonObject &jsonObject, const char *key, QTableWidgetItem *value)
 
 
 
-static QLineEdit *
+QLineEdit *
 createTextEntry(QString text,
                 QString toolTip,
                 QGridLayout *theLayout,
                 int row,
-                int col =0,
-                int minL=100,
-                int maxL=100,
-                QString *unitText = NULL,
-                bool itemRight = false)
+                int col,
+                int minL,
+                int maxL,
+                QString *unitText,
+                bool itemRight)
 {
     Q_UNUSED(itemRight);
     //QHBoxLayout *entryLayout = new QHBoxLayout();
@@ -1774,7 +1776,7 @@ MDOF_BuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
          randomVariables[text] = randomVariables[text]+numReferences;
      } else {
          randomVariables[text] = numReferences;
-         RandomVariable *theRV = new RandomVariable(QString("Uncertain"), text);
+         RandomVariable *theRV = new RandomVariable(QString("Uncertain"), text, "Dakota");
          theRandomVariablesContainer->addRandomVariable(theRV);
      }
  }

@@ -37,8 +37,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include "NormalDistribution.h"
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+#include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QDebug>
@@ -50,46 +49,44 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 NormalDistribution::NormalDistribution(QString inpType, QWidget *parent) :RandomVariableDistribution(parent)
 {
-
     //
-    // create the main horizontal layout and add the input entries
+    // create the main layout and add the input entries
     //
+    QGridLayout *mainLayout = new QGridLayout(this);
 
-    QHBoxLayout *mainLayout = new QHBoxLayout();
+    // set some defaults, and set layout for widget to be the horizontal layout
+    mainLayout->setHorizontalSpacing(10);
+    mainLayout->setVerticalSpacing(0);
+    mainLayout->setMargin(0);
+
     QPushButton *showPlotButton = new QPushButton("Show PDF");
 
     this->inpty=inpType;
 
     if ((inpty==QString("Parameters"))||(inpty==QString("Moments"))) {
 
-        mean = this->createTextEntry(tr("Mean"), mainLayout);
-        standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout);
+        mean = this->createTextEntry(tr("Mean"), mainLayout,0);
+        standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout,1);
         mean->setValidator(new QDoubleValidator);
         standardDev->setValidator(new QDoubleValidator);
 
-        mainLayout->addWidget(showPlotButton);
+        mainLayout->addWidget(showPlotButton,1,2);
+        mainLayout->setColumnStretch(3,1);
 
     } else if (inpty==QString("Dataset")) {
 
-        dataDir = this->createTextEntry(tr("Data File"), mainLayout);
+        dataDir = this->createTextEntry(tr("Data File"), mainLayout,0);
         dataDir->setMinimumWidth(200);
         dataDir->setMaximumWidth(200);
         QPushButton *chooseFileButton = new QPushButton("Choose");
-        mainLayout->addWidget(chooseFileButton);
+        mainLayout->addWidget(chooseFileButton,1,1);
+        mainLayout->setColumnStretch(2,1);
 
         // Action
         connect(chooseFileButton, &QPushButton::clicked, this, [=](){
                 dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)"));
         });
     }
-
-
-    mainLayout->addStretch();
-
-    // set some defaults, and set layout for widget to be the horizontal layout
-    mainLayout->setSpacing(10);
-    mainLayout->setMargin(0);
-    this->setLayout(mainLayout);
 
     thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
 

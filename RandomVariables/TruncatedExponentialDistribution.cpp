@@ -37,8 +37,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include "TruncatedExponentialDistribution.h"
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+#include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QDebug>
@@ -50,50 +49,56 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 TruncatedExponentialDistribution::TruncatedExponentialDistribution(QString inpType, QWidget *parent) :RandomVariableDistribution(parent)
 {
-
     //
-    // create the main horizontal layout and add the input entries
+    // create the main layout and add the input entries
     //
+    QGridLayout *mainLayout = new QGridLayout(this);
 
-    QHBoxLayout *mainLayout = new QHBoxLayout();
+    // set some defaults, and set layout for widget to be the horizontal layout
+    mainLayout->setHorizontalSpacing(10);
+    mainLayout->setVerticalSpacing(0);
+    mainLayout->setMargin(0);
+
     QPushButton *showPlotButton = new QPushButton("Show PDF");
+    errorMsgLabel = new QLabel();
+    errorMsgLabel -> setStyleSheet("QLabel { color : red; }");
 
     this->inpty=inpType;
 
     if (inpty==QString("Parameters"))
     {
-        lambda = this->createTextEntry(tr("lambda"), mainLayout);
+        lambda = this->createTextEntry(tr("lambda"), mainLayout, 0);
         //lambda->setValidator(new QDoubleValidator);
         lambda->setValidator(new QDoubleValidator(0.0,1.e10,1000));
-        a  = this->createTextEntry(tr("Min."), mainLayout);
+        a  = this->createTextEntry(tr("Min."), mainLayout, 1);
         a->setValidator(new QDoubleValidator(0.0,1.e10,1000));
-        b  = this->createTextEntry(tr("Max."), mainLayout);
+        b  = this->createTextEntry(tr("Max."), mainLayout, 2);
         b->setValidator(new QDoubleValidator(0.0,1.e10,1000));
-        mainLayout->addWidget(showPlotButton);
+        mainLayout->addWidget(showPlotButton, 1,3);
 
 
     } else if (inpty==QString("Moments")) {
 
-        mean = this->createTextEntry(tr("Mean"), mainLayout);
+        mean = this->createTextEntry(tr("Mean"), mainLayout, 0);
         mean->setValidator(new QDoubleValidator(0.0,1.e10,1000));
-        a  = this->createTextEntry(tr("Min."), mainLayout);
+        a  = this->createTextEntry(tr("Min."), mainLayout, 1);
         a->setValidator(new QDoubleValidator(0.0,1.e10,1000));
-        b  = this->createTextEntry(tr("Max."), mainLayout);
+        b  = this->createTextEntry(tr("Max."), mainLayout, 2);
         b->setValidator(new QDoubleValidator(0.0,1.e10,1000));
-        mainLayout->addWidget(showPlotButton);
+        mainLayout->addWidget(showPlotButton, 1,3);
 
     } else if (inpty==QString("Dataset")) {
 
-        a  = this->createTextEntry(tr("Min."), mainLayout);
+        a  = this->createTextEntry(tr("Min."), mainLayout, 0);
         a->setValidator(new QDoubleValidator(0.0,1.e10,1000));
-        b  = this->createTextEntry(tr("Max."), mainLayout);
+        b  = this->createTextEntry(tr("Max."), mainLayout, 1);
         b->setValidator(new QDoubleValidator(0.0,1.e10,1000));
-        dataDir = this->createTextEntry(tr("Data File"), mainLayout);
+        dataDir = this->createTextEntry(tr("Data File"), mainLayout, 2);
         dataDir->setMinimumWidth(200);
         dataDir->setMinimumWidth(200);
 
         QPushButton *chooseFileButton = new QPushButton("Choose");
-        mainLayout->addWidget(chooseFileButton);
+        mainLayout->addWidget(chooseFileButton, 1,3);
 
         // Action
         connect(chooseFileButton, &QPushButton::clicked, this, [=](){
@@ -102,12 +107,10 @@ TruncatedExponentialDistribution::TruncatedExponentialDistribution(QString inpTy
     }
 
 
-    mainLayout->addStretch();
+    mainLayout->addWidget(errorMsgLabel, 2, 0, 1, 4);
+	
+    mainLayout->setColumnStretch(4,1);
 
-    // set some defaults, and set layout for widget to be the horizontal layout
-    mainLayout->setSpacing(10);
-    mainLayout->setMargin(0);
-    this->setLayout(mainLayout);
 
     thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
 
@@ -131,6 +134,12 @@ TruncatedExponentialDistribution::~TruncatedExponentialDistribution()
 
 bool
 TruncatedExponentialDistribution::outputToJSON(QJsonObject &rvObject){
+
+    if (validIdx==0)
+    {
+        emit sendErrorMessage("ERROR: TruncatedExponentialDistribution - input parameters are not valid");
+        return false;
+    }
 
     if (inpty==QString("Parameters")) {
         // check for error condition, an entry had no value
@@ -260,10 +269,23 @@ TruncatedExponentialDistribution::getAbbreviatedName(void) {
 void
 TruncatedExponentialDistribution::updateDistributionPlot() {
     double la=0, aa=0,bb=0, me=0;
+    validIdx=0;
+    QString errorMsg;
+
     if ((this->inpty)==QString("Parameters")) {
         la=lambda->text().toDouble();
         aa=a->text().toDouble();
         bb=b->text().toDouble();
+
+        if ((bb-aa)<=0.0) {
+            errorMsg = tr("* Max. should be greater than Min.");
+            //emit sendErrorMessage("ERROR: Max. should be greater than Min.");
+        } else {
+            errorMsg = tr("");
+            //emit sendErrorMessage(" ");
+            validIdx=1;
+        }
+
      } else if ((this->inpty)==QString("Moments")) {
         me = mean->text().toDouble();
         aa=a->text().toDouble();
@@ -299,29 +321,21 @@ TruncatedExponentialDistribution::updateDistributionPlot() {
         }
         la = lam0 + (me - mean0)*(lam1-lam0)/(mean1 - mean0);
 
+        if ((bb-aa)<0.0) {
+            errorMsg = tr("* Max. should be greater than Min.");
+        } else if ((me <= aa) || (me >= aa+(bb-aa)/2)) {
+            errorMsg = tr("* Mean must lie in the valid range: (Min, Min+(Max-Min)/2)");
+        } else {
+            errorMsg = tr("");
+            validIdx=1;
+        }
     }
 
     //
     // CHECK user-input ERRORS
     //
-    bool validIdx=0;
-    if (inpty==QString("Parameters")) {
-        if ((bb-aa)<0.0) {
-            emit sendErrorMessage("ERROR: upperbound should be greater than lowebound");
-        } else {
-            emit sendErrorMessage(" ");
-            validIdx=1;
-        }
 
-    } else if (inpty==QString("Moments")) {
-        if ((bb-aa)<0.0) {
-            emit sendErrorMessage("ERROR: upperbound should be greater than lowebound");
-        } else if ((me < aa) || (me > aa+(aa+bb)/2)) {
-            emit sendErrorMessage("ERROR: mean must lie between the lowerbound and half point of valid range");
-        } else {
-            validIdx=1;
-        }
-    }
+    errorMsgLabel -> setText(errorMsg);
 
 
     if (validIdx==1) {

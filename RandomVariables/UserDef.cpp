@@ -37,30 +37,33 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include "UserDef.h"
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+#include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QPushButton>
 #include <QDebug>
 
 
 UserDef::UserDef(QWidget *parent) :RandomVariableDistribution(parent)
 {
     //
-    // create the main horizontal layout and add the input entries
+    // create the main layout and add the input entries
     //
-
-    QHBoxLayout *mainLayout = new QHBoxLayout();
-
-    //alphaparam = this->createTextEntry(tr("Alpha"), mainLayout);
-    //betaparam = this->createTextEntry(tr("Beta"), mainLayout);
-
-    mainLayout->addStretch();
+    QGridLayout *mainLayout = new QGridLayout(this);
 
     // set some defaults, and set layout for widget to be the horizontal layout
     mainLayout->setSpacing(10);
     mainLayout->setMargin(0);
-    this->setLayout(mainLayout);
+
+    QPushButton *showPlotButton = new QPushButton("Show PDF");
+
+    //alphaparam = this->createTextEntry(tr("Alpha"), mainLayout, 0);   // column 0
+    //betaparam = this->createTextEntry(tr("Beta"), mainLayout, 1);     // column 1
+
+    mainLayout->addWidget(showPlotButton,1,2);
+
+    mainLayout->setColumnStretch(3,1);   // create a space.  Index is numper of columns == one past the last text/data column
+
 }
 UserDef::~UserDef()
 {

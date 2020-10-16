@@ -35,10 +35,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written: fmckenna
+// Modified: pmackenz
 
 #include "RandomVariableDistribution.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QDebug>
@@ -63,8 +65,7 @@ RandomVariableDistribution::createTextEntry(QString text,
 {
     QVBoxLayout *entryLayout = new QVBoxLayout();
     //QHBoxLayout *entryLayout = new QHBoxLayout();
-    QLabel *entryLabel = new QLabel();
-    entryLabel->setText(text);
+    QLabel *entryLabel = new QLabel(text);
 
     QLineEdit *res = new QLineEdit();
     res->setMinimumWidth(minL);
@@ -78,6 +79,36 @@ RandomVariableDistribution::createTextEntry(QString text,
     entryLayout->setMargin(0);
 
     theLayout->addLayout(entryLayout);
+
+    return res;
+}
+
+QLineEdit *
+RandomVariableDistribution::createTextEntry(QString text,
+                                            QGridLayout *theLayout,
+                                            int col,
+                                            int minL,
+                                            int maxL)
+{
+    //QVBoxLayout *entryLayout = new QVBoxLayout();
+    // //QHBoxLayout *entryLayout = new QHBoxLayout();
+    QLabel *entryLabel = new QLabel(text);
+
+    QLineEdit *res = new QLineEdit();
+    res->setMinimumWidth(minL);
+    res->setMaximumWidth(maxL);
+    res->setValidator(new QDoubleValidator);
+
+    //entryLayout->addWidget(entryLabel);
+    //entryLayout->addWidget(res);
+
+    //entryLayout->setSpacing(0);
+    //entryLayout->setMargin(0);
+
+    //theLayout->addLayout(entryLayout,0,col,2,1);
+
+    theLayout->addWidget(entryLabel,0,col);
+    theLayout->addWidget(res,1,col);
 
     return res;
 }

@@ -37,8 +37,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include "ExponentialDistribution.h"
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+#include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QDebug>
@@ -50,50 +49,40 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 ExponentialDistribution::ExponentialDistribution(QString inpType, QWidget *parent) :RandomVariableDistribution(parent)
 {
-
     //
-    // create the main horizontal layout and add the input entries
+    // create the main layout and add the input entries
     //
+    QGridLayout *mainLayout = new QGridLayout(this);
 
-    QHBoxLayout *mainLayout = new QHBoxLayout();
+    // set some defaults, and set layout for widget to be the horizontal layout
+    mainLayout->setHorizontalSpacing(10);
+    mainLayout->setVerticalSpacing(0);
+    mainLayout->setMargin(0);
+
     QPushButton *showPlotButton = new QPushButton("Show PDF");
 
     this->inpty=inpType;
 
     if (inpty==QString("Parameters"))
     {
-        lambda = this->createTextEntry(tr("lambda"), mainLayout);
+        lambda = this->createTextEntry(tr("lambda"), mainLayout, 0);
         lambda->setValidator(new QDoubleValidator);        
-        mainLayout->addWidget(showPlotButton);
+        mainLayout->addWidget(showPlotButton, 1,1);
 
     } else if (inpty==QString("Moments")) {
 
-        mean = this->createTextEntry(tr("Mean"), mainLayout);
+        mean = this->createTextEntry(tr("Mean"), mainLayout, 0);
         mean->setValidator(new QDoubleValidator);        
-        mainLayout->addWidget(showPlotButton);
+        mainLayout->addWidget(showPlotButton, 1,1);
 
     } else if (inpty==QString("Dataset")) {
 
 
-        dataDir = this->createTextEntry(tr("Data File"), mainLayout);
+        dataDir = this->createTextEntry(tr("Data File"), mainLayout, 0);
         dataDir->setMinimumWidth(200);
         dataDir->setMaximumWidth(200);
-        // Layout
-        /*
-        QVBoxLayout *entryLayout = new QVBoxLayout();
-        QLabel *entryLabel = new QLabel();
-        entryLabel->setText("Data File");
-        QLineEdit *dataDir = new QLineEdit();
-        dataDir->setMinimumWidth(500);
-        dataDir->setMaximumWidth(500);
-        entryLayout->addWidget(entryLabel);
-        entryLayout->addWidget(dataDir);
-        entryLayout->setSpacing(0);
-        entryLayout->setMargin(0);
-        mainLayout->addLayout(entryLayout);
-        */
         QPushButton *chooseFileButton = new QPushButton("Choose");
-        mainLayout->addWidget(chooseFileButton);
+        mainLayout->addWidget(chooseFileButton, 1,1);
 
         // Action
         connect(chooseFileButton, &QPushButton::clicked, this, [=](){
@@ -101,13 +90,7 @@ ExponentialDistribution::ExponentialDistribution(QString inpType, QWidget *paren
         });
     }
 
-
-    mainLayout->addStretch();
-
-    // set some defaults, and set layout for widget to be the horizontal layout
-    mainLayout->setSpacing(10);
-    mainLayout->setMargin(0);
-    this->setLayout(mainLayout);
+    mainLayout->setColumnStretch(2,1);
 
     thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
 

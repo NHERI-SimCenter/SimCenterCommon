@@ -118,6 +118,89 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     );
 
 
+    // opensees
+    opensees = new QLineEdit();
+    QHBoxLayout *openseesLayout = new QHBoxLayout();
+    openseesLayout->addWidget(opensees);
+    QPushButton *openseesButton = new QPushButton();
+    openseesButton->setText("Browse");
+    openseesButton->setToolTip(tr("Select your OpenSees application"));
+    openseesLayout->addWidget(openseesButton);
+
+    externalApplicationsLayout->addRow(tr("OpenSees:"), openseesLayout);
+    externalApplicationsLayout->setAlignment(Qt::AlignLeft);
+    externalApplicationsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    externalApplicationsLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
+
+    // connect the pushbutton with code to open file selection and update opensees preferences with selected file
+    connect(openseesButton, &QPushButton::clicked, this, [this](){
+        QSettings settings("SimCenter", QCoreApplication::applicationName()); 
+        QVariant  openseesPathVariant = settings.value("openseesExePath");
+        QString existingDir = QCoreApplication::applicationDirPath();
+        if (openseesPathVariant.isValid()) {
+            QString existingF = openseesPathVariant.toString();
+            QFileInfo existingFile(existingF);
+	    if (existingFile.exists())
+	      existingDir = existingFile.absolutePath();
+        }
+
+        QString selectedFile = QFileDialog::getOpenFileName(this,
+                                                            tr("Select Opensees Interpreter"),
+                                                            existingDir,
+                                                            "All files (*.*)");
+
+        if(!selectedFile.isEmpty()) {
+            opensees->setText(selectedFile);
+        }
+    }
+    );
+
+    // opensees
+
+
+
+    // dakota
+    dakota = new QLineEdit();
+    QHBoxLayout *dakotaLayout = new QHBoxLayout();
+    dakotaLayout->addWidget(dakota);
+    QPushButton *dakotaButton = new QPushButton();
+    dakotaButton->setText("Browse");
+    dakotaButton->setToolTip(tr("Select your Dakota application"));
+    dakotaLayout->addWidget(dakotaButton);
+
+    externalApplicationsLayout->addRow(tr("Dakota:"), dakotaLayout);
+    externalApplicationsLayout->setAlignment(Qt::AlignLeft);
+    externalApplicationsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    externalApplicationsLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
+
+    // connect the pushbutton with code to open file selection and update dakota preferences with selected file
+    connect(dakotaButton, &QPushButton::clicked, this, [this](){
+        QSettings settings("SimCenter", QCoreApplication::applicationName()); 
+        QVariant  dakotaPathVariant = settings.value("dakotaExePath");
+        QString existingDir = QCoreApplication::applicationDirPath();
+        if (dakotaPathVariant.isValid()) {
+            QString existingF = dakotaPathVariant.toString();
+            QFileInfo existingFile(existingF);
+	    if (existingFile.exists())
+	      existingDir = existingFile.absolutePath();
+        }
+
+        QString selectedFile = QFileDialog::getOpenFileName(this,
+                                                            tr("Select Dakota Interpreter"),
+                                                            existingDir,
+                                                            "All files (*.*)");
+
+        if(!selectedFile.isEmpty()) {
+            dakota->setText(selectedFile);
+        }
+    }
+    );
+
+    // dakota
+
+
+
+
     //
     // entry for localWorkDir location .. basically as before
     //
@@ -351,6 +434,9 @@ SimCenterPreferences::savePreferences(bool) {
     settingsApp.setValue("remoteAgaveApp-Mar2020", remoteAgaveApp->text());
     settingsApp.setValue("localWorkDir", localWorkDir->text());
     settingsApp.setValue("remoteWorkDir", remoteWorkDir->text());
+
+    settingsApp.setValue("openseesPath", openseesPath->text());
+    settingsApp.setValue("dakotaPath", dakotaPath->text());
     
     this->close();
 }
@@ -394,6 +480,16 @@ SimCenterPreferences::resetPreferences(bool) {
     QString appDirLocation = getAppDir();
     settingsApplication.setValue("appDir", appDirLocation);
     appDir->setText(appDirLocation);
+
+    QString openseesPath = appDirLocation + QDir::seperator() + "applications" +
+      QDir::seperator() + "opensees" + QDir::seperator() + "bin" + QDir::seperator() + "OpenSees";
+    settingsApplication.setValue("openseesPath", openseesPath);
+    opensees->setText(openseesPath);
+
+    QString dakotaPath = appDirLocation + QDir::seperator() + "applications" +
+      QDir::seperator() + "dakota" + QDir::seperator() + "bin" + QDir::seperator() + "dakota";
+    settingsApplication.setValue("dakotaPath", dakotaPath);
+    dakota->setText(dakotaPath);
     
     QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/Mar-2020");
     settingsApplication.setValue("remoteAppDir", remoteAppDirLocation);
@@ -469,6 +565,29 @@ SimCenterPreferences::loadPreferences() {
     appDir->setText(currentAppDir);
 
 
+    // opensees
+    QVariant  openseesPathVariant = settingsApplication.value("openseesPath");
+    if (!openseesPathVariant.isValid()) {
+      QString openseesPath = currentAppDir + QDir::seperator() + "applications" +
+	QDir::seperator() + "opensees" + QDir::seperator() + "bin" + QDir::seperator() + "OpenSees";
+        settingsApplication.setValue("openseesPath", openseesPath);
+        opensees->setText(openseesPath);
+    } else {
+        opensees->setText(openseesPathVariant.toString());
+    }
+
+    // dakota
+    QVariant  dakotaPathVariant = settingsApplication.value("dakotaPath");
+    if (!dakotaPathVariant.isValid()) {
+      QString dakotaPath = currentAppDir + QDir::seperator() + "applications" +
+	QDir::seperator() + "dakota" + QDir::seperator() + "bin" + QDir::seperator() + "Dakota";
+        settingsApplication.setValue("dakotaPath", dakotaPath);
+        dakota->setText(dakotaPath);
+    } else {
+        dakota->setText(dakotaPathVariant.toString());
+    }
+
+
     // remoteAppDir NOT quite as before as need to allow future releases to bring new ones
     QVariant  remoteAppDirVariant = settingsApplication.value("remoteAppDir-Mar2020");
     if (!remoteAppDirVariant.isValid()) {
@@ -505,7 +624,7 @@ SimCenterPreferences::getPython(void) {
         QString pythonPath = QStandardPaths::findExecutable("python");
 #endif
 	if (pythonPath.isEmpty()) 
-	  pythonPath = QString("python");
+	  pythonPath = QString("python3");
 
         settingsCommon.setValue("pythonExePath", pythonPath);
         return pythonPath;
