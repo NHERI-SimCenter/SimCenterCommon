@@ -1,6 +1,3 @@
-#ifndef JSON_WIDGET_ENUMS_H
-#define JSON_WIDGET_ENUMS_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -39,8 +36,46 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: Michael Gardner
 
-namespace JsonWidget {
-  enum class Type { ComboBox, RVLineEdit, FileInput, ForkComboBox, LineEdit, DoubleSpinBox, SpinBox };
+#include <QDoubleSpinBox>
+#include <QHBoxLayout>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QLabel>
+#include <QString>
+
+#include "SimCenterDoubleSpinBox.h"
+
+SimCenterDoubleSpinBox::SimCenterDoubleSpinBox(const QJsonValue &inputObject,
+                                     QWidget *parent)
+    : SimCenterWidget(parent)
+{
+  // Configure DoubleSpinBox based on input JSON object
+  theDoubleSpinBoxLabel = new QLabel();  
+  theDoubleSpinBox = new QDoubleSpinBox();
+  theDoubleSpinBoxLabel->setText(inputObject["name"].toString());  
+
+  auto layout = new QHBoxLayout();
+  layout->addWidget(theDoubleSpinBoxLabel);
+  layout->addWidget(theDoubleSpinBox);
+  layout->addStretch();
+
+  this->setLayout(layout);
 }
 
-#endif // JSON_WIDGET_ENUMS_H
+bool SimCenterDoubleSpinBox::inputFromJSON(QJsonObject& jsonObject) {
+  bool result = true;
+
+  theDoubleSpinBox->setObjectName(jsonObject["name"].toString());
+  theDoubleSpinBox->setValue(jsonObject["value"].toDouble());
+
+  return result;
+}
+
+bool SimCenterDoubleSpinBox::outputToJSON(QJsonObject& jsonObject) {
+
+  jsonObject.insert("name", theDoubleSpinBoxLabel->text());
+  jsonObject.insert("type", "DoubleSpinBox");
+  jsonObject.insert("value", theDoubleSpinBox->value());
+
+  return true;
+}

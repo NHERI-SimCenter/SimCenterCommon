@@ -1,6 +1,3 @@
-#ifndef JSON_WIDGET_ENUMS_H
-#define JSON_WIDGET_ENUMS_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -39,8 +36,46 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: Michael Gardner
 
-namespace JsonWidget {
-  enum class Type { ComboBox, RVLineEdit, FileInput, ForkComboBox, LineEdit, DoubleSpinBox, SpinBox };
+#include <QSpinBox>
+#include <QHBoxLayout>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QLabel>
+#include <QString>
+
+#include "SimCenterSpinBox.h"
+
+SimCenterSpinBox::SimCenterSpinBox(const QJsonValue &inputObject,
+                                     QWidget *parent)
+    : SimCenterWidget(parent)
+{
+  // Configure SpinBox based on input JSON object
+  theSpinBoxLabel = new QLabel();  
+  theSpinBox = new QSpinBox();
+  theSpinBoxLabel->setText(inputObject["name"].toString());  
+
+  auto layout = new QHBoxLayout();
+  layout->addWidget(theSpinBoxLabel);
+  layout->addWidget(theSpinBox);
+  layout->addStretch();
+
+  this->setLayout(layout);
 }
 
-#endif // JSON_WIDGET_ENUMS_H
+bool SimCenterSpinBox::inputFromJSON(QJsonObject& jsonObject) {
+  bool result = true;
+
+  theSpinBox->setObjectName(jsonObject["name"].toString());
+  theSpinBox->setValue(jsonObject["value"].toDouble());
+
+  return result;
+}
+
+bool SimCenterSpinBox::outputToJSON(QJsonObject& jsonObject) {
+
+  jsonObject.insert("name", theSpinBoxLabel->text());
+  jsonObject.insert("type", "SpinBox");
+  jsonObject.insert("value", theSpinBox->value());
+
+  return true;
+}
