@@ -189,7 +189,7 @@ NormalDistribution::updateDistributionPlot() {
             for (int i=0; i<100; i++) {
                 double xi = min + i*(max-min)/99;
                 x[i] = xi;
-                y[i] =1.0/(sqrt(2*3.141159)*st)*exp(-(0.5*(xi-me)*(xi-me)/(st*st)));
+                y[i] =1.0/(sqrt(2*3.1415926535)*st)*exp(-(0.5*(xi-me)*(xi-me)/(st*st)));
             }
             thePlot->clear();
             thePlot->addLine(x,y);
