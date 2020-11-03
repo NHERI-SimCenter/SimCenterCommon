@@ -44,7 +44,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class QComboBox;
 class QLineEdit;
 class QLabel;
-class QHBoxLayout;
+class QGridLayout;
 class RandomVariableDistribution;
 class QRadioButton;
 
@@ -88,7 +88,7 @@ private:
   //  QLineEdit *variableName;
     QComboBox *distributionComboBox, *typeComboBox;
     QRadioButton *button;
-    QHBoxLayout *mainLayout;
+    QGridLayout *mainLayout;
 };
 
 #endif // RANDOMVARIABLE_H

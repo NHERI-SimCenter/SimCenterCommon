@@ -37,8 +37,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include "ContinuousDesignDistribution.h"
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+#include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QDebug>
@@ -47,21 +46,20 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 ContinuousDesignDistribution::ContinuousDesignDistribution(QWidget *parent) :RandomVariableDistribution(parent)
 {
     //
-    // create the main horizontal layout and add the input entries
+    // create the main layout and add the input entries
     //
-
-    QHBoxLayout *mainLayout = new QHBoxLayout();
-
-    min = this->createTextEntry(tr("Lower Bound"), mainLayout);
-    max = this->createTextEntry(tr("Upper Bound"), mainLayout);
-    initialPoint = this->createTextEntry(tr("Initial Point"), mainLayout);
-
-    mainLayout->addStretch();
+    QGridLayout *mainLayout = new QGridLayout(this);
 
     // set some defaults, and set layout for widget to be the horizontal layout
-    mainLayout->setSpacing(10);
+    mainLayout->setHorizontalSpacing(10);
+    mainLayout->setVerticalSpacing(0);
     mainLayout->setMargin(0);
-    this->setLayout(mainLayout);
+
+    min = this->createTextEntry(tr("Lower Bound"), mainLayout, 0);
+    max = this->createTextEntry(tr("Upper Bound"), mainLayout, 1);
+    initialPoint = this->createTextEntry(tr("Initial Point"), mainLayout, 2);
+
+    mainLayout->setColumnStretch(3,1);
 }
 
 ContinuousDesignDistribution::~ContinuousDesignDistribution()

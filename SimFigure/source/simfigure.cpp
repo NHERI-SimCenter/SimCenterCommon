@@ -237,7 +237,7 @@ void SimFigure::setAxisType(enum AxisType type)
  * @param color a QColor object defining the line color.  You may also use pre-defined colors like Qt::red, ...
  * @param mk a member of the SimFigure::Marker enum.
  */
-int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor color, Marker mk)
+int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor color, Marker mk, QString label)
 {
     if (x.length() <= 0 || y.length() <= 0) return -1;
 
@@ -250,7 +250,7 @@ int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor 
 
     // now add that curve
 
-    QwtPlotCurve *curve = new QwtPlotCurve("default");
+    QwtPlotCurve *curve = new QwtPlotCurve(label);
     curve->setSamples(x,y);
 
     setLineStyle(curve, lt);
@@ -340,6 +340,22 @@ void SimFigure::setLabelFontSize(int sz)
         text = m_plot->axisTitle(QwtPlot::yLeft);
         text.setFont(font);
         m_plot->setAxisTitle(QwtPlot::yLeft, text);
+    }
+}
+
+
+/**
+ * @brief sets the current font size used for legend to sz
+ */
+void SimFigure::setLegendFontSize(int sz)
+{
+    if (sz>0)
+    {
+        QwtText text = m_plot->axisTitle(QwtPlot::xBottom);
+        QFont font = text.font();
+        font.setPointSize(sz);
+        text.setFont(font);
+        m_legend->setFont(font);
     }
 }
 
@@ -563,6 +579,16 @@ void SimFigure::legend(QList<QString> labels, Location loc)
     if (labels.length()>0)
     {
         showLegend();
+
+        // update legend text
+        QwtLegendData data;
+        QList<QwtLegendData> list;
+        for (int i = 0; i < m_curves.length(); i++) {
+            data.setValue(QwtLegendData::Role::TitleRole, QVariant(labels[i]));
+            list << data;
+            m_legend->updateLegend(m_curves[i], list);
+            list.clear();
+        }
     }
 }
 

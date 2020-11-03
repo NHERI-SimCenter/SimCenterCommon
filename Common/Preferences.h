@@ -70,6 +70,8 @@ public slots:
 
 private:
     QLineEdit *python;
+    QLineEdit *opensees;
+    QLineEdit *dakota;
     QLineEdit *localWorkDir;
     QLineEdit *remoteWorkDir;
     QLineEdit *appDir;
@@ -77,6 +79,8 @@ private:
     QLineEdit *remoteAgaveApp;
     QVBoxLayout *layout;
     QCheckBox* customAppDirCheckBox;
+    QCheckBox* customOpenSeesCheckBox;
+    QCheckBox* customDakotaCheckBox;
 };
 
 

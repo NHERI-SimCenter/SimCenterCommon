@@ -37,6 +37,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include "RandomVariable.h"
+#include <QGridLayout>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QComboBox>
@@ -74,59 +75,59 @@ RandomVariable::RandomVariable()
 
 RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *parent)
     :SimCenterWidget(parent), refCount(0), variableClass(type), uqEngineName(uqengin)
-{
-    //
-    // create a vertical layout to deal with variable name
-    //
+{  
+    // create the main layout inside which we place a spacer & main widget
+    // implementation note: spacer added first to ensure it always lines up on left
 
-    QVBoxLayout *nameLayout = new QVBoxLayout();
-    variableLabel = new QLabel();
-    variableLabel->setText(QString("Variable Name"));
-    variableName = new QLineEdit();
+    mainLayout = new QGridLayout(this);
+    mainLayout->setSpacing(0);
+    mainLayout->setMargin(0);
+    mainLayout->setHorizontalSpacing(10);
+
+    //
+    // create radio button
+    //
+    button = new QRadioButton();
+    mainLayout->addWidget(button,1,0);
+
+    //
+    // create variable name block
+    //
+    variableLabel = new QLabel(tr("Variable Name"));
+    variableName  = new QLineEdit();
     variableName->setMaximumWidth(100);
     variableName->setMinimumWidth(100);
-    nameLayout->addWidget(variableLabel);
-    nameLayout->addWidget(variableName);
-    nameLayout->setSpacing(1);
-    nameLayout->setMargin(0);
-    //nameLayout->addStretch();
+    variableName->setText("");
+    mainLayout->addWidget(variableLabel,0,1);
+    mainLayout->addWidget(variableName,1,1);
 
     //
-    // create a vertical layout to deal with data type
+    // create data type block
     //
-
-
-    QVBoxLayout *typeLayout = new QVBoxLayout();
-    typeLabel = new QLabel();
-    typeLabel->setText(QString("Input Type"));
+    typeLabel    = new QLabel(tr("Input Type"));
     typeComboBox = new QComboBox();
     typeComboBox->setMaximumWidth(200);
     typeComboBox->setMinimumWidth(200);
-    typeLayout->addWidget(typeLabel);
-    typeLayout->addWidget(typeComboBox);
-    typeLayout->setSpacing(0);
-    typeLayout->setMargin(0);
+
+    mainLayout->addWidget(typeLabel,0,2);
+    mainLayout->addWidget(typeComboBox,1,2);
 
     typeComboBox->addItem(tr("Parameters"));
     typeComboBox->addItem(tr("Moments"));
     typeComboBox->addItem(tr("Dataset"));
+
     connect(typeComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(typeChanged(QString)));
 
     //
-    // another vertical layout to deal with distribution selection
+    // create distribution block
     //
-
-    QVBoxLayout *distributionLayout = new QVBoxLayout();
-    distributionLabel = new QLabel();
-    distributionLabel->setText(QString("Distribution"));
+    distributionLabel    = new QLabel(tr("Distribution"));
     distributionComboBox = new QComboBox();
     distributionComboBox->setMaximumWidth(200);
     distributionComboBox->setMinimumWidth(200);
-    distributionLayout->addWidget(distributionLabel);
-    distributionLayout->addWidget(distributionComboBox);
-    distributionLayout->setSpacing(0);
-    distributionLayout->setMargin(0);
-    //distributionLayout->addStretch();
+
+    mainLayout->addWidget(distributionLabel,0,3);
+    mainLayout->addWidget(distributionComboBox,1,3);
 
     //
     // provide the user selectable options & connect the combo boxes selection
@@ -134,19 +135,23 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     //
 
     if (variableClass == QString("Design")) {
+
         distributionComboBox->addItem(tr("ContinuousDesign"));
         distributionComboBox->addItem(tr("Constant"));
+
     } else if (variableClass == QString("Uncertain")) {
-            distributionComboBox->addItem(tr("Normal"));
-            distributionComboBox->addItem(tr("Lognormal"));
-            distributionComboBox->addItem(tr("Beta"));
-            distributionComboBox->addItem(tr("Uniform"));
-            distributionComboBox->addItem(tr("Weibull"));
-            distributionComboBox->addItem(tr("Gumbel"));
-            distributionComboBox->addItem(tr("Constant"));
+
+        distributionComboBox->addItem(tr("Normal"));
+        distributionComboBox->addItem(tr("Lognormal"));
+        distributionComboBox->addItem(tr("Beta"));
+        distributionComboBox->addItem(tr("Uniform"));
+        distributionComboBox->addItem(tr("Weibull"));
+        distributionComboBox->addItem(tr("Gumbel"));
+        distributionComboBox->addItem(tr("Constant"));
     }
 
     if (uqEngineName==QString("SimCenterUQ")){
+
         distributionComboBox->addItem(tr("Exponential"));
         distributionComboBox->addItem(tr("Discrete"));
         distributionComboBox->addItem(tr("Gamma"));
@@ -156,38 +161,18 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
 
     connect(distributionComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(distributionChanged(QString)));
 
-    //
-    // implementation note:
-    // we needed to place the RandomVariable info inside another widget so as to ensure that it and
-    // the RandomVAriableDistribution widget line up visually, there could be a Qt way to deal with this
-    //
-
-    //QHBoxLayout *widgetLayout = new QHBoxLayout;
-
-    // create the main layout inside which we place a spacer & main widget
-    // implementation note: spacer added first to ensure it always lines up on left
-
-    mainLayout = new QHBoxLayout;
-
-    button = new QRadioButton();
-    mainLayout->addWidget(button);
-
-    mainLayout->addLayout(nameLayout);
-
-    if (uqengin==QString("SimCenterUQ")){
-        mainLayout->addLayout(typeLayout);
+    if (uqengin!=QString("SimCenterUQ")){
+        typeLabel->setVisible(false);
+        typeComboBox->setVisible(false);
     }
 
-    mainLayout->addLayout(distributionLayout);
-    mainLayout->addStretch();
+    //mainLayout->addStretch();
 
     theDistribution = new NormalDistribution();
-    mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+    mainLayout->addWidget(theDistribution,0,4,2,1);
     connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
-    mainLayout->setSpacing(10);
-    mainLayout->setMargin(0);
 
-    this->setLayout(mainLayout);
+    //this->setLayout(mainLayout);
   // mainLayout->setSizeConstraint(QLayout::SetMaximumSize);
 }
 
@@ -225,7 +210,7 @@ RandomVariable::RandomVariable(const QString &type,
 
     // set new
     theDistribution = &theD;
-    mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+    mainLayout->addWidget(theDistribution,0,4,2,1);
     connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 }
 
@@ -317,12 +302,13 @@ RandomVariable::inputFromJSON(QJsonObject &rvObject){
 }
 
 void RandomVariable::typeChanged(const QString &arg1) {
+
     if (theDistribution != 0) {
         delete theDistribution;
         theDistribution = 0;
     }
     theDistribution = new NormalDistribution(arg1);
-    mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+    mainLayout->addWidget(theDistribution,0,4,2,1);
     distributionComboBox->setCurrentIndex(0);
 
     typeOpt = arg1;
@@ -342,8 +328,6 @@ void RandomVariable::distributionChanged(const QString &arg1)
 
     if (arg1 == QString("Normal")) {
         theDistribution = new NormalDistribution(typeOpt);
-        mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
-
     } else if (arg1 == QString("Lognormal")) {
         if (this->uqEngineName==QString("Dakota")) {
             theDistribution = new LognormalDistribution(QString("Moments"));
@@ -351,49 +335,33 @@ void RandomVariable::distributionChanged(const QString &arg1)
         } else {
             theDistribution = new LognormalDistribution(typeOpt);
         }
-        mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     } else if (arg1 == QString("Beta")) {
          theDistribution = new BetaDistribution(typeOpt);
-         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
-         // padhye added 4/32/18
-          //qDebug () <<"Hello world I am degbuging this is BetaDistribution"; // padhye
     } else if (arg1 == QString("Uniform")) {
          theDistribution = new UniformDistribution(typeOpt);
-         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
-           // padhye added 4/32/18
-            //qDebug () <<"Hello world I am degbuging this is Uniform"; // padhye
-            //qDebug () <<QString("Uniform"); // padhy
     } else if (arg1 == QString("Constant")) {
          theDistribution = new ConstantDistribution();
-         mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
-    //} else if (arg1 == QString("ContinuousDesign")) {
-    //     theDistribution = new ContinuousDesignDistribution();
-    //     mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     } else if (arg1 == QString("Weibull")) {
         theDistribution = new WeibullDistribution(typeOpt);
-        mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     } else if (arg1 == QString("Gumbel")) {
         theDistribution = new GumbelDistribution(typeOpt);
-        mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
-    //} else if (arg1 == QString("UserDef")) {
-    //    theDistribution = new UserDef();
-    //    mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     } else if (arg1 == QString("Exponential")) {
         theDistribution = new ExponentialDistribution(typeOpt);
-        mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     } else if (arg1 == QString("Discrete")) {
         theDistribution = new DiscreteDistribution(typeOpt);
-        mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
+        //mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     } else if (arg1 == QString("Gamma")) {
         theDistribution = new GammaDistribution(typeOpt);
-        mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     } else if (arg1 == QString("Chisquare")) {
         theDistribution = new ChiSquaredDistribution(typeOpt);
-        mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     } else if (arg1 == QString("Truncated exponential")) {
         theDistribution = new TruncatedExponentialDistribution(typeOpt);
-        mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     }
+
+    if (theDistribution) {
+      mainLayout->addWidget(theDistribution,0,4,2,1);
+    }
+
     connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 }
 

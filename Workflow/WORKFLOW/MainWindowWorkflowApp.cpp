@@ -20,6 +20,8 @@
 #include <QScreen>
 #include <QDesktopServices>
 #include <sectiontitle.h>
+#include <iostream>
+
 
 //#include <InputWidgetEE_UQ.h>
 #include <WorkflowAppWidget.h>
@@ -335,18 +337,22 @@ bool MainWindowWorkflowApp::saveAs()
     //
 
     QFileDialog dialog(this, "Save Simulation Model");
-    dialog.setWindowModality(Qt::WindowModal);
+    //dialog.setWindowModality(Qt::WindowModal);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
+
     QStringList filters;
     filters << "Json files (*.json)"
             << "All files (*)";
+
     dialog.setNameFilters(filters);
 
-    if (dialog.exec() != QDialog::Accepted)
+    if (dialog.exec() == QDialog::Rejected) {
         return false;
+    }
 
-    // and save the file
+
     return saveFile(dialog.selectedFiles().first());
+
 }
 
 void MainWindowWorkflowApp::open()
@@ -706,7 +712,8 @@ void MainWindowWorkflowApp::about()
     //
     // adjust size of application window to the available display
     //
-    QRect rec = QApplication::desktop()->screenGeometry();
+
+    QRect rec = QApplication::desktop()->screenGeometry(this);
     int height = 0.50*rec.height();
     int width  = 0.50*rec.width();
     dlg->resize(width, height);

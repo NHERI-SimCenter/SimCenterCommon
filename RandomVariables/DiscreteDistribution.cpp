@@ -37,8 +37,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include "DiscreteDistribution.h"
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+#include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QDebug>
@@ -52,22 +51,41 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 DiscreteDistribution::DiscreteDistribution(QString inpType, QWidget *parent) :RandomVariableDistribution(parent)
 {
     //
-    // create the main horizontal layout and add the input entries
+    // create the main layout and add the input entries
     //
+    QGridLayout *mainLayout = new QGridLayout(this);
 
     QHBoxLayout *mainLayout = new QHBoxLayout();
     QPushButton *showPlotButton = new QPushButton("Show PMF");
+
+    // set some defaults, and set layout for widget to be the horizontal layout
+    //mainLayout->setHorizontalSpacing(10);
+    //mainLayout->setVerticalSpacing(0);
+    //mainLayout->setMargin(0);
+
+    //QPushButton *showPlotButton = new QPushButton("Show PDF");
+
+    //values = this->createTextEntry(tr("Values"), mainLayout, 0);
+    //weights = this->createTextEntry(tr("Weights"), mainLayout, 1);
+    //values->setValidator(new myDoubleArrayValidator);
+    //weights->setValidator(new myDoubleArrayValidator);
+
+    /*
+    QPushButton *showPlotButton = new QPushButton("Show PDF");
+    */
+    //mainLayout->addWidget(showPlotButton, 1,2);
 
     this->inpty=inpType;
 
     if (inpty==QString("Parameters"))
     {
-        values = this->createTextEntry(tr("Values"), mainLayout);
-        weights = this->createTextEntry(tr("Weights"), mainLayout);
-        values->setValidator(new myDoubleArrayValidator);
-        weights->setValidator(new myDoubleArrayValidator);
 
-        mainLayout->addWidget(showPlotButton);
+      values = this->createTextEntry(tr("Values"), mainLayout, 0);
+      weights = this->createTextEntry(tr("Weights"), mainLayout, 1);
+      values->setValidator(new myDoubleArrayValidator);
+      weights->setValidator(new myDoubleArrayValidator);
+
+      mainLayout->addWidget(showPlotButton, 1, 2);
     } else if (inpty==QString("Moments"))
     {
         QLabel *momentMessage = new QLabel();
@@ -75,12 +93,14 @@ DiscreteDistribution::DiscreteDistribution(QString inpType, QWidget *parent) :Ra
         mainLayout->addWidget(momentMessage);
     } else if (inpty==QString("Dataset"))
     {
-        dataDir = this->createTextEntry(tr("Data File"), mainLayout);
+
+      dataDir = this->createTextEntry(tr("Data File"), mainLayout, 0);
         dataDir->setMinimumWidth(200);
         dataDir->setMinimumWidth(200);
 
         QPushButton *chooseFileButton = new QPushButton("Choose");
-        mainLayout->addWidget(chooseFileButton);
+
+        mainLayout->addWidget(chooseFileButton, 1, 1);
 
         // Action
         connect(chooseFileButton, &QPushButton::clicked, this, [=](){
@@ -88,12 +108,7 @@ DiscreteDistribution::DiscreteDistribution(QString inpType, QWidget *parent) :Ra
         });
     }
 
-    mainLayout->addStretch();
-
-    // set some defaults, and set layout for widget to be the horizontal layout
-    mainLayout->setSpacing(10);
-    mainLayout->setMargin(0);
-    this->setLayout(mainLayout);
+    mainLayout->setColumnStretch(3,1);
 
     thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Mass Function"),500, 500);
 
