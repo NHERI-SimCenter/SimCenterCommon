@@ -157,15 +157,15 @@ WeibullDistribution::inputFromJSON(QJsonObject &rvObject){
     }
 
     if (inpty==QString("Parameters")) {
-        if (rvObject.contains("shapeparam")) {
-            double theMuValue = rvObject["shapeparam"].toDouble();
+        if (rvObject.contains("scaleparam")) {
+            double theMuValue = rvObject["scaleparam"].toDouble();
             an->setText(QString::number(theMuValue));
         } else {
             emit sendErrorMessage("ERROR: WeibullDistribution - no \"a\" entry");
             return false;
         }
-        if (rvObject.contains("scaleparam")) {
-            double theSigValue = rvObject["scaleparam"].toDouble();
+        if (rvObject.contains("shapeparam")) {
+            double theSigValue = rvObject["shapeparam"].toDouble();
             k->setText(QString::number(theSigValue));
         } else {
             emit sendErrorMessage("ERROR: WeibullDistribution - no \"a\" entry");

@@ -55,27 +55,31 @@ DiscreteDistribution::DiscreteDistribution(QString inpType, QWidget *parent) :Ra
     //
     QGridLayout *mainLayout = new QGridLayout(this);
 
+    //QHBoxLayout *mainLayout = new QHBoxLayout();
+    QPushButton *showPlotButton = new QPushButton("Show PMF");
+
     // set some defaults, and set layout for widget to be the horizontal layout
-    mainLayout->setHorizontalSpacing(10);
-    mainLayout->setVerticalSpacing(0);
-    mainLayout->setMargin(0);
+    //mainLayout->setHorizontalSpacing(10);
+    //mainLayout->setVerticalSpacing(0);
+    //mainLayout->setMargin(0);
 
-    QPushButton *showPlotButton = new QPushButton("Show PDF");
+    //QPushButton *showPlotButton = new QPushButton("Show PDF");
 
-    values = this->createTextEntry(tr("Values"), mainLayout, 0);
-    weights = this->createTextEntry(tr("Weights"), mainLayout, 1);
-    values->setValidator(new myDoubleArrayValidator);
-    weights->setValidator(new myDoubleArrayValidator);
+    //values = this->createTextEntry(tr("Values"), mainLayout, 0);
+    //weights = this->createTextEntry(tr("Weights"), mainLayout, 1);
+    //values->setValidator(new myDoubleArrayValidator);
+    //weights->setValidator(new myDoubleArrayValidator);
 
     /*
     QPushButton *showPlotButton = new QPushButton("Show PDF");
     */
-    mainLayout->addWidget(showPlotButton, 1,2);
+    //mainLayout->addWidget(showPlotButton, 1,2);
 
     this->inpty=inpType;
 
     if (inpty==QString("Parameters"))
     {
+
       values = this->createTextEntry(tr("Values"), mainLayout, 0);
       weights = this->createTextEntry(tr("Weights"), mainLayout, 1);
       values->setValidator(new myDoubleArrayValidator);
@@ -89,11 +93,13 @@ DiscreteDistribution::DiscreteDistribution(QString inpType, QWidget *parent) :Ra
         mainLayout->addWidget(momentMessage);
     } else if (inpty==QString("Dataset"))
     {
+
       dataDir = this->createTextEntry(tr("Data File"), mainLayout, 0);
         dataDir->setMinimumWidth(200);
         dataDir->setMinimumWidth(200);
 
         QPushButton *chooseFileButton = new QPushButton("Choose");
+
         mainLayout->addWidget(chooseFileButton, 1, 1);
 
         // Action

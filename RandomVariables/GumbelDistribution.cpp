@@ -65,9 +65,9 @@ GumbelDistribution::GumbelDistribution(QString inpType, QWidget *parent) :Random
 
     if (inpty==QString("Parameters"))
     {
-        an = this->createTextEntry(tr("alpha (1/an)"), mainLayout, 0);
-        an->setValidator(new QDoubleValidator);
-        bn  = this->createTextEntry(tr("beta (bn)"), mainLayout, 1);
+        alpha = this->createTextEntry(tr("alpha (1/an)"), mainLayout,0);
+        alpha->setValidator(new QDoubleValidator);
+        bn  = this->createTextEntry(tr("beta (bn)"), mainLayout,1);
         bn->setValidator(new QDoubleValidator);
         mainLayout->addWidget(showPlotButton, 1,2);
 
@@ -100,7 +100,7 @@ GumbelDistribution::GumbelDistribution(QString inpType, QWidget *parent) :Random
     thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
 
     if (inpty==QString("Parameters")) {
-        connect(an,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+        connect(alpha,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
         connect(bn,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
         connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
     } else if (inpty==QString("Moments")) {
@@ -120,11 +120,11 @@ GumbelDistribution::outputToJSON(QJsonObject &rvObject){
 
     if (inpty==QString("Parameters")) {
         // check for error condition, an entry had no value
-        if ((an->text().isEmpty())||(bn->text().isEmpty())) {
+        if ((alpha->text().isEmpty())||(bn->text().isEmpty())) {
             emit sendErrorMessage("ERROR: GumbelDistribution - data has not been set");
             return false;
         }
-        rvObject["alphaparam"]=an->text().toDouble();
+        rvObject["alphaparam"]=alpha->text().toDouble();
         rvObject["betaparam"]=bn->text().toDouble();
     } else if (inpty==QString("Moments")) {
         if ((mean->text().isEmpty())||(standardDev->text().isEmpty())) {
@@ -160,7 +160,7 @@ GumbelDistribution::inputFromJSON(QJsonObject &rvObject){
     if (inpty==QString("Parameters")) {
         if (rvObject.contains("alphaparam")) {
             double theMuValue = rvObject["alphaparam"].toDouble();
-            an->setText(QString::number(theMuValue));
+            alpha->setText(QString::number(theMuValue));
         } else {
             emit sendErrorMessage("ERROR: GumbelDistribution - no \"a\" entry");
             return false;
@@ -212,7 +212,7 @@ void
 GumbelDistribution::updateDistributionPlot() {
     double a=0, b=0, me=0, st=0, gam=0.577216, pi=3.141592;
     if ((this->inpty)==QString("Parameters")) {
-        a=an->text().toDouble(); // Let us follow dakota's parameter definitions
+        a=alpha->text().toDouble(); // Let us follow dakota's parameter definitions
         b=bn->text().toDouble();
         me = b-gam/a;
         st = pi/a/sqrt(6);

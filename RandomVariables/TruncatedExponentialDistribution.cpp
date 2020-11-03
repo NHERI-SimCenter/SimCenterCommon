@@ -107,6 +107,7 @@ TruncatedExponentialDistribution::TruncatedExponentialDistribution(QString inpTy
     }
 
 
+
     mainLayout->addWidget(errorMsgLabel, 2, 0, 1, 4);
 	
     mainLayout->setColumnStretch(4,1);
