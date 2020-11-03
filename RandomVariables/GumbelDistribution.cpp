@@ -65,9 +65,9 @@ GumbelDistribution::GumbelDistribution(QString inpType, QWidget *parent) :Random
 
     if (inpty==QString("Parameters"))
     {
-        alpha = this->createTextEntry(tr("alpha (1/an)"), mainLayout);
+        alpha = this->createTextEntry(tr("alpha (1/an)"), mainLayout,0);
         alpha->setValidator(new QDoubleValidator);
-        bn  = this->createTextEntry(tr("beta (bn)"), mainLayout);
+        bn  = this->createTextEntry(tr("beta (bn)"), mainLayout,1);
         bn->setValidator(new QDoubleValidator);
         mainLayout->addWidget(showPlotButton, 1,2);
 

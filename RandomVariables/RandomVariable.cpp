@@ -356,6 +356,8 @@ void RandomVariable::distributionChanged(const QString &arg1)
         theDistribution = new ChiSquaredDistribution(typeOpt);
     } else if (arg1 == QString("Truncated exponential")) {
         theDistribution = new TruncatedExponentialDistribution(typeOpt);
+    } else if (arg1 == QString("ContinuousDesign")) {
+         theDistribution = new ContinuousDesignDistribution();
     }
 
     if (theDistribution) {

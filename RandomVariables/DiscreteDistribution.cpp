@@ -55,7 +55,7 @@ DiscreteDistribution::DiscreteDistribution(QString inpType, QWidget *parent) :Ra
     //
     QGridLayout *mainLayout = new QGridLayout(this);
 
-    QHBoxLayout *mainLayout = new QHBoxLayout();
+    //QHBoxLayout *mainLayout = new QHBoxLayout();
     QPushButton *showPlotButton = new QPushButton("Show PMF");
 
     // set some defaults, and set layout for widget to be the horizontal layout
