@@ -101,6 +101,21 @@ public:
      *   @return bool true or false indicating success or failure to add
      */  
 
+    //
+
+    /**
+     *   @brief Function to set the width on the selection tree widget
+     *   @param int width of the widget
+     */
+    void setWidth(const int width);
+
+    /**
+     *   @brief Function to set the width and height of an item on the selection tree widget
+     *   @param int width of a treeview item
+     *   @param int height of a treeview item
+     */
+    void setItemWidthHeight(const int width, const int height);
+
 signals:
 
 public slots:

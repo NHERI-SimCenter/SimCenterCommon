@@ -88,6 +88,9 @@ public:
     static bool copyPath(QString sourceDir, QString destinationDir, bool overWriteDirectory);
     static bool copyFile(QString filename, QString destinationDir);
 
+    // A dialog to present a message to the user
+    void userMessageDialog(const QString& messageString);
+
 signals:
 
 public slots:

@@ -56,32 +56,27 @@ SimCenterComponentSelection::SimCenterComponentSelection(QWidget *parent)
   horizontalLayout->setMargin(0);
   this->setContentsMargins(0,5,0,5);
 
-  //  
-  // create a TreeView widget 
-  //
-
+  // Create a TreeView widget
   treeView = new QTreeView();
   standardModel = new CustomizedItemModel; 
   rootNode = standardModel->invisibleRootItem();
 
   infoItemIdx = rootNode->index();
 
-  //register the model                                                                                             
+  // Register the model
   treeView->setModel(standardModel);
   treeView->expandAll();
   treeView->setHeaderHidden(true);
   treeView->setMinimumWidth(100);
   treeView->setMaximumWidth(100);
-  treeView->setMinimumWidth(100);
-  treeView->setEditTriggers(QTreeView::EditTrigger::NoEditTriggers);//Disable Edit 
+  treeView->setEditTriggers(QTreeView::EditTrigger::NoEditTriggers); // Disable Edit
 
-  //                                                                                                               
-  // customize the apperance of the menu on the left                                                               
-  //                                                                                                               
 
+  // Customize the apperance of the menu on the left
   treeView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff ); // hide the horizontal scroll bar               
   treeView->setObjectName("treeViewOnTheLeft");
   treeView->setIndentation(0);
+  treeView->setWordWrap(true);
 
   QItemSelectionModel *selectionModel= treeView->selectionModel();
   connect(selectionModel,
@@ -89,7 +84,7 @@ SimCenterComponentSelection::SimCenterComponentSelection(QWidget *parent)
 	  this,
 	  SLOT(selectionChangedSlot(const QItemSelection &, const QItemSelection &)));
 
-  // add the TreeView widget to the layout
+  // Add the TreeView widget to the layout
   horizontalLayout->addWidget(treeView);
 
   theStackedWidget = new QStackedWidget();
@@ -191,4 +186,22 @@ SimCenterComponentSelection::displayComponent(QString text)
     }
 
     return false;
+}
+
+void
+SimCenterComponentSelection::setWidth(const int width)
+{
+    treeView->setMaximumWidth(width);
+    treeView->setMinimumWidth(width);
+}
+
+void
+SimCenterComponentSelection::setItemWidthHeight(const int width, const int height)
+{
+    auto customModel = dynamic_cast<CustomizedItemModel*>(standardModel);
+
+    if(customModel)
+    {
+        customModel->setItemWidthHeight(width,height);
+    }
 }

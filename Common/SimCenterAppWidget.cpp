@@ -39,6 +39,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SimCenterAppWidget.h>
 #include <QDir>
 #include <QDebug>
+#include <QMessageBox>
 
 SimCenterAppWidget::SimCenterAppWidget(QWidget *parent)
     :SimCenterWidget(parent)
@@ -138,4 +139,13 @@ SimCenterAppWidget::copyFile(QString filename, QString destinationDir)
     QString thePath = fileInfo.path();
 
     return fileToCopy.copy(destinationDir + QDir::separator() + theFile);
+}
+
+void
+SimCenterAppWidget::userMessageDialog(const QString& messageString)
+{
+    QMessageBox msgBox;
+    msgBox.setText(messageString);
+    msgBox.setStandardButtons(QMessageBox::Close);
+    msgBox.exec();
 }

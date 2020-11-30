@@ -39,7 +39,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "SteelBuildingModel.h"
 #include "ReadWriteRVJSON.h"
-#include "SpreadsheetWidget.h"
 #include "sectiontitle.h"
 #include "RandomVariable.h"
 #include "GeneralInformationWidget.h"
