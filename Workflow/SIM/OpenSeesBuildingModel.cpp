@@ -65,7 +65,6 @@ OpenSeesBuildingModel::OpenSeesBuildingModel(RandomVariablesContainer *theRandom
   : SimCenterAppWidget(parent), responseNodes(0), theRandomVariablesContainer(theRandomVariableIW)
 {
   includeCentroid = includeC;
-  femSpecific = 0;
   centroidNodes = NULL;
     responseNodes = NULL;
     layout = new QGridLayout();

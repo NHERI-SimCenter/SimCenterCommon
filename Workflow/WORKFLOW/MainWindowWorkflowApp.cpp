@@ -26,7 +26,6 @@
 //#include <InputWidgetEE_UQ.h>
 #include <WorkflowAppWidget.h>
 
-#include "SimCenterTableWidget.h"
 #include <QDesktopWidget>
 #include <HeaderWidget.h>
 #include <FooterWidget.h>

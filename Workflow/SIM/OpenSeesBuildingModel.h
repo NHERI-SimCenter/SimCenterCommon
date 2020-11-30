@@ -79,13 +79,11 @@ public slots:
 private:
 
     QGridLayout *layout;
-    QWidget     *femSpecific;
 
     QString fileName1;
     QLineEdit *file1;
     QLineEdit *centroidNodes;
     QLineEdit *responseNodes;
-    QLineEdit *elements;
     QLineEdit *ndm;
     QLineEdit *ndf;
     bool includeCentroid;
