@@ -64,6 +64,8 @@ public:
     virtual void onExitButtonClicked() =0;
     virtual int getMaxNumParallelTasks() =0;
     
+    MainWindowWorkflowApp *getTheMainWindow() const;
+
 signals:
     void setUpForApplicationRunDone(QString &tmpDirectory, QString &inputFile,
                                      QString runType = QString("run"));
