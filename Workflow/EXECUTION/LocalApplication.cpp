@@ -301,10 +301,16 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
     if (appName == "RDT"){
 
+        /*
+        command = sourceBash + exportPath + "; \"" + python + QString("\" \"" ) + pySCRIPT + QString("\" " )
+                + QString(" \"" ) + inputFile + QString("\"");
+
+      */
         command = sourceBash + exportPath + "; \"" + python + QString("\" \"" ) + pySCRIPT + QString("\" " )
                 + QString(" \"" ) + inputFile + QString("\" ") +"--registry"
                 + QString(" \"") + registryFile + QString("\" ") + "--referenceDir" + QString(" \"")
-                + tmpDirectory + QString("\" ") + "-w" + QString(" \"") + tmpDirectory + QDir::separator() + "Results" + QString("\"");
+                + tmpDirectory + QString("/input_data\" ") + "-w" + QString(" \"") + tmpDirectory + QDir::separator() + "Results" + QString("\"");
+
     } else {
 
         command = sourceBash + exportPath + "; \"" + python + QString("\" \"" ) +
