@@ -38,8 +38,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Latest revision: 10.08.2020
 
 #include "SimCenterAppEventSelection.h"
-#include "ComponentInputWidget.h"
-#include "VisualizationWidget.h"
 #include "sectiontitle.h"
 
 // Qt headers
@@ -48,7 +46,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QHBoxLayout>
 #include <QJsonObject>
 #include <QJsonArray>
-#include <QColorTransform>
+
 #include <QLineEdit>
 #include <QListWidget>
 #include <QDebug>
