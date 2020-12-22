@@ -42,7 +42,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "SimCenterAppWidget.h"
 
-class SecondaryComponentSelection;
 class QStackedWidget;
 class QComboBox;
 
