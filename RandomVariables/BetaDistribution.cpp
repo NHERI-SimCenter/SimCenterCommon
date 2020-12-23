@@ -99,8 +99,8 @@ BetaDistribution::BetaDistribution(QString inpType, QWidget *parent) :RandomVari
         b->setValidator(new QDoubleValidator);
 
         dataDir = this->createTextEntry(tr("Data File"), mainLayout, 2);
-        //dataDir->setMinimumWidth(500);
-        //dataDir->setMaximumWidth(500);
+        dataDir->setMinimumWidth(200);
+        dataDir->setMaximumWidth(200);
 
         QPushButton *chooseFileButton = new QPushButton("Choose");
         mainLayout->addWidget(chooseFileButton, 1, 3);

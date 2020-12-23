@@ -56,12 +56,12 @@ DiscreteDistribution::DiscreteDistribution(QString inpType, QWidget *parent) :Ra
     QGridLayout *mainLayout = new QGridLayout(this);
 
     //QHBoxLayout *mainLayout = new QHBoxLayout();
-    QPushButton *showPlotButton = new QPushButton("Show PMF");
+        // set some defaults, and set layout for widget to be the horizontal layout
 
-    // set some defaults, and set layout for widget to be the horizontal layout
-    //mainLayout->setHorizontalSpacing(10);
-    //mainLayout->setVerticalSpacing(0);
-    //mainLayout->setMargin(0);
+    mainLayout->setHorizontalSpacing(10);
+    mainLayout->setVerticalSpacing(0);
+    mainLayout->setMargin(0);
+
 
     //QPushButton *showPlotButton = new QPushButton("Show PDF");
 
@@ -76,6 +76,7 @@ DiscreteDistribution::DiscreteDistribution(QString inpType, QWidget *parent) :Ra
     //mainLayout->addWidget(showPlotButton, 1,2);
 
     this->inpty=inpType;
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Mass Function"),500, 500);
 
     if (inpty==QString("Parameters"))
     {
@@ -85,7 +86,13 @@ DiscreteDistribution::DiscreteDistribution(QString inpType, QWidget *parent) :Ra
       values->setValidator(new myDoubleArrayValidator);
       weights->setValidator(new myDoubleArrayValidator);
 
+      QPushButton *showPlotButton = new QPushButton("Show PMF");
       mainLayout->addWidget(showPlotButton, 1, 2);
+
+      connect(values,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+      connect(weights,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+      connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
+
     } else if (inpty==QString("Moments"))
     {
         QLabel *momentMessage = new QLabel();
@@ -110,17 +117,10 @@ DiscreteDistribution::DiscreteDistribution(QString inpType, QWidget *parent) :Ra
 
     mainLayout->setColumnStretch(3,1);
 
-    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Mass Function"),500, 500);
-
     //connect(values,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
     //connect(weights,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
     //connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
 
-    if (inpty==QString("Parameters")) {
-        connect(values,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
-        connect(weights,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
-        connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
-    }
 }
 
 DiscreteDistribution::~DiscreteDistribution()
