@@ -102,19 +102,31 @@ SimCenterAppSelection::~SimCenterAppSelection()
 
 bool SimCenterAppSelection::outputToJSON(QJsonObject &jsonObject)
 { 
+    QJsonObject data;
     if (theCurrentSelection != NULL)
-        return theCurrentSelection->outputToJSON(jsonObject);
-    else
-        return false;
+        if (theCurrentSelection->outputToJSON(data) == false) {
+            return false;
+        } else {
+            jsonObject[selectionApplicationType] = data;
+            return true;
+        }
+    return false;
 }
 
 
 bool SimCenterAppSelection::inputFromJSON(QJsonObject &jsonObject)
 {
-    if (theCurrentSelection != NULL)
-        return theCurrentSelection->inputFromJSON(jsonObject);
-    else
-        return false;
+    if (jsonObject.contains(selectionApplicationType)) {
+
+        QJsonObject theApplicationObject = jsonObject[selectionApplicationType].toObject();
+
+        if (theCurrentSelection != NULL)
+            return theCurrentSelection->inputFromJSON(theApplicationObject);
+        else
+            return false;
+    }
+
+    return false;
 }
 
 
@@ -122,9 +134,9 @@ bool SimCenterAppSelection::outputAppDataToJSON(QJsonObject &jsonObject)
 {
     QJsonObject data;
     if (theCurrentSelection != NULL)
-        if (theCurrentSelection->outputAppDataToJSON(data) == false)
+        if (theCurrentSelection->outputAppDataToJSON(data) == false) {
             return false;
-        else {
+        } else {
             jsonObject[selectionApplicationType] = data;
             return true;
         }
@@ -141,6 +153,8 @@ bool SimCenterAppSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
         if (theApplicationObject.contains("Application")) {
             QJsonValue theName = theApplicationObject["Application"];
             QString appName = theName.toString();
+
+	    //            qDebug() << selectionApplicationType << " " << appName;
 
             int index = theApplicationNames.indexOf(appName);
 
