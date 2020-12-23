@@ -112,6 +112,7 @@ SimCenterComponentSelection::addComponent(QString text, QWidget *theWidget)
         theStackedWidget->addWidget(theWidget);
         textIndices.append(text);
         modelIndices.append(modelIndex);
+        theWidget->setObjectName(text);
         return true;
     } else
         qDebug() << "ComponentSelection: text: " << text << " option already exists";

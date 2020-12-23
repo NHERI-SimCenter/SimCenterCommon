@@ -154,8 +154,19 @@ bool SimCenterAppSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
             emit sendErrorMessage(message);
         }
     } else {
-        QString message = QString("Applications does not contain a field: ") + selectionApplicationType;
-        emit sendErrorMessage(message);
+
+        // Check if 'None' is an option
+        int index = theApplicationNames.indexOf("None");
+        if (index != -1) {
+            theSelectionCombo->setCurrentIndex(index);
+            theCurrentSelection=theComponents.at(index);
+            return true;
+        }
+        else
+        {
+            QString message = QString("Applications does not contain a field: ") + selectionApplicationType;
+            emit sendErrorMessage(message);
+        }
     }
 
     return false; // error message
