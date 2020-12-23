@@ -38,8 +38,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Latest revision: 10.08.2020
 
 #include "SimCenterAppSelection.h"
-#include "ComponentInputWidget.h"
-#include "VisualizationWidget.h"
 #include "sectiontitle.h"
 
 // Qt headers
@@ -48,7 +46,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QHBoxLayout>
 #include <QJsonObject>
 #include <QJsonArray>
-#include <QColorTransform>
 #include <QLineEdit>
 #include <QListWidget>
 #include <QDebug>
@@ -171,8 +168,19 @@ bool SimCenterAppSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
             emit sendErrorMessage(message);
         }
     } else {
-        QString message = QString("Applications does not contain a field: ") + selectionApplicationType;
-        emit sendErrorMessage(message);
+
+        // Check if 'None' is an option
+        int index = theApplicationNames.indexOf("None");
+        if (index != -1) {
+            theSelectionCombo->setCurrentIndex(index);
+            theCurrentSelection=theComponents.at(index);
+            return true;
+        }
+        else
+        {
+            QString message = QString("Applications does not contain a field: ") + selectionApplicationType;
+            emit sendErrorMessage(message);
+        }
     }
 
     return false; // error message
