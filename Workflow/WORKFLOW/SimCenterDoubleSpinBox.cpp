@@ -1,6 +1,3 @@
-#ifndef OPENSEES_BUILDING_MODEL_H
-#define OPENSEES_BUILDING_MODEL_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -20,7 +17,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -37,58 +34,48 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: Michael Gardner
 
-#include <SimCenterAppWidget.h>
+#include <QDoubleSpinBox>
+#include <QHBoxLayout>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QLabel>
+#include <QString>
 
-#include <QGroupBox>
-#include <QVector>
-#include <QGridLayout>
-#include <QComboBox>
+#include "SimCenterDoubleSpinBox.h"
 
-class InputWidgetParameters;
-class RandomVariablesContainer;
-
-class OpenSeesBuildingModel : public SimCenterAppWidget
+SimCenterDoubleSpinBox::SimCenterDoubleSpinBox(const QJsonValue &inputObject,
+                                     QWidget *parent)
+    : SimCenterWidget(parent)
 {
-    Q_OBJECT
-public:
-    explicit OpenSeesBuildingModel(RandomVariablesContainer *theRandomVariableIW, 
-				   bool includeCentroid = false,
-				   QWidget *parent = 0);
-    ~OpenSeesBuildingModel();
+  // Configure DoubleSpinBox based on input JSON object
+  theDoubleSpinBoxLabel = new QLabel();  
+  theDoubleSpinBox = new QDoubleSpinBox();
+  theDoubleSpinBoxLabel->setText(inputObject["name"].toString());  
 
-    bool outputToJSON(QJsonObject &rvObject) override;
-    bool inputFromJSON(QJsonObject &rvObject) override;
-    bool outputAppDataToJSON(QJsonObject &rvObject) override;
-    bool inputAppDataFromJSON(QJsonObject &rvObject) override;
-    bool copyFiles(QString &dirName) override;
+  auto layout = new QHBoxLayout();
+  layout->addWidget(theDoubleSpinBoxLabel);
+  layout->addWidget(theDoubleSpinBox);
+  layout->addStretch();
 
-    QString getMainInput();
+  this->setLayout(layout);
+}
 
-     // copy main file to new filename ONLY if varNamesAndValues not empy
-    void specialCopyMainInput(QString fileName, QStringList varNamesAndValues);
-    void setFilename1(QString filnema1);
+bool SimCenterDoubleSpinBox::inputFromJSON(QJsonObject& jsonObject) {
+  bool result = true;
 
-signals:
+  theDoubleSpinBox->setObjectName(jsonObject["name"].toString());
+  theDoubleSpinBox->setValue(jsonObject["value"].toDouble());
 
-public slots:
-   void clear(void);
-   void chooseFileName1(void);
+  return result;
+}
 
-private:
+bool SimCenterDoubleSpinBox::outputToJSON(QJsonObject& jsonObject) {
 
-    QGridLayout *layout;
+  jsonObject.insert("name", theDoubleSpinBoxLabel->text());
+  jsonObject.insert("type", "DoubleSpinBox");
+  jsonObject.insert("value", theDoubleSpinBox->value());
 
-    QString fileName1;
-    QLineEdit *file1;
-    QLineEdit *centroidNodes;
-    QLineEdit *responseNodes;
-    QLineEdit *ndm;
-    QLineEdit *ndf;
-    bool includeCentroid;
-    RandomVariablesContainer *theRandomVariablesContainer;
-    QStringList varNamesAndValues;
-};
-
-#endif // OPENSEES_BUILDING_MODEL_H
+  return true;
+}

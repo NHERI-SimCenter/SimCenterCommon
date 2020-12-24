@@ -1,5 +1,5 @@
-#ifndef SIMCENTER_APP_WIDGET_H
-#define SIMCENTER_APP_WIDGET_H
+#ifndef SIM_CENTER_LINE_EDIT_H
+#define SIM_CENTER_LINE_EDIT_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -37,66 +37,46 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-/**
- *  @author  fmckenna
- *  @date    09/2018
- *  @version 1.0
- *
- *  @section DESCRIPTION
- *
- * The purpose of this class is to define interface for SimCenter widgets that are associated with an application
- * in the Workflow applications. They introduce methods for wrating the application specific data, e.g. AppName, data
- * that are used in workflow applicaions.
- */
+// Written: Michael Gardner
 
+#include <QLineEdit>
+#include <QJsonObject>
+#include <RandomVariablesContainer.h>
 #include <SimCenterWidget.h>
-class QJsonObject;
 
-class SimCenterAppWidget : public SimCenterWidget
-{
-    Q_OBJECT
+class SimCenterLineEdit : public SimCenterWidget {
+  Q_OBJECT
+
 public:
-    explicit SimCenterAppWidget(QWidget *parent = 0);
-    virtual ~SimCenterAppWidget();
-    /** 
-     *   @brief outputAppDataToJSON method to write the application data to json object.
-     *   @param rvObject the JSON object to be written to
-     *   @return bool - true for success, otherwise false
-     */  
+  /**
+   * @constructor Create new SimCenterLineEdit widget
+   * @param[in] inputObject Input JSON object
+   * @param[in] parent Parent widget. Defaults to null pointer
+   */
+  SimCenterLineEdit(const QJsonValue &inputObject, QWidget *parent = nullptr);
 
-    virtual bool outputAppDataToJSON(QJsonObject &jsonObject);
-    /** 
-     *   @brief inputFromJSON method to read applications specific data from a JSON object
-     *   @param rvObject the JSON object contaiing data to instantiate the object
-     *   @return bool - true for success, otherwise false
-     */  
-    virtual bool inputAppDataFromJSON(QJsonObject &jsonObject);
+  /**
+   * @destructor Default destructor
+   */
+  virtual ~SimCenterLineEdit(){};
+  
+  /**
+   * Instantiate the random variable line edit from from input JSON object
+   * @param[in] jsonObject JSON object containing input information
+   * @return Returns true if successful, false otherwise
+   */
+  bool inputFromJSON(QJsonObject &jsonObject) override;
 
-    /**
-     *   @brief copyFiles method invoked to copy all files aapplication will need to run directory
-     *   @param destDir the directory to put files in
-     *   @return bool - true for success, otherwise false
-     */
-    virtual bool copyFiles(QString &destDir);
+  /**
+   * Write all current class data to JSON required to reconstruct class
+   * @param[in, out] jsonObject JSON object to write output to
+   * @return Returns true if successful, false otherwise
+   */
+  bool outputToJSON(QJsonObject &jsonObject) override;
 
-    /**
-     *   @brief returns a boolean indicating whether or not this app can run locally
-     *   @return bool - true means the app can run locally, otherwise false
-     */
-    virtual bool supportsLocalRun();
-
-    static bool copyPath(QString sourceDir, QString destinationDir, bool overWriteDirectory);
-    static bool copyFile(QString filename, QString destinationDir);
-
-    // A dialog to present a message to the user
-    void userMessageDialog(const QString& messageString);
-
-signals:
-
-public slots:
-
-private:
-
+protected:
+  QLineEdit *theLineEdit;
+  QLabel *theLineEditLabel;
 };
 
-#endif // SIMCENTER_APP_WIDGET_H
+#endif // SIM_CENTER_LINE_EDIT_H

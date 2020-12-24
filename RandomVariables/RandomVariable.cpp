@@ -349,12 +349,15 @@ void RandomVariable::distributionChanged(const QString &arg1)
         theDistribution = new ExponentialDistribution(typeOpt);
     } else if (arg1 == QString("Discrete")) {
         theDistribution = new DiscreteDistribution(typeOpt);
+        //mainLayout->insertWidget(mainLayout->count()-1, theDistribution);
     } else if (arg1 == QString("Gamma")) {
         theDistribution = new GammaDistribution(typeOpt);
     } else if (arg1 == QString("Chisquare")) {
         theDistribution = new ChiSquaredDistribution(typeOpt);
     } else if (arg1 == QString("Truncated exponential")) {
         theDistribution = new TruncatedExponentialDistribution(typeOpt);
+    } else if (arg1 == QString("ContinuousDesign")) {
+         theDistribution = new ContinuousDesignDistribution();
     }
 
     if (theDistribution) {

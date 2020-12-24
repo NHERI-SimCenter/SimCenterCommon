@@ -1,5 +1,5 @@
-#ifndef OPENSEES_BUILDING_MODEL_H
-#define OPENSEES_BUILDING_MODEL_H
+﻿#ifndef SimCenterAppSelection_H
+#define SimCenterAppSelection_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -37,58 +37,48 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written by: fmk
+// Latest revision: 11.20.2020
 
-#include <SimCenterAppWidget.h>
+#include "SimCenterAppWidget.h"
 
-#include <QGroupBox>
-#include <QVector>
-#include <QGridLayout>
-#include <QComboBox>
+class QStackedWidget;
+class QComboBox;
 
-class InputWidgetParameters;
-class RandomVariablesContainer;
-
-class OpenSeesBuildingModel : public SimCenterAppWidget
+class SimCenterAppSelection : public  SimCenterAppWidget
 {
     Q_OBJECT
+
 public:
-    explicit OpenSeesBuildingModel(RandomVariablesContainer *theRandomVariableIW, 
-				   bool includeCentroid = false,
-				   QWidget *parent = 0);
-    ~OpenSeesBuildingModel();
+  explicit SimCenterAppSelection(QString label, QString selectionApplicationType, QWidget *parent);
+    ~SimCenterAppSelection();
 
-    bool outputToJSON(QJsonObject &rvObject) override;
-    bool inputFromJSON(QJsonObject &rvObject) override;
-    bool outputAppDataToJSON(QJsonObject &rvObject) override;
-    bool inputAppDataFromJSON(QJsonObject &rvObject) override;
-    bool copyFiles(QString &dirName) override;
+    bool outputAppDataToJSON(QJsonObject &jsonObject);
+    bool inputAppDataFromJSON(QJsonObject &jsonObject);
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+    bool copyFiles(QString &destName);
 
-    QString getMainInput();
-
-     // copy main file to new filename ONLY if varNamesAndValues not empy
-    void specialCopyMainInput(QString fileName, QStringList varNamesAndValues);
-    void setFilename1(QString filnema1);
-
-signals:
+    void clear(void);
+    bool addComponent(QString comboBoxText, QString appNameText, SimCenterAppWidget *);
+    SimCenterAppWidget *getComponent(QString text);
 
 public slots:
-   void clear(void);
-   void chooseFileName1(void);
-
+   void selectionChangedSlot(const QString &);
+  
 private:
+  virtual bool displayComponent(QString text);
 
-    QGridLayout *layout;
+  QStackedWidget* theStackedWidget;
+  QComboBox* theSelectionCombo;
+  
+  int currentIndex;
+  SimCenterAppWidget *theCurrentSelection;
 
-    QString fileName1;
-    QLineEdit *file1;
-    QLineEdit *centroidNodes;
-    QLineEdit *responseNodes;
-    QLineEdit *ndm;
-    QLineEdit *ndf;
-    bool includeCentroid;
-    RandomVariablesContainer *theRandomVariablesContainer;
-    QStringList varNamesAndValues;
+  QList<QString> theComboNames;
+  QList<QString> theApplicationNames;  
+  QList<SimCenterAppWidget *> theComponents;
+  QString selectionApplicationType; // application type that appears in json
 };
 
-#endif // OPENSEES_BUILDING_MODEL_H
+#endif // SimCenterAppSelection_H

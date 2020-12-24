@@ -1,5 +1,5 @@
-#ifndef OPENSEES_BUILDING_MODEL_H
-#define OPENSEES_BUILDING_MODEL_H
+#ifndef NO_ARG_SIMCENTER_APP_H
+#define NO_ARG_SIMCENTER_APP_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -49,46 +49,28 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class InputWidgetParameters;
 class RandomVariablesContainer;
 
-class OpenSeesBuildingModel : public SimCenterAppWidget
+class NoArgSimCenterApp : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
-    explicit OpenSeesBuildingModel(RandomVariablesContainer *theRandomVariableIW, 
-				   bool includeCentroid = false,
-				   QWidget *parent = 0);
-    ~OpenSeesBuildingModel();
+    explicit NoArgSimCenterApp(QString appName,QWidget *parent = 0);
+    ~NoArgSimCenterApp();
 
-    bool outputToJSON(QJsonObject &rvObject) override;
-    bool inputFromJSON(QJsonObject &rvObject) override;
-    bool outputAppDataToJSON(QJsonObject &rvObject) override;
-    bool inputAppDataFromJSON(QJsonObject &rvObject) override;
-    bool copyFiles(QString &dirName) override;
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+    bool outputAppDataToJSON(QJsonObject &rvObject);
+    bool inputAppDataFromJSON(QJsonObject &rvObject);
+    bool copyFiles(QString &dirName);
 
-    QString getMainInput();
-
-     // copy main file to new filename ONLY if varNamesAndValues not empy
-    void specialCopyMainInput(QString fileName, QStringList varNamesAndValues);
-    void setFilename1(QString filnema1);
+    void clear(void);
 
 signals:
 
 public slots:
-   void clear(void);
-   void chooseFileName1(void);
+
 
 private:
-
-    QGridLayout *layout;
-
-    QString fileName1;
-    QLineEdit *file1;
-    QLineEdit *centroidNodes;
-    QLineEdit *responseNodes;
-    QLineEdit *ndm;
-    QLineEdit *ndf;
-    bool includeCentroid;
-    RandomVariablesContainer *theRandomVariablesContainer;
-    QStringList varNamesAndValues;
+    QString appName;
 };
 
-#endif // OPENSEES_BUILDING_MODEL_H
+#endif // NO_ARG_SIMCENTER_APP_H

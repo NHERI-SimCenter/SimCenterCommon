@@ -6,7 +6,8 @@
 
 CustomizedItemModel::CustomizedItemModel()
 {
-
+    itemWidth = 20;
+    itemHeight = 50;
 }
 
 QVariant
@@ -15,9 +16,16 @@ CustomizedItemModel::data(const QModelIndex &index, int role) const
     if (role == Qt::TextAlignmentRole) {
         return Qt::AlignCenter;
     } else if (role == Qt::SizeHintRole) {
-        return QSize(20, 50);
+        return QSize(itemWidth, itemHeight);
     }else
     {
         return QStandardItemModel::data(index, role);
     }
+}
+
+void
+CustomizedItemModel::setItemWidthHeight(const int width, const int height)
+{
+    itemWidth = width;
+    itemHeight = height;
 }

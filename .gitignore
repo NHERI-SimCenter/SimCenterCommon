@@ -39,6 +39,7 @@ build*
 *.exe
 *.out
 *.app
+unit_tests
 
 # QT
 *.pro.user

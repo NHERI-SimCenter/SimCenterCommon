@@ -154,7 +154,7 @@ LognormalDistribution::inputFromJSON(QJsonObject &rvObject){
     if (rvObject.contains("inputType")) {
         inpty=rvObject["inputType"].toString();
     } else {
-        inpty = "Parameters";
+        inpty = "Moments";
     }
 
     if (inpty==QString("Parameters")) {

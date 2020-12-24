@@ -59,6 +59,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDir>
 #include <QFileDialog>
 #include <QProcessEnvironment>
+#include <QCoreApplication>
 
 LocalApplication::LocalApplication(QString workflowScriptName, QWidget *parent)
 : Application(parent)
@@ -295,9 +296,27 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
       emit sendErrorMessage( "No .bash_profile, .bashrc or .zshrc file found. This may not find Dakota or OpenSees");
 
     // note the above not working under linux because bash_profile not being called so no env variables!!
-    QString command = sourceBash + exportPath + "; \"" + python + QString("\" \"" ) +
-      pySCRIPT + QString("\" " ) + runType + QString(" \"" ) + inputFile + QString("\" \"") + registryFile + QString("\"");
+    QString appName = QCoreApplication::applicationName();
+    QString command;
 
+    if (appName == "RDT"){
+
+        /*
+        command = sourceBash + exportPath + "; \"" + python + QString("\" \"" ) + pySCRIPT + QString("\" " )
+                + QString(" \"" ) + inputFile + QString("\"");
+
+      */
+        command = sourceBash + exportPath + "; \"" + python + QString("\" \"" ) + pySCRIPT + QString("\" " )
+                + QString(" \"" ) + inputFile + QString("\" ") +"--registry"
+                + QString(" \"") + registryFile + QString("\" ") + "--referenceDir" + QString(" \"")
+                + tmpDirectory + QString("/input_data\" ") + "-w" + QString(" \"") + tmpDirectory + QDir::separator() + "Results" + QString("\"");
+
+    } else {
+
+        command = sourceBash + exportPath + "; \"" + python + QString("\" \"" ) +
+                pySCRIPT + QString("\" " ) + runType + QString(" \"" ) + inputFile + QString("\" \"") + registryFile + QString("\"");
+
+    }
     qDebug() << "PYTHON COMMAND" << command;
 
     proc->execute("bash", QStringList() << "-c" <<  command);

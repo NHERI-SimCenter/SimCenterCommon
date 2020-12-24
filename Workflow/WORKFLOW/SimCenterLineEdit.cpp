@@ -1,6 +1,3 @@
-#ifndef OPENSEES_BUILDING_MODEL_H
-#define OPENSEES_BUILDING_MODEL_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -20,7 +17,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -37,58 +34,46 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: Michael Gardner
 
-#include <SimCenterAppWidget.h>
-
-#include <QGroupBox>
-#include <QVector>
-#include <QGridLayout>
 #include <QComboBox>
+#include <QHBoxLayout>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QLabel>
+#include <QString>
 
-class InputWidgetParameters;
-class RandomVariablesContainer;
+#include "SimCenterLineEdit.h"
 
-class OpenSeesBuildingModel : public SimCenterAppWidget
-{
-    Q_OBJECT
-public:
-    explicit OpenSeesBuildingModel(RandomVariablesContainer *theRandomVariableIW, 
-				   bool includeCentroid = false,
-				   QWidget *parent = 0);
-    ~OpenSeesBuildingModel();
+SimCenterLineEdit::SimCenterLineEdit(
+    const QJsonValue &inputObject, QWidget *parent)
+    : SimCenterWidget(parent) {
+  // Configure file line edit based on input JSON object
+  theLineEdit = new QLineEdit();
+  theLineEditLabel = new QLabel();
+  theLineEditLabel->setText(inputObject["name"].toString());
 
-    bool outputToJSON(QJsonObject &rvObject) override;
-    bool inputFromJSON(QJsonObject &rvObject) override;
-    bool outputAppDataToJSON(QJsonObject &rvObject) override;
-    bool inputAppDataFromJSON(QJsonObject &rvObject) override;
-    bool copyFiles(QString &dirName) override;
+  QHBoxLayout * layout = new QHBoxLayout();
+  layout->addWidget(theLineEditLabel);
+  layout->addWidget(theLineEdit);
 
-    QString getMainInput();
+  this->setLayout(layout);
+}
 
-     // copy main file to new filename ONLY if varNamesAndValues not empy
-    void specialCopyMainInput(QString fileName, QStringList varNamesAndValues);
-    void setFilename1(QString filnema1);
+bool SimCenterLineEdit::inputFromJSON(QJsonObject& jsonObject) {
+  bool result = true;
 
-signals:
+  theLineEditLabel->setText(jsonObject["name"].toString());
+  theLineEdit->setText(jsonObject["value"].toString());
 
-public slots:
-   void clear(void);
-   void chooseFileName1(void);
+  return result;
+}
 
-private:
+bool SimCenterLineEdit::outputToJSON(QJsonObject& jsonObject) {
 
-    QGridLayout *layout;
+  jsonObject.insert("name", theLineEditLabel->text());
+  jsonObject.insert("type", "RVLineEdit");
+  jsonObject.insert("value", theLineEdit->text());
 
-    QString fileName1;
-    QLineEdit *file1;
-    QLineEdit *centroidNodes;
-    QLineEdit *responseNodes;
-    QLineEdit *ndm;
-    QLineEdit *ndf;
-    bool includeCentroid;
-    RandomVariablesContainer *theRandomVariablesContainer;
-    QStringList varNamesAndValues;
-};
-
-#endif // OPENSEES_BUILDING_MODEL_H
+  return true;
+}

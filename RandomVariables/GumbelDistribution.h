@@ -63,7 +63,7 @@ public slots:
 
 private:
     QLineEdit *mean, *standardDev;
-    QLineEdit *an, *bn;
+    QLineEdit *alpha, *bn;
     QLineEdit *dataDir;
     QString inpty ;
     SimCenterGraphPlot *thePlot;

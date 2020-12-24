@@ -1,6 +1,3 @@
-#ifndef OPENSEES_BUILDING_MODEL_H
-#define OPENSEES_BUILDING_MODEL_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -39,56 +36,74 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterAppWidget.h>
+#include "NoArgSimCenterApp.h"
+#include <RandomVariablesContainer.h>
 
-#include <QGroupBox>
-#include <QVector>
-#include <QGridLayout>
-#include <QComboBox>
+//#include <InputWidgetParameters.h>
 
-class InputWidgetParameters;
-class RandomVariablesContainer;
-
-class OpenSeesBuildingModel : public SimCenterAppWidget
+NoArgSimCenterApp::NoArgSimCenterApp(QString name, QWidget *parent)
+  :SimCenterAppWidget(parent), appName(name)
 {
-    Q_OBJECT
-public:
-    explicit OpenSeesBuildingModel(RandomVariablesContainer *theRandomVariableIW, 
-				   bool includeCentroid = false,
-				   QWidget *parent = 0);
-    ~OpenSeesBuildingModel();
 
-    bool outputToJSON(QJsonObject &rvObject) override;
-    bool inputFromJSON(QJsonObject &rvObject) override;
-    bool outputAppDataToJSON(QJsonObject &rvObject) override;
-    bool inputAppDataFromJSON(QJsonObject &rvObject) override;
-    bool copyFiles(QString &dirName) override;
+}
 
-    QString getMainInput();
+NoArgSimCenterApp::~NoArgSimCenterApp()
+{
 
-     // copy main file to new filename ONLY if varNamesAndValues not empy
-    void specialCopyMainInput(QString fileName, QStringList varNamesAndValues);
-    void setFilename1(QString filnema1);
+}
 
-signals:
 
-public slots:
-   void clear(void);
-   void chooseFileName1(void);
+void
+NoArgSimCenterApp::clear(void)
+{
 
-private:
+}
 
-    QGridLayout *layout;
 
-    QString fileName1;
-    QLineEdit *file1;
-    QLineEdit *centroidNodes;
-    QLineEdit *responseNodes;
-    QLineEdit *ndm;
-    QLineEdit *ndf;
-    bool includeCentroid;
-    RandomVariablesContainer *theRandomVariablesContainer;
-    QStringList varNamesAndValues;
-};
 
-#endif // OPENSEES_BUILDING_MODEL_H
+bool
+NoArgSimCenterApp::outputToJSON(QJsonObject &jsonObject)
+{
+    // just need to send the class type here.. type needed in object in case user screws up
+    jsonObject["type"]= appName;
+
+    return true;
+}
+
+
+bool
+NoArgSimCenterApp::inputFromJSON(QJsonObject &jsonObject)
+{
+    Q_UNUSED(jsonObject);
+
+    return true;
+}
+
+
+bool
+NoArgSimCenterApp::outputAppDataToJSON(QJsonObject &jsonObject) {
+
+    //
+    // per API, need to add name of application to be called in AppLication
+    // and all data to be used in ApplicationDate
+    //
+
+    jsonObject["Application"] = appName;
+    QJsonObject dataObj;
+    jsonObject["ApplicationData"] = dataObj;
+
+    return true;
+}
+bool
+NoArgSimCenterApp::inputAppDataFromJSON(QJsonObject &jsonObject) {
+    Q_UNUSED(jsonObject);
+    return true;
+}
+
+
+bool
+NoArgSimCenterApp::copyFiles(QString &dirName) {
+    Q_UNUSED(dirName);
+    return true;
+}
+
