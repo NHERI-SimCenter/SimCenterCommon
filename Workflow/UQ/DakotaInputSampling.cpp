@@ -223,6 +223,7 @@ DakotaInputSampling::inputFromJSON(QJsonObject &jsonObject)
 bool
 DakotaInputSampling::outputAppDataToJSON(QJsonObject &jsonObject)
 {
+    qDebug() << ":HI DakotaINputSampling";
     bool result = true;
 
     jsonObject["Application"] = "Dakota-UQ";

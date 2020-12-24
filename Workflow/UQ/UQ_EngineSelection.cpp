@@ -197,7 +197,6 @@ UQ_EngineSelection::enginesEngineSelectionChanged(void){
 bool
 UQ_EngineSelection::outputAppDataToJSON(QJsonObject &jsonObject)
 {
-
     QJsonObject appsUQ;
     theCurrentEngine->outputAppDataToJSON(appsUQ);
     jsonObject["UQ"]=appsUQ;

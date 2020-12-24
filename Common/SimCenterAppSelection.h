@@ -65,6 +65,9 @@ public:
 
 public slots:
    void selectionChangedSlot(const QString &);
+   void setCurrentlyViewable(bool); 
+  
+  
   
 private:
   virtual bool displayComponent(QString text);
@@ -79,6 +82,8 @@ private:
   QList<QString> theApplicationNames;  
   QList<SimCenterAppWidget *> theComponents;
   QString selectionApplicationType; // application type that appears in json
+
+  bool viewableStatus;
 };
 
 #endif // SimCenterAppSelection_H

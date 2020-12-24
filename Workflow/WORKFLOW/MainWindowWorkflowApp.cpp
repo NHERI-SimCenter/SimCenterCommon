@@ -462,6 +462,8 @@ void MainWindowWorkflowApp::loadFile(const QString &fileName)
     QFileInfo fileInfo(fileName);
     SCUtils::ResolveAbsolutePaths(jsonObj, fileInfo.dir());
 
+    //qDebug() << jsonObj;
+
     // close file
     file.close();
 
@@ -469,6 +471,7 @@ void MainWindowWorkflowApp::loadFile(const QString &fileName)
     if ( ! (currentFile.isNull() || currentFile.isEmpty()) ) {
         inputWidget->clear();
     }
+
     inputWidget->inputFromJSON(jsonObj);
 
     setCurrentFile(fileName);

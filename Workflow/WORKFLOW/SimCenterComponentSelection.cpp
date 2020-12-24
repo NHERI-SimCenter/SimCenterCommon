@@ -46,6 +46,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QModelIndex>
 #include <QStackedWidget>
 #include <QDebug>
+#include <SimCenterAppWidget.h>
 
 SimCenterComponentSelection::SimCenterComponentSelection(QWidget *parent)
     :QWidget(parent)
@@ -95,7 +96,6 @@ SimCenterComponentSelection::SimCenterComponentSelection(QWidget *parent)
 
 SimCenterComponentSelection::~SimCenterComponentSelection()
 {
- qDebug() << "SimCenterComponentSelection::DESCTRUCTOR";
  QLayout *layout = this->layout();
  layout->removeWidget(theStackedWidget);
  theStackedWidget->setParent(NULL);
@@ -128,7 +128,6 @@ SimCenterComponentSelection::selectionChangedSlot(const QItemSelection &, const 
     //
 
     const QModelIndex index = treeView->selectionModel()->currentIndex();
-
     QString selectedText = index.data(Qt::DisplayRole).toString();
 
     //
@@ -141,8 +140,25 @@ SimCenterComponentSelection::selectionChangedSlot(const QItemSelection &, const 
     // get stacked widget to display current if of course it exists
     //
 
-    if (stackIndex != -1)
+    if (stackIndex != -1) {
+
+        QWidget *theCurrentWidget = theStackedWidget->currentWidget();
+        if (theCurrentWidget != 0) {
+            SimCenterAppWidget *simCenterWidget = dynamic_cast<SimCenterAppWidget*>(theCurrentWidget);
+            if (simCenterWidget)
+                simCenterWidget->setCurrentlyViewable(false);
+        }
+
         theStackedWidget->setCurrentIndex(stackIndex);
+
+        theCurrentWidget = theStackedWidget->currentWidget();
+        if (theCurrentWidget != 0) {
+            SimCenterAppWidget *simCenterWidget = dynamic_cast<SimCenterAppWidget*>(theCurrentWidget);
+            if (simCenterWidget)
+                simCenterWidget->setCurrentlyViewable(true);
+        }
+
+    }
 }
 
 QWidget *
@@ -182,7 +198,6 @@ SimCenterComponentSelection::displayComponent(QString text)
 
         QModelIndex index1 = modelIndices.at(index);
         treeView->setCurrentIndex(index1);
-        // theStackedWidget->setCurrentIndex(index);
         return true;
     }
 
