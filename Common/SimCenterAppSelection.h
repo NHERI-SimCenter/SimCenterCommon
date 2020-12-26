@@ -67,7 +67,8 @@ public slots:
    void selectionChangedSlot(const QString &);
    void setCurrentlyViewable(bool); 
   
-  
+protected:
+  SimCenterAppWidget *getCurrentSelection(void); 
   
 private:
   virtual bool displayComponent(QString text);
