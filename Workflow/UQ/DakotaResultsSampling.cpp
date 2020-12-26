@@ -455,7 +455,7 @@ DakotaResultsSampling::onSaveSpreadsheetClicked()
         {
             stream <<theHeadings.at(j)<<",\t";
         }
-        stream <<endl;
+        stream <<Qt::endl;
         for (int i=0; i<rowCount; i++)
         {
             for (int j=0; j<columnCount; j++)
@@ -464,7 +464,7 @@ DakotaResultsSampling::onSaveSpreadsheetClicked()
                 double value = item_value->text().toDouble();
                 stream << value << ",\t";
             }
-            stream<<endl;
+            stream<<Qt::endl;
         }
     }
 }
@@ -668,7 +668,7 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
                 {
 
                     stream<<dataValues[i];
-                    stream<< endl;
+                    stream<< Qt::endl;
                 }
             }else {qDebug()<<"\n error in opening file data file for histogram fit  ";exit(1);}
 
