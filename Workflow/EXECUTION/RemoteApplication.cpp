@@ -243,7 +243,7 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
     QSettings settings("SimCenter", "Common"); //These names will need to be constants to be shared
     QVariant  pythonLocationVariant = settings.value("pythonExePath");
     if (pythonLocationVariant.isValid()) {
-      python = pythonLocationVariant.toString();
+     python = pythonLocationVariant.toString();
     }
     proc->execute(python,args);
 
