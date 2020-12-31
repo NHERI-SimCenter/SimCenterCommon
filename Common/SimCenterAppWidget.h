@@ -94,7 +94,13 @@ public:
 signals:
 
 public slots:
-
+    /**
+     *   @brief setCurrentlyViewable method invoked to inform Widget viewable state changed
+     *   @param state true or false
+     *   @return bool - true for success, otherwise false
+     */
+  virtual void setCurrentlyViewable(bool) {}; // does nothing
+  
 private:
 
 };

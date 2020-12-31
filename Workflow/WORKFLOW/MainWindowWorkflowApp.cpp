@@ -433,6 +433,18 @@ bool MainWindowWorkflowApp::saveFile(const QString &fileName)
 
 void MainWindowWorkflowApp::loadFile(const QString &fileName)
 {
+
+    // check file exists & set apps current dir of it does
+    QFileInfo fileInfo(fileName);
+    if (!fileInfo.exists()){
+        emit errorMessage(QString("File foes not exist: ") + fileName);
+        return;
+    }
+
+    QString dirPath = fileInfo.absoluteDir().absolutePath();
+    QDir::setCurrent(dirPath);
+    qDebug() << "MainWindowWorkflowApp: setting current dir" << dirPath;
+
     //
     // open file
     //
@@ -460,8 +472,10 @@ void MainWindowWorkflowApp::loadFile(const QString &fileName)
     QJsonObject jsonObj = doc.object();
 
     //
-    QFileInfo fileInfo(fileName);
+    //QFileInfo fileInfo(fileName);
     SCUtils::ResolveAbsolutePaths(jsonObj, fileInfo.dir());
+
+    //qDebug() << jsonObj;
 
     // close file
     file.close();
@@ -470,6 +484,7 @@ void MainWindowWorkflowApp::loadFile(const QString &fileName)
     if ( ! (currentFile.isNull() || currentFile.isEmpty()) ) {
         inputWidget->clear();
     }
+
     inputWidget->inputFromJSON(jsonObj);
 
     setCurrentFile(fileName);
@@ -767,7 +782,7 @@ void
 MainWindowWorkflowApp::setAbout(QString &newText)
 {
   aboutText = newText +QString("<p> This work is based on material supported by the National Science Foundation under grant 1612843<p>");
-  qDebug() << "ABOUT: " << aboutText;
+  //qDebug() << "ABOUT: " << aboutText;
 }
 
 void

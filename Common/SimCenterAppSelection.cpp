@@ -64,7 +64,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 SimCenterAppSelection::SimCenterAppSelection(QString label, QString appName, QWidget *parent)
-    :SimCenterAppWidget(parent), currentIndex(-1), theCurrentSelection(NULL), selectionApplicationType(appName)
+    :SimCenterAppWidget(parent), currentIndex(-1), theCurrentSelection(NULL), selectionApplicationType(appName), viewableStatus(false)
 {
   QVBoxLayout *layout = new QVBoxLayout;
   QHBoxLayout *topLayout = new QHBoxLayout;
@@ -99,19 +99,31 @@ SimCenterAppSelection::~SimCenterAppSelection()
 
 bool SimCenterAppSelection::outputToJSON(QJsonObject &jsonObject)
 { 
+    QJsonObject data;
     if (theCurrentSelection != NULL)
-        return theCurrentSelection->outputToJSON(jsonObject);
-    else
-        return false;
+        if (theCurrentSelection->outputToJSON(data) == false) {
+            return false;
+        } else {
+            jsonObject[selectionApplicationType] = data;
+            return true;
+        }
+    return false;
 }
 
 
 bool SimCenterAppSelection::inputFromJSON(QJsonObject &jsonObject)
 {
-    if (theCurrentSelection != NULL)
-        return theCurrentSelection->inputFromJSON(jsonObject);
-    else
-        return false;
+    if (jsonObject.contains(selectionApplicationType)) {
+
+        QJsonObject theApplicationObject = jsonObject[selectionApplicationType].toObject();
+
+        if (theCurrentSelection != NULL)
+            return theCurrentSelection->inputFromJSON(theApplicationObject);
+        else
+            return false;
+    }
+
+    return false;
 }
 
 
@@ -119,9 +131,9 @@ bool SimCenterAppSelection::outputAppDataToJSON(QJsonObject &jsonObject)
 {
     QJsonObject data;
     if (theCurrentSelection != NULL)
-        if (theCurrentSelection->outputAppDataToJSON(data) == false)
+        if (theCurrentSelection->outputAppDataToJSON(data) == false) {
             return false;
-        else {
+        } else {
             jsonObject[selectionApplicationType] = data;
             return true;
         }
@@ -132,12 +144,16 @@ bool SimCenterAppSelection::outputAppDataToJSON(QJsonObject &jsonObject)
 
 bool SimCenterAppSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
 {
+    // qDebug() << __PRETTY_FUNCTION__<< " " << selectionApplicationType;
+
     if (jsonObject.contains(selectionApplicationType)) {
 
         QJsonObject theApplicationObject = jsonObject[selectionApplicationType].toObject();
         if (theApplicationObject.contains("Application")) {
             QJsonValue theName = theApplicationObject["Application"];
             QString appName = theName.toString();
+
+             //qDebug() << __PRETTY_FUNCTION__<< " " << selectionApplicationType << " " << appName;
 
             int index = theApplicationNames.indexOf(appName);
 
@@ -238,13 +254,29 @@ SimCenterAppSelection::selectionChangedSlot(const QString &selectedText)
     // get stacked widget to display current if of course it exists
     //
 
+    // qDebug() << this->objectName() << " slotChanged() " << viewableStatus;
+
     int index = theComboNames.indexOf(selectedText);
 
     if (index != -1 && index != currentIndex) {
         theStackedWidget->setCurrentIndex(index);
         currentIndex = index;
+        if (theCurrentSelection != 0)
+            theCurrentSelection->setCurrentlyViewable(false);
         theCurrentSelection = theComponents.at(index);
+        theCurrentSelection->setCurrentlyViewable(viewableStatus);
         theStackedWidget->setCurrentIndex(index);
     }
 }
 
+void
+SimCenterAppSelection::setCurrentlyViewable(bool status) {
+    viewableStatus = status;
+    theCurrentSelection->setCurrentlyViewable(viewableStatus);
+    // qDebug() << this->objectName() << " setViewable " << viewableStatus;
+}
+
+SimCenterAppWidget *
+SimCenterAppSelection::getCurrentSelection(void) {
+  return theCurrentSelection;
+}
