@@ -383,7 +383,7 @@ bool SteelBuildingModel::inputFromJSON(QJsonObject &jsonObject)
     }
     else
     {
-        qDebug() << "No pathDataFolder key in json object in "<<__PRETTY_FUNCTION__;
+        qDebug() << "No pathDataFolder key in json object in "<<__FUNCSIG__;
         return false;
     }
 
@@ -877,7 +877,7 @@ int SteelBuildingModel::parseELFDataFile(const QString& pathToFile)
 
     if(csvData.size() != 2)
     {
-        qDebug()<<"Error in parsing the file "<<fileName<<" in "<<__PRETTY_FUNCTION__<<". The number of rows should be 2";
+        qDebug()<<"Error in parsing the file "<<fileName<<" in "<<__FUNCSIG__<<". The number of rows should be 2";
         return -1;
     }
 
@@ -885,7 +885,7 @@ int SteelBuildingModel::parseELFDataFile(const QString& pathToFile)
 
     if(parameterStr.size()!= 10)
     {
-        qDebug()<<"Error in parsing the file "<<fileName<<" in "<<__PRETTY_FUNCTION__<<". The number of parameters should be 10";
+        qDebug()<<"Error in parsing the file "<<fileName<<" in "<<__FUNCSIG__<<". The number of parameters should be 10";
         return -1;
     }
 
@@ -928,7 +928,7 @@ int SteelBuildingModel::parseGeometryDataFile(const QString& pathToFile)
 
     if(csvData.size() != 2)
     {
-        qDebug()<<"Error in parsing the file "<<fileName<<" in "<<__PRETTY_FUNCTION__<<". The number of rows should be 2";
+        qDebug()<<"Error in parsing the file "<<fileName<<" in "<<__FUNCSIG__<<". The number of rows should be 2";
         return -1;
     }
 
@@ -936,7 +936,7 @@ int SteelBuildingModel::parseGeometryDataFile(const QString& pathToFile)
 
     if(parameterStr.size()!= 9)
     {
-        qDebug()<<"Error in parsing the file "<<fileName<<" in "<<__PRETTY_FUNCTION__<<". The number of parameters should be 10";
+        qDebug()<<"Error in parsing the file "<<fileName<<" in "<<__FUNCSIG__<<". The number of parameters should be 10";
         return -1;
     }
 
@@ -977,7 +977,7 @@ int SteelBuildingModel::parseLoadsDataFile(const QString& pathToFile)
 
     if(csvData.size() <= 2)
     {
-        qDebug()<<"Error in parsing the file "<<fileName<<" in "<<__PRETTY_FUNCTION__<<". The number of rows should be 2";
+        qDebug()<<"Error in parsing the file "<<fileName<<" in "<<__FUNCSIG__<<". The number of rows should be 2";
         return -1;
     }
 
@@ -1001,7 +1001,7 @@ int SteelBuildingModel::parseMemberDepthDataFile(const QString& pathToFile)
 
     if(csvData.size() <= 2)
     {
-        qDebug()<<"Error in parsing the file "<<fileName<<" in "<<__PRETTY_FUNCTION__<<". The number of rows should be 2";
+        qDebug()<<"Error in parsing the file "<<fileName<<" in "<<__FUNCSIG__<<". The number of rows should be 2";
         return -1;
     }
 
@@ -1198,7 +1198,7 @@ QVector<QStringList> SteelBuildingModel::parseCSVFile(const QString &pathToFile)
     auto numRows = rowLines.size();
     if(numRows == 0)
     {
-        qDebug()<<"Error in parsing the .csv file "<<pathToFile<<" in "<<__PRETTY_FUNCTION__;
+        qDebug()<<"Error in parsing the .csv file "<<pathToFile<<" in "<<__FUNCSIG__;
         return returnVec;
     }
 
@@ -1298,7 +1298,7 @@ void SteelBuildingModel::updateLoadingSpreadSheet(const QVector<QStringList>& da
 {
     if(data.empty())
     {
-        qDebug()<<"Error in "<<__PRETTY_FUNCTION__<<". Empty data vector";
+        qDebug()<<"Error in "<<__FUNCSIG__<<". Empty data vector";
         return;
     }
 
@@ -1317,7 +1317,7 @@ void SteelBuildingModel::updateLoadingSpreadSheet(const QVector<QStringList>& da
 
         if(tableRow.size() != 7)
         {
-            qDebug()<<"Error in "<<__PRETTY_FUNCTION__<<". The number of parameters per row should be 7";
+            qDebug()<<"Error in "<<__FUNCSIG__<<". The number of parameters per row should be 7";
             return;
         }
 
@@ -1366,7 +1366,7 @@ void SteelBuildingModel::updateMemberDepthSpreadSheet(const QVector<QStringList>
 
     if(data.empty())
     {
-        qDebug()<<"Error in "<<__PRETTY_FUNCTION__<<". Empty data vector";
+        qDebug()<<"Error in "<<__FUNCSIG__<<". Empty data vector";
         return;
     }
 
@@ -1385,7 +1385,7 @@ void SteelBuildingModel::updateMemberDepthSpreadSheet(const QVector<QStringList>
 
         if(tableRow.size() != 3)
         {
-            qDebug()<<"Error in "<<__PRETTY_FUNCTION__<<". The number of parameters per row should be 7";
+            qDebug()<<"Error in "<<__FUNCSIG__<<". The number of parameters per row should be 7";
             return;
         }
 
