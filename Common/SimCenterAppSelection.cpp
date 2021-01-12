@@ -153,7 +153,7 @@ bool SimCenterAppSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
             QJsonValue theName = theApplicationObject["Application"];
             QString appName = theName.toString();
 
-             //qDebug() << __PRETTY_FUNCTION__<< " " << selectionApplicationType << " " << appName;
+            // qDebug() << __PRETTY_FUNCTION__<< " " << selectionApplicationType << " " << appName;
 
             int index = theApplicationNames.indexOf(appName);
 
@@ -266,6 +266,7 @@ SimCenterAppSelection::selectionChangedSlot(const QString &selectedText)
         theCurrentSelection = theComponents.at(index);
         theCurrentSelection->setCurrentlyViewable(viewableStatus);
         theStackedWidget->setCurrentIndex(index);
+        emit selectionChangedSignal(selectedText);
     }
 }
 
