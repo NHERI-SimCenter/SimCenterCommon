@@ -80,6 +80,10 @@ SimCenterAppEventSelection::SimCenterAppEventSelection(QString label, QString ap
   topLayout->addWidget(theSelectionCombo, 1);
   topLayout->addStretch(1);
   
+#ifdef _WIN32
+  theSelectionCombo->setMaximumHeight(25);
+#endif
+
   theStackedWidget = new QStackedWidget();
   
   layout->addLayout(topLayout);

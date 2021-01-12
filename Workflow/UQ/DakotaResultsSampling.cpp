@@ -455,7 +455,7 @@ DakotaResultsSampling::onSaveSpreadsheetClicked()
         {
             stream <<theHeadings.at(j)<<",\t";
         }
-        stream <<Qt::endl;
+        stream << endl;
         for (int i=0; i<rowCount; i++)
         {
             for (int j=0; j<columnCount; j++)
@@ -464,7 +464,7 @@ DakotaResultsSampling::onSaveSpreadsheetClicked()
                 double value = item_value->text().toDouble();
                 stream << value << ",\t";
             }
-            stream<<Qt::endl;
+            stream<< endl;
         }
     }
 }
