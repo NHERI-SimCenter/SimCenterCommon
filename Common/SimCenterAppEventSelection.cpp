@@ -75,7 +75,7 @@ SimCenterAppEventSelection::SimCenterAppEventSelection(QString label, QString ap
   selectionText->setText(label);
   
   theSelectionCombo = new QComboBox();
-  theSelectionCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+  theSelectionCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
   topLayout->addWidget(selectionText);
   topLayout->addWidget(theSelectionCombo, 1);
   topLayout->addStretch(1);

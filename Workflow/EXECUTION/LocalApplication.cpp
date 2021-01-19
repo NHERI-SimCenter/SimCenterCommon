@@ -316,7 +316,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     QString appName = QCoreApplication::applicationName();
     QString command;
 
-    if (appName == "RDT"){
+    if (appName == "R2D"){
 
         /*
         command = sourceBash + exportPath + "; \"" + python + QString("\" \"" ) + pySCRIPT + QString("\" " )
