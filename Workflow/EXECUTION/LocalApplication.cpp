@@ -233,7 +233,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
     qDebug() << "PATH: " << pathEnv;
     qDebug() << "PYTHON_PATH" << pythonPathEnv;
-    QString appName = QCoreApplication::applicationName();
+   // QString appName = QCoreApplication::applicationName();
 
     QStringList args;
     QString inputDir = tmpDirectory + QDir::separator() + "input_data";
