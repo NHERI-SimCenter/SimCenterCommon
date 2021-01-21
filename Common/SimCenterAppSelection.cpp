@@ -35,7 +35,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written by: fmk
-// Latest revision: 10.08.2020
 
 #include "SimCenterAppSelection.h"
 #include "sectiontitle.h"
@@ -199,6 +198,14 @@ bool SimCenterAppSelection::copyFiles(QString &destDir)
         return theCurrentSelection->copyFiles(destDir);
     else
         return false;
+}
+
+
+void SimCenterAppSelection::clear(void)
+{
+    foreach (auto&& comp, theComponents) {
+        comp->clear();
+    }
 }
 
 

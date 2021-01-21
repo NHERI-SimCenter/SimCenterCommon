@@ -77,46 +77,62 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
     QGridLayout *layout = new QGridLayout();
     QLabel *nameLabel = new QLabel();
 
+    int numRow = 0;
+
     nameLabel->setText(QString("job Name:"));
-    layout->addWidget(nameLabel, 0,0);
+    layout->addWidget(nameLabel, numRow,0);
 
     nameLineEdit = new QLineEdit();
     nameLineEdit->setToolTip(tr("A meaningful name to provide for you to remember run later (days and weeks from now)"));
-    layout->addWidget(nameLineEdit,0,1);
+    layout->addWidget(nameLineEdit,numRow,1);
 
+    numRow++;
     QLabel *numCPU_Label = new QLabel();
     numCPU_Label->setText(QString("Num Nodes:"));
 
-    layout->addWidget(numCPU_Label,1,0);
+    layout->addWidget(numCPU_Label,numRow,0);
 
     numCPU_LineEdit = new QLineEdit();
     numCPU_LineEdit->setText("1");
     numCPU_LineEdit->setToolTip(tr("Total # of nodes to use (each node has many cores)"));
-    layout->addWidget(numCPU_LineEdit,1,1);
+    layout->addWidget(numCPU_LineEdit,numRow,1);
 
+    numRow++;
     QLabel *numProcessorsLabel = new QLabel();
     numProcessorsLabel->setText(QString("# Processes Per Node:"));
 
-    layout->addWidget(numProcessorsLabel,2,0);
+    layout->addWidget(numProcessorsLabel,numRow,0);
 
     numProcessorsLineEdit = new QLineEdit();
     numProcessorsLineEdit->setText("32");
         numProcessorsLineEdit->setToolTip(tr("Total # of Processes to Start"));
-    layout->addWidget(numProcessorsLineEdit,2,1);
+    layout->addWidget(numProcessorsLineEdit,numRow,1);
 
+
+    QString appName = QCoreApplication::applicationName();
+    if (appName == "R2D"){
+        numRow++;
+        layout->addWidget(new QLabel("#Buildings Per Taask:"), numRow, 0);
+        buildingsPerTask=new QLineEdit("10");
+        buildingsPerTask->setToolTip("Number of buildings per task when runnig in parallel");
+        layout->addWidget(buildingsPerTask, numRow, 1);
+    }
+
+    numRow++;
     QLabel *runtimeLabel = new QLabel();
     runtimeLabel->setText(QString("Max Run Time:"));
-    layout->addWidget(runtimeLabel,3,0);
+    layout->addWidget(runtimeLabel,numRow,0);
 
     runtimeLineEdit = new QLineEdit();
     runtimeLineEdit->setText("00:20:00");
     runtimeLineEdit->setToolTip(tr("Run time Limit on running Job hours:Min:Sec. Job will be stopped if while running it exceeds this"));
-    layout->addWidget(runtimeLineEdit,3,1);
+    layout->addWidget(runtimeLineEdit,numRow,1);
 
+    numRow++;
     pushButton = new QPushButton();
     pushButton->setText("Submit");
     pushButton->setToolTip(tr("Press to launch job on remote machine. After pressing, window closes when Job Starts"));
-    layout->addWidget(pushButton,4,1);
+    layout->addWidget(pushButton,numRow,1);
 
     this->setLayout(layout);
 
@@ -141,13 +157,18 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
 bool
 RemoteApplication::outputToJSON(QJsonObject &jsonObject)
 {
-  jsonObject["localAppDir"]=SimCenterPreferences::getInstance()->getAppDir();
-  jsonObject["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();
-  jsonObject["remoteAppWorkingDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();
-  jsonObject["workingDir"]=SimCenterPreferences::getInstance()->getRemoteWorkDir();
-  jsonObject["runType"]=QString("runningRemote");
+    QString appName = QCoreApplication::applicationName();
 
-  return true;
+    if (appName != "R2D"){
+        jsonObject["localAppDir"]=SimCenterPreferences::getInstance()->getAppDir();
+        jsonObject["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();
+        jsonObject["remoteAppWorkingDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();
+        jsonObject["workingDir"]=SimCenterPreferences::getInstance()->getRemoteWorkDir();
+    }
+
+    jsonObject["runType"]=QString("runningRemote");
+
+    return true;
 }
 
 bool
@@ -192,94 +213,112 @@ RemoteApplication::onRunButtonPressed(void)
 
 bool
 RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile) {
+
     //Q_UNUSED(runType);
      //    QString appDir = localAppDirName->text();
     QString runType("runningRemote");
 
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
-    qDebug() << "REMOTEAPP: setupDone " << tmpDirectory << " " << inputFile << " " << appDir;
     QString pySCRIPT;
 
-    QDir scriptDir(appDir);
-    scriptDir.cd("applications");
-    scriptDir.cd("Workflow");
-    pySCRIPT = scriptDir.absoluteFilePath(workflowScriptName);
-    QFileInfo check_script(pySCRIPT);
-    // check if file exists and if yes: Is it really a file and no directory?
-    if (!check_script.exists() || !check_script.isFile()) {
-        qDebug() << "NO SCRIPT FILE: " << pySCRIPT;
-        return false;
-    }
+    QString appName = QCoreApplication::applicationName();
+    if (appName != "R2D"){
 
-    QString registryFile = scriptDir.absoluteFilePath("WorkflowApplications.json");
-    QFileInfo check_registry(registryFile);
-    if (!check_registry.exists() || !check_registry.isFile()) {
-         qDebug() << "NO REGISTRY FILE: " << registryFile;
-        return false;
-    }
+        QDir scriptDir(appDir);
+        scriptDir.cd("applications");
+        scriptDir.cd("Workflow");
+        pySCRIPT = scriptDir.absoluteFilePath(workflowScriptName);
+        QFileInfo check_script(pySCRIPT);
+        // check if file exists and if yes: Is it really a file and no directory?
+        if (!check_script.exists() || !check_script.isFile()) {
+            qDebug() << "NO SCRIPT FILE: " << pySCRIPT;
+            return false;
+        }
 
-    qDebug() << "SCRIPT: " << pySCRIPT;
-    qDebug() << "REGISTRY: " << registryFile;
+        QString registryFile = scriptDir.absoluteFilePath("WorkflowApplications.json");
+        QFileInfo check_registry(registryFile);
+        if (!check_registry.exists() || !check_registry.isFile()) {
+            qDebug() << "NO REGISTRY FILE: " << registryFile;
+            return false;
+        }
 
-    QStringList files;
-    files << "dakota.in" << "dakota.out" << "dakotaTab.out" << "dakota.err";
+        qDebug() << "SCRIPT: " << pySCRIPT;
+        qDebug() << "REGISTRY: " << registryFile;
 
-    /************************************************************************
-    for (int i = 0; i < files.size(); i++) {
-       QString copy = files.at(i);
-       QFile file(destinationDir + copy);
-       file.remove();
-     }
-     ***********************************************************************/
+        QStringList files;
+        files << "dakota.in" << "dakota.out" << "dakotaTab.out" << "dakota.err";
 
-    //
-    // now get inputs ready
-    //
+        /************************************************************************
+        for (int i = 0; i < files.size(); i++) {
+           QString copy = files.at(i);
+           QFile file(destinationDir + copy);
+           file.remove();
+        }
+        ***********************************************************************/
 
-    QProcess *proc = new QProcess();
-    QStringList args{pySCRIPT, runType, inputFile, registryFile};
-    //    proc->execute("python",args);
-    QString python;
-    QSettings settings("SimCenter", "Common"); //These names will need to be constants to be shared
-    QVariant  pythonLocationVariant = settings.value("pythonExePath");
-    if (pythonLocationVariant.isValid()) {
-     python = pythonLocationVariant.toString();
-    }
-    proc->execute(python,args);
+        //
+        // now get inputs ready
+        //
 
-    proc->waitForStarted();
+        QProcess *proc = new QProcess();
+        QStringList args{pySCRIPT, runType, inputFile, registryFile};
+        //    proc->execute("python",args);
+        QString python;
+        QSettings settings("SimCenter", "Common"); //These names will need to be constants to be shared
+        QVariant  pythonLocationVariant = settings.value("pythonExePath");
+        if (pythonLocationVariant.isValid()) {
+            python = pythonLocationVariant.toString();
+        }
+        proc->execute(python,args);
 
-    //
-    // in tmpDirectory we will zip up current template dir and then remove before sending (doone to reduce number of sends)
-    //
+        proc->waitForStarted();
 
-    QDir templateDir(tmpDirectory);
-    templateDir.cd("templatedir");
-    QString templateDIR = templateDir.absolutePath();
+        //
+        // in tmpDirectory we will zip up current template dir and then remove before sending (doone to reduce number of sends)
+        //
+
+        QDir templateDir(tmpDirectory);
+        templateDir.cd("templatedir");
+        QString templateDIR = templateDir.absolutePath();
 
 #ifdef Q_OS_WIN
-    templateDir.rename("workflow_driver.bat","workflow_driver");
+        templateDir.rename("workflow_driver.bat","workflow_driver");
 #endif
 
-    QFileInfo check_workflow(templateDir.absoluteFilePath("workflow_driver"));
-    if (!check_workflow.exists() || !check_workflow.isFile()) {
-        emit sendErrorMessage(("Local Failure Setting up Dakota"));
-        qDebug() << "Local Failure Setting Up Dakota ";
-        return false;
+        QFileInfo check_workflow(templateDir.absoluteFilePath("workflow_driver"));
+        if (!check_workflow.exists() || !check_workflow.isFile()) {
+            emit sendErrorMessage(("Local Failure Setting up Dakota"));
+            qDebug() << "Local Failure Setting Up Dakota ";
+            return false;
+        }
+        templateDir.cdUp();
+
+        QString zipFile(templateDir.absoluteFilePath("templatedir.zip"));
+        qDebug() << "ZIP FILE: " << zipFile;
+        qDebug() << "DIR TO ZIP: " << templateDIR;
+        QDir tmpDir(templateDIR);
+
+        ZipUtils::ZipFolder(tmpDir, zipFile);
+        //ZipUtils::ZipFolder(QDir(templateDIR), zipFile);
+
+        QDir dirToRemove(templateDIR);
+        templateDir.cd("templatedir");
+        templateDir.removeRecursively();
+
+    } else {
+
+        // zip up data_dir
+        QDir tmpDir(tmpDirectory);
+        if (tmpDir.exists("input_data")) {
+            QString zipFile = tmpDir.absoluteFilePath("input_data.zip");
+            QDir inputDataDir(tmpDir.absoluteFilePath("input_data"));
+            ZipUtils::ZipFolder(inputDataDir, zipFile);
+            inputDataDir.removeRecursively();
+        } else {
+            qDebug() << "Remote App : no inpout_data dir";
+        }
     }
-    templateDir.cdUp();
 
-    QString zipFile(templateDir.absoluteFilePath("templatedir.zip"));
-    qDebug() << "ZIP FILE: " << zipFile;
-    qDebug() << "DIR TO ZIP: " << templateDIR;
-    QDir tmpDir(templateDIR);
-
-    ZipUtils::ZipFolder(tmpDir, zipFile);
-    //ZipUtils::ZipFolder(QDir(templateDIR), zipFile);
-
-    QDir dirToRemove(templateDIR);
-    templateDir.cd("templatedir");
-    templateDir.removeRecursively();
 
     //
     // now upload files to remote local
@@ -340,32 +379,66 @@ RemoteApplication::uploadDirReturn(bool result)
       job["archivePath"]="";
       job["archiveSystem"]="designsafe.storage.default";
       
-      QJsonObject parameters;
-      parameters["inputFile"]="dakota.in";
-      parameters["outputFile"]="dakota.out";
-      parameters["errorFile"]="dakota.err";
-      parameters["driverFile"]="workflow_driver";
-      parameters["modules"]="petsc,python3";
-      for (auto parameterName : extraParameters.keys())
-      {
-          parameters[parameterName] = extraParameters[parameterName];
+
+      QString appName = QCoreApplication::applicationName();
+      if (appName != "R2D"){
+
+          QJsonObject parameters;
+          parameters["inputFile"]="dakota.in";
+          parameters["outputFile"]="dakota.out";
+          parameters["errorFile"]="dakota.err";
+          parameters["driverFile"]="workflow_driver";
+          parameters["modules"]="petsc,python3";
+          for (auto parameterName : extraParameters.keys())
+          {
+              parameters[parameterName] = extraParameters[parameterName];
+          }
+          job["parameters"]=parameters;
+
+          QDir theDirectory(tempDirectory);
+          QString dirName = theDirectory.dirName();
+
+          QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
+
+          QJsonObject inputs;
+          inputs["inputDirectory"]=remoteDirectory;
+          for (auto inputName : extraInputs.keys())
+          {
+              inputs[inputName] = extraInputs[inputName];
+          }
+          job["inputs"]=inputs;
+
+          // now remove the tmp directory
+          theDirectory.removeRecursively();
+
+      } else {
+
+          QDir theDirectory(tempDirectory);
+          QString dirName = theDirectory.dirName();
+
+          QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
+          QString configFile = remoteDirectory + "/inputRWHALE.json";
+          QString inputData = remoteDirectory + "/input_data.zip";
+
+          QJsonObject inputs;
+          inputs["configFile"]=configFile;
+          inputs["dataFile"]=inputData;
+          job["inputs"]=inputs;
+
+          QJsonObject parameters;
+
+
+          int numBldg = buildingsPerTask->text().toInt();
+          if (numBldg != 0 ) {
+              parameters["buildingsPerTask"]=QString::number(numBldg);
+          }
+          job["parameters"]=parameters;
+
+          // now remove the tmp directory
+          theDirectory.removeRecursively();
+
       }
-      job["parameters"]=parameters;
-      
-      QDir theDirectory(tempDirectory);
-      QString dirName = theDirectory.dirName();
-      
-      QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
-      
-      QJsonObject inputs;
-      
-      inputs["inputDirectory"]=remoteDirectory;
-      for (auto inputName : extraInputs.keys())
-      {
-          inputs[inputName] = extraInputs[inputName];
-      }
-      job["inputs"]=inputs;
-      
+
       // disable the button while the job is being uploaded and started
       pushButton->setEnabled(false);
 
@@ -377,8 +450,8 @@ RemoteApplication::uploadDirReturn(bool result)
 
       emit startJobCall(job);
       
-      // now remove the tmp directory
-      theDirectory.removeRecursively();
+
+
     }
 }
 

@@ -79,9 +79,6 @@ LocalApplication::LocalApplication(QString workflowScriptName, QWidget *parent)
 bool
 LocalApplication::outputToJSON(QJsonObject &jsonObject)
 {
-    //    jsonObject["localAppDir"]=appDirName->text();
-    //    jsonObject["remoteAppDir"]=appDirName->text();
-    //    jsonObject["workingDir"]=workingDirName->text();
     jsonObject["localAppDir"]=SimCenterPreferences::getInstance()->getAppDir();
     jsonObject["remoteAppDir"]=SimCenterPreferences::getInstance()->getAppDir();
     jsonObject["workingDir"]=SimCenterPreferences::getInstance()->getLocalWorkDir();
@@ -149,6 +146,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     QString runType("runningLocal");
     qDebug() << "RUNTYPE" << runType;
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
+    QString appName = QCoreApplication::applicationName();
 
     //TODO: recognize if it is PBE or EE-UQ -> probably smarter to do it inside the python file
     QString pySCRIPT;
@@ -313,7 +311,6 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
       emit sendErrorMessage( "No .bash_profile, .bashrc or .zshrc file found. This may not find Dakota or OpenSees");
 
     // note the above not working under linux because bash_profile not being called so no env variables!!
-    QString appName = QCoreApplication::applicationName();
     QString command;
 
     if (appName == "R2D"){
@@ -343,21 +340,24 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
     //proc->waitForStarted();
 
-    //
-    // copy input file to main directory
-    // 
+      if (appName != "R2D"){
+          //
+          // copy input file to main directory & process results
+          //
 
-   QString filenameIN = tmpDirectory + QDir::separator() +  QString("dakota.json");
-   QFile::copy(inputFile, filenameIN);
+          QString filenameIN = tmpDirectory + QDir::separator() +  QString("dakota.json");
+          QFile::copy(inputFile, filenameIN);
+          QString filenameOUT = tmpDirectory + QDir::separator() +  QString("dakota.out");
+          QString filenameTAB = tmpDirectory + QDir::separator() +  QString("dakotaTab.out");
 
-    //
-    // process the results
-    //
+          emit processResults(filenameOUT, filenameTAB, inputFile);
+      } else {
+          QString dirOut = tmpDirectory + QDir::separator() +  QString("Results");
+          QString name2("");
+          QString name3("");
 
-    QString filenameOUT = tmpDirectory + QDir::separator() +  QString("dakota.out");
-    QString filenameTAB = tmpDirectory + QDir::separator() +  QString("dakotaTab.out");
-
-    emit processResults(filenameOUT, filenameTAB, inputFile);
+          emit processResults(dirOut, name2, name3);
+      }
 
     return 0;
 }

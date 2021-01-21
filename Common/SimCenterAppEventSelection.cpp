@@ -35,7 +35,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written by: fmk
-// Latest revision: 10.08.2020
 
 #include "SimCenterAppEventSelection.h"
 #include "sectiontitle.h"
@@ -262,4 +261,14 @@ void
 SimCenterAppEventSelection::newHazard(QString &eventType){
 
 }
+
+
+void
+SimCenterAppEventSelection::clear(void)
+{
+    foreach (auto&& comp, theComponents) {
+        comp->clear();
+    }
+}
+
 
