@@ -57,7 +57,7 @@ class RemoteApplication : public Application
 {
     Q_OBJECT
 public:  
-    explicit RemoteApplication(QString name, RemoteService *theRemoteService, QWidget *parent = nullptr);
+    RemoteApplication(QString name, RemoteService *theRemoteService, QWidget *parent = nullptr);
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
     bool setupDoneRunApplication(QString &tmpDirectory, QString &inputFile);
@@ -93,6 +93,8 @@ private:
     QLineEdit *numCPU_LineEdit;
     QLineEdit *numProcessorsLineEdit;
     QLineEdit *runtimeLineEdit;
+    QLineEdit *buildingsPerTask;
+
     //    QLineEdit *appLineEdit;
 
     QString tempDirectory;

@@ -79,9 +79,6 @@ LocalApplication::LocalApplication(QString workflowScriptName, QWidget *parent)
 bool
 LocalApplication::outputToJSON(QJsonObject &jsonObject)
 {
-    //    jsonObject["localAppDir"]=appDirName->text();
-    //    jsonObject["remoteAppDir"]=appDirName->text();
-    //    jsonObject["workingDir"]=workingDirName->text();
     jsonObject["localAppDir"]=SimCenterPreferences::getInstance()->getAppDir();
     jsonObject["remoteAppDir"]=SimCenterPreferences::getInstance()->getAppDir();
     jsonObject["workingDir"]=SimCenterPreferences::getInstance()->getLocalWorkDir();
@@ -326,21 +323,24 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
     //proc->waitForStarted();
 
-    //
-    // copy input file to main directory
-    // 
+      if (appName != "R2D"){
+          //
+          // copy input file to main directory & process results
+          //
 
-   QString filenameIN = tmpDirectory + QDir::separator() +  QString("dakota.json");
-   QFile::copy(inputFile, filenameIN);
+          QString filenameIN = tmpDirectory + QDir::separator() +  QString("dakota.json");
+          QFile::copy(inputFile, filenameIN);
+          QString filenameOUT = tmpDirectory + QDir::separator() +  QString("dakota.out");
+          QString filenameTAB = tmpDirectory + QDir::separator() +  QString("dakotaTab.out");
 
-    //
-    // process the results
-    //
+          emit processResults(filenameOUT, filenameTAB, inputFile);
+      } else {
+          QString dirOut = tmpDirectory + QDir::separator() +  QString("Results");
+          QString name2("");
+          QString name3("");
 
-    QString filenameOUT = tmpDirectory + QDir::separator() +  QString("dakota.out");
-    QString filenameTAB = tmpDirectory + QDir::separator() +  QString("dakotaTab.out");
-
-    emit processResults(filenameOUT, filenameTAB, inputFile);
+          emit processResults(dirOut, name2, name3);
+      }
 
     return 0;
 }
