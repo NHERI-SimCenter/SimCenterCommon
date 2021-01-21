@@ -146,6 +146,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     QString runType("runningLocal");
     qDebug() << "RUNTYPE" << runType;
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
+    QString appName = QCoreApplication::applicationName();
 
     //TODO: recognize if it is PBE or EE-UQ -> probably smarter to do it inside the python file
     QString pySCRIPT;
@@ -293,7 +294,6 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
       emit sendErrorMessage( "No .bash_profile, .bashrc or .zshrc file found. This may not find Dakota or OpenSees");
 
     // note the above not working under linux because bash_profile not being called so no env variables!!
-    QString appName = QCoreApplication::applicationName();
     QString command;
 
     if (appName == "R2D"){
