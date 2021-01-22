@@ -229,4 +229,12 @@ FEM_Selection::copyFiles(QString &destDir) {
 }
 
 
+void
+FEM_Selection::copyFiles(void) {
+  if (theCurrentSelection != 0) {
+    theCurrentSelection->clear();
+  }
+}
+
+
 
