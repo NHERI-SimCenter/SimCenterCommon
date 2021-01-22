@@ -213,7 +213,7 @@ EDP_EarthquakeSelection::copyFiles(QString &destDir) {
 }
 
 void
-EDP_EarthquakeSelection::copyFiles(void) {
+EDP_EarthquakeSelection::clear(void) {
   if (theCurrentSelection != 0) {
     theCurrentSelection->clear();
   }

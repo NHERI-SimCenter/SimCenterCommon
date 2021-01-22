@@ -230,7 +230,7 @@ FEM_Selection::copyFiles(QString &destDir) {
 
 
 void
-FEM_Selection::copyFiles(void) {
+FEM_Selection::clear(void) {
   if (theCurrentSelection != 0) {
     theCurrentSelection->clear();
   }
