@@ -35,7 +35,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written by: fmk
-// Latest revision: 10.08.2020
 
 #include "SimCenterAppSelection.h"
 #include "sectiontitle.h"
@@ -74,10 +73,13 @@ SimCenterAppSelection::SimCenterAppSelection(QString label, QString appName, QWi
   selectionText->setText(label);
   
   theSelectionCombo = new QComboBox();
-  theSelectionCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+  theSelectionCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
   topLayout->addWidget(selectionText);
   topLayout->addWidget(theSelectionCombo, 1);
   topLayout->addStretch(1);
+#ifdef _WIN32
+  theSelectionCombo->setMaximumHeight(25);
+#endif
   
   theStackedWidget = new QStackedWidget();
   
@@ -153,7 +155,7 @@ bool SimCenterAppSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
             QJsonValue theName = theApplicationObject["Application"];
             QString appName = theName.toString();
 
-             //qDebug() << __PRETTY_FUNCTION__<< " " << selectionApplicationType << " " << appName;
+            // qDebug() << __PRETTY_FUNCTION__<< " " << selectionApplicationType << " " << appName;
 
             int index = theApplicationNames.indexOf(appName);
 
@@ -196,6 +198,14 @@ bool SimCenterAppSelection::copyFiles(QString &destDir)
         return theCurrentSelection->copyFiles(destDir);
     else
         return false;
+}
+
+
+void SimCenterAppSelection::clear(void)
+{
+    foreach (auto&& comp, theComponents) {
+        comp->clear();
+    }
 }
 
 
@@ -266,6 +276,7 @@ SimCenterAppSelection::selectionChangedSlot(const QString &selectedText)
         theCurrentSelection = theComponents.at(index);
         theCurrentSelection->setCurrentlyViewable(viewableStatus);
         theStackedWidget->setCurrentIndex(index);
+        emit selectionChangedSignal(selectedText);
     }
 }
 

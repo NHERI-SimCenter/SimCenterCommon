@@ -62,6 +62,8 @@ public:
     bool inputAppDataFromJSON(QJsonObject &rvObject);
     bool copyFiles(QString &dirName);
 
+    QString getAppName(void) {return appName;};
+
     void clear(void);
 
 signals:

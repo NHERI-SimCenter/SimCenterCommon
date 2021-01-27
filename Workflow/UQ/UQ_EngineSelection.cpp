@@ -284,3 +284,11 @@ int
 UQ_EngineSelection::getNumParallelTasks() {
     return theCurrentEngine->getMaxNumParallelTasks();
 }
+
+void
+UQ_EngineSelection::clear(void)
+{
+    theCurrentEngine->clear();
+    theDakotaEngine->clear();
+    theUQpyEngine->clear();
+}

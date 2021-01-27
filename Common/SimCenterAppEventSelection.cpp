@@ -35,7 +35,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written by: fmk
-// Latest revision: 10.08.2020
 
 #include "SimCenterAppEventSelection.h"
 #include "sectiontitle.h"
@@ -75,11 +74,15 @@ SimCenterAppEventSelection::SimCenterAppEventSelection(QString label, QString ap
   selectionText->setText(label);
   
   theSelectionCombo = new QComboBox();
-  theSelectionCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+  theSelectionCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
   topLayout->addWidget(selectionText);
   topLayout->addWidget(theSelectionCombo, 1);
   topLayout->addStretch(1);
   
+#ifdef _WIN32
+  theSelectionCombo->setMaximumHeight(25);
+#endif
+
   theStackedWidget = new QStackedWidget();
   
   layout->addLayout(topLayout);
@@ -258,4 +261,14 @@ void
 SimCenterAppEventSelection::newHazard(QString &eventType){
 
 }
+
+
+void
+SimCenterAppEventSelection::clear(void)
+{
+    foreach (auto&& comp, theComponents) {
+        comp->clear();
+    }
+}
+
 

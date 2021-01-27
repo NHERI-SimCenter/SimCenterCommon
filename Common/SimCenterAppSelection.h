@@ -38,7 +38,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written by: fmk
-// Latest revision: 11.20.2020
 
 #include "SimCenterAppWidget.h"
 
@@ -62,13 +61,17 @@ public:
     void clear(void);
     bool addComponent(QString comboBoxText, QString appNameText, SimCenterAppWidget *);
     SimCenterAppWidget *getComponent(QString text);
+    SimCenterAppWidget *getCurrentSelection(void);
 
 public slots:
    void selectionChangedSlot(const QString &);
    void setCurrentlyViewable(bool); 
-  
+
+signals:
+   void selectionChangedSignal(const QString &);
+
 protected:
-  SimCenterAppWidget *getCurrentSelection(void); 
+
   
 private:
   virtual bool displayComponent(QString text);

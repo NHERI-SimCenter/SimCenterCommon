@@ -211,3 +211,10 @@ EDP_EarthquakeSelection::copyFiles(QString &destDir) {
 
   return false;
 }
+
+void
+EDP_EarthquakeSelection::clear(void) {
+  if (theCurrentEDP != 0) {
+    theCurrentEDP->clear();
+  }
+}
