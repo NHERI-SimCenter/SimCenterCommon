@@ -46,6 +46,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SimCenterWidget.h>
 #include <Application.h>
 #include <QPushButton>
+#include <QCheckBox>
 #include <QJsonObject>
 #include <QMap>
 
@@ -94,6 +95,7 @@ private:
     QLineEdit *numProcessorsLineEdit;
     QLineEdit *runtimeLineEdit;
     QLineEdit *buildingsPerTask;
+    QCheckBox *saveResultsBox;
 
     //    QLineEdit *appLineEdit;
 
