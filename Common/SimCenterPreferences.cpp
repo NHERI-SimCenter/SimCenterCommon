@@ -484,14 +484,13 @@ SimCenterPreferences::savePreferences(bool) {
 
     settingsApp.setValue("version", currentVersion);
     settingsApp.setValue("appDir", appDir->text());
-
     settingsApp.setValue("customAppDir", customAppDirCheckBox->isChecked());
     settingsApp.setValue("customOpenSees", customOpenSeesCheckBox->isChecked());
     settingsApp.setValue("customDakota", customDakotaCheckBox->isChecked());
     settingsApp.setValue("customTapis", customTapisAppCheckBox->isChecked());
-
     settingsApp.setValue("remoteBackendDir", remoteBackendDir->text());
     settingsApp.setValue("remoteTapisApp", remoteTapisApp->text());
+
     settingsApp.setValue("localWorkDir", localWorkDir->text());
     settingsApp.setValue("remoteWorkDir", remoteWorkDir->text());
     settingsApp.setValue("openseesPath", opensees->text());
@@ -555,6 +554,9 @@ SimCenterPreferences::resetPreferences(bool) {
     customDakotaCheckBox->setChecked(false);
     customOpenSeesCheckBox->setChecked(false);
     customTapisAppCheckBox->setChecked(false);
+
+    // finally save them to make sure all saved
+    this->savePreferences(true);
 }
 
 
