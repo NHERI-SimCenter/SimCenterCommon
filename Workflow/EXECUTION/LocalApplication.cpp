@@ -233,8 +233,25 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
     qDebug() << "PATH: " << pathEnv;
     qDebug() << "PYTHON_PATH" << pythonPathEnv;
+   // QString appName = QCoreApplication::applicationName();
 
-    QStringList args{pySCRIPT, runType, inputFile, registryFile};
+    QStringList args;
+    QString inputDir = tmpDirectory + QDir::separator() + "input_data";
+    if (appName == "RDT" || appName == "R2D") {
+        args << pySCRIPT << inputFile << "--registry" << registryFile
+             << "--referenceDir" << inputDir
+             << "-w" << tmpDirectory+QDir::separator() + "Results";
+    } else {
+      args << pySCRIPT << runType << inputFile << registryFile;
+    }
+   /*
+    command = sourceBash + exportPath + "; \"" + python + QString("\" \"" ) + pySCRIPT + QString("\" " )
+            + QString(" \"" ) + inputFile + QString("\" ") +"--registry"
+            + QString(" \"") + registryFile + QString("\" ") + "--referenceDir" + QString(" \"")
+            + tmpDirectory + QString("/input_data\" ") + "-w" + QString(" \"")
+                + tmpDirectory + QDir::separator() + "Results" + QString("\"");
+   */
+
 
 #ifdef Q_OS_WIN
     python = QString("\"") + python + QString("\"");

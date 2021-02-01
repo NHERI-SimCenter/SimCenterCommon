@@ -112,10 +112,16 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
     QString appName = QCoreApplication::applicationName();
     if (appName == "R2D"){
         numRow++;
-        layout->addWidget(new QLabel("#Buildings Per Taask:"), numRow, 0);
+        layout->addWidget(new QLabel("# Buildings Per Task:"), numRow, 0);
         buildingsPerTask=new QLineEdit("10");
         buildingsPerTask->setToolTip("Number of buildings per task when runnig in parallel");
         layout->addWidget(buildingsPerTask, numRow, 1);
+
+        numRow++;
+        layout->addWidget(new QLabel("Save Inter. Results:"), numRow, 0);
+        saveResultsBox=new QCheckBox(); saveResultsBox->setChecked(false);
+        saveResultsBox->setToolTip("Save Intermediary results to compressed folder. You typically do not want this.");
+        layout->addWidget(saveResultsBox, numRow, 1);
     }
 
     numRow++;
@@ -431,6 +437,7 @@ RemoteApplication::uploadDirReturn(bool result)
           int numBldg = buildingsPerTask->text().toInt();
           if (numBldg != 0 ) {
               parameters["buildingsPerTask"]=QString::number(numBldg);
+              parameters["saveResults"]=saveResultsBox->isChecked();
           }
           job["parameters"]=parameters;
 
