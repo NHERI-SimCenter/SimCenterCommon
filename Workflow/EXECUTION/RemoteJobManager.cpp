@@ -58,11 +58,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDesktopWidget>
 #include <QScreen>
 #include <SimCenterPreferences.h>
+#include <QProcess>
+#include <QSettings>
 
 #include <QMenu>
 #include <QDir>
 
 #include  <QDebug>
+#include <ZipUtils/ZipUtils.h>
 class RemoteService;
 
 RemoteJobManager::RemoteJobManager(RemoteService *theRemoteInterface, QWidget *parent)
@@ -310,43 +313,74 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 
         QString localDir = SimCenterPreferences::getInstance()->getRemoteWorkDir();
         QDir localWork(localDir);
-        if (!localWork.exists())
+        localWork.removeRecursively();
+        if (!localWork.exists()) {
             if (!localWork.mkpath(localDir)) {
                 emit errorMessage(QString("Could not create Working Dir: ") + localDir + QString(" . Try using an existing directory or make sure you have permission to create the working directory."));
                 return;
             }
-
-        name1 = localDir + QDir::separator() + QString("dakota.json");
-        name2 = localDir + QDir::separator() + QString("dakota.out");
-        name3 = localDir + QDir::separator() + QString("dakotaTab.out");
-        name4 = localDir + QDir::separator() + QString("dakota.err");;
-
+        }
 
         QStringList localFiles;
-        localFiles.append(name1);
-        localFiles.append(name2);
-        localFiles.append(name3);
-        localFiles.append(name4);
-
-        //
-        // download data to temp files & then process them as normal
-        //
-
-        archiveDir = archiveDir + QString("/") + inputDir.remove(QRegExp(".*\\/")); // regex to remove up till last /
-
-        QString dakotaJSON = archiveDir + QString("/dakota.json");
-        QString dakotaOUT = archiveDir + QString("/dakota.out");
-        QString dakotaTAB = archiveDir + QString("/dakotaTab.out");
-        QString dakotaERR = archiveDir + QString("/dakota.err");
-
-        // first download the input data & load it
         QStringList filesToDownload;
-        filesToDownload.append(dakotaJSON);
-        filesToDownload.append(dakotaOUT);
-        filesToDownload.append(dakotaTAB);
-        filesToDownload.append(dakotaERR);
 
-        qDebug() << "remote out: " << dakotaOUT;
+        QString appName = QCoreApplication::applicationName();
+        if (appName != "R2D"){
+
+            name1 = localDir + QDir::separator() + QString("dakota.json");
+            name2 = localDir + QDir::separator() + QString("dakota.out");
+            name3 = localDir + QDir::separator() + QString("dakotaTab.out");
+            name4 = localDir + QDir::separator() + QString("dakota.err");;
+
+            localFiles.append(name1);
+            localFiles.append(name2);
+            localFiles.append(name3);
+            localFiles.append(name4);
+
+            //
+            // download data to temp files & then process them as normal
+            //
+
+            archiveDir = archiveDir + QString("/") + inputDir.remove(QRegExp(".*\\/")); // regex to remove up till last /
+
+            QString dakotaJSON = archiveDir + QString("/dakota.json");
+            QString dakotaOUT = archiveDir + QString("/dakota.out");
+            QString dakotaTAB = archiveDir + QString("/dakotaTab.out");
+            QString dakotaERR = archiveDir + QString("/dakota.err");
+
+            // first download the input data & load it
+
+            filesToDownload.append(dakotaJSON);
+            filesToDownload.append(dakotaOUT);
+            filesToDownload.append(dakotaTAB);
+            filesToDownload.append(dakotaERR);
+
+        } else {
+
+            name1 = localDir + QDir::separator() + QString("inputRWHALE.json");
+            name2 = localDir + QDir::separator() + QString("input_data.zip");
+            name3 = localDir + QDir::separator() + QString("hdf.zip");
+
+            localFiles.append(name1);
+            localFiles.append(name2);
+            localFiles.append(name3);
+
+            //
+            // download data to temp files & then process them as normal
+            //
+
+            archiveDir = archiveDir + QString("/") + inputDir.remove(QRegExp(".*\\/")); // regex to remove up till last /
+
+            QString rName1 = archiveDir + QString("/inputRWHALE.json");
+            QString rName2 = archiveDir + QString("/input_data.zip");
+            QString rName3 = archiveDir + QString("/hdf.zip");
+
+            // first download the input data & load it
+
+            filesToDownload.append(rName1);
+            filesToDownload.append(rName2);
+            filesToDownload.append(rName3);
+        }
 
         emit downloadFiles(filesToDownload, localFiles);
      }
@@ -363,10 +397,54 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
 
     if (sender == this)
     {
+        QString localDir = SimCenterPreferences::getInstance()->getRemoteWorkDir();
+        QDir localWork(localDir);
+
+        if (!localWork.exists())
+            if (!localWork.mkpath(localDir)) {
+                emit errorMessage(QString("Could not create Working Dir: ") + localDir + QString(" . Try using an existing directory or make sure you have permission to create the working directory."));
+                return;
+            }
+
         if (result == true) {
-          emit loadFile(name1);
-          emit processResults(name2, name3, name1);
-          this->hide();
+            QString appName = QCoreApplication::applicationName();
+            if (appName != "R2D"){
+                emit loadFile(name1);
+                emit processResults(name2, name3, name1);
+                this->hide();
+            } else {
+                // unzip files
+                ZipUtils::UnzipFile(name3, localDir);
+                ZipUtils::UnzipFile(name2, localDir);
+
+                // convert any hdf files to csv files
+                QStringList theFiles = localWork.entryList(QStringList() << "*.hdf5" << "*.hdf",QDir::Files);
+                QString pyScript = SimCenterPreferences::getInstance()->getAppDir() + QDir::separator() +
+                        "applications" + QDir::separator() + "performDL" + QDir::separator() + "pelicun" + QDir::separator() + "HDF_to_CSV.py";
+                foreach(QString filename, theFiles) {
+
+                    QProcess *proc = new QProcess();
+                    QString pathToFile = localWork.filePath(filename);
+                    QStringList args{pyScript, pathToFile};
+
+                    QString python;
+                    QSettings settings("SimCenter", "Common"); //These names will need to be constants to be shared
+                    QVariant  pythonLocationVariant = settings.value("pythonExePath");
+                    if (pythonLocationVariant.isValid()) {
+                        python = pythonLocationVariant.toString();
+                    }
+                    proc->execute(python,args);
+                    proc->waitForStarted();
+                }
+
+                // now load inputfile and process results
+                QFileInfo fileInfo(name1);
+                QString filePath = fileInfo.absolutePath();
+                QString name2("");
+                QString name3("");
+                emit loadFile(name1);
+                emit processResults(filePath, name2, name3);
+            }
         } else {
             emit errorMessage("ERROR - Failed to download File - did Job finish successfully?");
        }

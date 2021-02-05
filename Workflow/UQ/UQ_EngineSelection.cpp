@@ -197,7 +197,6 @@ UQ_EngineSelection::enginesEngineSelectionChanged(void){
 bool
 UQ_EngineSelection::outputAppDataToJSON(QJsonObject &jsonObject)
 {
-
     QJsonObject appsUQ;
     theCurrentEngine->outputAppDataToJSON(appsUQ);
     jsonObject["UQ"]=appsUQ;
@@ -284,4 +283,12 @@ UQ_EngineSelection::getCurrentEngine(void) {
 int
 UQ_EngineSelection::getNumParallelTasks() {
     return theCurrentEngine->getMaxNumParallelTasks();
+}
+
+void
+UQ_EngineSelection::clear(void)
+{
+    theCurrentEngine->clear();
+    theDakotaEngine->clear();
+    theUQpyEngine->clear();
 }

@@ -42,3 +42,8 @@ WorkflowAppWidget::fatalMessage(const QString msg){
   emit sendFatalMessage(msg);
 }
 
+MainWindowWorkflowApp *WorkflowAppWidget::getTheMainWindow() const
+{
+    return theMainWindow;
+}
+

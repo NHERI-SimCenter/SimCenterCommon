@@ -59,6 +59,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDir>
 #include <QFileDialog>
 #include <QProcessEnvironment>
+#include <QCoreApplication>
 
 LocalApplication::LocalApplication(QString workflowScriptName, QWidget *parent)
 : Application(parent)
@@ -78,9 +79,6 @@ LocalApplication::LocalApplication(QString workflowScriptName, QWidget *parent)
 bool
 LocalApplication::outputToJSON(QJsonObject &jsonObject)
 {
-    //    jsonObject["localAppDir"]=appDirName->text();
-    //    jsonObject["remoteAppDir"]=appDirName->text();
-    //    jsonObject["workingDir"]=workingDirName->text();
     jsonObject["localAppDir"]=SimCenterPreferences::getInstance()->getAppDir();
     jsonObject["remoteAppDir"]=SimCenterPreferences::getInstance()->getAppDir();
     jsonObject["workingDir"]=SimCenterPreferences::getInstance()->getLocalWorkDir();
@@ -148,6 +146,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     QString runType("runningLocal");
     qDebug() << "RUNTYPE" << runType;
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
+    QString appName = QCoreApplication::applicationName();
 
     //TODO: recognize if it is PBE or EE-UQ -> probably smarter to do it inside the python file
     QString pySCRIPT;
@@ -196,12 +195,21 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
 
     QString python = QString("python");
-    QString exportPath("export PATH=$PATH");
+    QString exportPath("export PATH=");
+    bool colonYes = false;
 
     QSettings settings("SimCenter", "Common"); //These names will need to be constants to be shared
-    QVariant  pythonLocationVariant = settings.value("pythonExePath");
-    if (pythonLocationVariant.isValid()) {
-      python = pythonLocationVariant.toString();
+    QVariant  pythonPathVariant = settings.value("pythonExePath");
+    if (pythonPathVariant.isValid()) {
+        python = pythonPathVariant.toString();
+
+        QFileInfo pythonFile(pythonPathVariant.toString());
+        if (pythonFile.exists()) {
+            QString pythonPath = pythonFile.absolutePath();
+            colonYes=true;
+            exportPath += pythonPath;
+            pathEnv = pythonPath + ';' + pathEnv;
+        }
     }
 
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
@@ -210,8 +218,13 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
         QFileInfo openseesFile(openseesPathVariant.toString());
         if (openseesFile.exists()) {
             QString openseesPath = openseesFile.absolutePath();
-            pathEnv = openseesPath + ';' + pathEnv;
-	    exportPath += ":" + openseesPath;
+            pathEnv = openseesPath + ':' + pathEnv;
+            if (colonYes == false) {
+                colonYes = true;
+            } else {
+                exportPath += ":";
+            }
+            exportPath += openseesPath;
         }
     }
 
@@ -220,13 +233,25 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
         QFileInfo dakotaFile(dakotaPathVariant.toString());
         if (dakotaFile.exists()) {
             QString dakotaPath = dakotaFile.absolutePath();
-            QString dakotaPythonPath = QFileInfo(dakotaPath).absolutePath() + QDir::separator() +
-                      "share" + QDir::separator() + "Dakota" + QDir::separator() + "Python";
-	    exportPath += ":" + dakotaPath;
-            pathEnv = dakotaPath + ';' + pathEnv;
-            pythonPathEnv = dakotaPythonPath + ";" + pythonPathEnv;
+            if (colonYes == false) {
+                colonYes = true;
+            } else {
+                exportPath += ":";
+            }
+            pathEnv = dakotaPath + ':' + pathEnv;
+            exportPath += dakotaPath;
+            QString dakotaPathPath = QFileInfo(dakotaPath).absolutePath() + QDir::separator() +
+                    "share" + QDir::separator() + "Dakota" + QDir::separator() + "Python";
+            pythonPathEnv = dakotaPathPath + ";" + pythonPathEnv;
+
         }
     }
+
+    if (colonYes == true) {
+        exportPath += ":";
+    }
+
+    exportPath += "$PATH";
 
     procEnv.insert("PATH", pathEnv);
     procEnv.insert("PYTHONPATH", pythonPathEnv);
@@ -234,8 +259,25 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
     qDebug() << "PATH: " << pathEnv;
     qDebug() << "PYTHON_PATH" << pythonPathEnv;
+   // QString appName = QCoreApplication::applicationName();
 
-    QStringList args{pySCRIPT, runType, inputFile, registryFile};
+    QStringList args;
+    QString inputDir = tmpDirectory + QDir::separator() + "input_data";
+    if (appName == "RDT" || appName == "R2D") {
+        args << pySCRIPT << inputFile << "--registry" << registryFile
+             << "--referenceDir" << inputDir
+             << "-w" << tmpDirectory+QDir::separator() + "Results";
+    } else {
+      args << pySCRIPT << runType << inputFile << registryFile;
+    }
+   /*
+    command = sourceBash + exportPath + "; \"" + python + QString("\" \"" ) + pySCRIPT + QString("\" " )
+            + QString(" \"" ) + inputFile + QString("\" ") +"--registry"
+            + QString(" \"") + registryFile + QString("\" ") + "--referenceDir" + QString(" \"")
+            + tmpDirectory + QString("/input_data\" ") + "-w" + QString(" \"")
+                + tmpDirectory + QDir::separator() + "Results" + QString("\"");
+   */
+
 
 #ifdef Q_OS_WIN
     python = QString("\"") + python + QString("\"");
@@ -295,9 +337,26 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
       emit sendErrorMessage( "No .bash_profile, .bashrc or .zshrc file found. This may not find Dakota or OpenSees");
 
     // note the above not working under linux because bash_profile not being called so no env variables!!
-    QString command = sourceBash + exportPath + "; \"" + python + QString("\" \"" ) +
-      pySCRIPT + QString("\" " ) + runType + QString(" \"" ) + inputFile + QString("\" \"") + registryFile + QString("\"");
+    QString command;
 
+    if (appName == "R2D"){
+
+        /*
+        command = sourceBash + exportPath + "; \"" + python + QString("\" \"" ) + pySCRIPT + QString("\" " )
+                + QString(" \"" ) + inputFile + QString("\"");
+
+      */
+        command = sourceBash + exportPath + "; \"" + python + QString("\" \"" ) + pySCRIPT + QString("\" " )
+                + QString(" \"" ) + inputFile + QString("\" ") +"--registry"
+                + QString(" \"") + registryFile + QString("\" ") + "--referenceDir" + QString(" \"")
+                + tmpDirectory + QString("/input_data\" ") + "-w" + QString(" \"") + tmpDirectory + QDir::separator() + "Results" + QString("\"");
+
+    } else {
+
+        command = sourceBash + exportPath + "; \"" + python + QString("\" \"" ) +
+                pySCRIPT + QString("\" " ) + runType + QString(" \"" ) + inputFile + QString("\" \"") + registryFile + QString("\"");
+
+    }
     qDebug() << "PYTHON COMMAND" << command;
 
     proc->execute("bash", QStringList() << "-c" <<  command);
@@ -307,21 +366,24 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
     //proc->waitForStarted();
 
-    //
-    // copy input file to main directory
-    // 
+      if (appName != "R2D"){
+          //
+          // copy input file to main directory & process results
+          //
 
-   QString filenameIN = tmpDirectory + QDir::separator() +  QString("dakota.json");
-   QFile::copy(inputFile, filenameIN);
+          QString filenameIN = tmpDirectory + QDir::separator() +  QString("dakota.json");
+          QFile::copy(inputFile, filenameIN);
+          QString filenameOUT = tmpDirectory + QDir::separator() +  QString("dakota.out");
+          QString filenameTAB = tmpDirectory + QDir::separator() +  QString("dakotaTab.out");
 
-    //
-    // process the results
-    //
+          emit processResults(filenameOUT, filenameTAB, inputFile);
+      } else {
+          QString dirOut = tmpDirectory + QDir::separator() +  QString("Results");
+          QString name2("");
+          QString name3("");
 
-    QString filenameOUT = tmpDirectory + QDir::separator() +  QString("dakota.out");
-    QString filenameTAB = tmpDirectory + QDir::separator() +  QString("dakotaTab.out");
-
-    emit processResults(filenameOUT, filenameTAB, inputFile);
+          emit processResults(dirOut, name2, name3);
+      }
 
     return 0;
 }

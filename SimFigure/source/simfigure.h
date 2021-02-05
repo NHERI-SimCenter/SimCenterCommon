@@ -3,11 +3,11 @@
 
 #include <QFrame>
 #include <QList>
+#include <QStringList>
 #include <QMap>
 #include <QPen>
 #include <QBrush>
 
-//#include "simfigure_enums.h"
 
 class QwtPlot;
 class QwtPlotGrid;
@@ -111,16 +111,25 @@ public:
     explicit SimFigure(QWidget *parent = nullptr);
     ~SimFigure();
 
-    int plot(QVector<double> &, QVector<double> &, LineType lt = LineType::Solid, QColor col = Qt::red, Marker mk = Marker::None, QString label = "default");
-    int scatter(QVector<double> &, QVector<double> &, QColor col = Qt::blue, Marker mk = Marker::Circle);
+    int plot(QVector<double> &,
+             QVector<double> &,
+             LineType lt=LineType::Solid,
+             QColor col=Qt::red,
+             Marker mk=Marker::None,
+             QString label="_auto_");
 
+    int scatter(QVector<double> &,
+                QVector<double> &,
+                QColor col = Qt::blue,
+                Marker mk = Marker::Circle,
+                QString label="_auto_");
 
     void clear(void);
     void cla(void);
 
     void grid(bool mayor=true, bool minor=true);
 
-    void legend(QList<QString> labels, Location loc=Location::South);
+    void legend(QStringList labels, Location loc=Location::SouthEast);
     void moveLegend(Location loc);
     void showLegend(bool = true);
     bool legendVisible(void);

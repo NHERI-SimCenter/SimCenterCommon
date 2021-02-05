@@ -58,18 +58,18 @@ class SimCenterAppWidget : public SimCenterWidget
 public:
     explicit SimCenterAppWidget(QWidget *parent = 0);
     virtual ~SimCenterAppWidget();
-    /** 
+    /**
      *   @brief outputAppDataToJSON method to write the application data to json object.
      *   @param rvObject the JSON object to be written to
      *   @return bool - true for success, otherwise false
-     */  
+     */
 
     virtual bool outputAppDataToJSON(QJsonObject &jsonObject);
-    /** 
+    /**
      *   @brief inputFromJSON method to read applications specific data from a JSON object
      *   @param rvObject the JSON object contaiing data to instantiate the object
      *   @return bool - true for success, otherwise false
-     */  
+     */
     virtual bool inputAppDataFromJSON(QJsonObject &jsonObject);
 
     /**
@@ -85,12 +85,27 @@ public:
      */
     virtual bool supportsLocalRun();
 
+    /**
+     *   @brief clears the app widget of all user inputs
+     *   @return void - does not return anything
+     */
+    virtual void clear(void);
+
     static bool copyPath(QString sourceDir, QString destinationDir, bool overWriteDirectory);
     static bool copyFile(QString filename, QString destinationDir);
+
+    // A dialog to present a message to the user
+    void userMessageDialog(const QString& messageString);
 
 signals:
 
 public slots:
+    /**
+     *   @brief setCurrentlyViewable method invoked to inform Widget viewable state changed
+     *   @param state true or false
+     *   @return bool - true for success, otherwise false
+     */
+    virtual void setCurrentlyViewable(bool) {}; // does nothing
 
 private:
 

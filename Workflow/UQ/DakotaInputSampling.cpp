@@ -223,6 +223,7 @@ DakotaInputSampling::inputFromJSON(QJsonObject &jsonObject)
 bool
 DakotaInputSampling::outputAppDataToJSON(QJsonObject &jsonObject)
 {
+    qDebug() << ":HI DakotaINputSampling";
     bool result = true;
 
     jsonObject["Application"] = "Dakota-UQ";
@@ -240,8 +241,10 @@ DakotaInputSampling::inputAppDataFromJSON(QJsonObject &jsonObject)
 {
     bool result = false;
     this->clear();
+    
     //
-    // get sampleingMethodData, if not present it's an error
+    // get samplingMethodData, if not present it's an error
+    //
 
     if (jsonObject.contains("ApplicationData")) {
         QJsonObject uq = jsonObject["ApplicationData"].toObject();

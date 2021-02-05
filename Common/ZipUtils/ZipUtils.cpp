@@ -3,6 +3,7 @@
 #include <unzip.h>
 #include <QDirIterator>
 #include <QDebug>
+#include <QFileInfo>
 
 bool ZipUtils::ZipFolder(QDir directoryToZip, QString zipFilePath)
 {
@@ -120,8 +121,6 @@ bool ZipUtils::UnzipFile(QString zipFilePath, QDir directoryToUnzip)
         char* filenameBuffer = new char[fileInfo.size_filename + 1];
         unzGetCurrentFileInfo(zipFile, &fileInfo, filenameBuffer, fileInfo.size_filename + 1, nullptr, 0, nullptr, 0);
         QString filename(filenameBuffer);
-        delete[] filenameBuffer;
-
 
         //Open the current compressed file
         if (UNZ_OK != unzOpenCurrentFile(zipFile))
@@ -151,22 +150,43 @@ bool ZipUtils::UnzipFile(QString zipFilePath, QDir directoryToUnzip)
             return false;
         }
 
-        //This will always overwrite
-        QFile extractedFile(directoryToUnzip.filePath(filename));
-        if(extractedFile.open(QFile::WriteOnly))
+        QString absPath = directoryToUnzip.filePath(filename);
+        char dirDelimeter = '/';
+
+        const size_t filenameLength = strlen( filenameBuffer );
+        if ( filenameBuffer[ filenameLength-1 ] == dirDelimeter )
         {
-            extractedFile.write(fileBuffer, fileSize);
-            extractedFile.close();
-        }
-        else
-        {
+            // Entry is a directory, so create it.
+            printf( "dir:%s\n", filenameBuffer );
+            directoryToUnzip.mkpath(absPath);
+            delete[] filenameBuffer;
+
+        } else {
+
+            delete[] filenameBuffer;
+
+            //This will always overwrite
+            QFile extractedFile(directoryToUnzip.filePath(filename));
+
+            // make sure dir exists .. above if {} only works if dir was added to zip
+            QFileInfo extractedFileInfo(extractedFile);
+            if (!extractedFileInfo.dir().exists())
+                directoryToUnzip.mkdir(extractedFileInfo.absolutePath());
+
+            if(extractedFile.open(QFile::WriteOnly))
+            {
+                extractedFile.write(fileBuffer, fileSize);
+                extractedFile.close();
+            }
+            else
+            {
+                delete[] fileBuffer;
+                unzClose(zipFile);
+                return false;
+            }
+
             delete[] fileBuffer;
-            unzClose(zipFile);
-            return false;
         }
-
-        delete[] fileBuffer;
-
         //Checking if we had already reached the last files
         if(result == UNZ_END_OF_LIST_OF_FILE)
         {

@@ -59,7 +59,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 using namespace std;
 #include <QGridLayout>
 
-#include <OpenSeesParser.h>
 #include <RandomVariablesContainer.h>
 
 //#include <InputWidgetParameters.h>
