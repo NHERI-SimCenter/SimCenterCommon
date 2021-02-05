@@ -228,6 +228,9 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
     QString pySCRIPT;
 
     QString appName = QCoreApplication::applicationName();
+
+    // R2D does not have a local setup run
+
     if (appName != "R2D"){
 
         QDir scriptDir(appDir);
