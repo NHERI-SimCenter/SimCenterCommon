@@ -41,6 +41,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "RandomVariablesContainer.h"
 #include "ConstantDistribution.h"
 #include "NormalDistribution.h"
+#include "UniformDistribution.h"
 #include <QPushButton>
 #include <QScrollArea>
 #include <QJsonArray>
@@ -94,6 +95,38 @@ RandomVariablesContainer::addConstantRVs(QStringList &varNamesAndValues)
         this->addRandomVariable(theRV);
     }
 }
+
+void
+RandomVariablesContainer::addUniformRVs(QStringList &varNamesAndValues)
+{
+    // remove existing RVs
+    auto theRVs = this->theRandomVariables;
+    int numEDPs = theRVs.size();
+    for (int i = numEDPs-1; i >= 0; i--) {
+        RandomVariable *theRV = theRVs.at(i);
+        theRV->close();
+        rvLayout->removeWidget(theRV);
+        theRVs.remove(i);
+        randomVariableNames.removeAt(i);
+        theRandomVariables.remove(i);
+        theRV->setParent(0);
+        delete theRV;
+    }
+
+    int numVar = varNamesAndValues.count();
+    for (int i=0; i<numVar; i+= 2) {
+
+        QString varName = varNamesAndValues.at(i);
+        QString value = varNamesAndValues.at(i+1);
+
+        double dValue = value.toDouble();
+        ConstantDistribution *theDistribution = new ConstantDistribution(dValue);
+        RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution, uqEngineName);
+        theRV->fixToUniform(dValue);
+        this->addRandomVariable(theRV);
+    }
+}
+
 
 void
 RandomVariablesContainer::addRandomVariable(QString &varName) {

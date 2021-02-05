@@ -110,6 +110,58 @@ UniformDistribution::UniformDistribution(QString inpType, QWidget *parent) :Rand
     }
 }
 
+
+UniformDistribution::UniformDistribution(double initValue, QWidget *parent)  :RandomVariableDistribution(parent)
+{
+    //
+    // create the main layout and add the input entries
+    //
+    QGridLayout *mainLayout = new QGridLayout(this);
+
+    // set some defaults, and set layout for widget to be the horizontal layout
+    mainLayout->setHorizontalSpacing(10);
+    mainLayout->setVerticalSpacing(0);
+    mainLayout->setMargin(0);
+
+    QPushButton *showPlotButton = new QPushButton("Show PDF");
+
+    // Parameters
+
+    a = this->createTextEntry(tr("Min."), mainLayout, 0);
+    a->setValidator(new QDoubleValidator);
+
+    b  = this->createTextEntry(tr("Max."), mainLayout, 1);
+    b->setValidator(new QDoubleValidator);
+    mainLayout->addWidget(showPlotButton, 1,2);
+    mainLayout->setColumnStretch(3,1);
+
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
+
+    //connect(a,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+    //connect(b,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+    //connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
+
+    mainLayout->setColumnStretch(3,1);
+
+    // set initial or Disabled
+    if (isnan(initValue)){
+        a->setDisabled(1);
+        b->setDisabled(1);
+        showPlotButton->setDisabled(1);
+        showPlotButton->setStyleSheet("background-color: grey; border-color:grey");
+    } else {
+        double minval=std::min(initValue*0.9,initValue*1.1);
+        double maxval=std::max(initValue*0.9,initValue*1.1);
+
+        a->setText(QString::number(minval));
+        b->setText(QString::number(maxval));
+    }
+
+
+}
+
+
+
 UniformDistribution::~UniformDistribution()
 {
     delete thePlot;
@@ -118,11 +170,13 @@ UniformDistribution::~UniformDistribution()
 bool
 UniformDistribution::outputToJSON(QJsonObject &rvObject){
 
-    if (inpty==QString("Parameters")) {
+    if (inpty==QString("Parameters")||inpty.isNull()) {
         // check for error condition, a entry had no value
         if ((a->text().isEmpty())||(b->text().isEmpty())) {
-            emit sendErrorMessage("ERROR: UniformDistribution - data has not been set");
-            return false;
+            //emit sendErrorMessage("ERROR: UniformDistribution - data has not been set");
+            //return false;
+            a->setText("nan");
+            b->setText("nan");
         }
         rvObject["lowerbound"]=a->text().toDouble();
         rvObject["upperbound"]=b->text().toDouble();
@@ -198,6 +252,15 @@ UniformDistribution::inputFromJSON(QJsonObject &rvObject){
           return false;
       }
     }
+
+    if (rvObject["lowerbound"].isNull() && rvObject["lowerbound"].isNull()){
+        // for surrogate
+        a->setDisabled(true);
+        b->setDisabled(true);
+        a->setText("");
+        b->setText("");
+    }
+
 
     this->updateDistributionPlot();
     return true;

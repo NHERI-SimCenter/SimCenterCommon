@@ -367,7 +367,24 @@ void RandomVariable::distributionChanged(const QString &arg1)
     connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 }
 
-   void
-   RandomVariable::errorMessage(QString message) {
-       emit sendErrorMessage(message);
-   }
+void RandomVariable::fixToUniform(double dValue)
+{
+    distributionComboBox->setCurrentIndex(3); // Uniform
+    distributionComboBox->setDisabled(1);
+    typeComboBox->setDisabled(1);
+
+    delete theDistribution;
+    theDistribution = 0;
+    theDistribution = new UniformDistribution(dValue);
+    mainLayout->addWidget(theDistribution,0,4,2,1);
+
+}
+
+
+
+
+
+void
+RandomVariable::errorMessage(QString message) {
+   emit sendErrorMessage(message);
+}

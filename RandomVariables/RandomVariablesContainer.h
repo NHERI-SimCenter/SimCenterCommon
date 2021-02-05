@@ -76,6 +76,7 @@ public:
     void addRandomVariable(QString &rvName);
     void addRVs(QStringList &varNames);
     void addConstantRVs(QStringList &varNamesAndValues);
+    void addUniformRVs(QStringList &varNamesAndValues);
 
     void removeRandomVariable(QString &varName);
     void removeRandomVariables(QStringList &varNames);
