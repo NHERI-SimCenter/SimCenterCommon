@@ -195,12 +195,21 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
 
     QString python = QString("python");
-    QString exportPath("export PATH=$PATH");
+    QString exportPath("export PATH=");
+    bool colonYes = false;
 
     QSettings settings("SimCenter", "Common"); //These names will need to be constants to be shared
-    QVariant  pythonLocationVariant = settings.value("pythonExePath");
-    if (pythonLocationVariant.isValid()) {
-      python = pythonLocationVariant.toString();
+    QVariant  pythonPathVariant = settings.value("pythonExePath");
+    if (pythonPathVariant.isValid()) {
+        python = pythonPathVariant.toString();
+
+        QFileInfo pythonFile(pythonPathVariant.toString());
+        if (pythonFile.exists()) {
+            QString pythonPath = pythonFile.absolutePath();
+            colonYes=true;
+            exportPath += pythonPath;
+            pathEnv = pythonPath + ';' + pathEnv;
+        }
     }
 
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
@@ -209,8 +218,13 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
         QFileInfo openseesFile(openseesPathVariant.toString());
         if (openseesFile.exists()) {
             QString openseesPath = openseesFile.absolutePath();
-            pathEnv = openseesPath + ';' + pathEnv;
-	    exportPath += ":" + openseesPath;
+            pathEnv = openseesPath + ':' + pathEnv;
+            if (colonYes == false) {
+                colonYes = true;
+            } else {
+                exportPath += ":";
+            }
+            exportPath += openseesPath;
         }
     }
 
@@ -219,13 +233,25 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
         QFileInfo dakotaFile(dakotaPathVariant.toString());
         if (dakotaFile.exists()) {
             QString dakotaPath = dakotaFile.absolutePath();
-            QString dakotaPythonPath = QFileInfo(dakotaPath).absolutePath() + QDir::separator() +
-                      "share" + QDir::separator() + "Dakota" + QDir::separator() + "Python";
-	    exportPath += ":" + dakotaPath;
-            pathEnv = dakotaPath + ';' + pathEnv;
-            pythonPathEnv = dakotaPythonPath + ";" + pythonPathEnv;
+            if (colonYes == false) {
+                colonYes = true;
+            } else {
+                exportPath += ":";
+            }
+            pathEnv = dakotaPath + ':' + pathEnv;
+            exportPath += dakotaPath;
+            QString dakotaPathPath = QFileInfo(dakotaPath).absolutePath() + QDir::separator() +
+                    "share" + QDir::separator() + "Dakota" + QDir::separator() + "Python";
+            pythonPathEnv = dakotaPathPath + ";" + pythonPathEnv;
+
         }
     }
+
+    if (colonYes == true) {
+        exportPath += ":";
+    }
+
+    exportPath += "$PATH";
 
     procEnv.insert("PATH", pathEnv);
     procEnv.insert("PYTHONPATH", pythonPathEnv);

@@ -52,6 +52,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QCoreApplication>
 #include <QFileInfo>
 
+#include <QGridLayout>
+
 SimCenterPreferences *
 SimCenterPreferences::getInstance(QWidget *parent) {
   if (theInstance == 0)
@@ -65,7 +67,7 @@ SimCenterPreferences *SimCenterPreferences::theInstance = 0;
 SimCenterPreferences::SimCenterPreferences(QWidget *parent) 
     : QDialog(parent)
 {
-    layout = new QVBoxLayout();
+    QVBoxLayout *layout = new QVBoxLayout();
 
     // create QGroup Boxes for sorting the preferences into groups
     QGroupBox* externalApplicationsBox = new QGroupBox("External Applications", this);
@@ -121,11 +123,16 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     // opensees
     opensees = new QLineEdit();
     QHBoxLayout *openseesLayout = new QHBoxLayout();
+    customOpenSeesCheckBox = new QCheckBox("Custom:");
+    openseesLayout->addWidget(customOpenSeesCheckBox);
     openseesLayout->addWidget(opensees);
     QPushButton *openseesButton = new QPushButton();
     openseesButton->setText("Browse");
     openseesButton->setToolTip(tr("Select your OpenSees application"));
     openseesLayout->addWidget(openseesButton);
+    customOpenSeesCheckBox->setChecked(false);
+    opensees->setEnabled(false);
+    openseesButton->setEnabled(false);
 
     externalApplicationsLayout->addRow(tr("OpenSees:"), openseesLayout);
     externalApplicationsLayout->setAlignment(Qt::AlignLeft);
@@ -155,19 +162,28 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     }
     );
 
+    connect(customOpenSeesCheckBox, &QCheckBox::toggled, this, [this, openseesButton](bool checked)
+    {
+        opensees->setEnabled(checked);
+        openseesButton->setEnabled(checked);
+        openseesButton->setFlat(!checked);
+        if (checked == false) opensees->setText(this->getDefaultOpenSees());
+    });
     // opensees
-
-
 
     // dakota
     dakota = new QLineEdit();
     QHBoxLayout *dakotaLayout = new QHBoxLayout();
+    customDakotaCheckBox = new QCheckBox("Custom");
+    dakotaLayout->addWidget(customDakotaCheckBox);
     dakotaLayout->addWidget(dakota);
     QPushButton *dakotaButton = new QPushButton();
     dakotaButton->setText("Browse");
     dakotaButton->setToolTip(tr("Select your Dakota application"));
     dakotaLayout->addWidget(dakotaButton);
-
+    customDakotaCheckBox->setChecked(false);
+    dakota->setEnabled(false);
+    dakotaButton->setEnabled(false);
     externalApplicationsLayout->addRow(tr("Dakota:"), dakotaLayout);
     externalApplicationsLayout->setAlignment(Qt::AlignLeft);
     externalApplicationsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
@@ -196,6 +212,13 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     }
     );
 
+    connect(customDakotaCheckBox, &QCheckBox::toggled, this, [this, dakotaButton](bool checked)
+    {
+        dakota->setEnabled(checked);
+        dakotaButton->setEnabled(checked);
+        dakotaButton->setFlat(!checked);
+        if (checked == false) dakota->setText(this->getDefaultDakota());
+    });
     // dakota
 
 
@@ -206,6 +229,7 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     localWorkDir = new QLineEdit();
     QHBoxLayout *localWorkDirLayout = new QHBoxLayout();
     localWorkDirLayout->addWidget(localWorkDir);
+    
     QPushButton *localWorkDirButton = new QPushButton();
     localWorkDirButton->setText("Browse");
     localWorkDirButton->setToolTip(tr("Select Work directory where local jobs will run"));
@@ -245,6 +269,7 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     remoteWorkDir = new QLineEdit();
     QHBoxLayout *remoteWorkDirLayout = new QHBoxLayout();
     remoteWorkDirLayout->addWidget(remoteWorkDir);
+    
     QPushButton *remoteWorkDirButton = new QPushButton();
     remoteWorkDirButton->setText("Browse");
     remoteWorkDirButton->setToolTip(tr("Select Work directory where local jobs will run"));
@@ -282,19 +307,24 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     // entry for appDir location .. basically as before
     //
 
-    appDir = new QLineEdit();
+
     QHBoxLayout *appDirLayout = new QHBoxLayout();
-    appDirLayout->addWidget(appDir);
+
+    appDir = new QLineEdit();
+    customAppDirCheckBox = new QCheckBox("Custom");
     QPushButton *appDirButton = new QPushButton();
     appDirButton->setText("Browse");
     appDirButton->setToolTip(tr("Select Directory containing the Backend directory named applications"));
+
+    appDirLayout->addWidget(customAppDirCheckBox);
+    appDirLayout->addWidget(appDir);
     appDirLayout->addWidget(appDirButton);
 
-    customAppDirCheckBox = new QCheckBox("Custom Local Applications:");
     customAppDirCheckBox->setChecked(false);
     appDir->setEnabled(false);
     appDirButton->setEnabled(false);
-    locationDirectoriesLayout->addRow(customAppDirCheckBox, appDirLayout);
+
+    locationDirectoriesLayout->addRow("Backend Applications:", appDirLayout);
     locationDirectoriesLayout->setAlignment(Qt::AlignLeft);
     locationDirectoriesLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     locationDirectoriesLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
@@ -311,7 +341,7 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
         }
 
         QString selectedDir = QFileDialog::getExistingDirectory(this,
-                                                                tr("Select SimCenter Workflow Applications Directory"),
+                                                                tr("Select SimCenter Backend Applications Directory"),
                                                                 existingDir,
                                                                 QFileDialog::ShowDirsOnly);
         if(!selectedDir.isEmpty()) {
@@ -322,31 +352,46 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
 
     connect(customAppDirCheckBox, &QCheckBox::toggled, this, [this, appDirButton](bool checked)
     {
-        this->appDir->setEnabled(checked);
+        appDir->setEnabled(checked);
         appDirButton->setEnabled(checked);
         appDirButton->setFlat(!checked);
-        this->appDir->setText(this->getAppDir());
+        if (checked == false) appDir->setText(this->getAppDir());
     });
 
     //
-    // entry for remoteAppDir location .. basically as before
+    // entry for remoteBackendDir location .. basically as before
     //   - note using time stamp in name so can update setting variable with new releases
     //
 
-    remoteAppDir = new QLineEdit();
-    QHBoxLayout *remoteAppDirLayout = new QHBoxLayout();
-    remoteAppDirLayout->addWidget(remoteAppDir);
+    remoteBackendDir = new QLineEdit();
+    QHBoxLayout *remoteBackendDirLayout = new QHBoxLayout();
+
+    remoteBackendDirLayout->addWidget(remoteBackendDir);
     
     // no Browse button as remote dir location is stampede2 NOT designsafe & that we cannot touch
 
-    remoteSettingsLayout->addRow(tr("Remote Applications Directory:"), remoteAppDirLayout);
+    remoteSettingsLayout->addRow(tr("Remote Applications Directory:"), remoteBackendDirLayout);
 
+    
 
-    remoteAgaveApp = new QLineEdit();
     QHBoxLayout *remoteAppLayout = new QHBoxLayout();
-    remoteAppLayout->addWidget(remoteAgaveApp);
-    remoteSettingsLayout->addRow(tr("Remote Agave App:"), remoteAppLayout);
 
+    remoteTapisApp = new QLineEdit();
+    customTapisAppCheckBox = new QCheckBox("Custom:");
+    customTapisAppCheckBox->setChecked(false);
+    remoteTapisApp->setEnabled(false);
+
+    connect(customTapisAppCheckBox, &QCheckBox::toggled, this, [this](bool checked)
+    {
+        qDebug() << "TAPIS: " << checked;
+        this->remoteTapisApp->setEnabled(checked);
+        this->remoteTapisApp->setText(this->getRemoteAgaveApp());
+    });
+
+    remoteAppLayout->addWidget(customTapisAppCheckBox);
+    remoteAppLayout->addWidget(remoteTapisApp);
+
+    remoteSettingsLayout->addRow("Tapis App:", remoteAppLayout);
     remoteSettingsLayout->setAlignment(Qt::AlignLeft);
     remoteSettingsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     remoteSettingsLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
@@ -405,9 +450,9 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
             appDir->setText(newValue.replace('\\','/'));
     });
 
-    connect(remoteAppDir, &QLineEdit::textChanged, this, [this](QString newValue){
+    connect(remoteBackendDir, &QLineEdit::textChanged, this, [this](QString newValue){
         if (newValue.contains('\\'))
-            remoteAppDir->setText(newValue.replace('\\','/'));
+            remoteBackendDir->setText(newValue.replace('\\','/'));
     });
 
     connect(localWorkDir, &QLineEdit::textChanged, this, [this](QString newValue){
@@ -429,17 +474,25 @@ SimCenterPreferences::~SimCenterPreferences()
 
 void
 SimCenterPreferences::savePreferences(bool) {
+
+    QString currentVersion = QCoreApplication::applicationVersion();
+
     QSettings settingsCommon("SimCenter", "Common");
     settingsCommon.setValue("pythonExePath", python->text());
 
     QSettings settingsApp("SimCenter", QCoreApplication::applicationName());
+
+    settingsApp.setValue("version", currentVersion);
     settingsApp.setValue("appDir", appDir->text());
     settingsApp.setValue("customAppDir", customAppDirCheckBox->isChecked());
-    settingsApp.setValue("remoteAppDir-v2.2.0", remoteAppDir->text());
-    settingsApp.setValue("remoteAgaveApp-v2.2.0", remoteAgaveApp->text());
+    settingsApp.setValue("customOpenSees", customOpenSeesCheckBox->isChecked());
+    settingsApp.setValue("customDakota", customDakotaCheckBox->isChecked());
+    settingsApp.setValue("customTapis", customTapisAppCheckBox->isChecked());
+    settingsApp.setValue("remoteBackendDir", remoteBackendDir->text());
+    settingsApp.setValue("remoteTapisApp", remoteTapisApp->text());
+
     settingsApp.setValue("localWorkDir", localWorkDir->text());
     settingsApp.setValue("remoteWorkDir", remoteWorkDir->text());
-
     settingsApp.setValue("openseesPath", opensees->text());
     settingsApp.setValue("dakotaPath", dakota->text());
     
@@ -447,43 +500,25 @@ SimCenterPreferences::savePreferences(bool) {
 }
 
 void
-SimCenterPreferences::quitPreferences(bool) {
-    
+SimCenterPreferences::quitPreferences(bool) {  
     this->close();
 }
 
 void
 SimCenterPreferences::resetPreferences(bool) {
+
+    qDebug() << "RESET_PREFERENCES";
+
     QSettings settingsCommon("SimCenter", "Common");
-    settingsCommon.setValue("pythonExePath", python->text());
 
-
-#ifdef Q_OS_WIN
-    QStringList paths{QCoreApplication::applicationDirPath().append("/applications/python")};
-    QString pythonPath = QStandardPaths::findExecutable("python.exe", paths);
-    if(pythonPath.isEmpty())
-        pythonPath = QStandardPaths::findExecutable("python.exe");
-#else
-    QString pythonPath;// = QStandardPaths::findExecutable("python3");
-    // this is where python.org installer puts it
-    QFileInfo installedPython3("/Library/Frameworks/Python.framework/Versions/3.7/bin/python3");
-    if (installedPython3.exists()) {
-      pythonPath = installedPython3.filePath();
-    } else {
-      // maybe user has a local installed copy .. look in standard path
-      QFileInfo localPython3("/usr/local/bin/python3");
-      if (localPython3.exists()) {
-	pythonPath = localPython3.filePath();
-      } else {
-	// assume user has it correct in shell startup script 
-	pythonPath = QStandardPaths::findExecutable("python3");
-      }
-    }
-#endif
+    QString pythonPath = this->getDefaultPython();
     settingsCommon.setValue("pythonExePath", pythonPath);
     python->setText(pythonPath);
 
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
+
+    QString currentVersion = QCoreApplication::applicationVersion();
+    settingsApplication.setValue("version", currentVersion);
 
     QDir workingDir(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
     QString remoteWorkDirLocation = workingDir.filePath(QCoreApplication::applicationName() + "/RemoteWorkDir");
@@ -499,76 +534,75 @@ SimCenterPreferences::resetPreferences(bool) {
     settingsApplication.setValue("appDir", appDirLocation);
     appDir->setText(appDirLocation);
     
-    QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/v2.2.0");
-    settingsApplication.setValue("remoteAppDir", remoteAppDirLocation);
-    remoteAppDir->setText(remoteAppDirLocation);
+    QString remoteBackendDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/v2.3.0");
+    settingsApplication.setValue("remoteBackendDir", remoteBackendDirLocation);
+    remoteBackendDir->setText(remoteBackendDirLocation);
 
-    QString remoteAppName;
-    if (QCoreApplication::applicationName() == QString("WE-UQ")) 
-      remoteAppName = QString("simcenter-openfoam-dakota-1.2.2u1");
-    else
-      remoteAppName = QString("simcenter-dakota-1.0.0u1");
+    QString remoteAppName = this->getDefaultAgaveApp();
+    settingsApplication.setValue("remoteTapisApp", remoteAppName);
+    remoteTapisApp->setText(remoteAppName);
 
-    settingsApplication.setValue("remoteAgaveApp-v2.2.0", remoteAppName);
-    remoteAgaveApp->setText(remoteAppName);
-
-#ifdef Q_OS_WIN
-    QString openseesPath = appDirLocation + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees.exe";
-#else
-    QString openseesPath = appDirLocation + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees";
-#endif
-
+    QString openseesPath=this->getDefaultOpenSees();
     settingsApplication.setValue("openseesPath", openseesPath);
     opensees->setText(openseesPath);
 
-#ifdef Q_OS_WIN
-    QString dakotaPath = appDirLocation + QDir::separator() + "applications" +
-      QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota.exe";
-#else
-    QString dakotaPath = appDirLocation + QDir::separator() + "applications" +
-      QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota";
-#endif
-
+    QString dakotaPath=this->getDefaultDakota();
     settingsApplication.setValue("dakotaPath", dakotaPath);
     dakota->setText(dakotaPath);
 
+    customAppDirCheckBox->setChecked(false);
+    customDakotaCheckBox->setChecked(false);
+    customOpenSeesCheckBox->setChecked(false);
+    customTapisAppCheckBox->setChecked(false);
+
+    // finally save them to make sure all saved
+    this->savePreferences(true);
 }
 
 
 void
 SimCenterPreferences::loadPreferences() {
+
+    QString currentVersion = QCoreApplication::applicationVersion();
+
+    QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
+
+    //
+    // if version not current, redo preferences
+    //
+
+    QVariant  versionVariant = settingsApplication.value("version");
+    if (versionVariant.isValid()) {
+        QString versionInSettings = versionVariant.toString();
+        if (versionInSettings != currentVersion) {
+            this->resetPreferences(true);
+            return;
+        }
+    } else {
+        this->resetPreferences(true);
+        return;
+    }
+
+    //
+    // common setting first
+    //
+
     QSettings settingsCommon("SimCenter", "Common");
+
     QVariant  pythonPathVariant = settingsCommon.value("pythonExePath");
 
     // python
     if (!pythonPathVariant.isValid()) {
-#ifdef Q_OS_WIN
-        QString pythonPath = QStandardPaths::findExecutable("python.exe");
-#else
-	QString pythonPath;// = QStandardPaths::findExecutable("python3");
-	// this is where python.org installer puts it
-	QFileInfo installedPython3("/Library/Frameworks/Python.framework/Versions/3.7/bin/python3");
-	if (installedPython3.exists()) {
-	  pythonPath = installedPython3.filePath();
-	} else {
-	  // maybe user has a local installed copy .. look in standard path
-	  QFileInfo localPython3("/usr/local/bin/python3");
-	  if (localPython3.exists()) {
-	    pythonPath = localPython3.filePath();
-	  } else {
-	    // assume user has it correct in shell startup script 
-	    pythonPath = QStandardPaths::findExecutable("python3");
-	  }
-	}
-#endif
+        QString pythonPath=this->getPython();
         settingsCommon.setValue("pythonExePath", pythonPath);
         python->setText(pythonPath);
     } else {
         python->setText(pythonPathVariant.toString());
     }
 
-
-    QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
+    //
+    // now app specific settings
+    //
 
     // localWorkDir
     QVariant  localWorkDirVariant = settingsApplication.value("localWorkDir");
@@ -606,67 +640,75 @@ SimCenterPreferences::loadPreferences() {
 
     appDir->setText(currentAppDir);
 
-    
-
-    // remoteAppDir NOT quite as before as need to allow future releases to bring new ones
-    QVariant  remoteAppDirVariant = settingsApplication.value("remoteAppDir-v2.2.0");
-    if (!remoteAppDirVariant.isValid()) {
-      QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/v2.2.0");
-      settingsApplication.setValue("remoteAppDir-v2.2.0", remoteAppDirLocation);
-      remoteAppDir->setText(remoteAppDirLocation);
+    // remoteBackendDir NOT quite as before as need to allow future releases to bring new ones
+    QVariant  remoteBackendDirVariant = settingsApplication.value("remoteBackendDir");
+    if (!remoteBackendDirVariant.isValid()) {
+      QString remoteBackendDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/v2.3.0");
+      settingsApplication.setValue("remoteBackendDir", remoteBackendDirLocation);
+      remoteBackendDir->setText(remoteBackendDirLocation);
     } else {
-        remoteAppDir->setText(remoteAppDirVariant.toString());
+        remoteBackendDir->setText(remoteBackendDirVariant.toString());
     }
 
-    QString remoteAppName;
-    if (QCoreApplication::applicationName() == QString("WE-UQ")) 
-      remoteAppName = QString("simcenter-openfoam-dakota-1.2.2u1");
-    else
-      remoteAppName = QString("simcenter-dakota-1.0.0u1");
-    
-    QVariant  remoteAppNameVariant = settingsApplication.value("remoteAgaveApp-v2.2.0");
-    if (!remoteAppNameVariant.isValid()) {
-      settingsApplication.setValue("remoteAgaveApp-v2.2.0", remoteAppName);
-      remoteAgaveApp->setText(remoteAppName);
+    //remoteApp
+    auto customTapisApp = settingsApplication.value("customTapis", false);
+    if (customTapisApp.isValid() && customTapisApp.toBool() == true) {
+        QVariant  tapisAppVariant = settingsApplication.value("remoteTapisApp");
+        if (!tapisAppVariant.isValid()) {
+            customTapisAppCheckBox->setChecked(false);
+            QString tapisApp=this->getDefaultAgaveApp();
+            settingsApplication.setValue("remoteTapisApp", tapisApp);
+            remoteTapisApp->setText(tapisApp);
+        } else {
+            customTapisAppCheckBox->setChecked(true);
+            remoteTapisApp->setText(tapisAppVariant.toString());
+        }
     } else {
-      remoteAgaveApp->setText(remoteAppNameVariant.toString());
+        QString tapisApp=this->getDefaultAgaveApp();
+        remoteTapisApp->setText(tapisApp);
     }
 
+    
     // opensees
-    QVariant  openseesPathVariant = settingsApplication.value("openseesPath");
-    if (!openseesPathVariant.isValid()) {
-
-#ifdef Q_OS_WIN
-      QString openseesPath = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees.exe";
-#else
-      QString openseesPath = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees";
-      qDebug() << "openseespath: :" << openseesPath;
-#endif
-      settingsApplication.setValue("openseesPath", openseesPath);
-      opensees->setText(openseesPath);
+    auto customOpenSees = settingsApplication.value("customOpenSees", false);
+    if (customOpenSees.isValid() && customOpenSees.toBool() == true) {
+        QVariant  openseesPathVariant = settingsApplication.value("openseesPath");
+        if (!openseesPathVariant.isValid()) {
+            customOpenSeesCheckBox->setChecked(false);
+            QString openseesPath=this->getDefaultOpenSees();
+            settingsApplication.setValue("openseesPath", openseesPath);
+            opensees->setText(openseesPath);
+        } else {
+            customOpenSeesCheckBox->setChecked(true);
+            opensees->setText(openseesPathVariant.toString());
+        }
     } else {
-      opensees->setText(openseesPathVariant.toString());
+        QString openSeesApp=this->getDefaultOpenSees();
+        opensees->setText(openSeesApp);
     }
 
     // dakota
-    QVariant  dakotaPathVariant = settingsApplication.value("dakotaPath");
-    if (!dakotaPathVariant.isValid()) {
-
-#ifdef Q_OS_WIN
-      QString dakotaPath = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota.exe";
-#else
-      QString dakotaPath = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota";
-      qDebug() << "dakotaPath: :" << dakotaPath;
-#endif
-      settingsApplication.setValue("dakotaPath", dakotaPath);
-      dakota->setText(dakotaPath);
+    auto customDakota = settingsApplication.value("customDakota", false);
+    if (customDakota.isValid() && customDakota.toBool() == true) {
+        QVariant  dakotaPathVariant = settingsApplication.value("dakotaPath");
+        if (!dakotaPathVariant.isValid()) {
+            customDakotaCheckBox->setChecked(false);
+            QString dakotaPath=this->getDefaultDakota();
+            settingsApplication.setValue("dakotaPath", dakotaPath);
+            dakota->setText(dakotaPath);
+        } else {
+            customDakotaCheckBox->setChecked(true);
+            dakota->setText(dakotaPathVariant.toString());
+        }
     } else {
-      dakota->setText(dakotaPathVariant.toString());
+        QString dakotaApp=this->getDefaultDakota();
+        dakota->setText(dakotaApp);
     }
 }
 
 QString
 SimCenterPreferences::getPython(void) {
+
     QSettings settingsCommon("SimCenter", "Common");
     QVariant  pythonPathVariant = settingsCommon.value("pythonExePath");
 
@@ -680,12 +722,12 @@ SimCenterPreferences::getPython(void) {
 #else
         QString pythonPath = QStandardPaths::findExecutable("python");
 #endif
-	if (pythonPath.isEmpty()) 
-	  pythonPath = QString("python");
+        if (pythonPath.isEmpty())
+            pythonPath = QString("python");
 
         settingsCommon.setValue("pythonExePath", pythonPath);
         return pythonPath;
-    } 
+    }
 
     return pythonPathVariant.toString();
 }
@@ -714,37 +756,39 @@ QString
 SimCenterPreferences::getRemoteAppDir(void) {
 
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
-    QVariant  remoteAppDirVariant = settingsApplication.value("remoteAppDir-v2.2.0");
+    QVariant  remoteBackendDirVariant = settingsApplication.value("remoteBackendDir");
 
     // if not set, use default & set default as application directory
-    if (!remoteAppDirVariant.isValid()) {
-      QString remoteAppDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/v2.2.0");
-      settingsApplication.setValue("remoteAppDir-v2.2.0", remoteAppDirLocation);
-      return remoteAppDirLocation;
+    if (!remoteBackendDirVariant.isValid()) {
+      QString remoteBackendDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/v2.3.0");
+      settingsApplication.setValue("remoteBackendDir", remoteBackendDirLocation);
+      return remoteBackendDirLocation;
     } 
     
-    return remoteAppDirVariant.toString();
+    return remoteBackendDirVariant.toString();
 }
+
+
 
 QString
 SimCenterPreferences::getRemoteAgaveApp(void) {
 
-    QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
-    QVariant  remoteAppNameVariant = settingsApplication.value("remoteAgaveApp-v2.2.0");
+    //Default appDir is the location of the application
 
-    // if not set, use default & set default as application directory
-    if (!remoteAppNameVariant.isValid()) {
-      QString remoteAppName;
-      if (QCoreApplication::applicationName() == QString("WE-UQ")) 
-    remoteAppName = QString("simcenter-openfoam-dakota-1.2.2u1");
-      else
-	remoteAppName = QString("simcenter-dakota-1.0.0u1");
+    QString remoteApp = this->getDefaultAgaveApp();
 
-      settingsApplication.setValue("remoteAgaveApp-v2.2.0", remoteAppName);
-      return remoteAppName;
-    } 
-    
-    return remoteAppNameVariant.toString();
+    //If custom is checked we will try to get the custom app dir defined
+    if (customTapisAppCheckBox->checkState() == Qt::CheckState::Checked)
+    {
+        QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
+        QVariant  customAppNameSetting = settingsApplication.value("appName");
+
+        // if valid use it, otherwise it remains the default
+        if (customAppNameSetting.isValid())
+            remoteApp = customAppNameSetting.toString();
+    }
+
+    return remoteApp;    
 }
 
 
@@ -782,4 +826,76 @@ SimCenterPreferences::getRemoteWorkDir(void) {
     } 
     
     return remoteWorkDirVariant.toString();
+}
+
+QString
+SimCenterPreferences::getDefaultAgaveApp(void) {
+
+    //Default appDir is the location of the application
+    QString appName = QCoreApplication::applicationName();
+    QString remoteApp("simcenter-dakota-1.0.0.u1");
+    if (appName == QString("WE-UQ"))
+      remoteApp = QString("simcenter-openfoam-dakota-1.2.2u1");
+    if (appName == QString("R2D"))
+      remoteApp = QString("rWhale-2.3.0u1");
+
+    return remoteApp;
+}
+
+QString
+SimCenterPreferences::getDefaultOpenSees(void) {
+    QString currentAppDir = QCoreApplication::applicationDirPath();
+#ifdef Q_OS_WIN
+    QString openseesApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees.exe";
+#else
+    QString openseesApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees";
+#endif
+
+    return openseesApp;
+}
+
+QString
+SimCenterPreferences::getDefaultDakota(void) {
+    QString currentAppDir = QCoreApplication::applicationDirPath();
+
+#ifdef Q_OS_WIN
+    QString dakotaApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota.exe";
+#else
+    QString dakotaApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota";
+#endif
+
+    return dakotaApp;
+
+}
+
+QString
+SimCenterPreferences::getDefaultPython(void) {
+
+#ifdef Q_OS_WIN
+    QStringList paths{QCoreApplication::applicationDirPath().append("/applications/python")};
+    QString pythonPath = QStandardPaths::findExecutable("python.exe", paths);
+    if(pythonPath.isEmpty())
+        pythonPath = QStandardPaths::findExecutable("python.exe");
+#else
+    QString pythonPath;// = QStandardPaths::findExecutable("python3");
+    // this is where python.org installer puts it
+    QFileInfo installedPython38("/Library/Frameworks/Python.framework/Versions/3.8/bin/python3");
+    QFileInfo installedPython37("/Library/Frameworks/Python.framework/Versions/3.7/bin/python3");
+    if (installedPython38.exists()) {
+        pythonPath = installedPython38.filePath();
+    } else if (installedPython37.exists()) {
+        pythonPath = installedPython37.filePath();
+    } else {
+        // maybe user has a local installed copy .. look in standard path
+        QFileInfo localPython3("/usr/local/bin/python3");
+        if (localPython3.exists()) {
+            pythonPath = localPython3.filePath();
+        } else {
+            // assume user has it correct in shell startup script
+            pythonPath = QStandardPaths::findExecutable("python3");
+        }
+    }
+#endif
+
+    return pythonPath;
 }
