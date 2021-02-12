@@ -135,6 +135,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     //
 
     loginWindow = new QWidget();
+    loginWindow->setWindowFlag(Qt::WindowStaysOnTopHint);
     loginWindow->setWindowTitle("Login to DesignSafe");
     QGridLayout *loginLayout = new QGridLayout();
     SectionTitle *info=new SectionTitle();
