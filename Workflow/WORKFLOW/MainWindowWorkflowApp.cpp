@@ -72,7 +72,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     QRect rec = QGuiApplication::primaryScreen()->geometry();
     int height = this->height()<int(0.75*rec.height())?int(0.75*rec.height()):this->height();
     int width  = this->width()<int(0.75*rec.width())?int(0.75*rec.width()):this->width();
-    if (width>1280) width=1280;
+    // if (width>1280) width=1280;
     this->resize(width, height);
 
 
