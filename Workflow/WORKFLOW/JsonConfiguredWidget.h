@@ -48,8 +48,11 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "JsonWidgetEnums.h"
 #include "SimCenterComboBox.h"
+#include "SimCenterDoubleSpinBox.h"
+#include "SimCenterLineEdit.h"
 #include "SimCenterRVLineEdit.h"
 #include "SimCenterFileInput.h"
+#include "SimCenterSpinBox.h"
 
 class JsonConfiguredWidget : public SimCenterWidget {
   Q_OBJECT
@@ -132,6 +135,27 @@ protected:
    * @return Pointer to generated file line edit
    */
   SimCenterWidget *generateFileInput(const QJsonValue &inputValue) const;
+
+  /**
+   * Generate line edit based on input JSON value
+   * @param[in] inputValue JSON value describing line edit to be generated
+   * @return Pointer to generated line edit
+   */
+  SimCenterWidget *generateLineEdit(const QJsonValue &inputValue) const;
+
+  /**
+   * Generate double spin box based on input JSON value
+   * @param[in] inputValue JSON value describing double spin box to be generated
+   * @return Pointer to generated double spin box
+   */
+  SimCenterWidget *generateDoubleSpinBox(const QJsonValue &inputValue) const;
+
+  /**
+   * Generate spin box based on input JSON value
+   * @param[in] inputValue JSON value describing spin box to be generated
+   * @return Pointer to generated spin box
+   */
+  SimCenterWidget *generateSpinBox(const QJsonValue &inputValue) const;
 
   /**
    * Write the input widget to JSON. Assumes that widget

@@ -39,6 +39,7 @@ build*
 *.exe
 *.out
 *.app
+unit_tests
 
 # QT
 *.pro.user
@@ -49,3 +50,5 @@ build*
 .DS_Store
 
 *.qm
+
+SimFigure/SimPlotDemo/SimPlotDemo.pro.user.4.10-pre1

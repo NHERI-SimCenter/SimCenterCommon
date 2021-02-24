@@ -65,7 +65,6 @@ OpenSeesBuildingModel::OpenSeesBuildingModel(RandomVariablesContainer *theRandom
   : SimCenterAppWidget(parent), responseNodes(0), theRandomVariablesContainer(theRandomVariableIW)
 {
   includeCentroid = includeC;
-  femSpecific = 0;
   centroidNodes = NULL;
     responseNodes = NULL;
     layout = new QGridLayout();
@@ -170,16 +169,20 @@ OpenSeesBuildingModel::outputToJSON(QJsonObject &jsonObject)
     string s1(nodeString); // this line is needed as nodeString cannot be passed directly to the line below!
     stringstream nodeStream(s1);
     int nodeTag;
+    int numStories = -1;
     while (nodeStream >> nodeTag) {
         responseNodeTags.append(QJsonValue(nodeTag));
-        if (nodeStream.peek() == ',')
+        if (nodeStream.peek() == ',') {
             nodeStream.ignore();
+        } else
+            numStories++;
     }
 
     jsonObject["centroidNodes"]=nodeTags;
     jsonObject["responseNodes"]=responseNodeTags;
     jsonObject["ndm"]=ndm->text().toInt();
     jsonObject["ndf"]=ndf->text().toInt();
+    //jsonObject["stories"]=numStories;
 
     QJsonArray rvArray;
     for (int i=0; i<varNamesAndValues.size()-1; i+=2) {

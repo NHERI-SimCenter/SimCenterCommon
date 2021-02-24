@@ -40,7 +40,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: Michael Gardner
 
 namespace JsonWidget {
-  enum class Type { ComboBox, RVLineEdit, FileInput, ForkComboBox};
+  enum class Type { ComboBox, RVLineEdit, FileInput, ForkComboBox, LineEdit, DoubleSpinBox, SpinBox };
 }
 
 #endif // JSON_WIDGET_ENUMS_H

@@ -10,11 +10,13 @@
 INCLUDEPATH+=$$PWD
 
 INCLUDEPATH+=../Common
+INCLUDEPATH+=$$PWD/include
 
 SOURCES += $$PWD/RandomVariableDistribution.cpp \
     $$PWD/NormalDistribution.cpp \
     $$PWD/RandomVariable.cpp \
     $$PWD/LognormalDistribution.cpp \
+    $$PWD/GammaDistribution.cpp \
     $$PWD/BetaDistribution.cpp \
     $$PWD/RandomVariablesContainer.cpp \
     $$PWD/UniformDistribution.cpp \
@@ -23,13 +25,18 @@ SOURCES += $$PWD/RandomVariableDistribution.cpp \
     $$PWD/WeibullDistribution.cpp \
     $$PWD/GumbelDistribution.cpp \
     $$PWD/UserDef.cpp \
-    $$PWD/LineEditRV.cpp
+    $$PWD/LineEditRV.cpp \
+    $$PWD/ExponentialDistribution.cpp \
+    $$PWD/DiscreteDistribution.cpp \
+    $$PWD/ChiSquaredDistribution.cpp \
+    $$PWD/TruncatedExponentialDistribution.cpp
 
 
 HEADERS += $$PWD/RandomVariableDistribution.h \
     $$PWD/NormalDistribution.h \
     $$PWD/RandomVariable.h \
     $$PWD/LognormalDistribution.h \
+    $$PWD/GammaDistribution.h \
     $$PWD/BetaDistribution.h \
     $$PWD/RandomVariablesContainer.h \
     $$PWD/UniformDistribution.h \
@@ -38,5 +45,9 @@ HEADERS += $$PWD/RandomVariableDistribution.h \
     $$PWD/WeibullDistribution.h \
     $$PWD/GumbelDistribution.h \
     $$PWD/UserDef.h \
-    $$PWD/LineEditRV.h
+    $$PWD/LineEditRV.h \
+    $$PWD/ExponentialDistribution.h \
+    $$PWD/DiscreteDistribution.h \
+    $$PWD/ChiSquaredDistribution.h \
+    $$PWD/TruncatedExponentialDistribution.h
 

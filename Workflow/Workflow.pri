@@ -50,8 +50,12 @@ SOURCES += $$PWD/UQ/DakotaResults.cpp \
     $$PWD/WORKFLOW/SimCenterComboBox.cpp \
     $$PWD/WORKFLOW/SimCenterFileInput.cpp \
     $$PWD/WORKFLOW/SimCenterRVLineEdit.cpp \
+    $$PWD/WORKFLOW/SimCenterSpinBox.cpp \
+    $$PWD/WORKFLOW/SimCenterDoubleSpinBox.cpp \
+    $$PWD/WORKFLOW/SimCenterLineEdit.cpp \
     $$PWD/SIM/OpenSeesBuildingModel.cpp \
     $$PWD/SIM/MDOF_BuildingModel.cpp \
+    $$PWD/SIM/SteelBuildingModel.cpp \
     $$PWD/SIM/SIM_Selection.cpp \
     $$PWD/SIM/InputWidgetBIM.cpp \
     $$PWD/SIM/OpenSeesParser.cpp \
@@ -105,9 +109,14 @@ HEADERS += $$PWD/UQ/DakotaResults.h \
     $$PWD/WORKFLOW/JsonConfiguredWidget.h \
     $$PWD/WORKFLOW/SimCenterComboBox.h \
     $$PWD/WORKFLOW/SimCenterFileInput.h \
-    $$PWD/WORKFLOW/SimCenterRVLineEdit.h \    
+    $$PWD/WORKFLOW/SimCenterRVLineEdit.h \
+    $$PWD/WORKFLOW/SimCenterSpinBox.h \
+    $$PWD/WORKFLOW/SimCenterDoubleSpinBox.h \
+    $$PWD/WORKFLOW/SimCenterLineEdit.h \
     $$PWD/SIM/OpenSeesBuildingModel.h \
     $$PWD/SIM/MDOF_BuildingModel.h \
+    $$PWD/SIM/ReadWriteRVJSON.h \
+    $$PWD/SIM/SteelBuildingModel.h \
     $$PWD/SIM/SIM_Selection.h \
     $$PWD/SIM/InputWidgetBIM.h \
     $$PWD/SIM/OpenSeesParser.h \

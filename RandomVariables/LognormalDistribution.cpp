@@ -5,9 +5,9 @@ All rights reserved.
 Redistribution and use in source and binary forms, with or without 
 modification, are permitted provided that the following conditions are met:
 
-1. Redistributions of source code must retain the above copyright notice, this
+1. Redistributions of source code lambdast retain the above copyright notice, this
    list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright notice,
+2. Redistributions in binary form lambdast reproduce the above copyright notice,
    this list of conditions and the following disclaimer in the documentation
    and/or other materials provided with the distribution.
 
@@ -36,48 +36,78 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-
 #include "LognormalDistribution.h"
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+#include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QDebug>
 #include <QDoubleValidator>
 #include <SimCenterGraphPlot.h>
 #include <math.h>
 #include <QPushButton>
+#include <QFileDialog>
 
-LognormalDistribution::LognormalDistribution(QWidget *parent)
-    : RandomVariableDistribution(parent)
+LognormalDistribution::LognormalDistribution(QString inpType, QWidget *parent) :RandomVariableDistribution(parent)
 {
     //
-    // create the main horizontal layout and add the input entries
+    // create the main layout and add the input entries
     //
-
-    QHBoxLayout *mainLayout = new QHBoxLayout();
-
-    mean = this->createTextEntry(tr("mean"), mainLayout);
-    standardDev = this->createTextEntry(tr("standardDev"), mainLayout);
-
-    QPushButton *showPlotButton = new QPushButton("Show PDF");
-    mainLayout->addWidget(showPlotButton);
-
-    mainLayout->addStretch();
+    QGridLayout *mainLayout = new QGridLayout(this);
 
     // set some defaults, and set layout for widget to be the horizontal layout
-    mainLayout->setSpacing(10);
+    mainLayout->setHorizontalSpacing(10);
+    mainLayout->setVerticalSpacing(0);
     mainLayout->setMargin(0);
-    this->setLayout(mainLayout);
 
-    mean->setValidator(new QDoubleValidator);
-    standardDev->setValidator(new QDoubleValidator);
+    QPushButton *showPlotButton = new QPushButton("Show PDF");
 
-    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"), 500, 500);
+    this->inpty=inpType;
+
+    if (inpty==QString("Parameters"))
+    {
+        lambda = this->createTextEntry(tr("lambda"), mainLayout, 0);
+        lambda->setValidator(new QDoubleValidator);
+        zeta  = this->createTextEntry(tr("zeta"), mainLayout, 1);
+        zeta->setValidator(new QDoubleValidator);
+        mainLayout->addWidget(showPlotButton, 1,2);
+
+    } else if (inpty==QString("Moments")) {
+
+        mean = this->createTextEntry(tr("Mean"), mainLayout, 0);
+        mean->setValidator(new QDoubleValidator);        
+        standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout, 1);
+        standardDev->setValidator(new QDoubleValidator);
+        mainLayout->addWidget(showPlotButton, 1,2);
+
+    } else if (inpty==QString("Dataset")) {
 
 
-    connect(mean,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
-    connect(standardDev,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
-    connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
+        dataDir = this->createTextEntry(tr("Data File"), mainLayout, 0);
+        dataDir->setMinimumWidth(200);
+        dataDir->setMinimumWidth(200);
+
+        QPushButton *chooseFileButton = new QPushButton("Choose");
+        mainLayout->addWidget(chooseFileButton, 1,1);
+
+        // Action
+        connect(chooseFileButton, &QPushButton::clicked, this, [=](){
+                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)"));
+        });
+    }
+
+    mainLayout->setColumnStretch(3,1);
+
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
+
+    if (inpty==QString("Parameters")) {
+        connect(lambda,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+        connect(zeta,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+        connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
+    } else if (inpty==QString("Moments")) {
+        connect(mean,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+        connect(standardDev,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+        connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
+    }
 }
 
 LognormalDistribution::~LognormalDistribution()
@@ -87,31 +117,86 @@ LognormalDistribution::~LognormalDistribution()
 
 bool
 LognormalDistribution::outputToJSON(QJsonObject &rvObject){
-    if (mean->text().isEmpty() || standardDev->text().isEmpty()) {
-        emit sendErrorMessage("ERROR: LognormalDistribution - data has not been set");
-        return false;
+
+
+    if (inpty==QString("Parameters")) {
+        // check for error condition, an entry had no value
+        if ((lambda->text().isEmpty())||(zeta->text().isEmpty())) {
+            emit sendErrorMessage("ERROR: LognormalDistribution - data has not been set");
+            return false;
+        }
+        rvObject["lambda"]=lambda->text().toDouble();
+        rvObject["zeta"]=zeta->text().toDouble();
+    } else if (inpty==QString("Moments")) {
+        if ((mean->text().isEmpty())||(standardDev->text().isEmpty())) {
+            emit sendErrorMessage("ERROR: LognormalDistribution - data has not been set");
+            return false;
+        }
+        rvObject["mean"]=mean->text().toDouble();
+        rvObject["stdDev"]=standardDev->text().toDouble();
+    } else if (inpty==QString("Dataset")) {
+        if (dataDir->text().isEmpty()) {
+            emit sendErrorMessage("ERROR: LognormalDistribution - data has not been set");
+            return false;
+        }
+        rvObject["dataDir"]=QString(dataDir->text());
     }
-    rvObject["mean"]=mean->text().toDouble();
-    rvObject["stdDev"]=standardDev->text().toDouble();
     return true;
 }
 
 bool
 LognormalDistribution::inputFromJSON(QJsonObject &rvObject){
-    if (rvObject.contains("mean")) {
-        QJsonValue theMeanValue = rvObject["mean"];
-        mean->setText(QString::number(theMeanValue.toDouble()));
+
+    //
+    // for all entries, make sure i exists and if it does get it, otherwise return error
+    //
+
+    if (rvObject.contains("inputType")) {
+        inpty=rvObject["inputType"].toString();
     } else {
-        emit sendErrorMessage("ERROR: LognormalDistribution - no \"mean\" entry");
-        return false;
+        inpty = "Moments";
     }
 
-    if (rvObject.contains("stdDev")) {
-        QJsonValue theStdDevValue = rvObject["stdDev"];
-        standardDev->setText(QString::number(theStdDevValue.toDouble()));
-    } else {
-        emit sendErrorMessage("Error: LognormalDistribution - no \"stdDev\" entry");
-        return false;
+    if (inpty==QString("Parameters")) {
+        if (rvObject.contains("lambda")) {
+            double thelambdaValue = rvObject["lambda"].toDouble();
+            lambda->setText(QString::number(thelambdaValue));
+        } else {
+            emit sendErrorMessage("ERROR: LognormalDistribution - no \"a\" entry");
+            return false;
+        }
+        if (rvObject.contains("zeta")) {
+            double thezetaValue = rvObject["zeta"].toDouble();
+            zeta->setText(QString::number(thezetaValue));
+        } else {
+            emit sendErrorMessage("ERROR: LognormalDistribution - no \"a\" entry");
+            return false;
+        }
+      } else if (inpty==QString("Moments")) {
+
+        if (rvObject.contains("mean")) {
+            double theMeanValue = rvObject["mean"].toDouble();
+            mean->setText(QString::number(theMeanValue));
+        } else {
+            emit sendErrorMessage("ERROR: LognormalDistribution - no \"mean\" entry");
+            return false;
+        }
+        if (rvObject.contains("stdDev")) {
+            double theStdValue = rvObject["stdDev"].toDouble();
+            standardDev->setText(QString::number(theStdValue));
+        } else {
+            emit sendErrorMessage("ERROR: LognormalDistribution - no \"mean\" entry");
+            return false;
+        }
+    } else if (inpty==QString("Dataset")) {
+
+      if (rvObject.contains("dataDir")) {
+          QString theDataDir = rvObject["dataDir"].toString();
+          dataDir->setText(theDataDir);
+      } else {
+          emit sendErrorMessage("ERROR: LognormalDistribution - no \"mean\" entry");
+          return false;
+      }
     }
 
     this->updateDistributionPlot();
@@ -120,29 +205,36 @@ LognormalDistribution::inputFromJSON(QJsonObject &rvObject){
 
 QString 
 LognormalDistribution::getAbbreviatedName(void) {
-  return QString("Lognormal");
+  return QString("Normal");
 }
 
 void
 LognormalDistribution::updateDistributionPlot() {
-    double u = mean->text().toDouble();
-    double s =standardDev->text().toDouble();
-    double square_zeta = log(s*s/(u*u) + 1);
-    double zeta = sqrt(square_zeta);
-    double lambda = log(u)-square_zeta/2.0;
-    if (s > 0.0) {
-        double min = u - 5*s;
-        if (min < 0) min = 0.0;
-        double max = u + 5*s;
-        QVector<double> x(100);
-        QVector<double> y(100);
-        for (int i=0; i<100; i++) {
-            double xi = min + i*(max-min)/99;
-            x[i] = xi;
-            y[i] =1.0/(sqrt(2*3.14156)*zeta*xi)*exp(-(.5*pow(((log(xi)-lambda)/zeta),2)));
-        }
-        thePlot->clear();
-        thePlot->addLine(x,y);
+    double la=0, ze=0, me=0, st=0;
+    if ((this->inpty)==QString("Parameters")) {
+        la=lambda->text().toDouble();
+        ze=zeta->text().toDouble();
+        me = exp(la+(pow(ze,2)/2));
+        st = sqrt(exp(2*la+pow(ze,2))*(exp(pow(ze,2))-1));
+     } else if ((this->inpty)==QString("Moments")) {
+        me = mean->text().toDouble();
+        st = standardDev->text().toDouble();
+        la = log(pow(me,2)/sqrt(pow(st,2)+pow(me,2)));
+        ze = sqrt(log(pow(st/me,2)+1));
     }
+
+        if (st > 0.0) {
+            double min = 0; // defined in x>0
+            double max = me + 5*st;
+            QVector<double> x(500);
+            QVector<double> y(500);
+            for (int i=0; i<500; i++) {
+                double xi = min + i*(max-min)/499;
+                x[i] = xi;
+                y[i] = 1.0/(xi*ze*sqrt(2*3.141592))*exp( - pow((log(xi)-la)/ze,2)/2  );
+            }
+            thePlot->clear();
+            thePlot->addLine(x,y);
+        }
 
 }

@@ -26,9 +26,12 @@
 
 #include "qwt_picker.h"
 #include "qwt_plot_picker.h"
+#include "qwt_plot_zoomer.h"
 #include "qwt_plot_item.h"
 #include "qwt_plot_shapeitem.h"
 #include "qwt_picker_machine.h"
+#include "qwt_plot_magnifier.h"
+#include "qwt_scale_widget.h"
 
 #include <QDebug>
 
@@ -61,6 +64,7 @@ SimFigure::SimFigure(QWidget *parent) :
     m_plot = new QwtPlot(this);
     QVBoxLayout *lyt = new QVBoxLayout(ui->pltWidgetSpace);
     lyt->addWidget(m_plot);
+    lyt->setMargin(0);
     m_plot->setCanvasBackground(QBrush(Qt::white));
 
     ui->btn_standard->setChecked(true);
@@ -80,13 +84,23 @@ SimFigure::SimFigure(QWidget *parent) :
     m_picker->setTrackerMode(QwtPicker::AlwaysOn);
     m_picker->setRubberBand(QwtPicker::RectRubberBand);
 
+    m_zoomer = new QwtPlotZoomer(m_plot->canvas());
+
+    m_zoom_shiftwheel = new QwtPlotMagnifier(m_plot->canvas());
+    m_zoom_ctrlwheel = new QwtPlotMagnifier(m_plot->canvas());
+    m_zoom_shiftwheel->setWheelModifiers(Qt::ShiftModifier);
+    m_zoom_shiftwheel->setAxisEnabled(QwtPlot::xBottom, true);
+    m_zoom_shiftwheel->setAxisEnabled(QwtPlot::yLeft,true);
+    m_zoom_ctrlwheel->setWheelModifiers(Qt::ControlModifier);
+    m_zoom_ctrlwheel->setAxisEnabled(QwtPlot::yLeft,true);
+    m_zoom_ctrlwheel->setAxisEnabled(QwtPlot::yLeft,true);
+
     connect(m_picker, SIGNAL(activated(bool)), this, SLOT(on_picker_activated(bool)));
     connect(m_picker, SIGNAL(selected(const QPolygon &)), this, SLOT(on_picker_selected(const QPolygon &)));
     connect(m_picker, SIGNAL(appended(const QPoint &)), this, SLOT(on_picker_appended(const QPoint &)));
     connect(m_picker, SIGNAL(moved(const QPoint &)), this, SLOT(on_picker_moved(const QPoint &)));
     connect(m_picker, SIGNAL(removed(const QPoint &)), this, SLOT(on_picker_removed(const QPoint &)));
     connect(m_picker, SIGNAL(changed(const QPolygon &)), this, SLOT(on_picker_changed(const QPolygon &)));
-
 }
 
 /*! the SimFIgure destructor */
@@ -163,6 +177,8 @@ void SimFigure::axisTypeChanged(void)
 
     grid(true, true);
 
+    m_plot->repaint();
+
     //qDebug() << "signal axisTypeChanged received " << int(m_axisType);
 }
 
@@ -220,21 +236,27 @@ void SimFigure::setAxisType(enum AxisType type)
  * @param lt a member of the SimFigure::LineType enum
  * @param color a QColor object defining the line color.  You may also use pre-defined colors like Qt::red, ...
  * @param mk a member of the SimFigure::Marker enum.
+ * @param label defines the name listed when showLegend() is called.  The special label "_none_" will suppress the entry for the respective curce. The special label "_auto_" will generate a label "curve #ID" where ID is the curve ID.
+ *
  */
-int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor color, Marker mk)
+int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor color, Marker mk, QString label)
 {
     if (x.length() <= 0 || y.length() <= 0) return -1;
 
     // update min and max values
 
-    if (MAX(x) > m_xmax) m_xmax=MAX(x);
-    if (MIN(x) < m_xmin) m_xmin=MIN(x);
-    if (MAX(y) > m_ymax) m_ymax=MAX(y);
-    if (MIN(y) < m_ymin) m_ymin=MIN(y);
+    if (MAX(x) > m_data_xmax) m_data_xmax=MAX(x);
+    if (MIN(x) < m_data_xmin) m_data_xmin=MIN(x);
+    if (MAX(y) > m_data_ymax) m_data_ymax=MAX(y);
+    if (MIN(y) < m_data_ymin) m_data_ymin=MIN(y);
+
+    // curve attributes
+    uint attr;
+    attr = QwtPlotCurve::LegendAttribute::LegendShowLine|QwtPlotCurve::LegendAttribute::LegendShowSymbol;
 
     // now add that curve
+    QwtPlotCurve *curve = new QwtPlotCurve();
 
-    QwtPlotCurve *curve = new QwtPlotCurve("default");
     curve->setSamples(x,y);
 
     setLineStyle(curve, lt);
@@ -246,11 +268,27 @@ int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor 
     m_curves.append(curve);
 
     //grid(true,true);
-    rescale();
+    fit_data();
     m_plot->replot();
 
     int idx = m_curves.length();
     m_plotInvMap.insert(curve, idx);
+
+    if (label == "_auto_") {
+        curve->setTitle(QString("curve #%1").arg(idx));
+        curve->setLegendAttribute(QwtPlotCurve::LegendAttribute::LegendShowLine, true);
+        curve->setLegendAttribute(QwtPlotCurve::LegendAttribute::LegendShowSymbol, true);
+    }
+    else if (label != "_none_") {
+        curve->setTitle(label);
+        curve->setLegendAttribute(QwtPlotCurve::LegendAttribute::LegendShowLine, true);
+        curve->setLegendAttribute(QwtPlotCurve::LegendAttribute::LegendShowSymbol, true);
+    }
+    else {
+        curve->setLegendAttribute(QwtPlotCurve::LegendAttribute::LegendShowLine, false);
+        curve->setLegendAttribute(QwtPlotCurve::LegendAttribute::LegendShowSymbol, false);
+        curve->setItemAttribute(QwtPlotItem::Legend, false);
+    }
 
     return idx;
 }
@@ -267,12 +305,13 @@ int SimFigure::plot(QVector<double> &x, QVector<double> &y, LineType lt, QColor 
  *
  * @param color a QColor object defining the line color.  You may also use pre-defined colors like Qt::red, ...
  * @param mk a member of the SimFigure::Marker enum.
+ * @param label defines the name listed when showLegend() is called.  The special label "_none_" will suppress the entry for the respective curce. The special label "_auto_" will generate a label "curve #ID" where ID is the curve ID.
+ *
  */
-int SimFigure::scatter(QVector<double> &x, QVector<double> &y, QColor color, Marker mk)
+int SimFigure::scatter(QVector<double> &x, QVector<double> &y, QColor color, Marker mk, QString label)
 {
-    return plot(x, y, SimFigure::LineType::None, color, mk);
+    return plot(x, y, SimFigure::LineType::None, color, mk, label);
 }
-
 /**
  * @brief SimFigure::xLabel()
  * @return title of the current x-axis label
@@ -325,6 +364,38 @@ void SimFigure::setLabelFontSize(int sz)
         text = m_plot->axisTitle(QwtPlot::yLeft);
         text.setFont(font);
         m_plot->setAxisTitle(QwtPlot::yLeft, text);
+    }
+}
+
+
+/**
+ * @brief sets the current font size used for legend to sz
+ */
+void SimFigure::setLegendFontSize(int sz)
+{
+    if (sz>0)
+    {
+        QwtText text = m_plot->axisTitle(QwtPlot::xBottom);
+        QFont font = text.font();
+        font.setPointSize(sz);
+        text.setFont(font);
+        m_legend->setFont(font);
+    }
+}
+
+/**
+ * @brief sets the current font size used for axis tick to sz
+ */
+void SimFigure::setTickFontSize(int sz)
+{
+    if (sz>0)
+    {
+        QwtText text = m_plot->axisTitle(QwtPlot::xBottom);
+        QFont font = text.font();
+        font.setPointSize(sz);
+        text.setFont(font);
+        m_plot->axisWidget(QwtPlot::yLeft)->setFont(font);
+        m_plot->axisWidget(QwtPlot::xBottom)->setFont(font);
     }
 }
 
@@ -388,6 +459,35 @@ void SimFigure::rescale(void)
     {
         m_plot->setAxisScale(QwtPlot::yLeft,   1, 100);
         m_plot->setAxisScale(QwtPlot::xBottom, 1, 100);
+    }
+    m_plot->replot();
+    m_plot->repaint();
+
+}
+
+/**
+ * @brief Sets x-axis limits to given values.  xmax must be larger than xmin.
+ * @brief See maxX() and minX() on how to obtain the current limits.
+ */
+void SimFigure::setXLim(double xmin, double xmax)
+{
+    if (xmin<xmax) {
+        m_xmax = xmax;
+        m_xmin = xmin;
+        this->rescale();
+    }
+}
+
+/**
+ * @brief Sets y-axis limits to given values.  ymax must be larger than ymin.
+ * @brief See maxY() and minY() on how to obtain the current limits.
+ */
+void SimFigure::setYLim(double ymin, double ymax)
+{
+    if (ymin<ymax) {
+        m_ymax = ymax;
+        m_ymin = ymin;
+        this->rescale();
     }
 }
 
@@ -477,6 +577,11 @@ void SimFigure::cla(void)
     lastSelection.object = nullptr;
     lastSelection.plotID = -1;
 
+    m_data_xmin = 1.e20;
+    m_data_xmax = 1.e-20;
+    m_data_ymin = 1.e20;
+    m_data_ymax = 1.e-20;
+
     m_xmin = 1.e20;
     m_xmax = 1.e-20;
     m_ymin = 1.e20;
@@ -489,15 +594,38 @@ void SimFigure::cla(void)
 
 /*! Add a legend to the current plot.
  *
- * Location is an enum class.
+ * @param labels is a list of QStrings.  The special label "_none_" will suppress the entry for the respective curce. The special label "_auto_" will generate a label "curve #ID" where ID is the curve ID.
+ * @param loc Location is an enum class.
  */
-void SimFigure::legend(QList<QString> labels, Location loc)
+void SimFigure::legend(QStringList labels, Location loc)
 {
     moveLegend(loc);
 
     if (labels.length()>0)
     {
         showLegend();
+
+        // update legend text
+        for (int i = 0; i < m_curves.length(); i++) {
+            QString label_text = labels[i];
+
+            if (label_text == "_auto_") {
+                label_text = QString("curve #%1").arg(i+1);
+                m_curves[i]->setLegendAttribute(QwtPlotCurve::LegendAttribute::LegendShowLine, true);
+                m_curves[i]->setLegendAttribute(QwtPlotCurve::LegendAttribute::LegendShowSymbol, true);
+                m_curves[i]->setTitle(label_text);
+            }
+            else if (label_text != "_none_") {
+                m_curves[i]->setLegendAttribute(QwtPlotCurve::LegendAttribute::LegendShowLine, true);
+                m_curves[i]->setLegendAttribute(QwtPlotCurve::LegendAttribute::LegendShowSymbol, true);
+                m_curves[i]->setTitle(label_text);
+            }
+            else {
+                m_curves[i]->setLegendAttribute(QwtPlotCurve::LegendAttribute::LegendShowLine, false);
+                m_curves[i]->setLegendAttribute(QwtPlotCurve::LegendAttribute::LegendShowSymbol, false);
+                m_curves[i]->setTitle("should not be any");
+            }
+        }
     }
 }
 
@@ -552,6 +680,7 @@ void SimFigure::moveLegend(Location loc)
 
         m_legend->setAlignment(Qt::Alignment(alignment));
         m_plot->replot();
+        m_plot->repaint();
     }
 }
 
@@ -574,6 +703,7 @@ void SimFigure::showLegend(bool on)
     }
 
     m_plot->replot();
+    m_plot->repaint();
 }
 
 /*! check if legend is currently visible.*/
@@ -660,6 +790,24 @@ void SimFigure::on_picker_changed (const QPolygon &selection)
     //qWarning() << "picker changed " << selection;
 }
 
+
+void SimFigure::showAxisControls(bool show)
+{
+    this->ui->axisControls->setVisible(show);
+}
+
+
+void SimFigure::fit_data()
+{
+    m_xmax = m_data_xmax;
+    m_xmin = m_data_xmin;
+    m_ymax = m_data_ymax;
+    m_ymin = m_data_ymin;
+    rescale();
+
+    //m_zoomer->zoom(QRectF(m_xmin,m_ymax,m_xmax-m_xmin,m_ymax-m_ymin));
+}
+
 /*! returns a pointer to the QwtPlotItem selected by the last mouse click (private)*/
 QwtPlotItem* SimFigure::itemAt( const QPoint& pos ) const
 {
@@ -723,7 +871,7 @@ QwtPlotItem* SimFigure::itemAt( const QPoint& pos ) const
                     {
                         dist = sqrt(QPointF::dotProduct(r,r));
                         QPointF r2 = pos - x1;
-                        double d2  = sqrt(QPointF::dotProduct(r,r));
+                        double d2  = sqrt(QPointF::dotProduct(r2,r2));  // review
                         if ( d2 < dist ) { dist = d2; }
                     }
                 }
@@ -906,7 +1054,36 @@ void SimFigure::setLineStyle(QwtPlotCurve *curve, LineType lt)
  */
 SimFigure::Marker SimFigure::marker(int ID)
 {
-
+    if (ID > 0 && m_curves.length() <= ID && m_curves.value(ID-1) != nullptr)
+    {
+        const QwtSymbol *sym = m_curves.value(ID-1)->symbol();
+        int mk = sym->style();
+        switch (mk) {
+            case QwtSymbol::NoSymbol:
+                return Marker::None;
+            case QwtSymbol::XCross:
+                return Marker::Ex;
+            case QwtSymbol::Rect:
+                return Marker::Box;
+            case QwtSymbol::Cross:
+                return Marker::Plus;
+            case QwtSymbol::Ellipse:
+                return Marker::Circle;
+            case QwtSymbol::Star1:
+                return Marker::Asterisk;
+            case QwtSymbol::Triangle:
+                return Marker::Triangle;
+            case QwtSymbol::DTriangle:
+                return Marker::DownTriangle;
+            case QwtSymbol::LTriangle:
+                return Marker::LeftTriangle;
+            case QwtSymbol::RTriangle:
+                return Marker::RightTriangle;
+        }
+    }
+    else {
+        return Marker::None;
+    }
 }
 
 /**

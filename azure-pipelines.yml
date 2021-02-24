@@ -21,7 +21,7 @@ strategy:
       CONAN_APPLE_CLANG_VERSIONS: 11.0
     macOSXMojave:
       imageName: "macos-10.14"
-      CONAN_APPLE_CLANG_VERSIONS: 11.0
+      CONAN_APPLE_CLANG_VERSIONS: 10.0
     windows:
       imageName: "vs2017-win2016"
       CONAN_VISUAL_VERSIONS: 15

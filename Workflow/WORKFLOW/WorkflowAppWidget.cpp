@@ -7,7 +7,7 @@
 WorkflowAppWidget::WorkflowAppWidget(RemoteService *theService, QWidget *parent)
   :QWidget(parent), theRemoteService(theService)
 {
-
+  this->setContentsMargins(0,0,0,0);
 }
 
 WorkflowAppWidget::~WorkflowAppWidget()
@@ -40,5 +40,10 @@ WorkflowAppWidget::errorMessage(const QString msg){
 void
 WorkflowAppWidget::fatalMessage(const QString msg){
   emit sendFatalMessage(msg);
+}
+
+MainWindowWorkflowApp *WorkflowAppWidget::getTheMainWindow() const
+{
+    return theMainWindow;
 }
 

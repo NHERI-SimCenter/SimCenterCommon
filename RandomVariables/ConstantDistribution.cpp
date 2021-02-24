@@ -37,8 +37,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include "ConstantDistribution.h"
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+#include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QDebug>
@@ -47,19 +46,18 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 ConstantDistribution::ConstantDistribution(QWidget *parent) :RandomVariableDistribution(parent)
 {
     //
-    // create the main horizontal layout and add the input entries
+    // create the main layout and add the input entries
     //
-
-    QHBoxLayout *mainLayout = new QHBoxLayout();
-
-    value = this->createTextEntry(tr("ConstantDistribution Value"), mainLayout);
-
-    mainLayout->addStretch();
+    QGridLayout *mainLayout = new QGridLayout(this);
 
     // set some defaults, and set layout for widget to be the horizontal layout
-    mainLayout->setSpacing(10);
+    mainLayout->setHorizontalSpacing(10);
+    mainLayout->setVerticalSpacing(0);
     mainLayout->setMargin(0);
-    this->setLayout(mainLayout);
+
+    value = this->createTextEntry(tr("Constant Value"), mainLayout, 0);
+
+    mainLayout->setColumnStretch(1,1);
 }
 
 ConstantDistribution::ConstantDistribution(double initValue, QWidget *parent) :RandomVariableDistribution(parent)
@@ -70,7 +68,7 @@ ConstantDistribution::ConstantDistribution(double initValue, QWidget *parent) :R
 
     QHBoxLayout *mainLayout = new QHBoxLayout();
 
-    value = this->createTextEntry(tr("ConstantDistribution Value"), mainLayout);
+    value = this->createTextEntry(tr("Constant Value"), mainLayout);
 
     mainLayout->addStretch();
 

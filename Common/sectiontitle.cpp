@@ -56,7 +56,7 @@ SectionTitle::SectionTitle(QWidget *parent) : QFrame(parent)
     sectionLayout->addWidget(sectionLabel,0,0);
     sectionLayout->addWidget(line,1,0,1,2);
     //sectionLayout->setSpacing(0);
-    sectionLayout->setMargin(0);
+    //sectionLayout->setMargin(0);
 
     this->setLayout(sectionLayout);
     this->setContentsMargins(0,0,0,0);

@@ -37,46 +37,79 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include "UniformDistribution.h"
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+#include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QDebug>
+#include <QDoubleValidator>
 #include <SimCenterGraphPlot.h>
 #include <math.h>
 #include <QPushButton>
+#include <QFileDialog>
 
-
-UniformDistribution::UniformDistribution(QWidget *parent) :RandomVariableDistribution(parent)
+UniformDistribution::UniformDistribution(QString inpType, QWidget *parent) :RandomVariableDistribution(parent)
 {
     //
-    // create the main horizontal layout and add the input entries
+    // create the main layout and add the input entries
     //
-
-    QHBoxLayout *mainLayout = new QHBoxLayout();
-
-    min = this->createTextEntry(tr("Min."), mainLayout);
-    max = this->createTextEntry(tr("Max."), mainLayout);
-
-    QPushButton *showPlotButton = new QPushButton("Show PDF");
-    mainLayout->addWidget(showPlotButton);
-
-    // initialPoint = this->createTextEntry(tr("Initial Point"), mainLayout);
-
-    mainLayout->addStretch();
+    QGridLayout *mainLayout = new QGridLayout(this);
 
     // set some defaults, and set layout for widget to be the horizontal layout
-    mainLayout->setSpacing(10);
+    mainLayout->setHorizontalSpacing(10);
+    mainLayout->setVerticalSpacing(0);
     mainLayout->setMargin(0);
-    this->setLayout(mainLayout);
 
-    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"), 500, 500);
+    QPushButton *showPlotButton = new QPushButton("Show PDF");
+
+    this->inpty=inpType;
+
+    if (inpty==QString("Parameters"))
+    {
+        a = this->createTextEntry(tr("Min."), mainLayout, 0);
+        a->setValidator(new QDoubleValidator);
+        b  = this->createTextEntry(tr("Max."), mainLayout, 1);
+        b->setValidator(new QDoubleValidator);
+        mainLayout->addWidget(showPlotButton, 1,2);
+
+    } else if (inpty==QString("Moments")) {
+
+        mean = this->createTextEntry(tr("Mean"), mainLayout, 0);
+        mean->setValidator(new QDoubleValidator);        
+        standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout, 1);
+        standardDev->setValidator(new QDoubleValidator);
+        mainLayout->addWidget(showPlotButton, 1,2);
+
+    } else if (inpty==QString("Dataset")) {
 
 
-    connect(min,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
-    connect(max,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
-    connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
+        dataDir = this->createTextEntry(tr("Data File"), mainLayout, 0);
+        dataDir->setMinimumWidth(200);
+        dataDir->setMaximumWidth(200);
+
+        QPushButton *chooseFileButton = new QPushButton("Choose");
+        mainLayout->addWidget(chooseFileButton, 1,1);
+
+        // Action
+        connect(chooseFileButton, &QPushButton::clicked, this, [=](){
+                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)"));
+        });
+    }
+
+    mainLayout->setColumnStretch(3,1);
+
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
+
+    if (inpty==QString("Parameters")) {
+        connect(a,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+        connect(b,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+        connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
+    } else if (inpty==QString("Moments")) {
+        connect(mean,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+        connect(standardDev,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+        connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
+    }
 }
+
 UniformDistribution::~UniformDistribution()
 {
     delete thePlot;
@@ -84,42 +117,86 @@ UniformDistribution::~UniformDistribution()
 
 bool
 UniformDistribution::outputToJSON(QJsonObject &rvObject){
-    // check for error condition, an entry had no value
-    if (min->text().isEmpty() || max->text().isEmpty()) {
-        emit sendErrorMessage("ERROR: Uniform Distribution - data has not been set");
-        return false;
+
+    if (inpty==QString("Parameters")) {
+        // check for error condition, a entry had no value
+        if ((a->text().isEmpty())||(b->text().isEmpty())) {
+            emit sendErrorMessage("ERROR: UniformDistribution - data has not been set");
+            return false;
+        }
+        rvObject["lowerbound"]=a->text().toDouble();
+        rvObject["upperbound"]=b->text().toDouble();
+    } else if (inpty==QString("Moments")) {
+        if ((mean->text().isEmpty())||(standardDev->text().isEmpty())) {
+            emit sendErrorMessage("ERROR: UniformDistribution - data has not been set");
+            return false;
+        }
+        rvObject["mean"]=mean->text().toDouble();
+        rvObject["standardDev"]=standardDev->text().toDouble();
+    } else if (inpty==QString("Dataset")) {
+        if (dataDir->text().isEmpty()) {
+            emit sendErrorMessage("ERROR: UniformDistribution - data has not been set");
+            return false;
+        }
+        rvObject["dataDir"]=QString(dataDir->text());
     }
-
-    rvObject["lowerbound"]=min->text().toDouble();
-    rvObject["upperbound"]=max->text().toDouble();
-
     return true;
 }
 
 bool
 UniformDistribution::inputFromJSON(QJsonObject &rvObject){
+
     //
     // for all entries, make sure i exists and if it does get it, otherwise return error
     //
-    if (rvObject.contains("lowerbound")) {
-        QJsonValue theValue = rvObject["lowerbound"];
-        min->setText(QString::number(theValue.toDouble()));
-
-        qDebug()<<QString::number(theValue.toDouble());
 
 
+    if (rvObject.contains("inputType")) {
+        inpty=rvObject["inputType"].toString();
     } else {
-        emit sendErrorMessage("ERROR: Uniform Distribution - no \"lowerbound\" entry");
-        return false;
+        inpty = "Parameters";
     }
 
-    if (rvObject.contains("upperbound")) {
-        QJsonValue theValue = rvObject["upperbound"];
-        max->setText(QString::number(theValue.toDouble()));
-        qDebug()<<QString::number(theValue.toDouble());
-    } else {
-        emit sendErrorMessage("ERROR: Uniform Distribution - no \"upperbound\" entry");
-        return false;
+    if (inpty==QString("Parameters")) {
+        if (rvObject.contains("lowerbound")) {
+            double theMuValue = rvObject["lowerbound"].toDouble();
+            a->setText(QString::number(theMuValue));
+        } else {
+            emit sendErrorMessage("ERROR: UniformDistribution - no \"a\" entry");
+            return false;
+        }
+        if (rvObject.contains("upperbound")) {
+            double theSigValue = rvObject["upperbound"].toDouble();
+            b->setText(QString::number(theSigValue));
+        } else {
+            emit sendErrorMessage("ERROR: UniformDistribution - no \"a\" entry");
+            return false;
+        }
+      } else if (inpty==QString("Moments")) {
+
+        if (rvObject.contains("mean")) {
+            double theMeanValue = rvObject["mean"].toDouble();
+            mean->setText(QString::number(theMeanValue));
+        } else {
+            emit sendErrorMessage("ERROR: UniformDistribution - no \"mean\" entry");
+            return false;
+        }
+        if (rvObject.contains("standardDev")) {
+            double theStdValue = rvObject["standardDev"].toDouble();
+            standardDev->setText(QString::number(theStdValue));
+        } else {
+            emit sendErrorMessage("ERROR: UniformDistribution - no \"mean\" entry");
+            return false;
+        }
+    } else if (inpty==QString("Dataset")) {
+
+      if (rvObject.contains("dataDir")) {
+          QString theDataDir = rvObject["dataDir"].toString();
+          dataDir->setText(theDataDir);
+      } else {
+          emit sendErrorMessage("ERROR: UniformDistribution - no \"mean\" entry");
+          return false;
+      }
     }
 
     this->updateDistributionPlot();
@@ -128,26 +205,37 @@ UniformDistribution::inputFromJSON(QJsonObject &rvObject){
 
 QString 
 UniformDistribution::getAbbreviatedName(void) {
-  return QString("Uniform");
+  return QString("Normal");
 }
 
 void
 UniformDistribution::updateDistributionPlot() {
-    double minV = min->text().toDouble();
-    double maxV = max->text().toDouble();
+    double aa=0, bb=0, me=0, st=0;
+    if ((this->inpty)==QString("Parameters")) {
+        aa=a->text().toDouble(); // Let us follow dakota's parameter definitions
+        bb=b->text().toDouble();
+        me = 1/2*(aa+bb);
+        st = sqrt(1/12)*(bb-aa);
+     } else if ((this->inpty)==QString("Moments")) {
+        me = mean->text().toDouble();
+        st = standardDev->text().toDouble();
+        aa = me - sqrt(12)*st/2;
+        bb = me + sqrt(12)*st/2;
+    }
 
-    if (maxV > minV) {
+
+    if (bb > aa) {
 
         QVector<double> x(103);
         QVector<double> y(103);
-        double delta = (maxV-minV)/10;
-        x[0]=minV-delta; x[101]=maxV;
-        x[1]=minV; x[102]=maxV+delta;
+        double delta = (bb-aa)/10;
+        x[0]=aa-delta; x[101]=bb;
+        x[1]=aa; x[102]=bb+delta;
         y[0]=y[100]=y[101]=y[102]=0.;
         for (int i=1; i<100; i++) {
-            double xi = minV + (i-1)*(maxV-minV)/98;
+            double xi = aa + (i-1)*(bb-aa)/98;
             x[i+1] = xi;
-            y[i+1] =1.0/(maxV-minV);
+            y[i+1] =1.0/(bb-aa);
         }
         thePlot->clear();
         thePlot->addLine(x,y);

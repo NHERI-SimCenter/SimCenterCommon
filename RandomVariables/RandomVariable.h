@@ -44,7 +44,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class QComboBox;
 class QLineEdit;
 class QLabel;
-class QHBoxLayout;
+class QGridLayout;
 class RandomVariableDistribution;
 class QRadioButton;
 
@@ -53,11 +53,12 @@ class RandomVariable : public SimCenterWidget
     Q_OBJECT
 public:
     explicit RandomVariable();
-    explicit RandomVariable(const QString &variableClass, QWidget *parent = 0);
-    explicit RandomVariable(const QString &variableClass, const QString &name, QWidget *parent = 0);
+    explicit RandomVariable(const QString &variableClass, QString uqengin, QWidget *parent = 0);
+    explicit RandomVariable(const QString &variableClass, const QString &name, QString uqengin, QWidget *parent = 0);
     explicit RandomVariable(const QString &variableClass, 
 			    const QString &name, 
                 RandomVariableDistribution &theDistribution,
+                QString uqengin="Dakota",
 			    QWidget *parent = 0);
     ~RandomVariable();
 
@@ -73,20 +74,21 @@ signals:
 
 public slots:
      void distributionChanged(const QString &arg1);
+     void typeChanged(const QString &arg1);
      void errorMessage(QString message);
 
 private:
     RandomVariableDistribution *theDistribution;
 
-    QString variableClass;
+    QString variableClass, typeOpt, uqEngineName; //=QString("Parameters");
     QLabel *variableLabel;
-    QLabel *distributionLabel;
+    QLabel *distributionLabel, *typeLabel;
 
   // QRadioButton *button;
   //  QLineEdit *variableName;
-    QComboBox *distributionComboBox;
+    QComboBox *distributionComboBox, *typeComboBox;
     QRadioButton *button;
-    QHBoxLayout *mainLayout;
+    QGridLayout *mainLayout;
 };
 
 #endif // RANDOMVARIABLE_H

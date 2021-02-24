@@ -38,12 +38,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written: fmckenna
+// Modified: pmackenz
 
 #include <SimCenterWidget.h>
 #include <QJsonObject>
 
 class QLineEdit;
 class QHBoxLayout;
+class QGridLayout;
 
 class RandomVariableDistribution : public SimCenterWidget
 {
@@ -51,11 +53,18 @@ class RandomVariableDistribution : public SimCenterWidget
 public:
     explicit RandomVariableDistribution(QWidget *parent = 0);
     ~RandomVariableDistribution();
+    double TruncatedExponentialDistribution(QString inpType, QWidget *parent = 0);
 
     QLineEdit *createTextEntry(QString text,
-			       QHBoxLayout *theLayout,
-			       int minL=100,
-			       int maxL=100);
+                   QHBoxLayout *theLayout,
+                   int minL=100,
+                   int maxL=100);
+
+    QLineEdit *createTextEntry(QString text,
+                   QGridLayout *theLayout,
+                   int col,
+                   int minL=100,
+                   int maxL=100);
 
     virtual QString getAbbreviatedName(void) = 0;
 

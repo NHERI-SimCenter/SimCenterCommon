@@ -1,7 +1,7 @@
 var searchData=
 [
   ['labelfontsize',['labelFontSize',['../class_sim_figure.html#aa078851550cef1fea9b794923d6d7211',1,'SimFigure']]],
-  ['legend',['legend',['../class_sim_figure.html#a4ef105717addfd538f0de947abda2c12',1,'SimFigure']]],
+  ['legend',['legend',['../class_sim_figure.html#a45d65057b6c248e549d457c592e8f125',1,'SimFigure']]],
   ['legendvisible',['legendVisible',['../class_sim_figure.html#a8f530972248abdf68e860df123f0296d',1,'SimFigure']]],
   ['linecolor',['lineColor',['../class_sim_figure.html#a095f59955b2659771a521962a43f0489',1,'SimFigure']]],
   ['linestyle',['lineStyle',['../class_sim_figure.html#ab6dfc2c90e904e870a3695872b5b573a',1,'SimFigure']]],

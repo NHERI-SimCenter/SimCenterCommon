@@ -20,11 +20,12 @@
 #include <QScreen>
 #include <QDesktopServices>
 #include <sectiontitle.h>
+#include <iostream>
+
 
 //#include <InputWidgetEE_UQ.h>
 #include <WorkflowAppWidget.h>
 
-#include "SimCenterTableWidget.h"
 #include <QDesktopWidget>
 #include <HeaderWidget.h>
 #include <FooterWidget.h>
@@ -36,6 +37,7 @@
 #include <RemoteService.h>
 #include <SimCenterPreferences.h>
 #include <Utils/RelativePathResolver.h>
+#include "Utils/dialogabout.h"
 
 MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theService, QWidget *parent)
   : QMainWindow(parent), loggedIn(false), inputWidget(theApp),   theRemoteInterface(theService), isAutoLogin(false)
@@ -48,6 +50,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     QWidget *centralWidget = new QWidget();
     QVBoxLayout *layout = new QVBoxLayout();
     centralWidget->setLayout(layout);
+    centralWidget->setContentsMargins(0,0,0,0);
 
     //
     // resize to primary screen
@@ -69,6 +72,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     QRect rec = QGuiApplication::primaryScreen()->geometry();
     int height = this->height()<int(0.75*rec.height())?int(0.75*rec.height()):this->height();
     int width  = this->width()<int(0.75*rec.width())?int(0.75*rec.width()):this->width();
+    // if (width>1280) width=1280;
     this->resize(width, height);
 
 
@@ -105,8 +109,8 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
 
     // create the buttons widget and a layout for it
     QHBoxLayout *pushButtonLayout = new QHBoxLayout();
-    QWidget *buttonWidget = new QWidget();
-    buttonWidget->setLayout(pushButtonLayout);
+    //QWidget *buttonWidget = new QWidget();
+    //buttonWidget->setLayout(pushButtonLayout);
 
     // create a bunch of buttons
 
@@ -131,6 +135,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     //
 
     loginWindow = new QWidget();
+    loginWindow->setWindowFlag(Qt::WindowStaysOnTopHint);
     loginWindow->setWindowTitle("Login to DesignSafe");
     QGridLayout *loginLayout = new QGridLayout();
     SectionTitle *info=new SectionTitle();
@@ -206,14 +211,17 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
    */
 
     // add button widget to layout
-    layout->addWidget(buttonWidget);
+    //layout->addWidget(buttonWidget);
+    pushButtonLayout->setSpacing(10);
+    layout->addLayout(pushButtonLayout);
 
     //
     // add SimCenter footer
     //
 
-    FooterWidget *footer = new FooterWidget();
-    layout->addWidget(footer);
+    //FooterWidget *footer = new FooterWidget();
+    //layout->addWidget(footer);
+    layout->setSpacing(0);
 
     this->setCentralWidget(centralWidget);
 
@@ -246,7 +254,11 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     //    featureRequestURL = QString("https://docs.google.com/forms/d/e/1FAIpQLScTLkSwDjPNzH8wx8KxkyhoIT7AI9KZ16Wg9TuW1GOhSYFOag/viewform");
     versionText = QString("");
     citeText = QString("");
-    aboutText = QString(tr("This is a SeimCenter Workflow Applicatios"));
+    aboutText = QString(tr("This is a SimCenter Workflow Applicatios"));
+
+    aboutTitle = "About this SimCenter Application"; // this is the title displayed in the on About dialog
+    aboutSource = ":/Resources/docs/textAbout.html";  // this is an HTML file stored under resources
+
     copyrightText = QString("\
                             <p>\
                             The source code is licensed under a BSD 2-Clause License:<p>\
@@ -326,18 +338,22 @@ bool MainWindowWorkflowApp::saveAs()
     //
 
     QFileDialog dialog(this, "Save Simulation Model");
-    dialog.setWindowModality(Qt::WindowModal);
+    //dialog.setWindowModality(Qt::WindowModal);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
+
     QStringList filters;
     filters << "Json files (*.json)"
             << "All files (*)";
+
     dialog.setNameFilters(filters);
 
-    if (dialog.exec() != QDialog::Accepted)
+    if (dialog.exec() == QDialog::Rejected) {
         return false;
+    }
 
-    // and save the file
+
     return saveFile(dialog.selectedFiles().first());
+
 }
 
 void MainWindowWorkflowApp::open()
@@ -418,6 +434,18 @@ bool MainWindowWorkflowApp::saveFile(const QString &fileName)
 
 void MainWindowWorkflowApp::loadFile(const QString &fileName)
 {
+
+    // check file exists & set apps current dir of it does
+    QFileInfo fileInfo(fileName);
+    if (!fileInfo.exists()){
+        emit errorMessage(QString("File foes not exist: ") + fileName);
+        return;
+    }
+
+    QString dirPath = fileInfo.absoluteDir().absolutePath();
+    QDir::setCurrent(dirPath);
+    qDebug() << "MainWindowWorkflowApp: setting current dir" << dirPath;
+
     //
     // open file
     //
@@ -445,8 +473,10 @@ void MainWindowWorkflowApp::loadFile(const QString &fileName)
     QJsonObject jsonObj = doc.object();
 
     //
-    QFileInfo fileInfo(fileName);
+    //QFileInfo fileInfo(fileName);
     SCUtils::ResolveAbsolutePaths(jsonObj, fileInfo.dir());
+
+    //qDebug() << jsonObj;
 
     // close file
     file.close();
@@ -455,6 +485,7 @@ void MainWindowWorkflowApp::loadFile(const QString &fileName)
     if ( ! (currentFile.isNull() || currentFile.isEmpty()) ) {
         inputWidget->clear();
     }
+
     inputWidget->inputFromJSON(jsonObj);
 
     setCurrentFile(fileName);
@@ -681,12 +712,30 @@ void MainWindowWorkflowApp::cite()
 
 void MainWindowWorkflowApp::about()
 {
+    /*
     QMessageBox msgBox;
     QSpacerItem *theSpacer = new QSpacerItem(700, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
-    msgBox.setText(aboutText);
-    QGridLayout *layout = (QGridLayout*)msgBox.layout();
+    msgBox.setText(aboutText);    QGridLayout *layout = (QGridLayout*)msgBox.layout();
     layout->addItem(theSpacer, layout->rowCount(),0,1,layout->columnCount());
     msgBox.exec();
+    */
+
+
+    DialogAbout *dlg = new DialogAbout();
+    dlg->setTitle(aboutTitle);
+    dlg->setTextSource(aboutSource);
+
+    //
+    // adjust size of application window to the available display
+    //
+
+    QRect rec = QApplication::desktop()->screenGeometry(this);
+    int height = 0.50*rec.height();
+    int width  = 0.50*rec.width();
+    dlg->resize(width, height);
+
+    dlg->exec();
+    delete dlg;
 }
 
 void MainWindowWorkflowApp::preferences()
@@ -730,10 +779,18 @@ MainWindowWorkflowApp::setVersion(QString &newText)
   versionText = newText;
 }
 
-void 
+void
 MainWindowWorkflowApp::setAbout(QString &newText)
 {
-  aboutText = newText;
+  aboutText = newText +QString("<p> This work is based on material supported by the National Science Foundation under grant 1612843<p>");
+  //qDebug() << "ABOUT: " << aboutText;
+}
+
+void
+MainWindowWorkflowApp::setAbout(QString &newTitle, QString &newTextSource)
+{
+  aboutTitle  = newTitle;
+  aboutSource = newTextSource;
 }
 
 void

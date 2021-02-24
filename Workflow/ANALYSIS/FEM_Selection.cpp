@@ -104,6 +104,8 @@ FEM_Selection::FEM_Selection(RandomVariablesContainer *theRVs, QWidget *parent)
 
     connect(theSelectionBox, SIGNAL(currentIndexChanged(QString)), this,
             SLOT(engineSelectionChanged(QString)));
+
+    layout->setMargin(0);
 }
 
 FEM_Selection::~FEM_Selection()
@@ -224,6 +226,14 @@ FEM_Selection::copyFiles(QString &destDir) {
   }
   
   return false;
+}
+
+
+void
+FEM_Selection::clear(void) {
+  if (theCurrentSelection != 0) {
+    theCurrentSelection->clear();
+  }
 }
 
 

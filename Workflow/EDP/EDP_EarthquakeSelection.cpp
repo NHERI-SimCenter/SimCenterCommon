@@ -101,6 +101,7 @@ EDP_EarthquakeSelection::EDP_EarthquakeSelection(RandomVariablesContainer *theRa
   layout->addWidget(theStackedWidget);
   this->setLayout(layout);
   theCurrentEDP=theStandardEarthquakeEDPs;
+  layout->setMargin(0);
 
   connect(edpSelection, SIGNAL(currentIndexChanged(QString)), this,
 	  SLOT(edpSelectionChanged(QString)));
@@ -209,4 +210,11 @@ EDP_EarthquakeSelection::copyFiles(QString &destDir) {
   }
 
   return false;
+}
+
+void
+EDP_EarthquakeSelection::clear(void) {
+  if (theCurrentEDP != 0) {
+    theCurrentEDP->clear();
+  }
 }

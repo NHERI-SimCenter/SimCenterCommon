@@ -70,14 +70,24 @@ public slots:
     void loadPreferences(void);
 
 private:
+    QString getDefaultAgaveApp(void);
+    QString getDefaultOpenSees(void);
+    QString getDefaultDakota(void);
+    QString getDefaultPython(void);
+
     QLineEdit *python;
+    QLineEdit *opensees;
+    QLineEdit *dakota;
     QLineEdit *localWorkDir;
     QLineEdit *remoteWorkDir;
     QLineEdit *appDir;
-    QLineEdit *remoteAppDir;
-    QLineEdit *remoteAgaveApp;
-    QVBoxLayout *layout;
+    QLineEdit *remoteBackendDir;
+    QLineEdit *remoteTapisApp;
+
+    QCheckBox* customOpenSeesCheckBox;
+    QCheckBox* customDakotaCheckBox;
     QCheckBox* customAppDirCheckBox;
+    QCheckBox* customTapisAppCheckBox;
 };
 
 

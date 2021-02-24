@@ -72,11 +72,11 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLabel>
 //#include <InputWidgetFEM.h>
 #include <InputWidgetUQ.h>
-#include <MainWindow.h>
+//#include <MainWindow.h>
 
 //#include <InputWidgetFEM.h>
 #include <InputWidgetUQ.h>
-#include <MainWindow.h>
+//#include <MainWindow.h>
 #include <QHeaderView>
 
 #include <QtCharts/QChart>
@@ -204,7 +204,7 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
 
     QFileInfo filenameErrorInfo(filenameErrorString);
     if (!filenameErrorInfo.exists()) {
-        emit sendErrorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applicatins failed with inputs provied");
+        emit sendErrorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applications failed with inputs provided");
         return 0;
     }
     QFile fileError(filenameErrorString);
@@ -292,8 +292,7 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
 
     spreadsheet->setColumnCount(colCount);
     spreadsheet->setHorizontalHeaderLabels(theHeadings);
-    spreadsheet->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    spreadsheet->verticalHeader()->setVisible(false);
+
     // now until end of file, read lines and place data into spreadsheet
 
     int rowCount = 0;
@@ -308,11 +307,19 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
             if ((includesInterface == true && i != 1) || (includesInterface == false)) {
                 QModelIndex index = spreadsheet->model()->index(rowCount, col);
                 spreadsheet->model()->setData(index, data.c_str());
+
                 col++;
             }
         }
         rowCount++;
     }
+   // spreadsheet->resizeColumnsToContents();
+    //spreadsheet->setAutoScroll(true);
+    //spreadsheet->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    if (colCount < 10)
+        spreadsheet->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    spreadsheet->verticalHeader()->setVisible(false);
+    //spreadsheet->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     tabResults.close();
 
 
@@ -405,6 +412,14 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
 
     layout->addWidget(chartView, 0,0,1,1);
     layout->addWidget(save_spreadsheet,1,0,Qt::AlignLeft);
+
+
+    // create a scrollable windows, place summary inside it
+    QScrollArea *ss = new QScrollArea;
+    ss->setWidgetResizable(true);
+    ss->setLineWidth(0);
+    ss->setFrameShape(QFrame::NoFrame);
+    //ss->setWidget(spreadsheet);
     layout->addWidget(spreadsheet,2,0,1,1);
 
     //
@@ -440,7 +455,7 @@ DakotaResultsSampling::onSaveSpreadsheetClicked()
         {
             stream <<theHeadings.at(j)<<",\t";
         }
-        stream <<endl;
+        stream << endl;
         for (int i=0; i<rowCount; i++)
         {
             for (int j=0; j<columnCount; j++)
@@ -449,7 +464,7 @@ DakotaResultsSampling::onSaveSpreadsheetClicked()
                 double value = item_value->text().toDouble();
                 stream << value << ",\t";
             }
-            stream<<endl;
+            stream<< endl;
         }
     }
 }
@@ -653,7 +668,7 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
                 {
 
                     stream<<dataValues[i];
-                    stream<< endl;
+                    stream<< Qt::endl;
                 }
             }else {qDebug()<<"\n error in opening file data file for histogram fit  ";exit(1);}
 

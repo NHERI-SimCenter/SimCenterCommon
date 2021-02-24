@@ -52,13 +52,13 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <OpenSeesBuildingModel.h>
 #include <MDOF_BuildingModel.h>
-
+#include <SteelBuildingModel.h>
 
 SIM_Selection::SIM_Selection(RandomVariablesContainer *theRandomVariableIW, 
-			     bool includeC,
-			     QWidget *parent)
-: SimCenterAppWidget(parent), bimInput(0),
-  includeCentroid(includeC), theRandomVariablesContainer(theRandomVariableIW)
+                             bool includeC,
+                             QWidget *parent)
+    : SimCenterAppWidget(parent), bimInput(0),
+      includeCentroid(includeC), theRandomVariablesContainer(theRandomVariableIW)
 {
     layout = new QVBoxLayout();
 
@@ -88,9 +88,10 @@ SIM_Selection::SIM_Selection(RandomVariablesContainer *theRandomVariableIW,
     name->setSpacing(10);
     name->setMargin(0);
 
-    //    bimSelection->addItem(tr("Spreadsheet"));  
+    // bimSelection->addItem(tr("Spreadsheet"));
     bimSelection->addItem(tr("MDOF"));
     bimSelection->addItem(tr("OpenSees"));
+    bimSelection->addItem(tr("Steel Building Model"));
 
     connect(bimSelection, SIGNAL(currentIndexChanged(QString)), this, SLOT(bimSelectionChanged(QString)));
 
@@ -187,16 +188,19 @@ SIM_Selection::inputAppDataFromJSON(QJsonObject &jsonObject)
         return false;
 
     int index = 0;
+
     /*
     if (type == QString("SimCenterSIM")) {
        index = 2;
     } else
+    */
 
-*/
-    if (type == QString("OpenSeesInput")) {
-       index = 1;
-    } else if (type == QString("MDOF_BuildingModel")) {
-       index = 0;
+    if (type == QString("MDOF_BuildingModel")) {
+        index = 0;
+    } else if (type == QString("OpenSeesInput")) {
+        index = 1;
+    } else if (type == QString("SteelBuildingModel")) {
+        index = 2;
     } else {
         return false;
     }
@@ -243,6 +247,10 @@ void SIM_Selection::bimSelectionChanged(const QString &arg1)
     } else if (arg1 == QString("MDOF") || (arg1 == QString("MDOF_BuildingModel"))) {
         delete bimInput;
         bimInput = new MDOF_BuildingModel(theRandomVariablesContainer);
+    }
+    else if (arg1 == QString("Steel Building Model")) {
+        delete bimInput;
+        bimInput = new SteelBuildingModel(theRandomVariablesContainer);
     } else {
         selectionChangeOK = false;
         emit sendErrorMessage("ERROR: BIM Input - no valid Method provided .. keeping old");

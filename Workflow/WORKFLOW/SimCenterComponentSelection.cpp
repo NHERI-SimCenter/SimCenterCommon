@@ -46,6 +46,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QModelIndex>
 #include <QStackedWidget>
 #include <QDebug>
+#include <SimCenterAppWidget.h>
 
 SimCenterComponentSelection::SimCenterComponentSelection(QWidget *parent)
     :QWidget(parent)
@@ -53,32 +54,30 @@ SimCenterComponentSelection::SimCenterComponentSelection(QWidget *parent)
 
   QHBoxLayout *horizontalLayout = new QHBoxLayout();
 
-  //  
-  // create a TreeView widget 
-  //
+  horizontalLayout->setMargin(0);
+  this->setContentsMargins(0,5,0,5);
 
+  // Create a TreeView widget
   treeView = new QTreeView();
   standardModel = new CustomizedItemModel; 
   rootNode = standardModel->invisibleRootItem();
 
   infoItemIdx = rootNode->index();
 
-  //register the model                                                                                             
+  // Register the model
   treeView->setModel(standardModel);
   treeView->expandAll();
   treeView->setHeaderHidden(true);
   treeView->setMinimumWidth(100);
   treeView->setMaximumWidth(100);
-  treeView->setMinimumWidth(100);
-  treeView->setEditTriggers(QTreeView::EditTrigger::NoEditTriggers);//Disable Edit 
+  treeView->setEditTriggers(QTreeView::EditTrigger::NoEditTriggers); // Disable Edit
 
-  //                                                                                                               
-  // customize the apperance of the menu on the left                                                               
-  //                                                                                                               
 
+  // Customize the apperance of the menu on the left
   treeView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff ); // hide the horizontal scroll bar               
   treeView->setObjectName("treeViewOnTheLeft");
   treeView->setIndentation(0);
+  treeView->setWordWrap(true);
 
   QItemSelectionModel *selectionModel= treeView->selectionModel();
   connect(selectionModel,
@@ -86,7 +85,7 @@ SimCenterComponentSelection::SimCenterComponentSelection(QWidget *parent)
 	  this,
 	  SLOT(selectionChangedSlot(const QItemSelection &, const QItemSelection &)));
 
-  // add the TreeView widget to the layout
+  // Add the TreeView widget to the layout
   horizontalLayout->addWidget(treeView);
 
   theStackedWidget = new QStackedWidget();
@@ -97,7 +96,6 @@ SimCenterComponentSelection::SimCenterComponentSelection(QWidget *parent)
 
 SimCenterComponentSelection::~SimCenterComponentSelection()
 {
- qDebug() << "SimCenterComponentSelection::DESCTRUCTOR";
  QLayout *layout = this->layout();
  layout->removeWidget(theStackedWidget);
  theStackedWidget->setParent(NULL);
@@ -114,6 +112,7 @@ SimCenterComponentSelection::addComponent(QString text, QWidget *theWidget)
         theStackedWidget->addWidget(theWidget);
         textIndices.append(text);
         modelIndices.append(modelIndex);
+        theWidget->setObjectName(text);
         return true;
     } else
         qDebug() << "ComponentSelection: text: " << text << " option already exists";
@@ -129,7 +128,6 @@ SimCenterComponentSelection::selectionChangedSlot(const QItemSelection &, const 
     //
 
     const QModelIndex index = treeView->selectionModel()->currentIndex();
-
     QString selectedText = index.data(Qt::DisplayRole).toString();
 
     //
@@ -142,8 +140,25 @@ SimCenterComponentSelection::selectionChangedSlot(const QItemSelection &, const 
     // get stacked widget to display current if of course it exists
     //
 
-    if (stackIndex != -1)
+    if (stackIndex != -1) {
+
+        QWidget *theCurrentWidget = theStackedWidget->currentWidget();
+        if (theCurrentWidget != 0) {
+            SimCenterAppWidget *simCenterWidget = dynamic_cast<SimCenterAppWidget*>(theCurrentWidget);
+            if (simCenterWidget)
+                simCenterWidget->setCurrentlyViewable(false);
+        }
+
         theStackedWidget->setCurrentIndex(stackIndex);
+
+        theCurrentWidget = theStackedWidget->currentWidget();
+        if (theCurrentWidget != 0) {
+            SimCenterAppWidget *simCenterWidget = dynamic_cast<SimCenterAppWidget*>(theCurrentWidget);
+            if (simCenterWidget)
+                simCenterWidget->setCurrentlyViewable(true);
+        }
+
+    }
 }
 
 QWidget *
@@ -183,9 +198,26 @@ SimCenterComponentSelection::displayComponent(QString text)
 
         QModelIndex index1 = modelIndices.at(index);
         treeView->setCurrentIndex(index1);
-        // theStackedWidget->setCurrentIndex(index);
         return true;
     }
 
     return false;
+}
+
+void
+SimCenterComponentSelection::setWidth(const int width)
+{
+    treeView->setMaximumWidth(width);
+    treeView->setMinimumWidth(width);
+}
+
+void
+SimCenterComponentSelection::setItemWidthHeight(const int width, const int height)
+{
+    auto customModel = dynamic_cast<CustomizedItemModel*>(standardModel);
+
+    if(customModel)
+    {
+        customModel->setItemWidthHeight(width,height);
+    }
 }

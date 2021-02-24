@@ -2,7 +2,7 @@
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without
+Redistribution and use in source and binary forms, with or without 
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -26,53 +26,89 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: padhye
+// Written: fmckenna
 
 #include "WeibullDistribution.h"
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+#include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QDebug>
+#include <QDoubleValidator>
 #include <SimCenterGraphPlot.h>
 #include <math.h>
 #include <QPushButton>
+#include <QFileDialog>
 
-WeibullDistribution::WeibullDistribution(QWidget *parent) :RandomVariableDistribution(parent)
+WeibullDistribution::WeibullDistribution(QString inpType, QWidget *parent) :RandomVariableDistribution(parent)
 {
     //
-    // create the main horizontal layout and add the input entries
+    // create the main layout and add the input entries
     //
-
-    QHBoxLayout *mainLayout = new QHBoxLayout();
-
-    shapeparam = this->createTextEntry(tr("Shape"), mainLayout);
-    scaleparam = this->createTextEntry(tr("Scale"), mainLayout);
-    QPushButton *showPlotButton = new QPushButton("Show PDF");
-    mainLayout->addWidget(showPlotButton);
-
-    mainLayout->addStretch();
+    QGridLayout *mainLayout = new QGridLayout(this);
 
     // set some defaults, and set layout for widget to be the horizontal layout
-    mainLayout->setSpacing(10);
+    mainLayout->setHorizontalSpacing(10);
+    mainLayout->setVerticalSpacing(0);
     mainLayout->setMargin(0);
-    this->setLayout(mainLayout);
 
-    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"), 500, 500);
+    QPushButton *showPlotButton = new QPushButton("Show PDF");
 
-    connect(shapeparam,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
-    connect(scaleparam,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
-    connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
+    this->inpty=inpType;
+
+    if (inpty==QString("Parameters"))
+    {
+        an = this->createTextEntry(tr("an (scale)"), mainLayout, 0);
+        an->setValidator(new QDoubleValidator);
+        k  = this->createTextEntry(tr("k (shape)"), mainLayout, 1);
+        k->setValidator(new QDoubleValidator);
+        mainLayout->addWidget(showPlotButton, 1,2);
+
+    } else if (inpty==QString("Moments")) {
+
+        mean = this->createTextEntry(tr("Mean"), mainLayout, 0);
+        mean->setValidator(new QDoubleValidator);        
+        standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout, 1);
+        standardDev->setValidator(new QDoubleValidator);
+        mainLayout->addWidget(showPlotButton, 1,2);
+
+    } else if (inpty==QString("Dataset")) {
+
+
+        dataDir = this->createTextEntry(tr("Data File"), mainLayout, 0);
+        dataDir->setMinimumWidth(210);
+        dataDir->setMaximumWidth(210);
+
+        QPushButton *chooseFileButton = new QPushButton("Choose");
+        mainLayout->addWidget(chooseFileButton, 1,1);
+
+        // Action
+        connect(chooseFileButton, &QPushButton::clicked, this, [=](){
+                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)"));
+        });
+    }
+
+    mainLayout->setColumnStretch(3,1);
+
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
+
+    if (inpty==QString("Parameters")) {
+        connect(an,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+        connect(k,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+        connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
+    } else if (inpty==QString("Moments")) {
+        connect(mean,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+        connect(standardDev,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+        connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
+    }
 }
-
 
 WeibullDistribution::~WeibullDistribution()
 {
@@ -82,13 +118,28 @@ WeibullDistribution::~WeibullDistribution()
 bool
 WeibullDistribution::outputToJSON(QJsonObject &rvObject){
 
-    // check for error condition, an entry had no value
-    if (shapeparam->text().isEmpty() || scaleparam->text().isEmpty()) {
-        emit sendErrorMessage("ERROR: WeibullDistribution - data has not been set");
-        return false;
+    if (inpty==QString("Parameters")) {
+        // check for error condition, an entry had no value
+        if ((an->text().isEmpty())||(k->text().isEmpty())) {
+            emit sendErrorMessage("ERROR: WeibullDistribution - data has not been set");
+            return false;
+        }
+        rvObject["scaleparam"]=an->text().toDouble();
+        rvObject["shapeparam"]=k->text().toDouble();
+    } else if (inpty==QString("Moments")) {
+        if ((mean->text().isEmpty())||(standardDev->text().isEmpty())) {
+            emit sendErrorMessage("ERROR: WeibullDistribution - data has not been set");
+            return false;
+        }
+        rvObject["mean"]=mean->text().toDouble();
+        rvObject["standardDev"]=standardDev->text().toDouble();
+    } else if (inpty==QString("Dataset")) {
+        if (dataDir->text().isEmpty()) {
+            emit sendErrorMessage("ERROR: WeibullDistribution - data has not been set");
+            return false;
+        }
+        rvObject["dataDir"]=QString(dataDir->text());
     }
-    rvObject["shapeparam"]=shapeparam->text().toDouble();
-    rvObject["scaleparam"]=scaleparam->text().toDouble();
     return true;
 }
 
@@ -99,50 +150,110 @@ WeibullDistribution::inputFromJSON(QJsonObject &rvObject){
     // for all entries, make sure i exists and if it does get it, otherwise return error
     //
 
-    if (rvObject.contains("shapeparam")) {
-        QJsonValue theShapeValue = rvObject["shapeparam"];
-        shapeparam->setText(QString::number(theShapeValue.toDouble()));
+    if (rvObject.contains("inputType")) {
+        inpty=rvObject["inputType"].toString();
     } else {
-        emit sendErrorMessage("ERROR: WeibullDistribution - no \"mean\" entry");
-        return false;
+        inpty = "Parameters";
     }
 
-    if (rvObject.contains("scaleparam")) {
-        QJsonValue theScaleValue = rvObject["scaleparam"];
-        scaleparam->setText(QString::number(theScaleValue.toDouble()));
-    } else {
-        emit sendErrorMessage("ERROR: WeibullDistribution - no \"stdDev\" entry");
-        return false;
+    if (inpty==QString("Parameters")) {
+        if (rvObject.contains("scaleparam")) {
+            double theMuValue = rvObject["scaleparam"].toDouble();
+            an->setText(QString::number(theMuValue));
+        } else {
+            emit sendErrorMessage("ERROR: WeibullDistribution - no \"a\" entry");
+            return false;
+        }
+        if (rvObject.contains("shapeparam")) {
+            double theSigValue = rvObject["shapeparam"].toDouble();
+            k->setText(QString::number(theSigValue));
+        } else {
+            emit sendErrorMessage("ERROR: WeibullDistribution - no \"a\" entry");
+            return false;
+        }
+      } else if (inpty==QString("Moments")) {
+
+        if (rvObject.contains("mean")) {
+            double theMeanValue = rvObject["mean"].toDouble();
+            mean->setText(QString::number(theMeanValue));
+        } else {
+            emit sendErrorMessage("ERROR: WeibullDistribution - no \"mean\" entry");
+            return false;
+        }
+        if (rvObject.contains("standardDev")) {
+            double theStdValue = rvObject["standardDev"].toDouble();
+            standardDev->setText(QString::number(theStdValue));
+        } else {
+            emit sendErrorMessage("ERROR: WeibullDistribution - no \"mean\" entry");
+            return false;
+        }
+    } else if (inpty==QString("Dataset")) {
+
+      if (rvObject.contains("dataDir")) {
+          QString theDataDir = rvObject["dataDir"].toString();
+          dataDir->setText(theDataDir);
+      } else {
+          emit sendErrorMessage("ERROR: WeibullDistribution - no \"mean\" entry");
+          return false;
+      }
     }
 
     this->updateDistributionPlot();
     return true;
 }
 
-QString
+QString 
 WeibullDistribution::getAbbreviatedName(void) {
   return QString("Weibull");
 }
 
 void
 WeibullDistribution::updateDistributionPlot() {
-    double k = shapeparam->text().toDouble();
-    double l = scaleparam->text().toDouble();
-    double u = l*tgamma(1+1/k);
-    double s = l*sqrt(tgamma(1+2/k)-pow(tgamma(1+1/k),2));
+    double aa=0, kk=0, me=0, st=0;
+    if ((this->inpty)==QString("Parameters")) {
+        aa=an->text().toDouble();
+        kk=k->text().toDouble();
+        me =aa*tgamma(1+1/kk);
+        st =aa*sqrt(tgamma(1+2/kk)-tgamma(1+1/kk)*tgamma(1+1/kk));
 
-    if (k > 0.0 && l > 0.0) {
-        double min = u - 5*s;
-        if (min < 0.0) min = 1.0e-6;
-        double max = u + 5*s;
-        QVector<double> x(100);
-        QVector<double> y(100);
-        for (int i=0; i<100; i++) {
-            double xi = min + i*(max-min)/99.0;
+     } else if ((this->inpty)==QString("Moments")) {
+        me = mean->text().toDouble();
+        st = standardDev->text().toDouble();
+        double coeffVar = st/me;
+        // APPROXIMATED parameters ONLY for visualization
+        // interpolations for method of moments
+        if ((coeffVar>0.02) && (coeffVar<100)){
+            double k1,k0,cov1,cov0;
+            int nDiscrete=500;
+            for (int i=0; i<nDiscrete; i++) {
+                // 0.012 came from max cov=100, 100 came from min cov=0.02
+                double xi = 0.012 + i*(100-0.012)/(nDiscrete-1);
+                k1 = xi;
+                cov1 =(tgamma(1+2/k1)-tgamma(1+1/k1)*tgamma(1+1/k1))/tgamma(1+1/k1);
+                if (cov1 < st/me){
+                    break;
+                }
+                cov0  = cov1;
+                k0    = k1;
+            }
+            kk = k0 + (st/me - cov0)*(k1-k0)/(cov1 - cov0);
+            aa = me/tgamma(1+1/kk);
+        }
+    }
+
+    if (kk > 0.0 && aa > 0.0) {
+        double min = me - 5*st;
+        if (min < 0.0) min = 1.0e-3;
+        double max = me + 5*st;
+        QVector<double> x(500);
+        QVector<double> y(500);
+        for (int i=0; i<500; i++) {
+            double xi = min + i*(max-min)/499.0;
             x[i] = xi;
-            y[i] =(k/l)*(pow((xi/l),(k-1))*exp(-(pow((xi/l),k))));
+            y[i] =(kk/aa)*(pow((xi/aa),(kk-1))*exp(-(pow((xi/aa),kk))));
         }
         thePlot->clear();
         thePlot->addLine(x,y);
     }
+
 }

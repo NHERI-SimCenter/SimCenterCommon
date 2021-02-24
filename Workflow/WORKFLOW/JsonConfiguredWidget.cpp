@@ -37,6 +37,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: Michael Gardner
 
 #include <exception>
+#include <iostream>
 #include <string>
 #include <unordered_map>
 
@@ -118,7 +119,10 @@ JsonWidget::Type JsonConfiguredWidget::getEnumIndex(const QString& inputString) 
   static std::unordered_map<std::string, JsonWidget::Type> stringToEnum{
       {"ComboBox", JsonWidget::Type::ComboBox},
       {"RVLineEdit", JsonWidget::Type::RVLineEdit},
-      {"FileInput", JsonWidget::Type::FileInput}};
+      {"FileInput", JsonWidget::Type::FileInput},
+      {"LineEdit", JsonWidget::Type::LineEdit},
+      {"DoubleSpinBox", JsonWidget::Type::DoubleSpinBox},
+      {"SpinBox", JsonWidget::Type::SpinBox}};
 
   auto enumValue = stringToEnum.find(inputString.toStdString());
 
@@ -191,6 +195,37 @@ JsonConfiguredWidget::generateWidgetLayout(const QJsonArray &inputArray,
       layout->addWidget(fileInput);
       break;	
       }
+
+    case JsonWidget::Type::LineEdit: {
+      auto lineEdit = generateLineEdit(value);
+      if (set) {
+	auto jsonObject = value.toObject();
+	lineEdit->inputFromJSON(jsonObject);
+      }
+      layout->addWidget(lineEdit);
+      break;            
+    }
+
+    case JsonWidget::Type::DoubleSpinBox: {
+      auto doubleSpinBox = generateDoubleSpinBox(value);
+      if (set) {
+	auto jsonObject = value.toObject();
+	doubleSpinBox->inputFromJSON(jsonObject);
+      }
+      layout->addWidget(doubleSpinBox);
+      break;            
+    }
+
+    case JsonWidget::Type::SpinBox: {
+      auto spinBox = generateSpinBox(value);
+      if (set) {
+	auto jsonObject = value.toObject();
+	spinBox->inputFromJSON(jsonObject);
+      }
+      layout->addWidget(spinBox);
+      break;            
+    }      
+      
     default:
         break;
     }
@@ -215,6 +250,21 @@ JsonConfiguredWidget::generateRVLineEdit(const QJsonValue &inputValue) const {
 SimCenterWidget *
 JsonConfiguredWidget::generateFileInput(const QJsonValue &inputValue) const {
   return new SimCenterFileInput(inputValue);
+}
+
+SimCenterWidget *
+JsonConfiguredWidget::generateLineEdit(const QJsonValue &inputValue) const {
+  return new SimCenterLineEdit(inputValue);
+}
+
+SimCenterWidget *
+JsonConfiguredWidget::generateDoubleSpinBox(const QJsonValue &inputValue) const {
+  return new SimCenterDoubleSpinBox(inputValue);
+}
+
+SimCenterWidget *
+JsonConfiguredWidget::generateSpinBox(const QJsonValue &inputValue) const {
+  return new SimCenterSpinBox(inputValue);
 }
 
 QJsonArray

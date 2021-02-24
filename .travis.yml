@@ -1,4 +1,4 @@
-sudo: false
+sudo: true
 
 branches:
   only:
@@ -13,7 +13,17 @@ addons:
       - doxygen-gui
       - graphviz
 
+before_install:
+  - sudo apt-get install qtcreator -y
+  - sudo apt-get install qt5-default -y
+
 script:
+  - cd test
+  - qmake -project
+  - qmake unit_tests.pro
+  - make
+  - ./unit_tests
+  - cd ..
   - doxygen Doxyfile
 
 deploy:
