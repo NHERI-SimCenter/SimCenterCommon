@@ -97,6 +97,23 @@ RandomVariablesContainer::addConstantRVs(QStringList &varNamesAndValues)
 }
 
 void
+RandomVariablesContainer::addNormalRVs(QStringList &varNamesAndValues)
+{
+    int numVar = varNamesAndValues.count();
+    for (int i=0; i<numVar; i+= 2) {
+
+        QString varName = varNamesAndValues.at(i);
+        QString value = varNamesAndValues.at(i+1);
+
+        double dValue = value.toDouble();
+        NormalDistribution *theDistribution = new NormalDistribution(dValue, 0);
+        RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution, uqEngineName);
+
+        this->addRandomVariable(theRV);
+    }
+}
+
+void
 RandomVariablesContainer::addUniformRVs(QStringList &varNamesAndValues)
 {
     // remove existing RVs
@@ -381,7 +398,6 @@ void RandomVariablesContainer::removeRandomVariable(void)
 {
     // find the ones selected & remove them
     int numRandomVariables = theRandomVariables.size();
-
     int *index_selected_to_remove;int size_selected_to_remove=0;
 
     index_selected_to_remove = (int *)malloc(numRandomVariables*sizeof(int));
@@ -393,6 +409,8 @@ void RandomVariablesContainer::removeRandomVariable(void)
             theRV->close();
             rvLayout->removeWidget(theRV);
             theRandomVariables.remove(i);
+            randomVariableNames.removeAt(i);
+
             theRV->setParent(0);
             delete theRV;
             index_selected_to_remove[size_selected_to_remove]=i;
@@ -433,7 +451,7 @@ RandomVariablesContainer::addRandomVariable(RandomVariable *theRV) {
         //
         // if exists, get index and increment refCount of current RV, deletig new
         //
-
+        auto aa =theRV->variableName->text();
         int index = randomVariableNames.indexOf(theRV->variableName->text());
         RandomVariable *theCurrentRV = theRandomVariables.at(index);
         theCurrentRV->refCount = theCurrentRV->refCount+1;
