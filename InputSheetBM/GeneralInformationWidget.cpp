@@ -215,7 +215,8 @@ GeneralInformationWidget::outputToJSON(QJsonObject &jsonObj){
     //    jsonObj["revision"] = revEdit->text().toDouble();
     //    jsonObj["type"] = typeEdit->text().trimmed();
     //    jsonObj["year"] = yearEdit->text().toInt();
-    jsonObj["stories"] = storiesEdit->text().toInt();
+    jsonObj["stories"] = storiesEdit->text().toInt(); // keep both for now
+    jsonObj["NumberofStories"] = storiesEdit->text().toInt();
     jsonObj["width"] = widthEdit->text().toDouble();
     jsonObj["depth"] = depthEdit->text().toDouble();
 
@@ -270,8 +271,13 @@ GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
     QJsonValue nameValue = jsonObject["name"];
     nameEdit->setText(nameValue.toString());
 
-    QJsonValue storiesValue = jsonObject["stories"];
-    storiesEdit->setText(QString::number(storiesValue.toInt()));
+    if (!jsonObject["stories"].isUndefined()) {
+        QJsonValue storiesValue = jsonObject["stories"];
+        storiesEdit->setText(QString::number(storiesValue.toInt()));
+    } else if (!jsonObject["NumberofStories"].isUndefined()) {
+        QJsonValue storiesValue = jsonObject["NumberofStories"];
+        storiesEdit->setText(QString::number(storiesValue.toInt()));
+    }
 
     QJsonValue heightValue = jsonObject["height"];
     if (!heightValue.isNull())
