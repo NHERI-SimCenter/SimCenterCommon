@@ -64,14 +64,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 LocalApplication::LocalApplication(QString workflowScriptName, QWidget *parent)
 : Application(parent)
 {
-    QVBoxLayout *layout = new QVBoxLayout();
-    messageLabel = new QLabel();
-    messageLabel->setText(QString("The quick brown fox jumps over the lazy moon"));
-    layout->addStretch();
-    layout->addWidget(messageLabel);
-    layout->addStretch();
-
-    this->setLayout(layout);
+    proc = new QProcess(this);
+    connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &LocalApplication::handleProcessFinished);
+    connect(proc, &QProcess::readyReadStandardOutput, this, &LocalApplication::handleProcessTextOutput);
+    connect(proc, &QProcess::started, this, &LocalApplication::handleProcessStarted);
     
     this->workflowScript = workflowScriptName;
 }
@@ -101,7 +97,7 @@ LocalApplication::inputFromJSON(QJsonObject &dataObject) {
 void
 LocalApplication::onRunButtonPressed(void)
 {
-  messageLabel->setText("Setting up temporary directory");
+  sendStatusMessage("Setting up temporary directory.");
 
   QString workingDir = SimCenterPreferences::getInstance()->getLocalWorkDir();
   QDir dirWork(workingDir);
@@ -109,7 +105,6 @@ LocalApplication::onRunButtonPressed(void)
       if (!dirWork.mkpath(workingDir)) {
           QString errorMessage = QString("Could not create Working Dir: ") + workingDir
                   + QString(". Change the Local Jobs Directory location in preferences.");
-          messageLabel->setText(errorMessage);
 
           emit sendErrorMessage(errorMessage);;
 
@@ -122,14 +117,13 @@ LocalApplication::onRunButtonPressed(void)
   QDir dirApp(appDir);
   if (!dirApp.exists()) {
       QString errorMessage = QString("The application directory, ") + appDir +QString(" specified does not exist!. Check Local Application Directory im Preferences");
-      messageLabel->setText(errorMessage);
       emit sendErrorMessage(errorMessage);;
       return;
   }
   
   QString templateDir("templatedir");
-  messageLabel->setText("Gathering files to local workdir"); messageLabel->repaint();
-  emit sendStatusMessage("Gathering Files to local workdir");
+
+  emit sendStatusMessage("Gathering files to local workdir.");
   emit setupForRun(workingDir, templateDir);
 }
 
@@ -140,7 +134,10 @@ LocalApplication::onRunButtonPressed(void)
 //
 
 bool
-LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile) {
+LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile)
+{
+    tempDirectory = tmpDirectory;
+    inputFilePath = inputFile;
 
     // qDebug() << "RUNTYPE" << runType;
     QString runType("runningLocal");
@@ -177,17 +174,9 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     QStringList files;
     files << "dakota.in" << "dakota.out" << "dakotaTab.out" << "dakota.err";
 
-    //emit sendStatusMessage("Running Dakota .. either run remotely or patience!");
-    messageLabel->setText("Starting UQ engine .. this may take awhile!"); messageLabel->repaint();
-    qDebug() << "Running the UQ engine ... ";
-    emit sendStatusMessage("Running the UQ engine ... ");
-
     //
     // now invoke dakota, done via a python script in tool app dircetory
     //
-
-    QProcess *proc = new QProcess();
-
     proc->setProcessChannelMode(QProcess::SeparateChannels);
     auto procEnv = QProcessEnvironment::systemEnvironment();
     QString pathEnv = procEnv.value("PATH");
@@ -359,31 +348,10 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     }
     qDebug() << "PYTHON COMMAND" << command;
 
-    proc->execute("bash", QStringList() << "-c" <<  command);
+    proc->start("bash", QStringList() << "-c" <<  command);
     proc->waitForStarted();
 
 #endif
-
-    //proc->waitForStarted();
-
-      if (appName != "R2D"){
-          //
-          // copy input file to main directory & process results
-          //
-
-          QString filenameIN = tmpDirectory + QDir::separator() +  QString("dakota.json");
-          QFile::copy(inputFile, filenameIN);
-          QString filenameOUT = tmpDirectory + QDir::separator() +  QString("dakota.out");
-          QString filenameTAB = tmpDirectory + QDir::separator() +  QString("dakotaTab.out");
-
-          emit processResults(filenameOUT, filenameTAB, inputFile);
-      } else {
-          QString dirOut = tmpDirectory + QDir::separator() +  QString("Results");
-          QString name2("");
-          QString name3("");
-
-          emit processResults(dirOut, name2, name3);
-      }
 
     return 0;
 }
@@ -391,4 +359,69 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 void
 LocalApplication::displayed(void){
    this->onRunButtonPressed();
+}
+
+void LocalApplication::handleProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
+{
+    if(exitStatus == QProcess::ExitStatus::CrashExit)
+    {
+        QString errText("Error, the process running the Python script crashed");
+
+        emit sendErrorMessage(errText);
+        emit sendStatusMessage("Analysis complete with errors");
+        emit runComplete();
+
+        return;
+    }
+
+    if(exitCode != 0)
+    {
+        QString errText("An error occurred in the Python script, the exit code is " + QString::number(exitCode));
+
+        emit sendErrorMessage(errText);
+        emit sendStatusMessage("Analysis complete with errors");
+        emit runComplete();
+
+        return;
+    }
+
+    QString appName = QCoreApplication::applicationName();
+
+    if (appName != "R2D"){
+        //
+        // copy input file to main directory & process results
+        //
+
+        QString filenameIN = tempDirectory + QDir::separator() +  QString("dakota.json");
+        QFile::copy(inputFilePath, filenameIN);
+        QString filenameOUT = tempDirectory + QDir::separator() +  QString("dakota.out");
+        QString filenameTAB = tempDirectory + QDir::separator() +  QString("dakotaTab.out");
+
+        emit processResults(filenameOUT, filenameTAB, inputFilePath);
+    }
+    else
+    {
+        QString dirOut = tempDirectory + QDir::separator() +  QString("Results");
+        QString name2("");
+        QString name3("");
+
+        emit processResults(dirOut, name2, name3);
+    }
+
+    emit runComplete();
+    emit sendStatusMessage("Analysis complete");
+}
+
+
+void LocalApplication::handleProcessStarted(void)
+{
+    QString msg = "Starting the UQ engine. This may take awhile!";
+    emit sendStatusMessage(msg);
+}
+
+
+void LocalApplication::handleProcessTextOutput(void)
+{
+    QByteArray output =  proc->readAllStandardOutput();
+    emit sendStatusMessage(QString(output));
 }
