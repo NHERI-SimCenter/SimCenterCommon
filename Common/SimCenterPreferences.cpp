@@ -87,12 +87,12 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     
     python = new QLineEdit();
     QHBoxLayout *pythonLayout = new QHBoxLayout();
-#ifdef Q_OS_WIN
-    qDebug() << "IN Q_OS_WIN";
+#ifdef USE_SIMCENTER_PYTHON
+    qDebug() << "IN USE_SIMCENTER_PYTHON";
     customPythonCheckBox = new QCheckBox("Custom:");
     pythonLayout->addWidget(customPythonCheckBox);
 #else
-   qDebug() << "NOT IN Q_OS_WIN";
+   qDebug() << "NOT IN USE_SIMCENTER_PYTHON";
 #endif
     pythonLayout->addWidget(python);
     QPushButton *pythonButton = new QPushButton();
@@ -128,7 +128,7 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     }
     );
 
-#ifdef Q_OS_WIN
+#ifdef USE_SIMCENTER_PYTHON
 
     customPythonCheckBox->setChecked(false);
     python->setEnabled(false);
@@ -503,7 +503,7 @@ SimCenterPreferences::savePreferences(bool) {
     QSettings settingsCommon("SimCenter", "Common");
     QSettings settingsApp("SimCenter", QCoreApplication::applicationName());
 
-#ifdef Q_OS_WIN
+#ifdef USE_SIMCENTER_PYTHON
     settingsApp.setValue("pythonExePath", python->text());
 #else
     settingsCommon.setValue("pythonExePath", python->text());
@@ -513,7 +513,7 @@ SimCenterPreferences::savePreferences(bool) {
     settingsApp.setValue("version", currentVersion);
     settingsApp.setValue("appDir", appDir->text());
 
-#ifdef Q_OS_WIN
+#ifdef USE_SIMCENTER_PYTHON
     settingsApp.setValue("customPython", customPythonCheckBox->isChecked());
 #endif
     settingsApp.setValue("customAppDir", customAppDirCheckBox->isChecked());
@@ -547,7 +547,7 @@ SimCenterPreferences::resetPreferences(bool) {
     QString pythonPath = this->getDefaultPython();
     python->setText(pythonPath);
     
-#ifdef Q_OS_WIN    
+#ifdef USE_SIMCENTER_PYTHON    
     settingsApplication.setValue("pythonExePath", pythonPath);
 #else
     settingsCommon.setValue("pythonExePath", pythonPath);
@@ -627,7 +627,7 @@ SimCenterPreferences::loadPreferences() {
     
 
 
-#ifdef Q_OS_WIN    
+#ifdef USE_SIMCENTER_PYTHON    
     auto customPython = settingsApplication.value("customPython", false);
     if (customPython.isValid() && customPython.toBool() == true) {
         QVariant  pythonPathVariant = settingsApplication.value("pythonExePath");
@@ -768,7 +768,7 @@ SimCenterPreferences::getPython(void) {
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
     QString pythonPath;
 
-#ifdef Q_OS_WIN
+#ifdef USE_SIMCENTER_PYTHON
     QVariant  pythonPathVariant = settingsApplication.value("pythonExePath");
     if (!pythonPathVariant.isValid()) {
             pythonPath = this->getDefaultPython();
@@ -901,7 +901,7 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
 QString
 SimCenterPreferences::getDefaultOpenSees(void) {
     QString currentAppDir = QCoreApplication::applicationDirPath();
-#ifdef Q_OS_WIN
+#ifdef USE_SIMCENTER_PYTHON
     QString openseesApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees.exe";
 #else
     QString openseesApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees";
@@ -914,7 +914,7 @@ QString
 SimCenterPreferences::getDefaultDakota(void) {
     QString currentAppDir = QCoreApplication::applicationDirPath();
 
-#ifdef Q_OS_WIN
+#ifdef USE_SIMCENTER_PYTHON
     QString dakotaApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota.exe";
 #else
     QString dakotaApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota";
@@ -927,7 +927,7 @@ SimCenterPreferences::getDefaultDakota(void) {
 QString
 SimCenterPreferences::getDefaultPython(void) {
 
-#ifdef Q_OS_WIN
+#ifdef USE_SIMCENTER_PYTHON
     QStringList paths{QCoreApplication::applicationDirPath().append("/applications/python")};
     QString pythonPath = QStandardPaths::findExecutable("python.exe", paths);
     if(pythonPath.isEmpty())
