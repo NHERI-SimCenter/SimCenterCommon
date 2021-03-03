@@ -88,8 +88,11 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     python = new QLineEdit();
     QHBoxLayout *pythonLayout = new QHBoxLayout();
 #ifdef Q_OS_WIN
+    qDebug() << "IN Q_OS_WIN";
     customPythonCheckBox = new QCheckBox("Custom:");
-    pythonLayout->addWidget(customOpenSeesCheckBox);    
+    pythonLayout->addWidget(customPythonCheckBox);
+#else
+   qDebug() << "NOT IN Q_OS_WIN";
 #endif
     pythonLayout->addWidget(python);
     QPushButton *pythonButton = new QPushButton();
@@ -131,7 +134,7 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     python->setEnabled(false);
     pythonButton->setEnabled(false);
     
-    connect(customPythonCheckBox, &QCheckBox::toggled, this, [this, openseesButton](bool checked)
+    connect(customPythonCheckBox, &QCheckBox::toggled, this, [this, pythonButton](bool checked)
     {
         python->setEnabled(checked);
         pythonButton->setEnabled(checked);
@@ -639,7 +642,7 @@ SimCenterPreferences::loadPreferences() {
         }
     } else {
         QString pythonApp=this->getDefaultPython();
-        python->setText(openSeesApp);
+        python->setText(pythonApp);
     }
 #else
     QVariant  pythonPathVariant = settingsCommon.value("pythonExePath");    
@@ -762,24 +765,25 @@ QString
 SimCenterPreferences::getPython(void) {
  
     QSettings settingsCommon("SimCenter", "Common");
-    QVariant  pythonPathVariant = settingsCommon.value("pythonExePath");
+    QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
+    QString pythonPath;
 
-    // if python not set .. get default
-    if (!pythonPathVariant.isValid()) {
 #ifdef Q_OS_WIN
-        QStringList paths{QCoreApplication::applicationDirPath().append("/applications/python")};
-        QString pythonPath = QStandardPaths::findExecutable("python.exe", paths);
-        if(pythonPath.isEmpty())
-            pythonPath = QStandardPaths::findExecutable("python.exe");
-#else
-        QString pythonPath = QStandardPaths::findExecutable("python");
-#endif
-        if (pythonPath.isEmpty())
-            pythonPath = QString("python");
-
-        settingsCommon.setValue("pythonExePath", pythonPath);
-        return pythonPath;
+    QVariant  pythonPathVariant = settingsApplication.value("pythonExePath");
+    if (!pythonPathVariant.isValid()) {
+            pythonPath = this->getDefaultPython();
+            settingsApplication.setValue("pythonExePath", pythonPath);
+            return pythonPath;
     }
+#else
+    QVariant  pythonPathVariant = settingsCommon.value("pythonExePath");
+    if (!pythonPathVariant.isValid()) {
+            pythonPath = this->getDefaultPython();
+            settingsCommon.setValue("pythonExePath", pythonPath);
+            return pythonPath;
+    }
+
+#endif
 
     return pythonPathVariant.toString();
 }
