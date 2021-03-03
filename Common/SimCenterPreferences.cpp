@@ -927,7 +927,7 @@ SimCenterPreferences::getDefaultDakota(void) {
 QString
 SimCenterPreferences::getDefaultPython(void) {
 
-#ifdef USE_SIMCENTER_PYTHON
+#ifdef Q_OS_WIN
     QStringList paths{QCoreApplication::applicationDirPath().append("/applications/python")};
     QString pythonPath = QStandardPaths::findExecutable("python.exe", paths);
     if(pythonPath.isEmpty())
