@@ -112,9 +112,13 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     mainLayout->addWidget(typeLabel,0,2);
     mainLayout->addWidget(typeComboBox,1,2);
 
-    typeComboBox->addItem(tr("Parameters"));
-    typeComboBox->addItem(tr("Moments"));
-    typeComboBox->addItem(tr("Dataset"));
+    if (uqengin!=QString("SimCenterUQ")){
+        typeComboBox->addItem(tr("Moments"));
+    } else {
+        typeComboBox->addItem(tr("Parameters"));
+        typeComboBox->addItem(tr("Moments"));
+        typeComboBox->addItem(tr("Dataset"));
+    }
 
     connect(typeComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(typeChanged(QString)));
 
