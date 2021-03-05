@@ -215,7 +215,7 @@ RandomVariablesContainer::makeRV(void)
     titleLayout->addItem(spacer3);
 
     //titleLayout->addWidget(addCorrelation,0,Qt::AlignTop);
-    titleLayout->addWidget(addCorrelation);
+    //fmk    titleLayout->addWidget(addCorrelation);
 
     titleLayout->addStretch();
 

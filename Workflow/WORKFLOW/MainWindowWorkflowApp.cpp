@@ -548,8 +548,35 @@ void MainWindowWorkflowApp::createActions() {
     // QAction *submitFeature = helpMenu->addAction(tr("&Submit Bug/Feature Request"), this, &MainWindowWorkflowApp::submitFeatureRequest);
     helpMenu->addAction(tr("&How to Cite"), this, &MainWindowWorkflowApp::cite);
     helpMenu->addAction(tr("&License"), this, &MainWindowWorkflowApp::copyright);
-}
 
+    //
+    // Examples
+    //
+    
+    auto pathToExamplesJson = QCoreApplication::applicationDirPath() + QDir::separator() +
+                "Examples" + QDir::separator() + "Examples.json";
+
+    QFile jsonFile(pathToExamplesJson);
+    if (jsonFile.exists()) {
+        qDebug() << "Examples Exist";
+        jsonFile.open(QFile::ReadOnly);
+        QJsonDocument exDoc = QJsonDocument::fromJson(jsonFile.readAll());
+
+        QJsonObject docObj = exDoc.object();
+        QJsonArray examples = docObj["Examples"].toArray();
+        QMenu *exampleMenu = 0;
+        if (examples.size() > 0)
+            exampleMenu = menuBar()->addMenu(tr("&Examples"));
+        foreach (const QJsonValue & example, examples) {
+            QJsonObject exampleObj = example.toObject();
+            QString name = exampleObj["name"].toString();
+            QString inputFile = exampleObj["InputFile"].toString();
+            auto action = exampleMenu->addAction(name, this, &MainWindowWorkflowApp::loadExamples);
+            action->setProperty("InputFile",inputFile);
+        }
+    } else
+        qDebug() << "No Examples" << pathToExamplesJson;
+}
 
 
 
@@ -809,6 +836,20 @@ void
 MainWindowWorkflowApp::setCite(QString &newText)
 {
   citeText = newText;
+}
+
+void MainWindowWorkflowApp::loadExamples()
+{
+    auto pathToExample = QCoreApplication::applicationDirPath() + QDir::separator() + "Examples" + QDir::separator();
+    pathToExample += QObject::sender()->property("InputFile").toString();
+
+    if(pathToExample.isNull())
+    {
+        qDebug()<<"Error loading examples";
+        return;
+    }
+
+    this->loadFile(pathToExample);
 }
 
 

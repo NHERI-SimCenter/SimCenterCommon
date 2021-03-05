@@ -59,7 +59,7 @@ BetaDistribution::BetaDistribution(QString inpType, QWidget *parent) :RandomVari
     mainLayout->setVerticalSpacing(0);
     mainLayout->setMargin(0);
 
-    QPushButton *showPlotButton = new QPushButton("Show PDF");
+    QPushButton *showPlotButton = NULL;
 
     this->inpty=inpType;
 
@@ -73,6 +73,7 @@ BetaDistribution::BetaDistribution(QString inpType, QWidget *parent) :RandomVari
         a->setValidator(new QDoubleValidator);
         b  = this->createTextEntry(tr("Max."), mainLayout, 3);
         b->setValidator(new QDoubleValidator);
+        showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,4);
 
         mainLayout->setColumnStretch(5,1);
@@ -87,6 +88,7 @@ BetaDistribution::BetaDistribution(QString inpType, QWidget *parent) :RandomVari
         a->setValidator(new QDoubleValidator);
         b  = this->createTextEntry(tr("Max."), mainLayout, 3);
         b->setValidator(new QDoubleValidator);
+        showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,4);
 
         mainLayout->setColumnStretch(5,1);

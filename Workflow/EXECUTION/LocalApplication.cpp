@@ -60,6 +60,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QFileDialog>
 #include <QProcessEnvironment>
 #include <QCoreApplication>
+#include <SimCenterPreferences.h>
 
 LocalApplication::LocalApplication(QString workflowScriptName, QWidget *parent)
 : Application(parent)
@@ -198,18 +199,18 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     QString exportPath("export PATH=");
     bool colonYes = false;
 
-    QSettings settings("SimCenter", "Common"); //These names will need to be constants to be shared
-    QVariant  pythonPathVariant = settings.value("pythonExePath");
-    if (pythonPathVariant.isValid()) {
-        python = pythonPathVariant.toString();
+    SimCenterPreferences *preferences = SimCenterPreferences::getInstance();
+    python = preferences->getPython();
 
-        QFileInfo pythonFile(pythonPathVariant.toString());
-        if (pythonFile.exists()) {
-            QString pythonPath = pythonFile.absolutePath();
-            colonYes=true;
-            exportPath += pythonPath;
-            pathEnv = pythonPath + ';' + pathEnv;
-        }
+    QFileInfo pythonFile(python);
+    if (pythonFile.exists()) {
+        QString pythonPath = pythonFile.absolutePath();
+        colonYes=true;
+        exportPath += pythonPath;
+        pathEnv = pythonPath + ';' + pathEnv;
+    } else {
+        emit sendErrorMessage("NO VALID PYTHON - Read the Manual & Check your Preferences");
+        return false;
     }
 
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
