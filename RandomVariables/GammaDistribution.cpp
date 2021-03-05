@@ -60,7 +60,7 @@ GammaDistribution::GammaDistribution(QString inpType, QWidget *parent) :RandomVa
     mainLayout->setVerticalSpacing(0);
     mainLayout->setMargin(0);
 
-    QPushButton *showPlotButton = new QPushButton("Show PDF");
+    QPushButton *showPlotButton = NULL; // new QPushButton("Show PDF");
 
     this->inpty=inpType;
 
@@ -70,6 +70,7 @@ GammaDistribution::GammaDistribution(QString inpType, QWidget *parent) :RandomVa
         k->setValidator(new QDoubleValidator);
         lambda  = this->createTextEntry(tr("lambda"), mainLayout, 1);
         lambda->setValidator(new QDoubleValidator);
+        showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
     } else if (inpty==QString("Moments")) {
@@ -78,6 +79,7 @@ GammaDistribution::GammaDistribution(QString inpType, QWidget *parent) :RandomVa
         mean->setValidator(new QDoubleValidator);        
         standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout, 1);
         standardDev->setValidator(new QDoubleValidator);
+        showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
     } else if (inpty==QString("Dataset")) {
