@@ -59,7 +59,7 @@ NormalDistribution::NormalDistribution(QString inpType, QWidget *parent) :Random
     mainLayout->setVerticalSpacing(0);
     mainLayout->setMargin(0);
 
-    QPushButton *showPlotButton = new QPushButton("Show PDF");
+    QPushButton *showPlotButton = NULL;
 
     this->inpty=inpType;
 
@@ -69,7 +69,7 @@ NormalDistribution::NormalDistribution(QString inpType, QWidget *parent) :Random
         standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout,1);
         mean->setValidator(new QDoubleValidator);
         standardDev->setValidator(new QDoubleValidator);
-
+        showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton,1,2);
         mainLayout->setColumnStretch(3,1);
 

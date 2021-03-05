@@ -84,6 +84,7 @@ private:
     QLineEdit *remoteBackendDir;
     QLineEdit *remoteTapisApp;
 
+    QCheckBox* customPythonCheckBox;  
     QCheckBox* customOpenSeesCheckBox;
     QCheckBox* customDakotaCheckBox;
     QCheckBox* customAppDirCheckBox;

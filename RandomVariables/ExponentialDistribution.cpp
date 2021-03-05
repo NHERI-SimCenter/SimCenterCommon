@@ -59,20 +59,22 @@ ExponentialDistribution::ExponentialDistribution(QString inpType, QWidget *paren
     mainLayout->setVerticalSpacing(0);
     mainLayout->setMargin(0);
 
-    QPushButton *showPlotButton = new QPushButton("Show PDF");
+    QPushButton *showPlotButton = NULL; //new QPushButton("Show PDF");
 
     this->inpty=inpType;
 
     if (inpty==QString("Parameters"))
     {
         lambda = this->createTextEntry(tr("lambda"), mainLayout, 0);
-        lambda->setValidator(new QDoubleValidator);        
+        lambda->setValidator(new QDoubleValidator);
+        showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,1);
 
     } else if (inpty==QString("Moments")) {
 
         mean = this->createTextEntry(tr("Mean"), mainLayout, 0);
-        mean->setValidator(new QDoubleValidator);        
+        mean->setValidator(new QDoubleValidator);
+        showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,1);
 
     } else if (inpty==QString("Dataset")) {

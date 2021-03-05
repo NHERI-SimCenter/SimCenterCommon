@@ -53,7 +53,8 @@ public:
     void preferences();
     void copyright();
     void cite();
-
+    virtual void loadExamples();
+  
     // for main actions
     void onRunButtonClicked();
     void onRemoteRunButtonClicked();
