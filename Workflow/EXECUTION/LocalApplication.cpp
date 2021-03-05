@@ -409,8 +409,8 @@ void LocalApplication::handleProcessFinished(int exitCode, QProcess::ExitStatus 
         emit processResults(dirOut, name2, name3);
     }
 
-    emit runComplete();
     emit sendStatusMessage("Analysis complete");
+    emit runComplete();
 }
 
 
