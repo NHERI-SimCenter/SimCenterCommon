@@ -43,7 +43,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class MainWindowWorkflowApp;
 class RemoteService;
-
+class PythonProgressDialog;
 
 class WorkflowAppWidget : public QWidget
 {
@@ -66,6 +66,8 @@ public:
     
     MainWindowWorkflowApp *getTheMainWindow() const;
 
+    static PythonProgressDialog *getProgressDialog();
+
 signals:
     void setUpForApplicationRunDone(QString &tmpDirectory, QString &inputFile,
                                      QString runType = QString("run"));
@@ -78,6 +80,8 @@ signals:
 public slots:  
     //virtual void selectionChangedSlot(const QItemSelection &, const QItemSelection &) =0;
 
+    void showOutputDialog(void);
+
     virtual void setUpForApplicationRun(QString &, QString &) =0;
     virtual void processResults(QString dakotaOut, QString dakotaTab, QString inputFile) =0;
 
@@ -89,6 +93,8 @@ public slots:
 protected:
     MainWindowWorkflowApp *theMainWindow;
     RemoteService *theRemoteService;
+
+    static PythonProgressDialog *progressDialog;
 };
 
 #endif // WORKFLOW_APP_WIDGET_H
