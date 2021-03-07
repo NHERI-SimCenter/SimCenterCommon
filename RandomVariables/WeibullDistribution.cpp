@@ -61,6 +61,7 @@ WeibullDistribution::WeibullDistribution(QString inpType, QWidget *parent) :Rand
 
     QPushButton *showPlotButton = NULL; // new QPushButton("Show PDF");
 
+
     this->inpty=inpType;
 
     if (inpty==QString("Parameters"))
@@ -151,6 +152,7 @@ WeibullDistribution::inputFromJSON(QJsonObject &rvObject){
     //
     // for all entries, make sure i exists and if it does get it, otherwise return error
     //
+
 
     if (rvObject.contains("inputType")) {
         inpty=rvObject["inputType"].toString();

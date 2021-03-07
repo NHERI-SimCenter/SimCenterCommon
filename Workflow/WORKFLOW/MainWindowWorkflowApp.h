@@ -38,6 +38,11 @@ public:
     void attemptLogin(QString, QString);
     void logout();
 
+    void sendStatusMessage(QString message);
+    void sendErrorMessage(QString message);
+    void sendFatalMessage(QString message);
+    void sendInfoMessage(QString message);
+
   public slots:
     // for menu items
     void newFile();
@@ -66,11 +71,6 @@ public:
     void onLoginSubmitButtonClicked();
     void attemptLoginReturn(bool);
     void logoutReturn(bool);
-
-    // for error messages
-    void statusMessage(QString message);
-    void errorMessage(QString message);
-    void fatalMessage(QString message);
 
 
  private:

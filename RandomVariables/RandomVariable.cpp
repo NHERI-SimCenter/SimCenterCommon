@@ -113,14 +113,13 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     mainLayout->addWidget(typeComboBox,1,2);
 
     if (uqengin!=QString("SimCenterUQ")){
-        typeComboBox->addItem(tr("Moments"));
-    } else {
         typeComboBox->addItem(tr("Parameters"));
         typeComboBox->addItem(tr("Moments"));
         typeComboBox->addItem(tr("Dataset"));
     }
 
     connect(typeComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(typeChanged(QString)));
+    typeComboBox->setCurrentIndex(0);
 
     //
     // create distribution block
@@ -259,9 +258,11 @@ RandomVariable::inputFromJSON(QJsonObject &rvObject){
         return false;
     }
 
+    bool typeSpecified = false;
     if (rvObject.contains("inputType")) {
         QJsonValue theInputTypeValue = rvObject["inputType"];
         inputType = theInputTypeValue.toString();
+        typeSpecified = true;
     } else {
         inputType = "Parameters";
     }
@@ -269,6 +270,8 @@ RandomVariable::inputFromJSON(QJsonObject &rvObject){
     if (rvObject.contains("distribution")) {
         QJsonValue theDistributionValue = rvObject["distribution"];
         distributionType = theDistributionValue.toString();
+        if (distributionType == "Lognormal" && typeSpecified == false)
+            inputType = "Moments";
     } else {
         return false;
     }
@@ -292,6 +295,7 @@ RandomVariable::inputFromJSON(QJsonObject &rvObject){
         distributionComboBox->addItem(tr("Chisquare"));
         distributionComboBox->addItem(tr("Truncated exponential"));
     }
+
 
     int index1 = typeComboBox->findText(inputType);
     this->typeChanged(inputType);
@@ -334,6 +338,7 @@ void RandomVariable::distributionChanged(const QString &arg1)
         theDistribution = new NormalDistribution(typeOpt);
     } else if (arg1 == QString("Lognormal")) {
         if (this->uqEngineName==QString("Dakota")) {
+            typeComboBox->setCurrentIndex(1);
             theDistribution = new LognormalDistribution(QString("Moments"));
             // Dakota gets moments for lognormal
         } else {

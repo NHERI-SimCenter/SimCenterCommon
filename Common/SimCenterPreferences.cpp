@@ -88,11 +88,10 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     python = new QLineEdit();
     QHBoxLayout *pythonLayout = new QHBoxLayout();
 #ifdef USE_SIMCENTER_PYTHON
-    qDebug() << "IN USE_SIMCENTER_PYTHON";
     customPythonCheckBox = new QCheckBox("Custom:");
     pythonLayout->addWidget(customPythonCheckBox);
 #else
-   qDebug() << "NOT IN USE_SIMCENTER_PYTHON";
+
 #endif
     pythonLayout->addWidget(python);
     QPushButton *pythonButton = new QPushButton();
