@@ -260,9 +260,11 @@ RandomVariable::inputFromJSON(QJsonObject &rvObject){
         return false;
     }
 
+    bool typeSpecified = false;
     if (rvObject.contains("inputType")) {
         QJsonValue theInputTypeValue = rvObject["inputType"];
         inputType = theInputTypeValue.toString();
+        typeSpecified = true;
     } else {
         inputType = "Parameters";
     }
@@ -270,6 +272,8 @@ RandomVariable::inputFromJSON(QJsonObject &rvObject){
     if (rvObject.contains("distribution")) {
         QJsonValue theDistributionValue = rvObject["distribution"];
         distributionType = theDistributionValue.toString();
+        if (distributionType == "Lognormal" && typeSpecified == false)
+            inputType = "Moments";
     } else {
         return false;
     }
