@@ -113,7 +113,7 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     mainLayout->addWidget(typeComboBox,1,2);
 
     if (uqengin!=QString("SimCenterUQ")){
-        typeComboBox->addItem(tr("Moments"));
+        typeComboBox->addItem(tr("Parameters"));
     } else {
         typeComboBox->addItem(tr("Parameters"));
         typeComboBox->addItem(tr("Moments"));
@@ -121,6 +121,7 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     }
 
     connect(typeComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(typeChanged(QString)));
+    typeComboBox->setCurrentIndex(0);
 
     //
     // create distribution block
@@ -292,6 +293,7 @@ RandomVariable::inputFromJSON(QJsonObject &rvObject){
         distributionComboBox->addItem(tr("Chisquare"));
         distributionComboBox->addItem(tr("Truncated exponential"));
     }
+
 
     int index1 = typeComboBox->findText(inputType);
     this->typeChanged(inputType);

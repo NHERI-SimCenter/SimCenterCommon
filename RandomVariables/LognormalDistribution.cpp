@@ -59,7 +59,6 @@ LognormalDistribution::LognormalDistribution(QString inpType, QWidget *parent) :
     mainLayout->setVerticalSpacing(0);
     mainLayout->setMargin(0);
 
-
     QPushButton *showPlotButton = NULL;
     this->inpty=inpType;
 
