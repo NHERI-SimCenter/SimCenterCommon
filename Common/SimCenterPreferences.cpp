@@ -83,8 +83,16 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     // add row for python interpreter
     //
 
+
+    
     python = new QLineEdit();
     QHBoxLayout *pythonLayout = new QHBoxLayout();
+#ifdef USE_SIMCENTER_PYTHON
+    customPythonCheckBox = new QCheckBox("Custom:");
+    pythonLayout->addWidget(customPythonCheckBox);
+#else
+
+#endif
     pythonLayout->addWidget(python);
     QPushButton *pythonButton = new QPushButton();
     pythonButton->setText("Browse");
@@ -119,6 +127,20 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     }
     );
 
+#ifdef USE_SIMCENTER_PYTHON
+
+    customPythonCheckBox->setChecked(false);
+    python->setEnabled(false);
+    pythonButton->setEnabled(false);
+    
+    connect(customPythonCheckBox, &QCheckBox::toggled, this, [this, pythonButton](bool checked)
+    {
+        python->setEnabled(checked);
+        pythonButton->setEnabled(checked);
+        pythonButton->setFlat(!checked);
+        if (checked == false) python->setText(this->getDefaultPython());
+    });
+#endif    
 
     // opensees
     opensees = new QLineEdit();
@@ -478,12 +500,21 @@ SimCenterPreferences::savePreferences(bool) {
     QString currentVersion = QCoreApplication::applicationVersion();
 
     QSettings settingsCommon("SimCenter", "Common");
-    settingsCommon.setValue("pythonExePath", python->text());
-
     QSettings settingsApp("SimCenter", QCoreApplication::applicationName());
+
+#ifdef USE_SIMCENTER_PYTHON
+    settingsApp.setValue("pythonExePath", python->text());
+#else
+    settingsCommon.setValue("pythonExePath", python->text());
+#endif
+
 
     settingsApp.setValue("version", currentVersion);
     settingsApp.setValue("appDir", appDir->text());
+
+#ifdef USE_SIMCENTER_PYTHON
+    settingsApp.setValue("customPython", customPythonCheckBox->isChecked());
+#endif
     settingsApp.setValue("customAppDir", customAppDirCheckBox->isChecked());
     settingsApp.setValue("customOpenSees", customOpenSeesCheckBox->isChecked());
     settingsApp.setValue("customDakota", customDakotaCheckBox->isChecked());
@@ -510,12 +541,16 @@ SimCenterPreferences::resetPreferences(bool) {
     qDebug() << "RESET_PREFERENCES";
 
     QSettings settingsCommon("SimCenter", "Common");
-
-    QString pythonPath = this->getDefaultPython();
-    settingsCommon.setValue("pythonExePath", pythonPath);
-    python->setText(pythonPath);
-
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
+    
+    QString pythonPath = this->getDefaultPython();
+    python->setText(pythonPath);
+    
+#ifdef USE_SIMCENTER_PYTHON    
+    settingsApplication.setValue("pythonExePath", pythonPath);
+#else
+    settingsCommon.setValue("pythonExePath", pythonPath);
+#endif
 
     QString currentVersion = QCoreApplication::applicationVersion();
     settingsApplication.setValue("version", currentVersion);
@@ -565,6 +600,7 @@ SimCenterPreferences::loadPreferences() {
 
     QString currentVersion = QCoreApplication::applicationVersion();
 
+    QSettings settingsCommon("SimCenter", "Common");    
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
 
     //
@@ -587,11 +623,28 @@ SimCenterPreferences::loadPreferences() {
     // common setting first
     //
 
-    QSettings settingsCommon("SimCenter", "Common");
+    
 
-    QVariant  pythonPathVariant = settingsCommon.value("pythonExePath");
 
-    // python
+#ifdef USE_SIMCENTER_PYTHON    
+    auto customPython = settingsApplication.value("customPython", false);
+    if (customPython.isValid() && customPython.toBool() == true) {
+        QVariant  pythonPathVariant = settingsApplication.value("pythonExePath");
+        if (!pythonPathVariant.isValid()) {
+            customPythonCheckBox->setChecked(false);
+            QString pythonPath=this->getDefaultPython();
+            settingsApplication.setValue("pythonExePath", pythonPath);
+            python->setText(pythonPath);
+        } else {
+            customPythonCheckBox->setChecked(true);
+            python->setText(pythonPathVariant.toString());
+        }
+    } else {
+        QString pythonApp=this->getDefaultPython();
+        python->setText(pythonApp);
+    }
+#else
+    QVariant  pythonPathVariant = settingsCommon.value("pythonExePath");    
     if (!pythonPathVariant.isValid()) {
         QString pythonPath=this->getPython();
         settingsCommon.setValue("pythonExePath", pythonPath);
@@ -599,6 +652,7 @@ SimCenterPreferences::loadPreferences() {
     } else {
         python->setText(pythonPathVariant.toString());
     }
+#endif
 
     //
     // now app specific settings
@@ -708,26 +762,27 @@ SimCenterPreferences::loadPreferences() {
 
 QString
 SimCenterPreferences::getPython(void) {
-
+ 
     QSettings settingsCommon("SimCenter", "Common");
-    QVariant  pythonPathVariant = settingsCommon.value("pythonExePath");
+    QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
+    QString pythonPath;
 
-    // if python not set .. get default
+#ifdef USE_SIMCENTER_PYTHON
+    QVariant  pythonPathVariant = settingsApplication.value("pythonExePath");
     if (!pythonPathVariant.isValid()) {
-#ifdef Q_OS_WIN
-        QStringList paths{QCoreApplication::applicationDirPath().append("/applications/python")};
-        QString pythonPath = QStandardPaths::findExecutable("python.exe", paths);
-        if(pythonPath.isEmpty())
-            pythonPath = QStandardPaths::findExecutable("python.exe");
-#else
-        QString pythonPath = QStandardPaths::findExecutable("python");
-#endif
-        if (pythonPath.isEmpty())
-            pythonPath = QString("python");
-
-        settingsCommon.setValue("pythonExePath", pythonPath);
-        return pythonPath;
+            pythonPath = this->getDefaultPython();
+            settingsApplication.setValue("pythonExePath", pythonPath);
+            return pythonPath;
     }
+#else
+    QVariant  pythonPathVariant = settingsCommon.value("pythonExePath");
+    if (!pythonPathVariant.isValid()) {
+            pythonPath = this->getDefaultPython();
+            settingsCommon.setValue("pythonExePath", pythonPath);
+            return pythonPath;
+    }
+
+#endif
 
     return pythonPathVariant.toString();
 }
@@ -845,7 +900,7 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
 QString
 SimCenterPreferences::getDefaultOpenSees(void) {
     QString currentAppDir = QCoreApplication::applicationDirPath();
-#ifdef Q_OS_WIN
+#ifdef USE_SIMCENTER_PYTHON
     QString openseesApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees.exe";
 #else
     QString openseesApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees";
@@ -858,7 +913,7 @@ QString
 SimCenterPreferences::getDefaultDakota(void) {
     QString currentAppDir = QCoreApplication::applicationDirPath();
 
-#ifdef Q_OS_WIN
+#ifdef USE_SIMCENTER_PYTHON
     QString dakotaApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota.exe";
 #else
     QString dakotaApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota";

@@ -215,24 +215,31 @@ GeneralInformationWidget::outputToJSON(QJsonObject &jsonObj){
     //    jsonObj["revision"] = revEdit->text().toDouble();
     //    jsonObj["type"] = typeEdit->text().trimmed();
     //    jsonObj["year"] = yearEdit->text().toInt();
-    jsonObj["stories"] = storiesEdit->text().toInt();
+    jsonObj["stories"] = storiesEdit->text().toInt(); // keep both for now
+    jsonObj["NumberOfStories"] = storiesEdit->text().toInt();
     jsonObj["width"] = widthEdit->text().toDouble();
     jsonObj["depth"] = depthEdit->text().toDouble();
 
     // if the plan area is provided:
     double planAreaValue = planAreaEdit->text().toDouble();
-    if (planAreaValue > 0.0)
+    if (planAreaValue > 0.0) {
+        jsonObj["PlanArea"] = planAreaValue;
         jsonObj["planArea"] = planAreaValue;
+    }
     else {
         double widthValue = widthEdit->text().toDouble();
         double depthValue = depthEdit->text().toDouble();
         double rectAreaValue = widthValue * depthValue;
         // otherwise, assume a rectangular plan and use width x depth
-        if (rectAreaValue > 0.0)
+        if (rectAreaValue > 0.0) {
             jsonObj["planArea"] = rectAreaValue;
-        else
+            jsonObj["PlanArea"] = rectAreaValue;
+        }
+        else {
             // if none of the above are provided, use 0.0 for the area
             jsonObj["planArea"] = 0.0;
+            jsonObj["PlanArea"] = 0.0;
+        }
     }
 
     jsonObj["height"] = heightEdit->text().toDouble();
@@ -270,8 +277,13 @@ GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
     QJsonValue nameValue = jsonObject["name"];
     nameEdit->setText(nameValue.toString());
 
-    QJsonValue storiesValue = jsonObject["stories"];
-    storiesEdit->setText(QString::number(storiesValue.toInt()));
+    if (!jsonObject["stories"].isUndefined()) {
+        QJsonValue storiesValue = jsonObject["stories"];
+        storiesEdit->setText(QString::number(storiesValue.toInt()));
+    } else if (!jsonObject["NumberOfStories"].isUndefined()) {
+        QJsonValue storiesValue = jsonObject["NumberOfStories"];
+        storiesEdit->setText(QString::number(storiesValue.toInt()));
+    }
 
     QJsonValue heightValue = jsonObject["height"];
     if (!heightValue.isNull())
@@ -292,6 +304,9 @@ GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
         depthEdit->setText("0.0");
 
     QJsonValue planAreaValue = jsonObject["planArea"];
+    if(planAreaValue.isUndefined() || planAreaValue == QJsonValue::Null || !planAreaValue.isDouble())
+        QJsonValue planAreaValue = jsonObject["PlanArea"];
+
     if(planAreaValue.isUndefined() || planAreaValue == QJsonValue::Null || !planAreaValue.isDouble())
         planAreaEdit->setText("0.0");
     else

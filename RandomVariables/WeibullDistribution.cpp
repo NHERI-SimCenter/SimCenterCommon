@@ -59,7 +59,8 @@ WeibullDistribution::WeibullDistribution(QString inpType, QWidget *parent) :Rand
     mainLayout->setVerticalSpacing(0);
     mainLayout->setMargin(0);
 
-    QPushButton *showPlotButton = new QPushButton("Show PDF");
+    QPushButton *showPlotButton = NULL; // new QPushButton("Show PDF");
+
 
     this->inpty=inpType;
 
@@ -69,6 +70,7 @@ WeibullDistribution::WeibullDistribution(QString inpType, QWidget *parent) :Rand
         an->setValidator(new QDoubleValidator);
         k  = this->createTextEntry(tr("k (shape)"), mainLayout, 1);
         k->setValidator(new QDoubleValidator);
+        showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
     } else if (inpty==QString("Moments")) {
@@ -77,6 +79,7 @@ WeibullDistribution::WeibullDistribution(QString inpType, QWidget *parent) :Rand
         mean->setValidator(new QDoubleValidator);        
         standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout, 1);
         standardDev->setValidator(new QDoubleValidator);
+        showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
     } else if (inpty==QString("Dataset")) {
@@ -149,6 +152,7 @@ WeibullDistribution::inputFromJSON(QJsonObject &rvObject){
     //
     // for all entries, make sure i exists and if it does get it, otherwise return error
     //
+
 
     if (rvObject.contains("inputType")) {
         inpty=rvObject["inputType"].toString();

@@ -59,7 +59,7 @@ TruncatedExponentialDistribution::TruncatedExponentialDistribution(QString inpTy
     mainLayout->setVerticalSpacing(0);
     mainLayout->setMargin(0);
 
-    QPushButton *showPlotButton = new QPushButton("Show PDF");
+    QPushButton *showPlotButton = NULL; // new QPushButton("Show PDF");
     errorMsgLabel = new QLabel();
     errorMsgLabel -> setStyleSheet("QLabel { color : red; }");
 
@@ -74,6 +74,7 @@ TruncatedExponentialDistribution::TruncatedExponentialDistribution(QString inpTy
         a->setValidator(new QDoubleValidator(0.0,1.e10,1000));
         b  = this->createTextEntry(tr("Max."), mainLayout, 2);
         b->setValidator(new QDoubleValidator(0.0,1.e10,1000));
+        showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,3);
 
 
@@ -85,6 +86,7 @@ TruncatedExponentialDistribution::TruncatedExponentialDistribution(QString inpTy
         a->setValidator(new QDoubleValidator(0.0,1.e10,1000));
         b  = this->createTextEntry(tr("Max."), mainLayout, 2);
         b->setValidator(new QDoubleValidator(0.0,1.e10,1000));
+        showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,3);
 
     } else if (inpty==QString("Dataset")) {

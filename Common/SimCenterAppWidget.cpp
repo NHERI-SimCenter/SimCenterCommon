@@ -153,6 +153,9 @@ SimCenterAppWidget::copyFile(QString filename, QString destinationDir)
 void
 SimCenterAppWidget::userMessageDialog(const QString& messageString)
 {
+    if(messageString.isEmpty())
+        return;
+
     QMessageBox msgBox;
     msgBox.setText(messageString);
     msgBox.setStandardButtons(QMessageBox::Close);
