@@ -114,8 +114,6 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
 
     if (uqengin!=QString("SimCenterUQ")){
         typeComboBox->addItem(tr("Parameters"));
-    } else {
-        typeComboBox->addItem(tr("Parameters"));
         typeComboBox->addItem(tr("Moments"));
         typeComboBox->addItem(tr("Dataset"));
     }
@@ -260,9 +258,11 @@ RandomVariable::inputFromJSON(QJsonObject &rvObject){
         return false;
     }
 
+    bool typeSpecified = false;
     if (rvObject.contains("inputType")) {
         QJsonValue theInputTypeValue = rvObject["inputType"];
         inputType = theInputTypeValue.toString();
+        typeSpecified = true;
     } else {
         inputType = "Parameters";
     }
@@ -270,6 +270,8 @@ RandomVariable::inputFromJSON(QJsonObject &rvObject){
     if (rvObject.contains("distribution")) {
         QJsonValue theDistributionValue = rvObject["distribution"];
         distributionType = theDistributionValue.toString();
+        if (distributionType == "Lognormal" && typeSpecified == false)
+            inputType = "Moments";
     } else {
         return false;
     }
@@ -336,6 +338,7 @@ void RandomVariable::distributionChanged(const QString &arg1)
         theDistribution = new NormalDistribution(typeOpt);
     } else if (arg1 == QString("Lognormal")) {
         if (this->uqEngineName==QString("Dakota")) {
+            typeComboBox->setCurrentIndex(1);
             theDistribution = new LognormalDistribution(QString("Moments"));
             // Dakota gets moments for lognormal
         } else {
