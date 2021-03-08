@@ -22,6 +22,7 @@ PythonProgressDialog::PythonProgressDialog(QWidget* parent) : QDialog(parent)
     progressTextEdit->setReadOnly(true);
 
     progressBar = new QProgressBar(this);
+    progressBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Maximum);
     progressBar->setRange(0,0);
     progressBar->hide();
 
