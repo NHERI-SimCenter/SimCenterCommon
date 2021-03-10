@@ -456,6 +456,7 @@ RemoteApplication::uploadDirReturn(bool result)
 
       qDebug() << "JOBS_SUBMIT: " << job;
 
+      qDebug() << "JOB: " << job;
       //
       // start the remote job
       //
@@ -485,6 +486,7 @@ RemoteApplication::startJobReturn(QString result) {
     Q_UNUSED(result);
    pushButton->setEnabled(true);
    emit successfullJobStart();
+   emit closeDialog();
 }
 
 void

@@ -321,7 +321,7 @@ AgaveCurl::login(QString uname, QString upassword)
     
     if (val.contains("Invalid Credentals") || val.isEmpty()) {
         emit errorMessage("ERROR: Invalid Credentials in OAuth!");
-	return false;
+        return false;
     } else {
         QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
         QJsonObject jsonObj = doc.object();
@@ -330,32 +330,34 @@ AgaveCurl::login(QString uname, QString upassword)
             bearer = QString("Authorization: Bearer ") + accessToken;
             slist1 = curl_slist_append(slist1, bearer.toStdString().c_str());
             loggedInFlag = true;
-	    
-	    // now if appDir is specified make sure dir exists, 
-	    // creating it does delete existing one and one call as opposed to 2 if not there
-	    if (!appDirName.isEmpty()) {
-	      QString home = storage + username;
-	      bool ok = this->mkdir(appDirName, username);
-	      if (ok != true) {
-		QString message = QString("WARNING - could not create " ) + appDirName 
-		  + QString("on login, using home dir instead");
-		appDirName = QString(""); // no erase function!
-		emit statusMessage(message);
-	      } else {
-		emit statusMessage("Login SUCCESS");
-	      }
-	    } else {
-	      emit statusMessage("Login SUCCESS");
-	    }
 
-	    return true;
+            // now if appDir is specified make sure dir exists,
+            // creating it does delete existing one and one call as opposed to 2 if not there
+            if (!appDirName.isEmpty()) {
+                QString home = storage + username;
+                bool ok = this->mkdir(appDirName, username);
+                if (ok != true) {
+                    QString message = QString("WARNING - could not create " ) + appDirName
+                            + QString("on login, using home dir instead");
+                    appDirName = QString(""); // no erase function!
+                    emit statusMessage(message);
+                } else {
+                    emit statusMessage("Login SUCCESS");
+                    emit closeDialog();
+                }
+            } else {
+                emit statusMessage("Login SUCCESS");
+                emit closeDialog();
+            }
+
+            return true;
         }
-	emit statusMessage("ERROR - no access token returned!");
-	return false;
+        emit statusMessage("ERROR - no access token returned!");
+        return false;
     }
     return false;
 
-   /* *************************************************** to test aloe 
+    /* *************************************************** to test aloe
     consumerKey = QString("");
     consumerSecret = QString("");
     QString accessToken = QString("");
@@ -405,6 +407,7 @@ AgaveCurl::logout()
     */
 
     emit statusMessage("Logout SUCCESS");
+    emit closeDialog();
 
     loggedInFlag = false;
 

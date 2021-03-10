@@ -164,6 +164,7 @@ RemoteJobManager::jobsListReturn(QJsonObject theJobs){
     }
      //jobsTable->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
      this->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+    emit closeDialog();
 
    // jobsTable->resizeRowsToContents();
    // jobsTable->setSizePolicy(QSizePolicy::Ignored);
@@ -206,6 +207,7 @@ RemoteJobManager::jobStatusReturn(QString status) {
         itemStatus->setText(status);
     }
     triggeredRow = -1;
+    emit closeDialog();
 }
 
 
@@ -226,6 +228,7 @@ RemoteJobManager::deleteJobReturn(bool result) {
     if (result == true)
         jobsTable->removeRow(triggeredRow);
     triggeredRow = -1;
+    emit closeDialog();
 }
 
 
@@ -299,15 +302,15 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
          QJsonValue inputs = job["inputs"];
          if (inputs.isObject()) {
 
-              QJsonObject inputObject = inputs.toObject();
-              QJsonValue inputPath = inputObject["inputDirectory"];
-              if (inputPath.isArray()) {
-		inputDir = inputPath.toArray().at(0).toString();
-		inputDir.remove(htmlInputDirectory);
-	      } else if (inputPath.isString()) {
-                inputDir = inputPath.toString();
-                inputDir.remove(htmlInputDirectory);
-	      }
+             QJsonObject inputObject = inputs.toObject();
+             QJsonValue inputPath = inputObject["inputDirectory"];
+             if (inputPath.isArray()) {
+                 inputDir = inputPath.toArray().at(0).toString();
+                 inputDir.remove(htmlInputDirectory);
+             } else if (inputPath.isString()) {
+                 inputDir = inputPath.toString();
+                 inputDir.remove(htmlInputDirectory);
+             }
          }
 	 
 
