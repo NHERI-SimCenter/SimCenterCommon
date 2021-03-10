@@ -796,8 +796,8 @@ SimCenterPreferences::getOpenSees(void) {
     QString thePath;
 
 #ifdef USE_SIMCENTER_PYTHON
-    QVariant  pathVariant = settingsApplication.value("openseesPath");
-    if (!pathVariant.isValid()) {
+    QVariant  theVariant = settingsApplication.value("openseesPath");
+    if (!theVariant.isValid()) {
       thePath = this->getDefaultOpenSees();
       settingsApplication.setValue("openseesPath", thePath);
       return thePath;
@@ -823,8 +823,8 @@ SimCenterPreferences::getDakota(void) {
     QString thePath;
 
 #ifdef USE_SIMCENTER_PYTHON
-    QVariant  pathVariant = settingsApplication.value("dakotaPath");
-    if (!pathVariant.isValid()) {
+    QVariant  theVariant = settingsApplication.value("dakotaPath");
+    if (!theVariant.isValid()) {
       thePath = this->getDefaultOpenSees();
       settingsApplication.setValue("dakotaPath", thePath);
       return thePath;
@@ -957,7 +957,7 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
 QString
 SimCenterPreferences::getDefaultOpenSees(void) {
     QString currentAppDir = QCoreApplication::applicationDirPath();
-#ifdef USE_SIMCENTER_PYTHON
+#ifdef Q_OS_WIN
     QString openseesApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees.exe";
 #else
     QString openseesApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees";
@@ -970,7 +970,7 @@ QString
 SimCenterPreferences::getDefaultDakota(void) {
     QString currentAppDir = QCoreApplication::applicationDirPath();
 
-#ifdef USE_SIMCENTER_PYTHON
+#ifdef Q_OS_WIN
     QString dakotaApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota.exe";
 #else
     QString dakotaApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota";
