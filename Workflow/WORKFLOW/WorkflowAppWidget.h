@@ -89,6 +89,7 @@ public slots:
     virtual void statusMessage(QString message);
     virtual void errorMessage(QString message);
     virtual void fatalMessage(QString message);
+    virtual void runComplete();
 
 protected:
     MainWindowWorkflowApp *theMainWindow;

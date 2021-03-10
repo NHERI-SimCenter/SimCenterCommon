@@ -677,9 +677,10 @@ MainWindowWorkflowApp::onRunButtonClicked() {
 
 void
 MainWindowWorkflowApp::onRemoteRunButtonClicked(){
-    if (loggedIn == true)
+    if (loggedIn == true) {
+        errorLabel->setText(QString(""));
         inputWidget->onRemoteRunButtonClicked();
-    else
+    } else
     {
         QString msg = tr("You must log in to DesignSafe before you can run a remote job");
         emit sendErrorMessage(msg);
@@ -692,9 +693,10 @@ MainWindowWorkflowApp::onRemoteRunButtonClicked(){
 
 void
 MainWindowWorkflowApp::onRemoteGetButtonClicked(){
-    if (loggedIn == true)
+    if (loggedIn == true) {
+        errorLabel->setText(QString(""));
         inputWidget->onRemoteGetButtonClicked();
-    else
+    } else
     {
         QString msg = tr("You Must LOGIN (button top right) before you can run retrieve remote data");
         emit sendErrorMessage(msg);
@@ -867,6 +869,7 @@ void MainWindowWorkflowApp::loadExamples()
     progressDialog->showProgressBar();
     QApplication::processEvents();
 
+    emit sendStatusMessage("Loading Example file. Wait till Done Loading appears before progressing.");
     this->loadFile(pathToExample);
     progressDialog->hideProgressBar();
 
