@@ -85,6 +85,8 @@ DakotaEngine::DakotaEngine(RandomVariablesContainer *theRVs, UQ_EngineType type,
     theSelectionLayout->addWidget(new QLabel("        Parallel Execution"));
     parallelCheckBox = new QCheckBox();
     parallelCheckBox->setChecked(true);
+    theSelectionLayout->addWidget(parallelCheckBox);
+    theSelectionLayout->addStretch();
     
     layout->addLayout(theSelectionLayout);
 
