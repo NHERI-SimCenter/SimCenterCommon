@@ -214,7 +214,7 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     // connect the pushbutton with code to open file selection and update dakota preferences with selected file
     connect(dakotaButton, &QPushButton::clicked, this, [this](){
         QSettings settings("SimCenter", QCoreApplication::applicationName()); 
-        QVariant  dakotaPathVariant = settings.value("dakoraPath");
+        QVariant  dakotaPathVariant = settings.value("dakotaPath");
         QString existingDir = QCoreApplication::applicationDirPath();
         if (dakotaPathVariant.isValid()) {
             QString existingF = dakotaPathVariant.toString();
