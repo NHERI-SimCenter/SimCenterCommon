@@ -214,7 +214,7 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     // connect the pushbutton with code to open file selection and update dakota preferences with selected file
     connect(dakotaButton, &QPushButton::clicked, this, [this](){
         QSettings settings("SimCenter", QCoreApplication::applicationName()); 
-        QVariant  dakotaPathVariant = settings.value("dakotaExePath");
+        QVariant  dakotaPathVariant = settings.value("dakoraPath");
         QString existingDir = QCoreApplication::applicationDirPath();
         if (dakotaPathVariant.isValid()) {
             QString existingF = dakotaPathVariant.toString();
@@ -538,8 +538,6 @@ SimCenterPreferences::quitPreferences(bool) {
 void
 SimCenterPreferences::resetPreferences(bool) {
 
-    qDebug() << "RESET_PREFERENCES";
-
     QSettings settingsCommon("SimCenter", "Common");
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
     
@@ -795,22 +793,12 @@ SimCenterPreferences::getOpenSees(void) {
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
     QString thePath;
 
-#ifdef USE_SIMCENTER_PYTHON
     QVariant  theVariant = settingsApplication.value("openseesPath");
-    if (!theVariant.isValid()) {
-      thePath = this->getDefaultOpenSees();
-      settingsApplication.setValue("openseesPath", thePath);
-      return thePath;
-    }
-#else
-    QVariant  theVariant = settingsCommon.value("openseesPath");
     if (!theVariant.isValid()) {
       thePath = this->getDefaultOpenSees();
       settingsCommon.setValue("openseesPath", thePath);
       return thePath;
     }
-
-#endif
 
     return theVariant.toString();
 }
@@ -822,23 +810,15 @@ SimCenterPreferences::getDakota(void) {
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
     QString thePath;
 
-#ifdef USE_SIMCENTER_PYTHON
     QVariant  theVariant = settingsApplication.value("dakotaPath");
     if (!theVariant.isValid()) {
-      thePath = this->getDefaultOpenSees();
+      thePath = this->getDefaultDakota();
       settingsApplication.setValue("dakotaPath", thePath);
-      return thePath;
-    }
-#else
-    QVariant  theVariant = settingsCommon.value("dakotaPath");
-    if (!theVariant.isValid()) {
-      thePath = this->getDefaultOpenSees();
-      settingsCommon.setValue("dakotaPath", thePath);
+      qDebug() << "D1" << thePath;
       return thePath;
     }
 
-#endif
-
+    qDebug() << "D3" << theVariant.toString();
     return theVariant.toString();
 }
 
@@ -975,6 +955,8 @@ SimCenterPreferences::getDefaultDakota(void) {
 #else
     QString dakotaApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota";
 #endif
+
+    qDebug() << "getDefaultDakota: " << dakotaApp;
 
     return dakotaApp;
 
