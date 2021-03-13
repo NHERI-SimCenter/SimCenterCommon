@@ -991,8 +991,10 @@ AgaveCurl::startJob(const QJsonObject &theJob)
                QJsonObject resObj = theObj["result"].toObject();
                if (resObj.contains("id")) {
                    QString jobID =  resObj["id"].toString();
-                   QString message = QString("Succesfully started job: ") + jobID;
+                   QString message = QString("Successfully started job: ") + jobID;
                    emit statusMessage(message);
+		   QString msg1("Press the \"Get from DesignSafe\" Button to see status and download results");
+                   emit statusMessage(msg1);		   
                    return jobID;
                }
            }
@@ -1010,7 +1012,7 @@ AgaveCurl::startJob(const QJsonObject &theJob)
      emit errorMessage(message);
      return result;
    }
-
+   
    return result;
 }
 
@@ -1273,7 +1275,7 @@ AgaveCurl::deleteJob(const QString &jobID, const QStringList &dirToRemove)
             emit errorMessage(message);
             return false;
         } else if (status == "success") {
-            emit statusMessage("Successfullt deleted job");
+            emit statusMessage("Successfully deleted job");
             return true;
         }
     }
