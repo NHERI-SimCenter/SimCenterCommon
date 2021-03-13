@@ -1073,6 +1073,7 @@ AgaveCurl::getJobList(const QString &matchingName, QString appIdFilter)
         QJsonArray jobs = theObj["result"].toArray();
         result["jobs"] = jobs;
         emit statusMessage("Successfully obtained list of submitted jobs");
+	emit statusMessage("Click in any job shown in table to update the job status, download the job or delete the job.");
     }
 
     return result;
