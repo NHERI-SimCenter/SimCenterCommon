@@ -226,6 +226,8 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
    QString dakotaExe = preferences->getDakota();
 
+   qDebug() << "DAKOTA: " << dakotaExe;
+
    QFileInfo dakotaFile(dakotaExe);
    if (dakotaFile.exists()) {
        QString dakotaPath = dakotaFile.absolutePath();
@@ -332,7 +334,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
     // check for bashrc or bash profile
     QDir homeDir(QDir::homePath());
-    QString sourceBash("\"");
+    QString sourceBash("");
     if (homeDir.exists(".bash_profile")) {
         sourceBash = QString("source $HOME/.bash_profile; ");
     } else if (homeDir.exists(".bashrc")) {
@@ -342,7 +344,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     } else if (homeDir.exists(".zshrc")) {
         sourceBash = QString("source $HOME/.zshrc; ");
     } else
-        emit sendErrorMessage( "No .bash_profile, .bashrc or .zshrc file found. This may not find Dakota or OpenSees");
+        emit sendErrorMessage( "No .bash_profile, .bashrc, .zprofile or .zshrc file found. This may not find Dakota or OpenSees");
 
     // note the above not working under linux because bash_profile not being called so no env variables!!
     QString command;
