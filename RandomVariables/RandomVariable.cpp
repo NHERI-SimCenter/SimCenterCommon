@@ -117,7 +117,7 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     typeComboBox->addItem(tr("Dataset"));
 
     connect(typeComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(typeChanged(QString)));
-
+    typeComboBox -> setCurrentIndex(0);
     //
     // create distribution block
     //
@@ -165,7 +165,6 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
         typeLabel->setVisible(false);
         typeComboBox->setVisible(false);
     }
-
     //mainLayout->addStretch();
 
     theDistribution = new NormalDistribution();

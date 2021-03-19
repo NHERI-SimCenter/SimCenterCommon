@@ -140,6 +140,7 @@ RandomVariablesContainer::addUniformRVs(QStringList &varNamesAndValues)
         ConstantDistribution *theDistribution = new ConstantDistribution(dValue);
         RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution, uqEngineName);
         theRV->fixToUniform(dValue);
+
         this->addRandomVariable(theRV);
     }
 }
@@ -246,7 +247,7 @@ RandomVariablesContainer::makeRV(void)
     // that whether the uqMehod selected is that of Dakota and sampling type? only then we need correlation matrix
 
     /* FMK */
-    QPushButton *addCorrelation = new QPushButton(tr("Correlation Matrix"));
+    addCorrelation = new QPushButton(tr("Correlation Matrix"));
     connect(addCorrelation,SIGNAL(clicked()),this,SLOT(addCorrelationMatrix()));
 
     flag_for_correlationMatrix=1;
@@ -808,11 +809,12 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
                  item->setText(QString::number(value));
              }
       }
-
-
+        this->addCorrelationMatrix();
       }
       // hide the dialog so matrix not shown
       correlationDialog->hide();
+  } else {
+
   }
   return result;
 }
@@ -823,3 +825,14 @@ RandomVariablesContainer::errorMessage(QString message){
     emit sendErrorMessage(message);
 }
 
+void
+RandomVariablesContainer::setCorrelationDisabled(bool on) {
+    if (on) {
+        addCorrelation->setStyleSheet({ "background-color: lightgrey; border: none;" });
+    } else {
+        addCorrelation->setStyleSheet({ "QPushButton" });
+        //addCorrelation->setAutoFillBackground(true);
+    }
+    addCorrelation->setDisabled(on);
+
+}

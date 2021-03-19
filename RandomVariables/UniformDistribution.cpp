@@ -147,7 +147,7 @@ UniformDistribution::UniformDistribution(double initValue, QWidget *parent)  :Ra
         a->setDisabled(1);
         b->setDisabled(1);
         showPlotButton->setDisabled(1);
-        showPlotButton->setStyleSheet("background-color: grey; border-color:grey");
+        showPlotButton->setStyleSheet("background-color: lightgrey; border-color:lightgrey");
     } else {
         double minval=std::min(initValue*0.9,initValue*1.1);
         double maxval=std::max(initValue*0.9,initValue*1.1);
