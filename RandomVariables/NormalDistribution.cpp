@@ -102,6 +102,42 @@ NormalDistribution::~NormalDistribution()
     delete thePlot;
 }
 
+NormalDistribution::NormalDistribution(double initValue, QWidget *parent) :RandomVariableDistribution(parent)
+{
+    //
+    // create the main layout and add the input entries
+    //
+    QGridLayout *mainLayout = new QGridLayout(this);
+
+    // set some defaults, and set layout for widget to be the horizontal layout
+    mainLayout->setHorizontalSpacing(10);
+    mainLayout->setVerticalSpacing(0);
+    mainLayout->setMargin(0);
+
+    QPushButton *showPlotButton = new QPushButton("Show PDF");
+
+    //Parameters
+    this->inpty = "Parameters";
+    mean = this->createTextEntry(tr("Mean"), mainLayout,0);
+    standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout,1);
+    mean->setValidator(new QDoubleValidator);
+    standardDev->setValidator(new QDoubleValidator);
+
+    mainLayout->addWidget(showPlotButton,1,2);
+    mainLayout->setColumnStretch(3,1);
+
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
+
+    connect(mean,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+    connect(standardDev,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+    connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
+
+
+    // set initial or Disabled
+    mean->setText(QString::number(initValue));
+    standardDev->setText(QString::number(std::abs(initValue)*0.1)); // 0.1 c.o.v
+}
+
 bool
 NormalDistribution::outputToJSON(QJsonObject &rvObject){
 

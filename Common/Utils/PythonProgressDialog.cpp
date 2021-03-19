@@ -22,6 +22,7 @@ PythonProgressDialog::PythonProgressDialog(QWidget* parent) : QDialog(parent)
     progressTextEdit->setReadOnly(true);
 
     progressBar = new QProgressBar(this);
+    progressBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Maximum);
     progressBar->setRange(0,0);
     progressBar->hide();
 
@@ -79,7 +80,7 @@ void PythonProgressDialog::showDialog(bool visible)
 
 void PythonProgressDialog::appendText(const QString text)
 {
-    if(!this->isVisible())
+    if(!this->isVisible() && text != "")
         this->showDialog(true);
 
     auto cleanText = cleanUpText(text);
@@ -92,7 +93,7 @@ void PythonProgressDialog::appendText(const QString text)
 
 void PythonProgressDialog::appendErrorMessage(const QString text)
 {
-    if(!this->isVisible())
+    if(!this->isVisible() && text != "")
         this->showDialog(true);
 
     auto msgStr = QString("<font color=%1>").arg("red") + text + QString("</font>") + QString("<font color=%1>").arg("black") + QString("&nbsp;") + QString("</font>");
@@ -108,7 +109,7 @@ void PythonProgressDialog::appendErrorMessage(const QString text)
 
 void PythonProgressDialog::appendInfoMessage(const QString text)
 {
-    if(!this->isVisible())
+    if(!this->isVisible() && text != "")
         this->showDialog(true);
 
     auto msgStr = QString("<font color=%1>").arg("blue") + text + QString("</font>") + QString("<font color=%1>").arg("black") + QString("&nbsp;") + QString("</font>");

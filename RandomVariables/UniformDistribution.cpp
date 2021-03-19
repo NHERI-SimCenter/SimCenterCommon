@@ -128,10 +128,9 @@ UniformDistribution::UniformDistribution(double initValue, QWidget *parent)  :Ra
     QPushButton *showPlotButton = new QPushButton("Show PDF");
 
     // Parameters
-
+    this->inpty = "Parameters";
     a = this->createTextEntry(tr("Min."), mainLayout, 0);
     a->setValidator(new QDoubleValidator);
-
     b  = this->createTextEntry(tr("Max."), mainLayout, 1);
     b->setValidator(new QDoubleValidator);
     mainLayout->addWidget(showPlotButton, 1,2);
@@ -139,9 +138,9 @@ UniformDistribution::UniformDistribution(double initValue, QWidget *parent)  :Ra
 
     thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
 
-    //connect(a,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
-    //connect(b,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
-    //connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
+    connect(a,SIGNAL(textChanged(QString)), this, SLOT(updateDistributionPlot()));
+    connect(b,SIGNAL(textChanged(QString)), this, SLOT(updateDistributionPlot()));
+    connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
 
     mainLayout->setColumnStretch(3,1);
 
@@ -150,7 +149,7 @@ UniformDistribution::UniformDistribution(double initValue, QWidget *parent)  :Ra
         a->setDisabled(1);
         b->setDisabled(1);
         showPlotButton->setDisabled(1);
-        showPlotButton->setStyleSheet("background-color: grey; border-color:grey");
+        showPlotButton->setStyleSheet("background-color: lightgrey; border-color:lightgrey");
     } else {
         double minval=std::min(initValue*0.9,initValue*1.1);
         double maxval=std::max(initValue*0.9,initValue*1.1);

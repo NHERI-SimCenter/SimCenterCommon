@@ -45,6 +45,7 @@ class QComboBox;
 class QStackedWidget;
 class UQ_Results;
 class RandomVariablesContainer;
+class QCheckBox;
 
 class DakotaEngine : public UQ_Engine
 {
@@ -74,7 +75,8 @@ public slots:
 private:
    QComboBox   *theEngineSelectionBox;
    QStackedWidget *theStackedWidget;
-
+   QCheckBox *parallelCheckBox;
+  
    UQ_Engine *theCurrentEngine;
    UQ_Engine *theSamplingEngine;
    UQ_Engine *theReliabilityEngine;

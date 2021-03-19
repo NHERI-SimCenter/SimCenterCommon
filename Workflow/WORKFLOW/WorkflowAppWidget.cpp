@@ -43,6 +43,7 @@ WorkflowAppWidget::setMainWindow(MainWindowWorkflowApp* window) {
 void
 WorkflowAppWidget::statusMessage(const QString msg){
     qDebug() << "WorkflowAppWidget::statusMessage" << msg;
+    progressDialog->appendText(msg);
     emit sendStatusMessage(msg);
 }
 
@@ -50,13 +51,14 @@ WorkflowAppWidget::statusMessage(const QString msg){
 void
 WorkflowAppWidget::errorMessage(const QString msg){
     qDebug() << "WorkflowAppWidget::errorMessage" << msg;
-
+    progressDialog->appendErrorMessage(msg);
     emit sendErrorMessage(msg);
 }
 
 
 void
 WorkflowAppWidget::fatalMessage(const QString msg){
+    progressDialog->appendErrorMessage(msg);
     emit sendFatalMessage(msg);
 }
 
@@ -71,3 +73,8 @@ PythonProgressDialog *WorkflowAppWidget::getProgressDialog()
     return progressDialog;
 }
 
+void WorkflowAppWidget::runComplete()
+{
+    qDebug() << "Task Completed";
+    progressDialog->hideAfterElapsedTime(2);
+}

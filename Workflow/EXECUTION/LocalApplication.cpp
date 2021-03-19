@@ -49,7 +49,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QPushButton>
 #include <QJsonObject>
 #include <QStandardPaths>
-#include <QCoreApplication>
+#include <QApplication>
 #include <QProcess>
 #include <QStringList>
 #include <QSettings>
@@ -63,13 +63,13 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SimCenterPreferences.h>
 
 LocalApplication::LocalApplication(QString workflowScriptName, QWidget *parent)
-: Application(parent)
+    : Application(parent)
 {
     proc = new QProcess(this);
     connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &LocalApplication::handleProcessFinished);
     connect(proc, &QProcess::readyReadStandardOutput, this, &LocalApplication::handleProcessTextOutput);
     connect(proc, &QProcess::started, this, &LocalApplication::handleProcessStarted);
-    
+
     this->workflowScript = workflowScriptName;
 }
 
@@ -98,34 +98,34 @@ LocalApplication::inputFromJSON(QJsonObject &dataObject) {
 void
 LocalApplication::onRunButtonPressed(void)
 {
-  sendStatusMessage("Setting up temporary directory.");
+    sendStatusMessage("Setting up temporary directory.");
 
-  QString workingDir = SimCenterPreferences::getInstance()->getLocalWorkDir();
-  QDir dirWork(workingDir);
-  if (!dirWork.exists())
-      if (!dirWork.mkpath(workingDir)) {
-          QString errorMessage = QString("Could not create Working Dir: ") + workingDir
-                  + QString(". Change the Local Jobs Directory location in preferences.");
+    QString workingDir = SimCenterPreferences::getInstance()->getLocalWorkDir();
+    QDir dirWork(workingDir);
+    if (!dirWork.exists())
+        if (!dirWork.mkpath(workingDir)) {
+            QString errorMessage = QString("Could not create Working Dir: ") + workingDir
+                    + QString(". Change the Local Jobs Directory location in preferences.");
 
-          emit sendErrorMessage(errorMessage);;
+            emit sendErrorMessage(errorMessage);;
 
-          return;
-      }
-    
-  
-  //   QString appDir = appDirName->text();
-  QString appDir = SimCenterPreferences::getInstance()->getAppDir();
-  QDir dirApp(appDir);
-  if (!dirApp.exists()) {
-      QString errorMessage = QString("The application directory, ") + appDir +QString(" specified does not exist!. Check Local Application Directory im Preferences");
-      emit sendErrorMessage(errorMessage);;
-      return;
-  }
-  
-  QString templateDir("templatedir");
+            return;
+        }
 
-  emit sendStatusMessage("Gathering files to local workdir.");
-  emit setupForRun(workingDir, templateDir);
+
+    //   QString appDir = appDirName->text();
+    QString appDir = SimCenterPreferences::getInstance()->getAppDir();
+    QDir dirApp(appDir);
+    if (!dirApp.exists()) {
+        QString errorMessage = QString("The application directory, ") + appDir +QString(" specified does not exist!. Check Local Application Directory im Preferences");
+        emit sendErrorMessage(errorMessage);;
+        return;
+    }
+
+    QString templateDir("templatedir");
+
+    emit sendStatusMessage("Gathering files to local workdir.");
+    emit setupForRun(workingDir, templateDir);
 }
 
 
@@ -154,7 +154,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     scriptDir.cd("Workflow");
     pySCRIPT = scriptDir.absoluteFilePath(workflowScript);
 
-   // pySCRIPT = scriptDir.absoluteFilePath("EE-UQ.py");
+    // pySCRIPT = scriptDir.absoluteFilePath("EE-UQ.py");
     QFileInfo check_script(pySCRIPT);
     // check if file exists and if yes: Is it really a file and no directory?
     if (!check_script.exists() || !check_script.isFile()) {
@@ -165,7 +165,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     QString registryFile = scriptDir.absoluteFilePath("WorkflowApplications.json");
     QFileInfo check_registry(registryFile);
     if (!check_registry.exists() || !check_registry.isFile()) {
-         emit sendErrorMessage(QString("NO REGISTRY FILE: ") + registryFile);
+        emit sendErrorMessage(QString("NO REGISTRY FILE: ") + registryFile);
         return false;
     }
 
@@ -202,43 +202,63 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
         return false;
     }
 
-    QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
-    QVariant  openseesPathVariant = settingsApplication.value("openseesPath");
-    if (openseesPathVariant.isValid()) {
-        QFileInfo openseesFile(openseesPathVariant.toString());
-        if (openseesFile.exists()) {
-            QString openseesPath = openseesFile.absolutePath();
-            pathEnv = openseesPath + ':' + pathEnv;
-            if (colonYes == false) {
-                colonYes = true;
-            } else {
-                exportPath += ":";
-            }
-            exportPath += openseesPath;
+    QString openseesExe = preferences->getOpenSees();
+    QFileInfo openseesFile(openseesExe);
+    if (openseesFile.exists()) {
+        QString openseesPath = openseesFile.absolutePath();
+#ifdef Q_OS_WIN
+        pathEnv = openseesPath + ';' + pathEnv;
+#else
+        pathEnv = openseesPath + ':' + pathEnv;
+#endif
+        if (colonYes == false) {
+            colonYes = true;
+        } else {
+#ifdef Q_OS_WIN
+            exportPath += ";";
+#else
+            exportPath += ":";
+#endif
         }
+        exportPath += openseesPath;
     }
 
-    QVariant  dakotaPathVariant = settingsApplication.value("dakotaPath");
-    if (dakotaPathVariant.isValid()) {
-        QFileInfo dakotaFile(dakotaPathVariant.toString());
-        if (dakotaFile.exists()) {
-            QString dakotaPath = dakotaFile.absolutePath();
-            if (colonYes == false) {
-                colonYes = true;
-            } else {
-                exportPath += ":";
-            }
-            pathEnv = dakotaPath + ':' + pathEnv;
-            exportPath += dakotaPath;
-            QString dakotaPathPath = QFileInfo(dakotaPath).absolutePath() + QDir::separator() +
-                    "share" + QDir::separator() + "Dakota" + QDir::separator() + "Python";
-            pythonPathEnv = dakotaPathPath + ";" + pythonPathEnv;
 
-        }
-    }
+   QString dakotaExe = preferences->getDakota();
+
+   qDebug() << "DAKOTA: " << dakotaExe;
+
+   QFileInfo dakotaFile(dakotaExe);
+   if (dakotaFile.exists()) {
+       QString dakotaPath = dakotaFile.absolutePath();
+       if (colonYes == false) {
+           colonYes = true;
+       } else {
+#ifdef Q_OS_WIN
+           exportPath += ";";
+#else
+           exportPath += ":";
+#endif
+       }
+
+#ifdef Q_OS_WIN
+       pathEnv = dakotaPath + ';' + pathEnv;
+#else
+       pathEnv = dakotaPath + ':' + pathEnv;
+#endif
+       exportPath += dakotaPath;
+       QString dakotaPathPath = QFileInfo(dakotaPath).absolutePath() + QDir::separator() +
+               "share" + QDir::separator() + "Dakota" + QDir::separator() + "Python";
+       pythonPathEnv = dakotaPathPath + ";" + pythonPathEnv;
+
+   }
 
     if (colonYes == true) {
+#ifdef Q_OS_WIN
+        exportPath += ";";
+#else
         exportPath += ":";
+#endif
     }
 
     exportPath += "$PATH";
@@ -247,9 +267,9 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     procEnv.insert("PYTHONPATH", pythonPathEnv);
     proc->setProcessEnvironment(procEnv);
 
-    qDebug() << "PATH: " << pathEnv;
-    qDebug() << "PYTHON_PATH" << pythonPathEnv;
-   // QString appName = QCoreApplication::applicationName();
+    // qDebug() << "PATH: " << pathEnv;
+    // qDebug() << "PYTHON_PATH" << pythonPathEnv;
+    // QString appName = QCoreApplication::applicationName();
 
     QStringList args;
     QString inputDir = tmpDirectory + QDir::separator() + "input_data";
@@ -258,9 +278,9 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
              << "--referenceDir" << inputDir
              << "-w" << tmpDirectory+QDir::separator() + "Results";
     } else {
-      args << pySCRIPT << runType << inputFile << registryFile;
+        args << pySCRIPT << runType << inputFile << registryFile;
     }
-   /*
+    /*
     command = sourceBash + exportPath + "; \"" + python + QString("\" \"" ) + pySCRIPT + QString("\" " )
             + QString(" \"" ) + inputFile + QString("\" ") +"--registry"
             + QString(" \"") + registryFile + QString("\" ") + "--referenceDir" + QString(" \"")
@@ -314,17 +334,17 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
     // check for bashrc or bash profile
     QDir homeDir(QDir::homePath());
-    QString sourceBash("\"");
+    QString sourceBash("");
     if (homeDir.exists(".bash_profile")) {
-      sourceBash = QString("source $HOME/.bash_profile; ");
+        sourceBash = QString("source $HOME/.bash_profile; ");
     } else if (homeDir.exists(".bashrc")) {
-      sourceBash = QString("source $HOME/.bashrc; ");
+        sourceBash = QString("source $HOME/.bashrc; ");
     } else if (homeDir.exists(".zprofile")) {
-      sourceBash = QString("source $HOME/.zprofile; ");
+        sourceBash = QString("source $HOME/.zprofile; ");
     } else if (homeDir.exists(".zshrc")) {
-      sourceBash = QString("source $HOME/.zshrc; ");
+        sourceBash = QString("source $HOME/.zshrc; ");
     } else
-      emit sendErrorMessage( "No .bash_profile, .bashrc or .zshrc file found. This may not find Dakota or OpenSees");
+        emit sendErrorMessage( "No .bash_profile, .bashrc, .zprofile or .zshrc file found. This may not find Dakota or OpenSees");
 
     // note the above not working under linux because bash_profile not being called so no env variables!!
     QString command;
@@ -359,7 +379,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
 void
 LocalApplication::displayed(void){
-   this->onRunButtonPressed();
+    this->onRunButtonPressed();
 }
 
 void LocalApplication::handleProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
@@ -416,8 +436,9 @@ void LocalApplication::handleProcessFinished(int exitCode, QProcess::ExitStatus 
 
 void LocalApplication::handleProcessStarted(void)
 {
-    QString msg = "Starting the UQ engine. This may take awhile!";
+    QString msg = "Starting the anlysis. This may take awhile!";
     emit sendStatusMessage(msg);
+    QApplication::processEvents();
 }
 
 
@@ -425,4 +446,5 @@ void LocalApplication::handleProcessTextOutput(void)
 {
     QByteArray output =  proc->readAllStandardOutput();
     emit sendStatusMessage(QString(output));
+    QApplication::processEvents();
 }

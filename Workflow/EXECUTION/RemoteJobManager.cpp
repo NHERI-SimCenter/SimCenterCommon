@@ -60,6 +60,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SimCenterPreferences.h>
 #include <QProcess>
 #include <QSettings>
+#include <QLabel>
 
 #include <QMenu>
 #include <QDir>
@@ -73,6 +74,10 @@ RemoteJobManager::RemoteJobManager(RemoteService *theRemoteInterface, QWidget *p
 {
     QVBoxLayout *layout = new QVBoxLayout();
 
+    QLabel *label = new QLabel("* Click in any job sshown in table below to update the job status, download the job or delete the job. Deleting a job removes it and all files created for it.");
+    
+    layout->addWidget(label);
+    
     jobsTable = 0;
     htmlInputDirectory = QString("agave://designsafe.storage.default/");
     headers << "Name" << "STATUS" << "ID" << "Date Created";
@@ -165,6 +170,15 @@ RemoteJobManager::jobsListReturn(QJsonObject theJobs){
      //jobsTable->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
      this->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 
+     emit closeDialog();
+
+     QString msg1("Job status does not refresh automatically");
+     emit statusMessage(msg1);     
+     QString msg2("Select a job from table and use left mouse button to see options for that job");
+     emit statusMessage(msg2);
+
+
+       
    // jobsTable->resizeRowsToContents();
    // jobsTable->setSizePolicy(QSizePolicy::Ignored);
     return;
@@ -206,6 +220,7 @@ RemoteJobManager::jobStatusReturn(QString status) {
         itemStatus->setText(status);
     }
     triggeredRow = -1;
+    emit closeDialog();
 }
 
 
@@ -226,6 +241,7 @@ RemoteJobManager::deleteJobReturn(bool result) {
     if (result == true)
         jobsTable->removeRow(triggeredRow);
     triggeredRow = -1;
+    emit closeDialog();
 }
 
 
@@ -299,15 +315,15 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
          QJsonValue inputs = job["inputs"];
          if (inputs.isObject()) {
 
-              QJsonObject inputObject = inputs.toObject();
-              QJsonValue inputPath = inputObject["inputDirectory"];
-              if (inputPath.isArray()) {
-		inputDir = inputPath.toArray().at(0).toString();
-		inputDir.remove(htmlInputDirectory);
-	      } else if (inputPath.isString()) {
-                inputDir = inputPath.toString();
-                inputDir.remove(htmlInputDirectory);
-	      }
+             QJsonObject inputObject = inputs.toObject();
+             QJsonValue inputPath = inputObject["inputDirectory"];
+             if (inputPath.isArray()) {
+                 inputDir = inputPath.toArray().at(0).toString();
+                 inputDir.remove(htmlInputDirectory);
+             } else if (inputPath.isString()) {
+                 inputDir = inputPath.toString();
+                 inputDir.remove(htmlInputDirectory);
+             }
          }
 	 
 

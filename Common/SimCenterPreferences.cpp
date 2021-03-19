@@ -164,7 +164,7 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     // connect the pushbutton with code to open file selection and update opensees preferences with selected file
     connect(openseesButton, &QPushButton::clicked, this, [this](){
         QSettings settings("SimCenter", QCoreApplication::applicationName()); 
-        QVariant  openseesPathVariant = settings.value("openseesExePath");
+        QVariant  openseesPathVariant = settings.value("openseesPath");
         QString existingDir = QCoreApplication::applicationDirPath();
         if (openseesPathVariant.isValid()) {
             QString existingF = openseesPathVariant.toString();
@@ -214,7 +214,7 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     // connect the pushbutton with code to open file selection and update dakota preferences with selected file
     connect(dakotaButton, &QPushButton::clicked, this, [this](){
         QSettings settings("SimCenter", QCoreApplication::applicationName()); 
-        QVariant  dakotaPathVariant = settings.value("dakotaExePath");
+        QVariant  dakotaPathVariant = settings.value("dakotaPath");
         QString existingDir = QCoreApplication::applicationDirPath();
         if (dakotaPathVariant.isValid()) {
             QString existingF = dakotaPathVariant.toString();
@@ -538,8 +538,6 @@ SimCenterPreferences::quitPreferences(bool) {
 void
 SimCenterPreferences::resetPreferences(bool) {
 
-    qDebug() << "RESET_PREFERENCES";
-
     QSettings settingsCommon("SimCenter", "Common");
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
     
@@ -787,6 +785,45 @@ SimCenterPreferences::getPython(void) {
     return pythonPathVariant.toString();
 }
 
+
+QString
+SimCenterPreferences::getOpenSees(void) {
+ 
+    QSettings settingsCommon("SimCenter", "Common");
+    QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
+    QString thePath;
+
+    QVariant  theVariant = settingsApplication.value("openseesPath");
+    if (!theVariant.isValid()) {
+      thePath = this->getDefaultOpenSees();
+      settingsCommon.setValue("openseesPath", thePath);
+      return thePath;
+    }
+
+    return theVariant.toString();
+}
+
+QString
+SimCenterPreferences::getDakota(void) {
+ 
+    QSettings settingsCommon("SimCenter", "Common");
+    QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
+    QString thePath;
+
+    QVariant  theVariant = settingsApplication.value("dakotaPath");
+    if (!theVariant.isValid()) {
+      thePath = this->getDefaultDakota();
+      settingsApplication.setValue("dakotaPath", thePath);
+      qDebug() << "D1" << thePath;
+      return thePath;
+    }
+
+    qDebug() << "D3" << theVariant.toString();
+    return theVariant.toString();
+}
+
+
+
 QString
 SimCenterPreferences::getAppDir(void) {
 
@@ -888,7 +925,7 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
 
     //Default appDir is the location of the application
     QString appName = QCoreApplication::applicationName();
-    QString remoteApp("simcenter-dakota-1.0.0.u1");
+    QString remoteApp("simcenter-dakota-1.0.0u1");
     if (appName == QString("WE-UQ"))
       remoteApp = QString("simcenter-openfoam-dakota-1.2.2u1");
     if (appName == QString("R2D"))
@@ -900,7 +937,7 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
 QString
 SimCenterPreferences::getDefaultOpenSees(void) {
     QString currentAppDir = QCoreApplication::applicationDirPath();
-#ifdef USE_SIMCENTER_PYTHON
+#ifdef Q_OS_WIN
     QString openseesApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees.exe";
 #else
     QString openseesApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees";
@@ -913,11 +950,13 @@ QString
 SimCenterPreferences::getDefaultDakota(void) {
     QString currentAppDir = QCoreApplication::applicationDirPath();
 
-#ifdef USE_SIMCENTER_PYTHON
+#ifdef Q_OS_WIN
     QString dakotaApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota.exe";
 #else
     QString dakotaApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota";
 #endif
+
+    qDebug() << "getDefaultDakota: " << dakotaApp;
 
     return dakotaApp;
 
