@@ -59,8 +59,7 @@ LognormalDistribution::LognormalDistribution(QString inpType, QWidget *parent) :
     mainLayout->setVerticalSpacing(0);
     mainLayout->setMargin(0);
 
-    QPushButton *showPlotButton = new QPushButton("Show PDF");
-
+    QPushButton *showPlotButton = NULL;
     this->inpty=inpType;
 
     if (inpty==QString("Parameters"))
@@ -69,6 +68,7 @@ LognormalDistribution::LognormalDistribution(QString inpType, QWidget *parent) :
         lambda->setValidator(new QDoubleValidator);
         zeta  = this->createTextEntry(tr("zeta"), mainLayout, 1);
         zeta->setValidator(new QDoubleValidator);
+        showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
     } else if (inpty==QString("Moments")) {
@@ -77,6 +77,7 @@ LognormalDistribution::LognormalDistribution(QString inpType, QWidget *parent) :
         mean->setValidator(new QDoubleValidator);        
         standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout, 1);
         standardDev->setValidator(new QDoubleValidator);
+        showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
     } else if (inpty==QString("Dataset")) {
@@ -117,7 +118,6 @@ LognormalDistribution::~LognormalDistribution()
 
 bool
 LognormalDistribution::outputToJSON(QJsonObject &rvObject){
-
 
     if (inpty==QString("Parameters")) {
         // check for error condition, an entry had no value
@@ -162,14 +162,14 @@ LognormalDistribution::inputFromJSON(QJsonObject &rvObject){
             double thelambdaValue = rvObject["lambda"].toDouble();
             lambda->setText(QString::number(thelambdaValue));
         } else {
-            emit sendErrorMessage("ERROR: LognormalDistribution - no \"a\" entry");
+            emit sendErrorMessage("ERROR: LognormalDistribution - no \"lambda\" entry");
             return false;
         }
         if (rvObject.contains("zeta")) {
             double thezetaValue = rvObject["zeta"].toDouble();
             zeta->setText(QString::number(thezetaValue));
         } else {
-            emit sendErrorMessage("ERROR: LognormalDistribution - no \"a\" entry");
+            emit sendErrorMessage("ERROR: LognormalDistribution - no \"zeta\" entry");
             return false;
         }
       } else if (inpty==QString("Moments")) {
@@ -185,7 +185,7 @@ LognormalDistribution::inputFromJSON(QJsonObject &rvObject){
             double theStdValue = rvObject["stdDev"].toDouble();
             standardDev->setText(QString::number(theStdValue));
         } else {
-            emit sendErrorMessage("ERROR: LognormalDistribution - no \"mean\" entry");
+            emit sendErrorMessage("ERROR: LognormalDistribution - no \"stdDev\" entry");
             return false;
         }
     } else if (inpty==QString("Dataset")) {
@@ -194,7 +194,7 @@ LognormalDistribution::inputFromJSON(QJsonObject &rvObject){
           QString theDataDir = rvObject["dataDir"].toString();
           dataDir->setText(theDataDir);
       } else {
-          emit sendErrorMessage("ERROR: LognormalDistribution - no \"mean\" entry");
+          emit sendErrorMessage("ERROR: LognormalDistribution - no \"dataDir\" entry");
           return false;
       }
     }

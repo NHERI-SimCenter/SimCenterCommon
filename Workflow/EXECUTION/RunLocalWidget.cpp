@@ -46,7 +46,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
-#include <QPushButton>
+#include <QPushButton>s
 #include <QJsonObject>
 #include <QStandardPaths>
 #include <QCoreApplication>

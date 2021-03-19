@@ -59,7 +59,7 @@ UniformDistribution::UniformDistribution(QString inpType, QWidget *parent) :Rand
     mainLayout->setVerticalSpacing(0);
     mainLayout->setMargin(0);
 
-    QPushButton *showPlotButton = new QPushButton("Show PDF");
+    QPushButton *showPlotButton = NULL; // new QPushButton("Show PDF");
 
     this->inpty=inpType;
 
@@ -69,6 +69,7 @@ UniformDistribution::UniformDistribution(QString inpType, QWidget *parent) :Rand
         a->setValidator(new QDoubleValidator);
         b  = this->createTextEntry(tr("Max."), mainLayout, 1);
         b->setValidator(new QDoubleValidator);
+        showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
     } else if (inpty==QString("Moments")) {
@@ -77,6 +78,7 @@ UniformDistribution::UniformDistribution(QString inpType, QWidget *parent) :Rand
         mean->setValidator(new QDoubleValidator);        
         standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout, 1);
         standardDev->setValidator(new QDoubleValidator);
+        showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
     } else if (inpty==QString("Dataset")) {

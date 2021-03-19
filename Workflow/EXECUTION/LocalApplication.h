@@ -46,6 +46,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SimCenterWidget.h>
 #include <Application.h>
 
+#include <QProcess>
+
 class QLabel;
 
 class LocalApplication : public Application
@@ -60,14 +62,27 @@ public:
 
 signals:
     void processResults(QString , QString, QString);
+    void runComplete();
 
 public slots:
    void onRunButtonPressed(void);
 
+   // Handles the results when the process is finished
+   void handleProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
+
+   // Gives a message to the user that the process has started
+   void handleProcessStarted(void);
+
+   // Displays the text output of the process in the dialog
+   void handleProcessTextOutput(void);
+
 private:
     void submitJob(void);
-    QLabel *messageLabel;
     QString workflowScript;
+    QProcess *proc;
+    QString tempDirectory;
+    QString inputFilePath;
+
 };
 
 #endif // LOCAL_APPLICATION_H

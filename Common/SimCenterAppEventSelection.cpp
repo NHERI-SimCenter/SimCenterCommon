@@ -66,32 +66,32 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 SimCenterAppEventSelection::SimCenterAppEventSelection(QString label, QString appName, QWidget *parent)
     :SimCenterAppWidget(parent), currentIndex(-1), theCurrentSelection(NULL), selectionApplicationType(appName), currentEventType("Earthquake")
 {
-  QVBoxLayout *layout = new QVBoxLayout;
-  QHBoxLayout *topLayout = new QHBoxLayout;
-  
-  SectionTitle *selectionText = new SectionTitle();
-  selectionText->setMinimumWidth(250);  
-  selectionText->setText(label);
-  
-  theSelectionCombo = new QComboBox();
-  theSelectionCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
-  topLayout->addWidget(selectionText);
-  topLayout->addWidget(theSelectionCombo, 1);
-  topLayout->addStretch(1);
-  
+    QVBoxLayout *layout = new QVBoxLayout;
+    QHBoxLayout *topLayout = new QHBoxLayout;
+
+    SectionTitle *selectionText = new SectionTitle();
+    selectionText->setMinimumWidth(250);
+    selectionText->setText(label);
+
+    theSelectionCombo = new QComboBox();
+    theSelectionCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    topLayout->addWidget(selectionText);
+    topLayout->addWidget(theSelectionCombo, 1);
+    topLayout->addStretch(1);
+
 #ifdef _WIN32
-  theSelectionCombo->setMaximumHeight(25);
+    theSelectionCombo->setMaximumHeight(25);
 #endif
 
-  theStackedWidget = new QStackedWidget();
-  
-  layout->addLayout(topLayout);
-  layout->addWidget(theStackedWidget);
-  layout->addStretch();
+    theStackedWidget = new QStackedWidget();
 
-  this->setLayout(layout);  
+    layout->addLayout(topLayout);
+    layout->addWidget(theStackedWidget);
+    layout->addStretch();
 
-  connect(theSelectionCombo, SIGNAL(currentIndexChanged(QString)), this, SLOT(selectionChangedSlot(QString)));
+    this->setLayout(layout);
+
+    connect(theSelectionCombo, SIGNAL(currentIndexChanged(QString)), this, SLOT(selectionChangedSlot(QString)));
 }
 
 
@@ -147,28 +147,42 @@ bool SimCenterAppEventSelection::outputAppDataToJSON(QJsonObject &jsonObject)
 
 bool SimCenterAppEventSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
 {
-    if (jsonObject.contains(selectionApplicationType)) {
+    if (jsonObject.contains(selectionApplicationType))
+    {
 
-        QJsonObject theApplicationObject = jsonObject[selectionApplicationType].toObject();
-        if (theApplicationObject.contains("Application")) {
-            QJsonValue theName = theApplicationObject["Application"];
-            QString appName = theName.toString();
+        QJsonArray theAppArray = jsonObject[selectionApplicationType].toArray();
 
-            int index = theApplicationNames.indexOf(appName);
+        foreach(auto&& obj, theAppArray)
+        {
 
-            if (index != -1) {
-                theSelectionCombo->setCurrentIndex(index);
-                theCurrentSelection=theComponents.at(index);
-                return theCurrentSelection->inputAppDataFromJSON(theApplicationObject);
-            } else {
-                QString message = selectionApplicationType +  QString(" found unknown application: ") + appName;
+            QJsonObject theApplicationObject = obj.toObject();
+            if (theApplicationObject.contains("Application"))
+            {
+                QJsonValue theName = theApplicationObject["Application"];
+                QString appName = theName.toString();
+
+                int index = theApplicationNames.indexOf(appName);
+
+                if (index != -1)
+                {
+                    theSelectionCombo->setCurrentIndex(index);
+                    theCurrentSelection=theComponents.at(index);
+                    return theCurrentSelection->inputAppDataFromJSON(theApplicationObject);
+                }
+                else
+                {
+                    QString message = selectionApplicationType +  QString(" found unknown application: ") + appName;
+                    emit sendErrorMessage(message);
+                }
+            }
+            else
+            {
+                QString message = QString("SimCenterAppEventSelection could not find Application field in JSON");
                 emit sendErrorMessage(message);
             }
-        } else {
-            QString message = QString("SimCenterAppEventSelection could not find Application field in JSON");
-            emit sendErrorMessage(message);
         }
-    } else {
+    }
+    else {
         QString message = QString("Applications does not contain a field: ") + selectionApplicationType;
         emit sendErrorMessage(message);
     }

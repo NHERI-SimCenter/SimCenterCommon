@@ -321,7 +321,7 @@ AgaveCurl::login(QString uname, QString upassword)
     
     if (val.contains("Invalid Credentals") || val.isEmpty()) {
         emit errorMessage("ERROR: Invalid Credentials in OAuth!");
-	return false;
+        return false;
     } else {
         QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
         QJsonObject jsonObj = doc.object();
@@ -330,32 +330,34 @@ AgaveCurl::login(QString uname, QString upassword)
             bearer = QString("Authorization: Bearer ") + accessToken;
             slist1 = curl_slist_append(slist1, bearer.toStdString().c_str());
             loggedInFlag = true;
-	    
-	    // now if appDir is specified make sure dir exists, 
-	    // creating it does delete existing one and one call as opposed to 2 if not there
-	    if (!appDirName.isEmpty()) {
-	      QString home = storage + username;
-	      bool ok = this->mkdir(appDirName, username);
-	      if (ok != true) {
-		QString message = QString("WARNING - could not create " ) + appDirName 
-		  + QString("on login, using home dir instead");
-		appDirName = QString(""); // no erase function!
-		emit statusMessage(message);
-	      } else {
-		emit statusMessage("Login SUCCESS");
-	      }
-	    } else {
-	      emit statusMessage("Login SUCCESS");
-	    }
 
-	    return true;
+            // now if appDir is specified make sure dir exists,
+            // creating it does delete existing one and one call as opposed to 2 if not there
+            if (!appDirName.isEmpty()) {
+                QString home = storage + username;
+                bool ok = this->mkdir(appDirName, username);
+                if (ok != true) {
+                    QString message = QString("WARNING - could not create " ) + appDirName
+                            + QString("on login, using home dir instead");
+                    appDirName = QString(""); // no erase function!
+                    emit statusMessage(message);
+                } else {
+                    emit statusMessage("Login SUCCESS");
+                    emit closeDialog();
+                }
+            } else {
+                emit statusMessage("Login SUCCESS");
+                emit closeDialog();
+            }
+
+            return true;
         }
-	emit statusMessage("ERROR - no access token returned!");
-	return false;
+        emit statusMessage("ERROR - no access token returned!");
+        return false;
     }
     return false;
 
-   /* *************************************************** to test aloe 
+    /* *************************************************** to test aloe
     consumerKey = QString("");
     consumerSecret = QString("");
     QString accessToken = QString("");
@@ -405,6 +407,7 @@ AgaveCurl::logout()
     */
 
     emit statusMessage("Logout SUCCESS");
+    emit closeDialog();
 
     loggedInFlag = false;
 
@@ -988,8 +991,10 @@ AgaveCurl::startJob(const QJsonObject &theJob)
                QJsonObject resObj = theObj["result"].toObject();
                if (resObj.contains("id")) {
                    QString jobID =  resObj["id"].toString();
-                   QString message = QString("Succesfully started job: ") + jobID;
+                   QString message = QString("Successfully started job: ") + jobID;
                    emit statusMessage(message);
+		   QString msg1("Press the \"Get from DesignSafe\" Button to see status and download results");
+                   emit statusMessage(msg1);		   
                    return jobID;
                }
            }
@@ -1007,7 +1012,7 @@ AgaveCurl::startJob(const QJsonObject &theJob)
      emit errorMessage(message);
      return result;
    }
-
+   
    return result;
 }
 
@@ -1068,6 +1073,7 @@ AgaveCurl::getJobList(const QString &matchingName, QString appIdFilter)
         QJsonArray jobs = theObj["result"].toArray();
         result["jobs"] = jobs;
         emit statusMessage("Successfully obtained list of submitted jobs");
+	emit statusMessage("Click in any job shown in table to update the job status, download the job or delete the job.");
     }
 
     return result;
@@ -1270,7 +1276,7 @@ AgaveCurl::deleteJob(const QString &jobID, const QStringList &dirToRemove)
             emit errorMessage(message);
             return false;
         } else if (status == "success") {
-            emit statusMessage("Successfullt deleted job");
+            emit statusMessage("Successfully deleted job");
             return true;
         }
     }

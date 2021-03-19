@@ -59,8 +59,7 @@ GumbelDistribution::GumbelDistribution(QString inpType, QWidget *parent) :Random
     mainLayout->setVerticalSpacing(0);
     mainLayout->setMargin(0);
 
-    QPushButton *showPlotButton = new QPushButton("Show PDF");
-
+    QPushButton *showPlotButton = NULL;
     this->inpty=inpType;
 
     if (inpty==QString("Parameters"))
@@ -69,6 +68,7 @@ GumbelDistribution::GumbelDistribution(QString inpType, QWidget *parent) :Random
         alpha->setValidator(new QDoubleValidator);
         bn  = this->createTextEntry(tr("beta (bn)"), mainLayout,1);
         bn->setValidator(new QDoubleValidator);
+        showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
     } else if (inpty==QString("Moments")) {
@@ -77,6 +77,7 @@ GumbelDistribution::GumbelDistribution(QString inpType, QWidget *parent) :Random
         mean->setValidator(new QDoubleValidator);        
         standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout, 1);
         standardDev->setValidator(new QDoubleValidator);
+        showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
     } else if (inpty==QString("Dataset")) {
