@@ -272,14 +272,16 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
         QProcess *proc = new QProcess();
         QStringList args{pySCRIPT, runType, inputFile, registryFile};
         //    proc->execute("python",args);
-        QString python;
-        QSettings settings("SimCenter", "Common"); //These names will need to be constants to be shared
-        QVariant  pythonLocationVariant = settings.value("pythonExePath");
-        if (pythonLocationVariant.isValid()) {
-            python = pythonLocationVariant.toString();
-        }
-        proc->execute(python,args);
+        SimCenterPreferences *preferences = SimCenterPreferences::getInstance();
+        QString python = preferences->getPython();
 
+        QFileInfo pythonFile(python);
+        if (!pythonFile.exists()) {
+            emit sendErrorMessage("NO VALID PYTHON - Read the Manual & Check your Preferences");
+            return false;
+        }
+
+        proc->execute(python,args);
         proc->waitForStarted();
 
         //
@@ -454,6 +456,7 @@ RemoteApplication::uploadDirReturn(bool result)
 
       qDebug() << "JOBS_SUBMIT: " << job;
 
+      qDebug() << "JOB: " << job;
       //
       // start the remote job
       //
@@ -483,6 +486,7 @@ RemoteApplication::startJobReturn(QString result) {
     Q_UNUSED(result);
    pushButton->setEnabled(true);
    emit successfullJobStart();
+   emit closeDialog();
 }
 
 void

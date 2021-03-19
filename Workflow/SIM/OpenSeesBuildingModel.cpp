@@ -151,6 +151,7 @@ OpenSeesBuildingModel::outputToJSON(QJsonObject &jsonObject)
 {
     // just need to send the class type here.. type needed in object in case user screws up
     jsonObject["type"]="OpenSeesInput";
+    int numCentroidNodes = 0;
     QJsonArray nodeTags;
     if (centroidNodes != NULL) {
         string nodeString = centroidNodes->text().toStdString();
@@ -161,6 +162,7 @@ OpenSeesBuildingModel::outputToJSON(QJsonObject &jsonObject)
             nodeTags.append(QJsonValue(nodeTag));
             if (nodeStream.peek() == ',')
                 nodeStream.ignore();
+            numCentroidNodes++;
         }
     }
     
@@ -172,6 +174,8 @@ OpenSeesBuildingModel::outputToJSON(QJsonObject &jsonObject)
     int numStories = -1;
     while (nodeStream >> nodeTag) {
         responseNodeTags.append(QJsonValue(nodeTag));
+        if (numCentroidNodes == 0)
+            nodeTags.append(QJsonValue(nodeTag));
         if (nodeStream.peek() == ',') {
             nodeStream.ignore();
         } else

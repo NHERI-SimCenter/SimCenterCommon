@@ -72,11 +72,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLabel>
 //#include <InputWidgetFEM.h>
 #include <InputWidgetUQ.h>
-//#include <MainWindow.h>
 
 //#include <InputWidgetFEM.h>
 #include <InputWidgetUQ.h>
-//#include <MainWindow.h>
 #include <QHeaderView>
 
 #include <QtCharts/QChart>
@@ -96,7 +94,7 @@ using namespace QtCharts;
 //#define NUM_DIVISIONS 10
 
 DakotaResultsSampling::DakotaResultsSampling(RandomVariablesContainer *theRandomVariables, QWidget *parent)
-  : UQ_Results(parent), theRVs(theRandomVariables)
+  : UQ_Results(parent), theRVs(theRandomVariables), spreadsheet(0), tabWidget(0), chart(0)
 {
     // title & add button
     tabWidget = new QTabWidget(this);
@@ -131,8 +129,6 @@ void DakotaResultsSampling::clear(void)
     tabWidget->clear();
     spreadsheet = NULL;
 }
-
-
 
 static void merge_helper(double *input, int left, int right, double *scratch)
 {
@@ -198,13 +194,12 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
     // check it actually ran with n errors
     //
 
-
     QFileInfo fileTabInfo(filenameTab);
     QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
 
     QFileInfo filenameErrorInfo(filenameErrorString);
     if (!filenameErrorInfo.exists()) {
-        emit sendErrorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applications failed with inputs provided");
+        emit sendErrorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applicatins failed with inputs provied");
         return 0;
     }
     QFile fileError(filenameErrorString);
@@ -292,7 +287,8 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
 
     spreadsheet->setColumnCount(colCount);
     spreadsheet->setHorizontalHeaderLabels(theHeadings);
-
+    spreadsheet->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    spreadsheet->verticalHeader()->setVisible(false);
     // now until end of file, read lines and place data into spreadsheet
 
     int rowCount = 0;
@@ -307,21 +303,12 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
             if ((includesInterface == true && i != 1) || (includesInterface == false)) {
                 QModelIndex index = spreadsheet->model()->index(rowCount, col);
                 spreadsheet->model()->setData(index, data.c_str());
-
                 col++;
             }
         }
         rowCount++;
     }
-   // spreadsheet->resizeColumnsToContents();
-    //spreadsheet->setAutoScroll(true);
-    //spreadsheet->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    if (colCount < 10)
-        spreadsheet->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    spreadsheet->verticalHeader()->setVisible(false);
-    //spreadsheet->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     tabResults.close();
-
 
     //
     // determine summary statistics for each edp
@@ -401,25 +388,16 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
     chartView->setRenderHint(QPainter::Antialiasing);
     chartView->chart()->legend()->hide();
 
-
     QWidget *widget = new QWidget();
     QGridLayout *layout = new QGridLayout(widget);
     QPushButton* save_spreadsheet = new QPushButton();
     save_spreadsheet->setText("Save Data");
     save_spreadsheet->setToolTip(tr("Save data into file in a CSV format"));
-    save_spreadsheet->resize(30,30);
+    //save_spreadsheet->resize(30,30);
     connect(save_spreadsheet,SIGNAL(clicked()),this,SLOT(onSaveSpreadsheetClicked()));
 
     layout->addWidget(chartView, 0,0,1,1);
-    layout->addWidget(save_spreadsheet,1,0,Qt::AlignLeft);
-
-
-    // create a scrollable windows, place summary inside it
-    QScrollArea *ss = new QScrollArea;
-    ss->setWidgetResizable(true);
-    ss->setLineWidth(0);
-    ss->setFrameShape(QFrame::NoFrame);
-    //ss->setWidget(spreadsheet);
+    layout->addWidget(save_spreadsheet,1,0,1,1); // Qt::AlignLeft);
     layout->addWidget(spreadsheet,2,0,1,1);
 
     //
@@ -448,24 +426,31 @@ DakotaResultsSampling::onSaveSpreadsheetClicked()
                                                     tr("All Files (*)"));
 
     QFile file(fileName);
-    if (file.open(QIODevice::ReadWrite))
+    if (file.open(QIODevice::WriteOnly))
     {
         QTextStream stream(&file);
         for (int j=0; j<columnCount; j++)
         {
-            stream <<theHeadings.at(j)<<",\t";
+	  if (j == columnCount -1)
+            stream <<theHeadings.at(j);	    
+	  else
+            stream <<theHeadings.at(j)<<", ";
         }
-        stream << endl;
+        stream <<endl;
         for (int i=0; i<rowCount; i++)
         {
             for (int j=0; j<columnCount; j++)
             {
                 QTableWidgetItem *item_value = spreadsheet->item(i,j);
                 double value = item_value->text().toDouble();
-                stream << value << ",\t";
+		if (j == columnCount-1)		
+		  stream << value ;
+		else
+		  stream << value << ", ";		  
             }
-            stream<< endl;
+            stream<<endl;
         }
+	file.close();
     }
 }
 
@@ -500,6 +485,29 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
 
     if (col1 != col2) {
         QScatterSeries *series = new QScatterSeries;
+
+        // adjust marker size and opacity based on the number of samples
+        if (rowCount < 10) {
+            series->setMarkerSize(15.0);
+            series->setColor(QColor(0, 114, 178, 200));
+        } else if (rowCount < 100) {
+            series->setMarkerSize(11.0);
+            series->setColor(QColor(0, 114, 178, 160));
+        } else if (rowCount < 1000) {
+            series->setMarkerSize(8.0);
+            series->setColor(QColor(0, 114, 178, 100));
+        } else if (rowCount < 10000) {
+            series->setMarkerSize(6.0);
+            series->setColor(QColor(0, 114, 178, 70));
+        } else if (rowCount < 100000) {
+            series->setMarkerSize(5.0);
+            series->setColor(QColor(0, 114, 178, 50));
+        } else {
+            series->setMarkerSize(4.5);
+            series->setColor(QColor(0, 114, 178, 30));
+        }
+        
+        series->setBorderColor(QColor(255,255,255,0));
 
         for (int i=0; i<rowCount; i++) {
             QTableWidgetItem *itemX = spreadsheet->item(i,col1);    //col1 goes in x-axis, col2 on y-axis
@@ -550,6 +558,18 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
             if(value2<minY){minY=value2;}
             if(value2>maxY){maxY=value2;}
 
+        }
+
+        // if value is constant, adjust axes
+        if (minX==maxX) {
+            double axisMargin=abs(minX)*0.1;
+            minX=minX-axisMargin;
+            maxX=maxX+axisMargin;
+        }
+        if (minY==maxY) {
+            double axisMargin=abs(minY)*0.1;
+            minY=minY-axisMargin;
+            maxY=maxY+axisMargin;
         }
 
         double xRange=maxX-minX;
@@ -668,12 +688,13 @@ void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
                 {
 
                     stream<<dataValues[i];
-                    stream<< Qt::endl;
+                    stream<< endl;
                 }
             }else {qDebug()<<"\n error in opening file data file for histogram fit  ";exit(1);}
 
 
             delete [] dataValues;
+
 
             QString file_fitted_path = appDIR +  QDir::separator() + QString("Best_fit.out");
 
@@ -1017,7 +1038,7 @@ DakotaResultsSampling::inputFromJSON(QJsonObject &jsonObject)
     // add 3 Widgets to TabWidget
     //
 
-    tabWidget->addTab(summary,tr("Summmary"));
+    tabWidget->addTab(summary,tr("Summary"));
     tabWidget->addTab(widget, tr("Data Values"));
 
     tabWidget->adjustSize();
@@ -1032,6 +1053,8 @@ QWidget *
 DakotaResultsSampling::createResultEDPWidget(QString &name, double mean, double stdDev, double skewness, double kurtosis) {
     QWidget *edp = new QWidget;
     QHBoxLayout *edpLayout = new QHBoxLayout();
+    edpLayout->setContentsMargins(0,0,0,0);
+    edpLayout->setSpacing(3);
 
     edp->setLayout(edpLayout);
 

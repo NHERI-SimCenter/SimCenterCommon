@@ -53,6 +53,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDialog>
 #include <QGridLayout>
 #include <QHeaderView>
+#include <QApplication>
 
 // To check validity of correlation matrix
 #include <Eigen/Dense>
@@ -215,7 +216,9 @@ RandomVariablesContainer::makeRV(void)
     titleLayout->addItem(spacer3);
 
     //titleLayout->addWidget(addCorrelation,0,Qt::AlignTop);
-    titleLayout->addWidget(addCorrelation);
+    QString appName = QApplication::applicationName();
+    if (appName == "quoFEM")
+        titleLayout->addWidget(addCorrelation);
 
     titleLayout->addStretch();
 

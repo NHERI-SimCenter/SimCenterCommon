@@ -112,11 +112,14 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     mainLayout->addWidget(typeLabel,0,2);
     mainLayout->addWidget(typeComboBox,1,2);
 
+
     typeComboBox->addItem(tr("Parameters"));
     typeComboBox->addItem(tr("Moments"));
     typeComboBox->addItem(tr("Dataset"));
 
+
     connect(typeComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(typeChanged(QString)));
+    typeComboBox->setCurrentIndex(0);
 
     //
     // create distribution block
@@ -247,6 +250,7 @@ RandomVariable::outputToJSON(QJsonObject &rvObject){
 
 bool
 RandomVariable::inputFromJSON(QJsonObject &rvObject){
+
     QString distributionType, inputType;
     if (rvObject.contains("name")) {
         QJsonValue theName = rvObject["name"];
@@ -255,9 +259,11 @@ RandomVariable::inputFromJSON(QJsonObject &rvObject){
         return false;
     }
 
+    bool typeSpecified = false;
     if (rvObject.contains("inputType")) {
         QJsonValue theInputTypeValue = rvObject["inputType"];
         inputType = theInputTypeValue.toString();
+        typeSpecified = true;
     } else {
         inputType = "Parameters";
     }
@@ -265,6 +271,8 @@ RandomVariable::inputFromJSON(QJsonObject &rvObject){
     if (rvObject.contains("distribution")) {
         QJsonValue theDistributionValue = rvObject["distribution"];
         distributionType = theDistributionValue.toString();
+        if (distributionType == "Lognormal" && typeSpecified == false)
+            inputType = "Moments";
     } else {
         return false;
     }
@@ -293,6 +301,7 @@ RandomVariable::inputFromJSON(QJsonObject &rvObject){
     this->typeChanged(inputType);
     typeComboBox->setCurrentIndex(index1);
     typeOpt = QString(inputType);
+
 
     int index2 = distributionComboBox->findText(distributionType);
     this->distributionChanged(distributionType);
@@ -330,6 +339,7 @@ void RandomVariable::distributionChanged(const QString &arg1)
         theDistribution = new NormalDistribution(typeOpt);
     } else if (arg1 == QString("Lognormal")) {
         if (this->uqEngineName==QString("Dakota")) {
+            typeComboBox->setCurrentIndex(1);
             theDistribution = new LognormalDistribution(QString("Moments"));
             // Dakota gets moments for lognormal
         } else {

@@ -1,13 +1,20 @@
 #include <WorkflowAppWidget.h>
+#include "MainWindowWorkflowApp.h"
 #include <QWidget>
 #include <RemoteService.h>
+#include <Utils/PythonProgressDialog.h>
 
+#include <QMenuBar>
 #include <QDebug>
 
+PythonProgressDialog *WorkflowAppWidget::progressDialog = nullptr;
+
 WorkflowAppWidget::WorkflowAppWidget(RemoteService *theService, QWidget *parent)
-  :QWidget(parent), theRemoteService(theService)
+    :QWidget(parent), theRemoteService(theService)
 {
-  this->setContentsMargins(0,0,0,0);
+    this->setContentsMargins(0,0,0,0);
+
+    progressDialog = new PythonProgressDialog(parent);
 }
 
 WorkflowAppWidget::~WorkflowAppWidget()
@@ -16,15 +23,27 @@ WorkflowAppWidget::~WorkflowAppWidget()
 }
 
 
+void WorkflowAppWidget::showOutputDialog(void)
+{
+    progressDialog->showDialog(true);
+}
+
+
+
 void
 WorkflowAppWidget::setMainWindow(MainWindowWorkflowApp* window) {
     theMainWindow = window;
+
+    // Show progress dialog
+    QMenu *windowsMenu = theMainWindow->menuBar()->addMenu(tr("&Windows"));
+    windowsMenu->addAction("Show Output Dialog", this, &WorkflowAppWidget::showOutputDialog);
 }
 
 
 void
 WorkflowAppWidget::statusMessage(const QString msg){
-     qDebug() << "WorkflowAppWidget::statusMessage" << msg;
+    qDebug() << "WorkflowAppWidget::statusMessage" << msg;
+    progressDialog->appendText(msg);
     emit sendStatusMessage(msg);
 }
 
@@ -32,14 +51,15 @@ WorkflowAppWidget::statusMessage(const QString msg){
 void
 WorkflowAppWidget::errorMessage(const QString msg){
     qDebug() << "WorkflowAppWidget::errorMessage" << msg;
-
+    progressDialog->appendErrorMessage(msg);
     emit sendErrorMessage(msg);
 }
 
 
 void
 WorkflowAppWidget::fatalMessage(const QString msg){
-  emit sendFatalMessage(msg);
+    progressDialog->appendErrorMessage(msg);
+    emit sendFatalMessage(msg);
 }
 
 MainWindowWorkflowApp *WorkflowAppWidget::getTheMainWindow() const
@@ -47,3 +67,14 @@ MainWindowWorkflowApp *WorkflowAppWidget::getTheMainWindow() const
     return theMainWindow;
 }
 
+
+PythonProgressDialog *WorkflowAppWidget::getProgressDialog()
+{
+    return progressDialog;
+}
+
+void WorkflowAppWidget::runComplete()
+{
+    qDebug() << "Task Completed";
+    progressDialog->hideAfterElapsedTime(2);
+}

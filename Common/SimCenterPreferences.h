@@ -56,7 +56,9 @@ private:
 
 public:
     static SimCenterPreferences *getInstance(QWidget *parent = 0);
-    QString getPython(void);
+    QString getPython(void); 
+    QString getDakota(void);
+    QString getOpenSees(void);   
     QString getAppDir(void);
     QString getRemoteAppDir(void);
     QString getRemoteAgaveApp(void);
@@ -84,6 +86,7 @@ private:
     QLineEdit *remoteBackendDir;
     QLineEdit *remoteTapisApp;
 
+    QCheckBox* customPythonCheckBox;  
     QCheckBox* customOpenSeesCheckBox;
     QCheckBox* customDakotaCheckBox;
     QCheckBox* customAppDirCheckBox;
