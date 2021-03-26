@@ -7,6 +7,21 @@
 #include <QVBoxLayout>
 #include <QTimer>
 
+PythonProgressDialog *PythonProgressDialog::theInstance = 0;
+
+PythonProgressDialog *
+PythonProgressDialog::getInstance(QWidget *parent) {
+  if (theInstance == 0)
+    theInstance = new PythonProgressDialog(parent);
+
+  return theInstance;
+}
+
+PythonProgressDialog::~PythonProgressDialog()
+{
+
+}
+
 PythonProgressDialog::PythonProgressDialog(QWidget* parent) : QDialog(parent)
 {
 
