@@ -157,6 +157,7 @@ NormalDistribution::outputToJSON(QJsonObject &rvObject){
             return false;
         }
         rvObject["dataDir"]=QString(dataDir->text());
+        return true;
     }
 }
 
