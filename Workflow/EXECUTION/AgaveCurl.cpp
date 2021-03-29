@@ -66,6 +66,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDialog>
 #include <QStandardPaths>
 #include <QDir>
+#include <Utils/PythonProgressDialog.h>
 
 using namespace std;
 
@@ -344,10 +345,12 @@ AgaveCurl::login(QString uname, QString upassword)
                 } else {
                     emit statusMessage("Login SUCCESS");
                     emit closeDialog();
+                    PythonProgressDialog::getInstance()->hideAfterElapsedTime(0);
                 }
             } else {
                 emit statusMessage("Login SUCCESS");
                 emit closeDialog();
+                PythonProgressDialog::getInstance()->hideAfterElapsedTime(0);
             }
 
             return true;
@@ -407,7 +410,9 @@ AgaveCurl::logout()
     */
 
     emit statusMessage("Logout SUCCESS");
+
     emit closeDialog();
+    PythonProgressDialog::getInstance()->hideAfterElapsedTime(0);
 
     loggedInFlag = false;
 

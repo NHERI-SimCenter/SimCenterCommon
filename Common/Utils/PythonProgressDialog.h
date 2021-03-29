@@ -10,8 +10,13 @@ class PythonProgressDialog : public QDialog
 {
     Q_OBJECT
 
+private:
+    explicit PythonProgressDialog(QWidget* parent =0);
+    ~PythonProgressDialog();
+    static PythonProgressDialog *theInstance;  
+  
 public:
-    PythonProgressDialog(QWidget* parent);
+    static PythonProgressDialog *getInstance(QWidget *parent = 0);  
 
     void appendText(const QString text);
 
