@@ -11,10 +11,10 @@ PythonProgressDialog *PythonProgressDialog::theInstance = 0;
 
 PythonProgressDialog *
 PythonProgressDialog::getInstance(QWidget *parent) {
-  if (theInstance == 0)
-    theInstance = new PythonProgressDialog(parent);
+    if (theInstance == 0)
+        theInstance = new PythonProgressDialog(parent);
 
-  return theInstance;
+    return theInstance;
 }
 
 PythonProgressDialog::~PythonProgressDialog()
@@ -71,20 +71,20 @@ PythonProgressDialog::PythonProgressDialog(QWidget* parent) : QDialog(parent)
 
 void PythonProgressDialog::clear(void)
 {
-  if (theInstance == 0)
-    theInstance = new PythonProgressDialog(0);
-  
-  progressTextEdit->clear();
-  progressBar->setRange(0,0);
-  this->hideProgressBar();
+    if (theInstance == 0)
+        theInstance = new PythonProgressDialog(0);
+
+    progressTextEdit->clear();
+    progressBar->setRange(0,0);
+    this->hideProgressBar();
 }
 
 
 void PythonProgressDialog::showDialog(bool visible)
 {
-  if (theInstance == 0)
-    theInstance = new PythonProgressDialog(0);
-  
+    if (theInstance == 0)
+        theInstance = new PythonProgressDialog(0);
+
     if(visible)
     {
         this->show();
@@ -100,9 +100,9 @@ void PythonProgressDialog::showDialog(bool visible)
 
 void PythonProgressDialog::appendText(const QString text)
 {
-  if (theInstance == 0)
-    theInstance = new PythonProgressDialog(0);
-  
+    if (theInstance == 0)
+        theInstance = new PythonProgressDialog(0);
+
     if(!this->isVisible() && text != "")
         this->showDialog(true);
 
@@ -117,7 +117,7 @@ void PythonProgressDialog::appendText(const QString text)
 void PythonProgressDialog::appendErrorMessage(const QString text)
 {
     if (theInstance == 0)
-    theInstance = new PythonProgressDialog(0);
+        theInstance = new PythonProgressDialog(0);
     
     if(!this->isVisible() && text != "")
         this->showDialog(true);
@@ -136,7 +136,7 @@ void PythonProgressDialog::appendErrorMessage(const QString text)
 void PythonProgressDialog::appendInfoMessage(const QString text)
 {
     if (theInstance == 0)
-    theInstance = new PythonProgressDialog(0);
+        theInstance = new PythonProgressDialog(0);
     
     if(!this->isVisible() && text != "")
         this->showDialog(true);
@@ -156,7 +156,7 @@ void PythonProgressDialog::appendInfoMessage(const QString text)
 void PythonProgressDialog::handleCloseButtonPress()
 {
     if (theInstance == 0)
-      theInstance = new PythonProgressDialog(0);
+        theInstance = new PythonProgressDialog(0);
     
     this->showDialog(false);
 }
@@ -165,7 +165,7 @@ void PythonProgressDialog::handleCloseButtonPress()
 void PythonProgressDialog::handleClearButtonPress()
 {
     if (theInstance == 0)
-      theInstance = new PythonProgressDialog(0);
+        theInstance = new PythonProgressDialog(0);
     
     this->clear();
 }
@@ -173,9 +173,9 @@ void PythonProgressDialog::handleClearButtonPress()
 
 QString PythonProgressDialog::cleanUpText(const QString text)
 {
-  if (theInstance == 0)
-    theInstance = new PythonProgressDialog(0);
-  
+    if (theInstance == 0)
+        theInstance = new PythonProgressDialog(0);
+
     // Split the text up if there are any newline
     auto cleanText = text.trimmed();
 
@@ -187,51 +187,53 @@ QString PythonProgressDialog::cleanUpText(const QString text)
 
 void PythonProgressDialog::showProgressBar(void)
 {
-  if (theInstance == 0)
-    theInstance = new PythonProgressDialog(0);
-  
+    if (theInstance == 0)
+        theInstance = new PythonProgressDialog(0);
+
     progressBar->show();
 }
 
 
 void PythonProgressDialog::hideProgressBar(void)
 {
-  if (theInstance == 0)
-    theInstance = new PythonProgressDialog(0);
-  
+    if (theInstance == 0)
+        theInstance = new PythonProgressDialog(0);
+
     progressBar->hide();
 }
 
 void PythonProgressDialog::setProgressBarValue(const int val)
 {
-  if (theInstance == 0)
-    theInstance = new PythonProgressDialog(0);
-  
+    if (theInstance == 0)
+        theInstance = new PythonProgressDialog(0);
+
     progressBar->setValue(val);
 }
 
 
 void PythonProgressDialog::setProgressBarRange(const int start,const int end)
 {
-  if (theInstance == 0)
-    theInstance = new PythonProgressDialog(0);
-  
+    if (theInstance == 0)
+        theInstance = new PythonProgressDialog(0);
+
     progressBar->setRange(start,end);
 }
 
 
 void PythonProgressDialog::hideAfterElapsedTime(int sec)
 {
-  if (theInstance == 0)
-    theInstance = new PythonProgressDialog(0);
-  
-  //  progressTextEdit->appendPlainText("This window will automatically close in "+QString::number(sec) + " seconds \n");
+    if (theInstance == 0)
+        theInstance = new PythonProgressDialog(0);
+
+    if(sec <= 0)
+        this->showDialog(false);
+
+    progressTextEdit->appendPlainText("This window will automatically close in "+QString::number(sec) + " seconds \n");
 
     QTimer::singleShot(sec*1000, [=]() {
 
-        if(this->isVisible())
-            this->showDialog(false);
+        this->showDialog(false);
 
-	progressTextEdit->undo();
+        progressTextEdit->undo();
     });
 }
