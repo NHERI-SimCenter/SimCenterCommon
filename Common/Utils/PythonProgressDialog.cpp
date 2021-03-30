@@ -57,11 +57,13 @@ PythonProgressDialog::PythonProgressDialog(QWidget* parent) : QDialog(parent)
 
     auto buttonsLayout = new QHBoxLayout();
 
-    QPushButton* closeButton = new QPushButton("Close",this);
-    buttonsLayout->addWidget(closeButton);
-
     QPushButton* clearButton = new QPushButton("Clear",this);
-    buttonsLayout->addWidget(clearButton);
+    buttonsLayout->addWidget(clearButton,1);
+
+    buttonsLayout->addStretch(1);
+
+    QPushButton* closeButton = new QPushButton("Dismiss",this);
+    buttonsLayout->addWidget(closeButton,2);
 
     progressLayout->addLayout(buttonsLayout);
 
@@ -100,9 +102,10 @@ void PythonProgressDialog::appendText(const QString text)
 
     auto cleanText = cleanUpText(text);
 
-    progressTextEdit->appendPlainText(cleanText+ "\n");
+    //progressTextEdit->appendPlainText(cleanText+ "\n");
+    progressTextEdit->appendPlainText("* "+cleanText);
 
-    qDebug()<<cleanText;
+    //qDebug()<<cleanText;
 }
 
 
@@ -156,7 +159,7 @@ QString PythonProgressDialog::cleanUpText(const QString text)
     // Split the text up if there are any newline
     auto cleanText = text.trimmed();
 
-    cleanText.replace("\\n", " \n ");
+    cleanText.replace("\\n", "\n");  // - pmh: I removed the added spaces
 
     return cleanText;
 }
@@ -187,7 +190,7 @@ void PythonProgressDialog::setProgressBarRange(const int start,const int end)
 
 void PythonProgressDialog::hideAfterElapsedTime(int sec)
 {
-    progressTextEdit->appendPlainText("This window will automatically close in "+QString::number(sec) + " seconds \n");
+    progressTextEdit->appendPlainText("** This window will automatically close in "+QString::number(sec) + " seconds\n");
 
     QTimer::singleShot(sec*1000, [=]() {
 
