@@ -226,7 +226,10 @@ void PythonProgressDialog::hideAfterElapsedTime(int sec)
         theInstance = new PythonProgressDialog(0);
 
     if(sec <= 0)
+    {
         this->showDialog(false);
+        return;
+    }
 
     progressTextEdit->appendPlainText("This window will automatically close in "+QString::number(sec) + " seconds \n");
 
