@@ -86,8 +86,8 @@ WeibullDistribution::WeibullDistribution(QString inpType, QWidget *parent) :Rand
 
 
         dataDir = this->createTextEntry(tr("Data File"), mainLayout, 0);
-        dataDir->setMinimumWidth(210);
-        dataDir->setMaximumWidth(210);
+        dataDir->setMinimumWidth(200);
+        dataDir->setMaximumWidth(200);
 
         QPushButton *chooseFileButton = new QPushButton("Choose");
         mainLayout->addWidget(chooseFileButton, 1,1);
