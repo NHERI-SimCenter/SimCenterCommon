@@ -119,6 +119,7 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
 
 
     connect(typeComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(typeChanged(QString)));
+
     typeComboBox->setCurrentIndex(0);
 
     //
@@ -168,7 +169,6 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
         typeLabel->setVisible(false);
         typeComboBox->setVisible(false);
     }
-
     //mainLayout->addStretch();
 
     theDistribution = new NormalDistribution();
@@ -377,7 +377,24 @@ void RandomVariable::distributionChanged(const QString &arg1)
     connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 }
 
-   void
-   RandomVariable::errorMessage(QString message) {
-       emit sendErrorMessage(message);
-   }
+void RandomVariable::fixToUniform(double dValue)
+{
+    distributionComboBox->setCurrentIndex(3); // Uniform
+    distributionComboBox->setDisabled(1);
+    typeComboBox->setDisabled(1);
+
+    delete theDistribution;
+    theDistribution = 0;
+    theDistribution = new UniformDistribution(dValue);
+    mainLayout->addWidget(theDistribution,0,4,2,1);
+
+}
+
+
+
+
+
+void
+RandomVariable::errorMessage(QString message) {
+   emit sendErrorMessage(message);
+}

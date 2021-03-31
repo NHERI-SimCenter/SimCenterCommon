@@ -49,6 +49,8 @@ class UniformDistribution : public RandomVariableDistribution
     Q_OBJECT
 public:
     explicit UniformDistribution(QString inpType, QWidget *parent = 0);
+    explicit UniformDistribution(double initValue, QWidget *parent = 0);
+
     ~UniformDistribution();
 
     bool outputToJSON(QJsonObject &rvObject);

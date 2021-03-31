@@ -49,6 +49,8 @@ class NormalDistribution : public RandomVariableDistribution
     Q_OBJECT
 public:
     explicit NormalDistribution(QString inpType="Parameters",QWidget *parent = 0);
+    explicit NormalDistribution(double initValue, QWidget *parent = 0);
+
     ~NormalDistribution();
 
     bool outputToJSON(QJsonObject &rvObject);
