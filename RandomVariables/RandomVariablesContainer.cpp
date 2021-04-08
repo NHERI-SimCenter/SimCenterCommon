@@ -55,6 +55,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QGridLayout>
 #include <QHeaderView>
 #include <QApplication>
+#include <QFileDialog>
+#include <QJsonDocument>
 
 // To check validity of correlation matrix
 #include <Eigen/Dense>
@@ -227,7 +229,9 @@ RandomVariablesContainer::makeRV(void)
     title->setMinimumWidth(250);
     QSpacerItem *spacer1 = new QSpacerItem(50,10);
     QSpacerItem *spacer2 = new QSpacerItem(20,10);
-    QSpacerItem *spacer3 = new QSpacerItem(50,10);
+    QSpacerItem *spacer3 = new QSpacerItem(20,10);
+    QSpacerItem *spacer4 = new QSpacerItem(50,10);
+    QSpacerItem *spacer5 = new QSpacerItem(20,10);
 
 
     QPushButton *addRV = new QPushButton();
@@ -243,6 +247,21 @@ RandomVariablesContainer::makeRV(void)
     removeRV->setText(tr("Remove"));
     connect(removeRV,SIGNAL(clicked()),this,SLOT(removeRandomVariable()));
 
+
+    QPushButton *RVsFromJson = new QPushButton();
+    RVsFromJson->setMinimumWidth(75);
+    RVsFromJson->setMaximumWidth(75);
+    RVsFromJson->setText(tr("Import"));
+    RVsFromJson->setStyleSheet("background-color: dodgerblue;border-color:dodgerblue");
+    connect(RVsFromJson,SIGNAL(clicked()),this,SLOT(loadRVsFromJson()));
+
+
+    QPushButton *RVsToJson = new QPushButton();
+    RVsToJson->setMinimumWidth(75);
+    RVsToJson->setMaximumWidth(75);
+    RVsToJson->setText(tr("Export"));
+    RVsToJson->setStyleSheet("background-color: dodgerblue;border-color:dodgerblue");
+    connect(RVsToJson,SIGNAL(clicked()),this,SLOT(saveRVsToJson()));
 
     // padhye, adding the button for correlation matrix, we need to add a condition here
     // that whether the uqMehod selected is that of Dakota and sampling type? only then we need correlation matrix
@@ -268,9 +287,14 @@ RandomVariablesContainer::makeRV(void)
 
     //titleLayout->addWidget(addCorrelation,0,Qt::AlignTop);
     QString appName = QApplication::applicationName();
-    if (appName == "quoFEM")
+    if (appName == "quoFEM") {
         titleLayout->addWidget(addCorrelation);
+        titleLayout->addItem(spacer4);
+    }
 
+    titleLayout->addWidget(RVsFromJson);
+    titleLayout->addItem(spacer5);
+    titleLayout->addWidget(RVsToJson);
     titleLayout->addStretch();
 
     verticalLayout->addLayout(titleLayout);
@@ -446,6 +470,38 @@ void RandomVariablesContainer::removeRandomVariable(void)
     free(index_selected_to_remove);
 }
 
+void RandomVariablesContainer::loadRVsFromJson(void)
+{
+    QString RVsFileDir=QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "JSON File (*.json)");
+
+    QFile file(RVsFileDir);
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        QString message = QString("Error: could not open file") + RVsFileDir;
+    }
+    QString val;
+    val=file.readAll();
+    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+    QJsonObject rvObject = doc.object();
+    inputFromJSON(rvObject);
+}
+
+void RandomVariablesContainer::saveRVsToJson(void)
+{
+    QString RVsFileDir = QFileDialog::getSaveFileName(this,
+                                                   tr("Save Data"), "RVs",
+                                                   tr("JSON File (*.json)"));
+    QFile file(RVsFileDir);
+    if (file.open(QIODevice::WriteOnly))
+    {
+        QJsonObject rvObject;
+        outputToJSON(rvObject);
+
+        QJsonDocument doc(rvObject);
+        file.write(doc.toJson());
+        file.close();
+    }
+
+}
 
 void
 RandomVariablesContainer::addRandomVariable(RandomVariable *theRV) {
