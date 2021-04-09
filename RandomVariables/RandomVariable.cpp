@@ -333,13 +333,18 @@ void RandomVariable::distributionChanged(const QString &arg1)
         delete theDistribution;
         theDistribution = 0;
     }
-    typeOpt = typeComboBox->currentText();
+
+    if (this->uqEngineName==QString("Dakota")) {
+        typeOpt = "Parameters";
+    } else {
+        typeOpt = typeComboBox->currentText();
+    }
 
     if (arg1 == QString("Normal")) {
         theDistribution = new NormalDistribution(typeOpt);
     } else if (arg1 == QString("Lognormal")) {
         if (this->uqEngineName==QString("Dakota")) {
-            typeComboBox->setCurrentIndex(1);
+            //typeComboBox->setCurrentIndex(1);
             theDistribution = new LognormalDistribution(QString("Moments"));
             // Dakota gets moments for lognormal
         } else {
