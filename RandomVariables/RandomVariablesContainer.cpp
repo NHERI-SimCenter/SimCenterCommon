@@ -222,7 +222,7 @@ RandomVariablesContainer::makeRV(void)
 {
     // title & add button
     QHBoxLayout *titleLayout = new QHBoxLayout();
-    titleLayout->setMargin(10);
+    //titleLayout->setMargin(10);
 
     SectionTitle *title=new SectionTitle();
     title->setText(tr("Input Random Variables"));
@@ -314,7 +314,7 @@ RandomVariablesContainer::makeRV(void)
    // this->addRandomVariable();
      sa->setWidget(rv);
      verticalLayout->addWidget(sa);
-     verticalLayout->setSpacing(0);
+     //verticalLayout->setSpacing(0);
      verticalLayout->setMargin(0);
 
 }
