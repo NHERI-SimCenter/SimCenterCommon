@@ -9,9 +9,8 @@ class CommonConan(ConanFile):
     description = "SimCenter Common Qt Library"
     settings = "os", "compiler", "build_type", "arch"
     generators = "qmake", "cmake"
-    requires = "jansson/2.11@bincrafters/stable", "libcurl/7.64.1@bincrafters/stable"
+    requires = "jansson/2.13.1", "libcurl/7.72.0"
     build_policy = "missing"
-    
     options = {
         "MDOFwithQt3D": [True, False],
         "withQt":[True, False]
@@ -39,10 +38,10 @@ class CommonConan(ConanFile):
 
     def build_requirements(self):
         if self.settings.os == "Windows":
-            self.build_requires("jom_installer/1.1.2@bincrafters/stable")
+            self.build_requires("jom/1.1.3")
         
         if self.options.withQt:
-            self.build_requires("qt/5.11.3@bincrafters/stable")
+            self.build_requires("qt/5.15.2")
 
 
     def package_id(self):

@@ -76,6 +76,9 @@ public:
     void addRandomVariable(QString &rvName);
     void addRVs(QStringList &varNames);
     void addConstantRVs(QStringList &varNamesAndValues);
+    void addUniformRVs(QStringList &varNamesAndValues);
+    void addNormalRVs(QStringList &varNamesAndValues);
+    void setCorrelationDisabled(bool on);
 
     void removeRandomVariable(QString &varName);
     void removeRandomVariables(QStringList &varNames);
@@ -108,6 +111,7 @@ private:
     QTableWidget *correlationMatrix;
     QCheckBox *checkbox;
     QLabel *correlationError;
+    QPushButton *addCorrelation;
 
     SectionTitle *correlationtabletitle;
     int flag_for_correlationMatrix;

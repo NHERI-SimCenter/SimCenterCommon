@@ -41,6 +41,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "RandomVariablesContainer.h"
 #include "ConstantDistribution.h"
 #include "NormalDistribution.h"
+#include "UniformDistribution.h"
 #include <QPushButton>
 #include <QScrollArea>
 #include <QJsonArray>
@@ -95,6 +96,56 @@ RandomVariablesContainer::addConstantRVs(QStringList &varNamesAndValues)
         this->addRandomVariable(theRV);
     }
 }
+
+void
+RandomVariablesContainer::addNormalRVs(QStringList &varNamesAndValues)
+{
+    int numVar = varNamesAndValues.count();
+    for (int i=0; i<numVar; i+= 2) {
+
+        QString varName = varNamesAndValues.at(i);
+        QString value = varNamesAndValues.at(i+1);
+
+        double dValue = value.toDouble();
+        NormalDistribution *theDistribution = new NormalDistribution(dValue, 0);
+        RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution, uqEngineName);
+
+        this->addRandomVariable(theRV);
+    }
+}
+
+void
+RandomVariablesContainer::addUniformRVs(QStringList &varNamesAndValues)
+{
+    // remove existing RVs
+    auto theRVs = this->theRandomVariables;
+    int numEDPs = theRVs.size();
+    for (int i = numEDPs-1; i >= 0; i--) {
+        RandomVariable *theRV = theRVs.at(i);
+        theRV->close();
+        rvLayout->removeWidget(theRV);
+        theRVs.remove(i);
+        randomVariableNames.removeAt(i);
+        theRandomVariables.remove(i);
+        theRV->setParent(0);
+        delete theRV;
+    }
+
+    int numVar = varNamesAndValues.count();
+    for (int i=0; i<numVar; i+= 2) {
+
+        QString varName = varNamesAndValues.at(i);
+        QString value = varNamesAndValues.at(i+1);
+
+        double dValue = value.toDouble();
+        ConstantDistribution *theDistribution = new ConstantDistribution(dValue);
+        RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution, uqEngineName);
+        theRV->fixToUniform(dValue);
+
+        this->addRandomVariable(theRV);
+    }
+}
+
 
 void
 RandomVariablesContainer::addRandomVariable(QString &varName) {
@@ -197,7 +248,7 @@ RandomVariablesContainer::makeRV(void)
     // that whether the uqMehod selected is that of Dakota and sampling type? only then we need correlation matrix
 
     /* FMK */
-    QPushButton *addCorrelation = new QPushButton(tr("Correlation Matrix"));
+    addCorrelation = new QPushButton(tr("Correlation Matrix"));
     connect(addCorrelation,SIGNAL(clicked()),this,SLOT(addCorrelationMatrix()));
 
     flag_for_correlationMatrix=1;
@@ -351,7 +402,6 @@ void RandomVariablesContainer::removeRandomVariable(void)
 {
     // find the ones selected & remove them
     int numRandomVariables = theRandomVariables.size();
-
     int *index_selected_to_remove;int size_selected_to_remove=0;
 
     index_selected_to_remove = (int *)malloc(numRandomVariables*sizeof(int));
@@ -363,6 +413,8 @@ void RandomVariablesContainer::removeRandomVariable(void)
             theRV->close();
             rvLayout->removeWidget(theRV);
             theRandomVariables.remove(i);
+            randomVariableNames.removeAt(i);
+
             theRV->setParent(0);
             delete theRV;
             index_selected_to_remove[size_selected_to_remove]=i;
@@ -403,7 +455,7 @@ RandomVariablesContainer::addRandomVariable(RandomVariable *theRV) {
         //
         // if exists, get index and increment refCount of current RV, deletig new
         //
-
+        auto aa =theRV->variableName->text();
         int index = randomVariableNames.indexOf(theRV->variableName->text());
         RandomVariable *theCurrentRV = theRandomVariables.at(index);
         theCurrentRV->refCount = theCurrentRV->refCount+1;
@@ -760,11 +812,12 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
                  item->setText(QString::number(value));
              }
       }
-
-
+        this->addCorrelationMatrix();
       }
       // hide the dialog so matrix not shown
       correlationDialog->hide();
+  } else {
+
   }
   return result;
 }
@@ -775,3 +828,14 @@ RandomVariablesContainer::errorMessage(QString message){
     emit sendErrorMessage(message);
 }
 
+void
+RandomVariablesContainer::setCorrelationDisabled(bool on) {
+    if (on) {
+        addCorrelation->setStyleSheet({ "background-color: lightgrey; border: none;" });
+    } else {
+        addCorrelation->setStyleSheet({ "QPushButton" });
+        //addCorrelation->setAutoFillBackground(true);
+    }
+    addCorrelation->setDisabled(on);
+
+}
