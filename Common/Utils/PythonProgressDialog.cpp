@@ -13,7 +13,6 @@ PythonProgressDialog *
 PythonProgressDialog::getInstance(QWidget *parent) {
     if (theInstance == 0)
         theInstance = new PythonProgressDialog(parent);
-
     return theInstance;
 }
 
@@ -68,45 +67,61 @@ PythonProgressDialog::PythonProgressDialog(QWidget* parent) : QDialog(parent)
 
     connect(closeButton,&QPushButton::pressed, this, &PythonProgressDialog::handleCloseButtonPress);
     connect(clearButton,&QPushButton::pressed, this, &PythonProgressDialog::handleClearButtonPress);
+
+    mutex = new QMutex(QMutex::Recursive);
 }
 
 
 void PythonProgressDialog::clear(void)
-{
+{    
+    mutex->lock();
+
     if (theInstance == 0)
         theInstance = new PythonProgressDialog(0);
 
     progressTextEdit->clear();
     progressBar->setRange(0,0);
     this->hideProgressBar();
+
+    mutex->unlock();
 }
 
 
-void PythonProgressDialog::showDialog(bool visible)
+void PythonProgressDialog::setVisibility(bool visible)
 {
+//    mutex->lock();
+
     if (theInstance == 0)
         theInstance = new PythonProgressDialog(0);
 
     if(visible)
     {
-        this->show();
-        this->raise();
-        this->activateWindow();
+        try {
+            this->show();
+            this->raise();
+            this->activateWindow();
+        } catch (...) {
+
+        }
     }
     else
     {
         this->hide();
     }
+
+//    mutex->unlock();
 }
 
 
 void PythonProgressDialog::appendText(const QString text)
 {
+    mutex->lock();
+
     if (theInstance == 0)
         theInstance = new PythonProgressDialog(0);
 
     if(!this->isVisible() && text != "")
-        this->showDialog(true);
+        this->setVisibility(true);
 
     auto cleanText = cleanUpText(text);
 
@@ -114,16 +129,20 @@ void PythonProgressDialog::appendText(const QString text)
     progressTextEdit->appendPlainText("* "+cleanText);
 
     //qDebug()<<cleanText;
+
+    mutex->unlock();
 }
 
 
 void PythonProgressDialog::appendErrorMessage(const QString text)
 {
+    mutex->lock();
+
     if (theInstance == 0)
         theInstance = new PythonProgressDialog(0);
     
     if(!this->isVisible() && text != "")
-        this->showDialog(true);
+        this->setVisibility(true);
 
     auto msgStr = QString("<font color=%1>").arg("red") + text + QString("</font>") + QString("<font color=%1>").arg("black") + QString("&nbsp;") + QString("</font>");
 
@@ -133,16 +152,20 @@ void PythonProgressDialog::appendErrorMessage(const QString text)
     progressTextEdit->appendPlainText("\n");
 
     qDebug()<<text;
+
+    mutex->unlock();
 }
 
 
 void PythonProgressDialog::appendInfoMessage(const QString text)
 {
+    mutex->lock();
+
     if (theInstance == 0)
         theInstance = new PythonProgressDialog(0);
     
     if(!this->isVisible() && text != "")
-        this->showDialog(true);
+        this->setVisibility(true);
 
     auto msgStr = QString("<font color=%1>").arg("blue") + text + QString("</font>") + QString("<font color=%1>").arg("black") + QString("&nbsp;") + QString("</font>");
 
@@ -152,6 +175,8 @@ void PythonProgressDialog::appendInfoMessage(const QString text)
     progressTextEdit->appendPlainText("\n");
 
     qDebug()<<text;
+
+    mutex->unlock();
 }
 
 
@@ -161,7 +186,7 @@ void PythonProgressDialog::handleCloseButtonPress()
     if (theInstance == 0)
         theInstance = new PythonProgressDialog(0);
     
-    this->showDialog(false);
+    this->setVisibility(false);
 }
 
 
@@ -207,30 +232,42 @@ void PythonProgressDialog::hideProgressBar(void)
 
 void PythonProgressDialog::setProgressBarValue(const int val)
 {
+    mutex->lock();
+
     if (theInstance == 0)
         theInstance = new PythonProgressDialog(0);
 
     progressBar->setValue(val);
+
+    mutex->unlock();
 }
 
 
 void PythonProgressDialog::setProgressBarRange(const int start,const int end)
 {
+    mutex->lock();
+
     if (theInstance == 0)
         theInstance = new PythonProgressDialog(0);
 
     progressBar->setRange(start,end);
+
+    mutex->unlock();
 }
 
 
 void PythonProgressDialog::hideAfterElapsedTime(int sec)
 {
+    mutex->lock();
+
     if (theInstance == 0)
         theInstance = new PythonProgressDialog(0);
 
     if(sec <= 0)
     {
-        this->showDialog(false);
+        this->setVisibility(false);
+
+        mutex->unlock();
         return;
     }
 
@@ -238,8 +275,10 @@ void PythonProgressDialog::hideAfterElapsedTime(int sec)
 
     QTimer::singleShot(sec*1000, [=]() {
 
-        this->showDialog(false);
+        this->setVisibility(false);
 
         progressTextEdit->undo();
     });
+
+    mutex->unlock();
 }

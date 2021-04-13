@@ -189,6 +189,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     // allow remote interface to send error and status messages
     connect(theRemoteInterface,SIGNAL(errorMessage(QString)),inputWidget,SLOT(errorMessage(QString)));
     connect(theRemoteInterface,SIGNAL(statusMessage(QString)),inputWidget,SLOT(statusMessage(QString)));
+    connect(theRemoteInterface,SIGNAL(closeDialog()),inputWidget,SLOT(closeDialog()));
 
     connect(this,SIGNAL(sendErrorMessage(QString)),inputWidget,SLOT(errorMessage(QString)));
     connect(this,SIGNAL(sendStatusMessage(QString)),inputWidget,SLOT(statusMessage(QString)));
@@ -439,7 +440,7 @@ void MainWindowWorkflowApp::loadFile(const QString &fileName)
     // check file exists & set apps current dir of it does
     QFileInfo fileInfo(fileName);
     if (!fileInfo.exists()){
-        QString msg = QString("File foes not exist: ") + fileName;
+        QString msg = QString("File does not exist: ") + fileName;
         emit sendErrorMessage(msg);
         errorLabel->setText(msg);
         return;
@@ -573,7 +574,7 @@ void MainWindowWorkflowApp::createActions() {
         foreach (const QJsonValue & example, examples) {
             QJsonObject exampleObj = example.toObject();
             QString name = exampleObj["name"].toString();
-            QString inputFile = exampleObj["InputFile"].toString();
+            QString inputFile = exampleObj["inputFile"].toString();
             QString description = exampleObj["description"].toString();
             auto action = exampleMenu->addAction(name, this, &MainWindowWorkflowApp::loadExamples);
             action->setProperty("Name",name);
