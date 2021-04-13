@@ -2,6 +2,7 @@
 #define PYTHONPROGRESSDIALOG_H
 
 #include <QDialog>
+#include <QMutex>
 
 class QPlainTextEdit;
 class QProgressBar;
@@ -26,12 +27,13 @@ public:
 
     void clear(void);
 
-    void showDialog(bool visible);
+    void setVisibility(bool visible);
 
     void setProgressBarValue(const int val);
     void setProgressBarRange(const int start,const int end);
 
     void hideAfterElapsedTime(int sec);
+
 
 public slots:
     void showProgressBar(void);
@@ -49,6 +51,9 @@ private:
     QString cleanUpText(const QString text);
 
     QProgressBar* progressBar;
+
+    QMutex* mutex;
+
 };
 
 #endif // PYTHONPROGRESSDIALOG_H
