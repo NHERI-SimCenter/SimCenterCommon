@@ -14,7 +14,7 @@ WorkflowAppWidget::WorkflowAppWidget(RemoteService *theService, QWidget *parent)
 {
     this->setContentsMargins(0,0,0,0);
 
-    progressDialog = PythonProgressDialog::getInstance(parent);
+    progressDialog = PythonProgressDialog::getInstance(this);
 }
 
 WorkflowAppWidget::~WorkflowAppWidget()
@@ -25,7 +25,7 @@ WorkflowAppWidget::~WorkflowAppWidget()
 
 void WorkflowAppWidget::showOutputDialog(void)
 {
-    progressDialog->showDialog(true);
+    progressDialog->setVisibility(true);
 }
 
 
@@ -53,6 +53,12 @@ WorkflowAppWidget::errorMessage(const QString msg){
     qDebug() << "WorkflowAppWidget::errorMessage" << msg;
     progressDialog->appendErrorMessage(msg);
     emit sendErrorMessage(msg);
+}
+
+
+void
+WorkflowAppWidget::closeDialog(){
+    progressDialog->setVisibility(false);
 }
 
 
