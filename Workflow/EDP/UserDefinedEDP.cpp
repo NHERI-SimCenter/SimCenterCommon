@@ -218,10 +218,10 @@ UserDefinedEDP::outputToJSON(QJsonObject &jsonObject)
             jsonObject["filePathPS"]=fileInfoPS.path();
 
         } else {
-            emit sendErrorMessage("UserDefinedEDP :: Proceesing script does not exist");
+            this->errorMessage("UserDefinedEDP :: Proceesing script does not exist");
         }
     } else {
-       emit sendErrorMessage("UserDefinedEDP :: no processing script");
+       this->errorMessage("UserDefinedEDP :: no processing script");
     }
 
     fileName = additionalInputLE->text();
@@ -233,7 +233,7 @@ UserDefinedEDP::outputToJSON(QJsonObject &jsonObject)
             jsonObject["filePathAI"]=fileInfoPS.path();
 
         } else {
-            emit sendErrorMessage("UserDefinedEDP :: additional script does not exist");
+            this->errorMessage("UserDefinedEDP :: additional script does not exist");
         }
     }
 
@@ -273,11 +273,11 @@ UserDefinedEDP::inputFromJSON(QJsonObject &jsonObject)
             processingScriptLE->setText(QDir(filePath).filePath(fileName));
 
         } else {
-           emit sendErrorMessage("UserDefinedEDP ::inputFromJSON  no filePathPS exists");
+           this->errorMessage("UserDefinedEDP ::inputFromJSON  no filePathPS exists");
         }
 
     } else {
-        emit sendErrorMessage("UserDefinedEDP ::inputFromJSON  no NamePS exists");
+        this->errorMessage("UserDefinedEDP ::inputFromJSON  no NamePS exists");
     }
 
     if (jsonObject.contains("fileNameAI")) {
@@ -291,7 +291,7 @@ UserDefinedEDP::inputFromJSON(QJsonObject &jsonObject)
             additionalInputLE->setText(QDir(filePath).filePath(fileName));
 
         } else {
-         emit sendErrorMessage("UserDefinedEDP ::inputFromJSON  no filePathAI exists");
+         this->errorMessage("UserDefinedEDP ::inputFromJSON  no filePathAI exists");
         }
     }
 
@@ -433,7 +433,7 @@ UserDefinedEDP::chooseAdditionalInput(void) {
      if (!filename.isEmpty()) {
 
          if (this->copyFile(filename, dirName) ==  false) {
-             emit sendErrorMessage(QString("ERROR: copyFiles: failed to copy") + filename);
+             this->errorMessage(QString("ERROR: copyFiles: failed to copy") + filename);
              return false;
          }
      }
@@ -442,7 +442,7 @@ UserDefinedEDP::chooseAdditionalInput(void) {
      if (!filename.isEmpty()) {
 
          if (this->copyFile(filename, dirName) ==  false) {
-             emit sendErrorMessage(QString("ERROR: copyFiles: failed to copy") + filename);
+             this->errorMessage(QString("ERROR: copyFiles: failed to copy") + filename);
              return false;
          }
      }

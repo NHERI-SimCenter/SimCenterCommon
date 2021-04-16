@@ -83,8 +83,6 @@ public:
     void removeRandomVariable(QString &varName);
     void removeRandomVariables(QStringList &varNames);
 
-
-
     QStringList getRandomVariableNames(void);
     int getNumRandomVariables(void);
 

@@ -141,14 +141,14 @@ TruncatedExponentialDistribution::outputToJSON(QJsonObject &rvObject){
 
     if (validIdx==0)
     {
-        emit sendErrorMessage("ERROR: TruncatedExponentialDistribution - input parameters are not valid");
+        this->errorMessage("ERROR: TruncatedExponentialDistribution - input parameters are not valid");
         return false;
     }
 
     if (inpty==QString("Parameters")) {
         // check for error condition, an entry had no value
         if ((lambda->text().isEmpty())||(a->text().isEmpty())||(b->text().isEmpty())) {
-            emit sendErrorMessage("ERROR: TruncatedExponentialDistribution - data has not been set");
+            this->errorMessage("ERROR: TruncatedExponentialDistribution - data has not been set");
             return false;
         }
         rvObject["lambda"]=lambda->text().toDouble();
@@ -156,7 +156,7 @@ TruncatedExponentialDistribution::outputToJSON(QJsonObject &rvObject){
         rvObject["b"]=b->text().toDouble();
     } else if (inpty==QString("Moments")) {
         if ((mean->text().isEmpty())||(a->text().isEmpty())||(b->text().isEmpty())) {
-            emit sendErrorMessage("ERROR: TruncatedExponentialDistribution - data has not been set");
+            this->errorMessage("ERROR: TruncatedExponentialDistribution - data has not been set");
             return false;
         }
         rvObject["mean"]=mean->text().toDouble();
@@ -164,7 +164,7 @@ TruncatedExponentialDistribution::outputToJSON(QJsonObject &rvObject){
         rvObject["b"]=b->text().toDouble();
     } else if (inpty==QString("Dataset")) {
         if (dataDir->text().isEmpty()||(a->text().isEmpty())||(b->text().isEmpty())) {
-            emit sendErrorMessage("ERROR: TruncatedExponentialDistribution - data has not been set");
+            this->errorMessage("ERROR: TruncatedExponentialDistribution - data has not been set");
             return false;
         }
         rvObject["a"]=a->text().toDouble();
@@ -192,21 +192,21 @@ TruncatedExponentialDistribution::inputFromJSON(QJsonObject &rvObject){
             double thelambdaValue = rvObject["lambda"].toDouble();
             lambda->setText(QString::number(thelambdaValue));
         } else {
-            emit sendErrorMessage("ERROR: TruncatedExponentialDistribution - no \"a\" entry");
+            this->errorMessage("ERROR: TruncatedExponentialDistribution - no \"a\" entry");
             return false;
         }
         if (rvObject.contains("a")) {
             double thezetaValue = rvObject["a"].toDouble();
             a->setText(QString::number(thezetaValue));
         } else {
-            emit sendErrorMessage("ERROR: TruncatedExponentialDistribution - no \"a\" entry");
+            this->errorMessage("ERROR: TruncatedExponentialDistribution - no \"a\" entry");
             return false;
         }
         if (rvObject.contains("b")) {
             double thezetaValue = rvObject["b"].toDouble();
             b->setText(QString::number(thezetaValue));
         } else {
-            emit sendErrorMessage("ERROR: TruncatedExponentialDistribution - no \"a\" entry");
+            this->errorMessage("ERROR: TruncatedExponentialDistribution - no \"a\" entry");
             return false;
         }
 
@@ -217,21 +217,21 @@ TruncatedExponentialDistribution::inputFromJSON(QJsonObject &rvObject){
             double theMeanValue = rvObject["mean"].toDouble();
             mean->setText(QString::number(theMeanValue));
         } else {
-            emit sendErrorMessage("ERROR: TruncatedExponentialDistribution - no \"mean\" entry");
+            this->errorMessage("ERROR: TruncatedExponentialDistribution - no \"mean\" entry");
             return false;
         }
         if (rvObject.contains("a")) {
             double thezetaValue = rvObject["a"].toDouble();
             a->setText(QString::number(thezetaValue));
         } else {
-            emit sendErrorMessage("ERROR: TruncatedExponentialDistribution - no \"a\" entry");
+            this->errorMessage("ERROR: TruncatedExponentialDistribution - no \"a\" entry");
             return false;
         }
         if (rvObject.contains("b")) {
             double thezetaValue = rvObject["b"].toDouble();
             b->setText(QString::number(thezetaValue));
         } else {
-            emit sendErrorMessage("ERROR: TruncatedExponentialDistribution - no \"a\" entry");
+            this->errorMessage("ERROR: TruncatedExponentialDistribution - no \"a\" entry");
             return false;
         }
 
@@ -241,14 +241,14 @@ TruncatedExponentialDistribution::inputFromJSON(QJsonObject &rvObject){
             double thezetaValue = rvObject["a"].toDouble();
             a->setText(QString::number(thezetaValue));
         } else {
-            emit sendErrorMessage("ERROR: TruncatedExponentialDistribution - no \"a\" entry");
+            this->errorMessage("ERROR: TruncatedExponentialDistribution - no \"a\" entry");
             return false;
         }
         if (rvObject.contains("b")) {
             double thezetaValue = rvObject["b"].toDouble();
             b->setText(QString::number(thezetaValue));
         } else {
-            emit sendErrorMessage("ERROR: TruncatedExponentialDistribution - no \"a\" entry");
+            this->errorMessage("ERROR: TruncatedExponentialDistribution - no \"a\" entry");
             return false;
         }
 
@@ -256,7 +256,7 @@ TruncatedExponentialDistribution::inputFromJSON(QJsonObject &rvObject){
           QString theDataDir = rvObject["dataDir"].toString();
           dataDir->setText(theDataDir);
       } else {
-          emit sendErrorMessage("ERROR: TruncatedExponentialDistribution - no \"mean\" entry");
+          this->errorMessage("ERROR: TruncatedExponentialDistribution - no \"mean\" entry");
           return false;
       }
     }
@@ -283,10 +283,10 @@ TruncatedExponentialDistribution::updateDistributionPlot() {
 
         if ((bb-aa)<=0.0) {
             errorMsg = tr("* Max. should be greater than Min.");
-            //emit sendErrorMessage("ERROR: Max. should be greater than Min.");
+            //this->errorMessage("ERROR: Max. should be greater than Min.");
         } else {
             errorMsg = tr("");
-            //emit sendErrorMessage(" ");
+            //this->errorMessage(" ");
             validIdx=1;
         }
 

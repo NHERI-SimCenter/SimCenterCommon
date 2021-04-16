@@ -1,6 +1,7 @@
 #include "PythonProgressDialog.h"
 
 #include <QDebug>
+#include <QTime>
 #include <QPlainTextEdit>
 #include <QProgressBar>
 #include <QPushButton>
@@ -89,27 +90,23 @@ void PythonProgressDialog::clear(void)
 
 void PythonProgressDialog::setVisibility(bool visible)
 {
-//    mutex->lock();
+    //    mutex->lock();
 
     if (theInstance == 0)
         theInstance = new PythonProgressDialog(0);
 
     if(visible)
     {
-        try {
-            this->show();
-            this->raise();
-            this->activateWindow();
-        } catch (...) {
-
-        }
+        this->show();
+        this->raise();
+        this->activateWindow();
     }
     else
     {
         this->hide();
     }
 
-//    mutex->unlock();
+    //    mutex->unlock();
 }
 
 
@@ -125,8 +122,13 @@ void PythonProgressDialog::appendText(const QString text)
 
     auto cleanText = cleanUpText(text);
 
-    //progressTextEdit->appendPlainText(cleanText+ "\n");
-    progressTextEdit->appendPlainText("* "+cleanText);
+    auto msgStr = QString("<font color=%1>").arg("gray") + this->getTimestamp() + QString("</font>");
+
+    progressTextEdit->appendHtml(msgStr);
+
+    progressTextEdit->insertPlainText(cleanText);
+
+    progressTextEdit->moveCursor(QTextCursor::End);
 
     //qDebug()<<cleanText;
 
@@ -144,12 +146,12 @@ void PythonProgressDialog::appendErrorMessage(const QString text)
     if(!this->isVisible() && text != "")
         this->setVisibility(true);
 
-    auto msgStr = QString("<font color=%1>").arg("red") + text + QString("</font>") + QString("<font color=%1>").arg("black") + QString("&nbsp;") + QString("</font>");
+    auto msgStr = QString("<font color=%1>").arg("gray") + this->getTimestamp() + QString("<font color=%1>").arg("red") + text + QString("</font>") + QString("<font color=%1>").arg("black") + QString("&nbsp;") + QString("</font>");
 
     // Output to console and to text edit
     progressTextEdit->appendHtml(msgStr);
 
-    progressTextEdit->appendPlainText("\n");
+    progressTextEdit->moveCursor(QTextCursor::End);
 
     qDebug()<<text;
 
@@ -167,12 +169,12 @@ void PythonProgressDialog::appendInfoMessage(const QString text)
     if(!this->isVisible() && text != "")
         this->setVisibility(true);
 
-    auto msgStr = QString("<font color=%1>").arg("blue") + text + QString("</font>") + QString("<font color=%1>").arg("black") + QString("&nbsp;") + QString("</font>");
+    auto msgStr = QString("<font color=%1>").arg("gray") + this->getTimestamp() + QString("<font color=%1>").arg("blue") + text + QString("</font>") + QString("<font color=%1>").arg("black") + QString("&nbsp;") + QString("</font>");
 
     // Output to console and to text edit
     progressTextEdit->appendHtml(msgStr);
 
-    progressTextEdit->appendPlainText("\n");
+    progressTextEdit->moveCursor(QTextCursor::End);
 
     qDebug()<<text;
 
@@ -205,7 +207,7 @@ QString PythonProgressDialog::cleanUpText(const QString text)
         theInstance = new PythonProgressDialog(0);
 
     // Split the text up if there are any newline
-    auto cleanText = text.trimmed();
+    auto cleanText = text;
 
     cleanText.replace("\\n", "\n");  // - pmh: I removed the added spaces
 
@@ -281,4 +283,13 @@ void PythonProgressDialog::hideAfterElapsedTime(int sec)
     });
 
     mutex->unlock();
+}
+
+
+QString PythonProgressDialog::getTimestamp()
+{
+    QTime time = QTime::currentTime();
+    QString formattedTime = time.toString("hh:mm:ss - ");
+
+    return formattedTime;
 }

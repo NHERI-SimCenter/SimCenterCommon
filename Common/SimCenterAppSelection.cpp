@@ -125,7 +125,7 @@ bool SimCenterAppSelection::inputFromJSON(QJsonObject &jsonObject)
             return false;
     }
 
-    return false;
+    return true;
 }
 
 
@@ -165,11 +165,11 @@ bool SimCenterAppSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
                 return theCurrentSelection->inputAppDataFromJSON(theApplicationObject);
             } else {
                 QString message = selectionApplicationType +  QString(" found unknown application: ") + appName;
-                emit sendErrorMessage(message);
+                this->errorMessage(message);
             }
         } else {
             QString message = QString("SimCenterAppSelection could not find Application field in JSON");
-            emit sendErrorMessage(message);
+            this->errorMessage(message);
         }
     } else {
 
@@ -183,7 +183,7 @@ bool SimCenterAppSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
         else
         {
             QString message = QString("Applications does not contain a field: ") + selectionApplicationType;
-            emit sendErrorMessage(message);
+            this->errorMessage(message);
         }
     }
 
@@ -223,7 +223,7 @@ SimCenterAppSelection::addComponent(QString text, QString appName, SimCenterAppW
         return true;
     } else {
         QString message = selectionApplicationType +  QString(" found unknown application: ") + appName;
-        emit sendErrorMessage(message);
+        this->errorMessage(message);
     }
 
     return false;

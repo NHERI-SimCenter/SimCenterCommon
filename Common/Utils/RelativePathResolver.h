@@ -18,6 +18,11 @@ void ResolveRelativePaths(QJsonObject& jsonObject, QDir baseDir);
 
 void ResolveRelativePaths(QJsonValueRef jsonValueRef, QDir baseDir);
 
+void PathFinder(QJsonObject& jsonObject, QDir baseDir);
+
+QString FindPath(QString string, QDir baseDir);
+
+void FindPath(QJsonValueRef jsonValueRef, QDir baseDir);
 
 }
 

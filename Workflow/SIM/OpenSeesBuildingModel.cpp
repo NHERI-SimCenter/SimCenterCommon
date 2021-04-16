@@ -393,7 +393,7 @@ QString OpenSeesBuildingModel::getMainInput() {
      QString fileName = file1->text();
 
      if (fileName.isEmpty()) {
-         emit sendErrorMessage("OpenSeesInput - no file set");
+         this->errorMessage("OpenSeesInput - no file set");
          return false;
      }
      QFileInfo fileInfo(fileName);

@@ -53,7 +53,6 @@ void ResolveAbsolutePaths(QJsonObject& jsonObject, QDir baseDir)
     }
 }
 
-
 QString ResolveRelativePaths(QString string, QDir baseDir)
 {
     QFileInfo fileInfo (string);
@@ -100,6 +99,92 @@ void ResolveRelativePaths(QJsonObject& jsonObject, QDir baseDir)
     for(QJsonValueRef jsonValueRef: jsonObject)
     {
         ResolveRelativePaths(jsonValueRef, baseDir);
+    }
+}
+
+QString FindPath(QString string, QDir baseDir)
+{
+    // Returns path with directory separators normalized (that is, platform-native separators converted to "/") and redundant ones removed, and "."s and ".."s resolved (as far as possible).
+    QString cleanPath = QDir::cleanPath(string);
+
+    QDir dir(cleanPath);
+    QFile file(cleanPath);
+
+    // Quick return if the path or file already exists
+    if(dir.exists() || file.exists())
+        return cleanPath;
+
+    QRegularExpression rx("[^\\/]+(?=\\/)*");
+
+    QRegularExpressionMatchIterator i = rx.globalMatch(cleanPath);
+
+    QStringList folders;
+    while (i.hasNext()) {
+        QRegularExpressionMatch match = i.next();
+        QString folder = match.captured(0);
+        folders << folder;
+    }
+
+    // Return the string if no folders are found
+    if(folders.empty())
+        return string;
+
+    auto baseDirPath = baseDir.canonicalPath();
+
+    // Find the relative path or the file if it exists on the basedir
+    QString relativePath;
+    for(auto&& it : folders)
+    {
+        auto pathToTry = baseDirPath + relativePath + "/" + it;
+
+        dir.setPath(pathToTry);
+        file.setFileName(pathToTry);
+
+        if(dir.exists())
+            relativePath += "/" + it;
+        else if(file.exists())
+            return pathToTry; // Return the absolute path
+        //  return  relativePath + "/" + it; // Return a relative path
+    }
+
+    if(!relativePath.isEmpty())
+        return baseDirPath + relativePath;
+
+    // If no relative paths are found return the string
+    return string;
+}
+
+void FindPath(QJsonValueRef jsonValueRef, QDir baseDir)
+{
+    if(jsonValueRef.isString())
+    {
+        jsonValueRef = FindPath(jsonValueRef.toString(), baseDir);
+    }
+    else if(jsonValueRef.isObject())
+    {
+        auto jsonObjectCopy = jsonValueRef.toObject();
+        for(QJsonValueRef jsonValueRef: jsonObjectCopy)
+        {
+            FindPath(jsonValueRef, baseDir);
+        }
+        jsonValueRef = jsonObjectCopy;
+    }
+    else if(jsonValueRef.isArray())
+    {
+        auto jsonArrayCopy = jsonValueRef.toArray();
+        for(QJsonValueRef jsonValueRef: jsonArrayCopy)
+        {
+            FindPath(jsonValueRef, baseDir);
+        }
+        jsonValueRef = jsonArrayCopy;
+    }
+}
+
+void PathFinder(QJsonObject& jsonObject, QDir baseDir)
+{
+    for(QJsonValueRef jsonValueRef: jsonObject)
+    {
+        FindPath(jsonValueRef, baseDir);
     }
 }
 

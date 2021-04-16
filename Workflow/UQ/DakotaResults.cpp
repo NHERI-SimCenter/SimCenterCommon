@@ -99,7 +99,7 @@ DakotaResults::inputFromJSON(QJsonObject &jsonObject)
         }
         */
     } else {
-        emit sendErrorMessage("ERROR: Dakota Results - no \"uqResults\" entry");
+        this->errorMessage("ERROR: Dakota Results - no \"uqResults\" entry");
         return false;
     }
 

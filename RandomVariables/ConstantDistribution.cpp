@@ -89,7 +89,7 @@ bool
 ConstantDistribution::outputToJSON(QJsonObject &rvObject){
 
      if (value->text().isEmpty()) {
-        emit sendErrorMessage("ERROR: Constant Distribution - data has not been set");
+        this->errorMessage("ERROR: Constant Distribution - data has not been set");
         return false;
     }
 
@@ -104,7 +104,7 @@ ConstantDistribution::inputFromJSON(QJsonObject &rvObject){
         QJsonValue theValue = rvObject["value"];
         value->setText(QString::number(theValue.toDouble()));
     } else {
-        emit sendErrorMessage("ERROR: Constat Distribution - no \"value\" entry");
+        this->errorMessage("ERROR: Constat Distribution - no \"value\" entry");
         return false;
     }
     return true;

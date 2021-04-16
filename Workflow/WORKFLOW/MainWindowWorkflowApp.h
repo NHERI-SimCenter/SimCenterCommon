@@ -50,6 +50,7 @@ public:
     void openFile(QString filename);
     bool save();
     bool saveAs();
+    void clear();
 
     void about();
     void manual();

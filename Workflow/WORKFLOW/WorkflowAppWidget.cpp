@@ -33,10 +33,6 @@ void WorkflowAppWidget::showOutputDialog(void)
 void
 WorkflowAppWidget::setMainWindow(MainWindowWorkflowApp* window) {
     theMainWindow = window;
-
-    // Show progress dialog
-    QMenu *windowsMenu = theMainWindow->menuBar()->addMenu(tr("&Windows"));
-    windowsMenu->addAction("Show Output Dialog", this, &WorkflowAppWidget::showOutputDialog);
 }
 
 

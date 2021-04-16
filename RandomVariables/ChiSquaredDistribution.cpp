@@ -118,19 +118,19 @@ ChiSquaredDistribution::outputToJSON(QJsonObject &rvObject){
     if (inpty==QString("Parameters")) {
         // check for error condition, an entry had no value
         if ((k->text().isEmpty())) {
-            emit sendErrorMessage("ERROR: ChiSquaredDistribution - data has not been set");
+            this->errorMessage("ERROR: ChiSquaredDistribution - data has not been set");
             return false;
         }
         rvObject["k"]=k->text().toDouble();
     } else if (inpty==QString("Moments")) {
         if ((mean->text().isEmpty())) {
-            emit sendErrorMessage("ERROR: ChiSquaredDistribution - data has not been set");
+            this->errorMessage("ERROR: ChiSquaredDistribution - data has not been set");
             return false;
         }
         rvObject["mean"]=mean->text().toDouble();
     } else if (inpty==QString("Dataset")) {
         if (dataDir->text().isEmpty()) {
-            emit sendErrorMessage("ERROR: ChiSquaredDistribution - data has not been set");
+            this->errorMessage("ERROR: ChiSquaredDistribution - data has not been set");
             return false;
         }
         rvObject["dataDir"]=QString(dataDir->text());
@@ -156,7 +156,7 @@ ChiSquaredDistribution::inputFromJSON(QJsonObject &rvObject){
             double thekValue = rvObject["k"].toDouble();
             k->setText(QString::number(thekValue));
         } else {
-            emit sendErrorMessage("ERROR: ChiSquaredDistribution - no \"a\" entry");
+            this->errorMessage("ERROR: ChiSquaredDistribution - no \"a\" entry");
             return false;
         }
 
@@ -166,7 +166,7 @@ ChiSquaredDistribution::inputFromJSON(QJsonObject &rvObject){
             double theMeanValue = rvObject["mean"].toDouble();
             mean->setText(QString::number(theMeanValue));
         } else {
-            emit sendErrorMessage("ERROR: ChiSquaredDistribution - no \"mean\" entry");
+            this->errorMessage("ERROR: ChiSquaredDistribution - no \"mean\" entry");
             return false;
         }
 
@@ -176,7 +176,7 @@ ChiSquaredDistribution::inputFromJSON(QJsonObject &rvObject){
           QString theDataDir = rvObject["dataDir"].toString();
           dataDir->setText(theDataDir);
       } else {
-          emit sendErrorMessage("ERROR: ChiSquaredDistribution - no \"mean\" entry");
+          this->errorMessage("ERROR: ChiSquaredDistribution - no \"mean\" entry");
           return false;
       }
     }

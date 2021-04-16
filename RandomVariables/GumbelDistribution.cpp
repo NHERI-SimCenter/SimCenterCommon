@@ -122,21 +122,21 @@ GumbelDistribution::outputToJSON(QJsonObject &rvObject){
     if (inpty==QString("Parameters")) {
         // check for error condition, an entry had no value
         if ((alpha->text().isEmpty())||(bn->text().isEmpty())) {
-            emit sendErrorMessage("ERROR: GumbelDistribution - data has not been set");
+            this->errorMessage("ERROR: GumbelDistribution - data has not been set");
             return false;
         }
         rvObject["alphaparam"]=alpha->text().toDouble();
         rvObject["betaparam"]=bn->text().toDouble();
     } else if (inpty==QString("Moments")) {
         if ((mean->text().isEmpty())||(standardDev->text().isEmpty())) {
-            emit sendErrorMessage("ERROR: GumbelDistribution - data has not been set");
+            this->errorMessage("ERROR: GumbelDistribution - data has not been set");
             return false;
         }
         rvObject["mean"]=mean->text().toDouble();
         rvObject["standardDev"]=standardDev->text().toDouble();
     } else if (inpty==QString("Dataset")) {
         if (dataDir->text().isEmpty()) {
-            emit sendErrorMessage("ERROR: GumbelDistribution - data has not been set");
+            this->errorMessage("ERROR: GumbelDistribution - data has not been set");
             return false;
         }
         rvObject["dataDir"]=QString(dataDir->text());
@@ -163,14 +163,14 @@ GumbelDistribution::inputFromJSON(QJsonObject &rvObject){
             double theMuValue = rvObject["alphaparam"].toDouble();
             alpha->setText(QString::number(theMuValue));
         } else {
-            emit sendErrorMessage("ERROR: GumbelDistribution - no \"a\" entry");
+            this->errorMessage("ERROR: GumbelDistribution - no \"a\" entry");
             return false;
         }
         if (rvObject.contains("betaparam")) {
             double theSigValue = rvObject["betaparam"].toDouble();
             bn->setText(QString::number(theSigValue));
         } else {
-            emit sendErrorMessage("ERROR: GumbelDistribution - no \"a\" entry");
+            this->errorMessage("ERROR: GumbelDistribution - no \"a\" entry");
             return false;
         }
       } else if (inpty==QString("Moments")) {
@@ -179,14 +179,14 @@ GumbelDistribution::inputFromJSON(QJsonObject &rvObject){
             double theMeanValue = rvObject["mean"].toDouble();
             mean->setText(QString::number(theMeanValue));
         } else {
-            emit sendErrorMessage("ERROR: GumbelDistribution - no \"mean\" entry");
+            this->errorMessage("ERROR: GumbelDistribution - no \"mean\" entry");
             return false;
         }
         if (rvObject.contains("standardDev")) {
             double theStdValue = rvObject["standardDev"].toDouble();
             standardDev->setText(QString::number(theStdValue));
         } else {
-            emit sendErrorMessage("ERROR: GumbelDistribution - no \"mean\" entry");
+            this->errorMessage("ERROR: GumbelDistribution - no \"mean\" entry");
             return false;
         }
     } else if (inpty==QString("Dataset")) {
@@ -195,7 +195,7 @@ GumbelDistribution::inputFromJSON(QJsonObject &rvObject){
           QString theDataDir = rvObject["dataDir"].toString();
           dataDir->setText(theDataDir);
       } else {
-          emit sendErrorMessage("ERROR: GumbelDistribution - no \"mean\" entry");
+          this->errorMessage("ERROR: GumbelDistribution - no \"mean\" entry");
           return false;
       }
     }

@@ -54,6 +54,8 @@ private:
 
     QMutex* mutex;
 
+    QString getTimestamp(void);
+
 };
 
 #endif // PYTHONPROGRESSDIALOG_H

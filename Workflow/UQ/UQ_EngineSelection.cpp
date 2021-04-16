@@ -229,7 +229,7 @@ UQ_EngineSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
             } else if ((type == QString("UQpy")) || (type == QString("UQpyEngine"))) {
                 index = 1;
             } else {
-                emit sendErrorMessage("UQ_EngineSelection - no valid type found");
+                this->errorMessage("UQ_EngineSelection - no valid type found");
                 return false;
             }
 
@@ -240,12 +240,12 @@ UQ_EngineSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
                 return theCurrentEngine->inputAppDataFromJSON(theObject);
             }
         } else {
-            emit sendErrorMessage("UQ_EngineSelection - no Application key found");
+            this->errorMessage("UQ_EngineSelection - no Application key found");
             return false;
         }
 
     } else {
-        emit sendErrorMessage("UQ_EngineSelection: failed to find UQ application");
+        this->errorMessage("UQ_EngineSelection: failed to find UQ application");
         return false;
     }
 
