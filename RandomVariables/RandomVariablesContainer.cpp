@@ -120,18 +120,18 @@ void
 RandomVariablesContainer::addUniformRVs(QStringList &varNamesAndValues)
 {
     // remove existing RVs
-    auto theRVs = this->theRandomVariables;
-    int numEDPs = theRVs.size();
-    for (int i = numEDPs-1; i >= 0; i--) {
-        RandomVariable *theRV = theRVs.at(i);
-        theRV->close();
-        rvLayout->removeWidget(theRV);
-        theRVs.remove(i);
-        randomVariableNames.removeAt(i);
-        theRandomVariables.remove(i);
-        theRV->setParent(0);
-        delete theRV;
-    }
+//    auto theRVs = this->theRandomVariables;
+//    int numEDPs = theRVs.size();
+//    for (int i = numEDPs-1; i >= 0; i--) {
+//        RandomVariable *theRV = theRVs.at(i);
+//        theRV->close();
+//        rvLayout->removeWidget(theRV);
+//        theRVs.remove(i);
+//        randomVariableNames.removeAt(i);
+//        theRandomVariables.remove(i);
+//        theRV->setParent(0);
+//        delete theRV;
+//    }
 
     int numVar = varNamesAndValues.count();
     for (int i=0; i<numVar; i+= 2) {
