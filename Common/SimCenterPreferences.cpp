@@ -405,7 +405,6 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
 
     connect(customTapisAppCheckBox, &QCheckBox::toggled, this, [this](bool checked)
     {
-        qDebug() << "TAPIS: " << checked;
         this->remoteTapisApp->setEnabled(checked);
         this->remoteTapisApp->setText(this->getRemoteAgaveApp());
     });
@@ -873,7 +872,7 @@ SimCenterPreferences::getRemoteAgaveApp(void) {
     if (customTapisAppCheckBox->checkState() == Qt::CheckState::Checked)
     {
         QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
-        QVariant  customAppNameSetting = settingsApplication.value("appName");
+        QVariant  customAppNameSetting = settingsApplication.value("remoteTapisApp");
 
         // if valid use it, otherwise it remains the default
         if (customAppNameSetting.isValid())
@@ -927,7 +926,7 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
     QString appName = QCoreApplication::applicationName();
     QString remoteApp("simcenter-dakota-1.0.0u1");
     if (appName == QString("WE-UQ"))
-      remoteApp = QString("simcenter-openfoam-dakota-1.2.2u1");
+      remoteApp = QString("simcenter-openfoam-dakota-1.3.0u1");
     if (appName == QString("R2D"))
       remoteApp = QString("rWhale-2.3.0u1");
 
