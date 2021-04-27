@@ -73,7 +73,7 @@ OpenSeesParser::getVariables(QString inFilename)
 
     // read lines of input searching for pset using regular expression
     regex pset("pset[ ]+[A-Z_a-z0-9]+[ ]+[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?");
-    regex psetExpr("pset[ ]+[A-Z_a-z0-9]+[ ]+[expr[]+");
+    regex psetAny("pset[ ]+[A-Z_a-z0-9]+[ ]+");
     string line;
     while (getline(inFile, line)) {
 
@@ -106,7 +106,7 @@ OpenSeesParser::getVariables(QString inFilename)
                 result.append(QString::fromStdString(value));
             }
 
-        } else if (regex_search(line, psetExpr)) {
+        } else if (regex_search(line, psetAny)) { // any pset, i.e pset a $val pset a [expr ...
 
              //qDebug() << "EXPR: " << QString::fromStdString(line);
              bool commented = false;
@@ -121,7 +121,7 @@ OpenSeesParser::getVariables(QString inFilename)
 
              if (commented == false) {
                  istringstream iss(line);
-                 string cmd, varName, value;
+                 string cmd, varName;
                  iss >> cmd >> varName;
                  result.append(QString::fromStdString(varName));
                  result.append(QString("0.0"));
