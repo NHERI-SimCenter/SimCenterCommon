@@ -24,7 +24,7 @@ PythonProgressDialog::~PythonProgressDialog()
 
 PythonProgressDialog::PythonProgressDialog(QWidget* parent) : QDialog(parent)
 {
-    this->setWindowModality(Qt::ApplicationModal);
+    this->setWindowModality(Qt::NonModal);
     this->setWindowTitle("Program Output");
     this->setAutoFillBackground(true);
 

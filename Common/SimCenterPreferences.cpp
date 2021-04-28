@@ -955,7 +955,7 @@ SimCenterPreferences::getDefaultDakota(void) {
     QString dakotaApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota";
 #endif
 
-    qDebug() << "getDefaultDakota: " << dakotaApp;
+    // qDebug() << "getDefaultDakota: " << dakotaApp;
 
     return dakotaApp;
 

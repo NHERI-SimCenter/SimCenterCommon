@@ -260,7 +260,14 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
         QProcess pythonProcess;
         // The command below will return a "1" if nheri_simcenter package is not found on the system and a zero if it is found
-        QString commandToStart = python + " -c 'import pkgutil; print('0' if pkgutil.find_loader(\"nheri_simcenter\") else '1')'";
+        QString commandToStart;
+
+#ifdef Q_OS_WIN
+        commandToStart = python + " -c \"import pkgutil; print('0' if pkgutil.find_loader('nheri_simcenter') else '1')\"";
+#else
+        commandToStart = python + " -c 'import pkgutil; print('0' if pkgutil.find_loader(\"nheri_simcenter\") else '1')'";
+#endif
+
 
 #ifdef Q_OS_WIN
         pythonProcess.start(commandToStart);

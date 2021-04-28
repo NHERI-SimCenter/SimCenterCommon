@@ -74,7 +74,7 @@ RemoteJobManager::RemoteJobManager(RemoteService *theRemoteInterface, QWidget *p
 {
     QVBoxLayout *layout = new QVBoxLayout();
 
-    QLabel *label = new QLabel("* Click in any job sshown in table below to update the job status, download the job or delete the job. Deleting a job removes it and all files created for it.");
+    QLabel *label = new QLabel("* Click in any job shown in table below to update the job status, download the job or delete the job. Deleting a job removes it and all files created for it.");
     
     layout->addWidget(label);
     
@@ -99,6 +99,7 @@ RemoteJobManager::RemoteJobManager(RemoteService *theRemoteInterface, QWidget *p
 
     this->resize(width, height);
 
+    this->setWindowFlags(Qt::WindowStaysOnTopHint);
 
     //jobsTable->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 
