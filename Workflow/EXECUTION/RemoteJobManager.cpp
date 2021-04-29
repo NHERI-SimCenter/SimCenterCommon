@@ -471,6 +471,8 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
 void
 RemoteJobManager::getJobData(void) {
 
+    this->hide();
+
     if (triggeredRow != -1) {
 
         QString archiveDir = "";
