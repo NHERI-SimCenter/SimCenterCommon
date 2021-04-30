@@ -112,13 +112,14 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     mainLayout->addWidget(typeLabel,0,2);
     mainLayout->addWidget(typeComboBox,1,2);
 
-    if (uqengin!=QString("SimCenterUQ")){
-        typeComboBox->addItem(tr("Parameters"));
-        typeComboBox->addItem(tr("Moments"));
-        typeComboBox->addItem(tr("Dataset"));
-    }
+
+    typeComboBox->addItem(tr("Parameters"));
+    typeComboBox->addItem(tr("Moments"));
+    typeComboBox->addItem(tr("Dataset"));
+
 
     connect(typeComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(typeChanged(QString)));
+
     typeComboBox->setCurrentIndex(0);
 
     //
@@ -168,7 +169,6 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
         typeLabel->setVisible(false);
         typeComboBox->setVisible(false);
     }
-
     //mainLayout->addStretch();
 
     theDistribution = new NormalDistribution();
@@ -250,6 +250,7 @@ RandomVariable::outputToJSON(QJsonObject &rvObject){
 
 bool
 RandomVariable::inputFromJSON(QJsonObject &rvObject){
+
     QString distributionType, inputType;
     if (rvObject.contains("name")) {
         QJsonValue theName = rvObject["name"];
@@ -296,11 +297,11 @@ RandomVariable::inputFromJSON(QJsonObject &rvObject){
         distributionComboBox->addItem(tr("Truncated exponential"));
     }
 
-
     int index1 = typeComboBox->findText(inputType);
     this->typeChanged(inputType);
     typeComboBox->setCurrentIndex(index1);
     typeOpt = QString(inputType);
+
 
     int index2 = distributionComboBox->findText(distributionType);
     this->distributionChanged(distributionType);
@@ -376,7 +377,24 @@ void RandomVariable::distributionChanged(const QString &arg1)
     connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 }
 
-   void
-   RandomVariable::errorMessage(QString message) {
-       emit sendErrorMessage(message);
-   }
+void RandomVariable::fixToUniform(double dValue)
+{
+    distributionComboBox->setCurrentIndex(3); // Uniform
+    distributionComboBox->setDisabled(1);
+    typeComboBox->setDisabled(1);
+
+    delete theDistribution;
+    theDistribution = 0;
+    theDistribution = new UniformDistribution(dValue);
+    mainLayout->addWidget(theDistribution,0,4,2,1);
+
+}
+
+
+
+
+
+void
+RandomVariable::errorMessage(QString message) {
+   emit sendErrorMessage(message);
+}

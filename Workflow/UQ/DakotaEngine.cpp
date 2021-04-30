@@ -47,6 +47,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 #include <QVBoxLayout>
 #include <QLabel>
+#include <QCheckBox>
 
 #include <QDebug>
 
@@ -79,7 +80,14 @@ DakotaEngine::DakotaEngine(RandomVariablesContainer *theRVs, UQ_EngineType type,
 
     theSelectionLayout->addWidget(label);
     theSelectionLayout->addWidget(theEngineSelectionBox);
+    //    theSelectionLayout->addStretch();
+    
+    theSelectionLayout->addWidget(new QLabel("        Parallel Execution"));
+    parallelCheckBox = new QCheckBox();
+    parallelCheckBox->setChecked(true);
+    theSelectionLayout->addWidget(parallelCheckBox);
     theSelectionLayout->addStretch();
+    
     layout->addLayout(theSelectionLayout);
 
     //
@@ -148,6 +156,8 @@ bool
 DakotaEngine::outputToJSON(QJsonObject &jsonObject) {
 
     jsonObject["uqType"] = theEngineSelectionBox->currentText();
+    jsonObject["parallelExecution"]=parallelCheckBox->isChecked();
+    
     return theCurrentEngine->outputToJSON(jsonObject);
 }
 
@@ -157,7 +167,6 @@ DakotaEngine::inputFromJSON(QJsonObject &jsonObject) {
 
     if (jsonObject.contains("uqType")) {
         QString selection = jsonObject["uqType"].toString();
-        qDebug() << "Selection: " << selection;
 
         int index = theEngineSelectionBox->findText(selection);
         theEngineSelectionBox->setCurrentIndex(index);
@@ -169,6 +178,12 @@ DakotaEngine::inputFromJSON(QJsonObject &jsonObject) {
     }
 
 
+    bool doParallel = true;
+    if (jsonObject.contains("parallelExecution"))
+        doParallel = jsonObject["parallelExecution"].toBool();
+
+    parallelCheckBox->setChecked(doParallel);
+    
     if (theCurrentEngine != 0)
         result = theCurrentEngine->inputFromJSON(jsonObject);
     else

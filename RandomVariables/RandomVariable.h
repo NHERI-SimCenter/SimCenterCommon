@@ -67,6 +67,8 @@ public:
 
     bool isSelectedForRemoval(void);
     QString getVariableName(void);
+    void fixToUniform(double dValue);
+
     QLineEdit *variableName;
     int refCount;
 
