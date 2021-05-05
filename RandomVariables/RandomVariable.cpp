@@ -142,6 +142,8 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
 
         distributionComboBox->addItem(tr("ContinuousDesign"));
         distributionComboBox->addItem(tr("Constant"));
+        theDistribution = new ContinuousDesignDistribution();
+
 
     } else if (variableClass == QString("Uncertain")) {
 
@@ -152,6 +154,8 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
         distributionComboBox->addItem(tr("Weibull"));
         distributionComboBox->addItem(tr("Gumbel"));
         distributionComboBox->addItem(tr("Constant"));
+        theDistribution = new NormalDistribution();
+
     }
 
     if (uqEngineName==QString("SimCenterUQ")){
@@ -171,7 +175,6 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     }
     //mainLayout->addStretch();
 
-    theDistribution = new NormalDistribution();
     mainLayout->addWidget(theDistribution,0,4,2,1);
     connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 
