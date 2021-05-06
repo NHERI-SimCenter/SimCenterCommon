@@ -407,8 +407,8 @@ AgaveCurl::logout()
     */
 
     emit statusMessage("Logout SUCCESS");
-    emit closeDialog();
 
+    emit closeDialog();
     loggedInFlag = false;
 
     return true;

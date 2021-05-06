@@ -136,6 +136,7 @@ NormalDistribution::NormalDistribution(double initValue, QWidget *parent) :Rando
     // set initial or Disabled
     mean->setText(QString::number(initValue));
     standardDev->setText(QString::number(std::abs(initValue)*0.1)); // 0.1 c.o.v
+    this->updateDistributionPlot();
 }
 
 bool
