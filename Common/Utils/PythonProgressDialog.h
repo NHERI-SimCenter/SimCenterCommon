@@ -34,6 +34,7 @@ public:
 
     void hideAfterElapsedTime(int sec);
 
+    QProgressBar *getProgressBar() const;
 
 public slots:
     void showProgressBar(void);

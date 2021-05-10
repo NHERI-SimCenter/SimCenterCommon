@@ -90,6 +90,8 @@ bool ZipUtils::UnzipFile(QString zipFilePath, QDir directoryToUnzip)
     if(true != directoryToUnzip.mkpath("."))
         return false;
 
+
+
     unzFile zipFile = unzOpen(zipFilePath.toStdString().c_str());
 
     //Checking if the file is opened
@@ -171,7 +173,16 @@ bool ZipUtils::UnzipFile(QString zipFilePath, QDir directoryToUnzip)
             // make sure dir exists .. above if {} only works if dir was added to zip
             QFileInfo extractedFileInfo(extractedFile);
             if (!extractedFileInfo.dir().exists())
-                directoryToUnzip.mkdir(extractedFileInfo.absolutePath());
+            {
+                auto absPath = extractedFileInfo.absolutePath();
+                auto res = directoryToUnzip.mkpath(absPath);
+                if(res != true)
+                {
+                    delete[] fileBuffer;
+                    unzClose(zipFile);
+                    return false;
+                }
+            }
 
             if(extractedFile.open(QFile::WriteOnly))
             {

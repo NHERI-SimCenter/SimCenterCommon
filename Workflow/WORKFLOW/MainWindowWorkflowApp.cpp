@@ -2,42 +2,42 @@
 // Written: fmckenna
 // Purpose: to test the INputWidgetSheetBM widget
 
-#include "Utils/PythonProgressDialog.h"
-#include <QTreeView>
-#include <QStandardItemModel>
-#include <QItemSelectionModel>
-#include <QDebug>
+#include "ExampleDownloader.h"
+#include "FooterWidget.h"
+#include "HeaderWidget.h"
 #include "MainWindowWorkflowApp.h"
-#include <QHBoxLayout>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QJsonObject>
-#include <QJsonDocument>
-#include <QMenuBar>
+#include "RemoteService.h"
+#include "SimCenterPreferences.h"
+#include "Utils/PythonProgressDialog.h"
+#include "Utils/RelativePathResolver.h"
+#include "Utils/dialogabout.h"
+#include "WorkflowAppWidget.h"
+#include "sectiontitle.h"
+
 #include <QAction>
-#include <QMenu>
 #include <QApplication>
-#include <QGuiApplication>
-#include <QScreen>
+#include <QDebug>
 #include <QDesktopServices>
 #include <sectiontitle.h>
 #include <iostream>
 
 //#include <InputWidgetEE_UQ.h>
 #include <WorkflowAppWidget.h>
-
 #include <QDesktopWidget>
-#include <HeaderWidget.h>
-#include <FooterWidget.h>
+#include <QFileDialog>
+#include <QGuiApplication>
+#include <QHBoxLayout>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLabel>
-#include <QPushButton>
 #include <QLineEdit>
+#include <QMenu>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QScreen>
 #include <QSettings>
 
-#include <RemoteService.h>
-#include <SimCenterPreferences.h>
-#include <Utils/RelativePathResolver.h>
-#include "Utils/dialogabout.h"
 
 MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theService, QWidget *parent)
     : QMainWindow(parent), loggedIn(false), inputWidget(theApp),   theRemoteInterface(theService), isAutoLogin(false)
@@ -51,6 +51,8 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     QVBoxLayout *layout = new QVBoxLayout();
     centralWidget->setLayout(layout);
     centralWidget->setContentsMargins(0,0,0,0);
+
+    exampleMenu = nullptr;
 
     //
     // resize to primary screen
@@ -163,6 +165,8 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     loginLayout->addWidget(loginSubmitButton,4,2);
     loginWindow->setLayout(loginLayout);
 
+    theExampleDownloader = new ExampleDownloader(this);
+
     /*
     loginWindow->setStyleSheet("QComboBox {background: #FFFFFF;} \
     QGroupBox {font-weight: bold;}\
@@ -232,6 +236,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     this->setCentralWidget(centralWidget);
 
     this->createActions();
+    this->updateExamplesMenu();
 
     inputWidget->setMainWindow(this);
 
@@ -320,6 +325,9 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
       included in the packaging of this application. \
       <p>\
       ");
+
+
+//    this->showExampleDownloader();
 }
 
 MainWindowWorkflowApp::~MainWindowWorkflowApp()
@@ -452,6 +460,61 @@ void MainWindowWorkflowApp::loadFile(const QString &fileName)
 }
 
 
+void MainWindowWorkflowApp::updateExamplesMenu(void)
+{
+
+    if(exampleMenu == nullptr)
+        exampleMenu = menuBar()->addMenu(tr("&Examples"));
+    else
+        exampleMenu->clear();
+
+    exampleMenu->addAction("Manage Examples", this, &MainWindowWorkflowApp::showExampleDownloader);
+    exampleMenu->addSeparator();
+
+    auto pathExamplesFolder = QCoreApplication::applicationDirPath() + QDir::separator() + "Examples";
+
+    auto pathToExamplesJson = pathExamplesFolder + QDir::separator() + "Examples.json";
+
+    QFile jsonFile(pathToExamplesJson);
+    if (jsonFile.exists())
+    {
+        jsonFile.open(QFile::ReadOnly);
+        QJsonDocument exDoc = QJsonDocument::fromJson(jsonFile.readAll());
+
+        QJsonObject docObj = exDoc.object();
+        QJsonArray examples = docObj["Examples"].toArray();
+
+        foreach (const QJsonValue & example, examples) {
+            QJsonObject exampleObj = example.toObject();
+            QString name = exampleObj["name"].toString();
+
+            QString inputFileName = exampleObj["inputFile"].toString();
+            QString downloadUrl = exampleObj["downloadUrl"].toString();
+            QString description = exampleObj["description"].toString();
+
+            QFile inputFile(pathExamplesFolder + QDir::separator() + inputFileName);
+
+            if(inputFile.exists())
+            {
+                auto action = exampleMenu->addAction(name, this, &MainWindowWorkflowApp::loadExamples);
+                action->setProperty("name",name);
+                action->setProperty("inputFile",inputFileName);
+                action->setProperty("description",description);
+            }
+
+            if(!downloadUrl.isEmpty())
+            {
+                theExampleDownloader->addExampleToDownload(downloadUrl,name,description,inputFileName);
+            }
+        }
+    } else
+        qDebug() << "No Examples" << pathToExamplesJson;
+
+    theExampleDownloader->updateTree();
+
+}
+
+
 void MainWindowWorkflowApp::createActions() {
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
 
@@ -514,36 +577,6 @@ void MainWindowWorkflowApp::createActions() {
     viewMenu->addAction("Show Status Dialog", inputWidget, &WorkflowAppWidget::showOutputDialog);
     viewMenu->addSeparator();
 
-    //
-    // Examples
-    //
-
-    auto pathToExamplesJson = QCoreApplication::applicationDirPath() + QDir::separator() +
-            "Examples" + QDir::separator() + "Examples.json";
-
-    QFile jsonFile(pathToExamplesJson);
-    if (jsonFile.exists()) {
-        // qDebug() << "Examples Exist";
-        jsonFile.open(QFile::ReadOnly);
-        QJsonDocument exDoc = QJsonDocument::fromJson(jsonFile.readAll());
-
-        QJsonObject docObj = exDoc.object();
-        QJsonArray examples = docObj["Examples"].toArray();
-        QMenu *exampleMenu = 0;
-        if (examples.size() > 0)
-            exampleMenu = menuBar()->addMenu(tr("&Examples"));
-        foreach (const QJsonValue & example, examples) {
-            QJsonObject exampleObj = example.toObject();
-            QString name = exampleObj["name"].toString();
-            QString inputFile = exampleObj["inputFile"].toString();
-            QString description = exampleObj["description"].toString();
-            auto action = exampleMenu->addAction(name, this, &MainWindowWorkflowApp::loadExamples);
-            action->setProperty("Name",name);
-            action->setProperty("InputFile",inputFile);
-            action->setProperty("Description",description);
-        }
-    } else
-        qDebug() << "No Examples" << pathToExamplesJson;
 
     // Add the help menu last
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
@@ -821,7 +854,7 @@ MainWindowWorkflowApp::loadExamples()
         return;
 
     auto pathToExample = QCoreApplication::applicationDirPath() + QDir::separator() + "Examples" + QDir::separator();
-    pathToExample += senderObj->property("InputFile").toString();
+    pathToExample += senderObj->property("inputFile").toString();
 
     if(pathToExample.isNull())
     {
@@ -834,10 +867,10 @@ MainWindowWorkflowApp::loadExamples()
     // Clear current and input
     currentFile.clear();
 
-    auto exampleName = senderObj->property("Name").toString();
+    auto exampleName = senderObj->property("name").toString();
     emit sendStatusMessage("Loading example "+exampleName);
 
-    auto description = senderObj->property("Description").toString();
+    auto description = senderObj->property("description").toString();
 
     if(!description.isEmpty())
         emit sendInfoMessage(description);
@@ -861,4 +894,9 @@ MainWindowWorkflowApp::clear()
     inputWidget->clear();
 }
 
+
+void MainWindowWorkflowApp::showExampleDownloader(void)
+{
+    theExampleDownloader->show();
+}
 

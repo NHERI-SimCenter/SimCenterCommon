@@ -214,6 +214,11 @@ QString PythonProgressDialog::cleanUpText(const QString text)
     return cleanText;
 }
 
+QProgressBar *PythonProgressDialog::getProgressBar() const
+{
+    return progressBar;
+}
+
 
 void PythonProgressDialog::showProgressBar(void)
 {

@@ -15,7 +15,7 @@ class SimCenterWidget;
 class QPushButton;
 class QLabel;
 class SimCenterPreferences;
-
+class ExampleDownloader;
 
 class MainWindowWorkflowApp : public QMainWindow
 {
@@ -31,6 +31,7 @@ public:
     void setAbout(QString &, QString&);
     void setFeedbackURL(QString &feedback);
     void setCite(QString &cite);
+    void updateExamplesMenu(void);
 
  protected:
 
@@ -72,6 +73,7 @@ public:
     void onLoginSubmitButtonClicked();
     void attemptLoginReturn(bool);
     void logoutReturn(bool);
+    void showExampleDownloader(void);
 
 
  private:
@@ -89,6 +91,7 @@ public:
     QMenu *helpMenu;
     QToolBar *fileToolBar;
     QToolBar *editToolBar;
+    QMenu *exampleMenu;
 
     // some variables for logging in
     QWidget *loginWindow;
@@ -117,6 +120,7 @@ public:
     bool isAutoLogin;
 
     SimCenterPreferences *thePreferences;
+    ExampleDownloader* theExampleDownloader;
 };
 
 #endif // MAIN_WINDOW_WORKFLOW_APP_H
