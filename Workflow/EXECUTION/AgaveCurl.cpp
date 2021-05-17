@@ -873,7 +873,7 @@ AgaveCurl::remoteLS(const QString &remotePath)
         } else if (status == "success") {
             if (theObj.contains("result")) {
                 result = theObj["result"].toArray();
-                QString message = QString("Succesfully obtained lising: ") + remoteName;
+                QString message = QString("Succesfully obtained listing: ") + remoteName;
                 emit statusMessage(message);
                 return result;
             }
