@@ -79,6 +79,8 @@ SOURCES += $$PWD/UQ/DakotaResults.cpp \
     $$PWD/GRAPHICS/qcustomplot.cpp \
     $$PWD/EDP/EDP_EarthquakeSelection.cpp \
     $$PWD/EDP/StandardEarthquakeEDP.cpp \
+    $$PWD/EDP/EDP_Selection.cpp \
+    $$PWD/EDP/StandardEDP.cpp \    
     $$PWD/EDP/UserDefinedEDP.cpp \
     $$PWD/EDP/EDP.cpp
 
@@ -141,5 +143,7 @@ HEADERS += $$PWD/UQ/DakotaResults.h \
     $$PWD/EDP/EDP_EarthquakeSelection.h \
     $$PWD/EDP/StandardEarthquakeEDP.h \
     $$PWD/EDP/UserDefinedEDP.h \
+    $$PWD/EDP/EDP_Selection.h \
+    $$PWD/EDP/StandardEDP.h \    
     $$PWD/EDP/EDP.h
 
