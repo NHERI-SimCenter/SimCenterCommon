@@ -60,7 +60,7 @@ PythonProgressDialog::PythonProgressDialog(QWidget* parent) : QDialog(parent)
 
     buttonsLayout->addStretch(1);
 
-    QPushButton* closeButton = new QPushButton("Dismiss",this);
+    QPushButton* closeButton = new QPushButton("Close",this);
     buttonsLayout->addWidget(closeButton,2);
 
     progressLayout->addLayout(buttonsLayout);

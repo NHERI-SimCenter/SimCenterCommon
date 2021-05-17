@@ -926,9 +926,11 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
     QString appName = QCoreApplication::applicationName();
     QString remoteApp("simcenter-dakota-1.0.0u1");
     if (appName == QString("WE-UQ"))
-      remoteApp = QString("simcenter-openfoam-dakota-1.2.2u1");
+      remoteApp = QString("simcenter-openfoam-dakota-1.3.0u1");
     if (appName == QString("R2D"))
       remoteApp = QString("rWhale-2.3.0u1");
+    if (appName == QString("Hydro-UQ"))
+      remoteApp = QString("simcenter-olaflow-dakota-1.0.1u2");
 
     return remoteApp;
 }

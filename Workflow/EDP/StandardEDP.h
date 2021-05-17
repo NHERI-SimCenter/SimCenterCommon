@@ -1,5 +1,5 @@
-#ifndef EDP_SELECTION_H
-#define EDP_SELECTION_H
+#ifndef STANDARD_EDP_H
+#define STANDARD_EDP_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -43,42 +43,34 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <QGroupBox>
 #include <QVector>
-class QComboBox;
-class QStackedWidget;
-class UserDefinedApplication;
-class RockOutcrop;
+#include <QGridLayout>
+#include <QComboBox>
 
+class InputWidgetParameters;
 class RandomVariablesContainer;
 
-class EDP_Selection : public  SimCenterAppWidget
+class StandardEDP : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
-    explicit EDP_Selection(RandomVariablesContainer *, QWidget *parent = 0);
-    ~EDP_Selection();
+    explicit StandardEDP(RandomVariablesContainer *theRandomVariableIW, QWidget *parent = 0);
+    ~StandardEDP();
 
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
     bool outputAppDataToJSON(QJsonObject &rvObject);
     bool inputAppDataFromJSON(QJsonObject &rvObject);
-    bool copyFiles(QString &destName);
+    bool copyFiles(QString &dirName);
 
     void clear(void);
 
 signals:
 
 public slots:
-   void edpSelectionChanged(const QString &arg1);
+
 
 private:
-   QComboBox   *edpSelection;
-   QStackedWidget *theStackedWidget;
-   SimCenterAppWidget *theCurrentEDP;
-
-   SimCenterAppWidget *theStandardEDPs;
-   SimCenterAppWidget *theUserDefinedEDPs;
-
-   RandomVariablesContainer *theRandomVariablesContainer;
+    RandomVariablesContainer *theRandomVariablesContainer;
 };
 
-#endif // EDP_SELECTION_H
+#endif // STANDARD_EDP_H
