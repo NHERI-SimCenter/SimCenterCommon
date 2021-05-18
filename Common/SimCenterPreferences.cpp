@@ -930,7 +930,7 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
     if (appName == QString("R2D"))
       remoteApp = QString("rWhale-2.3.0u1");
     if (appName == QString("Hydro-UQ"))
-      remoteApp = QString("simcenter-olaflow-dakota-1.0.0u1");
+      remoteApp = QString("simcenter-olaflow-dakota-1.0.1u2");
 
     return remoteApp;
 }
