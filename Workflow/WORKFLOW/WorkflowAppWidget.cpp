@@ -17,6 +17,7 @@ WorkflowAppWidget::WorkflowAppWidget(RemoteService *theService, QWidget *parent)
     progressDialog = PythonProgressDialog::getInstance(this);
 }
 
+
 WorkflowAppWidget::~WorkflowAppWidget()
 {
 
@@ -74,6 +75,7 @@ PythonProgressDialog *WorkflowAppWidget::getProgressDialog()
 {
     return progressDialog;
 }
+
 
 void WorkflowAppWidget::runComplete()
 {

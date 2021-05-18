@@ -102,6 +102,8 @@ LocalApplication::onRunButtonPressed(void)
 {
     sendStatusMessage("Setting up temporary directory.");
 
+    QApplication::processEvents();
+
     QString workingDir = SimCenterPreferences::getInstance()->getLocalWorkDir();
     QDir dirWork(workingDir);
     if (!dirWork.exists())

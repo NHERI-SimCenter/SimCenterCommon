@@ -122,7 +122,7 @@ void PythonProgressDialog::appendText(const QString text)
 
     auto cleanText = cleanUpText(text);
 
-    auto msgStr = QString("<font color=%1>").arg("gray") + this->getTimestamp() + QString("</font>");
+    auto msgStr = this->getTimestamp();
 
     progressTextEdit->appendHtml(msgStr);
 
@@ -146,7 +146,7 @@ void PythonProgressDialog::appendErrorMessage(const QString text)
     if(!this->isVisible() && text != "")
         this->setVisibility(true);
 
-    auto msgStr = QString("<font color=%1>").arg("gray") + this->getTimestamp() + QString("<font color=%1>").arg("red") + text + QString("</font>") + QString("<font color=%1>").arg("black") + QString("&nbsp;") + QString("</font>");
+    auto msgStr =  this->getTimestamp() + QString("<font color=%1>").arg("red") + text + QString("</font>") + QString("<font color=%1>").arg("black") + QString("&nbsp;") + QString("</font>");
 
     // Output to console and to text edit
     progressTextEdit->appendHtml(msgStr);
@@ -169,7 +169,7 @@ void PythonProgressDialog::appendInfoMessage(const QString text)
     if(!this->isVisible() && text != "")
         this->setVisibility(true);
 
-    auto msgStr = QString("<font color=%1>").arg("gray") + this->getTimestamp() + QString("<font color=%1>").arg("blue") + text + QString("</font>") + QString("<font color=%1>").arg("black") + QString("&nbsp;") + QString("</font>");
+    auto msgStr = this->getTimestamp() + QString("<font color=%1>").arg("blue") + text + QString("</font>") + QString("<font color=%1>").arg("black") + QString("&nbsp;") + QString("</font>");
 
     // Output to console and to text edit
     progressTextEdit->appendHtml(msgStr);
@@ -294,7 +294,9 @@ void PythonProgressDialog::hideAfterElapsedTime(int sec)
 QString PythonProgressDialog::getTimestamp()
 {
     QTime time = QTime::currentTime();
-    QString formattedTime = time.toString("hh:mm:ss - ");
+    QString formattedTime = time.toString("hh:mm:ss");
 
-    return formattedTime;
+    auto timeStamp = QString("<font color=%1>").arg("gray") + formattedTime + QString("</font>")  + QString("<font color=%1>").arg("black") + " - " + QString("</font>");
+
+    return timeStamp;
 }
