@@ -292,9 +292,9 @@ RandomVariablesContainer::makeRV(void)
         titleLayout->addItem(spacer4);
     }
 
-    titleLayout->addWidget(RVsFromJson);
-    titleLayout->addItem(spacer5);
     titleLayout->addWidget(RVsToJson);
+    titleLayout->addItem(spacer5);
+    titleLayout->addWidget(RVsFromJson);
     titleLayout->addStretch();
 
     verticalLayout->addLayout(titleLayout);
@@ -482,7 +482,8 @@ void RandomVariablesContainer::loadRVsFromJson(void)
     val=file.readAll();
     QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
     QJsonObject rvObject = doc.object();
-    inputFromJSON(rvObject);
+    if (!RVsFileDir.isEmpty())
+        inputFromJSON(rvObject);
 }
 
 void RandomVariablesContainer::saveRVsToJson(void)

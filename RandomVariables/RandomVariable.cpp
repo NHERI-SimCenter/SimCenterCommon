@@ -350,6 +350,9 @@ void RandomVariable::distributionChanged(const QString &arg1)
             //typeComboBox->setCurrentIndex(1);
             theDistribution = new LognormalDistribution(QString("Moments"));
             // Dakota gets moments for lognormal
+            typeComboBox->setCurrentText("Moments");
+            distributionComboBox->setCurrentText("Lognormal");
+
         } else {
             theDistribution = new LognormalDistribution(typeOpt);
         }
