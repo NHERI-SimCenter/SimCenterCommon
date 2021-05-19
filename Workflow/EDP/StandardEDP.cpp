@@ -1,6 +1,3 @@
-#ifndef EDP_SELECTION_H
-#define EDP_SELECTION_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -39,46 +36,73 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterAppWidget.h>
+#include "StandardEDP.h"
+#include <RandomVariablesContainer.h>
 
-#include <QGroupBox>
-#include <QVector>
-class QComboBox;
-class QStackedWidget;
-class UserDefinedApplication;
-class RockOutcrop;
+//#include <InputWidgetParameters.h>
 
-class RandomVariablesContainer;
-
-class EDP_Selection : public  SimCenterAppWidget
+StandardEDP::StandardEDP(RandomVariablesContainer *theRandomVariableIW, QWidget *parent)
+    : SimCenterAppWidget(parent), theRandomVariablesContainer(theRandomVariableIW)
 {
-    Q_OBJECT
-public:
-    explicit EDP_Selection(RandomVariablesContainer *, QWidget *parent = 0);
-    ~EDP_Selection();
 
-    bool outputToJSON(QJsonObject &rvObject);
-    bool inputFromJSON(QJsonObject &rvObject);
-    bool outputAppDataToJSON(QJsonObject &rvObject);
-    bool inputAppDataFromJSON(QJsonObject &rvObject);
-    bool copyFiles(QString &destName);
+}
 
-    void clear(void);
+StandardEDP::~StandardEDP()
+{
 
-signals:
+}
 
-public slots:
-   void edpSelectionChanged(const QString &arg1);
 
-private:
-   QComboBox   *edpSelection;
-   QStackedWidget *theStackedWidget;
-   SimCenterAppWidget *theCurrentEDP;
+void
+StandardEDP::clear(void)
+{
 
-   SimCenterAppWidget *theStandardEDPs;
-   SimCenterAppWidget *theUserDefinedEDPs;
+}
 
-   RandomVariablesContainer *theRandomVariablesContainer;
-};
 
-#endif // EDP_SELECTION_H
+
+bool
+StandardEDP::outputToJSON(QJsonObject &jsonObject)
+{
+    // just need to send the class type here.. type needed in object in case user screws up
+    jsonObject["type"]="StandardEDP";
+
+    return true;
+}
+
+
+bool
+StandardEDP::inputFromJSON(QJsonObject &jsonObject)
+{
+    Q_UNUSED(jsonObject);
+    return true;
+}
+
+
+bool
+StandardEDP::outputAppDataToJSON(QJsonObject &jsonObject) {
+
+    //
+    // per API, need to add name of application to be called in AppLication
+    // and all data to be used in ApplicationDate
+    //
+
+    jsonObject["Application"] = "StandardEDP";
+    QJsonObject dataObj;
+    jsonObject["ApplicationData"] = dataObj;
+
+    return true;
+}
+bool
+StandardEDP::inputAppDataFromJSON(QJsonObject &jsonObject) {
+    Q_UNUSED(jsonObject);
+    return true;
+}
+
+
+bool
+StandardEDP::copyFiles(QString &dirName) {
+    Q_UNUSED(dirName);
+    return true;
+}
+
