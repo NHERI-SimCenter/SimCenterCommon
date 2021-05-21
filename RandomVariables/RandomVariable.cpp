@@ -106,8 +106,8 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     //
     typeLabel    = new QLabel(tr("Input Type"));
     typeComboBox = new QComboBox();
-    typeComboBox->setMaximumWidth(200);
-    typeComboBox->setMinimumWidth(200);
+    typeComboBox->setMaximumWidth(100);
+    typeComboBox->setMinimumWidth(100);
 
     mainLayout->addWidget(typeLabel,0,2);
     mainLayout->addWidget(typeComboBox,1,2);
@@ -128,8 +128,8 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     //
     distributionLabel    = new QLabel(tr("Distribution"));
     distributionComboBox = new QComboBox();
-    distributionComboBox->setMaximumWidth(200);
-    distributionComboBox->setMinimumWidth(200);
+    distributionComboBox->setMaximumWidth(150);
+    distributionComboBox->setMinimumWidth(150);
 
     mainLayout->addWidget(distributionLabel,0,3);
     mainLayout->addWidget(distributionComboBox,1,3);
