@@ -219,6 +219,7 @@ DiscreteDistribution::inputFromJSON(QJsonObject &rvObject){
             emit sendErrorMessage("ERROR: DiscreteDistribution - no \"values\" entry");
             return false;
         }
+        this->updateDistributionPlot();
 
     } else if (inpty==QString("Moments")) {
         emit sendErrorMessage("ERROR: DiscreteDistribution - it does not support moment inputs");
@@ -229,12 +230,11 @@ DiscreteDistribution::inputFromJSON(QJsonObject &rvObject){
             QString theDataDir = rvObject["dataDir"].toString();
             dataDir->setText(theDataDir);
         } else {
-            emit sendErrorMessage("ERROR: TruncatedExponentialDistribution - no \"mean\" entry");
+            emit sendErrorMessage("ERROR: DiscreteDistribution - no \"values\" entry");
             return false;
         }
     }
 
-    this->updateDistributionPlot();
     return true;
 }
 
