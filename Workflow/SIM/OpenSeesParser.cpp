@@ -38,7 +38,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 // Purpose: to present a widget for OpenSees,
-// 1) to open feap input files, to parse for any parameters that have been set WITH THE PSET command
+// 1) to open feap input files, to parse for any parameters that have been set WITH THE PSETb command
 // and then to return the variablename and values in a string. These are used to init the random variable widget.
 // 2) for dakota to again open and parse the input file, this time replacing any input parameters
 // with the needed dakota input format: pset varName {varName}
@@ -72,8 +72,8 @@ OpenSeesParser::getVariables(QString inFilename)
     ifstream inFile(inFilename.toStdString());
 
     // read lines of input searching for pset using regular expression
-    regex pset("pset[ ]+[A-Z_a-z0-9]+[ ]+[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?");
-    regex psetAny("pset[ ]+[A-Z_a-z0-9]+[ ]+");
+    regex pset("pset[ \t]+[A-Z_a-z0-9]+[ \t]+[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?");
+    regex psetAny("pset[ \t]+[A-Z_a-z0-9]+[ \t]+");
     string line;
     while (getline(inFile, line)) {
 
@@ -144,7 +144,7 @@ OpenSeesParser::writeFile(QString inFilename, QString outFilename, QStringList v
     ofstream outFile(outFilename.toStdString());
 
     // read lines of input searching for pset using regular expression
-    regex pset("pset[ ]+[A-Z_a-z0-9]+[ ]+");
+    regex pset("pset[ \t]+[A-Z_a-z0-9]+[ \t]+");
 
     string line;
     while (getline(inFile, line)) {
