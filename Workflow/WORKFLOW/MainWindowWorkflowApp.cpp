@@ -17,6 +17,7 @@
 #include <QAction>
 #include <QApplication>
 #include <QDebug>
+#include <QDockWidget>
 #include <QDesktopServices>
 #include <sectiontitle.h>
 #include <iostream>
@@ -53,6 +54,16 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     centralWidget->setContentsMargins(0,0,0,0);
 
     exampleMenu = nullptr;
+    statusWidget = PythonProgressDialog::getInstance(this);
+
+    statusDockWidget = new QDockWidget(tr("Program Output"), this);
+    statusDockWidget->setContentsMargins(0,0,0,0);
+
+    statusDockWidget->setWidget(statusWidget);
+
+    this->addDockWidget(Qt::BottomDockWidgetArea, statusDockWidget);
+
+    connect(statusWidget,&PythonProgressDialog::showDialog,statusDockWidget,&QDockWidget::setVisible);
 
     //
     // resize to primary screen
@@ -93,8 +104,6 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
 
     // place a location for messages;
     QHBoxLayout *layoutMessages = new QHBoxLayout();
-    errorLabel = new QLabel();
-    layoutMessages->addWidget(errorLabel);
     header->appendLayout(layoutMessages);
 
     // place login info
@@ -197,7 +206,6 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     // allow remote interface to send error and status messages
     connect(theRemoteInterface,SIGNAL(errorMessage(QString)),inputWidget,SLOT(errorMessage(QString)));
     connect(theRemoteInterface,SIGNAL(statusMessage(QString)),inputWidget,SLOT(statusMessage(QString)));
-    connect(theRemoteInterface,SIGNAL(closeDialog()),inputWidget,SLOT(closeDialog()));
 
     connect(this,SIGNAL(sendErrorMessage(QString)),inputWidget,SLOT(errorMessage(QString)));
     connect(this,SIGNAL(sendStatusMessage(QString)),inputWidget,SLOT(statusMessage(QString)));
@@ -327,7 +335,6 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
       ");
 
 
-//    this->showExampleDownloader();
 }
 
 MainWindowWorkflowApp::~MainWindowWorkflowApp()
@@ -567,16 +574,17 @@ void MainWindowWorkflowApp::createActions() {
     QMenu *editMenu = menuBar()->addMenu(tr("&Edit"));
 
     // Set the path to the input file
-    editMenu->addAction("&Clear", this, &MainWindowWorkflowApp::clear);
-
+    editMenu->addAction("&Clear Inputs", this, &MainWindowWorkflowApp::clear);
+    editMenu->addSeparator();
+    editMenu->addAction("&Clear Status Dialog", statusWidget, &PythonProgressDialog::clear);
 
     // Add the view menu to the menu bar, make sure it comes before help
 
     // Show progress dialog
     QMenu *viewMenu = menuBar()->addMenu(tr("&View"));
-    viewMenu->addAction("Show Status Dialog", inputWidget, &WorkflowAppWidget::showOutputDialog);
-    viewMenu->addSeparator();
+    viewMenu->addAction(statusDockWidget->toggleViewAction());
 
+    viewMenu->addSeparator();
 
     // Add the help menu last
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
@@ -658,7 +666,6 @@ MainWindowWorkflowApp::attemptLoginReturn(bool ok){
 
             QString msg = tr("ERROR: Max Login Attempts Exceeded .. Contact DesignSafe for password help");
             emit sendErrorMessage(msg);
-            errorLabel->setText(msg);
         }
     }
 }
@@ -684,13 +691,11 @@ MainWindowWorkflowApp::onRunButtonClicked() {
 void
 MainWindowWorkflowApp::onRemoteRunButtonClicked(){
     if (loggedIn == true) {
-        errorLabel->setText(QString(""));
         inputWidget->onRemoteRunButtonClicked();
     } else
     {
         QString msg = tr("You must log in to DesignSafe before you can run a remote job");
         emit sendErrorMessage(msg);
-        errorLabel->setText(msg);
 
         this->onLoginButtonClicked();
         isAutoLogin = true;
@@ -700,13 +705,12 @@ MainWindowWorkflowApp::onRemoteRunButtonClicked(){
 void
 MainWindowWorkflowApp::onRemoteGetButtonClicked(){
     if (loggedIn == true) {
-        errorLabel->setText(QString(""));
+
         inputWidget->onRemoteGetButtonClicked();
     } else
     {
         QString msg = tr("You Must LOGIN (button top right) before you can run retrieve remote data");
         emit sendErrorMessage(msg);
-        errorLabel->setText(msg);
     }
 };
 
@@ -860,7 +864,6 @@ MainWindowWorkflowApp::loadExamples()
     {
         QString msg = "Error loading example "+pathToExample;
         emit sendErrorMessage(msg);
-        errorLabel->setText(msg);
         return;
     }
 
@@ -875,14 +878,13 @@ MainWindowWorkflowApp::loadExamples()
     if(!description.isEmpty())
         emit sendInfoMessage(description);
 
-    auto progressDialog = inputWidget->getProgressDialog();
 
-    progressDialog->showProgressBar();
+    statusWidget->showProgressBar();
     QApplication::processEvents();
 
     emit sendStatusMessage("Loading Example file. Wait till Done Loading appears before progressing.");
     this->loadFile(pathToExample);
-    progressDialog->hideProgressBar();
+    statusWidget->hideProgressBar();
 
     // Automatically hide after n seconds
     // progressDialog->hideAfterElapsedTime(4);

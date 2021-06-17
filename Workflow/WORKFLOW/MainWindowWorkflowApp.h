@@ -13,9 +13,11 @@
 class WorkflowAppWidget;
 class SimCenterWidget;
 class QPushButton;
+class QDockWidget;
 class QLabel;
 class SimCenterPreferences;
 class ExampleDownloader;
+class PythonProgressDialog;
 
 class MainWindowWorkflowApp : public QMainWindow
 {
@@ -107,7 +109,6 @@ public:
     //SimCenterWidget *currentWidget;
 
     QPushButton *loginButton;
-    QLabel *errorLabel;
 
     QString versionText;
     QString aboutText;
@@ -119,8 +120,12 @@ public:
     QString citeText;
     bool isAutoLogin;
 
+    QDockWidget* statusDockWidget;
+
     SimCenterPreferences *thePreferences;
     ExampleDownloader* theExampleDownloader;
+    PythonProgressDialog* statusWidget;
+
 };
 
 #endif // MAIN_WINDOW_WORKFLOW_APP_H

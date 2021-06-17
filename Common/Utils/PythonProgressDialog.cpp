@@ -27,8 +27,10 @@ PythonProgressDialog::PythonProgressDialog(QWidget* parent) : QDialog(parent)
     this->setWindowModality(Qt::NonModal);
     this->setWindowTitle("Program Output");
     this->setAutoFillBackground(true);
+    this->setContentsMargins(0,0,0,0);
 
     auto progressLayout = new QVBoxLayout(this);
+    progressLayout->setContentsMargins(0,0,0,0);
 
     progressTextEdit = new QPlainTextEdit(this);
     progressTextEdit->setWordWrapMode(QTextOption::WrapMode::WordWrap);
@@ -41,33 +43,33 @@ PythonProgressDialog::PythonProgressDialog(QWidget* parent) : QDialog(parent)
     progressBar->hide();
 
     // give it some dimension
-    int nWidth = 800;
-    int nHeight = 500;
-    if (parent != NULL)
-        setGeometry(parent->x() + parent->width()/2,
-                    parent->y() + parent->height()/2 - nHeight/2,
-                    nWidth, nHeight);
-    else
-        resize(nWidth, nHeight);
+//    int nWidth = 800;
+//    int nHeight = 500;
+//    if (parent != NULL)
+//        setGeometry(parent->x() + parent->width()/2,
+//                    parent->y() + parent->height()/2 - nHeight/2,
+//                    nWidth, nHeight);
+//    else
+//        resize(nWidth, nHeight);
 
 
     progressLayout->addWidget(progressTextEdit);
     progressLayout->addWidget(progressBar);
 
-    auto buttonsLayout = new QHBoxLayout();
+//    auto buttonsLayout = new QHBoxLayout();
 
-    QPushButton* clearButton = new QPushButton("Clear",this);
-    buttonsLayout->addWidget(clearButton,1);
+//    QPushButton* clearButton = new QPushButton("Clear",this);
+//    buttonsLayout->addWidget(clearButton,1);
 
-    buttonsLayout->addStretch(1);
+//    buttonsLayout->addStretch(1);
 
-    QPushButton* closeButton = new QPushButton("Close",this);
-    buttonsLayout->addWidget(closeButton,2);
+//    QPushButton* closeButton = new QPushButton("Close",this);
+//    buttonsLayout->addWidget(closeButton,2);
 
-    progressLayout->addLayout(buttonsLayout);
+//    progressLayout->addLayout(buttonsLayout);
 
-    connect(closeButton,&QPushButton::pressed, this, &PythonProgressDialog::handleCloseButtonPress);
-    connect(clearButton,&QPushButton::pressed, this, &PythonProgressDialog::handleClearButtonPress);
+//    connect(closeButton,&QPushButton::pressed, this, &PythonProgressDialog::handleCloseButtonPress);
+//    connect(clearButton,&QPushButton::pressed, this, &PythonProgressDialog::handleClearButtonPress);
 
     mutex = new QMutex(QMutex::Recursive);
 }
@@ -90,23 +92,10 @@ void PythonProgressDialog::clear(void)
 
 void PythonProgressDialog::setVisibility(bool visible)
 {
-    //    mutex->lock();
-
     if (theInstance == 0)
         theInstance = new PythonProgressDialog(0);
 
-    if(visible)
-    {
-        this->show();
-        this->raise();
-        this->activateWindow();
-    }
-    else
-    {
-        this->hide();
-    }
-
-    //    mutex->unlock();
+    emit showDialog(visible);
 }
 
 

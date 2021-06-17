@@ -69,7 +69,6 @@ public:
 signals:
     void sendStatusMessage(QString);
     void sendErrorMessage(QString);
-    void closeDialog();
 
     void getJobsList(QString);
     void getJobStatus(QString);

@@ -24,13 +24,6 @@ WorkflowAppWidget::~WorkflowAppWidget()
 }
 
 
-void WorkflowAppWidget::showOutputDialog(void)
-{
-    progressDialog->setVisibility(true);
-}
-
-
-
 void
 WorkflowAppWidget::setMainWindow(MainWindowWorkflowApp* window) {
     theMainWindow = window;
@@ -50,12 +43,6 @@ WorkflowAppWidget::errorMessage(const QString msg){
     qDebug() << "WorkflowAppWidget::errorMessage" << msg;
     progressDialog->appendErrorMessage(msg);
     emit sendErrorMessage(msg);
-}
-
-
-void
-WorkflowAppWidget::closeDialog(){
-    progressDialog->setVisibility(false);
 }
 
 

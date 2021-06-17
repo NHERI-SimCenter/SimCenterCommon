@@ -25,8 +25,6 @@ public:
 
     void appendErrorMessage(const QString text);
 
-    void clear(void);
-
     void setVisibility(bool visible);
 
     void setProgressBarValue(const int val);
@@ -41,9 +39,10 @@ public slots:
     void hideProgressBar(void);
     void handleCloseButtonPress();
     void handleClearButtonPress();
+    void clear(void);
 
 signals:
-    void processResults(QString);
+    void showDialog(bool);
 
 private:
 

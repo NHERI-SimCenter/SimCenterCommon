@@ -175,8 +175,6 @@ RemoteJobManager::jobsListReturn(QJsonObject theJobs){
      //jobsTable->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
      this->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 
-     emit closeDialog();
-
      QString msg1("Job status does not refresh automatically");
      emit sendStatusMessage(msg1);
      QString msg2("Select a job from table and use left mouse button to see options for that job");
@@ -225,7 +223,6 @@ RemoteJobManager::jobStatusReturn(QString status) {
         itemStatus->setText(status);
     }
     triggeredRow = -1;
-    emit closeDialog();
 }
 
 
@@ -246,7 +243,6 @@ RemoteJobManager::deleteJobReturn(bool result) {
     if (result == true)
         jobsTable->removeRow(triggeredRow);
     triggeredRow = -1;
-    emit closeDialog();
 }
 
 

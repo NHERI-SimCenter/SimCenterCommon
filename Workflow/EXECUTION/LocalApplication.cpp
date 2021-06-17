@@ -535,7 +535,7 @@ void LocalApplication::handleProcessFinished(int exitCode, QProcess::ExitStatus 
 
 void LocalApplication::handleProcessStarted(void)
 {
-    QString msg = "Starting the anlysis. This may take awhile!";
+    QString msg = "Starting the analysis. This may take awhile!";
     emit sendStatusMessage(msg);
     QApplication::processEvents();
 }
