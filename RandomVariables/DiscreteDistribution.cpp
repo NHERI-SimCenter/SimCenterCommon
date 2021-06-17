@@ -135,11 +135,11 @@ DiscreteDistribution::outputToJSON(QJsonObject &rvObject){
 
         // check for error condition, an entry had no value
         if (values->text().isEmpty()) {
-            this->errorMessage("ERROR: DiscreteDistribution - data (Values) has not been set");
+            emit sendErrorMessage("ERROR: DiscreteDistribution - data (Values) has not been set");
             return false;
         }
         if (weights->text().isEmpty()) {
-            this->errorMessage("ERROR: DiscreteDistribution - data (Weights) has not been set");
+            emit sendErrorMessage("ERROR: DiscreteDistribution - data (Weights) has not been set");
             return false;
         }
 
@@ -147,7 +147,7 @@ DiscreteDistribution::outputToJSON(QJsonObject &rvObject){
         QStringList listWeights = weights->text().split(",");
 
         if (!(listValues.length() == listWeights.length())) {
-            this->errorMessage("ERROR: DiscreteDistribution - lengths of 'Values' and 'Weights' should be the same");
+            emit sendErrorMessage("ERROR: DiscreteDistribution - lengths of 'Values' and 'Weights' should be the same");
             return false;
         }
 
@@ -161,11 +161,11 @@ DiscreteDistribution::outputToJSON(QJsonObject &rvObject){
         rvObject["Weights"]=w;
 
     } else if (inpty==QString("Moments")) {
-        this->errorMessage("ERROR: DiscreteDistribution - it does not support moment inputs");
+        emit sendErrorMessage("ERROR: DiscreteDistribution - it does not support moment inputs");
         return false;
     } else if (inpty==QString("Dataset")) {
         if (dataDir->text().isEmpty()) {
-            this->errorMessage("ERROR: DiscreteDistribution - data has not been set");
+            emit sendErrorMessage("ERROR: DiscreteDistribution - data has not been set");
             return false;
         }
         rvObject["dataDir"]=QString(dataDir->text());
@@ -201,7 +201,7 @@ DiscreteDistribution::inputFromJSON(QJsonObject &rvObject){
             weights->setText(weightString);
 
         } else {
-            this->errorMessage("ERROR: DiscreteDistribution - no \"weights\" entry");
+            emit sendErrorMessage("ERROR: DiscreteDistribution - no \"weights\" entry");
             return false;
         }
 
@@ -216,12 +216,13 @@ DiscreteDistribution::inputFromJSON(QJsonObject &rvObject){
             }
             values->setText(valueString);
         } else {
-            this->errorMessage("ERROR: DiscreteDistribution - no \"values\" entry");
+            emit sendErrorMessage("ERROR: DiscreteDistribution - no \"values\" entry");
             return false;
         }
+        this->updateDistributionPlot();
 
     } else if (inpty==QString("Moments")) {
-        this->errorMessage("ERROR: DiscreteDistribution - it does not support moment inputs");
+        emit sendErrorMessage("ERROR: DiscreteDistribution - it does not support moment inputs");
         return false;
 
     } else if (inpty==QString("Dataset")) {
@@ -229,12 +230,11 @@ DiscreteDistribution::inputFromJSON(QJsonObject &rvObject){
             QString theDataDir = rvObject["dataDir"].toString();
             dataDir->setText(theDataDir);
         } else {
-            this->errorMessage("ERROR: TruncatedExponentialDistribution - no \"mean\" entry");
+            emit sendErrorMessage("ERROR: DiscreteDistribution - no \"values\" entry");
             return false;
         }
     }
 
-    this->updateDistributionPlot();
     return true;
 }
 
@@ -254,12 +254,12 @@ DiscreteDistribution::updateDistributionPlot() {
 
 
     if (listValues.size()<2) {
-        this->errorMessage("ERROR: DiscreteDistribution - define more than two values");
+        emit sendErrorMessage("ERROR: DiscreteDistribution - define more than two values");
         return;
         //QMessageBox::warning(this, tr("Application"),
          //                    "ERROR: DiscreteDistribution - define more than two values");
     } else {
-        //this->errorMessage("");
+        //emit sendErrorMessage("");
     }
 
     //
