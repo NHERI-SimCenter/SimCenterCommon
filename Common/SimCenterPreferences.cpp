@@ -588,7 +588,7 @@ SimCenterPreferences::resetPreferences(bool) {
     customTapisAppCheckBox->setChecked(false);
 
     // finally save them to make sure all saved
-    this->savePreferences(true);
+    //    this->savePreferences(true);
 }
 
 
@@ -924,7 +924,7 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
 
     //Default appDir is the location of the application
     QString appName = QCoreApplication::applicationName();
-    QString remoteApp("simcenter-dakota-1.0.0u1");
+    QString remoteApp("simcenter-dakota-1.0.0u5");
     if (appName == QString("WE-UQ"))
       remoteApp = QString("simcenter-openfoam-dakota-1.3.0u1");
     if (appName == QString("R2D"))
