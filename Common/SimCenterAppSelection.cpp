@@ -67,6 +67,11 @@ SimCenterAppSelection::SimCenterAppSelection(QString label, QString appName, QWi
 {
   QVBoxLayout *layout = new QVBoxLayout;
   QHBoxLayout *topLayout = new QHBoxLayout;
+
+  topLayout->setSpacing(0);
+  layout->setSpacing(0);
+  topLayout->setContentsMargins(0,0,0,0);
+  layout->setContentsMargins(0,0,0,0);
   
   SectionTitle *selectionText = new SectionTitle();
   selectionText->setMinimumWidth(250);  

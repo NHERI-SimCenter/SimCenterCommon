@@ -711,6 +711,8 @@ MainWindowWorkflowApp::onRemoteGetButtonClicked(){
     {
         QString msg = tr("You Must LOGIN (button top right) before you can run retrieve remote data");
         emit sendErrorMessage(msg);
+
+        this->onLoginButtonClicked();
     }
 };
 
