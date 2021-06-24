@@ -53,6 +53,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <OpenSeesBuildingModel.h>
 #include <MDOF_BuildingModel.h>
 #include <SteelBuildingModel.h>
+#include <QCoreApplication>
 
 SIM_Selection::SIM_Selection(RandomVariablesContainer *theRandomVariableIW, 
                              bool includeC,
@@ -91,7 +92,10 @@ SIM_Selection::SIM_Selection(RandomVariablesContainer *theRandomVariableIW,
     // bimSelection->addItem(tr("Spreadsheet"));
     bimSelection->addItem(tr("MDOF"));
     bimSelection->addItem(tr("OpenSees"));
-    bimSelection->addItem(tr("Steel Building Model"));
+
+    QString appName = QCoreApplication::applicationName();
+    if (appName == "PBE" || appName == "EE-UQ")
+        bimSelection->addItem(tr("Steel Building Model"));
 
     connect(bimSelection, SIGNAL(currentIndexChanged(QString)), this, SLOT(bimSelectionChanged(QString)));
 
