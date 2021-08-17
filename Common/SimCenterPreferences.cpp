@@ -566,7 +566,7 @@ SimCenterPreferences::resetPreferences(bool) {
     settingsApplication.setValue("appDir", appDirLocation);
     appDir->setText(appDirLocation);
     
-    QString remoteBackendDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/v2.3.0");
+    QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede2/SimCenterBackendApplications/v2.4.0");
     settingsApplication.setValue("remoteBackendDir", remoteBackendDirLocation);
     remoteBackendDir->setText(remoteBackendDirLocation);
 
@@ -588,7 +588,7 @@ SimCenterPreferences::resetPreferences(bool) {
     customTapisAppCheckBox->setChecked(false);
 
     // finally save them to make sure all saved
-    this->savePreferences(true);
+    //    this->savePreferences(true);
 }
 
 
@@ -694,7 +694,7 @@ SimCenterPreferences::loadPreferences() {
     // remoteBackendDir NOT quite as before as need to allow future releases to bring new ones
     QVariant  remoteBackendDirVariant = settingsApplication.value("remoteBackendDir");
     if (!remoteBackendDirVariant.isValid()) {
-      QString remoteBackendDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/v2.3.0");
+      QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede2/SimCenterBackendApplications/v2.4.0");
       settingsApplication.setValue("remoteBackendDir", remoteBackendDirLocation);
       remoteBackendDir->setText(remoteBackendDirLocation);
     } else {
@@ -851,7 +851,7 @@ SimCenterPreferences::getRemoteAppDir(void) {
 
     // if not set, use default & set default as application directory
     if (!remoteBackendDirVariant.isValid()) {
-      QString remoteBackendDirLocation = QString("/home1/00477/tg457427/SimCenterBackendApplications/v2.3.0");
+      QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede2/SimCenterBackendApplications/v2.4.0");
       settingsApplication.setValue("remoteBackendDir", remoteBackendDirLocation);
       return remoteBackendDirLocation;
     } 
@@ -924,7 +924,7 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
 
     //Default appDir is the location of the application
     QString appName = QCoreApplication::applicationName();
-    QString remoteApp("simcenter-dakota-1.0.0u1");
+    QString remoteApp("simcenter-dakota-1.0.0u5");
     if (appName == QString("WE-UQ"))
       remoteApp = QString("simcenter-openfoam-dakota-1.3.0u1");
     if (appName == QString("R2D"))
