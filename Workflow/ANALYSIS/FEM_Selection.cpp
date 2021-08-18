@@ -194,7 +194,7 @@ FEM_Selection::inputAppDataFromJSON(QJsonObject &jsonObject)
                 (type == QString("OpenSees-Simulation"))) {
                 index = 0;
             } else {
-                emit sendErrorMessage("FEM_Selection - no valid type found");
+                errorMessage("FEM_Selection - no valid type found");
                 return false;
             }
 
@@ -205,12 +205,12 @@ FEM_Selection::inputAppDataFromJSON(QJsonObject &jsonObject)
                 return theCurrentSelection->inputAppDataFromJSON(theObject);
             }
         } else {
-            emit sendErrorMessage("FEM_Selection - no Application key found");
+            errorMessage("FEM_Selection - no Application key found");
             return false;
         }
 
     } else {
-        emit sendErrorMessage("FEM_Selection: failed to find FEM application");
+        errorMessage("FEM_Selection: failed to find FEM application");
         return false;
     }
 

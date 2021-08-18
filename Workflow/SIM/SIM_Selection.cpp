@@ -257,7 +257,7 @@ void SIM_Selection::bimSelectionChanged(const QString &arg1)
         bimInput = new SteelBuildingModel(theRandomVariablesContainer);
     } else {
         selectionChangeOK = false;
-        emit sendErrorMessage("ERROR: BIM Input - no valid Method provided .. keeping old");
+        errorMessage("ERROR: BIM Input - no valid Method provided .. keeping old");
     }
 
     if (bimInput != 0) {
@@ -270,9 +270,5 @@ void SIM_Selection::bimSelectionChanged(const QString &arg1)
 }
 
 
-void
-SIM_Selection::errorMessage(QString message){
-  emit sendErrorMessage(message);
-}
 
 

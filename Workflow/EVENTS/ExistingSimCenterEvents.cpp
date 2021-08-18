@@ -419,8 +419,4 @@ ExistingSimCenterEvents::copyFiles(QString &dirName) {
     return true;
 }
 
-void
-ExistingSimCenterEvents::errorMessage(QString message){
-    emit sendErrorMessage(message);
-}
 
