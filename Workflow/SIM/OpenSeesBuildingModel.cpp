@@ -51,7 +51,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <string>
 #include <sstream>
 #include <iostream>
-using namespace std;
+//using namespace std;
 #include <QGridLayout>
 
 #include <OpenSeesParser.h>
@@ -154,9 +154,9 @@ OpenSeesBuildingModel::outputToJSON(QJsonObject &jsonObject)
     int numCentroidNodes = 0;
     QJsonArray nodeTags;
     if (centroidNodes != NULL) {
-        string nodeString = centroidNodes->text().toStdString();
-        string s1(nodeString); // this line is needed as nodeString cannot be passed directly to the line below!
-        stringstream nodeStream(s1);
+        std::string nodeString = centroidNodes->text().toStdString();
+        std::string s1(nodeString); // this line is needed as nodeString cannot be passed directly to the line below!
+        std::stringstream nodeStream(s1);
         int nodeTag;
         while (nodeStream >> nodeTag) {
             nodeTags.append(QJsonValue(nodeTag));
@@ -167,9 +167,9 @@ OpenSeesBuildingModel::outputToJSON(QJsonObject &jsonObject)
     }
     
     QJsonArray responseNodeTags;
-    string nodeString = responseNodes->text().toStdString();
-    string s1(nodeString); // this line is needed as nodeString cannot be passed directly to the line below!
-    stringstream nodeStream(s1);
+    std::string nodeString = responseNodes->text().toStdString();
+    std::string s1(nodeString); // this line is needed as nodeString cannot be passed directly to the line below!
+    std::stringstream nodeStream(s1);
     int nodeTag;
     int numStories = -1;
     while (nodeStream >> nodeTag) {
