@@ -133,12 +133,12 @@ RunLocalWidget::onRunButtonPressed(void)
     QDir dir(workingDir);
     if (!dir.exists())
         if (!dir.mkdir(workingDir)) {
-            emit sendErrorMessage(QString("Could not create Working Dir: ") + workingDir);
+            this->errorMessage(QString("Could not create Working Dir: ") + workingDir);
             return;
         }
    QString appDir = appDirName->text();
    if (!dir.exists()) {
-       emit sendErrorMessage(QString("The application directory, ") + appDir +QString(" specified does not exist!"));
+       this->errorMessage(QString("The application directory, ") + appDir +QString(" specified does not exist!"));
        return;
    }
 

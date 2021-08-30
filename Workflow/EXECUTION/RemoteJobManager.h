@@ -47,15 +47,15 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QString>
 #include <QJsonObject>
 #include <QStringList>
-#include <QString>
-class MainWindow;
+#include <QProcess>
 
 //#include <AgaveCurl.h>
 
 class MainWindow;
+class RemoteService;
+
 class QTableWidget;
 class QPushButton;
-class RemoteService;
 
 class RemoteJobManager : public QWidget
 {
@@ -67,9 +67,8 @@ public:
     void clearTable(void);
 
 signals:
-    void statusMessage(QString);
-    void errorMessage(QString);
-    void closeDialog();
+    void sendStatusMessage(QString);
+    void sendErrorMessage(QString);
 
     void getJobsList(QString);
     void getJobStatus(QString);
@@ -101,6 +100,12 @@ public slots:
     void deleteJobAndData(void);
     void getJobData(void);
 
+    // Handles the messages when the process is finished
+    void handleProcessFinished(int exitCode, QProcess::ExitStatus exitStatus, QString fileName);
+
+    // Displays the text output of the process
+    void handleProcessTextOutput(void);
+
 private:
     QString inputDirectory;
    // AgaveCurl *theInterface;
@@ -121,6 +126,8 @@ private:
     QString name3;
     QString name4;
     MainWindow *theMainWindow;
+
+    QProcess *proc;
 };
 
 #endif // REMOTEJOBMANAGER_H

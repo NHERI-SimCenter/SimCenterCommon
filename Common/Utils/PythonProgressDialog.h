@@ -25,8 +25,6 @@ public:
 
     void appendErrorMessage(const QString text);
 
-    void clear(void);
-
     void setVisibility(bool visible);
 
     void setProgressBarValue(const int val);
@@ -34,15 +32,17 @@ public:
 
     void hideAfterElapsedTime(int sec);
 
+    QProgressBar *getProgressBar() const;
 
 public slots:
     void showProgressBar(void);
     void hideProgressBar(void);
     void handleCloseButtonPress();
     void handleClearButtonPress();
+    void clear(void);
 
 signals:
-    void processResults(QString);
+    void showDialog(bool);
 
 private:
 
@@ -53,6 +53,8 @@ private:
     QProgressBar* progressBar;
 
     QMutex* mutex;
+
+    QString getTimestamp(void);
 
 };
 

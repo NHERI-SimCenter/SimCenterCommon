@@ -9,6 +9,8 @@
 
 INCLUDEPATH += $$PWD/UQ
 INCLUDEPATH += $$PWD/WORKFLOW
+INCLUDEPATH += $$PWD/WORKFLOW/Utils
+INCLUDEPATH += $$PWD/WORKFLOW/ModelViewItems
 INCLUDEPATH += $$PWD/SIM
 INCLUDEPATH += $$PWD/EXECUTION
 INCLUDEPATH += $$PWD/EVENTS
@@ -53,6 +55,14 @@ SOURCES += $$PWD/UQ/DakotaResults.cpp \
     $$PWD/WORKFLOW/SimCenterSpinBox.cpp \
     $$PWD/WORKFLOW/SimCenterDoubleSpinBox.cpp \
     $$PWD/WORKFLOW/SimCenterLineEdit.cpp \
+    $$PWD/WORKFLOW/Utils/ExampleDownloader.cpp \
+    $$PWD/WORKFLOW/Utils/NetworkDownloadManager.cpp \
+    $$PWD/WORKFLOW/ModelViewItems/CheckableTreeModel.cpp \
+    $$PWD/WORKFLOW/ModelViewItems/SimCenterTreeView.cpp \
+    $$PWD/WORKFLOW/ModelViewItems/TreeItem.cpp \
+    $$PWD/WORKFLOW/ModelViewItems/TreeViewStyle.cpp \
+    $$PWD/WORKFLOW/ModelViewItems/LayerTreeModel.cpp \
+    $$PWD/WORKFLOW/ModelViewItems/LayerTreeItem.cpp \    
     $$PWD/SIM/OpenSeesBuildingModel.cpp \
     $$PWD/SIM/MDOF_BuildingModel.cpp \
     $$PWD/SIM/SteelBuildingModel.cpp \
@@ -115,6 +125,14 @@ HEADERS += $$PWD/UQ/DakotaResults.h \
     $$PWD/WORKFLOW/SimCenterSpinBox.h \
     $$PWD/WORKFLOW/SimCenterDoubleSpinBox.h \
     $$PWD/WORKFLOW/SimCenterLineEdit.h \
+    $$PWD/WORKFLOW/Utils/ExampleDownloader.h \
+    $$PWD/WORKFLOW/Utils/NetworkDownloadManager.h \
+    $$PWD/WORKFLOW/ModelViewItems/CheckableTreeModel.h \
+    $$PWD/WORKFLOW/ModelViewItems/SimCenterTreeView.h \
+    $$PWD/WORKFLOW/ModelViewItems/TreeItem.h \
+    $$PWD/WORKFLOW/ModelViewItems/TreeViewStyle.h \ 
+    $$PWD/WORKFLOW/ModelViewItems/LayerTreeModel.h \
+    $$PWD/WORKFLOW/ModelViewItems/LayerTreeItem.h \    
     $$PWD/SIM/OpenSeesBuildingModel.h \
     $$PWD/SIM/MDOF_BuildingModel.h \
     $$PWD/SIM/ReadWriteRVJSON.h \

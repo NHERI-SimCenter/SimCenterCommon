@@ -116,19 +116,19 @@ ExponentialDistribution::outputToJSON(QJsonObject &rvObject){
     if (inpty==QString("Parameters")) {
         // check for error condition, an entry had no value
         if (lambda->text().isEmpty()) {
-            emit sendErrorMessage("ERROR: ExponentialDistribution - data has not been set");
+            this->errorMessage("ERROR: ExponentialDistribution - data has not been set");
             return false;
         }
         rvObject["lambda"]=lambda->text().toDouble();
     } else if (inpty==QString("Moments")) {
         if (mean->text().isEmpty()) {
-            emit sendErrorMessage("ERROR: ExponentialDistribution - data has not been set");
+            this->errorMessage("ERROR: ExponentialDistribution - data has not been set");
             return false;
         }
         rvObject["mean"]=mean->text().toDouble();
     } else if (inpty==QString("Dataset")) {
         if (dataDir->text().isEmpty()) {
-            emit sendErrorMessage("ERROR: ExponentialDistribution - data has not been set");
+            this->errorMessage("ERROR: ExponentialDistribution - data has not been set");
             return false;
         }
         rvObject["dataDir"]=QString(dataDir->text());
@@ -154,7 +154,7 @@ ExponentialDistribution::inputFromJSON(QJsonObject &rvObject){
             double theLamValue = rvObject["lambda"].toDouble();
             lambda->setText(QString::number(theLamValue));
         } else {
-            emit sendErrorMessage("ERROR: ExponentialDistribution - no \"a\" entry");
+            this->errorMessage("ERROR: ExponentialDistribution - no \"a\" entry");
             return false;
         }
 
@@ -164,7 +164,7 @@ ExponentialDistribution::inputFromJSON(QJsonObject &rvObject){
             double theMeanValue = rvObject["mean"].toDouble();
             mean->setText(QString::number(theMeanValue));
         } else {
-            emit sendErrorMessage("ERROR: ExponentialDistribution - no \"mean\" entry");
+            this->errorMessage("ERROR: ExponentialDistribution - no \"mean\" entry");
             return false;
         }
 
@@ -174,7 +174,7 @@ ExponentialDistribution::inputFromJSON(QJsonObject &rvObject){
           QString theDataDir = rvObject["dataDir"].toString();
           dataDir->setText(theDataDir);
       } else {
-          emit sendErrorMessage("ERROR: ExponentialDistribution - no \"mean\" entry");
+          this->errorMessage("ERROR: ExponentialDistribution - no \"mean\" entry");
           return false;
       }
     }

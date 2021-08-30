@@ -68,7 +68,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <sstream>
 #include <iostream>
 
-using namespace std;
+//using namespace std;
 
 SteelBuildingModel::SteelBuildingModel(RandomVariablesContainer *theRandomVariableIW, QWidget *parent): SimCenterAppWidget(parent), theRandomVariablesContainer(theRandomVariableIW)
 {

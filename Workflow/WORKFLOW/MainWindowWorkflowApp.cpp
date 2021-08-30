@@ -2,46 +2,46 @@
 // Written: fmckenna
 // Purpose: to test the INputWidgetSheetBM widget
 
-#include "Utils/PythonProgressDialog.h"
-#include <QTreeView>
-#include <QStandardItemModel>
-#include <QItemSelectionModel>
-#include <QDebug>
+#include "ExampleDownloader.h"
+#include "FooterWidget.h"
+#include "HeaderWidget.h"
 #include "MainWindowWorkflowApp.h"
-#include <QHBoxLayout>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QJsonObject>
-#include <QJsonDocument>
-#include <QMenuBar>
+#include "RemoteService.h"
+#include "SimCenterPreferences.h"
+#include "Utils/PythonProgressDialog.h"
+#include "Utils/RelativePathResolver.h"
+#include "Utils/dialogabout.h"
+#include "WorkflowAppWidget.h"
+#include "sectiontitle.h"
+
 #include <QAction>
-#include <QMenu>
 #include <QApplication>
-#include <QGuiApplication>
-#include <QScreen>
+#include <QDebug>
+#include <QDockWidget>
 #include <QDesktopServices>
 #include <sectiontitle.h>
 #include <iostream>
 
-
 //#include <InputWidgetEE_UQ.h>
 #include <WorkflowAppWidget.h>
-
 #include <QDesktopWidget>
-#include <HeaderWidget.h>
-#include <FooterWidget.h>
+#include <QFileDialog>
+#include <QGuiApplication>
+#include <QHBoxLayout>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLabel>
-#include <QPushButton>
 #include <QLineEdit>
+#include <QMenu>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QScreen>
 #include <QSettings>
 
-#include <RemoteService.h>
-#include <SimCenterPreferences.h>
-#include <Utils/RelativePathResolver.h>
-#include "Utils/dialogabout.h"
 
 MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theService, QWidget *parent)
-  : QMainWindow(parent), loggedIn(false), inputWidget(theApp),   theRemoteInterface(theService), isAutoLogin(false)
+    : QMainWindow(parent), loggedIn(false), inputWidget(theApp),   theRemoteInterface(theService), isAutoLogin(false)
 {
     //
     // create a layout & widget for central area of this QMainWidget
@@ -52,6 +52,18 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     QVBoxLayout *layout = new QVBoxLayout();
     centralWidget->setLayout(layout);
     centralWidget->setContentsMargins(0,0,0,0);
+
+    exampleMenu = nullptr;
+    statusWidget = PythonProgressDialog::getInstance(this);
+
+    statusDockWidget = new QDockWidget(tr("Program Output"), this);
+    statusDockWidget->setContentsMargins(0,0,0,0);
+
+    statusDockWidget->setWidget(statusWidget);
+
+    this->addDockWidget(Qt::BottomDockWidgetArea, statusDockWidget);
+
+    connect(statusWidget,&PythonProgressDialog::showDialog,statusDockWidget,&QDockWidget::setVisible);
 
     //
     // resize to primary screen
@@ -71,8 +83,13 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
         ********************************************************/
 
     QRect rec = QGuiApplication::primaryScreen()->geometry();
-    int height = this->height()<int(0.75*rec.height())?int(0.75*rec.height()):this->height();
-    int width  = this->width()<int(0.75*rec.width())?int(0.75*rec.width()):this->width();
+    //    int height = this->height()<int(0.75*rec.height())?int(0.75*rec.height()):this->height();
+    //    int width  = this->width()<int(0.75*rec.width())?int(0.75*rec.width()):this->width();
+
+    // SG change
+    int height = this->height()<int(rec.height())?int(rec.height()):this->height();
+    int width  = this->width()<int(rec.width())?int(rec.width()):this->width();
+
     // if (width>1280) width=1280;
     this->resize(width, height);
 
@@ -87,8 +104,6 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
 
     // place a location for messages;
     QHBoxLayout *layoutMessages = new QHBoxLayout();
-    errorLabel = new QLabel();
-    layoutMessages->addWidget(errorLabel);
     header->appendLayout(layoutMessages);
 
     // place login info
@@ -159,12 +174,14 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     loginLayout->addWidget(loginSubmitButton,4,2);
     loginWindow->setLayout(loginLayout);
 
+    theExampleDownloader = new ExampleDownloader(this);
+
     /*
     loginWindow->setStyleSheet("QComboBox {background: #FFFFFF;} \
-  QGroupBox {font-weight: bold;}\
-  QLineEdit {background-color: #FFFFFF; border: 2px solid darkgray;} \
-  QTabWidget::pane {background-color: #ECECEC; border: 1px solid rgb(239, 239, 239);}");
-  */
+    QGroupBox {font-weight: bold;}\
+    QLineEdit {background-color: #FFFFFF; border: 2px solid darkgray;} \
+    QTabWidget::pane {background-color: #ECECEC; border: 1px solid rgb(239, 239, 239);}");
+    */
 
     //
     // connect some signals and slots
@@ -189,7 +206,6 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     // allow remote interface to send error and status messages
     connect(theRemoteInterface,SIGNAL(errorMessage(QString)),inputWidget,SLOT(errorMessage(QString)));
     connect(theRemoteInterface,SIGNAL(statusMessage(QString)),inputWidget,SLOT(statusMessage(QString)));
-    connect(theRemoteInterface,SIGNAL(closeDialog()),inputWidget,SLOT(closeDialog()));
 
     connect(this,SIGNAL(sendErrorMessage(QString)),inputWidget,SLOT(errorMessage(QString)));
     connect(this,SIGNAL(sendStatusMessage(QString)),inputWidget,SLOT(statusMessage(QString)));
@@ -204,13 +220,13 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     connect(exitButton, SIGNAL(clicked(bool)),this,SLOT(onExitButtonClicked()));
 
     /*
-   connect(uq,SIGNAL(uqWidgetChanged()), this,SLOT(onDakotaMethodChanged()));
+    connect(uq,SIGNAL(uqWidgetChanged()), this,SLOT(onDakotaMethodChanged()));
 
-   connect(fem,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
-   connect(random,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
-   connect(results,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
-   connect(uq,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
-   */
+    connect(fem,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+    connect(random,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+    connect(results,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+    connect(uq,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+    */
 
     // add button widget to layout
     //layout->addWidget(buttonWidget);
@@ -228,6 +244,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     this->setCentralWidget(centralWidget);
 
     this->createActions();
+    this->updateExamplesMenu();
 
     inputWidget->setMainWindow(this);
 
@@ -316,6 +333,8 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
       included in the packaging of this application. \
       <p>\
       ");
+
+
 }
 
 MainWindowWorkflowApp::~MainWindowWorkflowApp()
@@ -332,6 +351,7 @@ bool MainWindowWorkflowApp::save()
         return saveFile(currentFile);
     }
 }
+
 
 bool MainWindowWorkflowApp::saveAs()
 {
@@ -358,11 +378,15 @@ bool MainWindowWorkflowApp::saveAs()
 
 }
 
+
 void MainWindowWorkflowApp::open()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Open Simulation Model", "",  "Json files (*.json);;All files (*)");
     if (!fileName.isEmpty())
+    {
+        emit sendStatusMessage("Loading file "+fileName);
         loadFile(fileName);
+    }
 }
 
 
@@ -371,6 +395,7 @@ void MainWindowWorkflowApp::openFile(QString fileName)
     if (!fileName.isEmpty())
         loadFile(fileName);
 }
+
 
 void MainWindowWorkflowApp::newFile()
 {
@@ -393,6 +418,7 @@ void MainWindowWorkflowApp::setCurrentFile(const QString &fileName)
 
     setWindowFilePath(shownName);
 }
+
 
 bool MainWindowWorkflowApp::saveFile(const QString &fileName)
 {
@@ -434,65 +460,65 @@ bool MainWindowWorkflowApp::saveFile(const QString &fileName)
     return true;
 }
 
+
 void MainWindowWorkflowApp::loadFile(const QString &fileName)
 {
+    inputWidget->loadFile(fileName);
+}
 
-    // check file exists & set apps current dir of it does
-    QFileInfo fileInfo(fileName);
-    if (!fileInfo.exists()){
-        QString msg = QString("File does not exist: ") + fileName;
-        emit sendErrorMessage(msg);
-        errorLabel->setText(msg);
-        return;
-    }
 
-    QString dirPath = fileInfo.absoluteDir().absolutePath();
-    QDir::setCurrent(dirPath);
-    qDebug() << "MainWindowWorkflowApp: setting current dir" << dirPath;
+void MainWindowWorkflowApp::updateExamplesMenu(void)
+{
 
-    //
-    // open file
-    //
+    if(exampleMenu == nullptr)
+        exampleMenu = menuBar()->addMenu(tr("&Examples"));
+    else
+        exampleMenu->clear();
 
-    QFile file(fileName);
-    if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(this, tr("Application"),
-                             tr("Cannot read file %1:\n%2.")
-                             .arg(QDir::toNativeSeparators(fileName), file.errorString()));
-        return;
-    }
+    exampleMenu->addAction("Manage Examples", this, &MainWindowWorkflowApp::showExampleDownloader);
+    exampleMenu->addSeparator();
 
-    // validate the document
-    // JsonValidator class already takes a model type param, add additional model types as required
+    auto pathExamplesFolder = QCoreApplication::applicationDirPath() + QDir::separator() + "Examples";
 
-    /*
-    JsonValidator *jval = new JsonValidator();
-    jval->validate(this, BIM, fileName);
-*/
+    auto pathToExamplesJson = pathExamplesFolder + QDir::separator() + "Examples.json";
 
-    // place contents of file into json object
-    QString val;
-    val=file.readAll();
-    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
-    QJsonObject jsonObj = doc.object();
+    QFile jsonFile(pathToExamplesJson);
+    if (jsonFile.exists())
+    {
+        jsonFile.open(QFile::ReadOnly);
+        QJsonDocument exDoc = QJsonDocument::fromJson(jsonFile.readAll());
 
-    //
-    //QFileInfo fileInfo(fileName);
-    SCUtils::ResolveAbsolutePaths(jsonObj, fileInfo.dir());
+        QJsonObject docObj = exDoc.object();
+        QJsonArray examples = docObj["Examples"].toArray();
 
-    //qDebug() << jsonObj;
+        foreach (const QJsonValue & example, examples) {
+            QJsonObject exampleObj = example.toObject();
+            QString name = exampleObj["name"].toString();
 
-    // close file
-    file.close();
+            QString inputFileName = exampleObj["inputFile"].toString();
+            QString downloadUrl = exampleObj["downloadUrl"].toString();
+            QString description = exampleObj["description"].toString();
 
-    // given the json object, create the C++ objects
-    if ( ! (currentFile.isNull() || currentFile.isEmpty()) ) {
-        inputWidget->clear();
-    }
+            QFile inputFile(pathExamplesFolder + QDir::separator() + inputFileName);
 
-    inputWidget->inputFromJSON(jsonObj);
+            if(inputFile.exists())
+            {
+                auto action = exampleMenu->addAction(name, this, &MainWindowWorkflowApp::loadExamples);
+                action->setProperty("name",name);
+                action->setProperty("inputFile",inputFileName);
+                action->setProperty("description",description);
+            }
 
-    setCurrentFile(fileName);
+            if(!downloadUrl.isEmpty())
+            {
+                theExampleDownloader->addExampleToDownload(downloadUrl,name,description,inputFileName);
+            }
+        }
+    } else
+        qDebug() << "No Examples" << pathToExamplesJson;
+
+    theExampleDownloader->updateTree();
+
 }
 
 
@@ -544,6 +570,23 @@ void MainWindowWorkflowApp::createActions() {
     exitAction->setStatusTip(tr("Exit the application"));
     fileMenu->addAction(exitAction);
 
+    // Edit menu for the clear action
+    QMenu *editMenu = menuBar()->addMenu(tr("&Edit"));
+
+    // Set the path to the input file
+    editMenu->addAction("&Clear Inputs", this, &MainWindowWorkflowApp::clear);
+    editMenu->addSeparator();
+    editMenu->addAction("&Clear Status Dialog", statusWidget, &PythonProgressDialog::clear);
+
+    // Add the view menu to the menu bar, make sure it comes before help
+
+    // Show progress dialog
+    QMenu *viewMenu = menuBar()->addMenu(tr("&View"));
+    viewMenu->addAction(statusDockWidget->toggleViewAction());
+
+    viewMenu->addSeparator();
+
+    // Add the help menu last
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(tr("&Version"), this, &MainWindowWorkflowApp::version);
     helpMenu->addAction(tr("&About"), this, &MainWindowWorkflowApp::about);
@@ -552,37 +595,6 @@ void MainWindowWorkflowApp::createActions() {
     // QAction *submitFeature = helpMenu->addAction(tr("&Submit Bug/Feature Request"), this, &MainWindowWorkflowApp::submitFeatureRequest);
     helpMenu->addAction(tr("&How to Cite"), this, &MainWindowWorkflowApp::cite);
     helpMenu->addAction(tr("&License"), this, &MainWindowWorkflowApp::copyright);
-
-    //
-    // Examples
-    //
-
-    auto pathToExamplesJson = QCoreApplication::applicationDirPath() + QDir::separator() +
-                "Examples" + QDir::separator() + "Examples.json";
-
-    QFile jsonFile(pathToExamplesJson);
-    if (jsonFile.exists()) {
-        // qDebug() << "Examples Exist";
-        jsonFile.open(QFile::ReadOnly);
-        QJsonDocument exDoc = QJsonDocument::fromJson(jsonFile.readAll());
-
-        QJsonObject docObj = exDoc.object();
-        QJsonArray examples = docObj["Examples"].toArray();
-        QMenu *exampleMenu = 0;
-        if (examples.size() > 0)
-            exampleMenu = menuBar()->addMenu(tr("&Examples"));
-        foreach (const QJsonValue & example, examples) {
-            QJsonObject exampleObj = example.toObject();
-            QString name = exampleObj["name"].toString();
-            QString inputFile = exampleObj["inputFile"].toString();
-            QString description = exampleObj["description"].toString();
-            auto action = exampleMenu->addAction(name, this, &MainWindowWorkflowApp::loadExamples);
-            action->setProperty("Name",name);
-            action->setProperty("InputFile",inputFile);
-            action->setProperty("Description",description);
-        }
-    } else
-        qDebug() << "No Examples" << pathToExamplesJson;
 }
 
 
@@ -596,6 +608,7 @@ void MainWindowWorkflowApp::onLoginButtonClicked() {
         emit logout();
     }
 }
+
 
 void MainWindowWorkflowApp::onLoginSubmitButtonClicked() {
 
@@ -629,9 +642,9 @@ MainWindowWorkflowApp::attemptLoginReturn(bool ok){
         loginButton->setText("Logout");
 
 
-    QSettings settings("SimCenter", "Common");
-    settings.setValue("loginAgave", nameLineEdit->text());
-    settings.setValue("passwordAgave", passwordLineEdit->text());
+        QSettings settings("SimCenter", "Common");
+        settings.setValue("loginAgave", nameLineEdit->text());
+        settings.setValue("passwordAgave", passwordLineEdit->text());
 
         //this->enableButtons();
 
@@ -653,7 +666,6 @@ MainWindowWorkflowApp::attemptLoginReturn(bool ok){
 
             QString msg = tr("ERROR: Max Login Attempts Exceeded .. Contact DesignSafe for password help");
             emit sendErrorMessage(msg);
-            errorLabel->setText(msg);
         }
     }
 }
@@ -679,13 +691,11 @@ MainWindowWorkflowApp::onRunButtonClicked() {
 void
 MainWindowWorkflowApp::onRemoteRunButtonClicked(){
     if (loggedIn == true) {
-        errorLabel->setText(QString(""));
         inputWidget->onRemoteRunButtonClicked();
     } else
     {
         QString msg = tr("You must log in to DesignSafe before you can run a remote job");
         emit sendErrorMessage(msg);
-        errorLabel->setText(msg);
 
         this->onLoginButtonClicked();
         isAutoLogin = true;
@@ -695,15 +705,17 @@ MainWindowWorkflowApp::onRemoteRunButtonClicked(){
 void
 MainWindowWorkflowApp::onRemoteGetButtonClicked(){
     if (loggedIn == true) {
-        errorLabel->setText(QString(""));
+
         inputWidget->onRemoteGetButtonClicked();
     } else
     {
         QString msg = tr("You Must LOGIN (button top right) before you can run retrieve remote data");
         emit sendErrorMessage(msg);
-        errorLabel->setText(msg);
+
+        this->onLoginButtonClicked();
     }
 };
+
 
 void MainWindowWorkflowApp::onExitButtonClicked(){
     //RandomVariablesContainer *theParameters = uq->getParameters();
@@ -721,6 +733,7 @@ void MainWindowWorkflowApp::version()
     layout->addItem(theSpacer, layout->rowCount(),0,1,layout->columnCount());
     msgBox.exec();
 }
+
 
 void MainWindowWorkflowApp::cite()
 {
@@ -761,9 +774,10 @@ void MainWindowWorkflowApp::about()
     delete dlg;
 }
 
+
 void MainWindowWorkflowApp::preferences()
 {
-  thePreferences->show();
+    thePreferences->show();
 }
 
 
@@ -773,69 +787,72 @@ void MainWindowWorkflowApp::submitFeedback()
     //QDesktopServices::openUrl(QUrl("https://www.designsafe-ci.org/help/new-ticket/", QUrl::TolerantMode));
 }
 
+
 void MainWindowWorkflowApp::manual()
 {
     QDesktopServices::openUrl(QUrl(manualURL, QUrl::TolerantMode));
     //QDesktopServices::openUrl(QUrl("https://www.designsafe-ci.org/help/new-ticket/", QUrl::TolerantMode));
 }
 
+
 void MainWindowWorkflowApp::copyright()
 {
-  QMessageBox msgBox;
-  QSpacerItem *theSpacer = new QSpacerItem(700, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
-  msgBox.setText(copyrightText);
-  QGridLayout *layout = (QGridLayout*)msgBox.layout();
-  layout->addItem(theSpacer, layout->rowCount(),0,1,layout->columnCount());
-  msgBox.exec();
+    QMessageBox msgBox;
+    QSpacerItem *theSpacer = new QSpacerItem(700, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    msgBox.setText(copyrightText);
+    QGridLayout *layout = (QGridLayout*)msgBox.layout();
+    layout->addItem(theSpacer, layout->rowCount(),0,1,layout->columnCount());
+    msgBox.exec();
 
 }
+
 
 void
 MainWindowWorkflowApp::setCopyright(QString &newText)
 {
-  copyrightText = newText;
+    copyrightText = newText;
 }
 
 void
 MainWindowWorkflowApp::setVersion(QString &newText)
 {
-  versionText = newText;
+    versionText = newText;
 }
 
 void
 MainWindowWorkflowApp::setAbout(QString &newText)
 {
-  aboutText = newText +QString("<p> This work is based on material supported by the National Science Foundation under grant 1612843<p>");
-  //qDebug() << "ABOUT: " << aboutText;
+    aboutText = newText +QString("<p> This work is based on material supported by the National Science Foundation under grant 1612843<p>");
+    //qDebug() << "ABOUT: " << aboutText;
 }
 
 void
 MainWindowWorkflowApp::setAbout(QString &newTitle, QString &newTextSource)
 {
-  aboutTitle  = newTitle;
-  aboutSource = newTextSource;
+    aboutTitle  = newTitle;
+    aboutSource = newTextSource;
 }
 
 void
 MainWindowWorkflowApp::setDocumentationURL(QString &newText)
 {
-  manualURL = newText;
+    manualURL = newText;
 }
 
 void
 MainWindowWorkflowApp::setFeedbackURL(QString &newText)
 {
-  feedbackURL = newText;
+    feedbackURL = newText;
 }
 
 void
 MainWindowWorkflowApp::setCite(QString &newText)
 {
-  citeText = newText;
+    citeText = newText;
 }
 
-
-void MainWindowWorkflowApp::loadExamples()
+void
+MainWindowWorkflowApp::loadExamples()
 {
     QObject* senderObj = QObject::sender();
 
@@ -843,41 +860,47 @@ void MainWindowWorkflowApp::loadExamples()
         return;
 
     auto pathToExample = QCoreApplication::applicationDirPath() + QDir::separator() + "Examples" + QDir::separator();
-    pathToExample += senderObj->property("InputFile").toString();
+    pathToExample += senderObj->property("inputFile").toString();
 
     if(pathToExample.isNull())
     {
         QString msg = "Error loading example "+pathToExample;
         emit sendErrorMessage(msg);
-        errorLabel->setText(msg);
         return;
     }
 
     // Clear current and input
-    inputWidget->clear();
     currentFile.clear();
 
-    auto exampleName = senderObj->property("Name").toString();
+    auto exampleName = senderObj->property("name").toString();
     emit sendStatusMessage("Loading example "+exampleName);
 
-    auto description = senderObj->property("Description").toString();
+    auto description = senderObj->property("description").toString();
 
     if(!description.isEmpty())
         emit sendInfoMessage(description);
 
-    auto progressDialog = inputWidget->getProgressDialog();
 
-    progressDialog->showProgressBar();
+    statusWidget->showProgressBar();
     QApplication::processEvents();
 
     emit sendStatusMessage("Loading Example file. Wait till Done Loading appears before progressing.");
     this->loadFile(pathToExample);
-    progressDialog->hideProgressBar();
-
-    emit sendStatusMessage("Done loading. Click on the 'RUN' button to run an analysis.");
+    statusWidget->hideProgressBar();
 
     // Automatically hide after n seconds
     // progressDialog->hideAfterElapsedTime(4);
 }
 
+void
+MainWindowWorkflowApp::clear()
+{
+    inputWidget->clear();
+}
+
+
+void MainWindowWorkflowApp::showExampleDownloader(void)
+{
+    theExampleDownloader->show();
+}
 

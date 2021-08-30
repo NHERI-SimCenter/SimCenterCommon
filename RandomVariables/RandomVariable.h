@@ -77,7 +77,6 @@ signals:
 public slots:
      void distributionChanged(const QString &arg1);
      void typeChanged(const QString &arg1);
-     void errorMessage(QString message);
 
 private:
     RandomVariableDistribution *theDistribution;

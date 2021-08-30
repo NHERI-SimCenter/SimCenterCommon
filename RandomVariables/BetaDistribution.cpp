@@ -143,7 +143,7 @@ BetaDistribution::outputToJSON(QJsonObject &rvObject){
     if (inpty==QString("Parameters")) {
         // check for error condition, an entry had no value
         if ((alpha->text().isEmpty())||(beta->text().isEmpty())||(a->text().isEmpty())||(b->text().isEmpty())) {
-            emit sendErrorMessage("ERROR: BetaDistribution - data has not been set");
+            this->errorMessage("ERROR: BetaDistribution - data has not been set");
             return false;
         }
         rvObject["alphas"]=alpha->text().toDouble();
@@ -152,7 +152,7 @@ BetaDistribution::outputToJSON(QJsonObject &rvObject){
         rvObject["upperbound"]=b->text().toDouble();
     } else if (inpty==QString("Moments")) {
         if ((mean->text().isEmpty())||(standardDev->text().isEmpty())||(a->text().isEmpty())||(b->text().isEmpty())) {
-            emit sendErrorMessage("ERROR: BetaDistribution - data has not been set");
+            this->errorMessage("ERROR: BetaDistribution - data has not been set");
             return false;
         }
         rvObject["mean"]=mean->text().toDouble();
@@ -161,7 +161,7 @@ BetaDistribution::outputToJSON(QJsonObject &rvObject){
         rvObject["upperbound"]=b->text().toDouble();
     } else if (inpty==QString("Dataset")) {
         if (dataDir->text().isEmpty()) {
-            emit sendErrorMessage("ERROR: BetaDistribution - data has not been set");
+            this->errorMessage("ERROR: BetaDistribution - data has not been set");
             return false;
         }
         rvObject["lowerbound"]=a->text().toDouble();
@@ -189,28 +189,28 @@ BetaDistribution::inputFromJSON(QJsonObject &rvObject){
             double theAlphaValue = rvObject["alphas"].toDouble();
             alpha->setText(QString::number(theAlphaValue));
         } else {
-            emit sendErrorMessage("ERROR: BetaDistribution - no \"alpha\" entry");
+            this->errorMessage("ERROR: BetaDistribution - no \"alpha\" entry");
             return false;
         }
         if (rvObject.contains("betas")) {
             double theBetaValue = rvObject["betas"].toDouble();
             beta->setText(QString::number(theBetaValue));
         } else {
-            emit sendErrorMessage("ERROR: BetaDistribution - no \"beta\" entry");
+            this->errorMessage("ERROR: BetaDistribution - no \"beta\" entry");
             return false;
         }
         if (rvObject.contains("lowerbound")) {
             double theAValue = rvObject["lowerbound"].toDouble();
             a->setText(QString::number(theAValue));
         } else {
-            emit sendErrorMessage("ERROR: BetaDistribution - no \"a\" entry");
+            this->errorMessage("ERROR: BetaDistribution - no \"a\" entry");
             return false;
         }
         if (rvObject.contains("upperbound")) {
             double theBValue = rvObject["upperbound"].toDouble();
             b->setText(QString::number(theBValue));
         } else {
-            emit sendErrorMessage("ERROR: BetaDistribution - no \"b\" entry");
+            this->errorMessage("ERROR: BetaDistribution - no \"b\" entry");
             return false;
         }
 
@@ -220,28 +220,28 @@ BetaDistribution::inputFromJSON(QJsonObject &rvObject){
             double theMeanValue = rvObject["mean"].toDouble();
             mean->setText(QString::number(theMeanValue));
         } else {
-            emit sendErrorMessage("ERROR: BetaDistribution - no \"mean\" entry");
+            this->errorMessage("ERROR: BetaDistribution - no \"mean\" entry");
             return false;
         }
         if (rvObject.contains("standardDev")) {
             double theStdValue = rvObject["standardDev"].toDouble();
             standardDev->setText(QString::number(theStdValue));
         } else {
-            emit sendErrorMessage("ERROR: BetaDistribution - no \"mean\" entry");
+            this->errorMessage("ERROR: BetaDistribution - no \"mean\" entry");
             return false;
         }
         if (rvObject.contains("lowerbound")) {
             double theAValue = rvObject["lowerbound"].toDouble();
             a->setText(QString::number(theAValue));
         } else {
-            emit sendErrorMessage("ERROR: BetaDistribution - no \"a\" entry");
+            this->errorMessage("ERROR: BetaDistribution - no \"a\" entry");
             return false;
         }
         if (rvObject.contains("upperbound")) {
             double theBValue = rvObject["upperbound"].toDouble();
             b->setText(QString::number(theBValue));
         } else {
-            emit sendErrorMessage("ERROR: BetaDistribution - no \"b\" entry");
+            this->errorMessage("ERROR: BetaDistribution - no \"b\" entry");
             return false;
         }
 
@@ -251,7 +251,7 @@ BetaDistribution::inputFromJSON(QJsonObject &rvObject){
           QString theDataDir = rvObject["dataDir"].toString();
           dataDir->setText(theDataDir);
       } else {
-          emit sendErrorMessage("ERROR: BetaDistribution - no \"mean\" entry");
+          this->errorMessage("ERROR: BetaDistribution - no \"mean\" entry");
           return false;
       }
     }

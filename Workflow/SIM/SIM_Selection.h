@@ -68,7 +68,6 @@ signals:
 public slots:
    void clear(void);
    void bimSelectionChanged(const QString &arg1);
-   void errorMessage(QString message);
 
 signals:
     void bimWidgetChanged(void);

@@ -37,14 +37,13 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include <SimCenterAppWidget.h>
+
 #include <QDir>
 #include <QDebug>
-#include <QMessageBox>
 
 SimCenterAppWidget::SimCenterAppWidget(QWidget *parent)
     :SimCenterWidget(parent)
 {
-
 }
 
 SimCenterAppWidget::~SimCenterAppWidget()
@@ -150,14 +149,3 @@ SimCenterAppWidget::copyFile(QString filename, QString destinationDir)
     return fileToCopy.copy(destinationDir + QDir::separator() + theFile);
 }
 
-void
-SimCenterAppWidget::userMessageDialog(const QString& messageString)
-{
-    if(messageString.isEmpty())
-        return;
-
-    QMessageBox msgBox;
-    msgBox.setText(messageString);
-    msgBox.setStandardButtons(QMessageBox::Close);
-    msgBox.exec();
-}

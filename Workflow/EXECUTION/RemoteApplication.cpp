@@ -486,7 +486,6 @@ RemoteApplication::startJobReturn(QString result) {
     Q_UNUSED(result);
    pushButton->setEnabled(true);
    emit successfullJobStart();
-   emit closeDialog();
 }
 
 void

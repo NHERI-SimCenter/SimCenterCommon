@@ -144,7 +144,7 @@ NormalDistribution::outputToJSON(QJsonObject &rvObject){
 
     if ((inpty==QString("Parameters")) || (inpty==QString("Moments"))) {
         if (mean->text().isEmpty() || standardDev->text().isEmpty()) {
-            emit sendErrorMessage("ERROR: NormalDistribution - data has not been set");
+            this->errorMessage("ERROR: NormalDistribution - data has not been set");
             return false;
         }
         rvObject["mean"]=mean->text().toDouble();
@@ -153,7 +153,7 @@ NormalDistribution::outputToJSON(QJsonObject &rvObject){
 
     } else if (inpty==QString("Dataset")) {
         if (dataDir->text().isEmpty()) {
-            emit sendErrorMessage("ERROR: LognormalDistribution - data has not been set");
+            this->errorMessage("ERROR: LognormalDistribution - data has not been set");
             return false;
         }
         rvObject["dataDir"]=QString(dataDir->text());
@@ -179,7 +179,7 @@ NormalDistribution::inputFromJSON(QJsonObject &rvObject){
             QJsonValue theMeanValue = rvObject["mean"];
             mean->setText(QString::number(theMeanValue.toDouble()));
         } else {
-            emit sendErrorMessage("ERROR: NormalDistribution - no \"mean\" entry");
+            this->errorMessage("ERROR: NormalDistribution - no \"mean\" entry");
             return false;
         }
 
@@ -187,7 +187,7 @@ NormalDistribution::inputFromJSON(QJsonObject &rvObject){
             QJsonValue theStdDevValue = rvObject["stdDev"];
             standardDev->setText(QString::number(theStdDevValue.toDouble()));
         } else {
-            emit sendErrorMessage("ERROR: NormalDistribution - no \"stdDev\" entry");
+            this->errorMessage("ERROR: NormalDistribution - no \"stdDev\" entry");
             return false;
         }
 
@@ -197,7 +197,7 @@ NormalDistribution::inputFromJSON(QJsonObject &rvObject){
           QString theDataDir = rvObject["dataDir"].toString();
           dataDir->setText(theDataDir);
       } else {
-          emit sendErrorMessage("ERROR: NormalDistribution - no \"mean\" entry");
+          this->errorMessage("ERROR: NormalDistribution - no \"mean\" entry");
           return false;
       }
     }

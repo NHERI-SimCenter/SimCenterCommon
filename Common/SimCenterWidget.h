@@ -51,7 +51,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
 #include <QWidget>
+
 class QJsonObject;
+class PythonProgressDialog;
 
 class SimCenterWidget : public QWidget
 {
@@ -73,35 +75,50 @@ public:
      */  
     virtual bool inputFromJSON(QJsonObject &jsonObject);
 
+    /**
+     *   @brief getter function to provide the status dialog
+     *   @param void
+     *   @return PythonProgressDialog* - a pointer to the status dialog object
+     */
+    PythonProgressDialog *getProgressDialog() const;
+
 signals:
 
     /**
      *   @brief sendFatalMessage signal to be emitted when object needs to shut program down
-     *   @param message to be returned
+     *   @param message to be passed
      *   @return void
      */
     void sendFatalMessage(QString message);
 
-    /**
-     *   @brief sendErrorMessage signal to be emitted when object needs to communicate error with user
-     *   @param message to be returned
-     *   @return void
-     */
-    void sendErrorMessage(QString message);
+    // Declare the message functions as slots to allow communication between threads
+public slots:
 
     /**
-     *   @brief sendStatusMessage signal to be emitted when object needs to communicate status with user
+     *   @brief communicates an error message to the user in the program status dialog
      *   @param message to be passed
      *   @return void
      */
-    void sendStatusMessage(QString message);
+    void errorMessage(const QString& message);
+
+    /**
+     *   @brief communicates a status message to the user in the program status dialog
+     *   @param message to be passed
+     *   @return void
+     */
+    void statusMessage(const QString& message);
 
 
-
-public slots:
+    /**
+     *   @brief communicates an information message to the user in the program status dialog
+     *   @param message to be passed
+     *   @return void
+     */
+    void infoMessage(const QString& message);
 
 private:
 
+    PythonProgressDialog* progressDialog;
 };
 
 #endif // SIMCENTER_WIDGET_H

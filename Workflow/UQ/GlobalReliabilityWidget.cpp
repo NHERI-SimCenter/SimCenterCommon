@@ -129,12 +129,12 @@ GlobalReliabilityWidget::outputToJSON(QJsonObject &jsonObj){
     QJsonArray probLevel;
     if (responseLevel->text() == "") {
         qDebug() << "GlobalReliability - At least one response value must be set";
-        emit sendErrorMessage("GlobalReliability - At least one response value must be set");
+        this->errorMessage("GlobalReliability - At least one response value must be set");
         return false;
     }
     QStringList probLevelList = QStringList(responseLevel->text().split(" "));
     if (probLevelList.size() == 0) {
-        emit sendErrorMessage("GlobalReliability - At least one response value must be set");
+        this->errorMessage("GlobalReliability - At least one response value must be set");
         return false;
     }
 

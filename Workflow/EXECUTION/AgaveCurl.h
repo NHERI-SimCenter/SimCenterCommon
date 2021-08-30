@@ -100,7 +100,6 @@ public:
     bool deleteJob(const QString &jobID, const QStringList &dirToRemove);
 
 signals:
-    void closeDialog();
 
 public slots:
     // login

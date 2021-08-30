@@ -345,7 +345,7 @@ InputWidgetOpenSeesAnalysis::inputFromJSON(QJsonObject &jsonObject)
         theIntegration->setText(jsonObject["integration"].toString());
 
     } else {
-        emit sendErrorMessage("ERROR: InputWidgetOpenSeesAnalysis - no \"integration\" ,\"convergenceTest\" or \"algorithm\" data");
+        this->errorMessage("ERROR: InputWidgetOpenSeesAnalysis - no \"integration\" ,\"convergenceTest\" or \"algorithm\" data");
         return false;
     }
 
@@ -359,7 +359,7 @@ InputWidgetOpenSeesAnalysis::inputFromJSON(QJsonObject &jsonObject)
        } else if (theValue.isDouble())
             dampingRatio->setText(QString::number(theValue.toDouble()));
     } else {
-      emit sendErrorMessage("ERROR: InputWidgetOpenSeesAnalysis - no \"dampingRatio\" data");
+      this->errorMessage("ERROR: InputWidgetOpenSeesAnalysis - no \"dampingRatio\" data");
         return false;
     }
 
@@ -495,7 +495,7 @@ InputWidgetOpenSeesAnalysis::copyFiles(QString &dirName) {
         return true;
     }
     if  (this->copyFile(file->text(), dirName) ==  false) {
-        emit sendErrorMessage(QString("ERROR: OpenSees Analysis copyFiles: failed to copy file: ") +file->text());
+        this->errorMessage(QString("ERROR: OpenSees Analysis copyFiles: failed to copy file: ") +file->text());
         return false;
     }
     return true;

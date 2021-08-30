@@ -17,26 +17,16 @@ WorkflowAppWidget::WorkflowAppWidget(RemoteService *theService, QWidget *parent)
     progressDialog = PythonProgressDialog::getInstance(this);
 }
 
+
 WorkflowAppWidget::~WorkflowAppWidget()
 {
 
 }
 
 
-void WorkflowAppWidget::showOutputDialog(void)
-{
-    progressDialog->setVisibility(true);
-}
-
-
-
 void
 WorkflowAppWidget::setMainWindow(MainWindowWorkflowApp* window) {
     theMainWindow = window;
-
-    // Show progress dialog
-    QMenu *windowsMenu = theMainWindow->menuBar()->addMenu(tr("&Windows"));
-    windowsMenu->addAction("Show Output Dialog", this, &WorkflowAppWidget::showOutputDialog);
 }
 
 
@@ -57,12 +47,6 @@ WorkflowAppWidget::errorMessage(const QString msg){
 
 
 void
-WorkflowAppWidget::closeDialog(){
-    progressDialog->setVisibility(false);
-}
-
-
-void
 WorkflowAppWidget::fatalMessage(const QString msg){
     progressDialog->appendErrorMessage(msg);
     emit sendFatalMessage(msg);
@@ -78,6 +62,7 @@ PythonProgressDialog *WorkflowAppWidget::getProgressDialog()
 {
     return progressDialog;
 }
+
 
 void WorkflowAppWidget::runComplete()
 {

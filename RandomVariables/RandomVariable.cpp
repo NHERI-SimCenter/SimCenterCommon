@@ -246,7 +246,7 @@ RandomVariable::outputToJSON(QJsonObject &rvObject){
         rvObject["refCount"]=refCount;
         result = theDistribution->outputToJSON(rvObject);
     } else {
-        emit sendErrorMessage("ERROR: RandomVariable - cannot output as no \"name\" entry!");
+        this->errorMessage("ERROR: RandomVariable - cannot output as no \"name\" entry!");
         return false;
     }
     return result;
@@ -402,11 +402,3 @@ void RandomVariable::fixToUniform(double dValue)
 
 }
 
-
-
-
-
-void
-RandomVariable::errorMessage(QString message) {
-   emit sendErrorMessage(message);
-}

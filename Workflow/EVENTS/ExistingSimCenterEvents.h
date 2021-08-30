@@ -91,7 +91,6 @@ public:
     bool copyFiles(QString &dirName);
 
 public slots:
-   void errorMessage(QString message);
    void addEvent(void);
    void removeEvents(void);
    void clear(void);

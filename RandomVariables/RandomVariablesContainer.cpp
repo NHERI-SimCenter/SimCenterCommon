@@ -882,7 +882,7 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
 
 void
 RandomVariablesContainer::errorMessage(QString message){
-    emit sendErrorMessage(message);
+    this->errorMessage(message);
 }
 
 void

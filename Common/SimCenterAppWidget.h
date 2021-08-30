@@ -50,6 +50,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
 #include <SimCenterWidget.h>
+
 class QJsonObject;
 
 class SimCenterAppWidget : public SimCenterWidget
@@ -94,8 +95,6 @@ public:
     static bool copyPath(QString sourceDir, QString destinationDir, bool overWriteDirectory);
     static bool copyFile(QString filename, QString destinationDir);
 
-    // A dialog to present a message to the user
-    void userMessageDialog(const QString& messageString);
 
 signals:
 

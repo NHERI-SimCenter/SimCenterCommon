@@ -124,21 +124,21 @@ WeibullDistribution::outputToJSON(QJsonObject &rvObject){
     if (inpty==QString("Parameters")) {
         // check for error condition, an entry had no value
         if ((an->text().isEmpty())||(k->text().isEmpty())) {
-            emit sendErrorMessage("ERROR: WeibullDistribution - data has not been set");
+            this->errorMessage("ERROR: WeibullDistribution - data has not been set");
             return false;
         }
         rvObject["scaleparam"]=an->text().toDouble();
         rvObject["shapeparam"]=k->text().toDouble();
     } else if (inpty==QString("Moments")) {
         if ((mean->text().isEmpty())||(standardDev->text().isEmpty())) {
-            emit sendErrorMessage("ERROR: WeibullDistribution - data has not been set");
+            this->errorMessage("ERROR: WeibullDistribution - data has not been set");
             return false;
         }
         rvObject["mean"]=mean->text().toDouble();
         rvObject["standardDev"]=standardDev->text().toDouble();
     } else if (inpty==QString("Dataset")) {
         if (dataDir->text().isEmpty()) {
-            emit sendErrorMessage("ERROR: WeibullDistribution - data has not been set");
+            this->errorMessage("ERROR: WeibullDistribution - data has not been set");
             return false;
         }
         rvObject["dataDir"]=QString(dataDir->text());
@@ -165,14 +165,14 @@ WeibullDistribution::inputFromJSON(QJsonObject &rvObject){
             double theMuValue = rvObject["scaleparam"].toDouble();
             an->setText(QString::number(theMuValue));
         } else {
-            emit sendErrorMessage("ERROR: WeibullDistribution - no \"a\" entry");
+            this->errorMessage("ERROR: WeibullDistribution - no \"a\" entry");
             return false;
         }
         if (rvObject.contains("shapeparam")) {
             double theSigValue = rvObject["shapeparam"].toDouble();
             k->setText(QString::number(theSigValue));
         } else {
-            emit sendErrorMessage("ERROR: WeibullDistribution - no \"a\" entry");
+            this->errorMessage("ERROR: WeibullDistribution - no \"a\" entry");
             return false;
         }
       } else if (inpty==QString("Moments")) {
@@ -181,14 +181,14 @@ WeibullDistribution::inputFromJSON(QJsonObject &rvObject){
             double theMeanValue = rvObject["mean"].toDouble();
             mean->setText(QString::number(theMeanValue));
         } else {
-            emit sendErrorMessage("ERROR: WeibullDistribution - no \"mean\" entry");
+            this->errorMessage("ERROR: WeibullDistribution - no \"mean\" entry");
             return false;
         }
         if (rvObject.contains("standardDev")) {
             double theStdValue = rvObject["standardDev"].toDouble();
             standardDev->setText(QString::number(theStdValue));
         } else {
-            emit sendErrorMessage("ERROR: WeibullDistribution - no \"mean\" entry");
+            this->errorMessage("ERROR: WeibullDistribution - no \"mean\" entry");
             return false;
         }
     } else if (inpty==QString("Dataset")) {
@@ -197,7 +197,7 @@ WeibullDistribution::inputFromJSON(QJsonObject &rvObject){
           QString theDataDir = rvObject["dataDir"].toString();
           dataDir->setText(theDataDir);
       } else {
-          emit sendErrorMessage("ERROR: WeibullDistribution - no \"mean\" entry");
+          this->errorMessage("ERROR: WeibullDistribution - no \"mean\" entry");
           return false;
       }
     }

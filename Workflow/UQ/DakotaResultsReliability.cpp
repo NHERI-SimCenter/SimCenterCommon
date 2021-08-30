@@ -132,7 +132,7 @@ void DakotaResultsReliability::clear(void)
 int DakotaResultsReliability::processResults(QString &filenameResults, QString &filenameTab)
 {
 
-  emit sendStatusMessage(tr("Processing Reliability Results"));
+  this->statusMessage(tr("Processing Reliability Results"));
 
   // clear current
   this->clear();
@@ -153,7 +153,7 @@ int DakotaResultsReliability::processResults(QString &filenameResults, QString &
 
   QFileInfo filenameErrorInfo(filenameErrorString);
   if (!filenameErrorInfo.exists()) {
-      emit sendErrorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applicatins failed with inputs provied");
+      this->errorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applicatins failed with inputs provied");
       return 0;
   }
   QFile fileError(filenameErrorString);
@@ -168,13 +168,13 @@ int DakotaResultsReliability::processResults(QString &filenameResults, QString &
 
   if ((line.length() != 0) && (!line.contains("Warning: unit probability", Qt::CaseInsensitive))){
       qDebug() << line.length() << " " << line;
-      emit sendErrorMessage(QString(QString("Error Rnning Dakota: ") + line));
+      this->errorMessage(QString(QString("Error Rnning Dakota: ") + line));
       return 0;
   }
 
   QFileInfo filenameResultsInfo(filenameResults);
   if (!filenameResultsInfo.exists()) {
-      emit sendErrorMessage("No dakota.out file - dakota failed .. possibly no QoI");
+      this->errorMessage("No dakota.out file - dakota failed .. possibly no QoI");
       return 0;
   }
 
@@ -293,7 +293,7 @@ int DakotaResultsReliability::processResults(QString &filenameResults, QString &
 
   this->onSpreadsheetCellClicked(0,1);
   if (numSpreadsheetRows == 0)
-      emit sendStatusMessage(tr("No Result Data Found .. dakota failed .. possibly no QoI provided"));
+      this->statusMessage(tr("No Result Data Found .. dakota failed .. possibly no QoI provided"));
 
   return 0;
 }
