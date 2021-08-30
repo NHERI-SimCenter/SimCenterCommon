@@ -402,3 +402,26 @@ void RandomVariable::fixToUniform(double dValue)
 
 }
 
+void RandomVariable::uqEngineChanged(QString newUqEngineName) {
+    if (uqEngineName!=newUqEngineName) {
+        if (newUqEngineName==QString("SimCenterUQ")){
+            typeLabel->setVisible(true);
+            typeComboBox->setVisible(true);
+            distributionComboBox->addItem(tr("Exponential"));
+            distributionComboBox->addItem(tr("Discrete"));
+            distributionComboBox->addItem(tr("Gamma"));
+            distributionComboBox->addItem(tr("Chisquare"));
+            distributionComboBox->addItem(tr("Truncated exponential"));
+        }
+        if (newUqEngineName==QString("Dakota")){
+            typeLabel->setVisible(false);
+            typeComboBox->setVisible(false);
+            distributionComboBox->removeItem(7);
+            distributionComboBox->removeItem(8);
+            distributionComboBox->removeItem(9);
+            distributionComboBox->removeItem(10);
+            distributionComboBox->removeItem(11);
+        }
+        uqEngineName = newUqEngineName;
+    }
+}
