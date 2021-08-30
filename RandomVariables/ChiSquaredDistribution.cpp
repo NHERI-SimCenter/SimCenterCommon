@@ -96,7 +96,7 @@ ChiSquaredDistribution::ChiSquaredDistribution(QString inpType, QWidget *parent)
 
     mainLayout->setColumnStretch(2,1);
 
-    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
 
     if (inpty==QString("Parameters")) {
         connect(k,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));

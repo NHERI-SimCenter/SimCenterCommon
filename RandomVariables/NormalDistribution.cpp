@@ -88,7 +88,7 @@ NormalDistribution::NormalDistribution(QString inpType, QWidget *parent) :Random
         });
     }
 
-    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
 
     if ((inpty==QString("Parameters"))||(inpty==QString("Moments"))) {
         connect(mean,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
@@ -126,7 +126,7 @@ NormalDistribution::NormalDistribution(double initValue, QWidget *parent) :Rando
     mainLayout->addWidget(showPlotButton,1,2);
     mainLayout->setColumnStretch(3,1);
 
-    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
 
     connect(mean,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
     connect(standardDev,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
