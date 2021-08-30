@@ -99,7 +99,7 @@ UniformDistribution::UniformDistribution(QString inpType, QWidget *parent) :Rand
 
     mainLayout->setColumnStretch(3,1);
 
-    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
 
     if (inpty==QString("Parameters")) {
         connect(a,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
@@ -136,7 +136,7 @@ UniformDistribution::UniformDistribution(double initValue, QWidget *parent)  :Ra
     mainLayout->addWidget(showPlotButton, 1,2);
     mainLayout->setColumnStretch(3,1);
 
-    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
 
     connect(a,SIGNAL(textChanged(QString)), this, SLOT(updateDistributionPlot()));
     connect(b,SIGNAL(textChanged(QString)), this, SLOT(updateDistributionPlot()));

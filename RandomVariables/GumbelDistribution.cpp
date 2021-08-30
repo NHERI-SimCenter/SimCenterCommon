@@ -98,7 +98,7 @@ GumbelDistribution::GumbelDistribution(QString inpType, QWidget *parent) :Random
 
     mainLayout->setColumnStretch(3,1);
 
-    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
 
     if (inpty==QString("Parameters")) {
         connect(alpha,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));

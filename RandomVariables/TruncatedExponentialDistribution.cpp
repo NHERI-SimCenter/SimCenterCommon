@@ -116,7 +116,7 @@ TruncatedExponentialDistribution::TruncatedExponentialDistribution(QString inpTy
     mainLayout->setColumnStretch(4,1);
 
 
-    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
 
     if (inpty==QString("Parameters")) {
         connect(lambda,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
