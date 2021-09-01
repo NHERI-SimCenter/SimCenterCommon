@@ -407,21 +407,37 @@ void RandomVariable::uqEngineChanged(QString newUqEngineName) {
         if (newUqEngineName==QString("SimCenterUQ")){
             typeLabel->setVisible(true);
             typeComboBox->setVisible(true);
-            distributionComboBox->addItem(tr("Exponential"));
-            distributionComboBox->addItem(tr("Discrete"));
-            distributionComboBox->addItem(tr("Gamma"));
-            distributionComboBox->addItem(tr("Chisquare"));
-            distributionComboBox->addItem(tr("Truncated exponential"));
+            if (distributionComboBox->count()<8) {
+                distributionComboBox->addItem(tr("Exponential"));
+                distributionComboBox->addItem(tr("Discrete"));
+                distributionComboBox->addItem(tr("Gamma"));
+                distributionComboBox->addItem(tr("Chisquare"));
+                distributionComboBox->addItem(tr("Truncated exponential"));
+            }
         }
         if (newUqEngineName==QString("Dakota")){
             typeLabel->setVisible(false);
             typeComboBox->setVisible(false);
-            distributionComboBox->removeItem(7);
-            distributionComboBox->removeItem(8);
-            distributionComboBox->removeItem(9);
-            distributionComboBox->removeItem(10);
-            distributionComboBox->removeItem(11);
+            for (int i=distributionComboBox->count(); i>6; i--) {
+                distributionComboBox->removeItem(i);
+            }
+
+            QString distName = distributionComboBox->currentText();
+            if (distName=="Lognormal") {
+                typeComboBox->setCurrentText("Moments");
+                distributionComboBox->setCurrentText(distName);
+            } else {
+                typeComboBox->setCurrentText("Parameters");
+                distributionComboBox->setCurrentText(distName);
+            }
         }
         uqEngineName = newUqEngineName;
+    }
+
+    // surrogate and design
+    if (variableClass == QString("Design")) {
+        distributionComboBox->addItem(tr("ContinuousDesign"));
+        distributionComboBox->addItem(tr("Constant"));
+        theDistribution = new ContinuousDesignDistribution();
     }
 }
