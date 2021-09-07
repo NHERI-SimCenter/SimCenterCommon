@@ -525,7 +525,7 @@ void RandomVariablesContainer::removeRandomVariable(void)
 
 void RandomVariablesContainer::loadRVsFromJson(void)
 {
-    QString RVsFileDir=QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "JSON File (*.json)");
+    QString RVsFileDir=QFileDialog::getOpenFileName(this,tr("Open File"),"", "JSON File (*.json)");
 
     QFile file(RVsFileDir);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
