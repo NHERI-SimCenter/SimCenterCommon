@@ -45,7 +45,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLineEdit>
 #include <QRadioButton>
 #include <QDebug>
-
+#include <QDir>
 //
 // headers for RandomVariableDistribution subclasses that user can select
 //
@@ -233,6 +233,12 @@ RandomVariable::RandomVariable(const QString &type,
  RandomVariable::getVariableName(void){
      return variableName->text();
  }
+
+ void
+ RandomVariable::copyFiles(QString fileDir){
+     theDistribution->copyFiles(fileDir + QDir::separator() + variableName->text() +".in");
+ }
+
 
 bool
 RandomVariable::outputToJSON(QJsonObject &rvObject){

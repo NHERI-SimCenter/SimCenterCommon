@@ -110,6 +110,11 @@ ConstantDistribution::inputFromJSON(QJsonObject &rvObject){
     return true;
 }
 
+void
+ConstantDistribution::copyFiles(QString fileDir) {
+    //do nothing
+}
+
 QString 
 ConstantDistribution::getAbbreviatedName(void) {
   return QString("Constant");

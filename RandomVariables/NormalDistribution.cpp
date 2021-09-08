@@ -84,7 +84,7 @@ NormalDistribution::NormalDistribution(QString inpType, QWidget *parent) :Random
 
         // Action
         connect(chooseFileButton, &QPushButton::clicked, this, [=](){
-                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)"));
+                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
         });
     }
 
@@ -204,6 +204,13 @@ NormalDistribution::inputFromJSON(QJsonObject &rvObject){
 
     this->updateDistributionPlot();
     return true;
+}
+
+void
+NormalDistribution::copyFiles(QString fileDir) {
+    if (inpty==QString("Dataset")) {
+        QFile::copy(dataDir->text(), fileDir);
+    }
 }
 
 QString

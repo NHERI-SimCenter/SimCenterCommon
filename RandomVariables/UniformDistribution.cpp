@@ -93,7 +93,7 @@ UniformDistribution::UniformDistribution(QString inpType, QWidget *parent) :Rand
 
         // Action
         connect(chooseFileButton, &QPushButton::clicked, this, [=](){
-                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)"));
+                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
         });
     }
 
@@ -265,6 +265,13 @@ UniformDistribution::inputFromJSON(QJsonObject &rvObject){
 
     this->updateDistributionPlot();
     return true;
+}
+
+void
+UniformDistribution::copyFiles(QString fileDir) {
+    if (inpty==QString("Dataset")) {
+        QFile::copy(dataDir->text(), fileDir);
+    }
 }
 
 QString 

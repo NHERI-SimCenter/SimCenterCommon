@@ -88,7 +88,7 @@ ExponentialDistribution::ExponentialDistribution(QString inpType, QWidget *paren
 
         // Action
         connect(chooseFileButton, &QPushButton::clicked, this, [=](){
-                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)"));
+                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
         });
     }
 
@@ -181,6 +181,13 @@ ExponentialDistribution::inputFromJSON(QJsonObject &rvObject){
 
     this->updateDistributionPlot();
     return true;
+}
+
+void
+ExponentialDistribution::copyFiles(QString fileDir) {
+    if (inpty==QString("Dataset")) {
+        QFile::copy(dataDir->text(), fileDir);
+    }
 }
 
 QString 

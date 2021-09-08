@@ -111,7 +111,7 @@ BetaDistribution::BetaDistribution(QString inpType, QWidget *parent) :RandomVari
 
         // Action
         connect(chooseFileButton, &QPushButton::clicked, this, [=](){
-                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)"));
+                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
         });
     }
 
@@ -260,7 +260,14 @@ BetaDistribution::inputFromJSON(QJsonObject &rvObject){
     return true;
 }
 
-QString 
+void BetaDistribution::copyFiles(QString fileDir) {
+    if (inpty==QString("Dataset")) {
+        QFile::copy(dataDir->text(), fileDir);
+    }
+}
+
+
+QString
 BetaDistribution::getAbbreviatedName(void) {
   return QString("Beta");
 }

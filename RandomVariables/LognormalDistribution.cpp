@@ -92,7 +92,7 @@ LognormalDistribution::LognormalDistribution(QString inpType, QWidget *parent) :
 
         // Action
         connect(chooseFileButton, &QPushButton::clicked, this, [=](){
-                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)"));
+                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
         });
     }
 
@@ -142,6 +142,13 @@ LognormalDistribution::outputToJSON(QJsonObject &rvObject){
         rvObject["dataDir"]=QString(dataDir->text());
     }
     return true;
+}
+
+void
+LognormalDistribution::copyFiles(QString fileDir) {
+    if (inpty==QString("Dataset")) {
+        QFile::copy(dataDir->text(), fileDir);
+    }
 }
 
 bool

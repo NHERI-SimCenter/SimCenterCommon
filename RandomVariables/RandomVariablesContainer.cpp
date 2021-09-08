@@ -837,6 +837,15 @@ RandomVariablesContainer::getNumRandomVariables(void)
     return theRandomVariables.size(); 
 }
 
+void
+RandomVariablesContainer::copyFiles(QString fileDir)
+{
+    for (int i = 0; i <theRandomVariables.size(); ++i) {
+        theRandomVariables.at(i)->copyFiles(fileDir);
+    }
+}
+
+
 bool
 RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
 {

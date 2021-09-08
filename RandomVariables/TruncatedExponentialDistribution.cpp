@@ -104,7 +104,7 @@ TruncatedExponentialDistribution::TruncatedExponentialDistribution(QString inpTy
 
         // Action
         connect(chooseFileButton, &QPushButton::clicked, this, [=](){
-                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)"));
+                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
         });
     }
 
@@ -263,6 +263,13 @@ TruncatedExponentialDistribution::inputFromJSON(QJsonObject &rvObject){
 
     this->updateDistributionPlot();
     return true;
+}
+
+void
+TruncatedExponentialDistribution::copyFiles(QString fileDir) {
+    if (inpty==QString("Dataset")) {
+        QFile::copy(dataDir->text(), fileDir);
+    }
 }
 
 QString 

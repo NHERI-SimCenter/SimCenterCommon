@@ -93,7 +93,7 @@ GammaDistribution::GammaDistribution(QString inpType, QWidget *parent) :RandomVa
 
         // Action
         connect(chooseFileButton, &QPushButton::clicked, this, [=](){
-                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)"));
+                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
         });
     }
 
@@ -203,6 +203,14 @@ GammaDistribution::inputFromJSON(QJsonObject &rvObject){
 
     this->updateDistributionPlot();
     return true;
+}
+
+
+void
+GammaDistribution::copyFiles(QString fileDir) {
+    if (inpty==QString("Dataset")) {
+        QFile::copy(dataDir->text(), fileDir);
+    }
 }
 
 QString 

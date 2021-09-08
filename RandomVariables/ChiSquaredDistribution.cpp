@@ -90,7 +90,7 @@ ChiSquaredDistribution::ChiSquaredDistribution(QString inpType, QWidget *parent)
 
         // Action
         connect(chooseFileButton, &QPushButton::clicked, this, [=](){
-                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)"));
+                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
         });
     }
 
@@ -184,6 +184,14 @@ ChiSquaredDistribution::inputFromJSON(QJsonObject &rvObject){
     this->updateDistributionPlot();
     return true;
 }
+
+void
+ChiSquaredDistribution::copyFiles(QString fileDir) {
+    if (inpty==QString("Dataset")) {
+        QFile::copy(dataDir->text(), fileDir);
+    }
+}
+
 
 QString 
 ChiSquaredDistribution::getAbbreviatedName(void) {
