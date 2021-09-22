@@ -294,7 +294,7 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     
     QPushButton *remoteWorkDirButton = new QPushButton();
     remoteWorkDirButton->setText("Browse");
-    remoteWorkDirButton->setToolTip(tr("Select Work directory where local jobs will run"));
+    remoteWorkDirButton->setToolTip(tr("Select Work directory where remote job data are staged"));
     remoteWorkDirLayout->addWidget(remoteWorkDirButton);
 
     locationDirectoriesLayout->addRow(tr("Remote Jobs Directory:"), remoteWorkDirLayout);
@@ -314,7 +314,7 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
         }
 
         QString selectedDir = QFileDialog::getExistingDirectory(this,
-                                                                tr("Select Local directory were remote job data staged"),
+                                                                tr("Select Local directory where remote job data staged"),
                                                                 existingDir,
                                                                 QFileDialog::ShowDirsOnly);
         if(!selectedDir.isEmpty()) {
