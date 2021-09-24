@@ -55,6 +55,7 @@ public:
     double integrateProb(double lam1, double lower, double upper);
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
+    void copyFiles(QString fileDir);
 
     QString getAbbreviatedName(void);
 

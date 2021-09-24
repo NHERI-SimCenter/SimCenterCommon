@@ -45,7 +45,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLineEdit>
 #include <QRadioButton>
 #include <QDebug>
-
+#include <QDir>
 //
 // headers for RandomVariableDistribution subclasses that user can select
 //
@@ -234,6 +234,12 @@ RandomVariable::RandomVariable(const QString &type,
      return variableName->text();
  }
 
+ void
+ RandomVariable::copyFiles(QString fileDir){
+     theDistribution->copyFiles(fileDir + QDir::separator() + variableName->text() +".in");
+ }
+
+
 bool
 RandomVariable::outputToJSON(QJsonObject &rvObject){
     bool result = false;
@@ -402,3 +408,42 @@ void RandomVariable::fixToUniform(double dValue)
 
 }
 
+void RandomVariable::uqEngineChanged(QString newUqEngineName) {
+    if (uqEngineName!=newUqEngineName) {
+        if (newUqEngineName==QString("SimCenterUQ")){
+            typeLabel->setVisible(true);
+            typeComboBox->setVisible(true);
+            if (distributionComboBox->count()<8) {
+                distributionComboBox->addItem(tr("Exponential"));
+                distributionComboBox->addItem(tr("Discrete"));
+                distributionComboBox->addItem(tr("Gamma"));
+                distributionComboBox->addItem(tr("Chisquare"));
+                distributionComboBox->addItem(tr("Truncated exponential"));
+            }
+        }
+        if (newUqEngineName==QString("Dakota")){
+            typeLabel->setVisible(false);
+            typeComboBox->setVisible(false);
+            for (int i=distributionComboBox->count(); i>6; i--) {
+                distributionComboBox->removeItem(i);
+            }
+
+            QString distName = distributionComboBox->currentText();
+            if (distName=="Lognormal") {
+                typeComboBox->setCurrentText("Moments");
+                distributionComboBox->setCurrentText(distName);
+            } else {
+                typeComboBox->setCurrentText("Parameters");
+                distributionComboBox->setCurrentText(distName);
+            }
+        }
+        uqEngineName = newUqEngineName;
+    }
+
+    // surrogate and design
+    if (variableClass == QString("Design")) {
+        distributionComboBox->addItem(tr("ContinuousDesign"));
+        distributionComboBox->addItem(tr("Constant"));
+        theDistribution = new ContinuousDesignDistribution();
+    }
+}

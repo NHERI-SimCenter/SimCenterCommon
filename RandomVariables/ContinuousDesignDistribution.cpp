@@ -116,6 +116,10 @@ ContinuousDesignDistribution::inputFromJSON(QJsonObject &rvObject){
 
     return true;
 }
+void
+ContinuousDesignDistribution::copyFiles(QString fileDir) {
+    //do nothing
+}
 
 QString 
 ContinuousDesignDistribution::getAbbreviatedName(void) {

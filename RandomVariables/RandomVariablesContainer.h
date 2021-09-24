@@ -85,7 +85,10 @@ public:
 
     QStringList getRandomVariableNames(void);
     int getNumRandomVariables(void);
-
+    QVector<RandomVariable *> getRVdists(void);
+    QTableWidget * getRVcorr();
+    void copyRVs(RandomVariablesContainer *oldRVcontainers);
+    void copyFiles(QString fileName);
 public slots:
    void errorMessage(QString message);
    void addRandomVariable(void);

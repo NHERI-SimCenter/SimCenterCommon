@@ -111,6 +111,11 @@ UserDef::inputFromJSON(QJsonObject &rvObject){
     return true;
 }
 
+void
+UserDef::copyFiles(QString fileDir) {
+    //do nothing
+}
+
 QString
 UserDef::getAbbreviatedName(void) {
   return QString("UserDef");

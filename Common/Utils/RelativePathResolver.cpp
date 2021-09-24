@@ -1,6 +1,7 @@
 #include "RelativePathResolver.h"
 #include <QJsonArray>
 #include <QFileInfo>
+#include <QRegularExpression>
 
 
 namespace SCUtils {
