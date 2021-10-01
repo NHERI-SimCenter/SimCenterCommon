@@ -566,8 +566,11 @@ SimCenterPreferences::resetPreferences(bool) {
     settingsApplication.setValue("appDir", appDirLocation);
     appDir->setText(appDirLocation);
     
-    QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede2/SimCenterBackendApplications/v2.4.0");
-    settingsApplication.setValue("remoteBackendDir", remoteBackendDirLocation);
+    QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede2/SimCenterBackendApplications/v2.5.0");
+    QString appName = QCoreApplication::applicationName();
+    if (appName == QString("quoFEM"))
+      remoteBackendDirLocation = QString("/work/00477/tg457427/frontera/SimCenterBackendApplications/v2.5.0");
+      
     remoteBackendDir->setText(remoteBackendDirLocation);
 
     QString remoteAppName = this->getDefaultAgaveApp();
@@ -931,6 +934,8 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
       remoteApp = QString("rWhale-2.3.0u1");
     if (appName == QString("HydroUQ"))
       remoteApp = QString("simcenter-olaflow-dakota-1.0.1u3");
+    if (appName == QString("quoFEM"))
+      remoteApp = QString("simcenter-uq-frontera-1.0.0u1");    
 
     return remoteApp;
 }
