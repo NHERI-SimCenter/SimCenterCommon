@@ -267,4 +267,8 @@ QComboBox:!editable:on, QComboBox::drop-down:editable:on {
     background: rgb(240, 240, 240);
 }
 
-
+QLineEdit {
+    background: white;
+    border-radius: 5px;
+    color: black;    
+}
