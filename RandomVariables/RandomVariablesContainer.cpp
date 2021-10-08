@@ -412,7 +412,7 @@ RandomVariablesContainer::addRandomVariable(void) {
     RandomVariable *theRV = new RandomVariable(randomVariableClass, uqEngineName);
     theRandomVariables.append(theRV);
     rvLayout->insertWidget(rvLayout->count()-1, theRV);
-    connect(this,SLOT(randomVariableErrorMessage(QString)), theRV, SIGNAL(sendErrorMessage(QString)));
+    // connect(this,SLOT(randomVariableErrorMessage(QString)), theRV, SIGNAL(sendErrorMessage(QString)));
 
     connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(variableNameChanged(const QString &)));
 
@@ -583,7 +583,7 @@ RandomVariablesContainer::addRandomVariable(RandomVariable *theRV) {
         theRV->refCount = 1;
         theRV->variableName->setReadOnly(true);
 
-        connect(this,SLOT(randomVariableErrorMessage(QString)), theRV, SIGNAL(sendErrorMessage(QString)));
+       // connect(this,SLOT(randomVariableErrorMessage(QString)), theRV, SIGNAL(sendErrorMessage(QString)));
         connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(variableNameChanged(const QString &)));
 
         randomVariableNames << theRV->variableName->text();
@@ -883,7 +883,7 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
                   theRV = new RandomVariable(classType,uqEngineName);
                   connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(variableNameChanged(const QString &)));
 
-                  connect(theRV,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+                  //connect(theRV,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 
                   if (theRV->inputFromJSON(rvObject)) { // this method is where type is set
                       theRandomVariables.append(theRV);
