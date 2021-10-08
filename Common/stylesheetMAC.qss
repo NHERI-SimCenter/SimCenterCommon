@@ -196,3 +196,7 @@ QComboBox {
     min-width: 8em;
 }
 
+QLineEdit {
+    border-radius: 5px;
+    color: black;    
+}
