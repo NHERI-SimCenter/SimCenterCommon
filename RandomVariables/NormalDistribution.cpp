@@ -153,7 +153,7 @@ NormalDistribution::outputToJSON(QJsonObject &rvObject){
 
     } else if (inpty==QString("Dataset")) {
         if (dataDir->text().isEmpty()) {
-            this->errorMessage("ERROR: LognormalDistribution - data has not been set");
+            this->errorMessage("ERROR: NormalDistribution - data has not been set");
             return false;
         }
         rvObject["dataDir"]=QString(dataDir->text());
