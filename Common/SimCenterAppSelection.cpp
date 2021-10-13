@@ -90,7 +90,7 @@ SimCenterAppSelection::SimCenterAppSelection(QString label, QString appName, QWi
   
   layout->addLayout(topLayout);
   layout->addWidget(theStackedWidget);
-  layout->addStretch();
+//  layout->addStretch();
 
   this->setLayout(layout);  
 
