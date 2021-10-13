@@ -53,7 +53,7 @@ class RandomVariableDistribution : public SimCenterWidget
 public:
     explicit RandomVariableDistribution(QWidget *parent = 0);
     ~RandomVariableDistribution();
-    double TruncatedExponentialDistribution(QString inpType, QWidget *parent = 0);
+    //double TruncatedExponentialDistribution(QString inpType, QWidget *parent = 0);
 
     QLineEdit *createTextEntry(QString text,
                    QHBoxLayout *theLayout,
@@ -66,6 +66,7 @@ public:
                    int minL=100,
                    int maxL=100);
 
+    virtual void copyFiles(QString fileDir) = 0;
     virtual QString getAbbreviatedName(void) = 0;
 
 signals:

@@ -45,7 +45,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLineEdit>
 #include <QRadioButton>
 #include <QDebug>
-
+#include <QDir>
 //
 // headers for RandomVariableDistribution subclasses that user can select
 //
@@ -177,7 +177,7 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     //mainLayout->addStretch();
 
     mainLayout->addWidget(theDistribution,0,4,2,1);
-    connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+    // connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 
     //this->setLayout(mainLayout);
   // mainLayout->setSizeConstraint(QLayout::SetMaximumSize);
@@ -218,7 +218,7 @@ RandomVariable::RandomVariable(const QString &type,
     // set new
     theDistribution = &theD;
     mainLayout->addWidget(theDistribution,0,4,2,1);
-    connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+    // connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 }
 
 
@@ -233,6 +233,12 @@ RandomVariable::RandomVariable(const QString &type,
  RandomVariable::getVariableName(void){
      return variableName->text();
  }
+
+ void
+ RandomVariable::copyFiles(QString fileDir){
+     theDistribution->copyFiles(fileDir + QDir::separator() + variableName->text() +".in");
+ }
+
 
 bool
 RandomVariable::outputToJSON(QJsonObject &rvObject){
@@ -386,7 +392,7 @@ void RandomVariable::distributionChanged(const QString &arg1)
       mainLayout->addWidget(theDistribution,0,4,2,1);
     }
 
-    connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+    // connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 }
 
 void RandomVariable::fixToUniform(double dValue)
@@ -402,3 +408,42 @@ void RandomVariable::fixToUniform(double dValue)
 
 }
 
+void RandomVariable::uqEngineChanged(QString newUqEngineName) {
+    if (uqEngineName!=newUqEngineName) {
+        if (newUqEngineName==QString("SimCenterUQ")){
+            typeLabel->setVisible(true);
+            typeComboBox->setVisible(true);
+            if (distributionComboBox->count()<8) {
+                distributionComboBox->addItem(tr("Exponential"));
+                distributionComboBox->addItem(tr("Discrete"));
+                distributionComboBox->addItem(tr("Gamma"));
+                distributionComboBox->addItem(tr("Chisquare"));
+                distributionComboBox->addItem(tr("Truncated exponential"));
+            }
+        }
+        if (newUqEngineName==QString("Dakota")){
+            typeLabel->setVisible(false);
+            typeComboBox->setVisible(false);
+            for (int i=distributionComboBox->count(); i>6; i--) {
+                distributionComboBox->removeItem(i);
+            }
+
+            QString distName = distributionComboBox->currentText();
+            if (distName=="Lognormal") {
+                typeComboBox->setCurrentText("Moments");
+                distributionComboBox->setCurrentText(distName);
+            } else {
+                typeComboBox->setCurrentText("Parameters");
+                distributionComboBox->setCurrentText(distName);
+            }
+        }
+        uqEngineName = newUqEngineName;
+    }
+
+    // surrogate and design
+    if (variableClass == QString("Design")) {
+        distributionComboBox->addItem(tr("ContinuousDesign"));
+        distributionComboBox->addItem(tr("Constant"));
+        theDistribution = new ContinuousDesignDistribution();
+    }
+}

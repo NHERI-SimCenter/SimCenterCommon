@@ -90,13 +90,13 @@ ChiSquaredDistribution::ChiSquaredDistribution(QString inpType, QWidget *parent)
 
         // Action
         connect(chooseFileButton, &QPushButton::clicked, this, [=](){
-                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)"));
+                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
         });
     }
 
     mainLayout->setColumnStretch(2,1);
 
-    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
 
     if (inpty==QString("Parameters")) {
         connect(k,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
@@ -184,6 +184,14 @@ ChiSquaredDistribution::inputFromJSON(QJsonObject &rvObject){
     this->updateDistributionPlot();
     return true;
 }
+
+void
+ChiSquaredDistribution::copyFiles(QString fileDir) {
+    if (inpty==QString("Dataset")) {
+        QFile::copy(dataDir->text(), fileDir);
+    }
+}
+
 
 QString 
 ChiSquaredDistribution::getAbbreviatedName(void) {

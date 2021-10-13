@@ -111,7 +111,7 @@ DiscreteDistribution::DiscreteDistribution(QString inpType, QWidget *parent) :Ra
 
         // Action
         connect(chooseFileButton, &QPushButton::clicked, this, [=](){
-                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)"));
+                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
         });
     }
 
@@ -239,6 +239,12 @@ DiscreteDistribution::inputFromJSON(QJsonObject &rvObject){
 }
 
 
+void
+DiscreteDistribution::copyFiles(QString fileDir) {
+    if (inpty==QString("Dataset")) {
+        QFile::copy(dataDir->text(), fileDir);
+    }
+}
 
 QString 
 DiscreteDistribution::getAbbreviatedName(void) {
@@ -320,6 +326,7 @@ DiscreteDistribution::updateDistributionPlot() {
         }
     }
 }
+
 
 myDoubleArrayValidator::myDoubleArrayValidator(QObject *parent) :
     QValidator(parent)

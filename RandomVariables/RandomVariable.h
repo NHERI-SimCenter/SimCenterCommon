@@ -68,7 +68,8 @@ public:
     bool isSelectedForRemoval(void);
     QString getVariableName(void);
     void fixToUniform(double dValue);
-
+    void uqEngineChanged(QString engineName);
+    void copyFiles(QString fileDir);
     QLineEdit *variableName;
     int refCount;
 

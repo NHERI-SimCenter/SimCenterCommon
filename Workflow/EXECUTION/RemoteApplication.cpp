@@ -387,6 +387,7 @@ RemoteApplication::uploadDirReturn(bool result)
       job["appId"]=SimCenterPreferences::getInstance()->getRemoteAgaveApp();
       job["memoryPerNode"]= "1GB";
       job["archive"]=true;
+      job["batchQueue"]="skx-normal";      
       job["archivePath"]="";
       job["archiveSystem"]="designsafe.storage.default";
       
