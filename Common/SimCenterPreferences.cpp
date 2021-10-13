@@ -697,7 +697,7 @@ SimCenterPreferences::loadPreferences() {
     // remoteBackendDir NOT quite as before as need to allow future releases to bring new ones
     QVariant  remoteBackendDirVariant = settingsApplication.value("remoteBackendDir");
     if (!remoteBackendDirVariant.isValid()) {
-      QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede2/SimCenterBackendApplications/v2.4.0");
+      QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede2/SimCenterBackendApplications/v2.5.0");
       QString appName = QCoreApplication::applicationName();
       if (appName == QString("quoFEM"))
 	remoteBackendDirLocation = QString("/work/00477/tg457427/frontera/SimCenterBackendApplications/v2.5.0");      
@@ -857,7 +857,7 @@ SimCenterPreferences::getRemoteAppDir(void) {
 
     // if not set, use default & set default as application directory
     if (!remoteBackendDirVariant.isValid()) {
-      QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede2/SimCenterBackendApplications/v2.4.0");
+      QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede2/SimCenterBackendApplications/v2.5.0");
       QString appName = QCoreApplication::applicationName();
       if (appName == QString("quoFEM"))
 	remoteBackendDirLocation = QString("/work/00477/tg457427/frontera/SimCenterBackendApplications/v2.5.0");      
@@ -937,7 +937,7 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
     if (appName == QString("WE-UQ"))
       remoteApp = QString("simcenter-openfoam-dakota-1.3.0u1");
     if (appName == QString("R2D"))
-      remoteApp = QString("rWhale-2.3.0u1");
+      remoteApp = QString("rWhale-2.5.0u1");
     if (appName == QString("HydroUQ"))
       remoteApp = QString("simcenter-olaflow-dakota-1.0.1u3");
     if (appName == QString("quoFEM"))
