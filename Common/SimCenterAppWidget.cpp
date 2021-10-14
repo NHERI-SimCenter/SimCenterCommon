@@ -128,7 +128,6 @@ SimCenterAppWidget::copyPath(QString sourceDir, QString destinationDir, bool ove
     if(finalDestination.exists()) {
         return true;
     }
-
     return false;
 }
 
@@ -137,9 +136,9 @@ bool
 SimCenterAppWidget::copyFile(QString filename, QString destinationDir)
 {
     QFile fileToCopy(filename);
-
-    if (! fileToCopy.exists()) {
-        return false;
+    if (!fileToCopy.exists()) {
+      QString msg = QString("WARNING: file with same name exists in dir, overwriting file with: ") + filename;
+      qDebug() << msg;
     }
 
     QFileInfo fileInfo(filename);
