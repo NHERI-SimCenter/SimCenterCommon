@@ -141,7 +141,8 @@ bool SimCenterAppSelection::outputAppDataToJSON(QJsonObject &jsonObject)
         if (theCurrentSelection->outputAppDataToJSON(data) == false) {
             return false;
         } else {
-            jsonObject[selectionApplicationType] = data;
+            if(!data.isEmpty())
+                jsonObject[selectionApplicationType] = data;
             return true;
         }
 
