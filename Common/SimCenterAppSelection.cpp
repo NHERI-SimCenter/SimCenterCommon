@@ -104,7 +104,7 @@ SimCenterAppSelection::initializeWidget(QString label) {
   
   layout->addLayout(topLayout);
   layout->addWidget(theStackedWidget);
-  layout->addStretch();
+//  layout->addStretch();
 
   this->setLayout(layout);  
 
@@ -170,7 +170,8 @@ bool SimCenterAppSelection::outputAppDataToJSON(QJsonObject &jsonObject)
         if (theCurrentSelection->outputAppDataToJSON(data) == false) {
             return false;
         } else {
-            jsonObject[jsonKeyword] = data;
+            if(!data.isEmpty())	  
+	      jsonObject[jsonKeyword] = data;
             return true;
         }
     }
