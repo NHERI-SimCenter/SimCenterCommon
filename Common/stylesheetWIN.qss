@@ -46,6 +46,30 @@ QLabel#nsfText {
     font-weight: bold;
 }
 
+QTreeWidget {
+    font-size: 10pt;
+}
+QHeaderView {
+font-size: 10pt;
+}
+
+QTableWidget {
+    font-size: 10pt;
+}
+
+
+QPlainTextEdit {
+    font-size: 10pt;
+}
+
+QToolButton {
+font-size: 10pt;
+}
+
+QSlider {
+    font-size: 10pt;
+}
+
 /*----------------------------------------------------------------------------*/
 /* Labels                                                             */
 /*----------------------------------------------------------------------------*/
