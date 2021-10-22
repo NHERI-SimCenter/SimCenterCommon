@@ -559,6 +559,7 @@ void MainWindowWorkflowApp::createActions() {
 
     thePreferences = SimCenterPreferences::getInstance(this);
     QAction *preferenceAction = new QAction(tr("&Preferences"), this);
+    preferenceAction->setMenuRole(QAction::ApplicationSpecificRole);
     preferenceAction->setStatusTip(tr("Set application preferences"));
     connect(preferenceAction, &QAction::triggered, this, &MainWindowWorkflowApp::preferences);
     fileMenu->addAction(preferenceAction);
