@@ -509,6 +509,6 @@ void NetworkDownloadManager::cleanup(void)
     fileDownloadNames.clear();
     fileHashes.clear();
 
-    this->getProgressDialog()->hideProgressBar();
+    //    this->getProgressDialog()->hideProgressBar();
 }
 

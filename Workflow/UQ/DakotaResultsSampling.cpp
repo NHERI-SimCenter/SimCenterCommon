@@ -442,11 +442,21 @@ DakotaResultsSampling::onSaveSpreadsheetClicked()
             for (int j=0; j<columnCount; j++)
             {
                 QTableWidgetItem *item_value = spreadsheet->item(i,j);
-                double value = item_value->text().toDouble();
-		if (j == columnCount-1)		
-		  stream << value ;
-		else
-		  stream << value << ", ";		  
+                //KZ: adding if for "MultipleEvent" saving ground motion ID as string
+                if (QString::compare(theHeadings.at(j), "MultipleEvent")==0)
+                {
+                    auto value = QString(item_value->text());
+                    if (j == columnCount-1)
+                      stream << value ;
+                    else
+                      stream << value << ", ";
+                } else {
+                    double value = item_value->text().toDouble();
+                    if (j == columnCount-1)
+                      stream << value ;
+                    else
+                      stream << value << ", ";
+                }
             }
             stream<<endl;
         }

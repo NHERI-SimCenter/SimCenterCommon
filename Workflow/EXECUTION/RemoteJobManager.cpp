@@ -443,12 +443,12 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
                     QString pathToFile = localWork.filePath(filename);
                     QStringList args{pyScript, pathToFile};
 
-                    QString python;
-                    QSettings settings("SimCenter", "Common"); //These names will need to be constants to be shared
-                    QVariant  pythonLocationVariant = settings.value("pythonExePath");
-                    if (pythonLocationVariant.isValid()) {
-                        python = pythonLocationVariant.toString();
-                    }
+                    QString python = SimCenterPreferences::getInstance()->getPython();
+                    //QSettings settings("SimCenter", "Common"); //These names will need to be constants to be shared
+                    //QVariant  pythonLocationVariant = settings.value("pythonExePath");
+                    //if (pythonLocationVariant.isValid()) {
+                    //    python = pythonLocationVariant.toString();
+                    //}
 
                     QString msg = "Unpacking hdf file "+filename +" to the local directory.";
                     emit sendStatusMessage(msg);

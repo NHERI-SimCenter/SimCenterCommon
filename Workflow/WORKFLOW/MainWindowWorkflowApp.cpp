@@ -463,6 +463,7 @@ bool MainWindowWorkflowApp::saveFile(const QString &fileName)
 
 void MainWindowWorkflowApp::loadFile(const QString &fileName)
 {
+  
     inputWidget->loadFile(fileName);
 }
 
@@ -558,6 +559,7 @@ void MainWindowWorkflowApp::createActions() {
 
     thePreferences = SimCenterPreferences::getInstance(this);
     QAction *preferenceAction = new QAction(tr("&Preferences"), this);
+    preferenceAction->setMenuRole(QAction::ApplicationSpecificRole);
     preferenceAction->setStatusTip(tr("Set application preferences"));
     connect(preferenceAction, &QAction::triggered, this, &MainWindowWorkflowApp::preferences);
     fileMenu->addAction(preferenceAction);
@@ -583,7 +585,6 @@ void MainWindowWorkflowApp::createActions() {
     // Show progress dialog
     QMenu *viewMenu = menuBar()->addMenu(tr("&View"));
     viewMenu->addAction(statusDockWidget->toggleViewAction());
-
     viewMenu->addSeparator();
 
     // Add the help menu last
@@ -880,13 +881,14 @@ MainWindowWorkflowApp::loadExamples()
     if(!description.isEmpty())
         emit sendInfoMessage(description);
 
-
     statusWidget->showProgressBar();
     QApplication::processEvents();
 
     emit sendStatusMessage("Loading Example file. Wait till Done Loading appears before progressing.");
     this->loadFile(pathToExample);
-    statusWidget->hideProgressBar();
+    
+    // statusWidget->hideProgressBar();
+    emit sendStatusMessage("Done Loading.");    
 
     // Automatically hide after n seconds
     // progressDialog->hideAfterElapsedTime(4);

@@ -91,10 +91,10 @@ SimCenterAppWidget::clear(void)
 bool
 SimCenterAppWidget::copyPath(QString sourceDir, QString destinationDir, bool overWriteDirectory)
 {
-    QDir originDirectory(sourceDir);
+    QDir sourceDirectory(sourceDir);
 
-    if (! originDirectory.exists()) {
-        qDebug() << "Origin Directory: " << sourceDir << " Does not exist";
+    if (! sourceDirectory.exists()) {
+        qDebug() << "Source Directory: " << sourceDir << " Does not exist";
         return false;
     }
 
@@ -104,19 +104,19 @@ SimCenterAppWidget::copyPath(QString sourceDir, QString destinationDir, bool ove
         destinationDirectory.removeRecursively();
     }
 
-    originDirectory.mkpath(destinationDir);
+    sourceDirectory.mkpath(destinationDir);
 
-    foreach (QString directoryName, originDirectory.entryList(QDir::Dirs | \
+    foreach (QString directoryName, sourceDirectory.entryList(QDir::Dirs | \
                                                               QDir::NoDotAndDotDot))
     {
         if (directoryName != QString("tmp.SimCenter")) {
         QString destinationPath = destinationDir + "/" + directoryName;
-        originDirectory.mkpath(destinationPath);
+        sourceDirectory.mkpath(destinationPath);
         copyPath(sourceDir + "/" + directoryName, destinationPath, overWriteDirectory);
         }
     }
 
-    foreach (QString fileName, originDirectory.entryList(QDir::Files)) {
+    foreach (QString fileName, sourceDirectory.entryList(QDir::Files)) {
         QFile::copy(sourceDir + "/" + fileName, destinationDir + "/" + fileName);
     }
 
@@ -128,7 +128,6 @@ SimCenterAppWidget::copyPath(QString sourceDir, QString destinationDir, bool ove
     if(finalDestination.exists()) {
         return true;
     }
-
     return false;
 }
 
@@ -137,15 +136,24 @@ bool
 SimCenterAppWidget::copyFile(QString filename, QString destinationDir)
 {
     QFile fileToCopy(filename);
-
-    if (! fileToCopy.exists()) {
-        return false;
+    if (!fileToCopy.exists()) {
+      QString msg = QString("WARNING file to copy: ") + filename + QString(" does not exist!");
+      qDebug() << msg;
+      return false;
     }
 
     QFileInfo fileInfo(filename);
     QString theFile = fileInfo.fileName();
     QString thePath = fileInfo.path();
 
-    return fileToCopy.copy(destinationDir + QDir::separator() + theFile);
+    QString pathNewFile = QString(destinationDir + QDir::separator() + theFile);
+    QFile fileToCopyTo(pathNewFile);
+    if (fileToCopyTo.exists()) {
+      QString msg = QString("WARNING file with same name as: ") + filename + QString(" exists in ") + destinationDir + QString(" file not copied");
+      qDebug() << msg;
+      return true;
+    }
+
+    return fileToCopy.copy(pathNewFile);
 }
 
