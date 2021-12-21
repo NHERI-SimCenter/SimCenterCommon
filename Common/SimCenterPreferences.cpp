@@ -975,11 +975,34 @@ SimCenterPreferences::getDefaultRemoteAppDir(void) {
 
 QString
 SimCenterPreferences::getDefaultOpenSees(void) {
+  
     QString currentAppDir = QCoreApplication::applicationDirPath();
+
 #ifdef Q_OS_WIN
+    
     QString openseesApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees.exe";
+    
 #else
+
     QString openseesApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees";
+
+    QFileInfo localOpenSees(openseesApp);
+    if (!localOpenSees.exists()) {
+    
+      // maybe user has a local installed copy .. look in standard path
+      localOpenSees.setFile(QString("/usr/local/bin/OpenSees"));
+      if (localOpenSees.exists()) {
+	openseesApp = localOpenSees.filePath();
+      } else {
+	// assume user has it correct in shell startup script
+	openseesApp = QStandardPaths::findExecutable("OpenSees");
+      }
+    
+      if (openseesApp.isNull()) {
+	openseesApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees";
+      }
+    }
+      
 #endif
 
     return openseesApp;
@@ -987,16 +1010,38 @@ SimCenterPreferences::getDefaultOpenSees(void) {
 
 QString
 SimCenterPreferences::getDefaultDakota(void) {
+  
     QString currentAppDir = QCoreApplication::applicationDirPath();
 
 #ifdef Q_OS_WIN
+    
     QString dakotaApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota.exe";
+
 #else
-    QString dakotaApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota";
+
+    QString dakotaApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota";    
+
+    QFileInfo localDakota(dakotaApp);
+    if (!localDakota.exists()) {
+
+      dakotaApp.clear();
+      
+      // maybe user has a local installed copy .. look in standard path
+      localDakota.setFile(QString("/usr/local/bin/dakota"));
+      if (localDakota.exists()) {
+	dakotaApp = localDakota.filePath();
+      } else {
+	// assume user has it correct in shell startup script
+	dakotaApp = QStandardPaths::findExecutable("dakota");
+      }
+      
+      if (dakotaApp.isNull()) {
+	dakotaApp = "dakota"; // currentAppDir + QDir::separator() + "applications" + QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota";
+      }
+    }
+      
 #endif
-
-    // qDebug() << "getDefaultDakota: " << dakotaApp;
-
+    
     return dakotaApp;
 
 }
