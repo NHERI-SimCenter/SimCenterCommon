@@ -83,9 +83,16 @@ NormalDistribution::NormalDistribution(QString inpType, QWidget *parent) :Random
         mainLayout->setColumnStretch(2,1);
 
         // Action
+//        connect(chooseFileButton, &QPushButton::clicked, this, [=](){
+//                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
+//        });
+
         connect(chooseFileButton, &QPushButton::clicked, this, [=](){
-                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
-        });
+                  QString fileName = QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*)");
+                  if (!fileName.isEmpty()) {
+                      dataDir->setText(fileName);
+                  }
+              });
     }
 
     thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
@@ -223,7 +230,10 @@ NormalDistribution::updateDistributionPlot() {
     if ((this->inpty)==QString("Parameters") || (this->inpty)==QString("Moments")) {
         double me = mean->text().toDouble();
         double st =standardDev->text().toDouble();
-        if (st > 0.0) {
+        if (st < 0.0) {
+            st = 0;
+            me = 0;
+        }
             double min = me - 5*st;
             double max = me + 5*st;
             QVector<double> x(100);
@@ -235,6 +245,5 @@ NormalDistribution::updateDistributionPlot() {
             }
             thePlot->clear();
             thePlot->addLine(x,y);
-        }
     }
 }
