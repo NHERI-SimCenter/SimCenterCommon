@@ -1,6 +1,6 @@
 #include <ZipUtils.h>
-#include <zip.h>
-#include <unzip.h>
+#include <ZipUtils/zip.h>
+#include <ZipUtils/unzip.h>
 #include <QDirIterator>
 #include <QDebug>
 #include <QFileInfo>

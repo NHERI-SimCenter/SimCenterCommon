@@ -387,15 +387,23 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
 
     remoteBackendDir = new QLineEdit();
     QHBoxLayout *remoteBackendDirLayout = new QHBoxLayout();
-
+    customRemoteAppDirCheckBox = new QCheckBox("Custom");
+    remoteBackendDirLayout->addWidget(customRemoteAppDirCheckBox);
     remoteBackendDirLayout->addWidget(remoteBackendDir);
+
+    customRemoteAppDirCheckBox->setChecked(false);
+    remoteBackendDir->setEnabled(false);    
+    connect(customRemoteAppDirCheckBox, &QCheckBox::toggled, this, [this](bool checked)
+    {
+        this->remoteBackendDir->setEnabled(checked);
+        this->remoteBackendDir->setText(this->getRemoteAppDir());
+    });
     
     // no Browse button as remote dir location is stampede2 NOT designsafe & that we cannot touch
 
     remoteSettingsLayout->addRow(tr("Remote Applications Directory:"), remoteBackendDirLayout);
 
     
-
     QHBoxLayout *remoteAppLayout = new QHBoxLayout();
 
     remoteTapisApp = new QLineEdit();
@@ -518,6 +526,7 @@ SimCenterPreferences::savePreferences(bool) {
     settingsApp.setValue("customOpenSees", customOpenSeesCheckBox->isChecked());
     settingsApp.setValue("customDakota", customDakotaCheckBox->isChecked());
     settingsApp.setValue("customTapis", customTapisAppCheckBox->isChecked());
+    settingsApp.setValue("customRemoteAppDir", customRemoteAppDirCheckBox->isChecked());    
     settingsApp.setValue("remoteBackendDir", remoteBackendDir->text());
     settingsApp.setValue("remoteTapisApp", remoteTapisApp->text());
 
@@ -565,9 +574,9 @@ SimCenterPreferences::resetPreferences(bool) {
     QString appDirLocation = getAppDir();
     settingsApplication.setValue("appDir", appDirLocation);
     appDir->setText(appDirLocation);
+
     
-    QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede2/SimCenterBackendApplications/v2.4.0");
-    settingsApplication.setValue("remoteBackendDir", remoteBackendDirLocation);
+    QString remoteBackendDirLocation = getDefaultRemoteAppDir();
     remoteBackendDir->setText(remoteBackendDirLocation);
 
     QString remoteAppName = this->getDefaultAgaveApp();
@@ -586,6 +595,7 @@ SimCenterPreferences::resetPreferences(bool) {
     customDakotaCheckBox->setChecked(false);
     customOpenSeesCheckBox->setChecked(false);
     customTapisAppCheckBox->setChecked(false);
+    customRemoteAppDirCheckBox->setChecked(false);    
 
     // finally save them to make sure all saved
     //    this->savePreferences(true);
@@ -619,8 +629,6 @@ SimCenterPreferences::loadPreferences() {
     //
     // common setting first
     //
-
-    
 
 
 #ifdef USE_SIMCENTER_PYTHON    
@@ -688,17 +696,23 @@ SimCenterPreferences::loadPreferences() {
     }
     else
         customAppDirCheckBox->setChecked(false);
-
     appDir->setText(currentAppDir);
 
-    // remoteBackendDir NOT quite as before as need to allow future releases to bring new ones
-    QVariant  remoteBackendDirVariant = settingsApplication.value("remoteBackendDir");
-    if (!remoteBackendDirVariant.isValid()) {
-      QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede2/SimCenterBackendApplications/v2.4.0");
-      settingsApplication.setValue("remoteBackendDir", remoteBackendDirLocation);
-      remoteBackendDir->setText(remoteBackendDirLocation);
+
+    // remoteAppDir
+    auto customRemoteDir = settingsApplication.value("customRemoteAppDir", false);
+    if (customRemoteDir.isValid() && customRemoteDir.toBool() == true) {    
+      QVariant  remoteBackendDirVariant = settingsApplication.value("remoteBackendDir");
+      if (!remoteBackendDirVariant.isValid()) {
+	QString remoteBackendDirLocation = getDefaultRemoteAppDir();
+	settingsApplication.setValue("remoteBackendDir", remoteBackendDirLocation);
+	remoteBackendDir->setText(remoteBackendDirLocation);
+      } else {
+        remoteBackendDir->setText(getDefaultRemoteAppDir());
+	customRemoteAppDirCheckBox->setChecked(true);
+      }
     } else {
-        remoteBackendDir->setText(remoteBackendDirVariant.toString());
+      remoteBackendDir->setText(getDefaultRemoteAppDir());      
     }
 
     //remoteApp
@@ -846,17 +860,27 @@ SimCenterPreferences::getAppDir(void) {
 QString
 SimCenterPreferences::getRemoteAppDir(void) {
 
-    QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
-    QVariant  remoteBackendDirVariant = settingsApplication.value("remoteBackendDir");
+    QString remoteDir = this->getDefaultRemoteAppDir();
 
-    // if not set, use default & set default as application directory
-    if (!remoteBackendDirVariant.isValid()) {
-      QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede2/SimCenterBackendApplications/v2.4.0");
-      settingsApplication.setValue("remoteBackendDir", remoteBackendDirLocation);
-      return remoteBackendDirLocation;
-    } 
-    
-    return remoteBackendDirVariant.toString();
+    //If custom is checked we will try to get the custom app dir defined
+    if (customRemoteAppDirCheckBox->checkState() == Qt::CheckState::Checked)
+    {
+        QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
+	QVariant  remoteBackendDirVariant = settingsApplication.value("remoteBackendDir");
+	
+	// if not set, use default & set default as application directory
+	if (!remoteBackendDirVariant.isValid()) {
+	  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede2/SimCenterBackendApplications/v2.5.1");
+	  QString appName = QCoreApplication::applicationName();
+	  if (appName == QString("quoFEM"))
+	    remoteBackendDirLocation = QString("/work/00477/tg457427/frontera/SimCenterBackendApplications/v2.5.0");      
+	  settingsApplication.setValue("remoteBackendDir", remoteBackendDirLocation);
+	  return remoteBackendDirLocation;
+	}
+	return remoteBackendDirVariant.toString();
+    }
+
+    return remoteDir;        
 }
 
 
@@ -928,12 +952,26 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
     if (appName == QString("WE-UQ"))
       remoteApp = QString("simcenter-openfoam-dakota-1.3.0u1");
     if (appName == QString("R2D"))
-      remoteApp = QString("rWhale-2.3.0u1");
+      remoteApp = QString("rWhale-stampede-2.5.1u2");
     if (appName == QString("HydroUQ"))
       remoteApp = QString("simcenter-olaflow-dakota-1.0.1u3");
+    if (appName == QString("quoFEM"))
+      remoteApp = QString("simcenter-uq-frontera-1.0.0u2");    
 
     return remoteApp;
 }
+
+QString
+SimCenterPreferences::getDefaultRemoteAppDir(void) {
+
+  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede2/SimCenterBackendApplications/v2.5.1");
+  QString appName = QCoreApplication::applicationName();
+  if (appName == QString("quoFEM"))
+    remoteBackendDirLocation = QString("/work/00477/tg457427/frontera/SimCenterBackendApplications/v2.5.0");
+  return remoteBackendDirLocation;
+  
+}
+
 
 QString
 SimCenterPreferences::getDefaultOpenSees(void) {

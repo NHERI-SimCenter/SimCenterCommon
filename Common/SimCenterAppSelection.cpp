@@ -63,11 +63,25 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 SimCenterAppSelection::SimCenterAppSelection(QString label, QString appName, QWidget *parent)
-    :SimCenterAppWidget(parent), currentIndex(-1), theCurrentSelection(NULL), selectionApplicationType(appName), viewableStatus(false)
+    :SimCenterAppWidget(parent), currentIndex(-1), theCurrentSelection(NULL), jsonKeyword(appName), viewableStatus(false)
 {
+  this->initializeWidget(label);
+}
+
+
+
+SimCenterAppSelection::SimCenterAppSelection(QString label, QString appName, QString oldAppName, QWidget *parent)
+  :SimCenterAppWidget(parent), currentIndex(-1), theCurrentSelection(NULL), jsonKeyword(appName), jsonKeywordOld(oldAppName), viewableStatus(false)
+{
+  this->initializeWidget(label);
+}
+
+void
+SimCenterAppSelection::initializeWidget(QString label) {
+  
   QVBoxLayout *layout = new QVBoxLayout;
   QHBoxLayout *topLayout = new QHBoxLayout;
-
+  
   topLayout->setSpacing(0);
   layout->setSpacing(0);
   topLayout->setContentsMargins(0,0,0,0);
@@ -90,12 +104,13 @@ SimCenterAppSelection::SimCenterAppSelection(QString label, QString appName, QWi
   
   layout->addLayout(topLayout);
   layout->addWidget(theStackedWidget);
-  layout->addStretch();
+//  layout->addStretch();
 
   this->setLayout(layout);  
 
   connect(theSelectionCombo, SIGNAL(currentIndexChanged(QString)), this, SLOT(selectionChangedSlot(QString)));
 }
+
 
 
 SimCenterAppSelection::~SimCenterAppSelection()
@@ -107,43 +122,59 @@ SimCenterAppSelection::~SimCenterAppSelection()
 bool SimCenterAppSelection::outputToJSON(QJsonObject &jsonObject)
 { 
     QJsonObject data;
-    if (theCurrentSelection != NULL)
-        if (theCurrentSelection->outputToJSON(data) == false) {
-            return false;
-        } else {
-            jsonObject[selectionApplicationType] = data;
-            return true;
-        }
+    if (theCurrentSelection != NULL) {
+      if (theCurrentSelection->outputToJSON(data) == false) {
+	return false;
+      } else {
+	jsonObject[jsonKeyword] = data;
+	return true;
+      }
+    }
+
     return false;
 }
 
 
 bool SimCenterAppSelection::inputFromJSON(QJsonObject &jsonObject)
 {
-    if (jsonObject.contains(selectionApplicationType)) {
+  
+  QString key;
+  if (jsonObject.contains(jsonKeyword))
+    key = jsonKeyword;
+  else if (jsonObject.contains(jsonKeywordOld))
+    key = jsonKeywordOld;
+  else {
+    return true; // Stevan has this condition for some reason
+  }
+      
+  QJsonObject theApplicationObject = jsonObject[key].toObject();
+  
+  if (theCurrentSelection != NULL)
+    return theCurrentSelection->inputFromJSON(theApplicationObject);
 
-        QJsonObject theApplicationObject = jsonObject[selectionApplicationType].toObject();
-
-        if (theCurrentSelection != NULL)
-            return theCurrentSelection->inputFromJSON(theApplicationObject);
-        else
-            return false;
-    }
-
-    return true;
+  //
+  // if get here an error
+  //
+  
+  QString message = QString("AppSelection: " ) + jsonKeyword + QString(" no app found");
+  errorMessage(message);
+  return false;
+  
 }
 
 
 bool SimCenterAppSelection::outputAppDataToJSON(QJsonObject &jsonObject)
 {
     QJsonObject data;
-    if (theCurrentSelection != NULL)
+    if (theCurrentSelection != NULL) {
         if (theCurrentSelection->outputAppDataToJSON(data) == false) {
             return false;
         } else {
-            jsonObject[selectionApplicationType] = data;
+            if(!data.isEmpty())	  
+	      jsonObject[jsonKeyword] = data;
             return true;
         }
+    }
 
     return false;
 }
@@ -151,16 +182,28 @@ bool SimCenterAppSelection::outputAppDataToJSON(QJsonObject &jsonObject)
 
 bool SimCenterAppSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
 {
-    // qDebug() << __PRETTY_FUNCTION__<< " " << selectionApplicationType;
+    // qDebug() << __PRETTY_FUNCTION__<< " " << jsonKeyword;
 
-    if (jsonObject.contains(selectionApplicationType)) {
+  QString key;
+  bool found = false;
+  if (jsonObject.contains(jsonKeyword)) {
+    key = jsonKeyword;
+    found = true;
+  } else if (jsonObject.contains(jsonKeywordOld)) {
+    key = jsonKeywordOld;
+    found = true;
+  } else {
+    qDebug() << jsonKeyword << " " << jsonKeywordOld << " " << jsonObject;
+  }
 
-        QJsonObject theApplicationObject = jsonObject[selectionApplicationType].toObject();
+  if (found) {
+    
+        QJsonObject theApplicationObject = jsonObject[key].toObject();
         if (theApplicationObject.contains("Application")) {
             QJsonValue theName = theApplicationObject["Application"];
             QString appName = theName.toString();
 
-            // qDebug() << __PRETTY_FUNCTION__<< " " << selectionApplicationType << " " << appName;
+            // qDebug() << __PRETTY_FUNCTION__<< " " << jsonKeyword << " " << appName;
 
             int index = theApplicationNames.indexOf(appName);
 
@@ -169,7 +212,7 @@ bool SimCenterAppSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
                 theCurrentSelection=theComponents.at(index);
                 return theCurrentSelection->inputAppDataFromJSON(theApplicationObject);
             } else {
-                QString message = selectionApplicationType +  QString(" found unknown application: ") + appName;
+                QString message = jsonKeyword +  QString(" found unknown application: ") + appName;
                 this->errorMessage(message);
             }
         } else {
@@ -187,7 +230,7 @@ bool SimCenterAppSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
         }
         else
         {
-            QString message = QString("Applications does not contain a field: ") + selectionApplicationType;
+            QString message = QString("Applications does not contain a field: ") + jsonKeyword;
             this->errorMessage(message);
         }
     }
@@ -227,7 +270,7 @@ SimCenterAppSelection::addComponent(QString text, QString appName, SimCenterAppW
 
         return true;
     } else {
-        QString message = selectionApplicationType +  QString(" found unknown application: ") + appName;
+        QString message = jsonKeyword +  QString(" found unknown application: ") + appName;
         this->errorMessage(message);
     }
 

@@ -73,6 +73,7 @@ public slots:
 
 private:
     QString getDefaultAgaveApp(void);
+    QString getDefaultRemoteAppDir(void);  
     QString getDefaultOpenSees(void);
     QString getDefaultDakota(void);
     QString getDefaultPython(void);
@@ -91,6 +92,7 @@ private:
     QCheckBox* customDakotaCheckBox;
     QCheckBox* customAppDirCheckBox;
     QCheckBox* customTapisAppCheckBox;
+    QCheckBox* customRemoteAppDirCheckBox;  
 };
 
 

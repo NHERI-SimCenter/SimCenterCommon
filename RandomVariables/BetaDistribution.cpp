@@ -110,9 +110,16 @@ BetaDistribution::BetaDistribution(QString inpType, QWidget *parent) :RandomVari
         mainLayout->setColumnStretch(4,1);
 
         // Action
+//        connect(chooseFileButton, &QPushButton::clicked, this, [=](){
+//                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
+//        });
+
         connect(chooseFileButton, &QPushButton::clicked, this, [=](){
-                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
-        });
+                  QString fileName = QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*)");
+                  if (!fileName.isEmpty()) {
+                      dataDir->setText(fileName);
+                  }
+              });
     }
 
     thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
@@ -319,5 +326,9 @@ BetaDistribution::updateDistributionPlot() {
             thePlot->clear();
             thePlot->addLine(x,y);
             thePlot->addLine(x1,y1);
+        }
+
+        if (aa>bb) {
+            thePlot->clear();
         }
 }

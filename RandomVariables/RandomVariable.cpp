@@ -177,7 +177,8 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     //mainLayout->addStretch();
 
     mainLayout->addWidget(theDistribution,0,4,2,1);
-//    connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+
+    // connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 
     //this->setLayout(mainLayout);
   // mainLayout->setSizeConstraint(QLayout::SetMaximumSize);
@@ -218,7 +219,8 @@ RandomVariable::RandomVariable(const QString &type,
     // set new
     theDistribution = &theD;
     mainLayout->addWidget(theDistribution,0,4,2,1);
-//    connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+
+    // connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 }
 
 
@@ -392,7 +394,7 @@ void RandomVariable::distributionChanged(const QString &arg1)
       mainLayout->addWidget(theDistribution,0,4,2,1);
     }
 
-//    connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+    // connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 }
 
 void RandomVariable::fixToUniform(double dValue)

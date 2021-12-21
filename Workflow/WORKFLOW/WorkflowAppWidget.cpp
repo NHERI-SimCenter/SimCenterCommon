@@ -67,5 +67,5 @@ PythonProgressDialog *WorkflowAppWidget::getProgressDialog()
 void WorkflowAppWidget::runComplete()
 {
     qDebug() << "Task Completed";
-    progressDialog->hideAfterElapsedTime(2);
+    //     progressDialog->hideAfterElapsedTime(2);
 }

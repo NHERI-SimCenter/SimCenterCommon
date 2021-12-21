@@ -105,7 +105,10 @@ bool SimCenterAppEventSelection::outputToJSON(QJsonObject &jsonObject)
 { 
     // here we will loop over all events
     if (theCurrentSelection != NULL)
+    {
+        jsonObject["type"]=currentEventType;
         return theCurrentSelection->outputToJSON(jsonObject);
+    }
     else
         return false;
 }
@@ -127,11 +130,9 @@ bool SimCenterAppEventSelection::outputAppDataToJSON(QJsonObject &jsonObject)
 
     // here we will loop over all events in future, but for now one object in array
 
-    QJsonObject eventData;
-    eventData["EventClassification"]=currentEventType;
-
     if (theCurrentSelection != NULL) {
         QJsonObject dataEvent;
+        dataEvent["EventClassification"]=currentEventType;
         if (theCurrentSelection->outputAppDataToJSON(dataEvent) == false)
             return false;
         else {
