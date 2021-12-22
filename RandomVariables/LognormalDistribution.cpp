@@ -91,9 +91,16 @@ LognormalDistribution::LognormalDistribution(QString inpType, QWidget *parent) :
         mainLayout->addWidget(chooseFileButton, 1,1);
 
         // Action
+//        connect(chooseFileButton, &QPushButton::clicked, this, [=](){
+//                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
+//        });
+
         connect(chooseFileButton, &QPushButton::clicked, this, [=](){
-                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
-        });
+                  QString fileName = QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*)");
+                  if (!fileName.isEmpty()) {
+                      dataDir->setText(fileName);
+                  }
+              });
     }
 
     mainLayout->setColumnStretch(3,1);
@@ -244,4 +251,7 @@ LognormalDistribution::updateDistributionPlot() {
             thePlot->addLine(x,y);
         }
 
+       if ((st <= 0.0)|| (me <= 0)) {
+            thePlot->clear();
+        }
 }

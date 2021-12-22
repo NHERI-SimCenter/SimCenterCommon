@@ -103,6 +103,8 @@ void PythonProgressDialog::appendText(const QString text)
 {
     mutex->lock();
 
+    progressTextEdit->moveCursor(QTextCursor::End);
+
     if (theInstance == 0)
         theInstance = new PythonProgressDialog(0);
 
@@ -117,8 +119,7 @@ void PythonProgressDialog::appendText(const QString text)
 
     progressTextEdit->insertPlainText(cleanText);
 
-    progressTextEdit->moveCursor(QTextCursor::End);
-
+    //progressTextEdit->moveCursor(QTextCursor::End); // moved it to the front -sy
     //qDebug()<<cleanText;
 
     mutex->unlock();
