@@ -8,6 +8,7 @@
 #message($$PWD)
 
 INCLUDEPATH += $$PWD/UQ
+INCLUDEPATH += $$PWD/UQ/dakota
 INCLUDEPATH += $$PWD/WORKFLOW
 INCLUDEPATH += $$PWD/WORKFLOW/Utils
 INCLUDEPATH += $$PWD/WORKFLOW/ModelViewItems
@@ -24,26 +25,26 @@ INCLUDEPATH += $$PWD/EDP
 #INCLUDEPATH += "../SimCenterCommon/Workflow"
 #INCLUDEPATH += "../QUO_Methods"
 
-SOURCES += $$PWD/UQ/DakotaResults.cpp \
-    $$PWD/UQ/GaussianProcessInputWidget.cpp \
-    $$PWD/UQ/LatinHypercubeInputWidget.cpp \
-    $$PWD/UQ/DakotaResultsSampling.cpp \
-    $$PWD/UQ/DakotaResultsReliability.cpp \
-    $$PWD/UQ/DakotaResultsSensitivity.cpp \
-    $$PWD/UQ/ImportanceSamplingInputWidget.cpp \
-    $$PWD/UQ/MonteCarloInputWidget.cpp \
-    $$PWD/UQ/PCEInputWidget.cpp \
+SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/UQ/UQ_MethodInputWidget.cpp \
-    $$PWD/UQ/DakotaInputSampling.cpp \
-    $$PWD/UQ/DakotaInputReliability.cpp \
-    $$PWD/UQ/DakotaInputSensitivity.cpp \
-    $$PWD/UQ/InputWidgetUQ.cpp \
-    $$PWD/UQ/UQ_Results.cpp \
     $$PWD/UQ/UQ_Engine.cpp \
-    $$PWD/UQ/DakotaEngine.cpp \
-    $$PWD/UQ/LocalReliabilityWidget.cpp \
-    $$PWD/UQ/GlobalReliabilityWidget.cpp \
-    $$PWD/UQ/UQ_EngineSelection.cpp \
+    $$PWD/UQ/UQ_Results.cpp \    
+    $$PWD/UQ/dakota/DakotaResults.cpp \
+    $$PWD/UQ/dakota/GaussianProcessInputWidget.cpp \
+    $$PWD/UQ/dakota/LatinHypercubeInputWidget.cpp \
+    $$PWD/UQ/dakota/DakotaResultsSampling.cpp \
+    $$PWD/UQ/dakota/DakotaResultsReliability.cpp \
+    $$PWD/UQ/dakota/DakotaResultsSensitivity.cpp \
+    $$PWD/UQ/dakota/ImportanceSamplingInputWidget.cpp \
+    $$PWD/UQ/dakota/MonteCarloInputWidget.cpp \
+    $$PWD/UQ/dakota/PCEInputWidget.cpp \
+    $$PWD/UQ/dakota/DakotaInputSampling.cpp \
+    $$PWD/UQ/dakota/DakotaInputReliability.cpp \
+    $$PWD/UQ/dakota/DakotaInputSensitivity.cpp \
+    $$PWD/UQ/dakota/InputWidgetUQ.cpp \
+    $$PWD/UQ/dakota/DakotaEngine.cpp \
+    $$PWD/UQ/dakota/LocalReliabilityWidget.cpp \
+    $$PWD/UQ/dakota/GlobalReliabilityWidget.cpp \
     $$PWD/WORKFLOW/MainWindowWorkflowApp.cpp \
     $$PWD/WORKFLOW/WorkflowAppWidget.cpp \
     $$PWD/WORKFLOW/SimCenterComponentSelection.cpp \
@@ -94,26 +95,26 @@ SOURCES += $$PWD/UQ/DakotaResults.cpp \
     $$PWD/EDP/UserDefinedEDP.cpp \
     $$PWD/EDP/EDP.cpp
 
-HEADERS += $$PWD/UQ/DakotaResults.h \
-    $$PWD/UQ/GaussianProcessInputWidget.h \
-    $$PWD/UQ/LatinHypercubeInputWidget.h \
-    $$PWD/UQ/DakotaResultsSampling.h \
-    $$PWD/UQ/DakotaResultsReliability.h \
-    $$PWD/UQ/DakotaResultsSensitivity.h \
-    $$PWD/UQ/DakotaInputReliability.h \
-    $$PWD/UQ/DakotaInputSensitivity.h \
-    $$PWD/UQ/ImportanceSamplingInputWidget.h \
-    $$PWD/UQ/MonteCarloInputWidget.h \
-    $$PWD/UQ/PCEInputWidget.h \
-    $$PWD/UQ/UQ_MethodInputWidget.h \
-    $$PWD/UQ/DakotaInputSampling.h \
-    $$PWD/UQ/InputWidgetUQ.h \
+HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/UQ/UQ_Results.h \
     $$PWD/UQ/UQ_Engine.h \
-    $$PWD/UQ/DakotaEngine.h \
-    $$PWD/UQ/LocalReliabilityWidget.h \
-    $$PWD/UQ/GlobalReliabilityWidget.h \
-    $$PWD/UQ/UQ_EngineSelection.h \
+    $$PWD/UQ/UQ_MethodInputWidget.h \
+    $$PWD/UQ/dakota/DakotaResults.h \
+    $$PWD/UQ/dakota/GaussianProcessInputWidget.h \
+    $$PWD/UQ/dakota/LatinHypercubeInputWidget.h \
+    $$PWD/UQ/dakota/DakotaResultsSampling.h \
+    $$PWD/UQ/dakota/DakotaResultsReliability.h \
+    $$PWD/UQ/dakota/DakotaResultsSensitivity.h \
+    $$PWD/UQ/dakota/DakotaInputReliability.h \
+    $$PWD/UQ/dakota/DakotaInputSensitivity.h \
+    $$PWD/UQ/dakota/ImportanceSamplingInputWidget.h \
+    $$PWD/UQ/dakota/MonteCarloInputWidget.h \
+    $$PWD/UQ/dakota/PCEInputWidget.h \
+    $$PWD/UQ/dakota/DakotaInputSampling.h \
+    $$PWD/UQ/dakota/InputWidgetUQ.h \
+    $$PWD/UQ/dakota/DakotaEngine.h \
+    $$PWD/UQ/dakota/LocalReliabilityWidget.h \
+    $$PWD/UQ/dakota/GlobalReliabilityWidget.h \
     $$PWD/WORKFLOW/MainWindowWorkflowApp.h \
     $$PWD/WORKFLOW/WorkflowAppWidget.h \
     $$PWD/WORKFLOW/SimCenterComponentSelection.h \
