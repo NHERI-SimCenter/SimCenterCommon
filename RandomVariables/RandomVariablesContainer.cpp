@@ -83,6 +83,17 @@ RandomVariablesContainer::RandomVariablesContainer(QString &theClass, QString uq
 }
 
 void
+RandomVariablesContainer::addRVsWithValues(QStringList &varNamesAndValues)
+{
+  if (addRVsType == 0)
+    this->addConstantRVs(varNamesAndValues);
+  else if (addRVsType == 1)
+    this->addUniformRVs(varNamesAndValues);
+  else
+    this->addNormalRVs(varNamesAndValues);      
+}
+
+void
 RandomVariablesContainer::addConstantRVs(QStringList &varNamesAndValues)
 {
     int numVar = varNamesAndValues.count();

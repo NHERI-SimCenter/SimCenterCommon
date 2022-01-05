@@ -75,6 +75,7 @@ public:
 
     void addRandomVariable(QString &rvName);
     void addRVs(QStringList &varNames);
+    void addRVsWithValues(QStringList &varNames);  
     void addConstantRVs(QStringList &varNamesAndValues);
     void addUniformRVs(QStringList &varNamesAndValues);
     void addNormalRVs(QStringList &varNamesAndValues);
@@ -104,6 +105,7 @@ public slots:
    void checkCorrValidity(void);
 
 private:
+    int addRVsType;
     void makeRV(void);
     QVBoxLayout *verticalLayout;
     QVBoxLayout *rvLayout;
