@@ -50,7 +50,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QComboBox>
 #include <QStackedWidget>
-
+#include <QScrollArea>
 
 // A class acting for secondary level RDT menu items
 // whose display is dependent on the selection in GI
@@ -99,11 +99,20 @@ SimCenterAppSelection::initializeWidget(QString label) {
 #ifdef _WIN32
   theSelectionCombo->setMaximumHeight(25);
 #endif
+
+  QScrollArea *sa = new QScrollArea;
+  sa->setWidgetResizable(true);
+  sa->setLineWidth(0);
+  sa->setFrameShape(QFrame::NoFrame);  
   
   theStackedWidget = new QStackedWidget();
-  
+
+  sa->setWidget(theStackedWidget);
+       
   layout->addLayout(topLayout);
-  layout->addWidget(theStackedWidget);
+  layout->addWidget(sa);
+  
+  //  layout->addWidget(theStackedWidget);
 //  layout->addStretch();
 
   this->setLayout(layout);  
