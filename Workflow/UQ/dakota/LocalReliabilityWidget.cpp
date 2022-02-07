@@ -48,7 +48,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 
 LocalReliabilityWidget::LocalReliabilityWidget(QWidget *parent) 
-: UQ_MethodInputWidget(parent)
+: UQ_Method(parent)
 {
   layout = new QGridLayout();
 

@@ -49,7 +49,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QFileDialog>
 #include <QPushButton>
 #include <sectiontitle.h>
-//#include <InputWidgetEDP.h>
 
 #include <iostream>
 #include <sstream>
@@ -61,11 +60,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <MonteCarloInputWidget.h>
 #include <LatinHypercubeInputWidget.h>
 
-DakotaInputSensitivity::DakotaInputSensitivity(RandomVariablesContainer *theRVs, QWidget *parent)
-: UQ_Engine(parent),uqSpecific(0), theRandomVariables(theRVs)
+DakotaInputSensitivity::DakotaInputSensitivity(QWidget *parent)
+: UQ_Engine(parent),uqSpecific(0)
 {
     layout = new QVBoxLayout();
-
     mLayout = new QVBoxLayout();
 
     //
@@ -76,8 +74,8 @@ DakotaInputSensitivity::DakotaInputSensitivity(RandomVariablesContainer *theRVs,
     QLabel *label1 = new QLabel();
     label1->setText(QString("Method"));
     samplingMethod = new QComboBox();
-    //samplingMethod->setMaximumWidth(800);
-    //samplingMethod->setMinimumWidth(800);
+    samplingMethod->setMaximumWidth(200);
+    samplingMethod->setMinimumWidth(200);
     samplingMethod->addItem(tr("LHS"));
     samplingMethod->addItem(tr("Monte Carlo"));
 
@@ -95,7 +93,7 @@ DakotaInputSensitivity::DakotaInputSensitivity(RandomVariablesContainer *theRVs,
 
     methodLayout->addWidget(label1);
     methodLayout->addWidget(samplingMethod,2);
-    methodLayout->addStretch(4);
+    methodLayout->addStretch(1);
 
     mLayout->addLayout(methodLayout);
 
@@ -118,10 +116,15 @@ DakotaInputSensitivity::DakotaInputSensitivity(RandomVariablesContainer *theRVs,
 
     mLayout->addWidget(theStackedWidget);
     layout->addLayout(mLayout);
+    QLabel *sampleNumMessage = new QLabel("[Note] Expected number of FEM calls = (#Samples)×(#RVs+2)");
+    layout->addWidget(sampleNumMessage);
+    sampleNumMessage->setStyleSheet("color: gray");
+
+    layout->addStretch(2);
 
     this->setLayout(layout);
 
-    connect(samplingMethod, SIGNAL(currentTextChanged(QString)), this, SLOT(onTextChanged(QString)));
+    //connect(samplingMethod, SIGNAL(currentTextChanged(QString)), this, SLOT(onTextChanged(QString)));
 
 }
 
@@ -198,22 +201,26 @@ DakotaInputSensitivity::inputFromJSON(QJsonObject &jsonObject)
 
 
 int DakotaInputSensitivity::processResults(QString &filenameResults, QString &filenameTab) {
-    Q_UNUSED(filenameResults);
-    Q_UNUSED(filenameTab);
+
     return 0;
 }
 
 UQ_Results *
 DakotaInputSensitivity::getResults(void) {
-    return new DakotaResultsSensitivity(theRandomVariables);
+
+  return new DakotaResultsSensitivity(RandomVariablesContainer::getInstance());
 }
 
-RandomVariablesContainer *
-DakotaInputSensitivity::getParameters(void) {
-  if (theRandomVariables == NULL) {
-    QString classType("Uncertain");
-    theRandomVariables =  new RandomVariablesContainer(classType);
-  }
+void
+DakotaInputSensitivity::setRV_Defaults(void) {
+  RandomVariablesContainer *theRVs = RandomVariablesContainer::getInstance();
+  QString classType = "Uncertain";
+  QString engineType = "Dakota";
+  
+  theRVs->setDefaults(engineType, classType, Normal);
+}
 
-  return theRandomVariables;
+QString
+DakotaInputSensitivity::getMethodName(void){
+  return QString("sensitivity");
 }

@@ -1,11 +1,11 @@
 #ifndef GAUSSIANPROCESSINPUTWIDGET_H
 #define GAUSSIANPROCESSINPUTWIDGET_H
 
-#include <UQ_MethodInputWidget.h>
+#include <UQ_Method.h>
 #include <QLineEdit>
 #include <QComboBox>
 
-class GaussianProcessInputWidget : public UQ_MethodInputWidget
+class GaussianProcessInputWidget : public UQ_Method
 {
     Q_OBJECT
 public:

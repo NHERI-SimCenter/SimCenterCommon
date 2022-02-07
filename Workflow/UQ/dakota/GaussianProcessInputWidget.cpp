@@ -7,7 +7,8 @@
 #include <QDebug>
 #include <QVBoxLayout>
 
-GaussianProcessInputWidget::GaussianProcessInputWidget(QWidget *parent) : UQ_MethodInputWidget(parent)
+GaussianProcessInputWidget::GaussianProcessInputWidget(QWidget *parent)
+:UQ_Method(parent)
 {
     //auto layout = new QGridLayout();
     QVBoxLayout *layout = new QVBoxLayout();
@@ -19,7 +20,7 @@ GaussianProcessInputWidget::GaussianProcessInputWidget(QWidget *parent) : UQ_Met
     trainingNumSamples->setText(tr("20"));
     trainingNumSamples->setValidator(new QIntValidator);
     trainingNumSamples->setToolTip("Specify the number of samples");
-    trainingDataLayout->addWidget(new QLabel("# Samples "), 0, 0);
+    trainingDataLayout->addWidget(new QLabel("# Samples"), 0, 0);
     trainingDataLayout->addWidget(trainingNumSamples, 0, 1);
 
     // create label and entry for seed to layout
