@@ -1,5 +1,5 @@
-#ifndef FEM_SELECTION_H
-#define FEM_SELECTION_H
+#ifndef FEA_SELECTION_H
+#define FEA_SELECTION_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -48,14 +48,14 @@ class UQ_Results;
 class UQ_Engine;
 class RandomVariablesContainer;
 
-class FEM_Selection : public  SimCenterAppWidget
+class FEA_Selection : public  SimCenterAppWidget
 {
   Q_OBJECT
 
     public:
 
-  explicit FEM_Selection(RandomVariablesContainer *, QWidget *parent = 0);
-  ~FEM_Selection();
+  explicit FEA_Selection(RandomVariablesContainer *, QWidget *parent = 0);
+  ~FEA_Selection();
 
   bool outputAppDataToJSON(QJsonObject &jsonObject);
   bool inputAppDataFromJSON(QJsonObject &jsonObject);
@@ -80,4 +80,4 @@ private:
    SimCenterAppWidget *theOpenSeesApplication;
 };
 
-#endif // FEM_SELECTION_H
+#endif // FEA_SELECTION_H

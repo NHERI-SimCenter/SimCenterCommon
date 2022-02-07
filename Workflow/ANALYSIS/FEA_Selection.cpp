@@ -38,7 +38,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include "FEM_Selection.h"
+#include "FEA_Selection.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -60,7 +60,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <InputWidgetOpenSeesAnalysis.h>
 
-FEM_Selection::FEM_Selection(RandomVariablesContainer *theRVs, QWidget *parent)
+FEA_Selection::FEA_Selection(RandomVariablesContainer *theRVs, QWidget *parent)
     : SimCenterAppWidget(parent), theCurrentSelection(0)
 {
     QVBoxLayout *layout = new QVBoxLayout();
@@ -108,14 +108,14 @@ FEM_Selection::FEM_Selection(RandomVariablesContainer *theRVs, QWidget *parent)
     layout->setMargin(0);
 }
 
-FEM_Selection::~FEM_Selection()
+FEA_Selection::~FEA_Selection()
 {
 
 }
 
 
 bool
-FEM_Selection::outputToJSON(QJsonObject &jsonObject)
+FEA_Selection::outputToJSON(QJsonObject &jsonObject)
 {
     QJsonObject fem;
     theCurrentSelection->outputToJSON(fem);
@@ -126,7 +126,7 @@ FEM_Selection::outputToJSON(QJsonObject &jsonObject)
 
 
 bool
-FEM_Selection::inputFromJSON(QJsonObject &jsonObject) {
+FEA_Selection::inputFromJSON(QJsonObject &jsonObject) {
 
     if (jsonObject.contains("Simulation")) {
         QJsonObject femObject = jsonObject["Simulation"].toObject();
@@ -139,7 +139,7 @@ FEM_Selection::inputFromJSON(QJsonObject &jsonObject) {
     return false;
 }
 
-void FEM_Selection::selectionChanged(const QString &arg1)
+void FEA_Selection::selectionChanged(const QString &arg1)
 {
     //
     // switch stacked widgets depending on text
@@ -153,18 +153,18 @@ void FEM_Selection::selectionChanged(const QString &arg1)
     }
 
     else {
-        qDebug() << "ERROR .. FEM_Selection selection .. type unknown: " << arg1;
+        qDebug() << "ERROR .. FEA_Selection selection .. type unknown: " << arg1;
     }
 }
 
 
 void
-FEM_Selection::selectionChanged(void){
+FEA_Selection::selectionChanged(void){
     emit onSelectionChanged();
 }
 
 bool
-FEM_Selection::outputAppDataToJSON(QJsonObject &jsonObject)
+FEA_Selection::outputAppDataToJSON(QJsonObject &jsonObject)
 {
     QJsonObject appsUQ;
     theCurrentSelection->outputAppDataToJSON(appsUQ);
@@ -175,7 +175,7 @@ FEM_Selection::outputAppDataToJSON(QJsonObject &jsonObject)
 
 
 bool
-FEM_Selection::inputAppDataFromJSON(QJsonObject &jsonObject)
+FEA_Selection::inputAppDataFromJSON(QJsonObject &jsonObject)
 {
     // get name from "Application" key
 
@@ -194,7 +194,7 @@ FEM_Selection::inputAppDataFromJSON(QJsonObject &jsonObject)
                 (type == QString("OpenSees-Simulation"))) {
                 index = 0;
             } else {
-                errorMessage("FEM_Selection - no valid type found");
+                errorMessage("FEA_Selection - no valid type found");
                 return false;
             }
 
@@ -205,12 +205,12 @@ FEM_Selection::inputAppDataFromJSON(QJsonObject &jsonObject)
                 return theCurrentSelection->inputAppDataFromJSON(theObject);
             }
         } else {
-            errorMessage("FEM_Selection - no Application key found");
+            errorMessage("FEA_Selection - no Application key found");
             return false;
         }
 
     } else {
-        errorMessage("FEM_Selection: failed to find FEM application");
+        errorMessage("FEA_Selection: failed to find FEA application");
         return false;
     }
 
@@ -219,7 +219,7 @@ FEM_Selection::inputAppDataFromJSON(QJsonObject &jsonObject)
 }
 
 bool
-FEM_Selection::copyFiles(QString &destDir) {
+FEA_Selection::copyFiles(QString &destDir) {
 
   if (theCurrentSelection != 0) {
     return  theCurrentSelection->copyFiles(destDir);
@@ -230,7 +230,7 @@ FEM_Selection::copyFiles(QString &destDir) {
 
 
 void
-FEM_Selection::clear(void) {
+FEA_Selection::clear(void) {
   if (theCurrentSelection != 0) {
     theCurrentSelection->clear();
   }
