@@ -1,5 +1,5 @@
-#ifndef UQ_ENGINE_SELECTION_H
-#define UQ_ENGINE_SELECTION_H
+#ifndef RESULT_DATA_CHART_H
+#define RESULT_DATA_CHART_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -20,7 +20,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -39,71 +39,78 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterAppWidget.h>
-#include <UQ_Engine.h>
+#include <QtCharts/QChart>
+using namespace QtCharts;
 
-class QComboBox;
-class QStackedWidget;
-class UQ_Engine;
-class InputWidgetEDP;
+#include "MyTableWidget.h"
+#include "RandomVariablesContainer.h"
+#include <QFileDialog>
+#include <QValueAxis>
 
+class QLineEdit;
 
-class UQ_EngineSelection : public  SimCenterAppWidget
+class ResultsDataChart : public SimCenterWidget
 {
-  Q_OBJECT
+    Q_OBJECT
+public:
+    explicit ResultsDataChart(QString filenameTab, bool isSur=false, int nrv=0, QWidget *parent = 0);
+    explicit ResultsDataChart(QJsonObject spreadsheet, bool isSur=false, int nrv=0, QWidget *parent = 0);
 
-  public:
+    //explicit ResultsDataChart(QWidget *parent = 0);
+    ~ResultsDataChart();
 
-  explicit UQ_EngineSelection(UQ_EngineType = ForwardReliabilitySensivity,
-			      QWidget *parent = 0);  
-  
-  ~UQ_EngineSelection();
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+    void clear(void);
 
-  void setRV_Defaults(void);
-  UQ_Results  *getResults();
+    int getNumberTasks(void);
 
-  int getNumParallelTasks(void);
-  UQ_Engine *getCurrentEngine();
-  
-  bool outputAppDataToJSON(QJsonObject &jsonObject);
-  bool inputAppDataFromJSON(QJsonObject &jsonObject);
+    QVector<QVector<double>> getStatistics();
+    QVector<QString> getNames();
+    QVector<QVector<double>> getMinMax();
 
-  bool outputToJSON(QJsonObject &rvObject);
-  bool inputFromJSON(QJsonObject &rvObject);
-  bool copyFiles(QString &destName);
+signals:
 
-  void clear(void);
-  
- signals:
-  void onUQ_EngineChanged(bool);
-  void onNumModelsChanged(int);
-  // FMK void onSurrogateModelSpecified(int);  
+public slots:
+   void onSpreadsheetCellClicked(int, int);
+   void onSaveSpreadsheetClicked();
+   void onSaveSpreadsheetSeparatelyClicked();
+   void onSaveSurrogateClicked();
+   void overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxis *axisX,QValueAxis *axisY );
 
-  // void remoteRunningCapability(bool);
-
- public slots:
-  
-  void engineSelectionChanged(const QString &arg1);
-  void enginesEngineSelectionChanged(void);
-  void numModelsChanged(int newNum);
-  // FMK void surrogateModelSpecified(void);  
-  
 private:
 
-   QComboBox   *theEngineSelectionBox;
-   QStackedWidget *theStackedWidget;
+    void readTableFromTab(QString filenameTab);
+    void readTableFromJson(QJsonObject jsonobj);
+    void makeChart(void);
+    float my_erfinvf(float a);
+    float my_logf(float a);
 
-   UQ_Engine *theCurrentEngine;
-   UQ_Engine *thePreviousEngine;  
-   UQ_Engine *theDakotaEngine;
-   UQ_Engine *theSimCenterUQEngine;
-   UQ_Engine *theUQpyEngine;
-   UQ_Engine *theUCSD_Engine;
-   UQ_Engine *thefilterEngine;
-   UQ_Engine *theCustomEngine;
+    //QLineEdit *randomSeed;
+    //QLineEdit *numSamples;
+    MyTableWidget *spreadsheet;
+    QTabWidget *tabWidget;
+    QChart *chart;
+    QPushButton* save_spreadheet; // save the data from spreadsheet
+    QLabel *label;
 
-   InputWidgetEDP *theEDPs;
-   
+    int col1, col2;
+    bool mLeft;
+    QStringList theHeadings;
+
+    QVector<QString>theNames;
+    QVector<double>theMeans;
+    QVector<double>theStdDevs;
+    QVector<double>theKurtosis;
+    QVector<double>theSkewness;
+
+    bool isSurrogate;
+    int nrv;
+    int nqoi;
+
+    int rowCount;
+    int colCount;
+
 };
 
-#endif // WIND_SELECTION_H
+#endif // RESULT_DATA_CHART_H

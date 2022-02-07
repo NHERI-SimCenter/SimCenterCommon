@@ -1,6 +1,3 @@
-#ifndef UQ_ENGINE_SELECTION_H
-#define UQ_ENGINE_SELECTION_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -20,7 +17,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -39,71 +36,28 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterAppWidget.h>
-#include <UQ_Engine.h>
+#include <UQ_Method.h>
 
-class QComboBox;
-class QStackedWidget;
-class UQ_Engine;
-class InputWidgetEDP;
-
-
-class UQ_EngineSelection : public  SimCenterAppWidget
+UQ_Method::UQ_Method(QWidget *parent) 
+: SimCenterWidget(parent)
 {
-  Q_OBJECT
 
-  public:
+}
 
-  explicit UQ_EngineSelection(UQ_EngineType = ForwardReliabilitySensivity,
-			      QWidget *parent = 0);  
+UQ_Method::~UQ_Method()
+{
+
+}
+
+bool
+UQ_Method::copyFiles(QString &destDir)
+{
+    Q_UNUSED(destDir);
+    return true;
+}
+
+void
+UQ_Method::setRV_Defaults(void)
+{
   
-  ~UQ_EngineSelection();
-
-  void setRV_Defaults(void);
-  UQ_Results  *getResults();
-
-  int getNumParallelTasks(void);
-  UQ_Engine *getCurrentEngine();
-  
-  bool outputAppDataToJSON(QJsonObject &jsonObject);
-  bool inputAppDataFromJSON(QJsonObject &jsonObject);
-
-  bool outputToJSON(QJsonObject &rvObject);
-  bool inputFromJSON(QJsonObject &rvObject);
-  bool copyFiles(QString &destName);
-
-  void clear(void);
-  
- signals:
-  void onUQ_EngineChanged(bool);
-  void onNumModelsChanged(int);
-  // FMK void onSurrogateModelSpecified(int);  
-
-  // void remoteRunningCapability(bool);
-
- public slots:
-  
-  void engineSelectionChanged(const QString &arg1);
-  void enginesEngineSelectionChanged(void);
-  void numModelsChanged(int newNum);
-  // FMK void surrogateModelSpecified(void);  
-  
-private:
-
-   QComboBox   *theEngineSelectionBox;
-   QStackedWidget *theStackedWidget;
-
-   UQ_Engine *theCurrentEngine;
-   UQ_Engine *thePreviousEngine;  
-   UQ_Engine *theDakotaEngine;
-   UQ_Engine *theSimCenterUQEngine;
-   UQ_Engine *theUQpyEngine;
-   UQ_Engine *theUCSD_Engine;
-   UQ_Engine *thefilterEngine;
-   UQ_Engine *theCustomEngine;
-
-   InputWidgetEDP *theEDPs;
-   
-};
-
-#endif // WIND_SELECTION_H
+}

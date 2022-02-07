@@ -1,5 +1,4 @@
-#ifndef UQ_ENGINE_SELECTION_H
-#define UQ_ENGINE_SELECTION_H
+// Written: fmckenna
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -39,71 +38,74 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterAppWidget.h>
-#include <UQ_Engine.h>
+#include "UQpyEngine.h"
+#include <QDebug>
+#include <RandomVariablesContainer.h>
+#include <UQ_Results.h>
 
-class QComboBox;
-class QStackedWidget;
-class UQ_Engine;
-class InputWidgetEDP;
-
-
-class UQ_EngineSelection : public  SimCenterAppWidget
+UQpyEngine::UQpyEngine(QWidget *parent)
+    : UQ_Engine(parent)
 {
-  Q_OBJECT
+  /*************************  at some point need to redo so no new
+    QString classType("Uncertain");
+    theRandomVariables =  new RandomVariablesContainer(classType);
+    theResults = new UQ_Results();
+  ***************************************************************/
+}
 
-  public:
+UQpyEngine::~UQpyEngine()
+{
 
-  explicit UQ_EngineSelection(UQ_EngineType = ForwardReliabilitySensivity,
-			      QWidget *parent = 0);  
-  
-  ~UQ_EngineSelection();
+}
 
-  void setRV_Defaults(void);
-  UQ_Results  *getResults();
+int
+UQpyEngine::getMaxNumParallelTasks(void) {
+    return 1;
+}
 
-  int getNumParallelTasks(void);
-  UQ_Engine *getCurrentEngine();
-  
-  bool outputAppDataToJSON(QJsonObject &jsonObject);
-  bool inputAppDataFromJSON(QJsonObject &jsonObject);
+bool
+UQpyEngine::outputToJSON( QJsonObject &rvObject) {
+    return true;
+}
 
-  bool outputToJSON(QJsonObject &rvObject);
-  bool inputFromJSON(QJsonObject &rvObject);
-  bool copyFiles(QString &destName);
 
-  void clear(void);
-  
- signals:
-  void onUQ_EngineChanged(bool);
-  void onNumModelsChanged(int);
-  // FMK void onSurrogateModelSpecified(int);  
+bool
+UQpyEngine::inputFromJSON(QJsonObject &rvObject) {
+    return true;
+}
 
-  // void remoteRunningCapability(bool);
 
- public slots:
-  
-  void engineSelectionChanged(const QString &arg1);
-  void enginesEngineSelectionChanged(void);
-  void numModelsChanged(int newNum);
-  // FMK void surrogateModelSpecified(void);  
-  
-private:
+int
+UQpyEngine::processResults( QString &filenameResults, QString &filenameTab) {
+    return 0;
+}
 
-   QComboBox   *theEngineSelectionBox;
-   QStackedWidget *theStackedWidget;
 
-   UQ_Engine *theCurrentEngine;
-   UQ_Engine *thePreviousEngine;  
-   UQ_Engine *theDakotaEngine;
-   UQ_Engine *theSimCenterUQEngine;
-   UQ_Engine *theUQpyEngine;
-   UQ_Engine *theUCSD_Engine;
-   UQ_Engine *thefilterEngine;
-   UQ_Engine *theCustomEngine;
+RandomVariablesContainer *
+UQpyEngine::getParameters() {
+  QString classType("Uncertain");
+  return RandomVariablesContainer::getInstance();
+}
 
-   InputWidgetEDP *theEDPs;
-   
-};
+UQ_Results *UQpyEngine::getResults(void) {
+  UQ_Results *theRes = new UQ_Results();
+  return theRes;
+}
 
-#endif // WIND_SELECTION_H
+void
+UQpyEngine::clear(void) {
+    return;
+}
+
+
+QString
+UQpyEngine::getProcessingScript() {
+    return QString("parseUQpy.py");
+}
+
+QString
+UQpyEngine::getMethodName() {
+  return QString("UQpy");
+}
+
+
