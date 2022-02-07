@@ -57,15 +57,23 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QCheckBox>
 
 class QDialog;
+enum  RV_Type {Normal, Constant, Uniform};
 
 class RandomVariablesContainer : public SimCenterWidget
 {
     Q_OBJECT
-public:
+
+
+private:
+    static RandomVariablesContainer *theInstance;  
+  
     explicit RandomVariablesContainer(QWidget *parent = 0);
     explicit RandomVariablesContainer(QString &randomVariableClass, QString uqengin="Dakota", QWidget *parent = 0);
-
     ~RandomVariablesContainer();
+  
+public:
+  
+    static RandomVariablesContainer *getInstance();
 
     void addRandomVariable(RandomVariable *theRV);
     bool inputFromJSON(QJsonObject &rvObject);
@@ -90,6 +98,10 @@ public:
     QTableWidget * getRVcorr();
     void copyRVs(RandomVariablesContainer *oldRVcontainers);
     void copyFiles(QString fileName);
+    void setDefaults (QString &theUQ_Engine,
+		      QString &theVariableClass,
+		      RV_Type Normal);
+  
 public slots:
    void errorMessage(QString message);
    void addRandomVariable(void);
@@ -105,7 +117,7 @@ public slots:
    void checkCorrValidity(void);
 
 private:
-    int addRVsType;
+    RV_Type defaultRVsType;
     void makeRV(void);
     QVBoxLayout *verticalLayout;
     QVBoxLayout *rvLayout;

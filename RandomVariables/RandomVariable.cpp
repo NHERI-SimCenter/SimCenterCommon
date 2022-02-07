@@ -160,7 +160,6 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     }
 
     if (uqEngineName==QString("SimCenterUQ")){
-
         distributionComboBox->addItem(tr("Exponential"));
         distributionComboBox->addItem(tr("Discrete"));
         distributionComboBox->addItem(tr("Gamma"));

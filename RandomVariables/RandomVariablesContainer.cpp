@@ -61,33 +61,44 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // To check validity of correlation matrix
 #include <Eigen/Dense>
 
+RandomVariablesContainer *RandomVariablesContainer::theInstance = 0;
+
+RandomVariablesContainer *
+RandomVariablesContainer::getInstance() {
+    if (theInstance == 0)
+        theInstance = new RandomVariablesContainer();
+    return theInstance;
+}
+
 RandomVariablesContainer::RandomVariablesContainer(QWidget *parent)
-    : SimCenterWidget(parent), correlationDialog(NULL), correlationMatrix(NULL), checkbox(NULL)
+    : SimCenterWidget(parent),
+      correlationDialog(NULL),
+      correlationMatrix(NULL),
+      checkbox(NULL)
 {
     randomVariableClass = QString("Uncertain");
     uqEngineName=QString("Dakota");
+    
     verticalLayout = new QVBoxLayout();
     this->setLayout(verticalLayout);
     verticalLayout->setMargin(0);
     this->makeRV();
 }
 
-RandomVariablesContainer::RandomVariablesContainer(QString &theClass, QString uqgin, QWidget *parent)
-    : SimCenterWidget(parent), correlationDialog(NULL), correlationMatrix(NULL), checkbox(NULL)
-{
-    randomVariableClass = theClass;
-    uqEngineName=uqgin;
-    verticalLayout = new QVBoxLayout();
-    this->setLayout(verticalLayout);
-    this->makeRV();
+void
+RandomVariablesContainer::setDefaults (QString &theEngine, QString &theClass, RV_Type theType) {
+  uqEngineName = theEngine;  
+  randomVariableClass = theClass;
+  defaultRVsType = theType;
 }
+
 
 void
 RandomVariablesContainer::addRVsWithValues(QStringList &varNamesAndValues)
 {
-  if (addRVsType == 0)
+  if (defaultRVsType == Constant)
     this->addConstantRVs(varNamesAndValues);
-  else if (addRVsType == 1)
+  else if (defaultRVsType == Uniform)
     this->addUniformRVs(varNamesAndValues);
   else
     this->addNormalRVs(varNamesAndValues);      
