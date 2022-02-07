@@ -470,7 +470,6 @@ void MainWindowWorkflowApp::loadFile(const QString &fileName)
 
 void MainWindowWorkflowApp::updateExamplesMenu(void)
 {
-
     if(exampleMenu == nullptr)
         exampleMenu = menuBar()->addMenu(tr("&Examples"));
     else
@@ -482,7 +481,7 @@ void MainWindowWorkflowApp::updateExamplesMenu(void)
     auto pathExamplesFolder = QCoreApplication::applicationDirPath() + QDir::separator() + "Examples";
 
     auto pathToExamplesJson = pathExamplesFolder + QDir::separator() + "Examples.json";
-
+  
     QFile jsonFile(pathToExamplesJson);
     if (jsonFile.exists())
     {
@@ -502,7 +501,7 @@ void MainWindowWorkflowApp::updateExamplesMenu(void)
 
             QFile inputFile(pathExamplesFolder + QDir::separator() + inputFileName);
 
-            if(inputFile.exists())
+            if(inputFile.exists() && !inputFileName.isEmpty())
             {
                 auto action = exampleMenu->addAction(name, this, &MainWindowWorkflowApp::loadExamples);
                 action->setProperty("name",name);
@@ -875,6 +874,7 @@ MainWindowWorkflowApp::loadExamples()
 
     auto exampleName = senderObj->property("name").toString();
     emit sendStatusMessage("Loading example "+exampleName);
+    emit sendStatusMessage(" - reading input file "+pathToExample);    
 
     auto description = senderObj->property("description").toString();
 
