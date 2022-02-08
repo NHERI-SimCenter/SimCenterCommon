@@ -50,6 +50,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QFileDialog>
 #include <QPushButton>
 #include <sectiontitle.h>
+#include <InputWidgetEDP.h>
 
 #include <iostream>
 #include <sstream>

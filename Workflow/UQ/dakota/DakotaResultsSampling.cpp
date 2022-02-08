@@ -38,7 +38,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // added and modified: padhye
 
 #include "DakotaResultsSampling.h"
-//#include "InputWidgetFEM.h"
 
 #include <QJsonObject>
 #include <QJsonArray>
@@ -70,8 +69,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QLabel>
-#include <InputWidgetUQ.h>
-#include <InputWidgetUQ.h>
 
 #include <QHeaderView>
 
