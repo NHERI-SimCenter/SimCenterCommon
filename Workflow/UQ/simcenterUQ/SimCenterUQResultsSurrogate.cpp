@@ -289,12 +289,12 @@ int SimCenterUQResultsSurrogate::processResults(QString &filenameResults, QStrin
     }
     int numRandomVar = 0;    
     QJsonValue theValue = jsonObj["xdim"];
-    if (theValue.isInteger())
-      numRandomVariables = theValue.toInt();
+    if (theValue.isDouble())
+      numRandomVar = theValue.toInt();
       
     
     //theDataTable = new ResultsDataChart(filenameTab);
-    theDataTable = new ResultsDataChart(filenameTab, isSurrogate, theRVs->getNumRandomVariables());
+    theDataTable = new ResultsDataChart(filenameTab, isSurrogate, numRandomVar);
 
     //
     // create spreadsheet,  a QTableWidget showing RV and results for each run

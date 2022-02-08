@@ -253,26 +253,6 @@ int SimCenterUQResultsSensitivity::processResults(QString &filenameResults, QStr
         return -1;
     }
 
-    /********************** LOOKING FOR THE FOLLOWING
-Global sensitivity indices for each response function:
-Node_3_Disp Sobol' indices:
-                                  Main             Total
-                      2.4039246953e-01  2.1539126172e-01 E
-                      3.1111165023e-01  2.5059985880e-01 P
-                     -1.0433587063e-01  4.5879211975e-02 A1
-                      5.5975158418e-02  2.3683900870e-01 A2
-Node_2_Disp Sobol' indices:
-                                  Main             Total
-                      2.8398436472e-01  2.1746571906e-01 E
-                      3.3651270362e-01  2.5289844553e-01 P
-                     -1.2721174582e-01  6.9156108718e-02 A1
-                      4.2512526616e-03  1.2984354691e-01 A2
-
-<<<<< Iterator random_sampling completed.
-
-              ******************************************** */
-
-
     std::string readline;
     getline(fileResults, readline);// header
     getline(fileResults, readline);// value
@@ -314,7 +294,7 @@ Node_2_Disp Sobol' indices:
     // create spreadsheet,  a QTableWidget showing RV and results for each run
     //
 
-    theDataTable = new ResultsDataChart(filenameTab, isSurrogate, theRVs->getNumRandomVariables());
+    theDataTable = new ResultsDataChart(filenameTab, isSurrogate, ncomb);
     //theDataTable = new ResultsDataChart(filenameTab);
 
     //
