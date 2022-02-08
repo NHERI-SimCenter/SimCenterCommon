@@ -70,11 +70,11 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QGridLayout>
 #include <QLabel>
 //#include <InputWidgetFEM.h>
-#include <InputWidgetUQ.h>
+//#include <InputWidgetUQ.h>
 
 
 //#include <InputWidgetFEM.h>
-#include <InputWidgetUQ.h>
+//#include <InputWidgetUQ.h>
 #include <QHeaderView>
 
 #include <QtCharts/QChart>
