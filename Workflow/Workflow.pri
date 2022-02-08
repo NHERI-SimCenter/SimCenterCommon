@@ -8,7 +8,11 @@
 #message($$PWD)
 
 INCLUDEPATH += $$PWD/UQ
+INCLUDEPATH += $$PWD/UQ/common
 INCLUDEPATH += $$PWD/UQ/dakota
+INCLUDEPATH += $$PWD/UQ/simcenterUQ
+INCLUDEPATH += $$PWD/UQ/customUQ
+INCLUDEPATH += $$PWD/UQ/ucsd
 INCLUDEPATH += $$PWD/WORKFLOW
 INCLUDEPATH += $$PWD/WORKFLOW/Utils
 INCLUDEPATH += $$PWD/WORKFLOW/ModelViewItems
@@ -26,25 +30,46 @@ INCLUDEPATH += $$PWD/EDP
 #INCLUDEPATH += "../QUO_Methods"
 
 SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
-    $$PWD/UQ/UQ_MethodInputWidget.cpp \
+    $$PWD/UQ/UQ_Results.cpp \
     $$PWD/UQ/UQ_Engine.cpp \
-    $$PWD/UQ/UQ_Results.cpp \    
-    $$PWD/UQ/dakota/DakotaResults.cpp \
-    $$PWD/UQ/dakota/GaussianProcessInputWidget.cpp \
-    $$PWD/UQ/dakota/LatinHypercubeInputWidget.cpp \
-    $$PWD/UQ/dakota/DakotaResultsSampling.cpp \
-    $$PWD/UQ/dakota/DakotaResultsReliability.cpp \
-    $$PWD/UQ/dakota/DakotaResultsSensitivity.cpp \
-    $$PWD/UQ/dakota/ImportanceSamplingInputWidget.cpp \
-    $$PWD/UQ/dakota/MonteCarloInputWidget.cpp \
-    $$PWD/UQ/dakota/PCEInputWidget.cpp \
-    $$PWD/UQ/dakota/DakotaInputSampling.cpp \
-    $$PWD/UQ/dakota/DakotaInputReliability.cpp \
-    $$PWD/UQ/dakota/DakotaInputSensitivity.cpp \
-    $$PWD/UQ/dakota/InputWidgetUQ.cpp \
+    $$PWD/UQ/UQ_Method.cpp \   
+    $$PWD/UQ/UQpyEngine.cpp \
+    $$PWD/UQ/customUQ/CustomUQ_Results.cpp \
+    $$PWD/UQ/customUQ/UQ_JsonEngine.cpp \ 
+    $$PWD/UQ/common/ResultsDataChart.cpp \
     $$PWD/UQ/dakota/DakotaEngine.cpp \
+    $$PWD/UQ/dakota/DakotaInputSampling.cpp \
+    $$PWD/UQ/dakota/DakotaResultsSampling.cpp \
+    $$PWD/UQ/dakota/MonteCarloInputWidget.cpp \
+    $$PWD/UQ/dakota/MultiFidelityMonteCarlo.cpp \
+    $$PWD/UQ/dakota/LatinHypercubeInputWidget.cpp \
+    $$PWD/UQ/dakota/ImportanceSamplingInputWidget.cpp \
+    $$PWD/UQ/dakota/GaussianProcessInputWidget.cpp \
+    $$PWD/UQ/dakota/PCEInputWidget.cpp \
+    $$PWD/UQ/dakota/DakotaInputBayesianCalibration.cpp \
+    $$PWD/UQ/dakota/DakotaResultsBayesianCalibration.cpp \
+    $$PWD/UQ/dakota/DakotaResultsCalibration.cpp \
+    $$PWD/UQ/dakota/DakotaInputCalibration.cpp \
+    $$PWD/UQ/dakota/DakotaInputSensitivity.cpp \
+    $$PWD/UQ/dakota/DakotaResultsSensitivity.cpp \
+    $$PWD/UQ/dakota/DakotaInputReliability.cpp \
+    $$PWD/UQ/dakota/DakotaResultsReliability.cpp \
     $$PWD/UQ/dakota/LocalReliabilityWidget.cpp \
     $$PWD/UQ/dakota/GlobalReliabilityWidget.cpp \
+    $$PWD/UQ/ucsd/UCSD_Engine.cpp \
+    $$PWD/UQ/ucsd/UCSD_TMMC.cpp \
+    $$PWD/UQ/ucsd/UCSD_Results.cpp \
+    $$PWD/UQ/ucsd/BayesPlots.cpp \
+    $$PWD/UQ/simcenterUQ/SimCenterUQEngine.cpp \
+    $$PWD/UQ/simcenterUQ/SimCenterUQInputSampling.cpp \
+    $$PWD/UQ/simcenterUQ/SimCenterUQResultsSampling.cpp \
+    $$PWD/UQ/simcenterUQ/SimCenterUQInputSensitivity.cpp \
+    $$PWD/UQ/simcenterUQ/SimCenterUQResultsSensitivity.cpp \
+    $$PWD/UQ/simcenterUQ/SimCenterUQInputSurrogate.cpp \
+    $$PWD/UQ/simcenterUQ/SimCenterUQResultsSurrogate.cpp \
+    $$PWD/UQ/simcenterUQ/SurrogateNoDoEInputWidget.cpp \
+    $$PWD/UQ/simcenterUQ/SurrogateDoEInputWidget.cpp \
+    $$PWD/UQ/simcenterUQ/SurrogateMFInputWidget.cpp \
     $$PWD/WORKFLOW/MainWindowWorkflowApp.cpp \
     $$PWD/WORKFLOW/WorkflowAppWidget.cpp \
     $$PWD/WORKFLOW/SimCenterComponentSelection.cpp \
@@ -70,7 +95,7 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/SIM/SIM_Selection.cpp \
     $$PWD/SIM/InputWidgetBIM.cpp \
     $$PWD/SIM/OpenSeesParser.cpp \
-    $$PWD/ANALYSIS/FEM_Selection.cpp \
+    $$PWD/ANALYSIS/FEA_Selection.cpp \
     $$PWD/ANALYSIS/InputWidgetOpenSeesAnalysis.cpp \
     $$PWD/EXECUTION/RunLocalWidget.cpp \
     $$PWD/EXECUTION/AgaveCurl.cpp \
@@ -98,23 +123,44 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
 HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/UQ/UQ_Results.h \
     $$PWD/UQ/UQ_Engine.h \
-    $$PWD/UQ/UQ_MethodInputWidget.h \
-    $$PWD/UQ/dakota/DakotaResults.h \
-    $$PWD/UQ/dakota/GaussianProcessInputWidget.h \
-    $$PWD/UQ/dakota/LatinHypercubeInputWidget.h \
+    $$PWD/UQ/UQ_Method.h \
+    $$PWD/UQ/UQpyEngine.h \
+    $$PWD/UQ/customUQ/CustomUQ_Results.h \
+    $$PWD/UQ/customUQ/UQ_JsonEngine.h \
+    $$PWD/UQ/common/ResultsDataChart.h \
+    $$PWD/UQ/dakota/DakotaEngine.h \
+    $$PWD/UQ/dakota/DakotaInputSampling.h \
     $$PWD/UQ/dakota/DakotaResultsSampling.h \
-    $$PWD/UQ/dakota/DakotaResultsReliability.h \
+    $$PWD/UQ/dakota/MonteCarloInputWidget.h \
+    $$PWD/UQ/dakota/MultiFidelityMonteCarlo.h \
+    $$PWD/UQ/dakota/LatinHypercubeInputWidget.h \
+    $$PWD/UQ/dakota/ImportanceSamplingInputWidget.h \
+    $$PWD/UQ/dakota/GaussianProcessInputWidget.h \
+    $$PWD/UQ/dakota/PCEInputWidget.h \
+    $$PWD/UQ/dakota/DakotaInputBayesianCalibration.h \
+    $$PWD/UQ/dakota/DakotaResultsBayesianCalibration.h \
+    $$PWD/UQ/dakota/DakotaResultsCalibration.h \
+    $$PWD/UQ/dakota/DakotaInputCalibration.h \
+    $$PWD/UQ/dakota/DakotaInputSensitivity.h \
     $$PWD/UQ/dakota/DakotaResultsSensitivity.h \
     $$PWD/UQ/dakota/DakotaInputReliability.h \
-    $$PWD/UQ/dakota/DakotaInputSensitivity.h \
-    $$PWD/UQ/dakota/ImportanceSamplingInputWidget.h \
-    $$PWD/UQ/dakota/MonteCarloInputWidget.h \
-    $$PWD/UQ/dakota/PCEInputWidget.h \
-    $$PWD/UQ/dakota/DakotaInputSampling.h \
-    $$PWD/UQ/dakota/InputWidgetUQ.h \
-    $$PWD/UQ/dakota/DakotaEngine.h \
+    $$PWD/UQ/dakota/DakotaResultsReliability.h \
     $$PWD/UQ/dakota/LocalReliabilityWidget.h \
     $$PWD/UQ/dakota/GlobalReliabilityWidget.h \
+    $$PWD/UQ/ucsd/UCSD_Engine.h \
+    $$PWD/UQ/ucsd/UCSD_TMMC.h \
+    $$PWD/UQ/ucsd/UCSD_Results.h \
+    $$PWD/UQ/ucsd/BayesPlots.h \
+    $$PWD/UQ/simcenterUQ/SimCenterUQEngine.h \
+    $$PWD/UQ/simcenterUQ/SimCenterUQInputSampling.h \
+    $$PWD/UQ/simcenterUQ/SimCenterUQResultsSampling.h \
+    $$PWD/UQ/simcenterUQ/SimCenterUQInputSensitivity.h \
+    $$PWD/UQ/simcenterUQ/SimCenterUQResultsSensitivity.h \
+    $$PWD/UQ/simcenterUQ/SimCenterUQInputSurrogate.h \
+    $$PWD/UQ/simcenterUQ/SimCenterUQResultsSurrogate.h \
+    $$PWD/UQ/simcenterUQ/SurrogateNoDoEInputWidget.h \
+    $$PWD/UQ/simcenterUQ/SurrogateDoEInputWidget.h \
+    $$PWD/UQ/simcenterUQ/SurrogateMFInputWidget.h \
     $$PWD/WORKFLOW/MainWindowWorkflowApp.h \
     $$PWD/WORKFLOW/WorkflowAppWidget.h \
     $$PWD/WORKFLOW/SimCenterComponentSelection.h \
@@ -141,7 +187,7 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/SIM/SIM_Selection.h \
     $$PWD/SIM/InputWidgetBIM.h \
     $$PWD/SIM/OpenSeesParser.h \
-    $$PWD/ANALYSIS/FEM_Selection.h \
+    $$PWD/ANALYSIS/FEA_Selection.h \
     $$PWD/ANALYSIS/InputWidgetOpenSeesAnalysis.h \
     $$PWD/EXECUTION/RunLocalWidget.h \
     $$PWD/EXECUTION/AgaveCurl.h \

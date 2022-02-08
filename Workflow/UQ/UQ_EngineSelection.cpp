@@ -192,7 +192,7 @@ void UQ_EngineSelection::engineSelectionChanged(const QString &arg1)
         theCurrentEngine = theDakotaEngine;
         emit onUQ_EngineChanged(true);
 	
-    } else if (arg1 == "SimCenterUQ" || arg1 = "SimCenterUQ-UQ") {
+    } else if (arg1 == "SimCenterUQ" || arg1 == "SimCenterUQ-UQ") {
       
         theStackedWidget->setCurrentIndex(1);
         theCurrentEngine = theSimCenterUQEngine;
