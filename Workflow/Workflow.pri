@@ -70,6 +70,9 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/UQ/simcenterUQ/SurrogateNoDoEInputWidget.cpp \
     $$PWD/UQ/simcenterUQ/SurrogateDoEInputWidget.cpp \
     $$PWD/UQ/simcenterUQ/SurrogateMFInputWidget.cpp \
+    $$PWD/UQ/simcenterUQ/PLoMInputWidget.cpp \
+    $$PWD/UQ/simcenterUQ/SimCenterUQInputPLoM.cpp \
+    $$PWD/UQ/simcenterUQ/SimCenterUQResultsPLoM.cpp \
     $$PWD/WORKFLOW/MainWindowWorkflowApp.cpp \
     $$PWD/WORKFLOW/WorkflowAppWidget.cpp \
     $$PWD/WORKFLOW/SimCenterComponentSelection.cpp \
@@ -161,6 +164,9 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/UQ/simcenterUQ/SurrogateNoDoEInputWidget.h \
     $$PWD/UQ/simcenterUQ/SurrogateDoEInputWidget.h \
     $$PWD/UQ/simcenterUQ/SurrogateMFInputWidget.h \
+    $$PWD/UQ/simcenterUQ/PLoMInputWidget.h \
+    $$PWD/UQ/simcenterUQ/SimCenterUQInputPLoM.h \
+    $$PWD/UQ/simcenterUQ/SimCenterUQResultsPLoM.h \
     $$PWD/WORKFLOW/MainWindowWorkflowApp.h \
     $$PWD/WORKFLOW/WorkflowAppWidget.h \
     $$PWD/WORKFLOW/SimCenterComponentSelection.h \
