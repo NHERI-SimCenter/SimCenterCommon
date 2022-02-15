@@ -193,8 +193,7 @@ RandomVariable::RandomVariable(const QString &type,
                                QWidget *parent)
     :RandomVariable(type, uqengin, parent)
 {
-    variableName->setText(rvName);
-
+  variableName->setText(rvName.trimmed());
 }
 
 RandomVariable::RandomVariable(const QString &type,
@@ -204,7 +203,7 @@ RandomVariable::RandomVariable(const QString &type,
                                QWidget *parent)
     :RandomVariable(type, uqengin, parent)
 {
-    variableName->setText(rvName);
+  variableName->setText(rvName.trimmed());
 
     // now change the distribution to constant and set value
     int index = distributionComboBox->findText(theD.getAbbreviatedName());
@@ -230,7 +229,7 @@ RandomVariable::RandomVariable(const QString &type,
 
  QString
  RandomVariable::getVariableName(void){
-     return variableName->text();
+   return variableName->text().trimmed();
  }
 
  void
@@ -243,8 +242,8 @@ bool
 RandomVariable::outputToJSON(QJsonObject &rvObject){
     bool result = false;
     if (!variableName->text().isEmpty()) {
-        rvObject["name"]=variableName->text();
-        rvObject["value"]=QString("RV.") + variableName->text();
+        rvObject["name"]=variableName->text().trimmed();
+        rvObject["value"]=QString("RV.") + variableName->text().trimmed();
         rvObject["distribution"]=distributionComboBox->currentText();
         rvObject["inputType"]=typeComboBox->currentText();
         rvObject["variableClass"]=variableClass;
@@ -263,7 +262,7 @@ RandomVariable::inputFromJSON(QJsonObject &rvObject){
     QString distributionType, inputType;
     if (rvObject.contains("name")) {
         QJsonValue theName = rvObject["name"];
-        variableName->setText(theName.toString());
+        variableName->setText(theName.toString().trimmed());
     } else {
         return false;
     }
