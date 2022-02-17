@@ -289,8 +289,14 @@ int SimCenterUQResultsPLoM::processResults(QString &filenameResults, QString &fi
         return 0;
     }
 
+    qDebug() << "creating ResultDataChart.";
+    qDebug() << filenameTab;
+    qDebug() << isSurrogate;
+    qDebug() << theRVs->getNumRandomVariables();
     //theDataTable = new ResultsDataChart(filenameTab);
     theDataTable = new ResultsDataChart(filenameTab, isSurrogate, theRVs->getNumRandomVariables());
+
+    qDebug() << "ResultDataChart created.";
 
     //
     // create spreadsheet,  a QTableWidget showing RV and results for each run

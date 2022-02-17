@@ -36,7 +36,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna, kuanshi
 
-#include <PLoMInputWidget.h>
+#include <PLoMSimuWidget.h>
 #include <QLineEdit>
 #include <QVBoxLayout>
 #include <QLabel>
@@ -61,8 +61,15 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QComboBox>
+#include <MonteCarloInputWidget.h>
+#include <LatinHypercubeInputWidget.h>
+//#include <ImportanceSamplingInputWidget.h>
+#include <GaussianProcessInputWidget.h>
+#include <PCEInputWidget.h>
+#include <MultiFidelityMonteCarlo.h>
+#include <SimCenterIntensityMeasureWidget.h>
 
-PLoMInputWidget::PLoMInputWidget(QWidget *parent)
+PLoMSimuWidget::PLoMSimuWidget(QWidget *parent)
     : UQ_Method(parent)
 {
     auto layout = new QVBoxLayout();
@@ -71,28 +78,62 @@ PLoMInputWidget::PLoMInputWidget(QWidget *parent)
     //First we need to add type radio buttons
     m_typeButtonsGroup = new QButtonGroup(this);
     QRadioButton* rawDataRadioButton = new QRadioButton(tr("Raw Data"));
-    QRadioButton* preTrainRadioButton = new QRadioButton(tr("Pre-trained Model"));
+    rawDataRadioButton->hide();
     m_typeButtonsGroup->addButton(rawDataRadioButton, 0);
-    m_typeButtonsGroup->addButton(preTrainRadioButton, 1);
     QWidget* typeGroupBox = new QWidget(this);
     typeGroupBox->setContentsMargins(0,0,0,0);
     typeGroupBox->setStyleSheet("QGroupBox { font-weight: normal;}");
     QHBoxLayout* typeLayout = new QHBoxLayout(typeGroupBox);
     typeGroupBox->setLayout(typeLayout);
     typeLayout->addWidget(rawDataRadioButton);
-    typeLayout->addWidget(preTrainRadioButton);
     typeLayout->addStretch();
     layout->addWidget(typeGroupBox,wid++);
 
+    // sampling method
+    samplingMethodGroup = new QWidget(this);
+    QHBoxLayout *methodLayout= new QHBoxLayout;
+    samplingMethodGroup->setLayout(methodLayout);
+    QLabel *label1 = new QLabel();
+    label1->setText(QString("Method"));
+    samplingMethod = new QComboBox();
+    samplingMethod->setMaximumWidth(200);
+    samplingMethod->setMinimumWidth(200);
+    samplingMethod->addItem(tr("LHS"));
+    samplingMethod->addItem(tr("Monte Carlo"));
+    //samplingMethod->addItem(tr("Importance Sampling"));
+    //samplingMethod->addItem(tr("Gaussian Process Regression"));
+    //samplingMethod->addItem(tr("Polynomial Chaos Expansion"));
+    // samplingMethod->addItem(tr("Multi Fidelity Monte Carlo"));
+
+    methodLayout->addWidget(label1);
+    methodLayout->addWidget(samplingMethod);
+    methodLayout->addStretch(1);
+    layout->addWidget(samplingMethodGroup,wid++);
+
+    samplingStackedWidget = new QStackedWidget();
+    samplingStackedWidget->setMaximumWidth(800);
+    theLHS = new LatinHypercubeInputWidget();
+    samplingStackedWidget->addWidget(theLHS);
+    theMC = new MonteCarloInputWidget();
+    samplingStackedWidget->addWidget(theMC);
+    //theIS = new ImportanceSamplingInputWidget();
+    //theStackedWidget->addWidget(theIS);
+    //theGP = new GaussianProcessInputWidget();
+    //samplingStackedWidget->addWidget(theGP);
+    //thePCE = new PCEInputWidget();
+    //samplingStackedWidget->addWidget(thePCE);
+    //theMFMC = new MultiFidelityMonteCarlo();
+    //samplingStackedWidget->addWidget(theMFMC);
+    // set current widget to index 0
+    theCurrentMethod = theLHS;
+    layout->addWidget(samplingStackedWidget,wid++,0);
+    connect(samplingMethod, SIGNAL(currentTextChanged(QString)), this, SLOT(onTextChanged(QString)));
+
     // input data widget
     rawDataGroup = new QWidget(this);
-    rawDataGroup->setMaximumWidth(800);
     QGridLayout* rawDataLayout = new QGridLayout(rawDataGroup);
     rawDataGroup->setLayout(rawDataLayout);
-    preTrainGroup = new QWidget(this);
-    preTrainGroup->setMaximumWidth(800);
-    QGridLayout* preTrainLayout = new QGridLayout(preTrainGroup);
-    preTrainGroup->setLayout(preTrainLayout);
+    rawDataGroup->hide();
     // Create Input LineEdit
     inpFileDir = new QLineEdit();
     QPushButton *chooseInpFile = new QPushButton("Choose");
@@ -101,42 +142,29 @@ PLoMInputWidget::PLoMInputWidget(QWidget *parent)
         this->parseInputDataForRV(inpFileDir->text());
     });
     inpFileDir->setReadOnly(true);
-    inpFileDir->setMaximumWidth(600);
     rawDataLayout->addWidget(new QLabel("Training Data File: Input"),0,0);
     rawDataLayout->addWidget(inpFileDir,0,1,1,3);
     rawDataLayout->addWidget(chooseInpFile,0,4);
     // Create Output LineEdit
     outFileDir = new QLineEdit();
-    outFileDir->setMaximumWidth(600);
     chooseOutFile = new QPushButton("Choose");
     connect(chooseOutFile, &QPushButton::clicked, this, [=](){
         outFileDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
         this->parseOutputDataForQoI(outFileDir->text());
     });
     outFileDir->setReadOnly(true);
-    rawDataLayout->addWidget(new QLabel("Training Data File: Output"),1,0);
-    rawDataLayout->addWidget(outFileDir,1,1,1,3);
-    rawDataLayout->addWidget(chooseOutFile,1,4);
+    rawDataLayout->addWidget(new QLabel("Training Data File: Output"),1,0,Qt::AlignTop);
+    rawDataLayout->addWidget(outFileDir,1,1,1,3,Qt::AlignTop);
+    rawDataLayout->addWidget(chooseOutFile,1,4,Qt::AlignTop);
     errMSG=new QLabel("Unrecognized file format");
     errMSG->setStyleSheet({"color: red"});
-    rawDataLayout->addWidget(errMSG,2,1);
+    rawDataLayout->addWidget(errMSG,2,1,Qt::AlignLeft);
     errMSG->hide();
 
-    inpFileDir2 = new QLineEdit();
-    QPushButton *chooseInpFile2 = new QPushButton("Choose");
-    connect(chooseInpFile2, &QPushButton::clicked, this, [=](){
-        inpFileDir2->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "h5 files (*.h5)"));
-        this->parsePretrainedModelForRVQoI(inpFileDir2->text());
-    });
-    inpFileDir2->setReadOnly(true);
-    preTrainLayout->addWidget(new QLabel("Training Data File: Pretrained Model"),0,0);
-    preTrainLayout->addWidget(inpFileDir2,0,1,1,3);
-    preTrainLayout->addWidget(chooseInpFile2,0,4);
-
-    //We will add stacked widget to switch between raw data and trained model
+    //We will add stacked widget to switch between grid and single location
     m_stackedWidgets = new QStackedWidget(this);
+    m_stackedWidgets->hide();
     m_stackedWidgets->addWidget(rawDataGroup);
-    m_stackedWidgets->addWidget(preTrainGroup);
     m_typeButtonsGroup->button(0)->setChecked(true);
     m_stackedWidgets->setCurrentIndex(0);
     connect(m_typeButtonsGroup, QOverload<int>::of(&QButtonGroup::buttonReleased), [this](int id)
@@ -146,18 +174,13 @@ PLoMInputWidget::PLoMInputWidget(QWidget *parent)
             m_stackedWidgets->setCurrentIndex(0);
             preTrained = false;
         }
-        else if (id == 1) {
-            m_typeButtonsGroup->button(1)->setChecked(true);
-            m_stackedWidgets->setCurrentIndex(1);
-            preTrained = true;
-        }
     });
 
     layout->addWidget(m_stackedWidgets,wid++);
 
     // create widget for new sample ratio
     newSampleRatioWidget = new QWidget();
-    newSampleRatioWidget->setMaximumWidth(300);
+    newSampleRatioWidget->setMaximumWidth(200);
     QGridLayout* nsrLayout = new QGridLayout(newSampleRatioWidget);
     newSampleRatioWidget->setLayout(nsrLayout);
     ratioNewSamples = new QLineEdit();
@@ -190,11 +213,11 @@ PLoMInputWidget::PLoMInputWidget(QWidget *parent)
     theAdvancedComboBox->addItem(tr("General"));
     theAdvancedComboBox->addItem(tr("KDE"));
     theAdvancedComboBox->addItem(tr("Constraints"));
+    theAdvancedComboBox->addItem(tr("Affiliate Variables"));
     theAdvancedComboBox->setCurrentIndex(0);
     theAdvancedComboBox->setVisible(false);
     advComboLayout->addWidget(theAdvancedComboBox);
     advComboLayout->addStretch();
-    //advOptLayout->addWidget(theAdvancedComboBox, widd++, 2, Qt::AlignBottom);
     advOptLayout->addLayout(advComboLayout, widd++);
 
     // division line
@@ -203,11 +226,12 @@ PLoMInputWidget::PLoMInputWidget(QWidget *parent)
     lineA->setFrameShadow(QFrame::Sunken);
     lineA->setMaximumWidth(300);
     advOptLayout->addWidget(lineA);
-    lineA->setVisible(false);    
+    lineA->setVisible(false);
 
     // adv. opt. general widget
     advGeneralWidget = new QWidget();
     advGeneralWidget->setMaximumWidth(800);
+    advGeneralWidget->setMaximumHeight(150);
     QGridLayout* advGeneralLayout = new QGridLayout(advGeneralWidget);
     advGeneralWidget->setLayout(advGeneralLayout);
     // Log transform
@@ -246,6 +270,7 @@ PLoMInputWidget::PLoMInputWidget(QWidget *parent)
     // adv. opt. kde widget
     advKDEWidget = new QWidget();
     advKDEWidget->setMaximumWidth(800);
+    advKDEWidget->setMaximumHeight(150);
     QGridLayout* advKDELayout = new QGridLayout(advKDEWidget);
     advKDEWidget->setLayout(advKDELayout);
     // kde smooth factor
@@ -284,6 +309,7 @@ PLoMInputWidget::PLoMInputWidget(QWidget *parent)
     // adv. opt. constraints widget
     advConstraintsWidget = new QWidget();
     advConstraintsWidget->setMaximumWidth(800);
+    advConstraintsWidget->setMaximumHeight(150);
     QGridLayout* advConstraintsLayout = new QGridLayout(advConstraintsWidget);
     advConstraintsWidget->setLayout(advConstraintsLayout);
     //
@@ -340,11 +366,59 @@ PLoMInputWidget::PLoMInputWidget(QWidget *parent)
     tolIter->setDisabled(1);
     tolIter->setStyleSheet("background-color: lightgrey;border-color:grey");
 
+    // Affiliate variable widget
+    advAffiliateVariableWidget = new QWidget();
+    QGridLayout* advAffiliateVariableLayout = new QGridLayout(advAffiliateVariableWidget);
+    advAffiliateVariableLayout->setMargin(0);
+    advAffiliateVariableWidget->setLayout(advAffiliateVariableLayout);
+    // combo box
+    theAffiliateVariableComboBox = new QComboBox();
+    theAffiliateVariableComboBox->addItem(tr("None"));
+    theAffiliateVariableComboBox->addItem(tr("Ground Motion Intensity"));
+    theAffiliateVariableComboBox->addItem(tr("User Defined"));
+    theAffiliateVariableLabel = new QLabel(tr("Type"));
+    advAffiliateVariableLayout->addWidget(theAffiliateVariableLabel,0,0);
+    advAffiliateVariableLayout->addWidget(theAffiliateVariableComboBox,0,1);
+    // empty widget
+    emptyVariableWidget = new QWidget();
+    // ground motion intensity measure widget
+    theSCIMWidget = new SimCenterIntensityMeasureWidget();
+    // user-defined script
+    userVariableWidget = new QWidget();
+    userVariableWidget->setMaximumWidth(800);
+    userVariableWidget->setMaximumHeight(100);
+    QGridLayout *userVariableLayout = new QGridLayout();
+    userVariableWidget->setLayout(userVariableLayout);
+    userVariableLabel = new QLabel(tr("User Defined Script"));
+    userVariabelLine = new QLineEdit();
+    chooseUserVar = new QPushButton(tr("Choose"));
+    userVariableLabel->setVisible(false);
+    userVariabelLine->setVisible(false);
+    chooseUserVar->setVisible(false);
+    connect(chooseUserVar, &QPushButton::clicked, this, [=](){
+        userVariabelLine->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.py)"));
+    });
+    userVariableLayout->addWidget(userVariableLabel,0,0);
+    userVariableLayout->addWidget(userVariabelLine,0,1);
+    userVariableLayout->addWidget(chooseUserVar,0,2);
+    //
+    aff_stackedWidgets = new QStackedWidget(this);
+    aff_stackedWidgets->addWidget(emptyVariableWidget);
+    aff_stackedWidgets->addWidget(theSCIMWidget);
+    aff_stackedWidgets->addWidget(userVariableWidget);
+    aff_stackedWidgets->setCurrentIndex(0);
+    connect(theAffiliateVariableComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int id)
+    {
+        aff_stackedWidgets->setCurrentIndex(id);
+    });
+    advAffiliateVariableLayout->addWidget(aff_stackedWidgets,1,0,1,9);
+
     // create the stacked widgets
     adv_stackedWidgets = new QStackedWidget(this);
     adv_stackedWidgets->addWidget(advGeneralWidget);
     adv_stackedWidgets->addWidget(advKDEWidget);
     adv_stackedWidgets->addWidget(advConstraintsWidget);
+    adv_stackedWidgets->addWidget(advAffiliateVariableWidget);
     adv_stackedWidgets->setCurrentIndex(0);
     connect(theAdvancedComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int id)
     {
@@ -372,14 +446,14 @@ PLoMInputWidget::PLoMInputWidget(QWidget *parent)
 }
 
 
-PLoMInputWidget::~PLoMInputWidget()
+PLoMSimuWidget::~PLoMSimuWidget()
 {
 
 }
 
 
 // SLOT function
-void PLoMInputWidget::doAdvancedSetup(bool tog)
+void PLoMSimuWidget::doAdvancedSetup(bool tog)
 {
     if (tog) {
         theAdvancedTitle->setStyleSheet("font-weight: bold; color: black");
@@ -412,10 +486,16 @@ void PLoMInputWidget::doAdvancedSetup(bool tog)
     numIterLabel->setVisible(tog);
     tolIter->setVisible(tog);
     tolIterLabel->setVisible(tog);
+    theAffiliateVariableComboBox->setVisible(tog);
+    theAffiliateVariableLabel->setVisible(tog);
+    userVariableLabel->setVisible(tog);
+    userVariabelLine->setVisible(tog);
+    chooseUserVar->setVisible(tog);
+
 }
 
 
-void PLoMInputWidget::setOutputDir(bool tog)
+void PLoMSimuWidget::setOutputDir(bool tog)
 {
     if (tog) {
         outFileDir->setDisabled(0);
@@ -437,7 +517,7 @@ void PLoMInputWidget::setOutputDir(bool tog)
     }
 }
 
-void PLoMInputWidget::setConstraints(bool tog)
+void PLoMSimuWidget::setConstraints(bool tog)
 {
     if (tog) {
         constraintsPath->setDisabled(0);
@@ -458,7 +538,7 @@ void PLoMInputWidget::setConstraints(bool tog)
     }
 }
 
-void PLoMInputWidget::setDiffMaps(bool tog)
+void PLoMSimuWidget::setDiffMaps(bool tog)
 {
     if (tog) {
         tolKDE->setDisabled(0);
@@ -470,17 +550,17 @@ void PLoMInputWidget::setDiffMaps(bool tog)
 }
 
 bool
-PLoMInputWidget::outputToJSON(QJsonObject &jsonObj){
+PLoMSimuWidget::outputToJSON(QJsonObject &jsonObj){
 
     bool result = true;
 
     if (m_typeButtonsGroup->button(0)->isChecked()) {
         jsonObj["preTrained"] = false;
-        jsonObj["inpFile"]=inpFileDir->text();
-        jsonObj["outFile"]=outFileDir->text();
+        //jsonObj["inpFile"]=inpFileDir->text();
+        //jsonObj["outFile"]=outFileDir->text();
+        jsonObj["inpFile"] = "PLoM_variables.csv";
+        jsonObj["outFile"] = "PLoM_responses.csv";
     } else {
-        jsonObj["preTrained"] = true;
-        jsonObj["inpFile2"] = inpFileDir2->text();
     }
 
 
@@ -506,11 +586,23 @@ PLoMInputWidget::outputToJSON(QJsonObject &jsonObj){
     }
     jsonObj["parallelExecution"]=false;
 
+    // sampling methods
+    QJsonObject samplingObj;
+    theCurrentMethod->outputToJSON(samplingObj);
+    samplingObj["method"] = samplingMethod->currentText();
+    jsonObj["samplingMethod"] = samplingObj;
+
+    if (aff_stackedWidgets->currentIndex()==1) {
+        QJsonObject imJson;
+        result = theSCIMWidget->outputToJSON(imJson);
+        jsonObj["IntensityMeasure"] = imJson;
+    }
+
     return result;    
 }
 
 
-int PLoMInputWidget::parseInputDataForRV(QString name1){
+int PLoMSimuWidget::parseInputDataForRV(QString name1){
 
     double numberOfColumns=countColumn(name1);
 
@@ -524,7 +616,7 @@ int PLoMInputWidget::parseInputDataForRV(QString name1){
     return 0;
 }
 
-int PLoMInputWidget::parseOutputDataForQoI(QString name1){
+int PLoMSimuWidget::parseOutputDataForQoI(QString name1){
     // get number of columns
     double numberOfColumns=countColumn(name1);
     QStringList qoiNames;
@@ -535,100 +627,8 @@ int PLoMInputWidget::parseOutputDataForQoI(QString name1){
     return 0;
 }
 
-int PLoMInputWidget::parsePretrainedModelForRVQoI(QString name1){
 
-    // five tasks here:
-    // 1. parse the JSON file of the pretrained model
-    // 2. create RV
-    // 3. create QoI
-    // 4. check inpData file, inpFile.in
-    // 5. check outFile file, outFile.in
-
-    // look for the JSON file in the model directory
-    QString fileName = name1;
-    fileName.replace(".h5",".json");
-    QFile jsonFile(fileName);
-    if (!jsonFile.open(QFile::ReadOnly | QFile::Text)) {
-        QString message = QString("Error: could not open file") + fileName;
-        this->errorMessage(message);
-        return 1;
-    }
-    // place contents of file into json object
-    QString val;
-    val=jsonFile.readAll();
-    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
-    QJsonObject jsonObject = doc.object();
-    // close file
-    jsonFile.close();
-    // check file contains valid object
-    if (jsonObject.isEmpty()) {
-        this->errorMessage("ERROR: file either empty or malformed JSON "+fileName);
-        return 1;
-    }
-    this->statusMessage("Pretrained model JSON file loaded.");
-
-    // create RV
-    QJsonArray xLabels;
-    if (jsonObject.contains("xlabels")) {
-        xLabels = jsonObject["xlabels"].toArray();
-    } else {
-        this->errorMessage("ERROR: xlables are missing in "+fileName);
-        return 1;
-    }
-    int numberOfColumns = xLabels.size();
-    QStringList varNamesAndValues;
-    for (int i=0;i<numberOfColumns;i++) {
-        varNamesAndValues.append(xLabels[i].toString());
-        varNamesAndValues.append("nan");
-    }
-    //theParameters->setGPVarNamesAndValues(varNamesAndValues);
-    numSamples=0;
-    this->statusMessage("RV created.");
-
-    // create QoI
-    QJsonArray yLabels;
-    if (jsonObject.contains("ylabels")) {
-        yLabels = jsonObject["ylabels"].toArray();
-    } else {
-        this->errorMessage("ERROR: ylables are missing in "+fileName);
-        return 1;
-    }
-    numberOfColumns = yLabels.size();
-    QStringList qoiNames;
-    for (int i=0;i<numberOfColumns;i++) {
-        qoiNames.append(yLabels[i].toString());
-    }
-    //theEdpWidget->setGPQoINames(qoiNames);
-    this->statusMessage("QoI created.");
-
-    // check inpFile
-    QFileInfo fileInfo(fileName);
-    QString path = fileInfo.absolutePath();
-    QFile inpFile(path+QDir::separator()+"inpFile.in");
-    if (!inpFile.open(QFile::ReadOnly | QFile::Text)) {
-        QString message = QString("Error: could not open file") + inpFile.fileName();
-        this->errorMessage(message);
-        return 1;
-    }
-    inpFile.close();
-    inpFileDir->setText(inpFile.fileName());
-
-    // check outFile
-    QFile outFile(path+QDir::separator()+"outFile.in");
-    if (!outFile.open(QFile::ReadOnly | QFile::Text)) {
-        QString message = QString("Error: could not open file") + outFile.fileName();
-        this->errorMessage(message);
-        return 1;
-    }
-    outFile.close();
-    outFileDir->setText(outFile.fileName());
-    this->statusMessage("Input data loaded.");
-
-    // return
-    return 0;
-}
-
-int PLoMInputWidget::countColumn(QString name1){
+int PLoMSimuWidget::countColumn(QString name1){
     // get number of columns
     std::ifstream inFile(name1.toStdString());
     // read lines of input searching for pset using regular expression
@@ -674,7 +674,7 @@ int PLoMInputWidget::countColumn(QString name1){
 }
 
 bool
-PLoMInputWidget::inputFromJSON(QJsonObject &jsonObject){
+PLoMSimuWidget::inputFromJSON(QJsonObject &jsonObject){
 
     bool result = false;
     preTrained = false;
@@ -685,14 +685,6 @@ PLoMInputWidget::inputFromJSON(QJsonObject &jsonObject){
         return false;
     }
     if (preTrained) {
-        if (jsonObject.contains("inpFile2")) {
-            QString fileDir=jsonObject["inpFile2"].toString();
-            inpFileDir2->setText(fileDir);
-            result = true;
-        } else {
-            return false;
-        }
-
     } else {
         if (jsonObject.contains("inpFile")) {
             QString fileDir=jsonObject["inpFile"].toString();
@@ -739,6 +731,19 @@ PLoMInputWidget::inputFromJSON(QJsonObject &jsonObject){
             tolIter->setText(QString::number(jsonObject["tolIter"].toDouble()));
         }
       }
+      // sampling method
+      QJsonObject samplingObj = jsonObject["samplingMethod"].toObject();
+      if (samplingObj.contains("method")) {
+          QString method = samplingObj["method"].toString();
+          int index = samplingMethod->findText(method);
+          if (index == -1) {
+              return false;
+          }
+          samplingMethod->setCurrentIndex(index);
+          result = theCurrentMethod->inputFromJSON(samplingObj);
+          if (result == false)
+              return result;
+      }
      result = true;
   } else {
      return false;
@@ -748,16 +753,8 @@ PLoMInputWidget::inputFromJSON(QJsonObject &jsonObject){
 }
 
 bool
-PLoMInputWidget::copyFiles(QString &fileDir) {
+PLoMSimuWidget::copyFiles(QString &fileDir) {
     if (preTrained) {
-        qDebug() << inpFileDir2->text();
-        qDebug() << fileDir + QDir::separator() + "surrogatePLoM.h5";
-        QFile::copy(inpFileDir2->text(), fileDir + QDir::separator() + "surrogatePLoM.h5");
-        qDebug() << inpFileDir2->text().replace(".h5",".json");
-        qDebug() << fileDir + QDir::separator() + "surrogatePLoM.json";
-        QFile::copy(inpFileDir2->text().replace(".h5",".json"), fileDir + QDir::separator() + "surrogatePLoM.json");
-        QFile::copy(inpFileDir->text(), fileDir + QDir::separator() + "inpFile.in");
-        QFile::copy(outFileDir->text(), fileDir + QDir::separator() + "outFile.in");
     } else {
         QFile::copy(inpFileDir->text(), fileDir + QDir::separator() + "inpFile.in");
         QFile::copy(outFileDir->text(), fileDir + QDir::separator() + "outFile.in");
@@ -769,13 +766,41 @@ PLoMInputWidget::copyFiles(QString &fileDir) {
 }
 
 void
-PLoMInputWidget::clear(void)
+PLoMSimuWidget::clear(void)
 {
 
 }
 
 int
-PLoMInputWidget::getNumberTasks()
+PLoMSimuWidget::getNumberTasks()
 {
   return numSamples;
+}
+
+void PLoMSimuWidget::onTextChanged(const QString &text)
+{
+  if (text=="LHS") {
+    samplingStackedWidget->setCurrentIndex(0);
+    theCurrentMethod = theLHS;
+  }
+  else if (text=="Monte Carlo") {
+    samplingStackedWidget->setCurrentIndex(1);
+    theCurrentMethod = theMC;
+  }
+  //else if (text=="Importance Sampling") {
+  //  theStackedWidget->setCurrentIndex(2);
+  //  theCurrentMethod = theIS;
+  //}
+  else if (text=="Gaussian Process Regression") {
+    samplingStackedWidget->setCurrentIndex(2);
+    theCurrentMethod = theGP;
+  }
+  else if (text=="Polynomial Chaos Expansion") {
+    samplingStackedWidget->setCurrentIndex(3);
+    theCurrentMethod = thePCE;
+  }
+  else if (text=="Multi Fidelity Monte Carlo") {
+    samplingStackedWidget->setCurrentIndex(4);
+    theCurrentMethod = theMFMC;
+  }
 }

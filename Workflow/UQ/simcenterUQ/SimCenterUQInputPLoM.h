@@ -100,7 +100,7 @@ private:
 
     QStackedWidget *theStackedWidget;
     UQ_Method *theInpCurrentMethod;
-    UQ_Method *theDoE, *theData, *theMultiFidelity;
+    UQ_Method *theSimu, *theData, *theMultiFidelity;
 
     //InputWidgetParameters *theParameters;
     //InputWidgetEDP *theEdpWidget;

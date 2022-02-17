@@ -56,9 +56,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <fstream>
 #include <time.h>
 
-
 #include <QStackedWidget>
 #include <PLoMInputWidget.h>
+#include <PLoMSimuWidget.h>
 //#include <InputWidgetEDP.h>
 
 SimCenterUQInputPLoM::SimCenterUQInputPLoM(QWidget *parent)
@@ -75,7 +75,7 @@ SimCenterUQInputPLoM::SimCenterUQInputPLoM(QWidget *parent)
     QHBoxLayout *methodLayout1= new QHBoxLayout;
     inpMethod = new QComboBox();
     inpMethod->addItem(tr("Import Data File"));
-    //inpMethod->addItem(tr("Sampling and Simulation"));
+    inpMethod->addItem(tr("Sampling and Simulation"));
     //inpMethod->addItem(tr("Import Multi-fidelity Data File"));
     inpMethod->setMaximumWidth(250);
     inpMethod->setMinimumWidth(250);
@@ -96,8 +96,8 @@ SimCenterUQInputPLoM::SimCenterUQInputPLoM(QWidget *parent)
     //theData = new PLoMInputWidget(theParameters,theFemWidget,theEdpWidget);
     theData = new PLoMInputWidget();
     theStackedWidget->addWidget(theData);
-    //theDoE = new SurrogateDoEInputWidget();
-    //theStackedWidget->addWidget(theDoE);
+    theSimu = new PLoMSimuWidget();
+    theStackedWidget->addWidget(theSimu);
     //theMultiFidelity = new SurrogateMFInputWidget(theParameters,theFemWidget,theEdpWidget);
     //theStackedWidget->addWidget(theMultiFidelity);
 
@@ -106,11 +106,7 @@ SimCenterUQInputPLoM::SimCenterUQInputPLoM(QWidget *parent)
     theInpCurrentMethod = theData;
 
     mLayout->addWidget(theStackedWidget);
-
-    //
-    //
-    //
-
+    mLayout->addStretch();
     layout->addLayout(mLayout);
 
     this->setLayout(layout);
@@ -124,14 +120,15 @@ void SimCenterUQInputPLoM::onIndexChanged(const QString &text)
         theStackedWidget->setCurrentIndex(0);
         theInpCurrentMethod = theData;
     }
-    /***
+
     else if (text=="Sampling and Simulation") {
         //theDoE = new SurrogateDoEInputWidget();
-        //theStackedWidget->insertWidget(1,theDoE);
+        //theStackedWidget->insertWidget(1,theSimu);
         theStackedWidget->setCurrentIndex(1);
-        theInpCurrentMethod = theDoE;
-        theFemWidget->setFEMforGP("GPmodel"); // reset FEM (TODO: CHANGE TO PLOM)
+        theInpCurrentMethod = theSimu;
+        //theFemWidget->setFEMforGP("GPmodel"); // reset FEM (TODO: CHANGE TO PLOM)
     }
+    /***
     else if (text=="Import Multi-fidelity Data File") {
         delete theMultiFidelity;
         theMultiFidelity = new SurrogateMFInputWidget(theParameters,theFemWidget,theEdpWidget);
@@ -266,6 +263,8 @@ int SimCenterUQInputPLoM::processResults(QString &filenameResults, QString &file
 UQ_Results *
 SimCenterUQInputPLoM::getResults(void) {
     qDebug() << "RETURNED SimCenterUQResultsPLoM";
+    // KZ: need to get RandomVariablesContainer instance
+    RandomVariablesContainer *theRandomVariables = RandomVariablesContainer::getInstance();
     return new SimCenterUQResultsPLoM(theRandomVariables);
 }
 
