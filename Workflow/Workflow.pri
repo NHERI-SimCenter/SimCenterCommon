@@ -111,6 +111,8 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/EVENTS/ExistingSimCenterEvents.cpp \
     $$PWD/EVENTS/InputWidgetExistingEvent.cpp \
     $$PWD/EVENTS/SimCenterUnitsCombo.cpp \
+    $$PWD/EVENTS/SimCenterIntensityMeasureCombo.cpp \
+    $$PWD/EVENTS/SimCenterIntensityMeasureWidget.cpp \
     $$PWD/EXECUTION/UserDefinedApplication.cpp \
     $$PWD/GRAPHICS/Controller2D.cpp \
     $$PWD/GRAPHICS/GlWidget2D.cpp \
