@@ -180,7 +180,7 @@ PLoMSimuWidget::PLoMSimuWidget(QWidget *parent)
 
     // create widget for new sample ratio
     newSampleRatioWidget = new QWidget();
-    newSampleRatioWidget->setMaximumWidth(200);
+    newSampleRatioWidget->setMaximumWidth(300);
     QGridLayout* nsrLayout = new QGridLayout(newSampleRatioWidget);
     newSampleRatioWidget->setLayout(nsrLayout);
     ratioNewSamples = new QLineEdit();
