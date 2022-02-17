@@ -32,7 +32,8 @@ INCLUDEPATH += $$PWD/EDP
 SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/UQ/UQ_Results.cpp \
     $$PWD/UQ/UQ_Engine.cpp \
-    $$PWD/UQ/UQ_Method.cpp \   
+    $$PWD/UQ/UQ_Method.cpp \
+    $$PWD/UQ/simcenterUQ/PLoMSimuWidget.cpp \
     $$PWD/UQ/UQpyEngine.cpp \
     $$PWD/UQ/customUQ/CustomUQ_Results.cpp \
     $$PWD/UQ/customUQ/UQ_JsonEngine.cpp \ 
@@ -109,6 +110,7 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/EXECUTION/RemoteJobManager.cpp \
     $$PWD/EVENTS/ExistingSimCenterEvents.cpp \
     $$PWD/EVENTS/InputWidgetExistingEvent.cpp \
+    $$PWD/EVENTS/SimCenterUnitsCombo.cpp \
     $$PWD/EXECUTION/UserDefinedApplication.cpp \
     $$PWD/GRAPHICS/Controller2D.cpp \
     $$PWD/GRAPHICS/GlWidget2D.cpp \
@@ -150,6 +152,7 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/UQ/dakota/DakotaResultsReliability.h \
     $$PWD/UQ/dakota/LocalReliabilityWidget.h \
     $$PWD/UQ/dakota/GlobalReliabilityWidget.h \
+    $$PWD/UQ/simcenterUQ/PLoMSimuWidget.h \
     $$PWD/UQ/ucsd/UCSD_Engine.h \
     $$PWD/UQ/ucsd/UCSD_TMMC.h \
     $$PWD/UQ/ucsd/UCSD_Results.h \
@@ -205,6 +208,9 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/EXECUTION/UserDefinedApplication.h \
     $$PWD/EVENTS/ExistingSimCenterEvents.h \
     $$PWD/EVENTS/InputWidgetExistingEvent.h \
+    $$PWD/EVENTS/SimCenterIntensityMeasureWidget.h \
+    $$PWD/EVENTS/SimCenterIntensityMeasureCombo.h \
+    $$PWD/EVENTS/SimCenterUnitsCombo.h \
     $$PWD/GRAPHICS/Controller2D.h \
     $$PWD/GRAPHICS/GlWidget2D.h \
     $$PWD/GRAPHICS/MyTableWidget.h \
