@@ -256,12 +256,6 @@ DakotaInputCalibration::methodChanged(const QString &arg1)
 
 }
 
-int 
-DakotaInputCalibration::processResults(QString &filenameResults, QString &filenameTab) 
-{
-    return 0;
-}
-
 UQ_Results *
 DakotaInputCalibration::getResults(void) {
   return new DakotaResultsCalibration(RandomVariablesContainer::getInstance());

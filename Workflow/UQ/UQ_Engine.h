@@ -55,7 +55,6 @@ public:
     virtual ~UQ_Engine();
 
     virtual int getMaxNumParallelTasks(void) =0;
-    virtual int processResults(QString &filenameResults, QString &filenameTab) =0;
     virtual void setRV_Defaults(void) =0;
   
     virtual UQ_Results *getResults(void) = 0;

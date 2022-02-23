@@ -205,11 +205,6 @@ SimCenterUQEngine::inputAppDataFromJSON(QJsonObject &jsonObject)
     return true;
 }
 
-int
-SimCenterUQEngine::processResults(QString &filenameResults, QString &filenameTab) {
-    return theCurrentEngine->processResults(filenameResults, filenameTab);
-}
-
 void
 SimCenterUQEngine::setRV_Defaults(void) {
   theCurrentEngine->setRV_Defaults();

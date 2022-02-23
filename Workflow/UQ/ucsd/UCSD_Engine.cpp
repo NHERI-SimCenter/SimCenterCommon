@@ -185,12 +185,6 @@ UCSD_Engine::inputAppDataFromJSON(QJsonObject &jsonObject)
     return true;
 }
 
-int
-UCSD_Engine::processResults(QString &filenameResults, QString &filenameTab) {
-    //return theCurrentMethod->processResults(filenameResults, filenameTab);
-    return 0;
-}
-
 void
 UCSD_Engine::setRV_Defaults(void) {
   RandomVariablesContainer *theRVs = RandomVariablesContainer::getInstance();

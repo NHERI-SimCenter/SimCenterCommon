@@ -67,7 +67,6 @@ public:
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
 
-    int processResults(QString &filenameResults, QString &filenameTab);
     int processResults(QString &dirName);  
     QWidget *createResultEDPWidget(QString &name, double mean, double stdDev, double kurtosis);
 
@@ -77,7 +76,10 @@ public slots:
    void clear(void);
    // modified by padhye 08/25/2018
    void onSaveButtonClicked(void);
+
 private:
+   int processResults(QString &filenameResults, QString &filenameTab);
+  
    RandomVariablesContainer *theRVs;
    QTabWidget *tabWidget;
    QLabel *label;

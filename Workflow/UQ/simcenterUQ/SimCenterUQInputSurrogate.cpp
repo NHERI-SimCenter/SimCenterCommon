@@ -257,12 +257,6 @@ SimCenterUQInputSurrogate::inputAppDataFromJSON(QJsonObject &jsonObject)
 }
 
 
-
-int SimCenterUQInputSurrogate::processResults(QString &filenameResults, QString &filenameTab) {
-
-    return 0;
-}
-
 UQ_Results *
 SimCenterUQInputSurrogate::getResults(void) {
     qDebug() << "RETURNED SimCenterUQRESULTSSURROGATE";

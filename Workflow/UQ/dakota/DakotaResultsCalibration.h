@@ -62,7 +62,6 @@ public:
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
 
-    int processResults(QString &filenameResults, QString &filenameTab);
     int processResults(QString &dirName);  
     QWidget *createResultParameterWidget(QString &name, double value);
 
@@ -72,6 +71,7 @@ public slots:
    void clear(void);
 
 private:
+   int processResults(QString &filenameResults, QString &filenameTab);
    RandomVariablesContainer *theRVs;
 
    QTabWidget *tabWidget;

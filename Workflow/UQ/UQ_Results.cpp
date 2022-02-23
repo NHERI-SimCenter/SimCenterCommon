@@ -110,21 +110,6 @@ UQ_Results::inputFromJSON(QJsonObject &jsonObject)
 }
 
 int 
-UQ_Results::processResults(QString &filenameResults, QString &filenameTab) {
-
-    if (resultWidget != 0)
-        return resultWidget->processResults(filenameResults, filenameTab);
-    else {
-      QString message = QString("ERROR: Processing results - No ResultsWidget set, file: " ) +  filenameResults;
-      qDebug() << message;
-      errorMessage(message);
-      // qDebug() << message;
-//      QMessageBox::warning(this, tr("Application"),tr("BUG - No ResultsWidget Set!"));
-      return 0;
-    }
-}
-
-int 
 UQ_Results::processResults(QString &dirName) {
 
     if (resultWidget != 0)

@@ -68,7 +68,6 @@ public:
     bool outputToJSON(QJsonObject &jsonObject);
     bool inputFromJSON(QJsonObject &jsonObject);
 
-    int processResults(QString &filenameResults, QString &filenameTab);
     UQ_Results *getResults(void);
 
     void setRV_Defaults(void);

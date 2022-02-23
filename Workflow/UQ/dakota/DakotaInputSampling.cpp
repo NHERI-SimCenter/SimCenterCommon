@@ -280,12 +280,6 @@ DakotaInputSampling::inputAppDataFromJSON(QJsonObject &jsonObject)
 }
 
 
-
-int DakotaInputSampling::processResults(QString &filenameResults, QString &filenameTab) {
-
-    return 0;
-}
-
 UQ_Results *
 DakotaInputSampling::getResults(void) {
   return new DakotaResultsSampling(RandomVariablesContainer::getInstance());
