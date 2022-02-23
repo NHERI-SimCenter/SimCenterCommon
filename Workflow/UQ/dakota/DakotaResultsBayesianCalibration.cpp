@@ -316,7 +316,7 @@ int DakotaResultsBayesianCalibration::processResults(QString &dirName)
 {
   qDebug() << "DakotaResultsBayesianCalibration::processResults dir" << dirName;
   QString filenameOut = dirName + QDir::separator() + tr("dakota.out");
-  QString filenameTAB = dirName + QDir::separator() + tr("dakotaTab.out");
+  QString filenameTAB = dirName + QDir::separator() + tr("dakota_mcmc_tabular.dat");
   return this->processResults(filenameOut, filenameTAB);
 }
 
