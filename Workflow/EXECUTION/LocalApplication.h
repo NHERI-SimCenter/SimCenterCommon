@@ -61,7 +61,7 @@ public:
     void displayed(void);
 
 signals:
-    void processResults(QString , QString, QString);
+    void processResults(QString &resultsDir);
     void runComplete();
 
     void sendErrorMessage(QString);
