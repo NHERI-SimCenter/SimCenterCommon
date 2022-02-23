@@ -39,7 +39,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written by: Stevan Gavrilovic
 
 #include <QDialog>
-#include <unordered_map>
+//#include <unordered_map>
+#include <map>
 
 class TreeItem;
 class SimCenterTreeView;
@@ -82,7 +83,8 @@ private:
 
     std::unique_ptr<NetworkDownloadManager> downloadManager;
 
-    std::unordered_map<QString, R2DExample> exampleContainer;
+  //    std::unordered_map<QString, R2DExample> exampleContainer;
+    std::map<QString, R2DExample> exampleContainer;  
 
     bool checkIfExampleExists(const QString& name);
 
