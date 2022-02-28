@@ -217,7 +217,7 @@ bool SimCenterIntensityMeasureWidget::outputToJSON(QJsonObject &jsonObject)
             curObj["Unit"] = unit;
         }
         // period if
-        if ((im.startsWith("Pseudo")) || (im.compare("SaRatio")==0))
+        if ((im.startsWith("PS")) || (im.compare("SaRatio")==0))
         {
             auto periodsString = curIMUnit->periodLine->text();
             if (periodsString.isEmpty())
