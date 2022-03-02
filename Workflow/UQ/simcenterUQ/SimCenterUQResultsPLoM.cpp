@@ -899,12 +899,12 @@ void SimCenterUQResultsPLoM::summarySurrogate(QScrollArea *&sa)
     double minx=INFINITY;
     for (int i=0; i<yEx.size(); i++) {
         if (didLogtransform) {
-            series_PCA->append(yEx[i].toDouble(), yPr[i].toDouble());
-            maxx = std::max(maxx,yEx[i].toDouble());
-            minx = std::min(minx,yEx[i].toDouble());
-            maxy = std::max(maxy,yPr[i].toDouble());
-            miny = std::min(miny,yPr[i].toDouble());
-            l_PCA->append(yEx[i].toDouble(), yPr[i].toDouble());
+            series_PCA->append(std::exp(yEx[i].toDouble()), std::exp(yPr[i].toDouble()));
+            maxx = std::max(maxx,std::exp(yEx[i].toDouble()));
+            minx = std::min(minx,std::exp(yEx[i].toDouble()));
+            maxy = std::max(maxy,std::exp(yPr[i].toDouble()));
+            miny = std::min(miny,std::exp(yPr[i].toDouble()));
+            l_PCA->append(std::exp(yEx[i].toDouble()), std::exp(yPr[i].toDouble()));
         } else {
             series_PCA->append(yEx[i].toDouble(), yPr[i].toDouble());
             maxx = std::max(maxx,yEx[i].toDouble());
@@ -984,9 +984,9 @@ void SimCenterUQResultsPLoM::summarySurrogate(QScrollArea *&sa)
                 series_KDE->append(i+1, yKDE[i].toDouble());
                 maxx = std::max(maxx,double(i+1));
                 minx = std::min(minx,double(i+1));
-                maxy = std::max(maxy,yKDE[i].toDouble());
-                miny = std::min(miny,yKDE[i].toDouble());
-                l_KDE->append(i+1, yKDE[i].toDouble());
+                maxy = std::max(maxy,std::exp(yKDE[i].toDouble()));
+                miny = std::min(miny,std::exp(yKDE[i].toDouble()));
+                l_KDE->append(i+1, std::exp(yKDE[i].toDouble()));
             } else {
                 series_PCA->append(i+1, yKDE[i].toDouble());
                 maxx = std::max(maxx,double(i+1));
@@ -996,17 +996,31 @@ void SimCenterUQResultsPLoM::summarySurrogate(QScrollArea *&sa)
                 l_KDE->append(i+1, yKDE[i].toDouble());
             }
             if (i == (kdeComp-2)) {
-                l_cutoff_kde->append(0, yKDE[i].toDouble());
-                l_cutoff_kde->append(i+1, yKDE[i].toDouble());
+                if (didLogtransform) {
+                    l_cutoff_kde->append(0, std::exp(yKDE[i].toDouble()));
+                    l_cutoff_kde->append(i+1, std::exp(yKDE[i].toDouble()));
+                } else {
+                    l_cutoff_kde->append(0, yKDE[i].toDouble());
+                    l_cutoff_kde->append(i+1, yKDE[i].toDouble());
+                }
             }
-            if (yKDE[i].toDouble() < 0.01*yKDE[kdeComp-2].toDouble()) {
-                break;
+            if (didLogtransform) {
+                if (yKDE[i].toDouble() < 0.01*yKDE[kdeComp-2].toDouble()) {
+                    break;
+                }
+            } else {
+                if (std::exp(yKDE[i].toDouble()) < 0.01*std::exp(yKDE[kdeComp-2].toDouble())) {
+                    break;
+                }
             }
         }
         // set axis
         inteval = maxy - miny;
         maxy = maxy + inteval*0.1;
-        l_cutoff_kde->append(maxx, yKDE[kdeComp-2].toDouble());
+        if (didLogtransform)
+            l_cutoff_kde->append(maxx, std::exp(yKDE[kdeComp-2].toDouble()));
+        else
+            l_cutoff_kde->append(maxx, yKDE[kdeComp-2].toDouble());
         QValueAxis *axisX_kde = new QValueAxis();
         QLogValueAxis *axisY_kde = new QLogValueAxis();
         axisX_kde->setLabelFormat("%.0f");
