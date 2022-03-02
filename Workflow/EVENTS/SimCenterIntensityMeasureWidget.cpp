@@ -246,35 +246,52 @@ bool SimCenterIntensityMeasureWidget::outputToJSON(QJsonObject &jsonObject)
 
 bool SimCenterIntensityMeasureWidget::inputFromJSON(QJsonObject &jsonObject)
 {
-    auto imObj = jsonObject.value("IntensityMeasure").toObject();
-    if(imObj.isEmpty())
-        return false;
+    qDebug() << "starting parsing im";
+    qDebug() << jsonObject;
+    auto imObj = jsonObject["IntensityMeasure"].toObject();
     int i = 1;
+    qDebug() << "starting parsing im";
     foreach(const QString& key, imObj.keys())
     {
+        qDebug() << key;
+        this->addIMItem();
+        QLayoutItem *child = imLayout->itemAt(i-1);
+        qDebug() << child;
+        auto curIMUnit = dynamic_cast<SimCenterIM*>(child->widget());
+        qDebug() << curIMUnit;
+        auto widget = dynamic_cast<SimCenterIM*>(child->widget())->myIM;
+        qDebug() << widget;
         auto im = key;
-        QString imName = "IM"+QString::number(i);
-        auto imCombo = this->imFindChild(imName);
-        if(imCombo == nullptr)
+        auto res = widget->setCurrentIMString(im);
+        qDebug() << "im set";
+        if(!res)
             return false;
-        else
-        {
-            auto res = imCombo->setCurrentIMString(im);
+        qDebug() << "im set";
+        auto items = imObj.value(key).toObject();
+        qDebug() << items;
+        if (items.contains("Unit")) {
+            auto unit_widget = dynamic_cast<SimCenterIM*>(child->widget())->myUnit;
+            qDebug() << unit_widget;
+            auto unit = items.value("Unit").toString();
+            qDebug() << unit;
+            auto res = unit_widget->setCurrentUnitString(unit);
+            qDebug() << res;
             if(!res)
                 return false;
+        }
+        if (items.contains("Periods")) {
+            auto periods = items.value("Periods").toArray();
+            QString periods_string;
+            for (int i=0; i<periods.size(); i++) {
+                qDebug() << periods.at(i);
+                periods_string = periods_string+QString::number(periods.at(i).toDouble());
+                if (i<periods.size()-1) {
+                    periods_string = periods_string+",";
+                }
+            }
+            curIMUnit->periodLine->setText(periods_string);
         }
 
-        auto unit = imObj.value(key).toString();
-        QString unitName = "Unit"+QString::number(i);
-        auto unitCombo = this->unitFindChild(key);
-        if(unitCombo == nullptr)
-            return false;
-        else
-        {
-            auto res = unitCombo->setCurrentUnitString(unit);
-            if(!res)
-                return false;
-        }
         i = i + 1;
     }
     return true;

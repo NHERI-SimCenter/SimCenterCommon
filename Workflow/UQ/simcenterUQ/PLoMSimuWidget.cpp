@@ -705,8 +705,6 @@ PLoMSimuWidget::inputFromJSON(QJsonObject &jsonObject){
           return false;
         }
     }
-
-
     if (jsonObject.contains("newSampleRatio")) {
         int samples=jsonObject["newSampleRatio"].toInt();
         ratioNewSamples->setText(QString::number(samples));
@@ -743,6 +741,14 @@ PLoMSimuWidget::inputFromJSON(QJsonObject &jsonObject){
           result = theCurrentMethod->inputFromJSON(samplingObj);
           if (result == false)
               return result;
+      }
+      // intensity measure
+      qDebug() << "Start loading intensity measure";
+      if (jsonObject.contains("IntensityMeasure")) {
+          aff_stackedWidgets->setCurrentIndex(1);
+          theAffiliateVariableComboBox->setCurrentIndex(1);
+          qDebug() << "Start loading intensity measure";
+          result = theSCIMWidget->inputFromJSON(jsonObject);
       }
      result = true;
   } else {
