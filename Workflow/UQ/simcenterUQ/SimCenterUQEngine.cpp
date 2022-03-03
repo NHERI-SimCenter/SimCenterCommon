@@ -157,6 +157,10 @@ void SimCenterUQEngine::engineSelectionChanged(const QString &arg1)
     } else if (arg1 == QString("PLoM Model")) {
         theStackedWidget->setCurrentIndex(3);
         theCurrentEngine = thePLoMEngine;
+        // emit a signal to query EVT
+        typeEVT = "None";
+        this->setEventType(typeEVT);
+        emit queryEVT();
     } else {
       qDebug() << "ERROR .. SimCenterUQEngine selection .. type unknown: " << arg1;
     }
@@ -246,4 +250,9 @@ SimCenterUQEngine::getMethodName() {
 bool
 SimCenterUQEngine::copyFiles(QString &fileDir) {
     return theCurrentEngine->copyFiles(fileDir);
+}
+
+void
+SimCenterUQEngine::setEventType(QString type) {
+    thePLoMEngine->setEventType(type);
 }

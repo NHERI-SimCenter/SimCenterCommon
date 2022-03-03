@@ -68,6 +68,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <PCEInputWidget.h>
 #include <MultiFidelityMonteCarlo.h>
 #include <SimCenterIntensityMeasureWidget.h>
+#include <QMessageBox>
 
 PLoMSimuWidget::PLoMSimuWidget(QWidget *parent)
     : UQ_Method(parent)
@@ -380,7 +381,6 @@ PLoMSimuWidget::PLoMSimuWidget(QWidget *parent)
     //
     advComboWidget->addTab(advConstraintsWidget, "Constraints");
 
-
     // Affiliate variable widget
     advAffiliateVariableWidget = new QWidget();
     QGridLayout* advAffiliateVariableLayout = new QGridLayout(advAffiliateVariableWidget);
@@ -462,6 +462,7 @@ PLoMSimuWidget::PLoMSimuWidget(QWidget *parent)
     //chooseOutFile->setStyleSheet("background-color: lightgrey;border-color:grey");
 
     connect(theAdvancedCheckBox,SIGNAL(toggled(bool)),this,SLOT(doAdvancedSetup(bool)));
+    connect(this, SIGNAL(eventTypeChanged(QString)), this, SLOT(onEventTypeChanged(QString)));
 }
 
 
@@ -765,8 +766,9 @@ PLoMSimuWidget::inputFromJSON(QJsonObject &jsonObject){
       // intensity measure
       qDebug() << "Start loading intensity measure";
       if (jsonObject.contains("IntensityMeasure")) {
-          aff_stackedWidgets->setCurrentIndex(1);
-          theAffiliateVariableComboBox->setCurrentIndex(1);
+          this->SetComboBoxItemEnabled(theAffiliateVariableComboBox, 2, true);
+          aff_stackedWidgets->setCurrentIndex(2);
+          theAffiliateVariableComboBox->setCurrentIndex(2);
           qDebug() << "Start loading intensity measure";
           result = theSCIMWidget->inputFromJSON(jsonObject);
       }
@@ -829,4 +831,33 @@ void PLoMSimuWidget::onTextChanged(const QString &text)
     samplingStackedWidget->setCurrentIndex(4);
     theCurrentMethod = theMFMC;
   }
+}
+
+void
+PLoMSimuWidget::setEventType(QString type) {
+    typeEVT = type;
+    emit eventTypeChanged(typeEVT);
+}
+
+void
+PLoMSimuWidget::onEventTypeChanged(QString typeEVT) {
+    if (typeEVT.compare("EQ") ==0 ) {
+        // an earthquake event type
+        this->SetComboBoxItemEnabled(theAffiliateVariableComboBox, 2, true);
+    } else {
+        // not an earthquake event, inactivate ground motion intensity widget
+        this->SetComboBoxItemEnabled(theAffiliateVariableComboBox, 2, false);
+    }
+}
+
+void PLoMSimuWidget::SetComboBoxItemEnabled(QComboBox * comboBox, int index, bool enabled)
+{
+    auto * model = qobject_cast<QStandardItemModel*>(comboBox->model());
+    assert(model);
+    if(!model) return;
+
+    auto * item = model->item(index);
+    assert(item);
+    if(!item) return;
+    item->setEnabled(enabled);
 }

@@ -87,6 +87,9 @@ SimCenterUQInputPLoM::SimCenterUQInputPLoM(QWidget *parent)
 
     mLayout->addLayout(methodLayout1);
 
+    // communicate with EVT panel to display corresponding items in theAffiliateVariableComboBox
+    typeEVT = "None"; // default is none (for quoFEM)
+
     //
     // input selection widgets
     //
@@ -112,6 +115,7 @@ SimCenterUQInputPLoM::SimCenterUQInputPLoM(QWidget *parent)
     this->setLayout(layout);
 
     connect(inpMethod, SIGNAL(currentIndexChanged(QString)), this, SLOT(onIndexChanged(QString)));
+    connect(theSimu, SIGNAL(queryEVT(void)), this, SLOT(relayQueryEVT(void)));
 }
 
 void SimCenterUQInputPLoM::onIndexChanged(const QString &text)
@@ -300,4 +304,8 @@ SimCenterUQInputPLoM::getMethodName(void){
     //    return QString("surrogateData");
     //}
     return QString("PLoM");
+}
+
+void SimCenterUQInputPLoM::setEventType(QString type) {
+    theSimu->setEventType(type);
 }

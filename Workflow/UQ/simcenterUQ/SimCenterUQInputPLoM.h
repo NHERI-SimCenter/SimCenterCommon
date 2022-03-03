@@ -78,7 +78,8 @@ public:
     bool copyFiles(QString &fileDir);
     QVBoxLayout *mLayout;
 
-signals:
+    // KZ set event type
+    void setEventType(QString type);
 
 public slots:
    void clear(void);
@@ -105,6 +106,7 @@ private:
     //InputWidgetParameters *theParameters;
     //InputWidgetEDP *theEdpWidget;
     //InputWidgetFEM *theFemWidget;
+    QString typeEVT;
 
 };
 

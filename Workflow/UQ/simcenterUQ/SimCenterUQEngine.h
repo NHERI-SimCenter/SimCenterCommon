@@ -69,10 +69,14 @@ public:
 
     bool copyFiles(QString &fileName);
 
+    // set event type
+    void setEventType(QString type);
+
 
 signals:
     void onUQ_EngineChanged(void);
     void onNumModelsChanged(int newNum);
+    void queryEVT(void);
 
 public slots:
     void engineSelectionChanged(const QString &arg1);
@@ -88,6 +92,7 @@ private:
    UQ_Engine *theSensitivityEngine;
    UQ_Engine *theSamplingEngine;
    UQ_Engine *thePLoMEngine; // PLoM, KZ
+   QString typeEVT; // used for PLoM to identify Event type
 
    RandomVariablesContainer *theRVs;
 };

@@ -40,6 +40,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include <UQ_Method.h>
+#include <QStandardItemModel>
 class QLineEdit;
 class QCheckBox;
 class QPushButton;
@@ -71,12 +72,18 @@ public:
     int parseOutputDataForQoI(QString name1);
     int numSamples;
     bool copyFiles(QString &fileDir);
+    // KZ set event type
+    void setEventType(QString type);
+    void SetComboBoxItemEnabled(QComboBox * comboBox, int index, bool enabled);
 public slots:
     void setOutputDir(bool tog);
     void setConstraints(bool tog);
     void doAdvancedSetup(bool tog);
     void setDiffMaps(bool tog);
     void onTextChanged(const QString &arg1);
+    void onEventTypeChanged(QString typeEVT);
+signals:
+    void eventTypeChanged(QString typeEVT);
 private:
     QLineEdit *ratioNewSamples;
     QLineEdit *epsilonPCA;
@@ -154,6 +161,7 @@ private:
     QPushButton *chooseUserVar;
 
     QTabWidget *advComboWidget;
+    QString typeEVT;
 };
 
 #endif // PLOM_SIMU_WIDGET_H
