@@ -53,6 +53,7 @@ class QStackedWidget;
 //class InputWidgetFEM;
 class QComboBox;
 class SimCenterIntensityMeasureWidget;
+class QTabWidget;
 
 class PLoMSimuWidget : public UQ_Method
 {
@@ -122,11 +123,11 @@ private:
     QWidget* newSampleRatioWidget;
     QWidget* samplingMethodGroup;
 
-    QComboBox *theAdvancedComboBox;
+    //QComboBox *theAdvancedComboBox;
     QWidget* advGeneralWidget;
     QWidget* advKDEWidget;
     QWidget* advConstraintsWidget;
-    QStackedWidget* adv_stackedWidgets;
+    //QStackedWidget* adv_stackedWidgets;
     bool preTrained;
 
     QComboBox   *samplingMethod;
@@ -151,6 +152,8 @@ private:
     QLabel *userVariableLabel;
     QLineEdit *userVariabelLine;
     QPushButton *chooseUserVar;
+
+    QTabWidget *advComboWidget;
 };
 
 #endif // PLOM_SIMU_WIDGET_H

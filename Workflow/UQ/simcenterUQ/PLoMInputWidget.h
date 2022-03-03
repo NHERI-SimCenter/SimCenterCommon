@@ -52,6 +52,7 @@ class QStackedWidget;
 //class InputWidgetEDP;
 //class InputWidgetFEM;
 class QComboBox;
+class QTabWidget;
 
 class PLoMInputWidget : public UQ_Method
 {
@@ -122,14 +123,16 @@ private:
     QWidget* preTrainGroup;
     QWidget* newSampleRatioWidget;
 
-    QComboBox *theAdvancedComboBox;
+    //QComboBox *theAdvancedComboBox;
     QWidget* advGeneralWidget;
     QWidget* advKDEWidget;
     QWidget* advConstraintsWidget;
-    QStackedWidget* adv_stackedWidgets;
+    //QStackedWidget* adv_stackedWidgets;
 
     int countColumn(QString name1);
     bool preTrained;
+
+    QTabWidget *advComboWidget;
 };
 
 #endif // PLOM_INPUT_WIDGET_H

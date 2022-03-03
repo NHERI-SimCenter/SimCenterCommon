@@ -208,6 +208,7 @@ PLoMSimuWidget::PLoMSimuWidget(QWidget *parent)
     //advOptLayout->addWidget(theAdvancedCheckBox, widd, 0, Qt::AlignBottom);
     advComboLayout->addWidget(theAdvancedTitle);
     advComboLayout->addWidget(theAdvancedCheckBox);
+    /***
     // create advanced combobox
     theAdvancedComboBox = new QComboBox();
     theAdvancedComboBox->addItem(tr("General"));
@@ -217,6 +218,7 @@ PLoMSimuWidget::PLoMSimuWidget(QWidget *parent)
     theAdvancedComboBox->setCurrentIndex(0);
     theAdvancedComboBox->setVisible(false);
     advComboLayout->addWidget(theAdvancedComboBox);
+    ***/
     advComboLayout->addStretch();
     advOptLayout->addLayout(advComboLayout, widd++);
 
@@ -227,6 +229,12 @@ PLoMSimuWidget::PLoMSimuWidget(QWidget *parent)
     lineA->setMaximumWidth(300);
     advOptLayout->addWidget(lineA);
     lineA->setVisible(false);
+
+    // tab widget for adv. options
+    advComboWidget = new QTabWidget(this);
+    advOptLayout->addWidget(advComboWidget);
+    advComboWidget->setVisible(false);
+    advComboWidget->setStyleSheet("QTabBar {font-size: 10pt}");
 
     // adv. opt. general widget
     advGeneralWidget = new QWidget();
@@ -266,6 +274,8 @@ PLoMSimuWidget::PLoMSimuWidget(QWidget *parent)
     advGeneralLayout->addWidget(epsilonPCA, 2, 1);
     epsilonPCA->setVisible(false);
     newEpsilonPCA->setVisible(false);
+    //
+    advComboWidget->addTab(advGeneralWidget, "General");
 
     // adv. opt. kde widget
     advKDEWidget = new QWidget();
@@ -305,6 +315,8 @@ PLoMSimuWidget::PLoMSimuWidget(QWidget *parent)
     newTolKDE->setVisible(false);
     tolKDE->setDisabled(false);
     connect(theDMCheckBox,SIGNAL(toggled(bool)),this,SLOT(setDiffMaps(bool)));
+    //
+    advComboWidget->addTab(advKDEWidget, "Kernel Density Estimation");
 
     // adv. opt. constraints widget
     advConstraintsWidget = new QWidget();
@@ -365,17 +377,20 @@ PLoMSimuWidget::PLoMSimuWidget(QWidget *parent)
     tolIterLabel->setVisible(false);
     tolIter->setDisabled(1);
     tolIter->setStyleSheet("background-color: lightgrey;border-color:grey");
+    //
+    advComboWidget->addTab(advConstraintsWidget, "Constraints");
+
 
     // Affiliate variable widget
     advAffiliateVariableWidget = new QWidget();
     QGridLayout* advAffiliateVariableLayout = new QGridLayout(advAffiliateVariableWidget);
-    advAffiliateVariableLayout->setMargin(0);
+    //advAffiliateVariableLayout->setMargin(0);
     advAffiliateVariableWidget->setLayout(advAffiliateVariableLayout);
     // combo box
     theAffiliateVariableComboBox = new QComboBox();
     theAffiliateVariableComboBox->addItem(tr("None"));
-    theAffiliateVariableComboBox->addItem(tr("Ground Motion Intensity"));
     theAffiliateVariableComboBox->addItem(tr("User Defined"));
+    theAffiliateVariableComboBox->addItem(tr("Ground Motion Intensity"));
     theAffiliateVariableLabel = new QLabel(tr("Type"));
     advAffiliateVariableLayout->addWidget(theAffiliateVariableLabel,0,0);
     advAffiliateVariableLayout->addWidget(theAffiliateVariableComboBox,0,1);
@@ -404,16 +419,19 @@ PLoMSimuWidget::PLoMSimuWidget(QWidget *parent)
     //
     aff_stackedWidgets = new QStackedWidget(this);
     aff_stackedWidgets->addWidget(emptyVariableWidget);
-    aff_stackedWidgets->addWidget(theSCIMWidget);
     aff_stackedWidgets->addWidget(userVariableWidget);
+    aff_stackedWidgets->addWidget(theSCIMWidget);
     aff_stackedWidgets->setCurrentIndex(0);
     connect(theAffiliateVariableComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int id)
     {
         aff_stackedWidgets->setCurrentIndex(id);
     });
     advAffiliateVariableLayout->addWidget(aff_stackedWidgets,1,0,1,9);
+    //
+    advComboWidget->addTab(advAffiliateVariableWidget, "User-Defined Variables");
 
     // create the stacked widgets
+    /***
     adv_stackedWidgets = new QStackedWidget(this);
     adv_stackedWidgets->addWidget(advGeneralWidget);
     adv_stackedWidgets->addWidget(advKDEWidget);
@@ -425,6 +443,7 @@ PLoMSimuWidget::PLoMSimuWidget(QWidget *parent)
         adv_stackedWidgets->setCurrentIndex(id);
     });
     advOptLayout->addWidget(adv_stackedWidgets);
+    ***/
     advOptLayout->addStretch();
 
     layout->addWidget(advOptGroup, wid++);
@@ -462,7 +481,8 @@ void PLoMSimuWidget::doAdvancedSetup(bool tog)
         theLogtCheckBox->setChecked(false);
     }
 
-    theAdvancedComboBox->setVisible(tog);
+    //theAdvancedComboBox->setVisible(tog);
+    advComboWidget->setVisible(tog);
     lineA->setVisible(tog);
     theLogtCheckBox->setVisible(tog);
     theLogtLabel->setVisible(tog);
@@ -592,7 +612,7 @@ PLoMSimuWidget::outputToJSON(QJsonObject &jsonObj){
     samplingObj["method"] = samplingMethod->currentText();
     jsonObj["samplingMethod"] = samplingObj;
 
-    if (aff_stackedWidgets->currentIndex()==1) {
+    if (aff_stackedWidgets->currentIndex()==2) {
         QJsonObject imJson;
         result = theSCIMWidget->outputToJSON(imJson);
         jsonObj["IntensityMeasure"] = imJson;

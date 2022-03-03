@@ -185,6 +185,7 @@ PLoMInputWidget::PLoMInputWidget(QWidget *parent)
     //advOptLayout->addWidget(theAdvancedCheckBox, widd, 0, Qt::AlignBottom);
     advComboLayout->addWidget(theAdvancedTitle);
     advComboLayout->addWidget(theAdvancedCheckBox);
+    /***
     // create advanced combobox
     theAdvancedComboBox = new QComboBox();
     theAdvancedComboBox->addItem(tr("General"));
@@ -193,8 +194,8 @@ PLoMInputWidget::PLoMInputWidget(QWidget *parent)
     theAdvancedComboBox->setCurrentIndex(0);
     theAdvancedComboBox->setVisible(false);
     advComboLayout->addWidget(theAdvancedComboBox);
+    ***/
     advComboLayout->addStretch();
-    //advOptLayout->addWidget(theAdvancedComboBox, widd++, 2, Qt::AlignBottom);
     advOptLayout->addLayout(advComboLayout, widd++);
 
     // division line
@@ -204,6 +205,12 @@ PLoMInputWidget::PLoMInputWidget(QWidget *parent)
     lineA->setMaximumWidth(300);
     advOptLayout->addWidget(lineA);
     lineA->setVisible(false);    
+
+    // tab widget for adv. options
+    advComboWidget = new QTabWidget(this);
+    advOptLayout->addWidget(advComboWidget);
+    advComboWidget->setVisible(false);
+    advComboWidget->setStyleSheet("QTabBar {font-size: 10pt}");
 
     // adv. opt. general widget
     advGeneralWidget = new QWidget();
@@ -242,6 +249,8 @@ PLoMInputWidget::PLoMInputWidget(QWidget *parent)
     advGeneralLayout->addWidget(epsilonPCA, 2, 1);
     epsilonPCA->setVisible(false);
     newEpsilonPCA->setVisible(false);
+    //
+    advComboWidget->addTab(advGeneralWidget, "General");
 
     // adv. opt. kde widget
     advKDEWidget = new QWidget();
@@ -280,6 +289,8 @@ PLoMInputWidget::PLoMInputWidget(QWidget *parent)
     newTolKDE->setVisible(false);
     tolKDE->setDisabled(false);
     connect(theDMCheckBox,SIGNAL(toggled(bool)),this,SLOT(setDiffMaps(bool)));
+    //
+    advComboWidget->addTab(advKDEWidget, "Kernel Density Estimation");
 
     // adv. opt. constraints widget
     advConstraintsWidget = new QWidget();
@@ -339,8 +350,11 @@ PLoMInputWidget::PLoMInputWidget(QWidget *parent)
     tolIterLabel->setVisible(false);
     tolIter->setDisabled(1);
     tolIter->setStyleSheet("background-color: lightgrey;border-color:grey");
+    //
+    advComboWidget->addTab(advConstraintsWidget, "Constraints");
 
     // create the stacked widgets
+    /***
     adv_stackedWidgets = new QStackedWidget(this);
     adv_stackedWidgets->addWidget(advGeneralWidget);
     adv_stackedWidgets->addWidget(advKDEWidget);
@@ -351,6 +365,7 @@ PLoMInputWidget::PLoMInputWidget(QWidget *parent)
         adv_stackedWidgets->setCurrentIndex(id);
     });
     advOptLayout->addWidget(adv_stackedWidgets);
+    ***/
     advOptLayout->addStretch();
 
     layout->addWidget(advOptGroup, wid++);
@@ -388,7 +403,8 @@ void PLoMInputWidget::doAdvancedSetup(bool tog)
         theLogtCheckBox->setChecked(false);
     }
 
-    theAdvancedComboBox->setVisible(tog);
+    //theAdvancedComboBox->setVisible(tog);
+    advComboWidget->setVisible(tog);
     lineA->setVisible(tog);
     theLogtCheckBox->setVisible(tog);
     theLogtLabel->setVisible(tog);
