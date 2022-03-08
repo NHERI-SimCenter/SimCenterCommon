@@ -98,6 +98,7 @@ private:
     QLabel *label;
 
     int col1, col2;
+    int oldRow;
     bool mLeft;
     QStringList theHeadings;
 

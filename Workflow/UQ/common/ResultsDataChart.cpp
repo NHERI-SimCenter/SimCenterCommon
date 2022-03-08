@@ -627,6 +627,17 @@ ResultsDataChart::onSaveSurrogateClicked()
 
 void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
 {
+    bool sameCell=false;;
+    // 1. same side clicked
+    // 2. same cell clicked
+    if (oldRow==row) {
+        if (mLeft == true && col2==col) {
+            sameCell = true;
+        } else if (mLeft == false && col1==col) {
+            sameCell = true;
+        }
+    }
+
     mLeft = spreadsheet->wasLeftKeyPressed();
 
     chart->removeAllSeries();
@@ -650,6 +661,7 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
         oldCol= col1;
         col1 = col;
     }
+    oldRow = row;
 
     int rowCount = spreadsheet->rowCount();
     QValueAxis *axisX = new QValueAxis();
@@ -665,28 +677,35 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
         }
 
         QScatterSeries *series = new QScatterSeries;
+        QScatterSeries *series_selected = new QScatterSeries;
 
         // adjust marker size and opacity based on the number of samples
         if (rowCount < 10) {
             series->setMarkerSize(15.0);
+            series_selected->setMarkerSize(15.0);
             series->setColor(QColor(0, 114, 178, 200));
         } else if (rowCount < 100) {
             series->setMarkerSize(11.0);
+            series_selected->setMarkerSize(11.0);
             series->setColor(QColor(0, 114, 178, 160));
         } else if (rowCount < 1000) {
             series->setMarkerSize(8.0);
+            series_selected->setMarkerSize(8.0);
             series->setColor(QColor(0, 114, 178, 100));
         } else if (rowCount < 10000) {
             series->setMarkerSize(6.0);
+            series_selected->setMarkerSize(6.0);
             series->setColor(QColor(0, 114, 178, 70));
         } else if (rowCount < 100000) {
             series->setMarkerSize(5.0);
+            series_selected->setMarkerSize(5.0);
             series->setColor(QColor(0, 114, 178, 50));
         } else {
             series->setMarkerSize(4.5);
+            series_selected->setMarkerSize(4.5);
             series->setColor(QColor(0, 114, 178, 30));
         }
-
+        series_selected->setColor(QColor(114, 0, 10, 250));
         series->setBorderColor(QColor(255,255,255,0));
 
         for (int i=0; i<rowCount; i++) {
@@ -700,6 +719,9 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
 
             series->append(itemX->text().toDouble(), itemY->text().toDouble());
         }
+
+        series_selected->append(spreadsheet->item(row,col1)->text().toDouble(), spreadsheet->item(row,col2)->text().toDouble());
+
         chart->addSeries(series);
         series->setName("Samples");
 
@@ -707,6 +729,15 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
         axisY->setTitleText(theHeadings.at(col2));
         connect(series, &QScatterSeries::hovered, this, &ResultsDataChart::tooltip);
         connect(series, &QScatterSeries::clicked, this, &ResultsDataChart::highlightCell);
+
+
+        if (! sameCell){
+            chart->addSeries(series_selected);
+            series_selected->setName("Run # "+(spreadsheet->item(row,0)->text()));
+            connect(series_selected, &QScatterSeries::hovered, this, &ResultsDataChart::tooltip);
+            connect(series_selected, &QScatterSeries::clicked, this, &ResultsDataChart::highlightCell);
+        }
+
 
 
         // padhye adding ranges 8/25/2018
@@ -775,7 +806,10 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
 
         chart->setAxisX(axisX, series);
         chart->setAxisY(axisY, series);
-
+        if (! sameCell){
+            chart->setAxisX(axisX, series_selected);
+            chart->setAxisY(axisY, series_selected);
+        }
 
     } else {
 
@@ -1061,11 +1095,21 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
     //chart->legend()->setAlignment(Qt::AlignRight);
 
 
+    if (! sameCell){
+        spreadsheet->item(row,col1)->setData(Qt::BackgroundRole, QColor::fromRgb(220,180,180));
+        spreadsheet->item(row,col2)->setData(Qt::BackgroundRole, QColor::fromRgb(220,180,180));
+        spreadsheet->scrollToItem(spreadsheet->item(row,col2));
+    }
+
+
 }
 void ResultsDataChart::tooltip(QPointF point, bool state)
 {
+
     if (state) {
             box = new QGraphicsSimpleTextItem("",chart);
+
+            //box = new QGraphicsSimpleTextItem("",chart);
             QString m_text = QString("X: %1 \nY: %2 ").arg(point.x()).arg(point.y());
             box->setText(m_text);
             box->setPos(( chart->mapToPosition(point))+ QPoint(15, -30));
@@ -1093,8 +1137,16 @@ void ResultsDataChart::highlightCell(QPointF point)
         {
             if(clicked_val_y == spreadsheet->item(i, col2)->text().toDouble())
             {
+                box->hide();
+
                 //we have found our value so we can update 'i' row
-                spreadsheet->selectRow(i);
+                //spreadsheet->item(i,col1)->setData(Qt::BackgroundRole, QColor::fromRgb(255,200,200));
+                //spreadsheet->item(i,col2)->setData(Qt::BackgroundRole, QColor::fromRgb(255,200,200));
+                if (mLeft) {
+                    onSpreadsheetCellClicked(i, col2);
+                }else {
+                    onSpreadsheetCellClicked(i, col1);
+                    }
                 found = true;
                 break;
             }
@@ -1102,7 +1154,7 @@ void ResultsDataChart::highlightCell(QPointF point)
     }
     if(!found)
     {
-        //we didn't find our value, so we can insert row
+        //we didn't find our value
     }
 }
 
