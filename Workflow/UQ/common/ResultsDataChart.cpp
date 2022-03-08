@@ -60,6 +60,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QAreaSeries>
 #include <QtCharts/QLegendMarker>
 #include <QSplitter>
+#include <QMimeData>
+#include <QClipboard>
 using namespace QtCharts;
 
 
@@ -132,6 +134,7 @@ ResultsDataChart::makeChart() {
     //QWidget *widget = new QWidget();
     //QGridLayout *layout = new QGridLayout(widget);
     QGridLayout *layout_tmp = new QGridLayout();
+    layout_tmp ->setSizeConstraint(QLayout::SetMinimumSize);
     //QWidget *layout_tmp = new QWidget();
     QSplitter *layout = new QSplitter();
     QPushButton* save_spreadsheet = new QPushButton();
@@ -152,8 +155,9 @@ ResultsDataChart::makeChart() {
         save_surrogate->setText("Save Surrogate Predictions");
         save_surrogate->setToolTip(tr("Select an existing folder"));
         save_surrogate->resize(30,30);
+        save_surrogate->setMaximumWidth(200);
         connect(save_surrogate,SIGNAL(clicked()),this,SLOT(onSaveSurrogateClicked()));
-        //layout->addWidget(save_surrogate, 1,2,Qt::AlignLeft);
+        layout_tmp->addWidget(save_surrogate, 0,5);
 
         QCheckBox *surrogateShowbutton = new QCheckBox();
         surrogateShowbutton->setChecked(true);
@@ -170,9 +174,10 @@ ResultsDataChart::makeChart() {
             isSurrogate = tog;
             onSpreadsheetCellClicked(0, col_tmp); // just refresh the figure
         });
-        //layout->addWidget(surrogateShowbutton,1,3,Qt::AlignLeft);
-        //layout->addWidget(new QLabel("Show surrogate model prediction bounds"),1,4,Qt::AlignLeft);
-
+        layout_tmp->addWidget(surrogateShowbutton,0,0);
+        QLabel *surrogateText = new QLabel("Show surrogate model prediction bounds");
+        layout_tmp->addWidget(surrogateText,0,1,Qt::AlignLeft);
+        surrogateText->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
     }
 
 
@@ -189,9 +194,10 @@ ResultsDataChart::makeChart() {
     //
     save_spreadsheet->setMaximumWidth(100);
     save_columns->setMaximumWidth(180);
+    layout_tmp->setColumnStretch(2,1);
 
-    layout_tmp->addWidget(save_spreadsheet,0,1);
-    layout_tmp->addWidget(save_columns,0,2);
+    layout_tmp->addWidget(save_spreadsheet,0,3);
+    layout_tmp->addWidget(save_columns,0,4);
     layout_tmp ->addWidget(layout,1,0,1,-1);
 
     //this->setLayout(layout);
@@ -700,6 +706,7 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
         axisX->setTitleText(theHeadings.at(col1));
         axisY->setTitleText(theHeadings.at(col2));
         connect(series, &QScatterSeries::hovered, this, &ResultsDataChart::tooltip);
+        connect(series, &QScatterSeries::clicked, this, &ResultsDataChart::highlightCell);
 
 
         // padhye adding ranges 8/25/2018
@@ -1067,6 +1074,87 @@ void ResultsDataChart::tooltip(QPointF point, bool state)
             box->hide();
     }
 }
+
+
+void ResultsDataChart::highlightCell(QPointF point)
+{
+//    for (int index = 0; index < spreadsheet->columnCount(); index++)
+//    {
+//        auto cell = spreadsheet->findItems(QString::number(point.x()), Qt::MatchExactly);
+//    }
+    double clicked_val_x = point.x();
+    double clicked_val_y = point.y();
+
+    int rows = spreadsheet->rowCount();
+    bool found = false;
+    for(int i = 0; i < rows; ++i)
+    {
+        if(clicked_val_x == spreadsheet->item(i, col1)->text().toDouble())
+        {
+            if(clicked_val_y == spreadsheet->item(i, col2)->text().toDouble())
+            {
+                //we have found our value so we can update 'i' row
+                spreadsheet->selectRow(i);
+                found = true;
+                break;
+            }
+        }
+    }
+    if(!found)
+    {
+        //we didn't find our value, so we can insert row
+    }
+}
+
+void ResultsDataChart::keyPressEvent(QKeyEvent * event)
+{
+
+    if(event->matches(QKeySequence::Copy) )
+        {
+
+        QItemSelectionModel * model = spreadsheet->selectionModel();
+        QModelIndexList list = model->selectedIndexes();
+
+        qSort(list);
+
+        if(list.size() < 1)
+            return;
+
+        QString copy_table;
+        QModelIndex previous = list.first();
+
+        list.removeFirst();
+
+        for(int i = 0; i < list.size(); i++)
+        {
+            QVariant data = spreadsheet->model()->data(previous);
+            QString text = data.toString();
+
+            QModelIndex index = list.at(i);
+            copy_table.append(text);
+
+            if(index.row() != previous.row())
+
+            {
+                copy_table.append('\n');
+            }
+            else
+            {
+                copy_table.append('\t');
+            }
+            previous = index;
+        }
+
+        copy_table.append(spreadsheet->model()->data(list.last()).toString());
+        copy_table.append('\n');
+
+        QClipboard *clipboard = QApplication::clipboard();
+        clipboard->setText(copy_table);
+
+    }
+
+}
+
 
 void ResultsDataChart::overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxis *axisX,QValueAxis *axisY )
 {

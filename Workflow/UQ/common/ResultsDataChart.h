@@ -78,6 +78,9 @@ public slots:
    void onSaveSurrogateClicked();
    void overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxis *axisX,QValueAxis *axisY );
    void tooltip(QPointF point, bool state);
+   void highlightCell(QPointF point);
+   void keyPressEvent(QKeyEvent * event);
+
 private:
 
     void readTableFromTab(QString filenameTab);
