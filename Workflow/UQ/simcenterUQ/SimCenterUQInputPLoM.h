@@ -1,5 +1,5 @@
-#ifndef UQ_ENGINE_SELECTION_H
-#define UQ_ENGINE_SELECTION_H
+#ifndef SimCenterUQ_INPUT_PLOM_H
+#define SimCenterUQ_INPUT_PLOM_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -37,78 +37,77 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
-
-#include <SimCenterAppWidget.h>
 #include <UQ_Engine.h>
 
-class QComboBox;
+#include <QGroupBox>
+#include <QVector>
+#include <QVBoxLayout>
+#include <QComboBox>
+#include <QPushButton>
+
+class SimCenterUQSurrogateResults;
+class SimCenterUQResults;
+class QCheckBox;
+class RandomVariablesContainer;
 class QStackedWidget;
-class UQ_Engine;
+class UQ_MethodInputWidget;
+class InputWidgetParameters;
 class InputWidgetEDP;
+class InputWidgetFEM;
 
-
-class UQ_EngineSelection : public  SimCenterAppWidget
+class SimCenterUQInputPLoM : public UQ_Engine
 {
-  Q_OBJECT
+    Q_OBJECT
+public:
+    explicit SimCenterUQInputPLoM(QWidget *parent = 0);
+    ~SimCenterUQInputPLoM();
 
-  public:
+    bool outputToJSON(QJsonObject &jsonObject);
+    bool inputFromJSON(QJsonObject &jsonObject);
+    bool outputAppDataToJSON(QJsonObject &jsonObject);
+    bool inputAppDataFromJSON(QJsonObject &jsonObject);
 
-  explicit UQ_EngineSelection(UQ_EngineType = ForwardReliabilitySensivity,
-			      QWidget *parent = 0);  
-  
-  ~UQ_EngineSelection();
+    int processResults(QString &filenameResults, QString &filenameTab);
 
-  void setRV_Defaults(void);
-  UQ_Results  *getResults();
+    UQ_Results *getResults(void);
+    void setRV_Defaults(void);
+    //RandomVariablesContainer  *getParameters();
 
-  int getNumParallelTasks(void);
-  UQ_Engine *getCurrentEngine();
-  
-  bool outputAppDataToJSON(QJsonObject &jsonObject);
-  bool inputAppDataFromJSON(QJsonObject &jsonObject);
+    int getMaxNumParallelTasks(void);
+    QString getMethodName();
+    bool copyFiles(QString &fileDir);
+    QVBoxLayout *mLayout;
 
-  bool outputToJSON(QJsonObject &rvObject);
-  bool inputFromJSON(QJsonObject &rvObject);
-  bool copyFiles(QString &destName);
+    // KZ set event type
+    void setEventType(QString type);
 
-  void clear(void);
-  
- signals:
-  void onUQ_EngineChanged(bool);
-  void onNumModelsChanged(int);
-  // FMK void onSurrogateModelSpecified(int);  
+public slots:
+   void clear(void);
+   void onIndexChanged(const QString &arg1);
+   void numModelsChanged(int numModels);
 
-  // void remoteRunningCapability(bool);
-  // KZ relay queryEVT from SimCenterUQ
-  void queryEVT(void);
-
- public slots:
-  
-  void engineSelectionChanged(const QString &arg1);
-  void enginesEngineSelectionChanged(void);
-  void numModelsChanged(int newNum);
-  // FMK void surrogateModelSpecified(void);  
-  // KZ relay queryEVT from SimCenterUQ
-  void relayQueryEVT(void);
-  void setEventType(QString type);
-  
 private:
+    QVBoxLayout *layout;
+    QWidget     *methodSpecific;
+    QComboBox   *inpMethod;
+    QLineEdit   *numSamples;
+    QLineEdit   *randomSeed;
 
-   QComboBox   *theEngineSelectionBox;
-   QStackedWidget *theStackedWidget;
+    QComboBox   *uqSelection;
+    QWidget     *uqSpecific;
 
-   UQ_Engine *theCurrentEngine;
-   UQ_Engine *thePreviousEngine;  
-   UQ_Engine *theDakotaEngine;
-   UQ_Engine *theSimCenterUQEngine;
-   UQ_Engine *theUQpyEngine;
-   UQ_Engine *theUCSD_Engine;
-   UQ_Engine *thefilterEngine;
-   UQ_Engine *theCustomEngine;
+    RandomVariablesContainer *theRandomVariables;
+    SimCenterUQSurrogateResults *results;
 
-   InputWidgetEDP *theEDPs;
-   
+    QStackedWidget *theStackedWidget;
+    UQ_Method *theInpCurrentMethod;
+    UQ_Method *theSimu, *theData, *theMultiFidelity;
+
+    //InputWidgetParameters *theParameters;
+    //InputWidgetEDP *theEdpWidget;
+    //InputWidgetFEM *theFemWidget;
+    QString typeEVT;
+
 };
 
-#endif // WIND_SELECTION_H
+#endif // SimCenterUQ_INPUT_PLOM_H

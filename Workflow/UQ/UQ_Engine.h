@@ -62,6 +62,7 @@ public:
     virtual QString getProcessingScript();
     virtual QString getMethodName();
     // virtual void setMethod(QString &methodName);
+    virtual void setEventType(QString type);
 
 signals:
     void onNumModelsChanged(int numModels);
