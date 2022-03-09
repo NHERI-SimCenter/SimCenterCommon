@@ -59,6 +59,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QtCharts/QVXYModelMapper>
 #include <QAreaSeries>
 #include <QtCharts/QLegendMarker>
+#include <QSplitter>
 using namespace QtCharts;
 
 
@@ -72,6 +73,7 @@ ResultsDataChart::ResultsDataChart(QJsonObject spread, bool isSur, int nRV, QWid
     spreadsheet = new MyTableWidget();
     this->readTableFromJson(spread);
     this->makeChart();
+
 
     if (isSur) {
         for (int i=nrv+nqoi+1; i<colCount; i++)
@@ -129,7 +131,9 @@ ResultsDataChart::makeChart() {
 
     //QWidget *widget = new QWidget();
     //QGridLayout *layout = new QGridLayout(widget);
-    QGridLayout *layout = new QGridLayout();
+    QGridLayout *layout_tmp = new QGridLayout();
+    //QWidget *layout_tmp = new QWidget();
+    QSplitter *layout = new QSplitter();
     QPushButton* save_spreadsheet = new QPushButton();
     save_spreadsheet->setText("Save Table");
     save_spreadsheet->setToolTip(tr("Save data into file in a CSV format"));
@@ -149,7 +153,7 @@ ResultsDataChart::makeChart() {
         save_surrogate->setToolTip(tr("Select an existing folder"));
         save_surrogate->resize(30,30);
         connect(save_surrogate,SIGNAL(clicked()),this,SLOT(onSaveSurrogateClicked()));
-        layout->addWidget(save_surrogate, 1,2,Qt::AlignLeft);
+        //layout->addWidget(save_surrogate, 1,2,Qt::AlignLeft);
 
         QCheckBox *surrogateShowbutton = new QCheckBox();
         surrogateShowbutton->setChecked(true);
@@ -166,23 +170,32 @@ ResultsDataChart::makeChart() {
             isSurrogate = tog;
             onSpreadsheetCellClicked(0, col_tmp); // just refresh the figure
         });
-        layout->addWidget(surrogateShowbutton,1,3,Qt::AlignLeft);
-        layout->addWidget(new QLabel("Show surrogate model prediction bounds"),1,4,Qt::AlignLeft);
+        //layout->addWidget(surrogateShowbutton,1,3,Qt::AlignLeft);
+        //layout->addWidget(new QLabel("Show surrogate model prediction bounds"),1,4,Qt::AlignLeft);
 
     }
 
 
-    layout->addWidget(chartView, 0,0,1,-1);
-    layout->addWidget(save_spreadsheet,1,0,Qt::AlignLeft);
-    layout->addWidget(save_columns,1,1,Qt::AlignLeft);
-    layout->addWidget(spreadsheet,2,0,1,-1);
-    layout->setColumnStretch(4,1);
-
+    //layout->addWidget(chartView, 0,0,1,-1);
+    //layout->addWidget(save_spreadsheet,1,0,Qt::AlignLeft);
+    //layout->addWidget(save_columns,1,1,Qt::AlignLeft);
+    //layout->addWidget(spreadsheet,2,0,1,-1);
+    //layout->setColumnStretch(4,1);
+    layout->addWidget(chartView);
+    //layout->addWidget(save_spreadsheet);
+    layout->addWidget(spreadsheet);
     //
     // add summary, detained info and spreadsheet with chart to the tabed widget
     //
+    save_spreadsheet->setMaximumWidth(100);
+    save_columns->setMaximumWidth(180);
 
-    this->setLayout(layout);
+    layout_tmp->addWidget(save_spreadsheet,0,1);
+    layout_tmp->addWidget(save_columns,0,2);
+    layout_tmp ->addWidget(layout,1,0,1,-1);
+
+    //this->setLayout(layout);
+    this->setLayout(layout_tmp);
 
     onSpreadsheetCellClicked(0,1);
 }
@@ -605,6 +618,7 @@ ResultsDataChart::onSaveSurrogateClicked()
     }
 }
 
+
 void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
 {
     mLeft = spreadsheet->wasLeftKeyPressed();
@@ -685,6 +699,8 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
 
         axisX->setTitleText(theHeadings.at(col1));
         axisY->setTitleText(theHeadings.at(col2));
+        connect(series, &QScatterSeries::hovered, this, &ResultsDataChart::tooltip);
+
 
         // padhye adding ranges 8/25/2018
         // finding the range for X and Y axis
@@ -835,6 +851,7 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
             axisX->setTickCount(NUM_DIVISIONS+1);
             chart->setAxisX(axisX, series);
             chart->setAxisY(axisY, series);
+            connect(series, &QLineSeries::hovered, this, &ResultsDataChart::tooltip);
 
             //chart->legend()->setVisible(true);
             //chart->legend()->setAlignment(Qt::AlignRight);
@@ -1021,6 +1038,8 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
             chart->setAxisX(axisX, series);
             chart->setAxisY(axisY, series);
             series->setName("Cumulative Frequency Distribution");
+            connect(series, &QLineSeries::hovered, this, &ResultsDataChart::tooltip);
+
         }
     }
     QFont chartFont;
@@ -1036,8 +1055,18 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
 
 
 }
-
-
+void ResultsDataChart::tooltip(QPointF point, bool state)
+{
+    if (state) {
+            box = new QGraphicsSimpleTextItem("",chart);
+            QString m_text = QString("X: %1 \nY: %2 ").arg(point.x()).arg(point.y());
+            box->setText(m_text);
+            box->setPos(( chart->mapToPosition(point))+ QPoint(15, -30));
+            box->show();
+    } else {
+            box->hide();
+    }
+}
 
 void ResultsDataChart::overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxis *axisX,QValueAxis *axisY )
 {

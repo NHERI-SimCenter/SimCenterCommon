@@ -245,7 +245,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
             if(verNum != 3.8)
             {
-                emit errorMessage("Python version 3.8 or 3.9 is required, you have Python version "+QString::number(verNum)+" installed");
+                emit errorMessage("Python version 3.8 is required, you have Python version "+QString::number(verNum)+" installed");
                 emit runComplete();
                 return false;
             }

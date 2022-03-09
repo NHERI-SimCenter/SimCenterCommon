@@ -245,7 +245,7 @@ int UCSD_Results::processResults(QString &filenameTab, QString &filenamePrior)
 
     // Read the dakota.json file located in ./templatedir
     QDir fileDir = filenameTabInfo.absoluteDir();
-    QFileInfo jsonFileInfo(fileDirTab, QString("templatedir") + QDir::separator() + QString("dakota.json"));
+    QFileInfo jsonFileInfo(fileDirTab, QString("dakota.json"));
     if (!jsonFileInfo.exists()) {
         errorMessage("ERROR: No dakota.json file");
         return 0;

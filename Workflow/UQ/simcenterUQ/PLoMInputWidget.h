@@ -1,5 +1,5 @@
-#ifndef RESULT_DATA_CHART_H
-#define RESULT_DATA_CHART_H
+#ifndef PLOM_INPUT_WIDGET_H
+#define PLOM_INPUT_WIDGET_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -39,78 +39,100 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <QtCharts/QChart>
-using namespace QtCharts;
-
-#include "MyTableWidget.h"
-#include "RandomVariablesContainer.h"
-#include <QFileDialog>
-#include <QValueAxis>
-
+#include <UQ_Method.h>
 class QLineEdit;
+class QCheckBox;
+class QPushButton;
+class QComboBox;
+class QLabel;
+class QFrame;
+class QButtonGroup;
+class QStackedWidget;
+//class InputWidgetParameters;
+//class InputWidgetEDP;
+//class InputWidgetFEM;
+class QComboBox;
+class QTabWidget;
 
-class ResultsDataChart : public SimCenterWidget
+class PLoMInputWidget : public UQ_Method
 {
     Q_OBJECT
 public:
-    explicit ResultsDataChart(QString filenameTab, bool isSur=false, int nrv=0, QWidget *parent = 0);
-    explicit ResultsDataChart(QJsonObject spreadsheet, bool isSur=false, int nrv=0, QWidget *parent = 0);
-
-    //explicit ResultsDataChart(QWidget *parent = 0);
-    ~ResultsDataChart();
+    explicit PLoMInputWidget(QWidget *parent = 0);
+    ~PLoMInputWidget();
 
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
     void clear(void);
 
     int getNumberTasks(void);
-
-    QVector<QVector<double>> getStatistics();
-    QVector<QString> getNames();
-    QVector<QVector<double>> getMinMax();
-
-signals:
-
+    int parseInputDataForRV(QString name1);
+    int parseOutputDataForQoI(QString name1);
+    int parsePretrainedModelForRVQoI(QString name1);
+    int numSamples;
+    bool copyFiles(QString &fileDir);
 public slots:
-   void onSpreadsheetCellClicked(int, int);
-   void onSaveSpreadsheetClicked();
-   void onSaveSpreadsheetSeparatelyClicked();
-   void onSaveSurrogateClicked();
-   void overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxis *axisX,QValueAxis *axisY );
-   void tooltip(QPointF point, bool state);
+    void setOutputDir(bool tog);
+    void setConstraints(bool tog);
+    void doAdvancedSetup(bool tog);
+    void setDiffMaps(bool tog);
 private:
+    QLineEdit *ratioNewSamples;
+    QLineEdit *epsilonPCA;
+    QLineEdit *smootherKDE;
+    QLineEdit *tolKDE;
+    QLineEdit *randomSeed;
+    QLineEdit *inpFileDir;
+    QLineEdit *outFileDir;
+    QLineEdit *inpFileDir2;
+    QPushButton *chooseOutFile;
+    QLineEdit *initialDoE;
+    QCheckBox *theAdvancedCheckBox;
+    QCheckBox *theLogtCheckBox;
+    QCheckBox *theDMCheckBox;
+    QCheckBox *theConstraintsButton;
+    QLineEdit *constraintsPath;
+    QPushButton *chooseConstraints;
+    QLineEdit *numIter;
+    QLineEdit *tolIter;
 
-    void readTableFromTab(QString filenameTab);
-    void readTableFromJson(QJsonObject jsonobj);
-    void makeChart(void);
-    float my_erfinvf(float a);
-    float my_logf(float a);
+    QLabel * theAdvancedTitle;
+    QLabel * theLogtLabel;
+    QLabel * theLogtLabel2;
+    QLabel * theInitialLabel;
+    QLabel * errMSG;
+    QLabel * newEpsilonPCA;
+    QLabel * newSmootherKDE;
+    QLabel * newTolKDE;
+    QLabel * newRandomSeed;
+    QLabel * theDMLabel;
+    QLabel * theConstraintsLabel1;
+    QLabel * theConstraintsLabel2;
+    QLabel * numIterLabel;
+    QLabel * tolIterLabel;
 
-    //QLineEdit *randomSeed;
-    //QLineEdit *numSamples;
-    MyTableWidget *spreadsheet;
-    QTabWidget *tabWidget;
-    QChart *chart;
-    QPushButton* save_spreadheet; // save the data from spreadsheet
-    QLabel *label;
+    //InputWidgetParameters *theParameters;
+    //InputWidgetEDP *theEdpWidget;
+    //InputWidgetFEM *theFemWidget;
 
-    int col1, col2;
-    bool mLeft;
-    QStringList theHeadings;
+    QFrame * lineA;
 
-    QVector<QString>theNames;
-    QVector<double>theMeans;
-    QVector<double>theStdDevs;
-    QVector<double>theKurtosis;
-    QVector<double>theSkewness;
+    QButtonGroup* m_typeButtonsGroup;
+    QStackedWidget* m_stackedWidgets;
+    QWidget* rawDataGroup;
+    QWidget* preTrainGroup;
+    QWidget* newSampleRatioWidget;
 
-    bool isSurrogate;
-    int nrv;
-    int nqoi;
+    //QComboBox *theAdvancedComboBox;
+    QWidget* advGeneralWidget;
+    QWidget* advKDEWidget;
+    QWidget* advConstraintsWidget;
+    //QStackedWidget* adv_stackedWidgets;
 
-    int rowCount;
-    int colCount;
-    QGraphicsSimpleTextItem    *box;
+    int countColumn(QString name1);
+    bool preTrained;
+
+    QTabWidget *advComboWidget;
 };
 
-#endif // RESULT_DATA_CHART_H
+#endif // PLOM_INPUT_WIDGET_H

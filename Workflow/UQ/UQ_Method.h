@@ -70,6 +70,12 @@ public:
   
     virtual void setRV_Defaults(void);  
 
+    /**
+     *   @brief setEventType  method invoked to set event type queried from EVT in UQ method
+     */
+
+    virtual void setEventType(QString typeEVT);
+
 };
 
 #endif // UQ_METHOD_H
