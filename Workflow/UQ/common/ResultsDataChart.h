@@ -77,7 +77,7 @@ public slots:
    void onSaveSpreadsheetSeparatelyClicked();
    void onSaveSurrogateClicked();
    void overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxis *axisX,QValueAxis *axisY );
-
+   void tooltip(QPointF point, bool state);
 private:
 
     void readTableFromTab(QString filenameTab);
@@ -110,7 +110,7 @@ private:
 
     int rowCount;
     int colCount;
-
+    QGraphicsSimpleTextItem    *box;
 };
 
 #endif // RESULT_DATA_CHART_H
