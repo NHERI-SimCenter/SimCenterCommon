@@ -1,6 +1,5 @@
-#ifndef STEEL_BUILDING_MODEL_H
-#define STEEL_BUILDING_MODEL_H
-
+#ifndef CONCRETE_BUILDING_MODEL_H
+#define CONCRETE_BUILDING_MODEL_H
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -37,33 +36,33 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: Stevan Gavrilovic
+// Written: Dr. Stevan Gavrilovic
 
 /* macro added by pmh on 12/31/2020 for compiling with MSVC2019 */
 #ifndef __FUNCSIG__
 #define __FUNCSIG__  __PRETTY_FUNCTION__
 #endif
 
-
 #include "SimCenterAppWidget.h"
 
-#include <QPointer>
-#include <QGroupBox>
 #include <QVector>
 #include <QMap>
 
-class QLineEdit;
 class InputWidgetParameters;
 class RandomVariablesContainer;
+
+class QButtonGroup;
+class QLineEdit;
+class QRadioButton;
 class QTableWidget;
 class QFile;
 
-class SteelBuildingModel : public SimCenterAppWidget
+class ConcreteBuildingModel : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
-    explicit SteelBuildingModel(RandomVariablesContainer *theRandomVariableIW, QWidget *parent = 0);
-    ~SteelBuildingModel();
+    explicit ConcreteBuildingModel(RandomVariablesContainer *theRandomVariableIW, QWidget *parent = 0);
+    ~ConcreteBuildingModel();
 
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
@@ -72,30 +71,17 @@ public:
     bool copyFiles(QString &dirName);
 
 public slots:
-   void showEvent(QShowEvent *event);
 
-   void onStoryLEChange(void);
-
-   void onBuildingDimLEChange(void);
-
-   void onLineEditTextChanged();
-
-   // Dialog for choosing the folder with the building data files
-   void chooseFileFolderDialog(void);
-
-   // Loads the file data from the folder given by the user
-   void loadDataFromFolder(void);
-
-   // Saves the data to the folder given by the user
-   void saveDataToFolder(void);
-
-   // Table editing slots
-   void onSpreadsheetCellChanged(int row, int column);
-   void onSpreadsheetCellClicked(int row, int column);
+    void onLineEditTextChanged();
 
 signals:
     void numStoriesOrHeightChanged(int numFloors, double height);
     void buildingDimensionsChanged(double newWidth, double newDepth, double planArea);
+
+private slots:
+
+    void onStoryLEChange(void);
+    void onSpanLEChange(void);
 
 private:
 
@@ -105,17 +91,37 @@ private:
     // Removes a random variable
     void removeRandomVariable(QString &text, int numReferences=1);
 
-    // Functions to import data from the .csv spread sheets
-    int parseELFDataFile(const QString& pathToFile);
-    int parseGeometryDataFile(const QString& pathToFile);
-    int parseLoadsDataFile(const QString& pathToFile);
-    int parseMemberDepthDataFile(const QString& pathToFile);
+    QLineEdit* extWidthLE = nullptr;
+    QLineEdit* extDepthLE = nullptr;
+    QLineEdit* intWidthLE = nullptr;
+    QLineEdit* intDepthLE = nullptr;
+    QLineEdit* beamWidthLE = nullptr;
+    QLineEdit* beamDepthLE = nullptr;
+    QLineEdit* vecStoryLE = nullptr;
+    QLineEdit* vecSpansLE = nullptr;
+    QLineEdit* RLE = nullptr;
+    QLineEdit* CdLE = nullptr;
+    QLineEdit* OmegaLE = nullptr;
+    QLineEdit* SDSLE = nullptr;
+    QLineEdit* SD1LE = nullptr;
+    QLineEdit* TLLE = nullptr;
+    QLineEdit* colIgLE = nullptr;
+    QLineEdit* beamIgLE = nullptr;
+    QLineEdit* fyLE = nullptr;
+    QLineEdit* beamfpcLE = nullptr;
+    QLineEdit* colsfpcLE = nullptr;
+    QLineEdit* deadLaodLE = nullptr;
+    QLineEdit* liveLoadLE = nullptr;
+    QLineEdit* tribLengthGravityLE = nullptr;
+    QLineEdit* tribLengthSeismicLE = nullptr;
+    QRadioButton* hingOpt1Radio = nullptr;
+    QRadioButton* hingOpt2Radio = nullptr;
+    QRadioButton* hingOpt3Radio = nullptr;
+    QRadioButton* regOpt1Radio = nullptr;
+    QRadioButton* regOpt2Radio = nullptr;
 
-    // Functions to save data to the .csv spread sheets
-    int saveELFDataFile(const QString& pathToFile);
-    int saveBuildingGeomFile(const QString& pathToFile);
-    int saveLoadsFile(const QString& pathToFile);
-    int saveMemberDepthFile(const QString& pathToFile);
+    QButtonGroup* hingeButtonGroup = nullptr;
+    QButtonGroup* regButtonGroup = nullptr;
 
     // Sets the values of the default example
     void setDefaultValues(void);
@@ -123,61 +129,14 @@ private:
     // Returns true if the input string is a random variable and false if not
     bool checkRV(const QString& value);
 
-    // Building information and properties
-    QString buildingGeomFileName;
-    QPointer<QLineEdit> numFloorsLE;
-    QPointer<QLineEdit> firstStoryHeightLE;
-    QPointer<QLineEdit> numBayXLE;
-    QPointer<QLineEdit> numBayZLE;
-    QPointer<QLineEdit> typStoryHeightLE;
-    QPointer<QLineEdit> xBayWidthLE;
-    QPointer<QLineEdit> zBayWidthLE;
-    QPointer<QLineEdit> numLFRSXLE;
-    QPointer<QLineEdit> numLFRSZLE;
-
-    // ELF design parameters
-    QString ELFFileName;
-    QPointer<QLineEdit> SsLE;
-    QPointer<QLineEdit> S1LE;
-    QPointer<QLineEdit> TLLE;
-    QPointer<QLineEdit> CdLE;
-    QPointer<QLineEdit> RLE;
-    QPointer<QLineEdit> leLE;
-    QPointer<QLineEdit> rhoLE;
-    QPointer<QLineEdit> siteClassLE;
-    QPointer<QLineEdit> CtLE;
-    QPointer<QLineEdit> xLE;
-
-    // Input file
-    QString pathToDataFiles;
-    QPointer<QLineEdit> fileLE;
-
-    QString cellText;
-    bool updatingPropertiesTable;
-
-    // Spread sheets
-    QString memberDepthFileName;
-    QString loadingFileName;
-    QTableWidget *memberDepthSpreadsheet;
-    QTableWidget *loadingSpreadsheet;
-    void updateLoadingSpreadSheet(const QVector<QStringList>& data);
-    void updateMemberDepthSpreadSheet(const QVector<QStringList>& data);
-
     RandomVariablesContainer *theRandomVariablesContainer;
     QStringList varNamesAndValues;
 
     QMap<QString, int>randomVariables;
 
-    // Headings for the loading and member depth spreadsheets
-    QStringList getLoadingTableHeadings(void);
-    QStringList getMemberTableHeadings(void);
-
     // Pop-up for any error messages
     void errorMessageDialog(const QString& errorString);
 
-    // Functions to parse the csv data files
-    QVector<QStringList> parseCSVFile(const QString &string);
-    QStringList parseLineCSV(const QString &string);
 };
 
-#endif // STEEL_BUILDING_MODEL_H
+#endif // CONCRETE_BUILDING_MODEL_H
