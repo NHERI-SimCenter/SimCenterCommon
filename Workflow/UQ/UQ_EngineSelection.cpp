@@ -268,7 +268,7 @@ UQ_EngineSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
                     (type == QString("DakotaEngine")) ||
                     (type == QString("Dakota-UQ"))) {
                 index = 0;
-            } else if ((type == QString("SimCenterUQ"))) {
+            } else if ((type == QString("SimCenterUQ")) || (type == QString("SimCenter-UQ"))) {
                 index = 1;
                 // } else if ((type == QString("UQpy")) || (type == QString("UQpyEngine"))) {
                 //   index = 2;
