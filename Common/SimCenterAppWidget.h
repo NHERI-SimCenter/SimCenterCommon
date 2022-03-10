@@ -64,8 +64,8 @@ public:
      *   @param rvObject the JSON object to be written to
      *   @return bool - true for success, otherwise false
      */
-
     virtual bool outputAppDataToJSON(QJsonObject &jsonObject);
+  
     /**
      *   @brief inputFromJSON method to read applications specific data from a JSON object
      *   @param rvObject the JSON object contaiing data to instantiate the object
@@ -92,8 +92,17 @@ public:
      */
     virtual void clear(void);
 
+    /**
+     *   @brief outputCitation method to write any citation info for current selected Application.
+     *   @param rvObject the JSON object to be written to
+     *   @return bool - true for success, otherwise false
+     */
+    virtual bool outputCitation(QJsonObject &jsonObject);  
+
     static bool copyPath(QString sourceDir, QString destinationDir, bool overWriteDirectory);
     static bool copyFile(QString filename, QString destinationDir);
+
+    virtual SimCenterAppWidget *getClone();
 
 
 signals:

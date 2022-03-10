@@ -55,13 +55,13 @@ public:
     virtual ~UQ_Engine();
 
     virtual int getMaxNumParallelTasks(void) =0;
-    virtual int processResults(QString &filenameResults, QString &filenameTab) =0;
     virtual void setRV_Defaults(void) =0;
   
     virtual UQ_Results *getResults(void) = 0;
     virtual QString getProcessingScript();
     virtual QString getMethodName();
     // virtual void setMethod(QString &methodName);
+    virtual void setEventType(QString type);
 
 signals:
     void onNumModelsChanged(int numModels);

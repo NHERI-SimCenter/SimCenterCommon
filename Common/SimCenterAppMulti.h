@@ -1,5 +1,5 @@
-#ifndef DAKOTA_RESULTS_CALIBRATION_H
-#define DAKOTA_RESULTS_CALIBRATION_H
+﻿#ifndef SimCenterAppMulti_H
+#define SimCenterAppMulti_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -37,60 +37,55 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written by: fmk
 
-#include <UQ_Results.h>
-#include <QtCharts/QChart>
+#include "SimCenterAppWidget.h"
+#include <QList>
 
-using namespace QtCharts;
-
-class QTextEdit;
+class QStackedWidget;
+class QComboBox;
 class QTabWidget;
-class MyTableWidget;
-class ResultsDataChart;
-class RandomVariablesContainer;
+class SimCenterAppSelection;
+class QLineEdit;
 
-//class QChart;
 
-class DakotaResultsCalibration : public UQ_Results
+class SimCenterAppMulti : public  SimCenterAppWidget
 {
     Q_OBJECT
+
 public:
-    explicit DakotaResultsCalibration(RandomVariablesContainer * theRVs, QWidget *parent = 0);
-    ~DakotaResultsCalibration();
+  SimCenterAppMulti(QString label,
+		    QString jsonkeyword,
+		    SimCenterAppWidget *thePrototype,
+		    QWidget *parent);
+    ~SimCenterAppMulti();
 
-    bool outputToJSON(QJsonObject &rvObject);
-    bool inputFromJSON(QJsonObject &rvObject);
+    bool outputAppDataToJSON(QJsonObject &jsonObject);
+    bool inputAppDataFromJSON(QJsonObject &jsonObject);
+    bool outputToJSON(QJsonObject &jsonObject);
+    bool inputFromJSON(QJsonObject &jsonObject);
+    bool copyFiles(QString &destName);
+    bool outputCitation(QJsonObject &jsonObject);
+  
+    void clear(void);
 
-    int processResults(QString &dirName);  
-    QWidget *createResultParameterWidget(QString &name, double value);
+public slots:
+  int addTab(void);
+  int removeCurrentTab(void);
 
 signals:
 
-public slots:
-   void clear(void);
-
+protected:
+  
 private:
-   int processResults(QString &filenameResults, QString &filenameTab);
-   RandomVariablesContainer *theRVs;
 
-   QTabWidget *tabWidget;
-   QTextEdit  *dakotaText;
-   MyTableWidget *spreadsheet;
-   QChart *chart;
-   ResultsDataChart* theDataTable;
+  QTabWidget *theTabs;
+  SimCenterAppWidget *thePrototype;
+  QList<QLineEdit *>theBeliefs;
+  QList<SimCenterAppWidget *>theModels;
 
-   int col1, col2;
-   bool mLeft;
-   QStringList theHeadings;
-
-   QVector<QString>theNames;
-   QVector<double>theBestValues;
-
-   QWidget *summary;
-   QVBoxLayout *summaryLayout;
-
-   bool isSurrogate;
+  QString appName; // application name that appears in json
+  QString tabLabel; 
 };
 
-#endif // DAKOTA_RESULTS_CALIBRATION_H
+#endif // SimCenterAppMulti_H

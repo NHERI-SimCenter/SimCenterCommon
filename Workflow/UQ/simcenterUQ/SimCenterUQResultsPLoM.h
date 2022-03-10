@@ -1,11 +1,11 @@
-#ifndef DAKOTA_RESULTS_CALIBRATION_H
-#define DAKOTA_RESULTS_CALIBRATION_H
+#ifndef SIMCENTERUQ_RESULTS_PLOM_H
+#define SIMCENTERUQ_RESULTS_PLOM_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -29,68 +29,84 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: fmckenna, kuanshi
 
 #include <UQ_Results.h>
 #include <QtCharts/QChart>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QScrollArea>
+#include <QJsonObject>
+#include "ResultsDataChart.h"
 
 using namespace QtCharts;
 
 class QTextEdit;
 class QTabWidget;
 class MyTableWidget;
-class ResultsDataChart;
+class MainWindow;
 class RandomVariablesContainer;
 
 //class QChart;
 
-class DakotaResultsCalibration : public UQ_Results
+class SimCenterUQResultsPLoM : public UQ_Results
 {
     Q_OBJECT
 public:
-    explicit DakotaResultsCalibration(RandomVariablesContainer * theRVs, QWidget *parent = 0);
-    ~DakotaResultsCalibration();
+  explicit SimCenterUQResultsPLoM(RandomVariablesContainer *, QWidget *parent = 0);
+    ~SimCenterUQResultsPLoM();
 
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
 
+    int processResults(QString &filenameResults, QString &filenameTab);
     int processResults(QString &dirName);  
-    QWidget *createResultParameterWidget(QString &name, double value);
+    QWidget *createResultEDPWidget(QString &name, double mean, double stdDev, double kurtosis);
 
 signals:
 
 public slots:
    void clear(void);
+   void onSaveModelClicked(void);
+   void onSaveInfoClicked(void);
+   void onSaveXClicked(void);
+   void onSaveYClicked(void);
+
+   // modified by padhye 08/25/2018
 
 private:
-   int processResults(QString &filenameResults, QString &filenameTab);
    RandomVariablesContainer *theRVs;
-
    QTabWidget *tabWidget;
-   QTextEdit  *dakotaText;
-   MyTableWidget *spreadsheet;
-   QChart *chart;
-   ResultsDataChart* theDataTable;
 
-   int col1, col2;
-   bool mLeft;
+   QPushButton* save_spreadheet; // save the data from spreadsheet
+   QLabel *label;
+   QLabel *best_fit_instructions;
+
    QStringList theHeadings;
+   QString workingDir;
 
-   QVector<QString>theNames;
-   QVector<double>theBestValues;
 
-   QWidget *summary;
-   QVBoxLayout *summaryLayout;
+   QPushButton *saveModelButton;
+   QPushButton *saveResultButton ;
+   QPushButton *saveXButton;
+   QPushButton *saveYButton;
+   ResultsDataChart * theDataTable;
 
+   QJsonObject jsonObj;
+   bool copyPath(QString sourceDir, QString destinationDir, bool overWriteDirectory);
+   void summarySurrogate(QScrollArea *&summaryLayout);
+
+   QString lastPath;
    bool isSurrogate;
+
 };
 
-#endif // DAKOTA_RESULTS_CALIBRATION_H
+#endif // SIMCENTERUQ_RESULTS_PLOM_H

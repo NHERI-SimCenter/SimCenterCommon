@@ -75,12 +75,6 @@ UQpyEngine::inputFromJSON(QJsonObject &rvObject) {
 }
 
 
-int
-UQpyEngine::processResults( QString &filenameResults, QString &filenameTab) {
-    return 0;
-}
-
-
 RandomVariablesContainer *
 UQpyEngine::getParameters() {
   QString classType("Uncertain");

@@ -65,13 +65,16 @@ public:
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
 
-    int processResults(QString &filenameResults, QString &filenameTab);
+
+
     int processResults(QString &dirName);
     QWidget *createResultEDPWidget(QString &name, double mean, double stdDev, double kurtosis);
 
 signals:
 
 public slots:
+  int processResults(QString &filenameResults, QString &filenameTab);
+  
    void clear(void);
   // void onSpreadsheetCellClicked(int, int);
   // void onSaveSpreadsheetClicked();

@@ -1,8 +1,7 @@
-#ifndef SIMCENTERUQ_RESULTS_Surrogate_H
-#define SIMCENTERUQ_RESULTS_Surrogate_H
-
+#ifndef SIMCENTERINTENSITYMEASUREWIDGET_H
+#define SIMCENTERINTENSITYMEASUREWIDGET_H
 /* *****************************************************************************
-Copyright (c) 2016-2017, The Regents of the University of California (Regents).
+Copyright (c) 2016-2022, The Regents of the University of California (Regents).
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -20,7 +19,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -37,77 +36,74 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+#include <SimCenterWidget.h>
+#include <SimCenterAppWidget.h>
 
-#include <UQ_Results.h>
-#include <QtCharts/QChart>
-#include <QMessageBox>
-#include <QPushButton>
-#include <QScrollArea>
-#include <QJsonObject>
-#include "ResultsDataChart.h"
+class SimCenterIntensityMeasureCombo;
+class SimCenterUnitsCombo;
+class QGridLayout;
+class QVBoxLayout;
+class QHBoxLayout;
+class QRadioButton;
+class QRegExpValidator;
+class QLineEdit;
 
-using namespace QtCharts;
+#include <QGroupBox>
+//#include "JsonSerializable.h"
 
-class QTextEdit;
-class QTabWidget;
-class MyTableWidget;
-class MainWindow;
-class RandomVariablesContainer;
-
-//class QChart;
-
-class SimCenterUQResultsSurrogate : public UQ_Results
+class SimCenterIM : public SimCenterWidget
 {
     Q_OBJECT
 public:
-  explicit SimCenterUQResultsSurrogate(RandomVariablesContainer *, QWidget *parent = 0);
-    ~SimCenterUQResultsSurrogate();
+    explicit SimCenterIM(SimCenterIntensityMeasureCombo *theIM, SimCenterUnitsCombo *theUnit, QWidget *parent = 0);
+    ~SimCenterIM();
 
-    bool outputToJSON(QJsonObject &rvObject);
-    bool inputFromJSON(QJsonObject &rvObject);
-
-    int processResults(QString &dirName);  
-    QWidget *createResultEDPWidget(QString &name, double mean, double stdDev, double kurtosis);
-
-signals:
-
+    QRadioButton *button;
+    QHBoxLayout *imUnitLayout;
+    SimCenterIntensityMeasureCombo *myIM;
+    SimCenterUnitsCombo *myUnit;
+    QGroupBox *myPeriods;
+    QLineEdit *periodLine;
+    QRegExpValidator *LEValidator;
 public slots:
-   void clear(void);
-   void onSaveModelClicked(void);
-   void onSaveInfoClicked(void);
-   void onSaveXClicked(void);
-   void onSaveYClicked(void);
-
-   // modified by padhye 08/25/2018
-
+    void handleIMChanged(const QString& newIM);
+    QString checkPeriodsValid(const QString& input) const;
 private:
-   int processResults(QString &filenameResults, QString &filenameTab);
-  
-   RandomVariablesContainer *theRVs;
-   QTabWidget *tabWidget;
-
-   QPushButton* save_spreadheet; // save the data from spreadsheet
-   QLabel *label;
-   QLabel *best_fit_instructions;
-
-   QStringList theHeadings;
-   QString workingDir;
-
-
-   QPushButton *saveModelButton;
-   QPushButton *saveResultButton ;
-   QPushButton *saveXButton;
-   QPushButton *saveYButton;
-   ResultsDataChart * theDataTable;
-
-   QJsonObject jsonObj;
-   bool copyPath(QString sourceDir, QString destinationDir, bool overWriteDirectory);
-   void summarySurrogate(QScrollArea *&summaryLayout);
-
-   QString lastPath;
-   bool isSurrogate;
-
 };
 
-#endif // SIMCENTERUQ_RESULTS_SURROGATE_H
+class SimCenterIntensityMeasureWidget : public SimCenterWidget
+{
+    Q_OBJECT
+public:
+    SimCenterIntensityMeasureWidget(QWidget* parent = nullptr);
+
+    bool outputToJSON(QJsonObject &jsonObject);
+
+    bool inputFromJSON(QJsonObject &jsonObject);
+
+    void reset(void);
+
+    void clear(void);
+
+    int getNumberOfIM(void);
+
+    int setIM(const QString& parameterName, const QString& im);
+
+    int setUnit(const QString& parameterName, const QString& unit);
+
+    QList<QString> getParameterNames();
+
+public slots:
+    void addIMItem();
+    void removeIMItem();
+
+private:
+    QVBoxLayout *vLayout;
+
+    QVBoxLayout *imLayout = nullptr;
+
+    SimCenterIntensityMeasureCombo* imFindChild(const QString& name);
+
+    SimCenterUnitsCombo* unitFindChild(const QString& name);
+};
+#endif // SIMCENTERINTENSITYMEASUREWIDGET_H

@@ -58,6 +58,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //#include <SimCenterUQInputCalibration.h>
 //#include <SimCenterUQInputBayesianCalibration.h>
 
+#include <SimCenterUQInputPLoM.h> // PLoM, KZ
+
 
 SimCenterUQEngine::SimCenterUQEngine(QWidget *parent)
   : UQ_Engine(parent), theCurrentEngine(0)
@@ -76,6 +78,7 @@ SimCenterUQEngine::SimCenterUQEngine(QWidget *parent)
     theEngineSelectionBox->addItem(tr("Forward Propagation"));
     theEngineSelectionBox->addItem(tr("Sensitivity Analysis"));
     theEngineSelectionBox->addItem(tr("Train GP Surrogate Model"));
+    theEngineSelectionBox->addItem(tr("PLoM Model")); // PLoM, KZ
     theEngineSelectionBox->setMinimumWidth(600);
 
     theSelectionLayout->addWidget(label);
@@ -96,10 +99,12 @@ SimCenterUQEngine::SimCenterUQEngine(QWidget *parent)
     theSamplingEngine = new SimCenterUQInputSampling();
     theSensitivityEngine = new SimCenterUQInputSensitivity();
     theSurrogateEngine = new SimCenterUQInputSurrogate();
+    thePLoMEngine = new SimCenterUQInputPLoM(); // PLoM, KZ
 
     theStackedWidget->addWidget(theSamplingEngine);
     theStackedWidget->addWidget(theSensitivityEngine);
     theStackedWidget->addWidget(theSurrogateEngine);
+    theStackedWidget->addWidget(thePLoMEngine); // PLoM, KZ
 
 
     layout->addWidget(theStackedWidget);
@@ -149,6 +154,13 @@ void SimCenterUQEngine::engineSelectionChanged(const QString &arg1)
        theCurrentEngine = theSurrogateEngine;
        // reset other parts
        // FMK theFemWidget->setFEMforGP("GPmodel");   // set it to be GP-FEM
+    } else if (arg1 == QString("PLoM Model")) {
+        theStackedWidget->setCurrentIndex(3);
+        theCurrentEngine = thePLoMEngine;
+        // emit a signal to query EVT
+        typeEVT = "None";
+        this->setEventType(typeEVT);
+        emit queryEVT();
     } else {
       qDebug() << "ERROR .. SimCenterUQEngine selection .. type unknown: " << arg1;
     }
@@ -205,11 +217,6 @@ SimCenterUQEngine::inputAppDataFromJSON(QJsonObject &jsonObject)
     return true;
 }
 
-int
-SimCenterUQEngine::processResults(QString &filenameResults, QString &filenameTab) {
-    return theCurrentEngine->processResults(filenameResults, filenameTab);
-}
-
 void
 SimCenterUQEngine::setRV_Defaults(void) {
   theCurrentEngine->setRV_Defaults();
@@ -238,4 +245,9 @@ SimCenterUQEngine::getMethodName() {
 bool
 SimCenterUQEngine::copyFiles(QString &fileDir) {
     return theCurrentEngine->copyFiles(fileDir);
+}
+
+void
+SimCenterUQEngine::setEventType(QString type) {
+    thePLoMEngine->setEventType(type);
 }

@@ -35,8 +35,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-#include "SimCenterUQInputSurrogate.h"
-#include "SimCenterUQResultsSurrogate.h"
+#include "SimCenterUQInputPLoM.h"
+#include "SimCenterUQResultsPLoM.h"
 #include <RandomVariablesContainer.h>
 
 
@@ -56,14 +56,13 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <fstream>
 #include <time.h>
 
-
 #include <QStackedWidget>
-#include <SurrogateDoEInputWidget.h>
-#include <SurrogateNoDoEInputWidget.h>
-#include <SurrogateMFInputWidget.h>
+#include <PLoMInputWidget.h>
+#include <PLoMSimuWidget.h>
+//#include <InputWidgetEDP.h>
 
-SimCenterUQInputSurrogate::SimCenterUQInputSurrogate(QWidget *parent)
-  : UQ_Engine(parent),uqSpecific(0)
+SimCenterUQInputPLoM::SimCenterUQInputPLoM(QWidget *parent)
+    : UQ_Engine(parent),uqSpecific(0)
 {
 
     layout = new QVBoxLayout();
@@ -75,9 +74,9 @@ SimCenterUQInputSurrogate::SimCenterUQInputSurrogate(QWidget *parent)
 
     QHBoxLayout *methodLayout1= new QHBoxLayout;
     inpMethod = new QComboBox();
-    inpMethod->addItem(tr("Sampling and Simulation"));
     inpMethod->addItem(tr("Import Data File"));
-    inpMethod->addItem(tr("Import Multi-fidelity Data File"));
+    inpMethod->addItem(tr("Sampling and Simulation"));
+    //inpMethod->addItem(tr("Import Multi-fidelity Data File"));
     inpMethod->setMaximumWidth(250);
     inpMethod->setMinimumWidth(250);
 
@@ -88,85 +87,87 @@ SimCenterUQInputSurrogate::SimCenterUQInputSurrogate(QWidget *parent)
 
     mLayout->addLayout(methodLayout1);
 
+    // communicate with EVT panel to display corresponding items in theAffiliateVariableComboBox
+    typeEVT = "None"; // default is none (for quoFEM)
+
     //
     // input selection widgets
     //
 
     theStackedWidget = new QStackedWidget();
 
-    theDoE = new SurrogateDoEInputWidget();
-    theStackedWidget->addWidget(theDoE);
-    //FMK    theData = new SurrogateNoDoEInputWidget(theParameters,theFemWidget,theEdpWidget);
-    theData = new SurrogateNoDoEInputWidget();    
+    //theData = new PLoMInputWidget(theParameters,theFemWidget,theEdpWidget);
+    theData = new PLoMInputWidget();
     theStackedWidget->addWidget(theData);
-    //FMK    theMultiFidelity = new SurrogateMFInputWidget(theParameters,theFemWidget,theEdpWidget);
-    theMultiFidelity = new SurrogateMFInputWidget();
-    
-    theStackedWidget->addWidget(theMultiFidelity);
+    theSimu = new PLoMSimuWidget();
+    theStackedWidget->addWidget(theSimu);
+    //theMultiFidelity = new SurrogateMFInputWidget(theParameters,theFemWidget,theEdpWidget);
+    //theStackedWidget->addWidget(theMultiFidelity);
+
     theStackedWidget->setCurrentIndex(0);
-    theInpCurrentMethod = theDoE;
+
+    theInpCurrentMethod = theData;
 
     mLayout->addWidget(theStackedWidget);
-
-    //
-    //
-    //
-
+    mLayout->addStretch();
     layout->addLayout(mLayout);
 
     this->setLayout(layout);
 
     connect(inpMethod, SIGNAL(currentIndexChanged(QString)), this, SLOT(onIndexChanged(QString)));
+    connect(theSimu, SIGNAL(queryEVT(void)), this, SLOT(relayQueryEVT(void)));
 }
 
-void SimCenterUQInputSurrogate::onIndexChanged(const QString &text)
+void SimCenterUQInputPLoM::onIndexChanged(const QString &text)
 {
-    if (text=="Sampling and Simulation") {
+    if (text=="Import Data File") {
         theStackedWidget->setCurrentIndex(0);
-        theInpCurrentMethod = theDoE;
-	//FMK        theFemWidget->setFEMforGP("GPmodel"); // reset FEM
-    }
-    else if (text=="Import Data File") {
-        delete theData;
-        theData = new SurrogateNoDoEInputWidget();
-        theStackedWidget->insertWidget(1,theData);
-        theStackedWidget->setCurrentIndex(1);
         theInpCurrentMethod = theData;
     }
+
+    else if (text=="Sampling and Simulation") {
+        //theDoE = new SurrogateDoEInputWidget();
+        //theStackedWidget->insertWidget(1,theSimu);
+        theStackedWidget->setCurrentIndex(1);
+        theInpCurrentMethod = theSimu;
+        //theFemWidget->setFEMforGP("GPmodel"); // reset FEM (TODO: CHANGE TO PLOM)
+    }
+    /***
     else if (text=="Import Multi-fidelity Data File") {
         delete theMultiFidelity;
-        theMultiFidelity = new SurrogateMFInputWidget();
+        theMultiFidelity = new SurrogateMFInputWidget(theParameters,theFemWidget,theEdpWidget);
         theStackedWidget->insertWidget(2,theMultiFidelity);
 
         theStackedWidget->setCurrentIndex(2);
         theInpCurrentMethod = theMultiFidelity;
-        // FMK theFemWidget->setFEMforGP("GPdata");
+        theFemWidget->setFEMforGP("GPdata");
     }
+    ***/
     //theParameters->setGPVarNamesAndValues(QStringList({}));// remove GP RVs
 }
 
 
-SimCenterUQInputSurrogate::~SimCenterUQInputSurrogate()
+SimCenterUQInputPLoM::~SimCenterUQInputPLoM()
 {
 
 }
 
 int
-SimCenterUQInputSurrogate::getMaxNumParallelTasks(void){
+SimCenterUQInputPLoM::getMaxNumParallelTasks(void){
   return theInpCurrentMethod->getNumberTasks();
 }
 
-void SimCenterUQInputSurrogate::clear(void)
+void SimCenterUQInputPLoM::clear(void)
 {
 
 }
 
-void SimCenterUQInputSurrogate::numModelsChanged(int numModels) {
+void SimCenterUQInputPLoM::numModelsChanged(int numModels) {
     emit onNumModelsChanged(numModels);
 }
 
 bool
-SimCenterUQInputSurrogate::outputToJSON(QJsonObject &jsonObject)
+SimCenterUQInputPLoM::outputToJSON(QJsonObject &jsonObject)
 {
     bool result = true;
 
@@ -181,7 +182,7 @@ SimCenterUQInputSurrogate::outputToJSON(QJsonObject &jsonObject)
 
 
 bool
-SimCenterUQInputSurrogate::inputFromJSON(QJsonObject &jsonObject)
+SimCenterUQInputPLoM::inputFromJSON(QJsonObject &jsonObject)
 {
   bool result = false;
   this->clear();
@@ -211,11 +212,11 @@ SimCenterUQInputSurrogate::inputFromJSON(QJsonObject &jsonObject)
 }
 
 bool
-SimCenterUQInputSurrogate::outputAppDataToJSON(QJsonObject &jsonObject)
+SimCenterUQInputPLoM::outputAppDataToJSON(QJsonObject &jsonObject)
 {
     bool result = true;
 
-    jsonObject["Application"] = "SimCenterUQ";
+    jsonObject["Application"] = "SimCenterUQ-UQ";
     QJsonObject uq;
     uq["method"]=inpMethod->currentText();
     theInpCurrentMethod->outputToJSON(uq);
@@ -226,7 +227,7 @@ SimCenterUQInputSurrogate::outputAppDataToJSON(QJsonObject &jsonObject)
 
 
 bool
-SimCenterUQInputSurrogate::inputAppDataFromJSON(QJsonObject &jsonObject)
+SimCenterUQInputPLoM::inputAppDataFromJSON(QJsonObject &jsonObject)
 {
     bool result = false;
     this->clear();
@@ -257,33 +258,54 @@ SimCenterUQInputSurrogate::inputAppDataFromJSON(QJsonObject &jsonObject)
 }
 
 
-UQ_Results *
-SimCenterUQInputSurrogate::getResults(void) {
-    qDebug() << "RETURNED SimCenterUQRESULTSSURROGATE";
-    return new SimCenterUQResultsSurrogate(theRandomVariables);
+
+int SimCenterUQInputPLoM::processResults(QString &filenameResults, QString &filenameTab) {
+
+    return 0;
 }
 
+UQ_Results *
+SimCenterUQInputPLoM::getResults(void) {
+    qDebug() << "RETURNED SimCenterUQResultsPLoM";
+    // KZ: need to get RandomVariablesContainer instance
+    RandomVariablesContainer *theRandomVariables = RandomVariablesContainer::getInstance();
+    return new SimCenterUQResultsPLoM(theRandomVariables);
+}
+
+/***
+RandomVariablesContainer *
+SimCenterUQInputPLoM::getParameters(void) {
+  QString classType("Uncertain");
+  theRandomVariables =  new RandomVariablesContainer(classType,tr("SimCenterUQ"));
+  return theRandomVariables;
+}
+***/
+
 void
-SimCenterUQInputSurrogate::setRV_Defaults(void) {
-  
+SimCenterUQInputPLoM::setRV_Defaults(void) {
+
   RandomVariablesContainer *theRVs =  RandomVariablesContainer::getInstance();
   QString classType("Uncertain");
-  QString engineType("SimCenterUQ");  
+  QString engineType("SimCenterUQ");
 
   theRVs->setDefaults(engineType, classType, Normal);
 }
 
 bool
-SimCenterUQInputSurrogate::copyFiles(QString &fileDir) {
+SimCenterUQInputPLoM::copyFiles(QString &fileDir) {
     return theInpCurrentMethod->copyFiles(fileDir);
 }
 
 QString
-SimCenterUQInputSurrogate::getMethodName(void){
+SimCenterUQInputPLoM::getMethodName(void){
     //if (inpMethod->currentIndex()==0){
     //    return QString("surrogateModel");
     //} else if (inpMethod->currentIndex()==1){
     //    return QString("surrogateData");
     //}
-    return QString("surrogate");
+    return QString("PLoM");
+}
+
+void SimCenterUQInputPLoM::setEventType(QString type) {
+    theSimu->setEventType(type);
 }

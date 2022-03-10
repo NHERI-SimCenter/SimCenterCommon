@@ -323,12 +323,6 @@ SimCenterUQInputSampling::inputAppDataFromJSON(QJsonObject &jsonObject)
 }
 
 
-
-int SimCenterUQInputSampling::processResults(QString &filenameResults, QString &filenameTab) {
-
-    return 0;
-}
-
 UQ_Results *
 SimCenterUQInputSampling::getResults(void) {
     qDebug() << "RETURNED SimCenterUQRESULTSSAMPLING";
