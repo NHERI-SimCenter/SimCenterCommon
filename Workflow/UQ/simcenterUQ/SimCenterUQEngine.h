@@ -69,7 +69,7 @@ public:
     bool copyFiles(QString &fileName);
 
     // set event type
-    // void setEventType(QString type);
+    void setEventType(QString type);
 
 signals:
     void onUQ_EngineChanged(void);
