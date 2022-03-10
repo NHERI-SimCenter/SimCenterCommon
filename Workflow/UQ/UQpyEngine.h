@@ -55,7 +55,6 @@ public:
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
 
-    int processResults(QString &filenameResults, QString &filenameTab);
     RandomVariablesContainer *getParameters();
     UQ_Results *getResults(void);
 

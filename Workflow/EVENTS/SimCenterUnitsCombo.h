@@ -1,5 +1,5 @@
-#ifndef ExampleDownloader_H
-#define ExampleDownloader_H
+#ifndef SIMCENTERUNITSCOMBO_H
+#define SIMCENTERUNITSCOMBO_H
 /* *****************************************************************************
 Copyright (c) 2016-2021, The Regents of the University of California (Regents).
 All rights reserved.
@@ -36,60 +36,72 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written by: Stevan Gavrilovic
+// Written by: Stevan Gavrilovic, Frank McKenna
 
-#include <QDialog>
-#include <map>
+//#include "JsonSerializable.h"
 
-class TreeItem;
-class SimCenterTreeView;
-class NetworkDownloadManager;
-class PythonProgressDialog;
-class MainWindowWorkflowApp;
+#include <QComboBox>
 
-struct R2DExample{
+namespace SimCenter {
+
+class Unit :  QObject{
+
+    Q_OBJECT
 
 public:
-    QString url;
-    QString name;
-    QString description;
-    QString inputFile;
-    QString uid;
+    enum Type {
+        UNDEFINED = 0x000,
+        LENGTH = 0x100,
+        mm, cm, m, km, inch, ft, mi,
+        FORCE = 0x200,
+        N, kN, lb, kips,
+        PRESSURE = 0x300,
+        Pa, MPa, GPa, bar, atm,
+        TIME = 0x400,
+        sec, min, hr, day,
+        VELOCITY = 0x500,
+        cmps, mps, kph , fps, mph, kts,
+        ACCEL = 0x600,
+        cmps2, mps2, inchps2, ftps2, g, lng, pctg,
+        DIMEMSIONLESS = 0x700,
+        scalar,
+        ALL = 0x800,
+    };
+
+    Q_ENUM(Type)
+
+    Type type;
+
 };
 
-class ExampleDownloader : public QDialog
+}
+
+// The combo name should be the key for the json file
+class SimCenterUnitsCombo : public QComboBox
 {
     Q_OBJECT
 
 public:
-    explicit ExampleDownloader(MainWindowWorkflowApp *parent);
-    ~ExampleDownloader();
+    SimCenterUnitsCombo(SimCenter::Unit::Type unitType, QString comboName, QWidget* parent = nullptr);
 
-    void addExampleToDownload(const QString url, const QString name, const QString description, const QString inputFile);
+    void addParentItem(const QString& text);
+    void addChildItem(const QString& text, const QVariant& data);
 
-    void updateTree(void);
+    QString getCurrentUnitString(void);
+    bool setCurrentUnitString(const QString& unit);
 
-private slots:
+    bool setCurrentUnit(SimCenter::Unit::Type unitType);
 
-    void updateExamples(void);
-    void removeExample(const QString& name);
-
-    void handleDownloadFinished(bool val);
+    QString getName() const;
 
 private:
+    void populateComboText(const SimCenter::Unit::Type unitType);
 
-    SimCenterTreeView* exampleTreeView;
+    template<typename UnitEnum> QString unitEnumToString(UnitEnum enumValue);
+    template<typename UnitEnum> UnitEnum unitStringToEnum(QString unitString);
 
-    std::unique_ptr<NetworkDownloadManager> downloadManager;
-
-    std::map<QString, R2DExample> exampleContainer;  
-
-    bool checkIfExampleExists(const QString& name);
-
-    bool deleteExampleFolder(const QString& name);
-
-    PythonProgressDialog* statusDialog;
-    MainWindowWorkflowApp* workflowApp;
+    SimCenter::Unit::Type type;
+    QString name;
 };
 
-#endif // ExampleDownloader_H
+#endif // SIMCENTERUNITSCOMBO_H

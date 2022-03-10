@@ -63,7 +63,6 @@ public:
   bool outputAppDataToJSON(QJsonObject &jsonObject);
   bool inputAppDataFromJSON(QJsonObject &jsonObject);
 
-  int processResults(QString &filenameResults, QString &filenameTab) override;
   void setRV_Defaults(void) override;
   UQ_Results * getResults(void) override;
   

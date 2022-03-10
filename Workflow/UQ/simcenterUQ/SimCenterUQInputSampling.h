@@ -64,8 +64,6 @@ public:
     bool outputAppDataToJSON(QJsonObject &jsonObject);
     bool inputAppDataFromJSON(QJsonObject &jsonObject);
 
-    int processResults(QString &filenameResults, QString &filenameTab);
-
     UQ_Results *getResults(void);
     void setRV_Defaults(void);
 

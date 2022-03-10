@@ -223,11 +223,6 @@ DakotaEngine::inputAppDataFromJSON(QJsonObject &jsonObject)
     return true;
 }
 
-int
-DakotaEngine::processResults(QString &filenameResults, QString &filenameTab) {
-    return theCurrentEngine->processResults(filenameResults, filenameTab);
-}
-
 void
 DakotaEngine::setRV_Defaults() {
     return theCurrentEngine->setRV_Defaults();

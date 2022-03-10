@@ -136,6 +136,9 @@ UQ_EngineSelection::UQ_EngineSelection(UQ_EngineType type,
 
     // connect(theCustomEngine, SIGNAL(onNumModelsChanged(int)), this, SLOT(numModelsChanged(int)));    
     // connect(theCustomEngine, SIGNAL(onUQ_EngineChanged()), this, SLOT(enginesEngineSelectionChanged()));
+
+    // connect queryEVT
+    connect(theSimCenterUQEngine, SIGNAL(queryEVT()), this, SLOT(relayQueryEVT()));
 }
 
 UQ_EngineSelection::~UQ_EngineSelection()
@@ -335,4 +338,14 @@ UQ_EngineSelection::getNumParallelTasks() {
 void
 UQ_EngineSelection::numModelsChanged(int newNum) {
     emit onNumModelsChanged(newNum);
+}
+
+void
+UQ_EngineSelection::relayQueryEVT(void) {
+    emit queryEVT();
+}
+
+void
+UQ_EngineSelection::setEventType(QString type) {
+    theSimCenterUQEngine->setEventType(type);
 }

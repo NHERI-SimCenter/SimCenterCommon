@@ -80,6 +80,8 @@ class UQ_EngineSelection : public  SimCenterAppWidget
   // FMK void onSurrogateModelSpecified(int);  
 
   // void remoteRunningCapability(bool);
+  // KZ relay queryEVT from SimCenterUQ
+  void queryEVT(void);
 
  public slots:
   
@@ -87,6 +89,9 @@ class UQ_EngineSelection : public  SimCenterAppWidget
   void enginesEngineSelectionChanged(void);
   void numModelsChanged(int newNum);
   // FMK void surrogateModelSpecified(void);  
+  // KZ relay queryEVT from SimCenterUQ
+  void relayQueryEVT(void);
+  void setEventType(QString type);
   
 private:
 

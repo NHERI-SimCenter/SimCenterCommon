@@ -1,7 +1,7 @@
-#ifndef ExampleDownloader_H
-#define ExampleDownloader_H
+#ifndef SIMCENTERINTENSITYMEASURECOMBO_H
+#define SIMCENTERINTENSITYMEASURECOMBO_H
 /* *****************************************************************************
-Copyright (c) 2016-2021, The Regents of the University of California (Regents).
+Copyright (c) 2016-2022, The Regents of the University of California (Regents).
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -36,60 +36,67 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written by: Stevan Gavrilovic
+// Written by: Kuanshi Zhong, Stevan Gavrilovic, Frank McKenna
 
-#include <QDialog>
-#include <map>
+//#include "JsonSerializable.h"
 
-class TreeItem;
-class SimCenterTreeView;
-class NetworkDownloadManager;
-class PythonProgressDialog;
-class MainWindowWorkflowApp;
+#include <QComboBox>
 
-struct R2DExample{
+namespace SimCenterEQ {
+
+class IntensityMeasure :  QObject{
+
+    Q_OBJECT
 
 public:
-    QString url;
-    QString name;
-    QString description;
-    QString inputFile;
-    QString uid;
+    enum Type {
+        UNDEFINED = 0x000,
+        PEAK = 0x100,
+        PGA, PGV, PGD,
+        SPECTRUM = 0x200,
+        PSA, PSV, PSD, SaRatio,
+        CUMULATIVE = 0x300,
+        Ia, DS575, DS595,
+        ALL = 0x400,
+    };
+
+    Q_ENUM(Type)
+
+    Type type;
+
 };
 
-class ExampleDownloader : public QDialog
+}
+
+// The combo name should be the key for the json file
+class SimCenterIntensityMeasureCombo : public QComboBox
 {
     Q_OBJECT
 
 public:
-    explicit ExampleDownloader(MainWindowWorkflowApp *parent);
-    ~ExampleDownloader();
+    SimCenterIntensityMeasureCombo(SimCenterEQ::IntensityMeasure::Type imType, QString comboName, QWidget* parent = nullptr);
 
-    void addExampleToDownload(const QString url, const QString name, const QString description, const QString inputFile);
+    void addParentItem(const QString& text);
+    void addChildItem(const QString& text, const QVariant& data);
 
-    void updateTree(void);
+    QString getCurrentIMString(void);
+    bool setCurrentIMString(const QString& unit);
 
-private slots:
+    bool setCurrentIM(SimCenterEQ::IntensityMeasure::Type imType);
 
-    void updateExamples(void);
-    void removeExample(const QString& name);
+    QString getName() const;
 
-    void handleDownloadFinished(bool val);
+signals:
+    void IMChanged(QString newIM);
 
 private:
+    void populateComboText(const SimCenterEQ::IntensityMeasure::Type imType);
 
-    SimCenterTreeView* exampleTreeView;
+    template<typename IMEnum> QString imEnumToString(IMEnum enumValue);
+    template<typename IMEnum> IMEnum imStringToEnum(QString imString);
 
-    std::unique_ptr<NetworkDownloadManager> downloadManager;
-
-    std::map<QString, R2DExample> exampleContainer;  
-
-    bool checkIfExampleExists(const QString& name);
-
-    bool deleteExampleFolder(const QString& name);
-
-    PythonProgressDialog* statusDialog;
-    MainWindowWorkflowApp* workflowApp;
+    SimCenterEQ::IntensityMeasure::Type type;
+    QString name;
 };
 
-#endif // ExampleDownloader_H
+#endif // SIMCENTERINTENSITYMEASURECOMBO_H

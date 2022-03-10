@@ -870,10 +870,11 @@ SimCenterPreferences::getRemoteAppDir(void) {
 	
 	// if not set, use default & set default as application directory
 	if (!remoteBackendDirVariant.isValid()) {
-	  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede2/SimCenterBackendApplications/v2.5.1");
+	  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v3.0.0");
 	  QString appName = QCoreApplication::applicationName();
-	  if (appName == QString("quoFEM"))
-	    remoteBackendDirLocation = QString("/work/00477/tg457427/frontera/SimCenterBackendApplications/v2.5.0");      
+	  /*	  if (appName == QString("quoFEM"))
+	    remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v3.0.0");      
+	  */
 	  settingsApplication.setValue("remoteBackendDir", remoteBackendDirLocation);
 	  return remoteBackendDirLocation;
 	}
@@ -948,15 +949,10 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
 
     //Default appDir is the location of the application
     QString appName = QCoreApplication::applicationName();
-    QString remoteApp("simcenter-dakota-1.0.0u5");
-    if (appName == QString("WE-UQ"))
-      remoteApp = QString("simcenter-openfoam-dakota-1.3.0u1");
+    QString remoteApp = QString("simcenter-uq-frontera-2.0.0");
+
     if (appName == QString("R2D"))
-      remoteApp = QString("rWhale-stampede-2.5.1u2");
-    if (appName == QString("HydroUQ"))
-      remoteApp = QString("simcenter-olaflow-dakota-1.0.1u3");
-    if (appName == QString("quoFEM"))
-      remoteApp = QString("simcenter-uq-frontera-1.0.0u2");    
+      remoteApp = QString("rWhale-frontera-3.0.0");
 
     return remoteApp;
 }
@@ -964,12 +960,9 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
 QString
 SimCenterPreferences::getDefaultRemoteAppDir(void) {
 
-  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede2/SimCenterBackendApplications/v2.5.1");
+  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v3.0.0");
   QString appName = QCoreApplication::applicationName();
-  if (appName == QString("quoFEM"))
-    remoteBackendDirLocation = QString("/work/00477/tg457427/frontera/SimCenterBackendApplications/v2.5.0");
   return remoteBackendDirLocation;
-  
 }
 
 

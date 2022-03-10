@@ -1,7 +1,8 @@
-#ifndef ExampleDownloader_H
-#define ExampleDownloader_H
+#ifndef SIMCENTERUQ_RESULTS_PLOM_H
+#define SIMCENTERUQ_RESULTS_PLOM_H
+
 /* *****************************************************************************
-Copyright (c) 2016-2021, The Regents of the University of California (Regents).
+Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -19,7 +20,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -36,60 +37,76 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written by: Stevan Gavrilovic
+// Written: fmckenna, kuanshi
 
-#include <QDialog>
-#include <map>
+#include <UQ_Results.h>
+#include <QtCharts/QChart>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QScrollArea>
+#include <QJsonObject>
+#include "ResultsDataChart.h"
 
-class TreeItem;
-class SimCenterTreeView;
-class NetworkDownloadManager;
-class PythonProgressDialog;
-class MainWindowWorkflowApp;
+using namespace QtCharts;
 
-struct R2DExample{
+class QTextEdit;
+class QTabWidget;
+class MyTableWidget;
+class MainWindow;
+class RandomVariablesContainer;
 
-public:
-    QString url;
-    QString name;
-    QString description;
-    QString inputFile;
-    QString uid;
-};
+//class QChart;
 
-class ExampleDownloader : public QDialog
+class SimCenterUQResultsPLoM : public UQ_Results
 {
     Q_OBJECT
-
 public:
-    explicit ExampleDownloader(MainWindowWorkflowApp *parent);
-    ~ExampleDownloader();
+  explicit SimCenterUQResultsPLoM(RandomVariablesContainer *, QWidget *parent = 0);
+    ~SimCenterUQResultsPLoM();
 
-    void addExampleToDownload(const QString url, const QString name, const QString description, const QString inputFile);
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
 
-    void updateTree(void);
+    int processResults(QString &filenameResults, QString &filenameTab);
+    int processResults(QString &dirName);  
+    QWidget *createResultEDPWidget(QString &name, double mean, double stdDev, double kurtosis);
 
-private slots:
+signals:
 
-    void updateExamples(void);
-    void removeExample(const QString& name);
+public slots:
+   void clear(void);
+   void onSaveModelClicked(void);
+   void onSaveInfoClicked(void);
+   void onSaveXClicked(void);
+   void onSaveYClicked(void);
 
-    void handleDownloadFinished(bool val);
+   // modified by padhye 08/25/2018
 
 private:
+   RandomVariablesContainer *theRVs;
+   QTabWidget *tabWidget;
 
-    SimCenterTreeView* exampleTreeView;
+   QPushButton* save_spreadheet; // save the data from spreadsheet
+   QLabel *label;
+   QLabel *best_fit_instructions;
 
-    std::unique_ptr<NetworkDownloadManager> downloadManager;
+   QStringList theHeadings;
+   QString workingDir;
 
-    std::map<QString, R2DExample> exampleContainer;  
 
-    bool checkIfExampleExists(const QString& name);
+   QPushButton *saveModelButton;
+   QPushButton *saveResultButton ;
+   QPushButton *saveXButton;
+   QPushButton *saveYButton;
+   ResultsDataChart * theDataTable;
 
-    bool deleteExampleFolder(const QString& name);
+   QJsonObject jsonObj;
+   bool copyPath(QString sourceDir, QString destinationDir, bool overWriteDirectory);
+   void summarySurrogate(QScrollArea *&summaryLayout);
 
-    PythonProgressDialog* statusDialog;
-    MainWindowWorkflowApp* workflowApp;
+   QString lastPath;
+   bool isSurrogate;
+
 };
 
-#endif // ExampleDownloader_H
+#endif // SIMCENTERUQ_RESULTS_PLOM_H

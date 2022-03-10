@@ -508,24 +508,28 @@ void LocalApplication::handleProcessFinished(int exitCode, QProcess::ExitStatus 
     QString appName = QCoreApplication::applicationName();
 
     if (appName != "R2D"){
+      
         //
         // copy input file to main directory & process results
         //
 
+        /* 
         QString filenameIN = tempDirectory + QDir::separator() +  QString("dakota.json");
         QFile::copy(inputFilePath, filenameIN);
         QString filenameOUT = tempDirectory + QDir::separator() +  QString("dakota.out");
         QString filenameTAB = tempDirectory + QDir::separator() +  QString("dakotaTab.out");
-
         emit processResults(filenameOUT, filenameTAB, inputFilePath);
+	*/
+      
+	emit processResults(tempDirectory);
     }
     else
     {
         QString dirOut = tempDirectory + QDir::separator() +  QString("Results");
-        QString name2("");
-        QString name3("");
-
-        emit processResults(dirOut, name2, name3);
+        // QString name2("");
+        // QString name3("");
+	//        emit processResults(dirOut, name2, name3);
+        emit processResults(dirOut);	
     }
 
     emit sendStatusMessage("Analysis complete");

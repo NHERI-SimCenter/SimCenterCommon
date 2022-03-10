@@ -1,7 +1,7 @@
-#ifndef ExampleDownloader_H
-#define ExampleDownloader_H
+#ifndef SIMCENTERINTENSITYMEASUREWIDGET_H
+#define SIMCENTERINTENSITYMEASUREWIDGET_H
 /* *****************************************************************************
-Copyright (c) 2016-2021, The Regents of the University of California (Regents).
+Copyright (c) 2016-2022, The Regents of the University of California (Regents).
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -36,60 +36,74 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written by: Stevan Gavrilovic
+#include <SimCenterWidget.h>
+#include <SimCenterAppWidget.h>
 
-#include <QDialog>
-#include <map>
+class SimCenterIntensityMeasureCombo;
+class SimCenterUnitsCombo;
+class QGridLayout;
+class QVBoxLayout;
+class QHBoxLayout;
+class QRadioButton;
+class QRegExpValidator;
+class QLineEdit;
 
-class TreeItem;
-class SimCenterTreeView;
-class NetworkDownloadManager;
-class PythonProgressDialog;
-class MainWindowWorkflowApp;
+#include <QGroupBox>
+//#include "JsonSerializable.h"
 
-struct R2DExample{
-
-public:
-    QString url;
-    QString name;
-    QString description;
-    QString inputFile;
-    QString uid;
-};
-
-class ExampleDownloader : public QDialog
+class SimCenterIM : public SimCenterWidget
 {
     Q_OBJECT
-
 public:
-    explicit ExampleDownloader(MainWindowWorkflowApp *parent);
-    ~ExampleDownloader();
+    explicit SimCenterIM(SimCenterIntensityMeasureCombo *theIM, SimCenterUnitsCombo *theUnit, QWidget *parent = 0);
+    ~SimCenterIM();
 
-    void addExampleToDownload(const QString url, const QString name, const QString description, const QString inputFile);
-
-    void updateTree(void);
-
-private slots:
-
-    void updateExamples(void);
-    void removeExample(const QString& name);
-
-    void handleDownloadFinished(bool val);
-
+    QRadioButton *button;
+    QHBoxLayout *imUnitLayout;
+    SimCenterIntensityMeasureCombo *myIM;
+    SimCenterUnitsCombo *myUnit;
+    QGroupBox *myPeriods;
+    QLineEdit *periodLine;
+    QRegExpValidator *LEValidator;
+public slots:
+    void handleIMChanged(const QString& newIM);
+    QString checkPeriodsValid(const QString& input) const;
 private:
-
-    SimCenterTreeView* exampleTreeView;
-
-    std::unique_ptr<NetworkDownloadManager> downloadManager;
-
-    std::map<QString, R2DExample> exampleContainer;  
-
-    bool checkIfExampleExists(const QString& name);
-
-    bool deleteExampleFolder(const QString& name);
-
-    PythonProgressDialog* statusDialog;
-    MainWindowWorkflowApp* workflowApp;
 };
 
-#endif // ExampleDownloader_H
+class SimCenterIntensityMeasureWidget : public SimCenterWidget
+{
+    Q_OBJECT
+public:
+    SimCenterIntensityMeasureWidget(QWidget* parent = nullptr);
+
+    bool outputToJSON(QJsonObject &jsonObject);
+
+    bool inputFromJSON(QJsonObject &jsonObject);
+
+    void reset(void);
+
+    void clear(void);
+
+    int getNumberOfIM(void);
+
+    int setIM(const QString& parameterName, const QString& im);
+
+    int setUnit(const QString& parameterName, const QString& unit);
+
+    QList<QString> getParameterNames();
+
+public slots:
+    void addIMItem();
+    void removeIMItem();
+
+private:
+    QVBoxLayout *vLayout;
+
+    QVBoxLayout *imLayout = nullptr;
+
+    SimCenterIntensityMeasureCombo* imFindChild(const QString& name);
+
+    SimCenterUnitsCombo* unitFindChild(const QString& name);
+};
+#endif // SIMCENTERINTENSITYMEASUREWIDGET_H

@@ -172,3 +172,14 @@ SimCenterAppWidget::copyFile(QString filename, QString destinationDir)
     return originalFile.copy(pathNewFile);
 }
 
+bool
+SimCenterAppWidget::outputCitation(QJsonObject &jsonObject)
+{
+  return true;
+}
+
+SimCenterAppWidget *
+SimCenterAppWidget::getClone()
+{
+  return NULL;
+}

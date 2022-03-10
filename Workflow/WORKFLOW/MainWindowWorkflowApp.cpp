@@ -463,7 +463,7 @@ bool MainWindowWorkflowApp::saveFile(const QString &fileName)
 }
 
 
-void MainWindowWorkflowApp::loadFile(const QString &fileName)
+void MainWindowWorkflowApp::loadFile(QString &fileName)
 {
   
     inputWidget->loadFile(fileName);

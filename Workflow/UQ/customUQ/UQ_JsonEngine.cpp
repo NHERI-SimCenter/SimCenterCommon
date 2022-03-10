@@ -118,11 +118,6 @@ UQ_JsonEngine::inputAppDataFromJSON(QJsonObject &jsonObject)
     return true;
 }
 
-int
-UQ_JsonEngine::processResults( QString &filenameResults, QString &filenameTab) {
-  return 0;
-}
-
 void
 UQ_JsonEngine::setRV_Defaults(void) {
   RandomVariablesContainer *theRVs = RandomVariablesContainer::getInstance();
