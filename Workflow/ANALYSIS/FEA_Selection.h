@@ -39,7 +39,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include "SimCenterAppSelection.h"
+#include <SimCenterAppSelection.h>
 
 class FEA_Selection : public  SimCenterAppSelection
 {
