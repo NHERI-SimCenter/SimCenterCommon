@@ -69,7 +69,7 @@ void WorkflowAppWidget::runComplete()
     qDebug() << "Task Completed";
 }
 
-bool WorkflowAppWidget::saveFile(const QString &fileName)
-{
-  return true;
-}
+//bool WorkflowAppWidget::saveFile(const QString &fileName)
+//{
+//  return true;
+//}
