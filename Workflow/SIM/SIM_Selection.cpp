@@ -43,10 +43,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SteelBuildingModel.h>
 #include <SimCenterAppMulti.h>
 #include <RandomVariablesContainer.h>
+#include <ConcreteBuildingModel.h>
 
 #include <QApplication>
-
-
 
 SIM_Selection::SIM_Selection(bool includeC,
 			     bool doMulti,
@@ -61,10 +60,14 @@ SIM_Selection::SIM_Selection(bool includeC,
   this->addComponent(QString("MDOF"), QString("MDOF_BuildingModel"), mdof);    
   this->addComponent(QString("OpenSees"), QString("OpenSeesInput"), opensees);
   QString appName = QCoreApplication::applicationName();
+
   if (appName == "PBE" || appName == "EE-UQ") {
     SimCenterAppWidget *autosda = new SteelBuildingModel(theRVs);
-    this->addComponent(QString("Steel Building Model"), QString("SteelBuildingModel"), mdof);      
+    SimCenterAppWidget *concrete = new ConcreteBuildingModel(theRVs);    
+    this->addComponent(QString("Steel Building Model"), QString("SteelBuildingModel"), autosda);
+    this->addComponent(QString("Steel Building Model"), QString("ConcreteBuildingModel"), concrete);          
   }
+  
   if (doMulti == true) {
     SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Modeling"), QString("MultiModel-SIM"),this, this);
     this->addComponent(QString("Multi Model"), QString("MultiModel-SIM"), multi);
