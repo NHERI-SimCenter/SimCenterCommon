@@ -525,7 +525,7 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
 
     QWidget *summary = new QWidget();
     QGridLayout *summaryLayout = new QGridLayout();
-    summaryLayout->setContentsMargins(0,0,0,0); // adding back
+//    summaryLayout->setContentsMargins(0,0,0,0); // adding back
     summary->setLayout(summaryLayout);
     sa->setWidget(summary);
 
