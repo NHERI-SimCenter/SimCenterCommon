@@ -889,7 +889,7 @@ MainWindowWorkflowApp::loadExamples()
     emit sendStatusMessage("Loading Example file. Wait till Done Loading appears before progressing.");
     this->loadFile(pathToExample);
     
-    // statusWidget->hideProgressBar();
+     statusWidget->hideProgressBar();
     emit sendStatusMessage("Done Loading.");    
 
     // Automatically hide after n seconds
