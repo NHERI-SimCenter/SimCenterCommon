@@ -121,7 +121,7 @@ LocalApplication::onRunButtonPressed(void)
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
     QDir dirApp(appDir);
     if (!dirApp.exists()) {
-        QString errorMessage = QString("The application directory, ") + appDir +QString(" specified does not exist!. Check Local Application Directory im Preferences");
+        QString errorMessage = QString("The application directory, ") + appDir +QString(" specified does not exist!. Check Local Application Directory in Preferences");
         emit sendErrorMessage(errorMessage);;
         return;
     }
