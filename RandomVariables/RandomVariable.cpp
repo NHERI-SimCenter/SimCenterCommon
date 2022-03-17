@@ -46,6 +46,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QRadioButton>
 #include <QDebug>
 #include <QDir>
+#include <QPushButton>
 //
 // headers for RandomVariableDistribution subclasses that user can select
 //
@@ -88,7 +89,9 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     // create radio button
     //
     button = new QRadioButton();
+    //button->setToolTip("Select to remove");
     mainLayout->addWidget(button,1,0);
+    button->setDisabled(true);
 
     //
     // create variable name block
@@ -178,6 +181,14 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     mainLayout->addWidget(theDistribution,0,4,2,1);
     // connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 
+    QPushButton *removeButton = new QPushButton("X");
+    removeButton->setStyleSheet("QPushButton { background-color: transparent; border: 0px; color: gray; font-weight: 100; font-size:4}");
+    mainLayout->addWidget(removeButton,1,5,1,1);
+    connect(removeButton, SIGNAL(clicked()), this, SLOT(xButtonClicked()) );
+
+    mainLayout->setColumnStretch(6,1);
+
+
     //this->setLayout(mainLayout);
   // mainLayout->setSizeConstraint(QLayout::SetMaximumSize);
 }
@@ -219,6 +230,10 @@ RandomVariable::RandomVariable(const QString &type,
     // connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 }
 
+void
+RandomVariable::xButtonClicked(void){
+    emit removeRVclicked(this);
+}
 
  bool
  RandomVariable::isSelectedForRemoval(void)
@@ -407,35 +422,35 @@ void RandomVariable::fixToUniform(double dValue)
 }
 
 void RandomVariable::uqEngineChanged(QString newUqEngineName) {
-    if (uqEngineName!=newUqEngineName) {
-        if (newUqEngineName==QString("SimCenterUQ")){
-            typeLabel->setVisible(true);
-            typeComboBox->setVisible(true);
-            if (distributionComboBox->count()<8) {
-                distributionComboBox->addItem(tr("Exponential"));
-                distributionComboBox->addItem(tr("Discrete"));
-                distributionComboBox->addItem(tr("Gamma"));
-                distributionComboBox->addItem(tr("Chisquare"));
-                distributionComboBox->addItem(tr("Truncated exponential"));
-            }
+    uqEngineName=newUqEngineName;
+    auto aa = typeLabel->text();
+    auto bb = distributionComboBox->currentText();
+    if (uqEngineName==QString("SimCenterUQ")){
+        typeLabel->setVisible(true);
+        typeComboBox->setVisible(true);
+        if (distributionComboBox->count()<8) {
+            distributionComboBox->addItem(tr("Exponential"));
+            distributionComboBox->addItem(tr("Discrete"));
+            distributionComboBox->addItem(tr("Gamma"));
+            distributionComboBox->addItem(tr("Chisquare"));
+            distributionComboBox->addItem(tr("Truncated exponential"));
         }
-        if (newUqEngineName==QString("Dakota")){
-            typeLabel->setVisible(false);
-            typeComboBox->setVisible(false);
-            for (int i=distributionComboBox->count(); i>6; i--) {
-                distributionComboBox->removeItem(i);
-            }
+    }
+    if (uqEngineName==QString("Dakota")){
+        typeLabel->setVisible(false);
+        typeComboBox->setVisible(false);
+        for (int i=distributionComboBox->count(); i>6; i--) {
+            distributionComboBox->removeItem(i);
+        }
 
-            QString distName = distributionComboBox->currentText();
-            if (distName=="Lognormal") {
-                typeComboBox->setCurrentText("Moments");
-                distributionComboBox->setCurrentText(distName);
-            } else {
-                typeComboBox->setCurrentText("Parameters");
-                distributionComboBox->setCurrentText(distName);
-            }
+        QString distName = distributionComboBox->currentText();
+        if (distName=="Lognormal") {
+            typeComboBox->setCurrentText("Moments");
+            distributionComboBox->setCurrentText(distName);
+        } else {
+            typeComboBox->setCurrentText("Parameters");
+            distributionComboBox->setCurrentText(distName);
         }
-        uqEngineName = newUqEngineName;
     }
 
     // surrogate and design
@@ -444,4 +459,9 @@ void RandomVariable::uqEngineChanged(QString newUqEngineName) {
         distributionComboBox->addItem(tr("Constant"));
         theDistribution = new ContinuousDesignDistribution();
     }
+}
+
+void RandomVariable::setButtonVisible(bool tog)
+{
+    button->setVisible(tog);
 }

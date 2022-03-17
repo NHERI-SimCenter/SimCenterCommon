@@ -57,6 +57,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QApplication>
 #include <QFileDialog>
 #include <QJsonDocument>
+#include <QMessageBox>
 
 // To check validity of correlation matrix
 #include <Eigen/Dense>
@@ -90,6 +91,9 @@ RandomVariablesContainer::setDefaults (QString &theEngine, QString &theClass, RV
   uqEngineName = theEngine;  
   randomVariableClass = theClass;
   defaultRVsType = theType;
+  this->refreshRandomVariables(theEngine);
+
+
 }
 
 
@@ -170,40 +174,40 @@ RandomVariablesContainer::addUniformRVs(QStringList &varNamesAndValues)
     }
 }
 
-void
-RandomVariablesContainer::copyRVs(RandomVariablesContainer *oldRVcontainers)
-{
+//void
+//RandomVariablesContainer::copyRVs(RandomVariablesContainer *oldRVcontainers)
+//{
 
-    QVector<RandomVariable *> tmp_dists = oldRVcontainers->getRVdists();
-    for(int i = 0; i < tmp_dists.size(); ++i)
-    {
-        tmp_dists.at(i)->uqEngineChanged(uqEngineName);
-        this->addRandomVariable(tmp_dists.at(i));
-    }
-    //correlationDialog = NULL; // reset correlationDialog
-    QTableWidget * tmp_corrs = oldRVcontainers->getRVcorr();
+//    QVector<RandomVariable *> tmp_dists = oldRVcontainers->getRVdists();
+//    for(int i = 0; i < tmp_dists.size(); ++i)
+//    {
+//        tmp_dists.at(i)->uqEngineChanged();
+//        this->addRandomVariable(tmp_dists.at(i));
+//    }
+//    //correlationDialog = NULL; // reset correlationDialog
+//    QTableWidget * tmp_corrs = oldRVcontainers->getRVcorr();
 
 
-    if( tmp_corrs != NULL) {
-        this->addCorrelationMatrix();
-        correlationDialog->hide();
-        //correlationMatrix=oldRVcontainers->getRVcorr();
-        //correlationDialog->hide();
+//    if( tmp_corrs != NULL) {
+//        this->addCorrelationMatrix();
+//        correlationDialog->hide();
+//        //correlationMatrix=oldRVcontainers->getRVcorr();
+//        //correlationDialog->hide();
 
-        correlationDialog = NULL; // reset correlationDialog
-        this->addCorrelationMatrix();
-        for (int row=0; row<tmp_dists.size(); row++)
-        {
-               for (int col=0; col<row; col++)
-               {
-                   QString value = tmp_corrs->item(row,col)->text();
-                   QTableWidgetItem *item = correlationMatrix->item(row,col);
-                   item->setText(value);
-               }
-        }
-        correlationDialog->hide();
-    }
-}
+//        correlationDialog = NULL; // reset correlationDialog
+//        this->addCorrelationMatrix();
+//        for (int row=0; row<tmp_dists.size(); row++)
+//        {
+//               for (int col=0; col<row; col++)
+//               {
+//                   QString value = tmp_corrs->item(row,col)->text();
+//                   QTableWidgetItem *item = correlationMatrix->item(row,col);
+//                   item->setText(value);
+//               }
+//        }
+//        correlationDialog->hide();
+//    }
+//}
 
 QVector<RandomVariable *>
 RandomVariablesContainer::getRVdists()
@@ -243,10 +247,11 @@ RandomVariablesContainer::removeRandomVariable(QString &varName)
     int numRandomVariables = theRandomVariables.size();
     for (int j =0; j < numRandomVariables; j++) {
         RandomVariable *theRV = theRandomVariables.at(j);
+        auto aa=theRV->variableName->text();
         if (theRV->variableName->text() == varName) {
-            if (theRV->refCount > 1) {
-                theRV->refCount = theRV->refCount-1;
-            } else {
+            //if (theRV->refCount > 1) {
+            //    theRV->refCount = theRV->refCount-1;
+            //} else {
                 theRV->close();
                 rvLayout->removeWidget(theRV);
                 theRandomVariables.remove(j);
@@ -264,7 +269,7 @@ RandomVariablesContainer::removeRandomVariable(QString &varName)
                     correlationMatrix->setVerticalHeaderLabels(randomVariableNames);
                 }
 
-            }
+            //}
             j=numRandomVariables; // get out of loop if foud
         }
     }
@@ -283,6 +288,19 @@ RandomVariablesContainer::removeRandomVariables(QStringList &varNames)
         QString varName = varNames.at(i);
         this->removeRandomVariable(varName);
     }
+}
+
+
+
+void
+RandomVariablesContainer::refreshRandomVariables(QString theEngine)
+{
+    int numRandomVariables = theRandomVariables.size();
+    for (int j =0; j < numRandomVariables; j++) {
+        RandomVariable *theRV = theRandomVariables.at(j);
+        theRV->uqEngineChanged(theEngine);
+    }
+
 }
 
 
@@ -319,7 +337,8 @@ RandomVariablesContainer::makeRV(void)
     QPushButton *removeRV = new QPushButton();
     removeRV->setMinimumWidth(75);
     removeRV->setMaximumWidth(75);
-    removeRV->setText(tr("Remove"));
+    removeRV->setText(tr("Clear"));
+    //connect(removeRV,SIGNAL(clicked()),this,SLOT(removeRandomVariable()));
     connect(removeRV,SIGNAL(clicked()),this,SLOT(removeRandomVariable()));
 
 
@@ -390,7 +409,11 @@ RandomVariablesContainer::makeRV(void)
      sa->setWidget(rv);
      verticalLayout->addWidget(sa);
      //verticalLayout->setSpacing(0);
-     verticalLayout->setMargin(0);
+
+
+     verticalLayout->addStretch();
+
+     //verticalLayout->setMargin(0);
 
 }
 
@@ -433,6 +456,8 @@ RandomVariablesContainer::addRandomVariable(void) {
 
     RandomVariable *theRV = new RandomVariable(randomVariableClass, uqEngineName);
     theRandomVariables.append(theRV);
+    connect(theRV,SIGNAL(removeRVclicked(RandomVariable*)),this,SLOT(removeThisRandomVariable(RandomVariable*)));
+
     rvLayout->insertWidget(rvLayout->count()-1, theRV);
     // connect(this,SLOT(randomVariableErrorMessage(QString)), theRV, SIGNAL(sendErrorMessage(QString)));
 
@@ -497,52 +522,90 @@ RandomVariablesContainer::addRandomVariable(void) {
 
 
 
-void RandomVariablesContainer::removeRandomVariable(void)
+
+void RandomVariablesContainer::removeThisRandomVariable(RandomVariable *theRV)
 {
-    // find the ones selected & remove them
-    int numRandomVariables = theRandomVariables.size();
-    int *index_selected_to_remove;int size_selected_to_remove=0;
+   // int i=0;
 
-    index_selected_to_remove = (int *)malloc(numRandomVariables*sizeof(int));
 
-    for (int i = numRandomVariables-1; i >= 0; i--) {
-        qDebug()<<"\n the value of i is     "<<i;
-        RandomVariable *theRV = theRandomVariables.at(i);
-        if (theRV->isSelectedForRemoval()) {
-            theRV->close();
-            rvLayout->removeWidget(theRV);
-            theRandomVariables.remove(i);
-            randomVariableNames.removeAt(i);
+   // RandomVariable *theRV = theRandomVariables.at(i);
+    int i = theRandomVariables.indexOf(theRV);
 
-            theRV->setParent(0);
-            delete theRV;
-            index_selected_to_remove[size_selected_to_remove]=i;
-
-            size_selected_to_remove=size_selected_to_remove+1;
-
-        }
-    }
+    theRV->close();
+    rvLayout->removeWidget(theRV);
+    theRandomVariables.remove(i);
+    randomVariableNames.removeAt(i);
+    theRV->setParent(0);
+    delete theRV;
 
     if(correlationMatrix!=NULL) {
-        int counter_for_removal=size_selected_to_remove-1;//=size_selected_to_remove;
-        while (counter_for_removal>=0) {
-            correlationMatrix->removeRow(index_selected_to_remove[counter_for_removal]);
-            correlationMatrix->removeColumn(index_selected_to_remove[counter_for_removal]);
-
-            if(counter_for_removal>0) {
-
-                for (int ii=0;ii<size_selected_to_remove;++ii) {
-                    index_selected_to_remove[ii]=index_selected_to_remove[ii]-1;
-                }
-
-            }
-            counter_for_removal--;
-
-        }
+            correlationMatrix->removeRow(i);
+            correlationMatrix->removeColumn(i);
     }
 
+}
 
-    free(index_selected_to_remove);
+
+void RandomVariablesContainer::removeRandomVariable(void)
+{
+
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::warning(this,
+                                  "Clear",
+                                  "Are you sure you want to remove all random variables?",
+                                   QMessageBox::Yes|QMessageBox::No);
+
+    if (reply == QMessageBox::Yes) {
+        // find the ones selected & remove them (x)
+        // ^ remove all random variables - sy
+        int numRandomVariables = theRandomVariables.size();
+        int *index_selected_to_remove;int size_selected_to_remove=0;
+
+        index_selected_to_remove = (int *)malloc(numRandomVariables*sizeof(int));
+
+        for (int i = numRandomVariables-1; i >= 0; i--) {
+            qDebug()<<"\n the value of i is     "<<i;
+            RandomVariable *theRV = theRandomVariables.at(i);
+            //if (theRV->isSelectedForRemoval()) {
+                theRV->close();
+                rvLayout->removeWidget(theRV);
+                theRandomVariables.remove(i);
+                randomVariableNames.removeAt(i);
+
+                theRV->setParent(0);
+                delete theRV;
+                index_selected_to_remove[size_selected_to_remove]=i;
+
+                size_selected_to_remove=size_selected_to_remove+1;
+
+            //}
+        }
+
+        if(correlationMatrix!=NULL) {
+            int counter_for_removal=size_selected_to_remove-1;//=size_selected_to_remove;
+            while (counter_for_removal>=0) {
+                correlationMatrix->removeRow(index_selected_to_remove[counter_for_removal]);
+                correlationMatrix->removeColumn(index_selected_to_remove[counter_for_removal]);
+
+                if(counter_for_removal>0) {
+
+                    for (int ii=0;ii<size_selected_to_remove;++ii) {
+                        index_selected_to_remove[ii]=index_selected_to_remove[ii]-1;
+                    }
+
+                }
+                counter_for_removal--;
+
+            }
+        }
+
+
+        free(index_selected_to_remove);
+
+    }else{
+//do nothing
+    }
+
 }
 
 void RandomVariablesContainer::loadRVsFromJson(void)
@@ -587,7 +650,6 @@ RandomVariablesContainer::addRandomVariable(RandomVariable *theRV) {
         //
         // if exists, get index and increment refCount of current RV, deletig new
         //
-        auto aa =theRV->variableName->text();
         int index = randomVariableNames.indexOf(theRV->variableName->text());
         RandomVariable *theCurrentRV = theRandomVariables.at(index);
         theCurrentRV->refCount = theCurrentRV->refCount+1;
@@ -601,6 +663,9 @@ RandomVariablesContainer::addRandomVariable(RandomVariable *theRV) {
         //
 
         theRandomVariables.append(theRV);
+        connect(theRV,SIGNAL(removeRVclicked(RandomVariable*)),this,SLOT(removeThisRandomVariable(RandomVariable*)));
+
+
         rvLayout->insertWidget(rvLayout->count()-1, theRV);
         theRV->refCount = 1;
         theRV->variableName->setReadOnly(true);
@@ -908,7 +973,10 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
                   //connect(theRV,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 
                   if (theRV->inputFromJSON(rvObject)) { // this method is where type is set
-                      theRandomVariables.append(theRV);
+                      theRandomVariables.append(theRV);                      
+                      connect(theRV,SIGNAL(removeRVclicked(RandomVariable*)),this,SLOT(removeThisRandomVariable(RandomVariable*)));
+
+
                       randomVariableNames << theRV->variableName->text();
                       theRV->variableName->setReadOnly(true);
 
