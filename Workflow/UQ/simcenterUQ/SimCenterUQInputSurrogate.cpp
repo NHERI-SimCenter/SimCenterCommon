@@ -260,7 +260,7 @@ SimCenterUQInputSurrogate::inputAppDataFromJSON(QJsonObject &jsonObject)
 UQ_Results *
 SimCenterUQInputSurrogate::getResults(void) {
     qDebug() << "RETURNED SimCenterUQRESULTSSURROGATE";
-    return new SimCenterUQResultsSurrogate(theRandomVariables);
+    return new SimCenterUQResultsSurrogate(RandomVariablesContainer::getInstance());
 }
 
 void
