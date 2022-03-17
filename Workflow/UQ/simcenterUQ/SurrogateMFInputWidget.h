@@ -91,7 +91,7 @@ private:
     QLabel * modelMSG, * errMSG, *theExistingLabel;
 
     QLabel * theNuggetLabel;
-    QComboBox * theNuggetSelection;
+    QComboBox * theNuggetSelection, * theDoESelection;
     QCheckBox * theNugCheckBox;
     QLineEdit * theNuggetVals;
 
