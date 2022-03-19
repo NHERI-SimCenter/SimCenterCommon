@@ -37,6 +37,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include <SurrogateDoEInputWidget.h>
+#include <RandomVariablesContainer.h>
+
+
+
 #include <QLineEdit>
 #include <QVBoxLayout>
 #include <QLabel>
@@ -630,4 +634,14 @@ int
 SurrogateDoEInputWidget::getNumberTasks()
 {
   return numSamples->text().toInt();
+}
+
+void
+SurrogateDoEInputWidget::setRV_Defaults(void) {
+
+  RandomVariablesContainer *theRVs =  RandomVariablesContainer::getInstance();
+  QString classType("Uniform");
+  QString engineType("SimCenterUQ");
+
+  theRVs->setDefaults(engineType, classType, Normal);
 }

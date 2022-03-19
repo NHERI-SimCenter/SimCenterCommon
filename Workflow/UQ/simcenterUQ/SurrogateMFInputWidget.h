@@ -67,6 +67,8 @@ public:
     int parseOutputDataForQoI(QString name1);
 
     bool copyFiles(QString &fileDir);
+    void setRV_Defaults(void);
+
 
 public slots:
     void setLowSim(bool tog);

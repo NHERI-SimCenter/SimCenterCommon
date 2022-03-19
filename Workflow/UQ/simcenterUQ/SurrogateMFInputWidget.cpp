@@ -35,7 +35,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written: fmckenna
-
+#include <RandomVariablesContainer.h>
 #include <SurrogateMFInputWidget.h>
 #include <QLineEdit>
 #include <QVBoxLayout>
@@ -995,4 +995,14 @@ int
 SurrogateMFInputWidget::getNumberTasks()
 {
   return numSamples_LF->text().toInt();
+}
+
+void
+SurrogateMFInputWidget::setRV_Defaults(void) {
+
+  RandomVariablesContainer *theRVs =  RandomVariablesContainer::getInstance();
+  QString classType("Uniform");
+  QString engineType("SimCenterUQ");
+
+  theRVs->setDefaults(engineType, classType, Normal);
 }
