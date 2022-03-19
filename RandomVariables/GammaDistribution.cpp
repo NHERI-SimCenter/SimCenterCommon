@@ -67,19 +67,15 @@ GammaDistribution::GammaDistribution(QString inpType, QWidget *parent) :RandomVa
     if (inpty==QString("Parameters"))
     {
         k = this->createTextEntry(tr("k"), mainLayout, 0);
-        k->setValidator(new QDoubleValidator);
         lambda  = this->createTextEntry(tr("lambda"), mainLayout, 1);
-        lambda->setValidator(new QDoubleValidator);
         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
     } else if (inpty==QString("Moments")) {
 
         mean = this->createTextEntry(tr("Mean"), mainLayout, 0);
-        mean->setValidator(new QDoubleValidator);        
         standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout, 1);
-        standardDev->setValidator(new QDoubleValidator);
-        showPlotButton = new QPushButton("Show PDF");
+         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
     } else if (inpty==QString("Dataset")) {

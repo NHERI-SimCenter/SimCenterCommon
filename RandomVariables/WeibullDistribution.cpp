@@ -67,18 +67,14 @@ WeibullDistribution::WeibullDistribution(QString inpType, QWidget *parent) :Rand
     if (inpty==QString("Parameters"))
     {
         an = this->createTextEntry(tr("an (scale)"), mainLayout, 0);
-        an->setValidator(new QDoubleValidator);
         k  = this->createTextEntry(tr("k (shape)"), mainLayout, 1);
-        k->setValidator(new QDoubleValidator);
         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
     } else if (inpty==QString("Moments")) {
 
         mean = this->createTextEntry(tr("Mean"), mainLayout, 0);
-        mean->setValidator(new QDoubleValidator);        
-        standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout, 1);
-        standardDev->setValidator(new QDoubleValidator);
+         standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout, 1);
         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
