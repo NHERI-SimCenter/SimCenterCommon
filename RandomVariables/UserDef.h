@@ -26,7 +26,7 @@ signals:
 public slots:
 
 private:
-   // QLineEdit *alphaparam;
+   QLineEdit *scriptDir;
    // QLineEdit *betaparam;
 };
 
