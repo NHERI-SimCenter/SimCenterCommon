@@ -110,7 +110,7 @@ public slots:
    void removeThisRandomVariable(RandomVariable *);
    void addCorrelationMatrix(void); // added by padhye for correlation matrix
    //   void addSobolevIndices(bool);// added by padhye for sobolev indices
-   void refreshRandomVariables(QString);
+   void refreshRandomVariables(void);
    void loadRVsFromJson(void);
    void saveRVsToJson(void);
 

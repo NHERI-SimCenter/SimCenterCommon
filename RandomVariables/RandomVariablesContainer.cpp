@@ -91,7 +91,7 @@ RandomVariablesContainer::setDefaults (QString &theEngine, QString &theClass, RV
   uqEngineName = theEngine;  
   randomVariableClass = theClass;
   defaultRVsType = theType;
-  this->refreshRandomVariables(theEngine);
+  this->refreshRandomVariables();
 
 
 }
@@ -168,7 +168,7 @@ RandomVariablesContainer::addUniformRVs(QStringList &varNamesAndValues)
         double dValue = value.toDouble();
         ConstantDistribution *theDistribution = new ConstantDistribution(dValue);
         RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution, uqEngineName);
-        theRV->fixToUniform(dValue);
+        //theRV->fixToUniform(dValue);
 
         this->addRandomVariable(theRV);
     }
@@ -293,12 +293,17 @@ RandomVariablesContainer::removeRandomVariables(QStringList &varNames)
 
 
 void
-RandomVariablesContainer::refreshRandomVariables(QString theEngine)
+RandomVariablesContainer::refreshRandomVariables(void)
 {
     int numRandomVariables = theRandomVariables.size();
     for (int j =0; j < numRandomVariables; j++) {
         RandomVariable *theRV = theRandomVariables.at(j);
-        theRV->uqEngineChanged(theEngine);
+        theRV->uqEngineChanged(uqEngineName,randomVariableClass);
+    }
+    if (uqEngineName=="UCSD"){
+        addCorrelation->setVisible(false);
+    } else {
+        addCorrelation->setVisible(true);
     }
 
 }
@@ -337,7 +342,7 @@ RandomVariablesContainer::makeRV(void)
     QPushButton *removeRV = new QPushButton();
     removeRV->setMinimumWidth(75);
     removeRV->setMaximumWidth(75);
-    removeRV->setText(tr("Clear"));
+    removeRV->setText(tr("Clear All"));
     //connect(removeRV,SIGNAL(clicked()),this,SLOT(removeRandomVariable()));
     connect(removeRV,SIGNAL(clicked()),this,SLOT(removeRandomVariable()));
 
@@ -346,7 +351,7 @@ RandomVariablesContainer::makeRV(void)
     RVsFromJson->setMinimumWidth(75);
     RVsFromJson->setMaximumWidth(75);
     RVsFromJson->setText(tr("Import"));
-    RVsFromJson->setStyleSheet("background-color: dodgerblue;border-color:dodgerblue");
+    //RVsFromJson->setStyleSheet("background-color: dodgerblue;border-color:dodgerblue");
     connect(RVsFromJson,SIGNAL(clicked()),this,SLOT(loadRVsFromJson()));
 
 
@@ -354,14 +359,14 @@ RandomVariablesContainer::makeRV(void)
     RVsToJson->setMinimumWidth(75);
     RVsToJson->setMaximumWidth(75);
     RVsToJson->setText(tr("Export"));
-    RVsToJson->setStyleSheet("background-color: dodgerblue;border-color:dodgerblue");
+    //RVsToJson->setStyleSheet("background-color: dodgerblue;border-color:dodgerblue");
     connect(RVsToJson,SIGNAL(clicked()),this,SLOT(saveRVsToJson()));
 
     // padhye, adding the button for correlation matrix, we need to add a condition here
     // that whether the uqMehod selected is that of Dakota and sampling type? only then we need correlation matrix
 
     /* FMK */
-    addCorrelation = new QPushButton(tr("Correlation Matrix"));
+    addCorrelation = new QPushButton(tr("  Correlation Matrix  "));
     connect(addCorrelation,SIGNAL(clicked()),this,SLOT(addCorrelationMatrix()));
 
     flag_for_correlationMatrix=1;
@@ -411,9 +416,9 @@ RandomVariablesContainer::makeRV(void)
      //verticalLayout->setSpacing(0);
 
 
-     verticalLayout->addStretch();
+     //verticalLayout->addStretch();
 
-     //verticalLayout->setMargin(0);
+     verticalLayout->setMargin(0);
 
 }
 
@@ -871,14 +876,51 @@ RandomVariablesContainer::outputToJSON(QJsonObject &rvObject) {
 
     bool result = true;
     QJsonArray rvArray;
+
     for (int i = 0; i <theRandomVariables.size(); ++i) {
-        QJsonObject rv;
-        if (theRandomVariables.at(i)->outputToJSON(rv)) {
-            rvArray.append(rv);
+
+        if (theRandomVariables.at(i)->getAbbreviatedName()!="UserDefVec"){
+            QJsonObject rv;
+            if (theRandomVariables.at(i)->outputToJSON(rv)) {
+                rvArray.append(rv);
+            } else {
+                qDebug() << "OUTPUT FAILED" << theRandomVariables.at(i)->variableName->text();
+                result = false;
+            }
         } else {
-            qDebug() << "OUTPUT FAILED" << theRandomVariables.at(i)->variableName->text();
-            result = false;
+            //rename X to X_1,X_2,...,X_N
+
+            //int leng = theRandomVariables.at(i)->getLength();
+            QString vectorName=theRandomVariables.at(i)->variableName->text();
+            QString componentName = vectorName + "_1";
+            theRandomVariables.at(i)->variableName->setText(componentName);
+            QJsonObject rv;
+            if (theRandomVariables.at(i)->outputToJSON(rv)) {
+                rv["vectorName"]=vectorName;
+                rvArray.append(rv);
+            } else {
+                qDebug() << "OUTPUT FAILED" << theRandomVariables.at(i)->variableName->text();
+                result = false;
+            }
+
+            int leng = rv["length"].toInt();
+            for (int j =1; j<leng ; j++) {
+                QString componentName = vectorName + "_" +QString::number(j+1);
+                theRandomVariables.at(i)->variableName->setText(componentName);
+
+                QJsonObject rv;
+                if (theRandomVariables.at(i)->outputToJSON(rv)) {
+                    rv["vectorName"]=vectorName;
+                    rvArray.append(rv);
+                } else {
+                    qDebug() << "OUTPUT FAILED" << theRandomVariables.at(i)->variableName->text();
+                    result = false;
+                }
+            }
+            theRandomVariables.at(i)->variableName->setText(vectorName);
+
         }
+
     }
 
     rvObject["randomVariables"]=rvArray;
@@ -940,7 +982,6 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
 
   // clean out current list
   this->clear();
-
   //
   // go get randomvariables array from the JSON object
   // for each object in array:
@@ -959,6 +1000,7 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
           QJsonArray rvArray = rvObject["randomVariables"].toArray();
 
           // foreach object in array
+          QStringList UserDefVecNames;
           foreach (const QJsonValue &rvValue, rvArray) {
 
               QJsonObject rvObject = rvValue.toObject();
@@ -971,6 +1013,20 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
                   connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(variableNameChanged(const QString &)));
 
                   //connect(theRV,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+
+                  if (rvObject["distribution"]=="User defined vector"){
+                      //int leng = rvObject["length"].toString().toInt();
+                      //int compIdStart = rvObject["name"].toString().lastIndexOf("_");
+                      //QString vecName =  rvObject["name"].toString().left(compIdStart);
+                     QString vecName = rvObject["vectorName"].toString();
+                      if (UserDefVecNames.contains(vecName)){
+                          continue;
+                      } else {
+                          UserDefVecNames << vecName;
+                          rvObject["name"] = vecName;
+                      }
+                  }
+
 
                   if (theRV->inputFromJSON(rvObject)) { // this method is where type is set
                       theRandomVariables.append(theRV);                      
