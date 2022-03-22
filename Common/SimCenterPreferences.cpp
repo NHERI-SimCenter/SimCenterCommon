@@ -850,11 +850,9 @@ SimCenterPreferences::getDakota(void) {
     if (!theVariant.isValid()) {
       thePath = this->getDefaultDakota();
       settingsApplication.setValue("dakotaPath", thePath);
-      qDebug() << "D1" << thePath;
       return thePath;
     }
 
-    qDebug() << "D3" << theVariant.toString();
     return theVariant.toString();
 }
 
@@ -864,6 +862,12 @@ QString
 SimCenterPreferences::getAppDir(void) {
 
     //Default appDir is the location of the application
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();    
+    QString scBackend = env.value("SIMCENTER_Backend","None");
+    if (scBackend != "None") {
+      return scBackend;
+    }
+  
     auto currentAppDir = QCoreApplication::applicationDirPath();
 
     //If custom is checked we will try to get the custom app dir defined
