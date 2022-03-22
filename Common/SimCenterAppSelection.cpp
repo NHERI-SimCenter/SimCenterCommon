@@ -297,7 +297,7 @@ SimCenterAppSelection::addComponent(QString text, QString appName, SimCenterAppW
 
         return true;
     } else {
-        QString message = jsonKeyword +  QString(" found unknown application: ") + appName;
+        QString message = jsonKeyword +  QString(" application already exists: ") + text + " (" + appName + ")";
         this->errorMessage(message);
     }
 
