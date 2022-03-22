@@ -343,11 +343,9 @@ AgaveCurl::login(QString uname, QString upassword)
                     emit statusMessage(message);
                 } else {
                     emit statusMessage("Login SUCCESS");
-                    emit closeDialog();
                 }
             } else {
                 emit statusMessage("Login SUCCESS");
-                emit closeDialog();
             }
 
             return true;
@@ -408,7 +406,6 @@ AgaveCurl::logout()
 
     emit statusMessage("Logout SUCCESS");
 
-    emit closeDialog();
     loggedInFlag = false;
 
     return true;
@@ -873,7 +870,7 @@ AgaveCurl::remoteLS(const QString &remotePath)
         } else if (status == "success") {
             if (theObj.contains("result")) {
                 result = theObj["result"].toArray();
-                QString message = QString("Succesfully obtained lising: ") + remoteName;
+                QString message = QString("Succesfully obtained listing: ") + remoteName;
                 emit statusMessage(message);
                 return result;
             }

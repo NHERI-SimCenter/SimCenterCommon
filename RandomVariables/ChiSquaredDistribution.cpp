@@ -89,14 +89,21 @@ ChiSquaredDistribution::ChiSquaredDistribution(QString inpType, QWidget *parent)
         mainLayout->addWidget(chooseFileButton, 1,1);
 
         // Action
+//        connect(chooseFileButton, &QPushButton::clicked, this, [=](){
+//                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
+//        });
+
         connect(chooseFileButton, &QPushButton::clicked, this, [=](){
-                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)"));
-        });
+                  QString fileName = QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*)");
+                  if (!fileName.isEmpty()) {
+                      dataDir->setText(fileName);
+                  }
+              });
     }
 
     mainLayout->setColumnStretch(2,1);
 
-    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
 
     if (inpty==QString("Parameters")) {
         connect(k,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
@@ -118,19 +125,19 @@ ChiSquaredDistribution::outputToJSON(QJsonObject &rvObject){
     if (inpty==QString("Parameters")) {
         // check for error condition, an entry had no value
         if ((k->text().isEmpty())) {
-            emit sendErrorMessage("ERROR: ChiSquaredDistribution - data has not been set");
+            this->errorMessage("ERROR: ChiSquaredDistribution - data has not been set");
             return false;
         }
         rvObject["k"]=k->text().toDouble();
     } else if (inpty==QString("Moments")) {
         if ((mean->text().isEmpty())) {
-            emit sendErrorMessage("ERROR: ChiSquaredDistribution - data has not been set");
+            this->errorMessage("ERROR: ChiSquaredDistribution - data has not been set");
             return false;
         }
         rvObject["mean"]=mean->text().toDouble();
     } else if (inpty==QString("Dataset")) {
         if (dataDir->text().isEmpty()) {
-            emit sendErrorMessage("ERROR: ChiSquaredDistribution - data has not been set");
+            this->errorMessage("ERROR: ChiSquaredDistribution - data has not been set");
             return false;
         }
         rvObject["dataDir"]=QString(dataDir->text());
@@ -156,7 +163,7 @@ ChiSquaredDistribution::inputFromJSON(QJsonObject &rvObject){
             double thekValue = rvObject["k"].toDouble();
             k->setText(QString::number(thekValue));
         } else {
-            emit sendErrorMessage("ERROR: ChiSquaredDistribution - no \"a\" entry");
+            this->errorMessage("ERROR: ChiSquaredDistribution - no \"a\" entry");
             return false;
         }
 
@@ -166,7 +173,7 @@ ChiSquaredDistribution::inputFromJSON(QJsonObject &rvObject){
             double theMeanValue = rvObject["mean"].toDouble();
             mean->setText(QString::number(theMeanValue));
         } else {
-            emit sendErrorMessage("ERROR: ChiSquaredDistribution - no \"mean\" entry");
+            this->errorMessage("ERROR: ChiSquaredDistribution - no \"mean\" entry");
             return false;
         }
 
@@ -176,7 +183,7 @@ ChiSquaredDistribution::inputFromJSON(QJsonObject &rvObject){
           QString theDataDir = rvObject["dataDir"].toString();
           dataDir->setText(theDataDir);
       } else {
-          emit sendErrorMessage("ERROR: ChiSquaredDistribution - no \"mean\" entry");
+          this->errorMessage("ERROR: ChiSquaredDistribution - no \"mean\" entry");
           return false;
       }
     }
@@ -184,6 +191,14 @@ ChiSquaredDistribution::inputFromJSON(QJsonObject &rvObject){
     this->updateDistributionPlot();
     return true;
 }
+
+void
+ChiSquaredDistribution::copyFiles(QString fileDir) {
+    if (inpty==QString("Dataset")) {
+        QFile::copy(dataDir->text(), fileDir);
+    }
+}
+
 
 QString 
 ChiSquaredDistribution::getAbbreviatedName(void) {

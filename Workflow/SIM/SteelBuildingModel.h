@@ -38,7 +38,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written: Stevan Gavrilovic
-// Last revision: 09/2020
 
 /* macro added by pmh on 12/31/2020 for compiling with MSVC2019 */
 #ifndef __FUNCSIG__
@@ -96,7 +95,7 @@ public slots:
 
 signals:
     void numStoriesOrHeightChanged(int numFloors, double height);
-    void setBuildingDimensions(double newWidth, double newDepth, double planArea);
+    void buildingDimensionsChanged(double newWidth, double newDepth, double planArea);
 
 private:
 

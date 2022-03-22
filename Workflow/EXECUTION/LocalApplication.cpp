@@ -52,6 +52,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QApplication>
 #include <QProcess>
 #include <QStringList>
+#include <QString>
+#include <QStringRef>
 #include <QSettings>
 #include <SimCenterPreferences.h>
 #include <AgaveCurl.h>
@@ -99,6 +101,8 @@ void
 LocalApplication::onRunButtonPressed(void)
 {
     sendStatusMessage("Setting up temporary directory.");
+
+    QApplication::processEvents();
 
     QString workingDir = SimCenterPreferences::getInstance()->getLocalWorkDir();
     QDir dirWork(workingDir);
@@ -159,6 +163,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     // check if file exists and if yes: Is it really a file and no directory?
     if (!check_script.exists() || !check_script.isFile()) {
         emit sendErrorMessage(QString("NO SCRIPT FILE: ") + pySCRIPT);
+        emit runComplete();
         return false;
     }
 
@@ -166,6 +171,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     QFileInfo check_registry(registryFile);
     if (!check_registry.exists() || !check_registry.isFile()) {
         emit sendErrorMessage(QString("NO REGISTRY FILE: ") + registryFile);
+        emit runComplete();
         return false;
     }
 
@@ -199,8 +205,100 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
         pathEnv = pythonPath + ';' + pathEnv;
     } else {
         emit sendErrorMessage("NO VALID PYTHON - Read the Manual & Check your Preferences");
+        emit runComplete();
         return false;
     }
+
+
+    // Check if python and required packages exist at the given path
+    {
+        QProcess pythonProcess;
+
+        QString commandCheckPythonVersion = python + " -V";
+        pythonProcess.start(commandCheckPythonVersion);
+
+        bool started = pythonProcess.waitForStarted();
+        if (!pythonProcess.waitForFinished(30000)) // 3 Second timeout
+            pythonProcess.kill();
+
+        if(!started)
+        {
+            emit errorMessage("Could not find Python on the system");
+            emit runComplete();
+            return false; // Not found or which does not work
+        }
+
+        auto processOutput = QString::fromLocal8Bit(pythonProcess.readAll());
+        processOutput = processOutput.trimmed();
+
+        auto resultList = processOutput.split(" ");
+
+        if(resultList.size() == 2)
+        {
+            QString pythonVersionStr = resultList.at(1);
+
+            int loc =  pythonVersionStr.indexOf(".");
+
+            QStringRef pythonVersion(&pythonVersionStr, loc-1, loc+2);
+
+            auto verNum = pythonVersion.toDouble();
+
+            if(verNum != 3.8)
+            {
+                emit errorMessage("Python version 3.8 or 3.9 is required, you have Python version "+QString::number(verNum)+" installed");
+                emit runComplete();
+                return false;
+            }
+        }
+        else
+        {
+            emit errorMessage("Could not parse the python version");
+            emit runComplete();
+            return false; // Not found or which does not work
+        }
+    }
+
+    {
+
+        QProcess pythonProcess;
+        // The command below will return a "1" if nheri_simcenter package is not found on the system and a zero if it is found
+        QString commandToStart;
+
+#ifdef Q_OS_WIN
+        commandToStart = python + " -c \"import pkgutil; print('0' if pkgutil.find_loader('nheri_simcenter') else '1')\"";
+#else
+        commandToStart = python + " -c 'import pkgutil; print('0' if pkgutil.find_loader(\"nheri_simcenter\") else '1')'";
+#endif
+
+
+#ifdef Q_OS_WIN
+        pythonProcess.start(commandToStart);
+#else
+        pythonProcess.start("bash", QStringList() << "-c" <<  commandToStart);
+#endif
+
+        bool started = pythonProcess.waitForStarted();
+        if (!pythonProcess.waitForFinished(30000)) // 3 Second timeout
+            pythonProcess.kill();
+
+        if(!started)
+        {
+            emit errorMessage("Could not find Python on the system");
+            emit runComplete();
+            return false;
+        }
+
+        auto processOutput = QString::fromLocal8Bit(pythonProcess.readAll());
+        processOutput = processOutput.trimmed();
+
+        if(processOutput.compare("0") != 0)
+        {
+            emit errorMessage("Could not find the NHERI-SimCenter Python package on the system. Run the command --"+python +" -m pip install nheri-simcenter-- in Terminal or Command Prompt to install.");
+            emit runComplete();
+            return false;
+        }
+    }
+
 
     QString openseesExe = preferences->getOpenSees();
     QFileInfo openseesFile(openseesExe);
@@ -224,34 +322,34 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     }
 
 
-   QString dakotaExe = preferences->getDakota();
+    QString dakotaExe = preferences->getDakota();
 
-   qDebug() << "DAKOTA: " << dakotaExe;
+    qDebug() << "DAKOTA: " << dakotaExe;
 
-   QFileInfo dakotaFile(dakotaExe);
-   if (dakotaFile.exists()) {
-       QString dakotaPath = dakotaFile.absolutePath();
-       if (colonYes == false) {
-           colonYes = true;
-       } else {
+    QFileInfo dakotaFile(dakotaExe);
+    if (dakotaFile.exists()) {
+        QString dakotaPath = dakotaFile.absolutePath();
+        if (colonYes == false) {
+            colonYes = true;
+        } else {
 #ifdef Q_OS_WIN
-           exportPath += ";";
+            exportPath += ";";
 #else
-           exportPath += ":";
+            exportPath += ":";
 #endif
-       }
+        }
 
 #ifdef Q_OS_WIN
-       pathEnv = dakotaPath + ';' + pathEnv;
+        pathEnv = dakotaPath + ';' + pathEnv;
 #else
-       pathEnv = dakotaPath + ':' + pathEnv;
+        pathEnv = dakotaPath + ':' + pathEnv;
 #endif
-       exportPath += dakotaPath;
-       QString dakotaPathPath = QFileInfo(dakotaPath).absolutePath() + QDir::separator() +
-               "share" + QDir::separator() + "Dakota" + QDir::separator() + "Python";
-       pythonPathEnv = dakotaPathPath + ";" + pythonPathEnv;
+        exportPath += dakotaPath;
+        QString dakotaPathPath = QFileInfo(dakotaPath).absolutePath() + QDir::separator() +
+                "share" + QDir::separator() + "Dakota" + QDir::separator() + "Python";
+        pythonPathEnv = dakotaPathPath + ";" + pythonPathEnv;
 
-   }
+    }
 
     if (colonYes == true) {
 #ifdef Q_OS_WIN
@@ -327,6 +425,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     {
         qDebug().noquote() << proc->readAllStandardOutput();
         qDebug().noquote() << proc->readAllStandardError();
+        emit runComplete();
         return false;
     }
 
@@ -436,7 +535,7 @@ void LocalApplication::handleProcessFinished(int exitCode, QProcess::ExitStatus 
 
 void LocalApplication::handleProcessStarted(void)
 {
-    QString msg = "Starting the anlysis. This may take awhile!";
+    QString msg = "Starting the analysis. This may take awhile!";
     emit sendStatusMessage(msg);
     QApplication::processEvents();
 }
@@ -445,6 +544,7 @@ void LocalApplication::handleProcessStarted(void)
 void LocalApplication::handleProcessTextOutput(void)
 {
     QByteArray output =  proc->readAllStandardOutput();
-    emit sendStatusMessage(QString(output));
+    QString outputStr = QString(output);
+    emit sendStatusMessage(outputStr);
     QApplication::processEvents();
 }

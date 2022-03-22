@@ -105,7 +105,10 @@ bool SimCenterAppEventSelection::outputToJSON(QJsonObject &jsonObject)
 { 
     // here we will loop over all events
     if (theCurrentSelection != NULL)
+    {
+        jsonObject["type"]=currentEventType;
         return theCurrentSelection->outputToJSON(jsonObject);
+    }
     else
         return false;
 }
@@ -127,11 +130,9 @@ bool SimCenterAppEventSelection::outputAppDataToJSON(QJsonObject &jsonObject)
 
     // here we will loop over all events in future, but for now one object in array
 
-    QJsonObject eventData;
-    eventData["EventClassification"]=currentEventType;
-
     if (theCurrentSelection != NULL) {
         QJsonObject dataEvent;
+        dataEvent["EventClassification"]=currentEventType;
         if (theCurrentSelection->outputAppDataToJSON(dataEvent) == false)
             return false;
         else {
@@ -172,19 +173,19 @@ bool SimCenterAppEventSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
                 else
                 {
                     QString message = selectionApplicationType +  QString(" found unknown application: ") + appName;
-                    emit sendErrorMessage(message);
+                    this->errorMessage(message);
                 }
             }
             else
             {
                 QString message = QString("SimCenterAppEventSelection could not find Application field in JSON");
-                emit sendErrorMessage(message);
+                this->errorMessage(message);
             }
         }
     }
     else {
         QString message = QString("Applications does not contain a field: ") + selectionApplicationType;
-        emit sendErrorMessage(message);
+        this->errorMessage(message);
     }
 
     return false; // error message
@@ -215,7 +216,7 @@ SimCenterAppEventSelection::addComponent(QString text, QString appName, SimCente
         return true;
     } else {
         QString message = selectionApplicationType +  QString(" found unknown application: ") + appName;
-        emit sendErrorMessage(message);
+        this->errorMessage(message);
     }
 
     return false;

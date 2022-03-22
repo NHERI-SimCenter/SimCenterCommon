@@ -13,9 +13,11 @@
 class WorkflowAppWidget;
 class SimCenterWidget;
 class QPushButton;
+class QDockWidget;
 class QLabel;
 class SimCenterPreferences;
-
+class ExampleDownloader;
+class PythonProgressDialog;
 
 class MainWindowWorkflowApp : public QMainWindow
 {
@@ -31,6 +33,7 @@ public:
     void setAbout(QString &, QString&);
     void setFeedbackURL(QString &feedback);
     void setCite(QString &cite);
+    void updateExamplesMenu(void);
 
  protected:
 
@@ -50,6 +53,7 @@ public:
     void openFile(QString filename);
     bool save();
     bool saveAs();
+    void clear();
 
     void about();
     void manual();
@@ -71,6 +75,7 @@ public:
     void onLoginSubmitButtonClicked();
     void attemptLoginReturn(bool);
     void logoutReturn(bool);
+    void showExampleDownloader(void);
 
 
  private:
@@ -88,6 +93,7 @@ public:
     QMenu *helpMenu;
     QToolBar *fileToolBar;
     QToolBar *editToolBar;
+    QMenu *exampleMenu;
 
     // some variables for logging in
     QWidget *loginWindow;
@@ -103,7 +109,6 @@ public:
     //SimCenterWidget *currentWidget;
 
     QPushButton *loginButton;
-    QLabel *errorLabel;
 
     QString versionText;
     QString aboutText;
@@ -115,7 +120,12 @@ public:
     QString citeText;
     bool isAutoLogin;
 
+    QDockWidget* statusDockWidget;
+
     SimCenterPreferences *thePreferences;
+    ExampleDownloader* theExampleDownloader;
+    PythonProgressDialog* statusWidget;
+
 };
 
 #endif // MAIN_WINDOW_WORKFLOW_APP_H

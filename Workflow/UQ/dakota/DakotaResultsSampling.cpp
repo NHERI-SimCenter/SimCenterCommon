@@ -37,7 +37,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 // added and modified: padhye
 
-#include "DakotaResultsSensitivity.h"
+#include "DakotaResultsSampling.h"
 //#include "InputWidgetFEM.h"
 
 #include <QJsonObject>
@@ -70,6 +70,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QLabel>
+//#include <InputWidgetFEM.h>
+#include <InputWidgetUQ.h>
+
+//#include <InputWidgetFEM.h>
 #include <InputWidgetUQ.h>
 #include <QHeaderView>
 
@@ -84,16 +88,13 @@ using namespace QtCharts;
 
 #include <QXYSeries>
 #include <RandomVariablesContainer.h>
+#include <QFileInfo>
+#include <QFile>
 
-#define NUM_DIVISIONS 10
+//#define NUM_DIVISIONS 10
 
-
-
-QLabel *best_fit_label_text;
-
-
-DakotaResultsSensitivity::DakotaResultsSensitivity(RandomVariablesContainer *theRandomVariables, QWidget *parent)
-    : UQ_Results(parent), theRVs(theRandomVariables)
+DakotaResultsSampling::DakotaResultsSampling(RandomVariablesContainer *theRandomVariables, QWidget *parent)
+  : UQ_Results(parent), theRVs(theRandomVariables), spreadsheet(0), tabWidget(0), chart(0)
 {
     // title & add button
     tabWidget = new QTabWidget(this);
@@ -103,13 +104,13 @@ DakotaResultsSensitivity::DakotaResultsSensitivity(RandomVariablesContainer *the
     col2 = 0;
 }
 
-DakotaResultsSensitivity::~DakotaResultsSensitivity()
+DakotaResultsSampling::~DakotaResultsSampling()
 {
 
 }
 
 
-void DakotaResultsSensitivity::clear(void)
+void DakotaResultsSampling::clear(void)
 {
     // delete any existing widgets
     int count = tabWidget->count();
@@ -123,14 +124,11 @@ void DakotaResultsSensitivity::clear(void)
     theMeans.clear();
     theStdDevs.clear();
     theKurtosis.clear();
+    theSkewness.clear();
 
     tabWidget->clear();
-
     spreadsheet = NULL;
-
 }
-
-
 
 static void merge_helper(double *input, int left, int right, double *scratch)
 {
@@ -183,9 +181,9 @@ static int mergesort(double *input, int size)
 
 // if sobelov indices are selected then we would need to do some processing outselves
 
-int DakotaResultsSensitivity::processResults(QString &filenameResults, QString &filenameTab)
+int DakotaResultsSampling::processResults(QString &filenameResults, QString &filenameTab)
 {
-    emit sendStatusMessage(tr("Processing Results ... "));
+    this->statusMessage(tr("Processing Sampling Results"));
 
     this->clear();
     mLeft = true;
@@ -193,7 +191,7 @@ int DakotaResultsSensitivity::processResults(QString &filenameResults, QString &
     col2 = 0;
 
     //
-    // check it actually ran with errors
+    // check it actually ran with n errors
     //
 
     QFileInfo fileTabInfo(filenameTab);
@@ -201,28 +199,28 @@ int DakotaResultsSensitivity::processResults(QString &filenameResults, QString &
 
     QFileInfo filenameErrorInfo(filenameErrorString);
     if (!filenameErrorInfo.exists()) {
-        emit sendErrorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applicatins failed with inputs provied");
+        this->errorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applicatins failed with inputs provied");
         return 0;
     }
     QFile fileError(filenameErrorString);
     QString line("");
     if (fileError.open(QIODevice::ReadOnly)) {
-        QTextStream in(&fileError);
-        while (!in.atEnd()) {
-            line = in.readLine();
-        }
-        fileError.close();
+       QTextStream in(&fileError);
+       while (!in.atEnd()) {
+          line = in.readLine();
+       }
+       fileError.close();
     }
 
     if (line.length() != 0) {
         qDebug() << line.length() << " " << line;
-        emit sendErrorMessage(QString(QString("Error Running Dakota: ") + line));
+        this->errorMessage(QString(QString("Error Running Dakota: ") + line));
         return 0;
     }
 
     QFileInfo filenameTabInfo(filenameTab);
     if (!filenameTabInfo.exists()) {
-        emit sendErrorMessage("No dakotaTab.out file - dakota failed .. possibly no QoI");
+        this->errorMessage("No dakotaTab.out file - dakota failed .. possibly no QoI");
         return 0;
     }
 
@@ -240,144 +238,8 @@ int DakotaResultsSensitivity::processResults(QString &filenameResults, QString &
     QVBoxLayout *summaryLayout = new QVBoxLayout();
     summaryLayout->setContentsMargins(0,0,0,0); // adding back
     summary->setLayout(summaryLayout);
+
     sa->setWidget(summary);
-
-    //
-    // read data from file filename
-    //
-
-    // open file containing data
-    std::ifstream fileResults(filenameResults.toStdString().c_str());
-    if (!fileResults.is_open()) {
-        std::cerr << "DakotaResultsReliability: Could not open file";
-        return -1;
-    }
-
-    /********************** LOOKING FOR THE FOLLOWING
-Global sensitivity indices for each response function:
-Node_3_Disp Sobol' indices:
-                                  Main             Total
-                      2.4039246953e-01  2.1539126172e-01 E
-                      3.1111165023e-01  2.5059985880e-01 P
-                     -1.0433587063e-01  4.5879211975e-02 A1
-                      5.5975158418e-02  2.3683900870e-01 A2
-Node_2_Disp Sobol' indices:
-                                  Main             Total
-                      2.8398436472e-01  2.1746571906e-01 E
-                      3.3651270362e-01  2.5289844553e-01 P
-                     -1.2721174582e-01  6.9156108718e-02 A1
-                      4.2512526616e-03  1.2984354691e-01 A2
-
-<<<<< Iterator random_sampling completed.
-
-              ******************************************** */
-
-    const std::string needleStart = "Global sensitivity indices for each response function:";
-    std::string haystack;
-
-    while (std::getline(fileResults, haystack))
-        if (haystack.find(needleStart) != std::string::npos)
-            break;
-
-    if (fileResults.eof()) {
-        std::cerr << "DakotaResultsReliability: No sensitivity results in output";
-        return -1;
-    }
-
-    const std::string needleSobol = "Sobol'";
-    bool done = false;
-    QGroupBox *groupBox = NULL;
-    int numEDP = 0;
-    QGridLayout * trainingDataLayout = NULL;
-    QHBoxLayout *tableLayout = NULL;
-    MyTableWidget *table = NULL;
-    QStringList theTableHeadings;
-    theTableHeadings << "Random Variable" << "Main" << "Total";
-    while (done == false) {
-        std::getline(fileResults, haystack);
-        if (haystack.find(needleSobol) != std::string::npos) {
-            QString h(QString::fromStdString(haystack));
-
-            groupBox = new QGroupBox(h);
-            summaryLayout->addWidget(groupBox);
-
-            /***** TABLE LAYOUT OPTION  ******
-            // QTable option
-            table = new MyTableWidget();
-            table->setColumnCount(3);
-            table->setHorizontalHeaderLabels(theTableHeadings);
-            table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-            table->verticalHeader()->setVisible(false);
-            tableLayout = new QHBoxLayout();
-            tableLayout->addWidget(table);
-            tableLayout->addStretch();
-            groupBox->setLayout(tableLayout);
-            ********************************************/
-
-            // Labels & QlineEdit Option in a QGrid
-            trainingDataLayout = new QGridLayout();
-            QLabel *l1 = new QLabel("Random Variable");
-            QLabel *l2 = new QLabel("Main");
-            QLabel *l3 = new QLabel("Total");
-            trainingDataLayout->addWidget(l1, 0,0);
-            trainingDataLayout->addWidget(l2, 0,1);
-            trainingDataLayout->addWidget(l3, 0,2);
-            QFont font;
-            font.setBold(true);
-            l1->setAlignment(Qt::AlignCenter);
-            l1->setFont(font);
-            l2->setAlignment(Qt::AlignCenter);
-            l2->setFont(font);
-            l3->setAlignment(Qt::AlignCenter);
-            l3->setFont(font);
-
-            groupBox->setLayout(trainingDataLayout);
-
-            // set num EDP and read a useleass line
-            numEDP = 0;
-            std::getline(fileResults, haystack);
-
-        } else {
-            std::istringstream iss(haystack);
-            QString h(QString::fromStdString(haystack));
-            if (h.length() == 0) {
-                done = true;
-            } else {
-                std::string data1, data2, data3, data4;
-
-                iss >> data1 >> data2 >> data3;
-                QString d1(QString::fromStdString(data1));
-                QString d2(QString::fromStdString(data2));
-                QString d3(QString::fromStdString(data3));
-                QLineEdit *e1 = new QLineEdit(d3); e1->setReadOnly(true); e1->setAlignment(Qt::AlignCenter);
-                QLineEdit *e2 = new QLineEdit(d1); e2->setReadOnly(true);  e2->setAlignment(Qt::AlignRight);
-                QLineEdit *e3 = new QLineEdit(d2); e3->setReadOnly(true); e3->setAlignment(Qt::AlignRight);
-
-                trainingDataLayout->addWidget(e1, numEDP+1,0);
-                trainingDataLayout->addWidget(e2, numEDP+1,1);
-                trainingDataLayout->addWidget(e3, numEDP+1,2);
-                trainingDataLayout->setColumnStretch(1,.5);
-                trainingDataLayout->setColumnStretch(2,.5);
-                trainingDataLayout->setColumnStretch(3,1);
-
-                /* *** Table Widget option
-                table->insertRow(numEDP);
-                QModelIndex index1 = table->model()->index(numEDP, 0);
-                table->model()->setData(index1, data3.c_str());
-                QModelIndex index2 = table->model()->index(numEDP, 1);
-                table->model()->setData(index2, data1.c_str());
-                QModelIndex index3 = table->model()->index(numEDP, 2);
-                table->model()->setData(index3, data2.c_str());
-                */
-
-                numEDP++;
-            }
-        }
-    }
-
-    summaryLayout->addStretch();
-
-    fileResults.close();
 
     //
     // create spreadsheet,  a QTableWidget showing RV and results for each run
@@ -427,14 +289,12 @@ Node_2_Disp Sobol' indices:
     spreadsheet->setHorizontalHeaderLabels(theHeadings);
     spreadsheet->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     spreadsheet->verticalHeader()->setVisible(false);
-
     // now until end of file, read lines and place data into spreadsheet
 
     int rowCount = 0;
     while (std::getline(tabResults, inputLine)) {
         std::istringstream is(inputLine);
         int col=0;
-        //qDebug()<<"\n the inputLine is        "<<inputLine.c_str();
 
         spreadsheet->insertRow(rowCount);
         for (int i=0; i<colCount+2; i++) {
@@ -450,6 +310,62 @@ Node_2_Disp Sobol' indices:
     }
     tabResults.close();
 
+    //
+    // determine summary statistics for each edp
+    //
+
+
+    for (int col = theRVs->getNumRandomVariables()+1; col<colCount; ++col) { // +1 for first col which is nit an RV
+        // compute the mean
+        double sum_value=0;
+        for(int row=0;row<rowCount;++row) {
+            QTableWidgetItem *item_index = spreadsheet->item(row,col);
+            double value_item = item_index->text().toDouble();
+            sum_value=sum_value+value_item;
+        }
+
+        double mean_value=sum_value/rowCount;
+
+        double sd_value=0;
+        double kurtosis_value=0;
+        double skewness_value = 0;
+        for(int row=0; row<rowCount;++row) {
+            QTableWidgetItem *item_index = spreadsheet->item(row,col);
+            double value_item = item_index->text().toDouble();
+            double tmp = value_item - mean_value;
+            double tmp2 = tmp*tmp;
+            sd_value += tmp2;
+            skewness_value += tmp*tmp2;
+            kurtosis_value += tmp2*tmp2;
+        }
+
+
+        double n = rowCount;
+        double tmpV = sd_value/n;
+
+        if (rowCount > 1)
+            sd_value = sd_value/(n-1);
+        sd_value=sqrt(sd_value);
+
+        // biased Kurtosis
+        kurtosis_value = kurtosis_value/(n*tmpV*tmpV);
+        // unbiased kurtosis value as calculated by Matlab
+        if (n > 3)
+            kurtosis_value = (n-1)/((n-2)*(n-3))*((n+1)*kurtosis_value - 3*(n-1)) + 3;
+
+        tmpV = sqrt(tmpV);
+        // biased skewness
+        skewness_value = skewness_value/(n*tmpV*tmpV*tmpV);
+        // unbiased skewness like Matlab
+        if (n > 3)
+            skewness_value *= sqrt(n*(n-1))/(n-2);
+
+        QString variableName = theHeadings.at(col);
+        QWidget *theWidget = this->createResultEDPWidget(variableName, mean_value, sd_value, skewness_value, kurtosis_value);
+        summaryLayout->addWidget(theWidget);
+    }
+
+    summaryLayout->addStretch();
 
     // this is where we are connecting edit triggers
     spreadsheet->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -459,7 +375,6 @@ Node_2_Disp Sobol' indices:
     //
     // create a chart, setting data points from first and last col of spreadsheet
     //
-
     chart = new QChart();
     chart->setAnimationOptions(QChart::AllAnimations);
 
@@ -473,17 +388,16 @@ Node_2_Disp Sobol' indices:
     chartView->setRenderHint(QPainter::Antialiasing);
     chartView->chart()->legend()->hide();
 
-
     QWidget *widget = new QWidget();
     QGridLayout *layout = new QGridLayout(widget);
     QPushButton* save_spreadsheet = new QPushButton();
     save_spreadsheet->setText("Save Data");
     save_spreadsheet->setToolTip(tr("Save data into file in a CSV format"));
-    save_spreadsheet->resize(30,30);
+    //save_spreadsheet->resize(30,30);
     connect(save_spreadsheet,SIGNAL(clicked()),this,SLOT(onSaveSpreadsheetClicked()));
 
     layout->addWidget(chartView, 0,0,1,1);
-    layout->addWidget(save_spreadsheet,1,0,Qt::AlignLeft);
+    layout->addWidget(save_spreadsheet,1,0,1,1); // Qt::AlignLeft);
     layout->addWidget(spreadsheet,2,0,1,1);
 
     //
@@ -494,14 +408,14 @@ Node_2_Disp Sobol' indices:
     tabWidget->addTab(widget, tr("Data Values"));
     tabWidget->adjustSize();
 
-    emit sendStatusMessage(tr(""));
+    this->statusMessage(tr(""));
 
     return 0;
 }
 
 
 void
-DakotaResultsSensitivity::onSaveSpreadsheetClicked()
+DakotaResultsSampling::onSaveSpreadsheetClicked()
 {
 
     int rowCount = spreadsheet->rowCount();
@@ -528,11 +442,21 @@ DakotaResultsSensitivity::onSaveSpreadsheetClicked()
             for (int j=0; j<columnCount; j++)
             {
                 QTableWidgetItem *item_value = spreadsheet->item(i,j);
-                double value = item_value->text().toDouble();
-		if (j == columnCount-1)		
-		  stream << value ;
-		else
-		  stream << value << ", ";		  
+                //KZ: adding if for "MultipleEvent" saving ground motion ID as string
+                if (QString::compare(theHeadings.at(j), "MultipleEvent")==0)
+                {
+                    auto value = QString(item_value->text());
+                    if (j == columnCount-1)
+                      stream << value ;
+                    else
+                      stream << value << ", ";
+                } else {
+                    double value = item_value->text().toDouble();
+                    if (j == columnCount-1)
+                      stream << value ;
+                    else
+                      stream << value << ", ";
+                }
             }
             stream<<endl;
         }
@@ -540,18 +464,11 @@ DakotaResultsSensitivity::onSaveSpreadsheetClicked()
     }
 }
 
-void DakotaResultsSensitivity::onSpreadsheetCellClicked(int row, int col)
+void DakotaResultsSampling::onSpreadsheetCellClicked(int row, int col)
 {
     mLeft = spreadsheet->wasLeftKeyPressed();
 
-    //  best_fit_instructions->clear();
-    //see the file MyTableWiget.cpp in order to find the function wasLeftKeyPressed();
-    //qDebug()<<"\n the value of mLeft       "<<mLeft;
-    //qDebug()<<"\n I am inside the onSpreadsheetCellClicked routine  and I am exiting!!  ";
-    //  exit(1);
-    // create a new series
     chart->removeAllSeries();
-    //chart->removeA
 
     QAbstractAxis *oldAxisX=chart->axisX();
     if (oldAxisX != 0)
@@ -568,10 +485,6 @@ void DakotaResultsSensitivity::onSpreadsheetCellClicked(int row, int col)
         //oldCol=0;   // padhye trying. I don't think it makes sense to use coldCol as col2, i.e., something that was
         // previously selected?
         col2 = col; // col is the one that comes in te function, based on the click made after clicking
-
-        //    qDebug()<<"\n the value of oldcol is  "<<oldCol;
-        //    qDebug()<<"\n the value of col2 is    "<<col2;
-        //    qDebug()<<"\t the value of col is     "<<col;
 
     } else {
         oldCol= col1;
@@ -672,12 +585,6 @@ void DakotaResultsSensitivity::onSpreadsheetCellClicked(int row, int col)
         double xRange=maxX-minX;
         double yRange=maxY-minY;
 
-        //  qDebug()<<"\n the value of xRange is     ";
-        //qDebug()<<xRange;
-
-        //qDebug()<<"\n the value of yRange is     ";
-        //qDebug()<<yRange;
-
         // if the column is not the run number, i.e., 0 column, then adjust the x-axis differently
 
         if(col1!=0)
@@ -699,9 +606,16 @@ void DakotaResultsSensitivity::onSpreadsheetCellClicked(int row, int col)
 
         QLineSeries *series= new QLineSeries;
 
-        static double NUM_DIVISIONS_FOR_DIVISION = 10.0;
+        double NUM_DIVISIONS_FOR_DIVISION = ceil(sqrt(rowCount));
+        if (NUM_DIVISIONS_FOR_DIVISION < 10)
+            NUM_DIVISIONS_FOR_DIVISION = 10;
+        else if (NUM_DIVISIONS_FOR_DIVISION > 20)
+            NUM_DIVISIONS_FOR_DIVISION = 20;
+
+        int NUM_DIVISIONS = NUM_DIVISIONS_FOR_DIVISION;
+
         double *dataValues = new double[rowCount];
-        double histogram[NUM_DIVISIONS];
+        double histogram[20];
         for (int i=0; i<NUM_DIVISIONS; i++)
             histogram[i] = 0;
 
@@ -741,7 +655,7 @@ void DakotaResultsSensitivity::onSpreadsheetCellClicked(int row, int col)
 
             double maxPercent = 0;
             for (int i=0; i<NUM_DIVISIONS; i++) {
-                histogram[i]/rowCount;
+                histogram[i] = histogram[i]/rowCount;
                 if (histogram[i] > maxPercent)
                     maxPercent = histogram[i];
             }
@@ -751,7 +665,6 @@ void DakotaResultsSensitivity::onSpreadsheetCellClicked(int row, int col)
                 series->append(min+(i+1)*dRange, histogram[i]);
                 series->append(min+(i+1)*dRange, 0);
             }
-
 
             chart->addSeries(series);
             series->setName("Histogram");
@@ -767,29 +680,18 @@ void DakotaResultsSensitivity::onSpreadsheetCellClicked(int row, int col)
             chart->setAxisX(axisX, series);
             chart->setAxisY(axisY, series);
 
+	    /* ************************************* REMVING BUGGY BEST FIT
             //calling external python script to find the best fit, generating the data and then plotting it.
-
             // this will be done in the application directory
 
             QString appDIR = qApp->applicationDirPath(); // this is where the .exe is and also the parseJson.py, and now the fit_distribution.py
 
-            // qDebug()<<"\n the value of appDIR is    "<<appDIR;
-            //  exit(1);
             QString data_input_file = appDIR +  QDir::separator() + QString("data_input.txt");
             QString pySCRIPT_dist_fit =  appDIR +  QDir::separator() + QString("fit.py");
-
-            //QString tDirectory = appDIR + QDir::separator() + QString("tmp.distributionfit");
-            // dump the data into a file
-
-
-            //QDir mDir; // an object of the class
-            //mDir.mkdir(tDirectory);
-            //qDebug()<<"\n the value of tDirectory is  "<<pySCRIPT_dist_fit;
 
             QFile file(data_input_file);
             QTextStream stream(&file);
 
-            //qDebug()<<"\n the data values are   \n";
             if (file.open(QIODevice::ReadWrite))
             {
                 for(int i=0;i<rowCount;++i)
@@ -797,13 +699,12 @@ void DakotaResultsSensitivity::onSpreadsheetCellClicked(int row, int col)
 
                     stream<<dataValues[i];
                     stream<< endl;
-
-                    //qDebug()<<"\n the dataValues is"<<dataValues[i];
                 }
             }else {qDebug()<<"\n error in opening file data file for histogram fit  ";exit(1);}
 
 
             delete [] dataValues;
+
 
             QString file_fitted_path = appDIR +  QDir::separator() + QString("Best_fit.out");
 
@@ -927,18 +828,8 @@ void DakotaResultsSensitivity::onSpreadsheetCellClicked(int row, int col)
 
             //     qDebug()<<"process has been completed       ";
             //         exit(1);
-            /*
-    #else
-    QString command = QString("source $HOME/.bashrc; python ") + pySCRIPT + QString(" ") + tDirectory + QString(" ") +
-            tmpDirectory + QString(" runningLocal");
-    //QString command = QString("python ") + pySCRIPT + QString(" ") + tDirectory + QString(" ") +
-    //        tmpDirectory + QString(" runningLocal");
-    proc->execute("bash", QStringList() << "-c" <<  command);
-    qInfo() << command;
-    // proc->start("bash", QStringList("-i"), QIODevice::ReadWrite);
-    #endif
-    proc->waitForStarted();
-*/
+
+	    ************************************ */
         } else {
             // cumulative distribution
             mergesort(dataValues, rowCount);
@@ -967,14 +858,14 @@ void DakotaResultsSensitivity::onSpreadsheetCellClicked(int row, int col)
 // padhye
 // this function is called if you decide to say save the data from UI into a json object
 bool
-DakotaResultsSensitivity::outputToJSON(QJsonObject &jsonObject)
+DakotaResultsSampling::outputToJSON(QJsonObject &jsonObject)
 {
     bool result = true;
 
-    jsonObject["resultType"]=QString(tr("DakotaResultsSensitivity"));
-
     if (spreadsheet == NULL)
         return true;
+
+    jsonObject["resultType"]=QString(tr("DakotaResultsSampling"));
 
     //
     // add summary data
@@ -988,6 +879,7 @@ DakotaResultsSensitivity::outputToJSON(QJsonObject &jsonObject)
         edpData["mean"]=theMeans.at(i);
         edpData["stdDev"]=theStdDevs.at(i);
         edpData["kurtosis"]=theKurtosis.at(i);
+        edpData["skewness"]=theSkewness.at(i);
         resultsData.append(edpData);
     }
 
@@ -996,6 +888,8 @@ DakotaResultsSensitivity::outputToJSON(QJsonObject &jsonObject)
     //
     // add spreadsheet data
     //
+
+
 
     QJsonObject spreadsheetData;
 
@@ -1033,15 +927,30 @@ DakotaResultsSensitivity::outputToJSON(QJsonObject &jsonObject)
 // if you already have a json data file then you can populate the UI with the entries from json.
 
 bool
-DakotaResultsSensitivity::inputFromJSON(QJsonObject &jsonObject)
+DakotaResultsSampling::inputFromJSON(QJsonObject &jsonObject)
 {
     bool result = true;
 
     this->clear();
 
-    QJsonValue theNameValue = jsonObject["spreadsheet"];
-    if (theNameValue.isNull())
+    //
+    // check any data exists
+    //
+
+    QJsonObject &theObject = jsonObject;
+
+    QJsonValue uqValue;
+    if (jsonObject.contains("uqResults")) {
+        uqValue = jsonObject["uqResults"];
+        jsonObject = uqValue.toObject();
+    } else
+        theObject = jsonObject;
+    
+
+    QJsonValue spreadsheetValue = theObject["spreadsheet"];
+    if (spreadsheetValue.isNull()) { // ok .. if saved files but did not run a simulation
         return true;
+    }
 
     //
     // create a summary widget in which place basic output (name, mean, stdDev)
@@ -1051,7 +960,7 @@ DakotaResultsSensitivity::inputFromJSON(QJsonObject &jsonObject)
     QVBoxLayout *summaryLayout = new QVBoxLayout();
     summary->setLayout(summaryLayout);
 
-    QJsonArray edpArray = jsonObject["summary"].toArray();
+    QJsonArray edpArray = theObject["summary"].toArray();
     foreach (const QJsonValue &edpValue, edpArray) {
         QString name;
         double mean, stdDev;
@@ -1068,7 +977,10 @@ DakotaResultsSensitivity::inputFromJSON(QJsonObject &jsonObject)
         QJsonValue theKurtosis = edpObject["kurtosis"];
         double kurtosis = theKurtosis.toDouble();
 
-        QWidget *theWidget = this->createResultEDPWidget(name, mean, stdDev, kurtosis);
+        QJsonValue theSkewness = edpObject["skewness"];
+        double skewness = theSkewness.toDouble();
+
+        QWidget *theWidget = this->createResultEDPWidget(name, mean, stdDev, skewness, kurtosis);
         summaryLayout->addWidget(theWidget);
     }
     summaryLayout->addStretch();
@@ -1079,7 +991,8 @@ DakotaResultsSensitivity::inputFromJSON(QJsonObject &jsonObject)
     //
 
     spreadsheet = new MyTableWidget();
-    QJsonObject spreadsheetData = jsonObject["spreadsheet"].toObject();
+    QJsonObject spreadsheetData = spreadsheetValue.toObject();
+
     int numRow = spreadsheetData["numRow"].toInt();
     int numCol = spreadsheetData["numCol"].toInt();
     spreadsheet->setColumnCount(numCol);
@@ -1140,8 +1053,6 @@ DakotaResultsSensitivity::inputFromJSON(QJsonObject &jsonObject)
 
     tabWidget->adjustSize();
 
-    //qDebug()<<"\n debugging the values: result is  \n"<<result<<"\n";
-
     return result;
 }
 
@@ -1149,9 +1060,11 @@ DakotaResultsSensitivity::inputFromJSON(QJsonObject &jsonObject)
 extern QWidget *addLabeledLineEdit(QString theLabelName, QLineEdit **theLineEdit);
 
 QWidget *
-DakotaResultsSensitivity::createResultEDPWidget(QString &name, double mean, double stdDev, double kurtosis) {
+DakotaResultsSampling::createResultEDPWidget(QString &name, double mean, double stdDev, double skewness, double kurtosis) {
     QWidget *edp = new QWidget;
     QHBoxLayout *edpLayout = new QHBoxLayout();
+    edpLayout->setContentsMargins(0,0,0,0);
+    edpLayout->setSpacing(3);
 
     edp->setLayout(edpLayout);
 
@@ -1175,6 +1088,13 @@ DakotaResultsSensitivity::createResultEDPWidget(QString &name, double mean, doub
     stdDevLineEdit->setDisabled(true);
     theStdDevs.append(stdDev);
     edpLayout->addWidget(stdDevWidget);
+
+    QLineEdit *skewnessLineEdit;
+    QWidget *skewnessWidget = addLabeledLineEdit(QString("Skewness"), &skewnessLineEdit);
+    skewnessLineEdit->setText(QString::number(skewness));
+    skewnessLineEdit->setDisabled(true);
+    theSkewness.append(skewness);
+    edpLayout->addWidget(skewnessWidget);
 
     QLineEdit *kurtosisLineEdit;
     QWidget *kurtosisWidget = addLabeledLineEdit(QString("Kurtosis"), &kurtosisLineEdit);

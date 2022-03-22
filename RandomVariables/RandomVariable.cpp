@@ -45,7 +45,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLineEdit>
 #include <QRadioButton>
 #include <QDebug>
-
+#include <QDir>
 //
 // headers for RandomVariableDistribution subclasses that user can select
 //
@@ -106,16 +106,17 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     //
     typeLabel    = new QLabel(tr("Input Type"));
     typeComboBox = new QComboBox();
-    typeComboBox->setMaximumWidth(200);
-    typeComboBox->setMinimumWidth(200);
+    typeComboBox->setMaximumWidth(100);
+    typeComboBox->setMinimumWidth(100);
 
     mainLayout->addWidget(typeLabel,0,2);
     mainLayout->addWidget(typeComboBox,1,2);
 
-
-    typeComboBox->addItem(tr("Parameters"));
-    typeComboBox->addItem(tr("Moments"));
-    typeComboBox->addItem(tr("Dataset"));
+    //    if (uqengin!=QString("SimCenterUQ")){
+        typeComboBox->addItem(tr("Parameters"));
+        typeComboBox->addItem(tr("Moments"));
+        typeComboBox->addItem(tr("Dataset"));
+    //}
 
 
     connect(typeComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(typeChanged(QString)));
@@ -127,8 +128,8 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     //
     distributionLabel    = new QLabel(tr("Distribution"));
     distributionComboBox = new QComboBox();
-    distributionComboBox->setMaximumWidth(200);
-    distributionComboBox->setMinimumWidth(200);
+    distributionComboBox->setMaximumWidth(150);
+    distributionComboBox->setMinimumWidth(150);
 
     mainLayout->addWidget(distributionLabel,0,3);
     mainLayout->addWidget(distributionComboBox,1,3);
@@ -142,6 +143,8 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
 
         distributionComboBox->addItem(tr("ContinuousDesign"));
         distributionComboBox->addItem(tr("Constant"));
+        theDistribution = new ContinuousDesignDistribution();
+
 
     } else if (variableClass == QString("Uncertain")) {
 
@@ -152,6 +155,8 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
         distributionComboBox->addItem(tr("Weibull"));
         distributionComboBox->addItem(tr("Gumbel"));
         distributionComboBox->addItem(tr("Constant"));
+        theDistribution = new NormalDistribution();
+
     }
 
     if (uqEngineName==QString("SimCenterUQ")){
@@ -171,9 +176,8 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     }
     //mainLayout->addStretch();
 
-    theDistribution = new NormalDistribution();
     mainLayout->addWidget(theDistribution,0,4,2,1);
-    connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+    // connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 
     //this->setLayout(mainLayout);
   // mainLayout->setSizeConstraint(QLayout::SetMaximumSize);
@@ -214,7 +218,7 @@ RandomVariable::RandomVariable(const QString &type,
     // set new
     theDistribution = &theD;
     mainLayout->addWidget(theDistribution,0,4,2,1);
-    connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+    // connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 }
 
 
@@ -230,6 +234,12 @@ RandomVariable::RandomVariable(const QString &type,
      return variableName->text();
  }
 
+ void
+ RandomVariable::copyFiles(QString fileDir){
+     theDistribution->copyFiles(fileDir + QDir::separator() + variableName->text() +".in");
+ }
+
+
 bool
 RandomVariable::outputToJSON(QJsonObject &rvObject){
     bool result = false;
@@ -242,7 +252,7 @@ RandomVariable::outputToJSON(QJsonObject &rvObject){
         rvObject["refCount"]=refCount;
         result = theDistribution->outputToJSON(rvObject);
     } else {
-        emit sendErrorMessage("ERROR: RandomVariable - cannot output as no \"name\" entry!");
+        this->errorMessage("ERROR: RandomVariable - cannot output as no \"name\" entry!");
         return false;
     }
     return result;
@@ -333,15 +343,23 @@ void RandomVariable::distributionChanged(const QString &arg1)
         delete theDistribution;
         theDistribution = 0;
     }
-    typeOpt = typeComboBox->currentText();
+
+    if (this->uqEngineName==QString("Dakota")) {
+        typeOpt = "Parameters";
+    } else {
+        typeOpt = typeComboBox->currentText();
+    }
 
     if (arg1 == QString("Normal")) {
         theDistribution = new NormalDistribution(typeOpt);
     } else if (arg1 == QString("Lognormal")) {
         if (this->uqEngineName==QString("Dakota")) {
-            typeComboBox->setCurrentIndex(1);
+            //typeComboBox->setCurrentIndex(1);
             theDistribution = new LognormalDistribution(QString("Moments"));
             // Dakota gets moments for lognormal
+            typeComboBox->setCurrentText("Moments");
+            distributionComboBox->setCurrentText("Lognormal");
+
         } else {
             theDistribution = new LognormalDistribution(typeOpt);
         }
@@ -374,7 +392,7 @@ void RandomVariable::distributionChanged(const QString &arg1)
       mainLayout->addWidget(theDistribution,0,4,2,1);
     }
 
-    connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+    // connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 }
 
 void RandomVariable::fixToUniform(double dValue)
@@ -390,11 +408,42 @@ void RandomVariable::fixToUniform(double dValue)
 
 }
 
+void RandomVariable::uqEngineChanged(QString newUqEngineName) {
+    if (uqEngineName!=newUqEngineName) {
+        if (newUqEngineName==QString("SimCenterUQ")){
+            typeLabel->setVisible(true);
+            typeComboBox->setVisible(true);
+            if (distributionComboBox->count()<8) {
+                distributionComboBox->addItem(tr("Exponential"));
+                distributionComboBox->addItem(tr("Discrete"));
+                distributionComboBox->addItem(tr("Gamma"));
+                distributionComboBox->addItem(tr("Chisquare"));
+                distributionComboBox->addItem(tr("Truncated exponential"));
+            }
+        }
+        if (newUqEngineName==QString("Dakota")){
+            typeLabel->setVisible(false);
+            typeComboBox->setVisible(false);
+            for (int i=distributionComboBox->count(); i>6; i--) {
+                distributionComboBox->removeItem(i);
+            }
 
+            QString distName = distributionComboBox->currentText();
+            if (distName=="Lognormal") {
+                typeComboBox->setCurrentText("Moments");
+                distributionComboBox->setCurrentText(distName);
+            } else {
+                typeComboBox->setCurrentText("Parameters");
+                distributionComboBox->setCurrentText(distName);
+            }
+        }
+        uqEngineName = newUqEngineName;
+    }
 
-
-
-void
-RandomVariable::errorMessage(QString message) {
-   emit sendErrorMessage(message);
+    // surrogate and design
+    if (variableClass == QString("Design")) {
+        distributionComboBox->addItem(tr("ContinuousDesign"));
+        distributionComboBox->addItem(tr("Constant"));
+        theDistribution = new ContinuousDesignDistribution();
+    }
 }

@@ -49,7 +49,8 @@ class SimCenterAppSelection : public  SimCenterAppWidget
     Q_OBJECT
 
 public:
-  explicit SimCenterAppSelection(QString label, QString selectionApplicationType, QWidget *parent);
+  explicit SimCenterAppSelection(QString label, QString jsonkeyword, QWidget *parent);
+  explicit SimCenterAppSelection(QString label, QString jsonKeyword, QString oldKeyword, QWidget *parent);  
     ~SimCenterAppSelection();
 
     bool outputAppDataToJSON(QJsonObject &jsonObject);
@@ -65,7 +66,8 @@ public:
 
 public slots:
    void selectionChangedSlot(const QString &);
-   void setCurrentlyViewable(bool); 
+   void setCurrentlyViewable(bool);
+   void setSelectionsActive(bool);
 
 signals:
    void selectionChangedSignal(const QString &);
@@ -75,6 +77,7 @@ protected:
   
 private:
   virtual bool displayComponent(QString text);
+  void initializeWidget(QString label);
 
   QStackedWidget* theStackedWidget;
   QComboBox* theSelectionCombo;
@@ -85,7 +88,8 @@ private:
   QList<QString> theComboNames;
   QList<QString> theApplicationNames;  
   QList<SimCenterAppWidget *> theComponents;
-  QString selectionApplicationType; // application type that appears in json
+  QString jsonKeyword; // application type that appears in json
+  QString jsonKeywordOld; // application type that appears in older json for reading
 
   bool viewableStatus;
 };

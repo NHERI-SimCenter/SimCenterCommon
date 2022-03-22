@@ -127,7 +127,7 @@ EDP_EarthquakeSelection::inputFromJSON(QJsonObject &jsonObject) {
   if (theCurrentEDP != 0) {
     return theCurrentEDP->inputFromJSON(jsonObject);
   } else {
-      emit sendErrorMessage("EDP_SElection no current EDP selected");
+      errorMessage("EDP_SElection no current EDP selected");
   }
 
   return false;
@@ -174,7 +174,7 @@ EDP_EarthquakeSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
     QJsonValue theName = jsonObject["Application"];
     type = theName.toString();
   } else {
-    emit sendErrorMessage("EDP_EarthquakeSelection - no Application key found");
+    errorMessage("EDP_EarthquakeSelection - no Application key found");
     return false;
   }
 
@@ -187,7 +187,7 @@ EDP_EarthquakeSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
 	     (type == QString("User Defined EDPs"))) {
     index = 1;
   } else {
-    emit sendErrorMessage("EDP_EarthquakeSelection - no valid type found");
+    errorMessage("EDP_EarthquakeSelection - no valid type found");
     return false;
   }
 

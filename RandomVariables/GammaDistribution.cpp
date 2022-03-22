@@ -92,14 +92,21 @@ GammaDistribution::GammaDistribution(QString inpType, QWidget *parent) :RandomVa
         mainLayout->addWidget(chooseFileButton, 1,1);
 
         // Action
+//        connect(chooseFileButton, &QPushButton::clicked, this, [=](){
+//                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
+//        });
+
         connect(chooseFileButton, &QPushButton::clicked, this, [=](){
-                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)"));
-        });
+                  QString fileName = QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*)");
+                  if (!fileName.isEmpty()) {
+                      dataDir->setText(fileName);
+                  }
+              });
     }
 
     mainLayout->setColumnStretch(3,1);
 
-    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
 
     if (inpty==QString("Parameters")) {
         connect(k,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
@@ -123,21 +130,21 @@ GammaDistribution::outputToJSON(QJsonObject &rvObject){
     if (inpty==QString("Parameters")) {
         // check for error condition, an entry had no value
         if ((k->text().isEmpty())||(lambda->text().isEmpty())) {
-            emit sendErrorMessage("ERROR: GammaDistribution - data has not been set");
+            this->errorMessage("ERROR: GammaDistribution - data has not been set");
             return false;
         }
         rvObject["k"]=k->text().toDouble();
         rvObject["lambda"]=lambda->text().toDouble();
     } else if (inpty==QString("Moments")) {
         if ((mean->text().isEmpty())||(standardDev->text().isEmpty())) {
-            emit sendErrorMessage("ERROR: GammaDistribution - data has not been set");
+            this->errorMessage("ERROR: GammaDistribution - data has not been set");
             return false;
         }
         rvObject["mean"]=mean->text().toDouble();
         rvObject["standardDev"]=standardDev->text().toDouble();
     } else if (inpty==QString("Dataset")) {
         if (dataDir->text().isEmpty()) {
-            emit sendErrorMessage("ERROR: GammaDistribution - data has not been set");
+            this->errorMessage("ERROR: GammaDistribution - data has not been set");
             return false;
         }
         rvObject["dataDir"]=QString(dataDir->text());
@@ -164,14 +171,14 @@ GammaDistribution::inputFromJSON(QJsonObject &rvObject){
             double thekValue = rvObject["k"].toDouble();
             k->setText(QString::number(thekValue));
         } else {
-            emit sendErrorMessage("ERROR: GammaDistribution - no \"a\" entry");
+            this->errorMessage("ERROR: GammaDistribution - no \"a\" entry");
             return false;
         }
         if (rvObject.contains("lambda")) {
             double thelambdaValue = rvObject["lambda"].toDouble();
             lambda->setText(QString::number(thelambdaValue));
         } else {
-            emit sendErrorMessage("ERROR: GammaDistribution - no \"a\" entry");
+            this->errorMessage("ERROR: GammaDistribution - no \"a\" entry");
             return false;
         }
       } else if (inpty==QString("Moments")) {
@@ -180,14 +187,14 @@ GammaDistribution::inputFromJSON(QJsonObject &rvObject){
             double theMeanValue = rvObject["mean"].toDouble();
             mean->setText(QString::number(theMeanValue));
         } else {
-            emit sendErrorMessage("ERROR: GammaDistribution - no \"mean\" entry");
+            this->errorMessage("ERROR: GammaDistribution - no \"mean\" entry");
             return false;
         }
         if (rvObject.contains("standardDev")) {
             double theStdValue = rvObject["standardDev"].toDouble();
             standardDev->setText(QString::number(theStdValue));
         } else {
-            emit sendErrorMessage("ERROR: GammaDistribution - no \"mean\" entry");
+            this->errorMessage("ERROR: GammaDistribution - no \"mean\" entry");
             return false;
         }
     } else if (inpty==QString("Dataset")) {
@@ -196,13 +203,21 @@ GammaDistribution::inputFromJSON(QJsonObject &rvObject){
           QString theDataDir = rvObject["dataDir"].toString();
           dataDir->setText(theDataDir);
       } else {
-          emit sendErrorMessage("ERROR: GammaDistribution - no \"mean\" entry");
+          this->errorMessage("ERROR: GammaDistribution - no \"mean\" entry");
           return false;
       }
     }
 
     this->updateDistributionPlot();
     return true;
+}
+
+
+void
+GammaDistribution::copyFiles(QString fileDir) {
+    if (inpty==QString("Dataset")) {
+        QFile::copy(dataDir->text(), fileDir);
+    }
 }
 
 QString 

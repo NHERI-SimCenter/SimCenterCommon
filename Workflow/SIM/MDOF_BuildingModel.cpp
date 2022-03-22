@@ -59,7 +59,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <string>
 #include <sstream>
 #include <iostream>
-using namespace std;
+
+//using namespace std;
+
 #include <QGridLayout>
 #include <SpreadsheetWidget.h>
 #ifdef _GRAPHICS_Qt3D

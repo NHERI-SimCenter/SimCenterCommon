@@ -68,7 +68,8 @@ public:
     bool isSelectedForRemoval(void);
     QString getVariableName(void);
     void fixToUniform(double dValue);
-
+    void uqEngineChanged(QString engineName);
+    void copyFiles(QString fileDir);
     QLineEdit *variableName;
     int refCount;
 
@@ -77,7 +78,6 @@ signals:
 public slots:
      void distributionChanged(const QString &arg1);
      void typeChanged(const QString &arg1);
-     void errorMessage(QString message);
 
 private:
     RandomVariableDistribution *theDistribution;

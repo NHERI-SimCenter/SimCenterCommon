@@ -55,6 +55,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QGridLayout>
 #include <QHeaderView>
 #include <QApplication>
+#include <QFileDialog>
+#include <QJsonDocument>
 
 // To check validity of correlation matrix
 #include <Eigen/Dense>
@@ -78,6 +80,17 @@ RandomVariablesContainer::RandomVariablesContainer(QString &theClass, QString uq
     verticalLayout = new QVBoxLayout();
     this->setLayout(verticalLayout);
     this->makeRV();
+}
+
+void
+RandomVariablesContainer::addRVsWithValues(QStringList &varNamesAndValues)
+{
+  if (addRVsType == 0)
+    this->addConstantRVs(varNamesAndValues);
+  else if (addRVsType == 1)
+    this->addUniformRVs(varNamesAndValues);
+  else
+    this->addNormalRVs(varNamesAndValues);      
 }
 
 void
@@ -118,18 +131,18 @@ void
 RandomVariablesContainer::addUniformRVs(QStringList &varNamesAndValues)
 {
     // remove existing RVs
-    auto theRVs = this->theRandomVariables;
-    int numEDPs = theRVs.size();
-    for (int i = numEDPs-1; i >= 0; i--) {
-        RandomVariable *theRV = theRVs.at(i);
-        theRV->close();
-        rvLayout->removeWidget(theRV);
-        theRVs.remove(i);
-        randomVariableNames.removeAt(i);
-        theRandomVariables.remove(i);
-        theRV->setParent(0);
-        delete theRV;
-    }
+//    auto theRVs = this->theRandomVariables;
+//    int numEDPs = theRVs.size();
+//    for (int i = numEDPs-1; i >= 0; i--) {
+//        RandomVariable *theRV = theRVs.at(i);
+//        theRV->close();
+//        rvLayout->removeWidget(theRV);
+//        theRVs.remove(i);
+//        randomVariableNames.removeAt(i);
+//        theRandomVariables.remove(i);
+//        theRV->setParent(0);
+//        delete theRV;
+//    }
 
     int numVar = varNamesAndValues.count();
     for (int i=0; i<numVar; i+= 2) {
@@ -146,6 +159,57 @@ RandomVariablesContainer::addUniformRVs(QStringList &varNamesAndValues)
     }
 }
 
+void
+RandomVariablesContainer::copyRVs(RandomVariablesContainer *oldRVcontainers)
+{
+
+    QVector<RandomVariable *> tmp_dists = oldRVcontainers->getRVdists();
+    for(int i = 0; i < tmp_dists.size(); ++i)
+    {
+        tmp_dists.at(i)->uqEngineChanged(uqEngineName);
+        this->addRandomVariable(tmp_dists.at(i));
+    }
+    //correlationDialog = NULL; // reset correlationDialog
+    QTableWidget * tmp_corrs = oldRVcontainers->getRVcorr();
+
+
+    if( tmp_corrs != NULL) {
+        this->addCorrelationMatrix();
+        correlationDialog->hide();
+        //correlationMatrix=oldRVcontainers->getRVcorr();
+        //correlationDialog->hide();
+
+        correlationDialog = NULL; // reset correlationDialog
+        this->addCorrelationMatrix();
+        for (int row=0; row<tmp_dists.size(); row++)
+        {
+               for (int col=0; col<row; col++)
+               {
+                   QString value = tmp_corrs->item(row,col)->text();
+                   QTableWidgetItem *item = correlationMatrix->item(row,col);
+                   item->setText(value);
+               }
+        }
+        correlationDialog->hide();
+    }
+}
+
+QVector<RandomVariable *>
+RandomVariablesContainer::getRVdists()
+{
+    return theRandomVariables;
+}
+
+QTableWidget *
+RandomVariablesContainer::getRVcorr()
+{
+    if (correlationMatrix == NULL) {
+        return NULL;
+    } else {
+        return correlationMatrix;
+
+    }
+}
 
 void
 RandomVariablesContainer::addRandomVariable(QString &varName) {
@@ -155,6 +219,8 @@ RandomVariablesContainer::addRandomVariable(QString &varName) {
 
     this->addRandomVariable(theRV);
 }
+
+
 
 void
 RandomVariablesContainer::removeRandomVariable(QString &varName)
@@ -220,14 +286,16 @@ RandomVariablesContainer::makeRV(void)
 {
     // title & add button
     QHBoxLayout *titleLayout = new QHBoxLayout();
-    titleLayout->setMargin(10);
+    //titleLayout->setMargin(10);
 
     SectionTitle *title=new SectionTitle();
     title->setText(tr("Input Random Variables"));
     title->setMinimumWidth(250);
     QSpacerItem *spacer1 = new QSpacerItem(50,10);
     QSpacerItem *spacer2 = new QSpacerItem(20,10);
-    QSpacerItem *spacer3 = new QSpacerItem(50,10);
+    QSpacerItem *spacer3 = new QSpacerItem(20,10);
+    QSpacerItem *spacer4 = new QSpacerItem(50,10);
+    QSpacerItem *spacer5 = new QSpacerItem(20,10);
 
 
     QPushButton *addRV = new QPushButton();
@@ -243,6 +311,21 @@ RandomVariablesContainer::makeRV(void)
     removeRV->setText(tr("Remove"));
     connect(removeRV,SIGNAL(clicked()),this,SLOT(removeRandomVariable()));
 
+
+    QPushButton *RVsFromJson = new QPushButton();
+    RVsFromJson->setMinimumWidth(75);
+    RVsFromJson->setMaximumWidth(75);
+    RVsFromJson->setText(tr("Import"));
+    RVsFromJson->setStyleSheet("background-color: dodgerblue;border-color:dodgerblue");
+    connect(RVsFromJson,SIGNAL(clicked()),this,SLOT(loadRVsFromJson()));
+
+
+    QPushButton *RVsToJson = new QPushButton();
+    RVsToJson->setMinimumWidth(75);
+    RVsToJson->setMaximumWidth(75);
+    RVsToJson->setText(tr("Export"));
+    RVsToJson->setStyleSheet("background-color: dodgerblue;border-color:dodgerblue");
+    connect(RVsToJson,SIGNAL(clicked()),this,SLOT(saveRVsToJson()));
 
     // padhye, adding the button for correlation matrix, we need to add a condition here
     // that whether the uqMehod selected is that of Dakota and sampling type? only then we need correlation matrix
@@ -268,9 +351,14 @@ RandomVariablesContainer::makeRV(void)
 
     //titleLayout->addWidget(addCorrelation,0,Qt::AlignTop);
     QString appName = QApplication::applicationName();
-    if (appName == "quoFEM")
+    if (appName == "quoFEM") {
         titleLayout->addWidget(addCorrelation);
+        titleLayout->addItem(spacer4);
+    }
 
+    titleLayout->addWidget(RVsToJson);
+    titleLayout->addItem(spacer5);
+    titleLayout->addWidget(RVsFromJson);
     titleLayout->addStretch();
 
     verticalLayout->addLayout(titleLayout);
@@ -290,7 +378,7 @@ RandomVariablesContainer::makeRV(void)
    // this->addRandomVariable();
      sa->setWidget(rv);
      verticalLayout->addWidget(sa);
-     verticalLayout->setSpacing(0);
+     //verticalLayout->setSpacing(0);
      verticalLayout->setMargin(0);
 
 }
@@ -335,7 +423,7 @@ RandomVariablesContainer::addRandomVariable(void) {
     RandomVariable *theRV = new RandomVariable(randomVariableClass, uqEngineName);
     theRandomVariables.append(theRV);
     rvLayout->insertWidget(rvLayout->count()-1, theRV);
-    connect(this,SLOT(randomVariableErrorMessage(QString)), theRV, SIGNAL(sendErrorMessage(QString)));
+    // connect(this,SLOT(randomVariableErrorMessage(QString)), theRV, SIGNAL(sendErrorMessage(QString)));
 
     connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(variableNameChanged(const QString &)));
 
@@ -446,6 +534,39 @@ void RandomVariablesContainer::removeRandomVariable(void)
     free(index_selected_to_remove);
 }
 
+void RandomVariablesContainer::loadRVsFromJson(void)
+{
+    QString RVsFileDir=QFileDialog::getOpenFileName(this,tr("Open File"),"", "JSON File (*.json)");
+
+    QFile file(RVsFileDir);
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        QString message = QString("Error: could not open file") + RVsFileDir;
+    }
+    QString val;
+    val=file.readAll();
+    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+    QJsonObject rvObject = doc.object();
+    if (!RVsFileDir.isEmpty())
+        inputFromJSON(rvObject);
+}
+
+void RandomVariablesContainer::saveRVsToJson(void)
+{
+    QString RVsFileDir = QFileDialog::getSaveFileName(this,
+                                                   tr("Save Data"), "RVs",
+                                                   tr("JSON File (*.json)"));
+    QFile file(RVsFileDir);
+    if (file.open(QIODevice::WriteOnly))
+    {
+        QJsonObject rvObject;
+        outputToJSON(rvObject);
+
+        QJsonDocument doc(rvObject);
+        file.write(doc.toJson());
+        file.close();
+    }
+
+}
 
 void
 RandomVariablesContainer::addRandomVariable(RandomVariable *theRV) {
@@ -473,7 +594,7 @@ RandomVariablesContainer::addRandomVariable(RandomVariable *theRV) {
         theRV->refCount = 1;
         theRV->variableName->setReadOnly(true);
 
-        connect(this,SLOT(randomVariableErrorMessage(QString)), theRV, SIGNAL(sendErrorMessage(QString)));
+       // connect(this,SLOT(randomVariableErrorMessage(QString)), theRV, SIGNAL(sendErrorMessage(QString)));
         connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(variableNameChanged(const QString &)));
 
         randomVariableNames << theRV->variableName->text();
@@ -727,6 +848,15 @@ RandomVariablesContainer::getNumRandomVariables(void)
     return theRandomVariables.size(); 
 }
 
+void
+RandomVariablesContainer::copyFiles(QString fileDir)
+{
+    for (int i = 0; i <theRandomVariables.size(); ++i) {
+        theRandomVariables.at(i)->copyFiles(fileDir);
+    }
+}
+
+
 bool
 RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
 {
@@ -764,7 +894,7 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
                   theRV = new RandomVariable(classType,uqEngineName);
                   connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(variableNameChanged(const QString &)));
 
-                  connect(theRV,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+                  //connect(theRV,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 
                   if (theRV->inputFromJSON(rvObject)) { // this method is where type is set
                       theRandomVariables.append(theRV);
@@ -825,7 +955,7 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
 
 void
 RandomVariablesContainer::errorMessage(QString message){
-    emit sendErrorMessage(message);
+    this->errorMessage(message);
 }
 
 void

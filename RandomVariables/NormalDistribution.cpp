@@ -83,12 +83,19 @@ NormalDistribution::NormalDistribution(QString inpType, QWidget *parent) :Random
         mainLayout->setColumnStretch(2,1);
 
         // Action
+//        connect(chooseFileButton, &QPushButton::clicked, this, [=](){
+//                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
+//        });
+
         connect(chooseFileButton, &QPushButton::clicked, this, [=](){
-                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)"));
-        });
+                  QString fileName = QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*)");
+                  if (!fileName.isEmpty()) {
+                      dataDir->setText(fileName);
+                  }
+              });
     }
 
-    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
 
     if ((inpty==QString("Parameters"))||(inpty==QString("Moments"))) {
         connect(mean,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
@@ -126,7 +133,7 @@ NormalDistribution::NormalDistribution(double initValue, QWidget *parent) :Rando
     mainLayout->addWidget(showPlotButton,1,2);
     mainLayout->setColumnStretch(3,1);
 
-    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
 
     connect(mean,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
     connect(standardDev,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
@@ -144,7 +151,7 @@ NormalDistribution::outputToJSON(QJsonObject &rvObject){
 
     if ((inpty==QString("Parameters")) || (inpty==QString("Moments"))) {
         if (mean->text().isEmpty() || standardDev->text().isEmpty()) {
-            emit sendErrorMessage("ERROR: NormalDistribution - data has not been set");
+            this->errorMessage("ERROR: NormalDistribution - data has not been set");
             return false;
         }
         rvObject["mean"]=mean->text().toDouble();
@@ -153,10 +160,11 @@ NormalDistribution::outputToJSON(QJsonObject &rvObject){
 
     } else if (inpty==QString("Dataset")) {
         if (dataDir->text().isEmpty()) {
-            emit sendErrorMessage("ERROR: LognormalDistribution - data has not been set");
+            this->errorMessage("ERROR: LognormalDistribution - data has not been set");
             return false;
         }
         rvObject["dataDir"]=QString(dataDir->text());
+        return true;
     }
 }
 
@@ -178,7 +186,7 @@ NormalDistribution::inputFromJSON(QJsonObject &rvObject){
             QJsonValue theMeanValue = rvObject["mean"];
             mean->setText(QString::number(theMeanValue.toDouble()));
         } else {
-            emit sendErrorMessage("ERROR: NormalDistribution - no \"mean\" entry");
+            this->errorMessage("ERROR: NormalDistribution - no \"mean\" entry");
             return false;
         }
 
@@ -186,7 +194,7 @@ NormalDistribution::inputFromJSON(QJsonObject &rvObject){
             QJsonValue theStdDevValue = rvObject["stdDev"];
             standardDev->setText(QString::number(theStdDevValue.toDouble()));
         } else {
-            emit sendErrorMessage("ERROR: NormalDistribution - no \"stdDev\" entry");
+            this->errorMessage("ERROR: NormalDistribution - no \"stdDev\" entry");
             return false;
         }
 
@@ -196,13 +204,20 @@ NormalDistribution::inputFromJSON(QJsonObject &rvObject){
           QString theDataDir = rvObject["dataDir"].toString();
           dataDir->setText(theDataDir);
       } else {
-          emit sendErrorMessage("ERROR: NormalDistribution - no \"mean\" entry");
+          this->errorMessage("ERROR: NormalDistribution - no \"mean\" entry");
           return false;
       }
     }
 
     this->updateDistributionPlot();
     return true;
+}
+
+void
+NormalDistribution::copyFiles(QString fileDir) {
+    if (inpty==QString("Dataset")) {
+        QFile::copy(dataDir->text(), fileDir);
+    }
 }
 
 QString
@@ -215,7 +230,10 @@ NormalDistribution::updateDistributionPlot() {
     if ((this->inpty)==QString("Parameters") || (this->inpty)==QString("Moments")) {
         double me = mean->text().toDouble();
         double st =standardDev->text().toDouble();
-        if (st > 0.0) {
+        if (st < 0.0) {
+            st = 0;
+            me = 0;
+        }
             double min = me - 5*st;
             double max = me + 5*st;
             QVector<double> x(100);
@@ -227,6 +245,5 @@ NormalDistribution::updateDistributionPlot() {
             }
             thePlot->clear();
             thePlot->addLine(x,y);
-        }
     }
 }

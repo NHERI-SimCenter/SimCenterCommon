@@ -64,6 +64,9 @@ signals:
     void processResults(QString , QString, QString);
     void runComplete();
 
+    void sendErrorMessage(QString);
+    void sendStatusMessage(QString);
+
 public slots:
    void onRunButtonPressed(void);
 

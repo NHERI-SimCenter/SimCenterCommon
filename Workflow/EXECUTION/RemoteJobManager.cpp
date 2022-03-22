@@ -58,7 +58,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDesktopWidget>
 #include <QScreen>
 #include <SimCenterPreferences.h>
-#include <QProcess>
 #include <QSettings>
 #include <QLabel>
 
@@ -74,7 +73,7 @@ RemoteJobManager::RemoteJobManager(RemoteService *theRemoteInterface, QWidget *p
 {
     QVBoxLayout *layout = new QVBoxLayout();
 
-    QLabel *label = new QLabel("* Click in any job sshown in table below to update the job status, download the job or delete the job. Deleting a job removes it and all files created for it.");
+    QLabel *label = new QLabel("* Click in any job shown in table below to update the job status, download the job or delete the job. Deleting a job removes it and all files created for it.");
     
     layout->addWidget(label);
     
@@ -99,6 +98,7 @@ RemoteJobManager::RemoteJobManager(RemoteService *theRemoteInterface, QWidget *p
 
     this->resize(width, height);
 
+    this->setWindowFlags(Qt::WindowStaysOnTopHint);
 
     //jobsTable->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 
@@ -130,6 +130,11 @@ RemoteJobManager::RemoteJobManager(RemoteService *theRemoteInterface, QWidget *p
         theRemoteInterface->downloadFilesCall(remoteFiles, localFiles, this);
     });
     connect(theRemoteInterface,SIGNAL(downloadFilesReturn(bool, QObject*)),this,SLOT(downloadFilesReturn(bool, QObject*)));
+
+    // The python process for extracting the hdf5 file
+    proc = new QProcess(this);
+
+    connect(proc, &QProcess::readyReadStandardOutput, this, &RemoteJobManager::handleProcessTextOutput);
 }
 
 void
@@ -170,12 +175,10 @@ RemoteJobManager::jobsListReturn(QJsonObject theJobs){
      //jobsTable->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
      this->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 
-     emit closeDialog();
-
      QString msg1("Job status does not refresh automatically");
-     emit statusMessage(msg1);     
+     emit sendStatusMessage(msg1);
      QString msg2("Select a job from table and use left mouse button to see options for that job");
-     emit statusMessage(msg2);
+     emit sendStatusMessage(msg2);
 
 
        
@@ -220,7 +223,6 @@ RemoteJobManager::jobStatusReturn(QString status) {
         itemStatus->setText(status);
     }
     triggeredRow = -1;
-    emit closeDialog();
 }
 
 
@@ -241,7 +243,6 @@ RemoteJobManager::deleteJobReturn(bool result) {
     if (result == true)
         jobsTable->removeRow(triggeredRow);
     triggeredRow = -1;
-    emit closeDialog();
 }
 
 
@@ -332,7 +333,7 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
         localWork.removeRecursively();
         if (!localWork.exists()) {
             if (!localWork.mkpath(localDir)) {
-                emit errorMessage(QString("Could not create Working Dir: ") + localDir + QString(" . Try using an existing directory or make sure you have permission to create the working directory."));
+                emit sendErrorMessage(QString("Could not create Working Dir: ") + localDir + QString(" . Try using an existing directory or make sure you have permission to create the working directory."));
                 return;
             }
         }
@@ -407,7 +408,7 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
 {
     //
     // this method called only during the loading of a remote job
-    //    called as a resultt of method abive which emitted a downloadFIles(),
+    //    called as a result of method above which emitted a downloadFIles(),
     //    which itself was a result of the getJobData methid and it's emit getJobDetails signal
     //
 
@@ -418,7 +419,7 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
 
         if (!localWork.exists())
             if (!localWork.mkpath(localDir)) {
-                emit errorMessage(QString("Could not create Working Dir: ") + localDir + QString(" . Try using an existing directory or make sure you have permission to create the working directory."));
+                emit sendErrorMessage(QString("Could not create Working Dir: ") + localDir + QString(" . Try using an existing directory or make sure you have permission to create the working directory."));
                 return;
             }
 
@@ -427,7 +428,7 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
             if (appName != "R2D"){
                 emit loadFile(name1);
                 emit processResults(name2, name3, name1);
-                this->hide();
+                this->close();
             } else {
                 // unzip files
                 ZipUtils::UnzipFile(name3, localDir);
@@ -439,18 +440,26 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
                         "applications" + QDir::separator() + "performDL" + QDir::separator() + "pelicun" + QDir::separator() + "HDF_to_CSV.py";
                 foreach(QString filename, theFiles) {
 
-                    QProcess *proc = new QProcess();
                     QString pathToFile = localWork.filePath(filename);
                     QStringList args{pyScript, pathToFile};
 
-                    QString python;
-                    QSettings settings("SimCenter", "Common"); //These names will need to be constants to be shared
-                    QVariant  pythonLocationVariant = settings.value("pythonExePath");
-                    if (pythonLocationVariant.isValid()) {
-                        python = pythonLocationVariant.toString();
-                    }
-                    proc->execute(python,args);
-                    proc->waitForStarted();
+                    QString python = SimCenterPreferences::getInstance()->getPython();
+                    //QSettings settings("SimCenter", "Common"); //These names will need to be constants to be shared
+                    //QVariant  pythonLocationVariant = settings.value("pythonExePath");
+                    //if (pythonLocationVariant.isValid()) {
+                    //    python = pythonLocationVariant.toString();
+                    //}
+
+                    QString msg = "Unpacking hdf file "+filename +" to the local directory.";
+                    emit sendStatusMessage(msg);
+                    proc->start(python,args);
+
+                    proc->waitForFinished();
+
+                    handleProcessFinished(proc->exitCode(), proc->exitStatus(), filename);
+
+                    if(proc->exitCode() != 0)
+                        return;
                 }
 
                 // now load inputfile and process results
@@ -458,17 +467,20 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
                 QString filePath = fileInfo.absolutePath();
                 QString name2("");
                 QString name3("");
+
                 emit loadFile(name1);
                 emit processResults(filePath, name2, name3);
             }
         } else {
-            emit errorMessage("ERROR - Failed to download File - did Job finish successfully?");
+            emit sendErrorMessage("ERROR - Failed to download File - did Job finish successfully?");
        }
     }
 }
 
 void
 RemoteJobManager::getJobData(void) {
+
+    this->close();
 
     if (triggeredRow != -1) {
 
@@ -488,6 +500,40 @@ RemoteJobManager::getJobData(void) {
     triggeredRow = -1;
 }
 
+
+void RemoteJobManager::handleProcessFinished(int exitCode, QProcess::ExitStatus exitStatus, QString fileName)
+{
+    if(exitStatus == QProcess::ExitStatus::CrashExit)
+    {
+        QString errText("Error, the hdf conversion process crashed for file ");
+
+        emit sendErrorMessage(errText + fileName);
+        emit sendStatusMessage("Unpacking of hdf complete with errors");
+
+        return;
+    }
+
+    if(exitCode != 0)
+    {
+        QString errText("An error occurred in the hdf conversion process, the exit code is " + QString::number(exitCode));
+
+        emit sendErrorMessage(errText);
+        emit sendStatusMessage("Unpacking of hdf complete with errors for file" + fileName);
+
+        return;
+    }
+
+    emit sendStatusMessage("Unpacking of hdf file completed successfully for file "+ fileName);
+}
+
+
+void RemoteJobManager::handleProcessTextOutput(void)
+{
+    QByteArray output =  proc->readAllStandardOutput();
+    QString outputStr = QString(output);
+    emit sendStatusMessage(outputStr);
+    QApplication::processEvents();
+}
 
 
 

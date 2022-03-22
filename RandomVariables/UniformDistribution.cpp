@@ -92,14 +92,21 @@ UniformDistribution::UniformDistribution(QString inpType, QWidget *parent) :Rand
         mainLayout->addWidget(chooseFileButton, 1,1);
 
         // Action
+//        connect(chooseFileButton, &QPushButton::clicked, this, [=](){
+//                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
+//        });
+
         connect(chooseFileButton, &QPushButton::clicked, this, [=](){
-                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)"));
-        });
+                  QString fileName = QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*)");
+                  if (!fileName.isEmpty()) {
+                      dataDir->setText(fileName);
+                  }
+              });
     }
 
     mainLayout->setColumnStretch(3,1);
 
-    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
 
     if (inpty==QString("Parameters")) {
         connect(a,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
@@ -136,7 +143,7 @@ UniformDistribution::UniformDistribution(double initValue, QWidget *parent)  :Ra
     mainLayout->addWidget(showPlotButton, 1,2);
     mainLayout->setColumnStretch(3,1);
 
-    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
 
     connect(a,SIGNAL(textChanged(QString)), this, SLOT(updateDistributionPlot()));
     connect(b,SIGNAL(textChanged(QString)), this, SLOT(updateDistributionPlot()));
@@ -174,7 +181,7 @@ UniformDistribution::outputToJSON(QJsonObject &rvObject){
     if (inpty==QString("Parameters")||inpty.isNull()) {
         // check for error condition, a entry had no value
         if ((a->text().isEmpty())||(b->text().isEmpty())) {
-            //emit sendErrorMessage("ERROR: UniformDistribution - data has not been set");
+            //this->errorMessage("ERROR: UniformDistribution - data has not been set");
             //return false;
             a->setText("nan");
             b->setText("nan");
@@ -183,14 +190,14 @@ UniformDistribution::outputToJSON(QJsonObject &rvObject){
         rvObject["upperbound"]=b->text().toDouble();
     } else if (inpty==QString("Moments")) {
         if ((mean->text().isEmpty())||(standardDev->text().isEmpty())) {
-            emit sendErrorMessage("ERROR: UniformDistribution - data has not been set");
+            this->errorMessage("ERROR: UniformDistribution - data has not been set");
             return false;
         }
         rvObject["mean"]=mean->text().toDouble();
         rvObject["standardDev"]=standardDev->text().toDouble();
     } else if (inpty==QString("Dataset")) {
         if (dataDir->text().isEmpty()) {
-            emit sendErrorMessage("ERROR: UniformDistribution - data has not been set");
+            this->errorMessage("ERROR: UniformDistribution - data has not been set");
             return false;
         }
         rvObject["dataDir"]=QString(dataDir->text());
@@ -217,14 +224,14 @@ UniformDistribution::inputFromJSON(QJsonObject &rvObject){
             double theMuValue = rvObject["lowerbound"].toDouble();
             a->setText(QString::number(theMuValue));
         } else {
-            emit sendErrorMessage("ERROR: UniformDistribution - no \"a\" entry");
+            this->errorMessage("ERROR: UniformDistribution - no \"a\" entry");
             return false;
         }
         if (rvObject.contains("upperbound")) {
             double theSigValue = rvObject["upperbound"].toDouble();
             b->setText(QString::number(theSigValue));
         } else {
-            emit sendErrorMessage("ERROR: UniformDistribution - no \"a\" entry");
+            this->errorMessage("ERROR: UniformDistribution - no \"a\" entry");
             return false;
         }
       } else if (inpty==QString("Moments")) {
@@ -233,14 +240,14 @@ UniformDistribution::inputFromJSON(QJsonObject &rvObject){
             double theMeanValue = rvObject["mean"].toDouble();
             mean->setText(QString::number(theMeanValue));
         } else {
-            emit sendErrorMessage("ERROR: UniformDistribution - no \"mean\" entry");
+            this->errorMessage("ERROR: UniformDistribution - no \"mean\" entry");
             return false;
         }
         if (rvObject.contains("standardDev")) {
             double theStdValue = rvObject["standardDev"].toDouble();
             standardDev->setText(QString::number(theStdValue));
         } else {
-            emit sendErrorMessage("ERROR: UniformDistribution - no \"mean\" entry");
+            this->errorMessage("ERROR: UniformDistribution - no \"mean\" entry");
             return false;
         }
     } else if (inpty==QString("Dataset")) {
@@ -249,7 +256,7 @@ UniformDistribution::inputFromJSON(QJsonObject &rvObject){
           QString theDataDir = rvObject["dataDir"].toString();
           dataDir->setText(theDataDir);
       } else {
-          emit sendErrorMessage("ERROR: UniformDistribution - no \"mean\" entry");
+          this->errorMessage("ERROR: UniformDistribution - no \"mean\" entry");
           return false;
       }
     }
@@ -265,6 +272,13 @@ UniformDistribution::inputFromJSON(QJsonObject &rvObject){
 
     this->updateDistributionPlot();
     return true;
+}
+
+void
+UniformDistribution::copyFiles(QString fileDir) {
+    if (inpty==QString("Dataset")) {
+        QFile::copy(dataDir->text(), fileDir);
+    }
 }
 
 QString 

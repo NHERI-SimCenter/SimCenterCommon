@@ -74,7 +74,9 @@ signals:
    void uploadDirCall(const QString &local, const QString &remote);
    void startJobCall(QJsonObject theJob);
    void successfullJobStart(void);
-   void closeDialog();
+
+   void sendErrorMessage(QString);
+   void sendStatusMessage(QString);
 
 public slots:
    void onRunButtonPressed(void);

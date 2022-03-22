@@ -87,14 +87,21 @@ ExponentialDistribution::ExponentialDistribution(QString inpType, QWidget *paren
         mainLayout->addWidget(chooseFileButton, 1,1);
 
         // Action
+//        connect(chooseFileButton, &QPushButton::clicked, this, [=](){
+//                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
+//        });
+
         connect(chooseFileButton, &QPushButton::clicked, this, [=](){
-                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)"));
-        });
+                  QString fileName = QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*)");
+                  if (!fileName.isEmpty()) {
+                      dataDir->setText(fileName);
+                  }
+              });
     }
 
     mainLayout->setColumnStretch(2,1);
 
-    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
 
     if (inpty==QString("Parameters")) {
         connect(lambda,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
@@ -116,19 +123,19 @@ ExponentialDistribution::outputToJSON(QJsonObject &rvObject){
     if (inpty==QString("Parameters")) {
         // check for error condition, an entry had no value
         if (lambda->text().isEmpty()) {
-            emit sendErrorMessage("ERROR: ExponentialDistribution - data has not been set");
+            this->errorMessage("ERROR: ExponentialDistribution - data has not been set");
             return false;
         }
         rvObject["lambda"]=lambda->text().toDouble();
     } else if (inpty==QString("Moments")) {
         if (mean->text().isEmpty()) {
-            emit sendErrorMessage("ERROR: ExponentialDistribution - data has not been set");
+            this->errorMessage("ERROR: ExponentialDistribution - data has not been set");
             return false;
         }
         rvObject["mean"]=mean->text().toDouble();
     } else if (inpty==QString("Dataset")) {
         if (dataDir->text().isEmpty()) {
-            emit sendErrorMessage("ERROR: ExponentialDistribution - data has not been set");
+            this->errorMessage("ERROR: ExponentialDistribution - data has not been set");
             return false;
         }
         rvObject["dataDir"]=QString(dataDir->text());
@@ -154,7 +161,7 @@ ExponentialDistribution::inputFromJSON(QJsonObject &rvObject){
             double theLamValue = rvObject["lambda"].toDouble();
             lambda->setText(QString::number(theLamValue));
         } else {
-            emit sendErrorMessage("ERROR: ExponentialDistribution - no \"a\" entry");
+            this->errorMessage("ERROR: ExponentialDistribution - no \"a\" entry");
             return false;
         }
 
@@ -164,7 +171,7 @@ ExponentialDistribution::inputFromJSON(QJsonObject &rvObject){
             double theMeanValue = rvObject["mean"].toDouble();
             mean->setText(QString::number(theMeanValue));
         } else {
-            emit sendErrorMessage("ERROR: ExponentialDistribution - no \"mean\" entry");
+            this->errorMessage("ERROR: ExponentialDistribution - no \"mean\" entry");
             return false;
         }
 
@@ -174,13 +181,20 @@ ExponentialDistribution::inputFromJSON(QJsonObject &rvObject){
           QString theDataDir = rvObject["dataDir"].toString();
           dataDir->setText(theDataDir);
       } else {
-          emit sendErrorMessage("ERROR: ExponentialDistribution - no \"mean\" entry");
+          this->errorMessage("ERROR: ExponentialDistribution - no \"mean\" entry");
           return false;
       }
     }
 
     this->updateDistributionPlot();
     return true;
+}
+
+void
+ExponentialDistribution::copyFiles(QString fileDir) {
+    if (inpty==QString("Dataset")) {
+        QFile::copy(dataDir->text(), fileDir);
+    }
 }
 
 QString 

@@ -37,10 +37,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include <SimCenterWidget.h>
+#include <Utils/PythonProgressDialog.h>
+
 SimCenterWidget::SimCenterWidget(QWidget *parent)
     :QWidget(parent)
 {
-
+    progressDialog = PythonProgressDialog::getInstance(this);
 }
 
 SimCenterWidget::~SimCenterWidget()
@@ -61,4 +63,37 @@ SimCenterWidget::inputFromJSON(QJsonObject &jsonObject)
 {
     Q_UNUSED(jsonObject);
     return true;
+}
+
+void
+SimCenterWidget::statusMessage(const QString& message)
+{
+    if(message.isEmpty())
+        return;
+
+    progressDialog->appendText(message);
+}
+
+void
+SimCenterWidget::errorMessage(const QString& message)
+{
+    if(message.isEmpty())
+        return;
+
+    progressDialog->appendErrorMessage(message);
+}
+
+void
+SimCenterWidget::infoMessage(const QString& message)
+{
+    if(message.isEmpty())
+        return;
+
+    progressDialog->appendInfoMessage(message);
+}
+
+PythonProgressDialog*
+SimCenterWidget::getProgressDialog() const
+{
+    return progressDialog;
 }

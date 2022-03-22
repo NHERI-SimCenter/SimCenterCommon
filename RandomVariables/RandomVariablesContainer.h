@@ -75,6 +75,7 @@ public:
 
     void addRandomVariable(QString &rvName);
     void addRVs(QStringList &varNames);
+    void addRVsWithValues(QStringList &varNames);  
     void addConstantRVs(QStringList &varNamesAndValues);
     void addUniformRVs(QStringList &varNamesAndValues);
     void addNormalRVs(QStringList &varNamesAndValues);
@@ -83,11 +84,12 @@ public:
     void removeRandomVariable(QString &varName);
     void removeRandomVariables(QStringList &varNames);
 
-
-
     QStringList getRandomVariableNames(void);
     int getNumRandomVariables(void);
-
+    QVector<RandomVariable *> getRVdists(void);
+    QTableWidget * getRVcorr();
+    void copyRVs(RandomVariablesContainer *oldRVcontainers);
+    void copyFiles(QString fileName);
 public slots:
    void errorMessage(QString message);
    void addRandomVariable(void);
@@ -95,11 +97,15 @@ public slots:
    void removeRandomVariable(void);
    void addCorrelationMatrix(void); // added by padhye for correlation matrix
    //   void addSobolevIndices(bool);// added by padhye for sobolev indices
+   void loadRVsFromJson(void);
+   void saveRVsToJson(void);
+
    void clear(void);
    void makeCorrSymmetric(int i, int j);
    void checkCorrValidity(void);
 
 private:
+    int addRVsType;
     void makeRV(void);
     QVBoxLayout *verticalLayout;
     QVBoxLayout *rvLayout;

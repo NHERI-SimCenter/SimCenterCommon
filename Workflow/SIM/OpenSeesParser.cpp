@@ -38,7 +38,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 // Purpose: to present a widget for OpenSees,
-// 1) to open feap input files, to parse for any parameters that have been set WITH THE PSET command
+// 1) to open feap input files, to parse for any parameters that have been set WITH THE PSETb command
 // and then to return the variablename and values in a string. These are used to init the random variable widget.
 // 2) for dakota to again open and parse the input file, this time replacing any input parameters
 // with the needed dakota input format: pset varName {varName}
@@ -52,7 +52,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <string>
 #include <QDebug>
 
-using namespace std;
+// using namespace std;
 
 OpenSeesParser::OpenSeesParser()
 {
@@ -69,12 +69,12 @@ OpenSeesParser::getVariables(QString inFilename)
 {
     QStringList result;
 
-    ifstream inFile(inFilename.toStdString());
+    std::ifstream inFile(inFilename.toStdString());
 
     // read lines of input searching for pset using regular expression
-    regex pset("pset[ ]+[A-Z_a-z0-9]+[ ]+[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?");
-    regex psetAny("pset[ ]+[A-Z_a-z0-9]+[ ]+");
-    string line;
+    std::regex pset("pset[ \t]+[A-Z_a-z0-9]+[ \t]+[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?");
+    std::regex psetAny("pset[ \t]+[A-Z_a-z0-9]+[ \t]+");
+    std::string line;
     while (getline(inFile, line)) {
 
         if (regex_search(line, pset)) {
@@ -93,12 +93,12 @@ OpenSeesParser::getVariables(QString inFilename)
 
             if (commented == false) {
                 // if found break into cmd, varName and value (ignore the rest)
-                istringstream iss(line);
-                string cmd, varName, value;
+                std::istringstream iss(line);
+                std::string cmd, varName, value;
                 iss >> cmd >> varName >> value;
 
                 // strip possible ; from end of value (possible if comment) line
-                regex delim(";");
+                std::regex delim(";");
                 value = regex_replace(value,delim,"");
 
                 // add varName and value to results
@@ -120,8 +120,8 @@ OpenSeesParser::getVariables(QString inFilename)
              }
 
              if (commented == false) {
-                 istringstream iss(line);
-                 string cmd, varName;
+                 std::istringstream iss(line);
+                 std::string cmd, varName;
                  iss >> cmd >> varName;
                  result.append(QString::fromStdString(varName));
                  result.append(QString("0.0"));
@@ -140,13 +140,13 @@ OpenSeesParser::writeFile(QString inFilename, QString outFilename, QStringList v
 {
     qDebug() << "OpenSeesParser::writeFile: " << inFilename << " out: " << outFilename << " args: " << varToChange;
 
-    ifstream inFile(inFilename.toStdString());
-    ofstream outFile(outFilename.toStdString());
+    std::ifstream inFile(inFilename.toStdString());
+    std::ofstream outFile(outFilename.toStdString());
 
     // read lines of input searching for pset using regular expression
-    regex pset("pset[ ]+[A-Z_a-z0-9]+[ ]+");
+    std::regex pset("pset[ \t]+[A-Z_a-z0-9]+[ \t]+");
 
-    string line;
+    std::string line;
     while (getline(inFile, line)) {
 
         if (regex_search(line, pset)) {
@@ -165,8 +165,8 @@ OpenSeesParser::writeFile(QString inFilename, QString outFilename, QStringList v
             if (commented == false) {
 
                 // if found break into cmd, varName and value (ignore the rest)
-                istringstream iss(line);
-                string cmd, varName, value;
+                std::istringstream iss(line);
+                std::string cmd, varName, value;
                 iss >> cmd >> varName >> value;
 
                 // if varName in input sting list, modify line otherwise write current line

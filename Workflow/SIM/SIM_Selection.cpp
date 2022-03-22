@@ -53,6 +53,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <OpenSeesBuildingModel.h>
 #include <MDOF_BuildingModel.h>
 #include <SteelBuildingModel.h>
+#include "ConcreteBuildingModel.h"
+#include <QCoreApplication>
 
 SIM_Selection::SIM_Selection(RandomVariablesContainer *theRandomVariableIW, 
                              bool includeC,
@@ -73,8 +75,8 @@ SIM_Selection::SIM_Selection(RandomVariablesContainer *theRandomVariableIW,
     QSpacerItem *spacer = new QSpacerItem(50,10);
 
     bimSelection = new QComboBox();
-   // bimSelection->setMaximumWidth(200);
-   // bimSelection->setMinimumWidth(200);
+    // bimSelection->setMaximumWidth(200);
+    // bimSelection->setMinimumWidth(200);
 
     titleLayout->addWidget(textBIM);
     titleLayout->addItem(spacer);
@@ -91,7 +93,13 @@ SIM_Selection::SIM_Selection(RandomVariablesContainer *theRandomVariableIW,
     // bimSelection->addItem(tr("Spreadsheet"));
     bimSelection->addItem(tr("MDOF"));
     bimSelection->addItem(tr("OpenSees"));
-    bimSelection->addItem(tr("Steel Building Model"));
+
+    QString appName = QCoreApplication::applicationName();
+    if (appName == "PBE" || appName == "EE-UQ")
+    {
+        bimSelection->addItem(tr("Steel Building Model"));
+        bimSelection->addItem(tr("Concrete Building Model"));
+    }
 
     connect(bimSelection, SIGNAL(currentIndexChanged(QString)), this, SLOT(bimSelectionChanged(QString)));
 
@@ -201,7 +209,11 @@ SIM_Selection::inputAppDataFromJSON(QJsonObject &jsonObject)
         index = 1;
     } else if (type == QString("SteelBuildingModel")) {
         index = 2;
-    } else {
+    }
+    else if (type == QString("ConcreteBuildingModel")) {
+        index = 3;
+    }
+    else {
         return false;
     }
 
@@ -251,9 +263,13 @@ void SIM_Selection::bimSelectionChanged(const QString &arg1)
     else if (arg1 == QString("Steel Building Model")) {
         delete bimInput;
         bimInput = new SteelBuildingModel(theRandomVariablesContainer);
+    }
+    else if (arg1 == QString("Concrete Building Model")) {
+        delete bimInput;
+        bimInput = new ConcreteBuildingModel(theRandomVariablesContainer);
     } else {
         selectionChangeOK = false;
-        emit sendErrorMessage("ERROR: BIM Input - no valid Method provided .. keeping old");
+        errorMessage("ERROR: BIM Input - no valid Method provided .. keeping old");
     }
 
     if (bimInput != 0) {
@@ -266,9 +282,5 @@ void SIM_Selection::bimSelectionChanged(const QString &arg1)
 }
 
 
-void
-SIM_Selection::errorMessage(QString message){
-  emit sendErrorMessage(message);
-}
 
 

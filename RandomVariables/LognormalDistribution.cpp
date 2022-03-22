@@ -91,14 +91,21 @@ LognormalDistribution::LognormalDistribution(QString inpType, QWidget *parent) :
         mainLayout->addWidget(chooseFileButton, 1,1);
 
         // Action
+//        connect(chooseFileButton, &QPushButton::clicked, this, [=](){
+//                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
+//        });
+
         connect(chooseFileButton, &QPushButton::clicked, this, [=](){
-                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)"));
-        });
+                  QString fileName = QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*)");
+                  if (!fileName.isEmpty()) {
+                      dataDir->setText(fileName);
+                  }
+              });
     }
 
     mainLayout->setColumnStretch(3,1);
 
-    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Densisty Function"),500, 500);
+    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
 
     if (inpty==QString("Parameters")) {
         connect(lambda,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
@@ -122,26 +129,33 @@ LognormalDistribution::outputToJSON(QJsonObject &rvObject){
     if (inpty==QString("Parameters")) {
         // check for error condition, an entry had no value
         if ((lambda->text().isEmpty())||(zeta->text().isEmpty())) {
-            emit sendErrorMessage("ERROR: LognormalDistribution - data has not been set");
+            this->errorMessage("ERROR: LognormalDistribution - data has not been set");
             return false;
         }
         rvObject["lambda"]=lambda->text().toDouble();
         rvObject["zeta"]=zeta->text().toDouble();
     } else if (inpty==QString("Moments")) {
         if ((mean->text().isEmpty())||(standardDev->text().isEmpty())) {
-            emit sendErrorMessage("ERROR: LognormalDistribution - data has not been set");
+            this->errorMessage("ERROR: LognormalDistribution - data has not been set");
             return false;
         }
         rvObject["mean"]=mean->text().toDouble();
         rvObject["stdDev"]=standardDev->text().toDouble();
     } else if (inpty==QString("Dataset")) {
         if (dataDir->text().isEmpty()) {
-            emit sendErrorMessage("ERROR: LognormalDistribution - data has not been set");
+            this->errorMessage("ERROR: LognormalDistribution - data has not been set");
             return false;
         }
         rvObject["dataDir"]=QString(dataDir->text());
     }
     return true;
+}
+
+void
+LognormalDistribution::copyFiles(QString fileDir) {
+    if (inpty==QString("Dataset")) {
+        QFile::copy(dataDir->text(), fileDir);
+    }
 }
 
 bool
@@ -162,14 +176,14 @@ LognormalDistribution::inputFromJSON(QJsonObject &rvObject){
             double thelambdaValue = rvObject["lambda"].toDouble();
             lambda->setText(QString::number(thelambdaValue));
         } else {
-            emit sendErrorMessage("ERROR: LognormalDistribution - no \"lambda\" entry");
+            this->errorMessage("ERROR: LognormalDistribution - no \"lambda\" entry");
             return false;
         }
         if (rvObject.contains("zeta")) {
             double thezetaValue = rvObject["zeta"].toDouble();
             zeta->setText(QString::number(thezetaValue));
         } else {
-            emit sendErrorMessage("ERROR: LognormalDistribution - no \"zeta\" entry");
+            this->errorMessage("ERROR: LognormalDistribution - no \"zeta\" entry");
             return false;
         }
       } else if (inpty==QString("Moments")) {
@@ -178,14 +192,14 @@ LognormalDistribution::inputFromJSON(QJsonObject &rvObject){
             double theMeanValue = rvObject["mean"].toDouble();
             mean->setText(QString::number(theMeanValue));
         } else {
-            emit sendErrorMessage("ERROR: LognormalDistribution - no \"mean\" entry");
+            this->errorMessage("ERROR: LognormalDistribution - no \"mean\" entry");
             return false;
         }
         if (rvObject.contains("stdDev")) {
             double theStdValue = rvObject["stdDev"].toDouble();
             standardDev->setText(QString::number(theStdValue));
         } else {
-            emit sendErrorMessage("ERROR: LognormalDistribution - no \"stdDev\" entry");
+            this->errorMessage("ERROR: LognormalDistribution - no \"stdDev\" entry");
             return false;
         }
     } else if (inpty==QString("Dataset")) {
@@ -194,7 +208,7 @@ LognormalDistribution::inputFromJSON(QJsonObject &rvObject){
           QString theDataDir = rvObject["dataDir"].toString();
           dataDir->setText(theDataDir);
       } else {
-          emit sendErrorMessage("ERROR: LognormalDistribution - no \"dataDir\" entry");
+          this->errorMessage("ERROR: LognormalDistribution - no \"dataDir\" entry");
           return false;
       }
     }
@@ -237,4 +251,7 @@ LognormalDistribution::updateDistributionPlot() {
             thePlot->addLine(x,y);
         }
 
+       if ((st <= 0.0)|| (me <= 0)) {
+            thePlot->clear();
+        }
 }

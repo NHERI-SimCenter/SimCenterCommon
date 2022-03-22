@@ -72,7 +72,7 @@ bool
 ContinuousDesignDistribution::outputToJSON(QJsonObject &rvObject){
     // check for error condition, an entry had no value
     if (min->text().isEmpty() || max->text().isEmpty() || initialPoint->text().isEmpty()) {
-        emit sendErrorMessage("ERROR: Continuous Distribution - data has not been set");
+        this->errorMessage("ERROR: Continuous Distribution - data has not been set");
         return false;
     }
     rvObject["lowerbound"]=min->text().toDouble();
@@ -91,7 +91,7 @@ ContinuousDesignDistribution::inputFromJSON(QJsonObject &rvObject){
         min->setText(QString::number(theValue.toDouble()));
 
     } else {
-        emit sendErrorMessage("ERROR: Continuous Distribution - no \"lowerbound\" entry");
+        this->errorMessage("ERROR: Continuous Distribution - no \"lowerbound\" entry");
         return false;
     }
 
@@ -101,7 +101,7 @@ ContinuousDesignDistribution::inputFromJSON(QJsonObject &rvObject){
         max->setText(QString::number(theValue.toDouble()));
     } else {
 
-        emit sendErrorMessage("ERROR: Continuous Distribution - no \"upperbound\" entry");
+        this->errorMessage("ERROR: Continuous Distribution - no \"upperbound\" entry");
         return false;
     }
 
@@ -109,12 +109,16 @@ ContinuousDesignDistribution::inputFromJSON(QJsonObject &rvObject){
         QJsonValue theValue = rvObject["initialpoint"];
         initialPoint->setText(QString::number(theValue.toDouble()));
     } else {
-        emit sendErrorMessage("ERROR: Continuous Distribution - no \"initial point \" entry");
+        this->errorMessage("ERROR: Continuous Distribution - no \"initial point \" entry");
 
         return false;
     }
 
     return true;
+}
+void
+ContinuousDesignDistribution::copyFiles(QString fileDir) {
+    //do nothing
 }
 
 QString 

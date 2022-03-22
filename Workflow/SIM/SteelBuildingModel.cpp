@@ -35,7 +35,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written: Stevan Gavrilovic
-// Last revision: 09/2020
 
 #include "SteelBuildingModel.h"
 #include "ReadWriteRVJSON.h"
@@ -68,7 +67,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <sstream>
 #include <iostream>
 
-using namespace std;
+//using namespace std;
 
 SteelBuildingModel::SteelBuildingModel(RandomVariablesContainer *theRandomVariableIW, QWidget *parent): SimCenterAppWidget(parent), theRandomVariablesContainer(theRandomVariableIW)
 {
@@ -633,7 +632,7 @@ void SteelBuildingModel::onBuildingDimLEChange(void)
     auto buildingDepth = zBayWidth*static_cast<double>(numBayZ);
     auto planArea = buildingWidth*buildingDepth;
 
-    emit setBuildingDimensions(buildingWidth,buildingDepth,planArea);
+    emit buildingDimensionsChanged(buildingWidth,buildingDepth,planArea);
 
     return;
 }
