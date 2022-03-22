@@ -53,6 +53,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QRadioButton>
 #include <sectiontitle.h>
 #include <QLineEdit>
+#include <QDebug>
 
 SimCenterIntensityMeasureWidget::SimCenterIntensityMeasureWidget(QWidget* parent)
     : SimCenterWidget(parent)
