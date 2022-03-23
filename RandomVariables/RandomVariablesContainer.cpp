@@ -533,7 +533,7 @@ void RandomVariablesContainer::removeThisRandomVariable(RandomVariable *theRV)
 {
 
     if (x_button_clicked_before == false) {
-
+        x_button_clicked_before = true;
         QMessageBox::StandardButton reply;
         reply = QMessageBox::warning(this,
                                       "Remove random variable",
