@@ -84,6 +84,7 @@ RandomVariablesContainer::RandomVariablesContainer(QWidget *parent)
     this->setLayout(verticalLayout);
     verticalLayout->setMargin(0);
     this->makeRV();
+    x_button_clicked_before = false;
 }
 
 void
@@ -530,6 +531,19 @@ RandomVariablesContainer::addRandomVariable(void) {
 
 void RandomVariablesContainer::removeThisRandomVariable(RandomVariable *theRV)
 {
+
+    if (x_button_clicked_before == false) {
+
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::warning(this,
+                                      "Remove random variable",
+                                      "Are you sure you want to remove this random variable?",
+                                       QMessageBox::Yes|QMessageBox::No);
+
+        if (reply == QMessageBox::No)
+            return;
+    }
+
    // int i=0;
 
 
@@ -556,7 +570,7 @@ void RandomVariablesContainer::removeRandomVariable(void)
 
     QMessageBox::StandardButton reply;
     reply = QMessageBox::warning(this,
-                                  "Clear",
+                                  "Clear all random variables",
                                   "Are you sure you want to remove all random variables?",
                                    QMessageBox::Yes|QMessageBox::No);
 
