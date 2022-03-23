@@ -655,11 +655,11 @@ RandomVariable::getAbbreviatedName(void) {
   return theDistribution->getAbbreviatedName();
 }
 
-int
-RandomVariable::getLength(void) {
-    if (distributionComboBox->currentText()=="User defined vector") {
-        return theDistribution->getLength();
-    }
-  return 1;
-}
+//int
+//RandomVariable::getLength(void) {
+//    if (distributionComboBox->currentText()=="User defined vector") {
+//        return theDistribution->getLength();
+//    }
+//  return 1;
+//}
 
