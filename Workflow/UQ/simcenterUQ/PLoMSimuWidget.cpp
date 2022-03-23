@@ -46,6 +46,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QFileDialog>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDebug>
+
 #include <iostream>
 #include <fstream>
 #include <regex>

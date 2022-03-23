@@ -603,8 +603,6 @@ MDOF_BuildingModel::on_storyHeight_editingFinished()
 {
     QString text =  storyHeight->text();
 
-    qDebug() << "MDOF::on_storyHeight" << text;
-
     if (text.isNull()) {
         storyHeight->setText(storyH);
         return;
@@ -620,8 +618,6 @@ MDOF_BuildingModel::on_storyHeight_editingFinished()
 
     updatingPropertiesTable = true;
     buildingH = numStories * storyHeight;
-
-    qDebug() << "MDOF::on_storyHeight" << text << " " << buildingH << " " << storyHeight;
 
     for (int i=0; i<numStories; i++) {
         QTableWidgetItem *item = theSpreadsheet->item(i,1);
@@ -994,8 +990,6 @@ void MDOF_BuildingModel::on_inStoryHeight_editingFinished()
     if (updatingPropertiesTable == true)
         return;
 
-    qDebug() << "onInStoryHEightChanged";
-
     QString text =  inStoryHeight->text();
     if (text.isNull())
         return;
@@ -1030,7 +1024,6 @@ void MDOF_BuildingModel::on_inStoryHeight_editingFinished()
     floorHeights = newFloorHeights;
 
     buildingH = newFloorHeights[numStories];
-    qDebug() << "MDOF: newHeight" << floorHeights[numStories];
     emit numStoriesOrHeightChanged(numStories, buildingH);
 }
 

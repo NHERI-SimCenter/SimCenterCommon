@@ -65,7 +65,7 @@ SIM_Selection::SIM_Selection(bool includeC,
     SimCenterAppWidget *autosda = new SteelBuildingModel(theRVs);
     SimCenterAppWidget *concrete = new ConcreteBuildingModel(theRVs);    
     this->addComponent(QString("Steel Building Model"), QString("SteelBuildingModel"), autosda);
-    this->addComponent(QString("Steel Building Model"), QString("ConcreteBuildingModel"), concrete);          
+    this->addComponent(QString("Concrete Building Model"), QString("ConcreteBuildingModel"), concrete);          
   }
   
   if (doMulti == true) {
