@@ -93,6 +93,23 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     //button->setToolTip("Select to remove");
     mainLayout->addWidget(button,1,0);
     button->setDisabled(true);
+    button->setVisible(false);
+
+    QPushButton *removeButton_background = new QPushButton("");
+    QPushButton *removeButton = new QPushButton("🗙");
+    const QSize BUTTON_SIZE = QSize(15, 15);
+    removeButton_background->setFixedSize(BUTTON_SIZE);
+    removeButton->setFixedSize(BUTTON_SIZE);
+    removeButton_background->setStyleSheet({ "font-size:10px; text-align: center; padding: 0px 0px 3px 0px; text-decoration: none; " });
+    //removeButton->setStyleSheet("QPushButton { background-color: transparent; border: 0px; color: white; font-weight: 15px; font-size:4; padding: 0px 0px 3px 0px; }");
+    //removeButton->setStyleSheet("QPushButton { background-color: transparent; border: 0px; color: gray; font-weight: 15px; font-size:4; padding: 0px 0px 3px 0px; }");
+    removeButton->setStyleSheet("QPushButton { background-color: transparent; color: white; border: 0px; font-size:4; padding: 0px 0px 3px 0px; }");
+    //removeButton->hide();
+    //removeButton_background->setStyleSheet({ "padding: 0px 0px 13px 0px;" });
+    mainLayout->addWidget(removeButton_background,1,0,1,1);
+    mainLayout->addWidget(removeButton,1,0,2,1);
+    connect(removeButton, SIGNAL(clicked()), this, SLOT(xButtonClicked()) );
+
 
     //
     // create variable name block
@@ -199,20 +216,6 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
         mainLayout->addWidget(theDistribution,0,4,2,1);
     }// connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 
-
-    //QPushButton *removeButton_background = new QPushButton("");
-    QPushButton *removeButton = new QPushButton("🗙");
-    //const QSize BUTTON_SIZE = QSize(15, 15);
-    //removeButton_background->setFixedSize(BUTTON_SIZE);
-    //removeButton->setFixedSize(BUTTON_SIZE);
-    //removeButton_background->setStyleSheet({ "background-color: indianred; border: none; font-size:10px; text-align: center; padding: 0px 0px 3px 0px; text-decoration: none; " });
-    //removeButton->setStyleSheet("QPushButton { background-color: transparent; border: 0px; color: white; font-weight: 15px; font-size:4; padding: 0px 0px 3px 0px; }");
-    //removeButton->setStyleSheet("QPushButton { background-color: transparent; border: 0px; color: gray; font-weight: 15px; font-size:4; padding: 0px 0px 3px 0px; }");
-    removeButton->setStyleSheet("QPushButton { background-color: transparent; border: 0px; color: gray; font-size:4; padding: 0px 0px 3px 0px; }");
-    //removeButton_background->setStyleSheet({ "padding: 0px 0px 13px 0px;" });
-    //mainLayout->addWidget(removeButton_background,1,5,1,1);
-    mainLayout->addWidget(removeButton,0,5,2,1);
-    connect(removeButton, SIGNAL(clicked()), this, SLOT(xButtonClicked()) );
 
     //this->setLayout(mainLayout);
   // mainLayout->setSizeConstraint(QLayout::SetMaximumSize);
@@ -653,13 +656,5 @@ void RandomVariable::setButtonVisible(bool tog)
 QString
 RandomVariable::getAbbreviatedName(void) {
   return theDistribution->getAbbreviatedName();
-}
-
-int
-RandomVariable::getLength(void) {
-    if (distributionComboBox->currentText()=="User defined vector") {
-        return theDistribution->getLength();
-    }
-  return 1;
 }
 
