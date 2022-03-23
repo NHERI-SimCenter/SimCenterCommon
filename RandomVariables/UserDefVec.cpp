@@ -133,8 +133,3 @@ QString
 UserDefVec::getAbbreviatedName(void) {
   return QString("UserDefVec");
 }
-
-//int
-//UserDefVec::getLength(void) {
-//  return length->text().toInt();
-//}

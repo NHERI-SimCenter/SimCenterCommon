@@ -137,7 +137,7 @@ private:
     int flag_for_correlationMatrix;
     QStringList randomVariableNames;
 
-    // int flag_for_sobolev_indices;
+    bool x_button_clicked_before;
 };
 
 #endif // RANDOM_VARIABLES_CONTAINER_H
