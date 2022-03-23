@@ -96,17 +96,15 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     button->setVisible(false);
 
     QPushButton *removeButton_background = new QPushButton("");
-    QPushButton *removeButton = new QPushButton("🗙");
+    QPushButton *removeButton = new QPushButton("×");
     const QSize BUTTON_SIZE = QSize(15, 15);
     removeButton_background->setFixedSize(BUTTON_SIZE);
     removeButton->setFixedSize(BUTTON_SIZE);
     removeButton_background->setStyleSheet({ "font-size:10px; text-align: center; padding: 0px 0px 3px 0px; text-decoration: none; " });
-    //removeButton->setStyleSheet("QPushButton { background-color: transparent; border: 0px; color: white; font-weight: 15px; font-size:4; padding: 0px 0px 3px 0px; }");
-    //removeButton->setStyleSheet("QPushButton { background-color: transparent; border: 0px; color: gray; font-weight: 15px; font-size:4; padding: 0px 0px 3px 0px; }");
-    removeButton->setStyleSheet("QPushButton { background-color: transparent; color: white; border: 0px; font-size:4; padding: 0px 0px 3px 0px; }");
+    removeButton->setStyleSheet("QPushButton { color: white; border: 0px; font-size:15px;  font-weight: bold;padding: 0px 0px 2px 0px; }");
     //removeButton->hide();
     //removeButton_background->setStyleSheet({ "padding: 0px 0px 13px 0px;" });
-    mainLayout->addWidget(removeButton_background,1,0,1,1);
+    //mainLayout->addWidget(removeButton_background,1,0,1,1);
     mainLayout->addWidget(removeButton,1,0,2,1);
     connect(removeButton, SIGNAL(clicked()), this, SLOT(xButtonClicked()) );
 
