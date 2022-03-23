@@ -96,6 +96,7 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/SIM/OpenSeesBuildingModel.cpp \
     $$PWD/SIM/MDOF_BuildingModel.cpp \
     $$PWD/SIM/SteelBuildingModel.cpp \
+    $$PWD/SIM/ConcreteBuildingModel.cpp \
     $$PWD/SIM/SIM_Selection.cpp \
     $$PWD/SIM/InputWidgetBIM.cpp \
     $$PWD/SIM/OpenSeesParser.cpp \
@@ -195,6 +196,7 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/SIM/MDOF_BuildingModel.h \
     $$PWD/SIM/ReadWriteRVJSON.h \
     $$PWD/SIM/SteelBuildingModel.h \
+    $$PWD/SIM/ConcreteBuildingModel.h \
     $$PWD/SIM/SIM_Selection.h \
     $$PWD/SIM/InputWidgetBIM.h \
     $$PWD/SIM/OpenSeesParser.h \

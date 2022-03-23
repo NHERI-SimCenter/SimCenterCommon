@@ -51,7 +51,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QFileInfo>
 #include <QCoreApplication>
 #include <QFileInfo>
-
+#include <QProcessEnvironment>
 #include <QGridLayout>
 
 SimCenterPreferences *
@@ -562,6 +562,10 @@ SimCenterPreferences::resetPreferences(bool) {
     settingsApplication.setValue("version", currentVersion);
 
     QDir workingDir(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
+
+    if (!workingDir.exists())
+      workingDir.mkpath(".");   
+    
     QString remoteWorkDirLocation = workingDir.filePath(QCoreApplication::applicationName() + "/RemoteWorkDir");
     settingsApplication.setValue("remoteWorkDir", remoteWorkDirLocation);
     remoteWorkDir->setText(remoteWorkDirLocation);
@@ -778,6 +782,13 @@ SimCenterPreferences::getPython(void) {
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
     QString pythonPath;
 
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    QString scPython = env.value("SIMCENTER_PYTHON","None");
+    qDebug() << "SimCenterPreferences::getPython - scPython: " << scPython;
+    if (scPython != "None") {
+      return scPython;
+    }
+    
 #ifdef USE_SIMCENTER_PYTHON
     QVariant  pythonPathVariant = settingsApplication.value("pythonExePath");
     if (!pythonPathVariant.isValid()) {
@@ -801,7 +812,13 @@ SimCenterPreferences::getPython(void) {
 
 QString
 SimCenterPreferences::getOpenSees(void) {
- 
+
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();    
+    QString scOpenSees = env.value("SIMCENTER_OPENSEES","None");
+    if (scOpenSees != "None") {
+      return scOpenSees;
+    }
+    
     QSettings settingsCommon("SimCenter", "Common");
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
     QString thePath;
@@ -823,15 +840,19 @@ SimCenterPreferences::getDakota(void) {
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
     QString thePath;
 
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();    
+    QString scDakota = env.value("SIMCENTER_DAKOTA","None");
+    if (scDakota != "None") {
+      return scDakota;
+    }
+    
     QVariant  theVariant = settingsApplication.value("dakotaPath");
     if (!theVariant.isValid()) {
       thePath = this->getDefaultDakota();
       settingsApplication.setValue("dakotaPath", thePath);
-      qDebug() << "D1" << thePath;
       return thePath;
     }
 
-    qDebug() << "D3" << theVariant.toString();
     return theVariant.toString();
 }
 
@@ -841,6 +862,12 @@ QString
 SimCenterPreferences::getAppDir(void) {
 
     //Default appDir is the location of the application
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();    
+    QString scBackend = env.value("SIMCENTER_Backend","None");
+    if (scBackend != "None") {
+      return scBackend;
+    }
+  
     auto currentAppDir = QCoreApplication::applicationDirPath();
 
     //If custom is checked we will try to get the custom app dir defined
@@ -917,6 +944,10 @@ SimCenterPreferences::getLocalWorkDir(void) {
     // if not set, use default & set default as application directory
     if (!localWorkDirVariant.isValid()) {
       QDir workingDir(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
+
+      if (!workingDir.exists())
+	workingDir.mkpath(".");
+      
       QString localWorkDirLocation = workingDir.filePath(QCoreApplication::applicationName() + "/LocalWorkDir");
       settingsApplication.setValue("localWorkDir", localWorkDirLocation);
       localWorkDir->setText(localWorkDirLocation);
@@ -935,6 +966,10 @@ SimCenterPreferences::getRemoteWorkDir(void) {
     // if not set, use default & set default as application directory
     if (!remoteWorkDirVariant.isValid()) {
       QDir workingDir(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
+      
+      if (!workingDir.exists())
+	workingDir.mkpath(".");
+      
       QString remoteWorkDirLocation = workingDir.filePath(QCoreApplication::applicationName() + "/RemoteWorkDir");
       settingsApplication.setValue("remoteWorkDir", remoteWorkDirLocation);
       remoteWorkDir->setText(remoteWorkDirLocation);
@@ -968,8 +1003,14 @@ SimCenterPreferences::getDefaultRemoteAppDir(void) {
 
 QString
 SimCenterPreferences::getDefaultOpenSees(void) {
-  
-    QString currentAppDir = QCoreApplication::applicationDirPath();
+
+  QProcessEnvironment env = QProcessEnvironment::systemEnvironment();    
+  QString scOpenSees = env.value("SIMCENTER_OPENSEES","None");
+  if (scOpenSees != "None") {
+    return scOpenSees;
+  }
+    
+  QString currentAppDir = QCoreApplication::applicationDirPath();
 
 #ifdef Q_OS_WIN
     
@@ -1006,6 +1047,12 @@ SimCenterPreferences::getDefaultDakota(void) {
   
     QString currentAppDir = QCoreApplication::applicationDirPath();
 
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();    
+    QString scDakota = env.value("SIMCENTER_DAKOTA","None");
+    if (scDakota != "None") {
+      return scDakota;
+    }
+    
 #ifdef Q_OS_WIN
     
     QString dakotaApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "dakota" + QDir::separator() + "bin" + QDir::separator() + "dakota.exe";
@@ -1042,6 +1089,12 @@ SimCenterPreferences::getDefaultDakota(void) {
 QString
 SimCenterPreferences::getDefaultPython(void) {
 
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();  
+    QString scPython = env.value("SIMCENTER_PYTHON","None");
+    if (scPython != "None") {
+      return scPython;
+    }
+  
 #ifdef Q_OS_WIN
     QStringList paths{QCoreApplication::applicationDirPath().append("/applications/python")};
     QString pythonPath = QStandardPaths::findExecutable("python.exe", paths);
