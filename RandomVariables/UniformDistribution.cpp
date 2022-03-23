@@ -66,19 +66,15 @@ UniformDistribution::UniformDistribution(QString inpType, QWidget *parent) :Rand
     if (inpty==QString("Parameters"))
     {
         a = this->createTextEntry(tr("Min."), mainLayout, 0);
-        a->setValidator(new QDoubleValidator);
-        b  = this->createTextEntry(tr("Max."), mainLayout, 1);
-        b->setValidator(new QDoubleValidator);
+         b  = this->createTextEntry(tr("Max."), mainLayout, 1);
         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
     } else if (inpty==QString("Moments")) {
 
         mean = this->createTextEntry(tr("Mean"), mainLayout, 0);
-        mean->setValidator(new QDoubleValidator);        
-        standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout, 1);
-        standardDev->setValidator(new QDoubleValidator);
-        showPlotButton = new QPushButton("Show PDF");
+         standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout, 1);
+         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
     } else if (inpty==QString("Dataset")) {
@@ -120,11 +116,14 @@ UniformDistribution::UniformDistribution(QString inpType, QWidget *parent) :Rand
 }
 
 
+
+
 UniformDistribution::UniformDistribution(double initValue, QWidget *parent)  :RandomVariableDistribution(parent)
 {
     //
     // create the main layout and add the input entries
     //
+    //mainWidget = new QWidget(this);
     QGridLayout *mainLayout = new QGridLayout(this);
 
     // set some defaults, and set layout for widget to be the horizontal layout
@@ -137,9 +136,7 @@ UniformDistribution::UniformDistribution(double initValue, QWidget *parent)  :Ra
     // Parameters
     this->inpty = "Parameters";
     a = this->createTextEntry(tr("Min."), mainLayout, 0);
-    a->setValidator(new QDoubleValidator);
     b  = this->createTextEntry(tr("Max."), mainLayout, 1);
-    b->setValidator(new QDoubleValidator);
     mainLayout->addWidget(showPlotButton, 1,2);
     mainLayout->setColumnStretch(3,1);
 
@@ -319,3 +316,7 @@ UniformDistribution::updateDistributionPlot() {
         thePlot->addLine(x,y);
     }
 }
+
+//void UniformDistribution::setVisible(bool tog) {
+//    mainWidget->setVisible(tog);
+//}

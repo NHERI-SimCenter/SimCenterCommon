@@ -66,6 +66,8 @@ public:
     int parseOutputDataForQoI(QString name1);
     int numSamples;
     bool copyFiles(QString &fileDir);
+    void setRV_Defaults(void);
+
 public slots:
     void setOutputDir(bool tog);
     void doAdvancedGP(bool tog);

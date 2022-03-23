@@ -132,58 +132,6 @@ void SimCenterUQResultsSurrogate::clear(void)
 }
 
 
-// not needed
-//static void merge_helper(double *input, int left, int right, double *scratch)
-//{
-//    // if one element: done  else: recursive call and then merge
-//    if(right == left + 1) {
-//        return;
-//    } else {
-//        int length = right - left;
-//        int midpoint_distance = length/2;
-//        /* l and r are to the positions in the left and right subarrays */
-//        int l = left, r = left + midpoint_distance;
-
-//        // sort each subarray
-//        merge_helper(input, left, left + midpoint_distance, scratch);
-//        merge_helper(input, left + midpoint_distance, right, scratch);
-
-//        // merge the arrays together using scratch for temporary storage
-//        for(int i = 0; i < length; i++) {
-//            /* Check to see if any elements remain in the left array; if so,
-//            * we check if there are any elements left in the right array; if
-//            * so, we compare them.  Otherwise, we know that the merge must
-//            * use take the element from the left array */
-//            if(l < left + midpoint_distance &&
-//                    (r == right || fmin(input[l], input[r]) == input[l])) {
-//                scratch[i] = input[l];
-//                l++;
-//            } else {
-//                scratch[i] = input[r];
-//                r++;
-//            }
-//        }
-//        // Copy the sorted subarray back to the input
-//        for(int i = left; i < right; i++) {
-//            input[i] = scratch[i - left];
-//        }
-//    }
-//}
-
-// Not used
-
-//static int mergesort(double *input, int size)
-//{
-//    double *scratch = new double[size];
-//    if(scratch != NULL) {
-//        merge_helper(input, 0, size, scratch);
-//        delete [] scratch;
-//        return 1;
-//    } else {
-//        return 0;
-//    }
-//}
-
 int SimCenterUQResultsSurrogate::processResults(QString &dirName)
 {
   QString filenameOUT = dirName + QDir::separator() + tr("dakota.out");;
@@ -319,7 +267,6 @@ void
 SimCenterUQResultsSurrogate::onSaveModelClicked()
 {
 
-
     QString fileName = QFileDialog::getSaveFileName(this,
                                                    tr("Save Data"), lastPath+"/SimGpModel",
                                                    tr("Pickle File (*.pkl)"));
@@ -329,17 +276,28 @@ SimCenterUQResultsSurrogate::onSaveModelClicked()
 
     QFileInfo fileInfo(fileName);
     QString path = fileInfo.absolutePath();
-
-    QFile::copy(workingDir+QString("SimGpModel.pkl"), fileName);
-    QFile::copy(workingDir+QString("dakota.out"), fileName2);
-    //QFile::copy(workingDir+QString("templatedir"), path+"templatedir_SIM");
-
+    QString pkldir = workingDir+QString("SimGpModel.pkl");
+    QString jsondir = workingDir+QString("dakota.out");
     QString workflowDir1 = workingDir+QString("templatedir");
     QString workflowDir2 = path+QString("/templatedir_SIM");
+
+    if (QFile::exists(fileName))
+        QFile::remove(fileName);
+
+    if (QFile::exists(fileName2))
+        QFile::remove(fileName2);
+
+    QDir dir(workflowDir2);
+    dir.removeRecursively();
+
+    QFile::copy(pkldir, fileName);
+    QFile::copy(jsondir, fileName2);
+    //QFile::copy(workingDir+QString("templatedir"), path+"templatedir_SIM");
+
+
     bool directoryCopied = copyPath(workflowDir1, workflowDir2, true);
 
     lastPath =  QFileInfo(fileName).path();
-
 }
 
 void
@@ -529,17 +487,16 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
     summary->setLayout(summaryLayout);
     sa->setWidget(summary);
 
+    QJsonObject jsonObjHF = jsonObj["highFidelityInfo"].toObject();
+
     //QJsonObject uqObject = jsonObj["UQ_Method"].toObject();
     int nQoI = jsonObj["ydim"].toInt();
 
     QJsonArray QoI_tmp = jsonObj["ylabels"].toArray();
-    int nSamp = jsonObj["valSamp"].toInt();
-    int nSim  = jsonObj["valSim"].toInt();
     double nTime = jsonObj["valTime"].toDouble();
-    double NRMSEthr =jsonObj["thrNRMSE"].toDouble();
+    QJsonObject valNRMSE = jsonObj["valNRMSE"].toObject();
     QString termCode =jsonObj["terminationCode"].toString();
     QJsonObject valNugget = jsonObj["valNugget"].toObject();
-    QJsonObject valNRMSE = jsonObj["valNRMSE"].toObject();
     QJsonObject valR2 = jsonObj["valR2"].toObject();
     QJsonObject valCorrCoeff = jsonObj["valCorrCoeff"].toObject();
     QJsonObject yExact = jsonObj["yExact"].toObject();
@@ -548,6 +505,11 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
     QJsonObject yConfidenceUb = jsonObj["yPredict_CI_ub"].toObject();
     bool didLogtransform = jsonObj["doLogtransform"].toBool();
     bool isMultiFidelity = jsonObj["doMultiFidelity"].toBool();
+
+
+    int nSamp = jsonObjHF["valSamp"].toInt();
+    int nSim  = jsonObjHF["valSim"].toInt();
+    double NRMSEthr =jsonObjHF["thrNRMSE"].toDouble();
 
     QStringList QoInames;
     foreach (QJsonValue str, QoI_tmp) {
@@ -577,6 +539,8 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
     summaryLayout->addWidget(lineA, 1, 0,1,2);
     int idSum=0;
     if (isMultiFidelity) {
+
+
         int nSamp_HF = jsonObj["valSamp_HF"].toInt();
         resultsLayout->addWidget(new QLabel("# high-fidelity (HF) samples"), idSum, 0);
         resultsLayout->addWidget(new QLabel(QString::number(nSamp_HF)), idSum++, 1);
@@ -585,6 +549,8 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
         resultsLayout->addWidget(new QLabel("# low-fidelity (LF) model simulations"), idSum, 0);
         resultsLayout->addWidget(new QLabel(QString::number(nSim)), idSum++, 1);
     } else {
+
+
         resultsLayout->addWidget(new QLabel("# training samples"), idSum, 0);
         resultsLayout->addWidget(new QLabel(QString::number(nSamp)), idSum++, 1);
         resultsLayout->addWidget(new QLabel("# model simulations"), idSum, 0);

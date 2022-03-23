@@ -67,14 +67,12 @@ ChiSquaredDistribution::ChiSquaredDistribution(QString inpType, QWidget *parent)
     if (inpty==QString("Parameters"))
     {
         k = this->createTextEntry(tr("k"), mainLayout, 0);
-        k->setValidator(new QDoubleValidator);
         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,1);
 
     } else if (inpty==QString("Moments")) {
 
         mean = this->createTextEntry(tr("Mean"), mainLayout, 0);
-        mean->setValidator(new QDoubleValidator);
         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,1);
 

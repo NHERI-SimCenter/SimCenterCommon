@@ -260,7 +260,7 @@ int SimCenterUQInputSensitivity::processResults(QString &filenameResults, QStrin
 
 UQ_Results *
 SimCenterUQInputSensitivity::getResults(void) {
-    return new SimCenterUQResultsSensitivity(theRandomVariables);
+    return new SimCenterUQResultsSensitivity(RandomVariablesContainer::getInstance());
 }
 
 void

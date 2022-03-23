@@ -142,6 +142,8 @@ void SimCenterUQInputSurrogate::onIndexChanged(const QString &text)
         theInpCurrentMethod = theMultiFidelity;
         // FMK theFemWidget->setFEMforGP("GPdata");
     }
+    setRV_Defaults();
+
     //theParameters->setGPVarNamesAndValues(QStringList({}));// remove GP RVs
 }
 
@@ -260,17 +262,18 @@ SimCenterUQInputSurrogate::inputAppDataFromJSON(QJsonObject &jsonObject)
 UQ_Results *
 SimCenterUQInputSurrogate::getResults(void) {
     qDebug() << "RETURNED SimCenterUQRESULTSSURROGATE";
-    return new SimCenterUQResultsSurrogate(theRandomVariables);
+    return new SimCenterUQResultsSurrogate(RandomVariablesContainer::getInstance());
 }
 
 void
 SimCenterUQInputSurrogate::setRV_Defaults(void) {
   
-  RandomVariablesContainer *theRVs =  RandomVariablesContainer::getInstance();
-  QString classType("Uncertain");
-  QString engineType("SimCenterUQ");  
+  theInpCurrentMethod->setRV_Defaults();
+  //RandomVariablesContainer *theRVs =  RandomVariablesContainer::getInstance();
+  //QString classType("Uniform");
+  //QString engineType("SimCenterUQ");
 
-  theRVs->setDefaults(engineType, classType, Normal);
+  //theRVs->setDefaults(engineType, classType, Normal);
 }
 
 bool

@@ -35,7 +35,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written: fmckenna
-
+#include <RandomVariablesContainer.h>
 #include <SurrogateMFInputWidget.h>
 #include <QLineEdit>
 #include <QVBoxLayout>
@@ -325,13 +325,24 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
 
     // Do DoE
 
-//    theDoECheckBox = new QCheckBox();
-//    theSimGrid->addWidget(new QLabel("   Do Adaptive Design of Experiments"), id_fe, 0);
-//    theSimGrid->addWidget(theDoECheckBox, id_fe++, 1);
+    //theDoELabel=new QLabel("DoE Options");
+    theDoESelection = new QComboBox();
+
+//    theDoESelection->addItem(tr("Pareto"),0);
+//    theDoESelection->addItem(tr("IMSEw"),1);
+//    theDoESelection->addItem(tr("MMSEw"),2);
+    theDoESelection->addItem(tr("None"),0);
+    theDoESelection->setMaximumWidth(150);
+    theDoESelection->setCurrentIndex(0);
+
+    //theDoECheckBox = new QCheckBox();
+    //theSimGrid->addWidget(new QLabel("   Do Adaptive Design of Experiments"), id_fe, 0);
+
+    theSimGrid->addWidget(new QLabel("   DoE Options"), id_fe, 0);
+    theSimGrid->addWidget(theDoESelection, id_fe++, 1);
 
     theSimGrid->setColumnStretch(2,1);
     theSimGrid->setRowStretch(4,1);
-
 
     //
     // Parallel Execution
@@ -516,7 +527,8 @@ void SurrogateMFInputWidget::doAdvancedGP(bool tog)
 {
     if (tog) {
         theAdvancedTitle->setStyleSheet("font-weight: bold; color: black");
-
+        theNuggetSelection->setCurrentIndex(0);
+        theNuggetVals->hide();
     } else {
         theAdvancedTitle->setStyleSheet("font-weight: bold; color: gray");
         gpKernel->setCurrentIndex(0);
@@ -534,7 +546,7 @@ void SurrogateMFInputWidget::doAdvancedGP(bool tog)
     theKernelLabel->setVisible(tog);
     theNuggetLabel->setVisible(tog);
     theNuggetSelection->setVisible(tog);
-    theNuggetVals->setVisible(tog);
+    //theNuggetVals->setVisible(tog);
 }
 
 
@@ -632,60 +644,109 @@ SurrogateMFInputWidget::outputToJSON(QJsonObject &jsonObj){
 
     bool result = true;
 
-    jsonObj["HFfromModel"]=theHighSimButton->isChecked();
+    QJsonObject jsonHF;
+    QJsonObject jsonLF;
+
+    jsonHF["fromModel"]=theHighSimButton->isChecked();
+    jsonLF["fromModel"]=theLowSimButton->isChecked();
 
     if (theHighSimButton->isChecked())
     {
-        jsonObj["samples_HF"]=numSamples_HF->text().toInt();
-        jsonObj["existingDoE_HF"]=theExistingCheckBox_HF->isChecked();
+        jsonHF["samples"]=numSamples_HF->text().toInt();
+        jsonHF["existingDoE"]=theExistingCheckBox_HF->isChecked();
         if (theExistingCheckBox_HF->isChecked())
         {
-            jsonObj["inpFile_HF"]=inpFileDir_HF->text();
-            jsonObj["outFile_HF"]=outFileDir_HF->text();
+            jsonHF["inpFile"]=inpFileDir_HF->text();
+            jsonHF["outFile"]=outFileDir_HF->text();
+
+        } else {
+            jsonHF["inpFile"]="NA";
+            jsonHF["outFile"]="NA";
         }
+        jsonHF["seed"]=randomSeed->text().toInt();
+        jsonHF["timeLimit"]=timeMeasure->text().toDouble();
+        jsonHF["accuracyLimit"]=accuracyMeasure->text().toDouble();
+        jsonHF["DoEmethod"]=theDoESelection->currentText();
+        jsonHF["parallelExecution"]=parallelCheckBox->isChecked();
     } else {
-        jsonObj["inpFile_HF"]=inpFileDir_HF->text();
-        jsonObj["outFile_HF"]=outFileDir_HF->text();
+        jsonHF["inpFile"]=inpFileDir_HF->text();
+        jsonHF["outFile"]=outFileDir_HF->text();
+        // dummy
+        jsonHF["samples"]="NA";
+        jsonHF["existingDoE"]=true;
+        jsonHF["seed"]="NA";
+        jsonHF["timeLimit"]="NA";
+        jsonHF["accuracyLimit"]="NA";
+        jsonHF["DoEmethod"]="NA";
+        jsonHF["parallelExecution"]=true;
     }
 
-    jsonObj["LFfromModel"]=theLowSimButton->isChecked();
+
 
     if (theLowSimButton->isChecked())
     {
-        jsonObj["samples_LF"]=numSamples_LF->text().toInt();
-        jsonObj["existingDoE_LF"]=theExistingCheckBox_LF->isChecked();
+        jsonLF["samples"]=numSamples_LF->text().toInt();
+        jsonLF["existingDoE"]=theExistingCheckBox_LF->isChecked();
         if (theExistingCheckBox_LF->isChecked())
         {
-            jsonObj["inpFile_LF"]=inpFileDir_LF->text();
-            jsonObj["outFile_LF"]=outFileDir_LF->text();
+            jsonLF["inpFile"]=inpFileDir_LF->text();
+            jsonLF["outFile"]=outFileDir_LF->text();
+
+        } else {
+            jsonLF["inpFile"]="NA";
+            jsonLF["outFile"]="NA";
         }
+        jsonLF["seed"]=randomSeed->text().toInt();
+        jsonLF["timeLimit"]=timeMeasure->text().toDouble();
+        jsonLF["accuracyLimit"]=accuracyMeasure->text().toDouble();
+        jsonLF["DoEmethod"]=theDoESelection->currentText();
+        jsonLF["parallelExecution"]=parallelCheckBox->isChecked();
     } else {
-        jsonObj["inpFile_LF"]=inpFileDir_LF->text();
-        jsonObj["outFile_LF"]=outFileDir_LF->text();
+        jsonLF["inpFile"]=inpFileDir_LF->text();
+        jsonLF["outFile"]=outFileDir_LF->text();
+        // dummy
+        jsonLF["samples"]="NA";
+        jsonLF["existingDoE"]=true;
+        jsonLF["seed"]="NA";
+        jsonLF["timeLimit"]="NA";
+        jsonLF["accuracyLimit"]="NA";
+        jsonLF["DoEmethod"]="NA";
+        jsonLF["parallelExecution"]=true;
     }
 
-    if (theHighSimButton->isChecked() || theLowSimButton->isChecked()) {
-        jsonObj["seed"]=randomSeed->text().toInt();
-        jsonObj["timeLimit"]=timeMeasure->text().toDouble();
-        jsonObj["accuracyLimit"]=accuracyMeasure->text().toDouble();
-        //jsonObj["doDoE"]=theDoECheckBox->isChecked();
-        jsonObj["doDoE"]=0;
-        jsonObj["parallelExecution"]=parallelCheckBox->isChecked();
-    }
+    //    if (theHighSimButton->isChecked() || theLowSimButton->isChecked()) {
+    //        jsonObj["seed"]=randomSeed->text().toInt();
+    //        jsonObj["timeLimit"]=timeMeasure->text().toDouble();
+    //        jsonObj["accuracyLimit"]=accuracyMeasure->text().toDouble();
+    //        jsonObj["DoEmethod"]=theDoESelection->currentText();
 
-    jsonObj["advancedOpt"]=theAdvancedCheckBox->isChecked();
-    if (theAdvancedCheckBox->isChecked())
-    {
-        jsonObj["kernel"]=gpKernel->currentText();
-        jsonObj["linear"]=theLinearCheckBox->isChecked();
-        jsonObj["logTransform"]=theLogtCheckBox->isChecked();
-        jsonObj["nuggetOpt"]=theNuggetSelection->currentText();
-        jsonObj["nuggetString"]=theNuggetVals->text();
 
-    }
-    return result;    
+    //        jsonObj["parallelExecution"]=parallelCheckBox->isChecked();
+
+    //    }
+
+        jsonObj["advancedOpt"]=theAdvancedCheckBox->isChecked();
+        if (theAdvancedCheckBox->isChecked())
+        {
+            jsonObj["kernel"]=gpKernel->currentText();
+            jsonObj["linear"]=theLinearCheckBox->isChecked();
+            jsonObj["logTransform"]=theLogtCheckBox->isChecked();
+            jsonObj["nuggetOpt"]=theNuggetSelection->currentText();
+            jsonObj["nuggetString"]=theNuggetVals->text();
+
+        } else {
+            jsonObj["kernel"]="Radial Basis";
+            jsonObj["linear"]=false;
+            jsonObj["logTransform"]=false;
+            jsonObj["nuggetOpt"]="Optimize";
+            jsonObj["nuggetString"]="NA";
+        }
+
+        jsonObj["highFidelity"]=jsonHF;
+        jsonObj["lowFidelity"]=jsonLF;
+
+        return result;
 }
-
 
 int SurrogateMFInputWidget::parseInputDataForRV(QString name1){
 
@@ -772,22 +833,26 @@ SurrogateMFInputWidget::inputFromJSON(QJsonObject &jsonObject){
 
     bool result = true;
 
-    if (jsonObject.contains("HFfromModel")) {
-      if (jsonObject["HFfromModel"].toBool()) {
+    QJsonObject jsonHF = jsonObject["highFidelity"].toObject();
+    QJsonObject jsonLF = jsonObject["lowFidelity"].toObject();
+
+
+    if (jsonHF.contains("fromModel")) {
+      if (jsonHF["fromModel"].toBool()) {
           theHighSimButton->setChecked(true);
 
-          if (jsonObject.contains("samples_HF")) {
-              int samples=jsonObject["samples_HF"].toInt();
+          if (jsonHF.contains("samples")) {
+              int samples=jsonHF["samples"].toInt();
               numSamples_HF->setText(QString::number(samples));
           } else {
               result = false;
           }
 
-          if (jsonObject.contains("existingDoE_HF")) {
-              if (jsonObject["existingDoE_HF"].toBool()) {
+          if (jsonHF.contains("existingDoE")) {
+              if (jsonHF["existingDoE"].toBool()) {
                   theExistingCheckBox_HF->setChecked(true);
-                  inpFileDir_HF -> setText(jsonObject["inpFile_HF"].toString());
-                  outFileDir_HF -> setText(jsonObject["outFile_HF"].toString());
+                  inpFileDir_HF -> setText(jsonHF["inpFile"].toString());
+                  outFileDir_HF -> setText(jsonHF["outFile"].toString());
               } else {
                   theExistingCheckBox_HF->setChecked(false);
               }
@@ -797,29 +862,29 @@ SurrogateMFInputWidget::inputFromJSON(QJsonObject &jsonObject){
 
       } else {
           theLowSimButton->setChecked(false);
-          outFileDir_HF->setText(jsonObject["outFile_HF"].toString());
-          inpFileDir_HF->setText(jsonObject["inpFile_HF"].toString());
+          outFileDir_HF->setText(jsonHF["outFile"].toString());
+          inpFileDir_HF->setText(jsonHF["inpFile"].toString());
       }
     } else {
       return false;
     }
 
-    if (jsonObject.contains("LFfromModel")) {
-      if (jsonObject["LFfromModel"].toBool()) {
+    if (jsonLF.contains("fromModel")) {
+      if (jsonLF["fromModel"].toBool()) {
           theLowSimButton->setChecked(true);
 
-          if (jsonObject.contains("samples_LF")) {
-              int samples=jsonObject["samples_LF"].toInt();
+          if (jsonLF.contains("samples")) {
+              int samples=jsonLF["samples"].toInt();
               numSamples_LF->setText(QString::number(samples));
           } else {
               result = false;
           }
 
-          if (jsonObject.contains("existingDoE_LF")) {
-              if (jsonObject["existingDoE_LF"].toBool()) {
+          if (jsonLF.contains("existingDoE")) {
+              if (jsonLF["existingDoE"].toBool()) {
                   theExistingCheckBox_LF->setChecked(true);
-                  inpFileDir_LF -> setText(jsonObject["inpFile_LF"].toString());
-                  outFileDir_LF -> setText(jsonObject["outFile_LF"].toString());
+                  inpFileDir_LF -> setText(jsonLF["inpFile"].toString());
+                  outFileDir_LF -> setText(jsonLF["outFile"].toString());
               } else {
                   theExistingCheckBox_LF->setChecked(false);
               }
@@ -829,27 +894,35 @@ SurrogateMFInputWidget::inputFromJSON(QJsonObject &jsonObject){
 
       } else {
           theLowSimButton->setChecked(false);
-          outFileDir_LF->setText(jsonObject["outFile_LF"].toString());
-          inpFileDir_LF->setText(jsonObject["inpFile_LF"].toString());
+          outFileDir_LF->setText(jsonLF["outFile"].toString());
+          inpFileDir_LF->setText(jsonLF["inpFile"].toString());
       }
     } else {
       return false;
     }
 
-    if (jsonObject["LFfromModel"].toBool() || jsonObject["HFfromModel"].toBool())
-    {
 
-        if (jsonObject.contains("seed") && jsonObject.contains("doDoE")) {
-            double seed=jsonObject["seed"].toDouble();
+    if (jsonLF["fromModel"].toBool() || jsonHF["fromModel"].toBool())
+    {
+        QJsonObject jsonTmp;
+        if (jsonLF["fromModel"].toBool()) {
+            jsonTmp = jsonLF;
+         } else if (jsonHF["fromModel"].toBool()) {
+            jsonTmp = jsonHF;
+        }
+
+        if (jsonTmp.contains("seed") && jsonTmp.contains("DoEmethod")) {
+            double seed=jsonTmp["seed"].toDouble();
             randomSeed->setText(QString::number(seed));
-            theDoECheckBox->setChecked(jsonObject["doDoE"].toBool());
+
+            theDoESelection->setCurrentText(jsonTmp["DoEmethod"].toString());
         } else {
             result = false;
         }
 
-        if (jsonObject.contains("timeLimit") && jsonObject.contains("accuracyLimit")) {
-            int time=jsonObject["timeLimit"].toInt();
-            double accuracy=jsonObject["accuracyLimit"].toDouble();
+        if (jsonTmp.contains("timeLimit") && jsonTmp.contains("accuracyLimit")) {
+            int time=jsonTmp["timeLimit"].toInt();
+            double accuracy=jsonTmp["accuracyLimit"].toDouble();
             timeMeasure->setText(QString::number(time));
             accuracyMeasure->setText(QString::number(accuracy));
         } else {
@@ -922,4 +995,14 @@ int
 SurrogateMFInputWidget::getNumberTasks()
 {
   return numSamples_LF->text().toInt();
+}
+
+void
+SurrogateMFInputWidget::setRV_Defaults(void) {
+
+  RandomVariablesContainer *theRVs =  RandomVariablesContainer::getInstance();
+  QString classType("Uniform");
+  QString engineType("SimCenterUQ");
+
+  theRVs->setDefaults(engineType, classType, Normal);
 }

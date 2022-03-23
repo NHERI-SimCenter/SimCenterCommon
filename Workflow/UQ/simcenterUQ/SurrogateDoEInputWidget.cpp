@@ -37,6 +37,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include <SurrogateDoEInputWidget.h>
+#include <RandomVariablesContainer.h>
+
+
+
 #include <QLineEdit>
 #include <QVBoxLayout>
 #include <QLabel>
@@ -228,6 +232,7 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     initialDoE->setPlaceholderText("(Optional) Initial DoE #");
     initialDoE->setMaximumWidth(150);
     initialDoE->setMinimumWidth(150);
+    initialDoE->setValidator(new QIntValidator);
 
     layout->addWidget(theDoELabel, wid, 0);
     layout->addWidget(theDoESelection, wid, 1);
@@ -500,7 +505,6 @@ SurrogateDoEInputWidget::outputToJSON(QJsonObject &jsonObj){
     jsonObj["advancedOpt"]=theAdvancedCheckBox->isChecked();
     if (theAdvancedCheckBox->isChecked())
     {
-        jsonObj["advancedOpt"]=true;
         jsonObj["kernel"]=gpKernel->currentText();
         jsonObj["DoEmethod"]=theDoESelection->currentText();
         jsonObj["initialDoE"]=initialDoE->text().toDouble();
@@ -509,6 +513,14 @@ SurrogateDoEInputWidget::outputToJSON(QJsonObject &jsonObj){
         jsonObj["nuggetOpt"]=theNuggetSelection->currentText();
         jsonObj["nuggetString"]=theNuggetVals->text();
 
+    } else {
+        jsonObj["kernel"]="Radial Basis";
+        jsonObj["DoEmethod"]="None";
+        jsonObj["initialDoE"]=-1;
+        jsonObj["linear"]=false;
+        jsonObj["logTransform"]=false;
+        jsonObj["nuggetOpt"]="Optimize";
+        jsonObj["nuggetString"]="NA";
     }
 
     jsonObj["existingDoE"]=theExistingCheckBox->isChecked();
@@ -516,6 +528,9 @@ SurrogateDoEInputWidget::outputToJSON(QJsonObject &jsonObj){
     {
         jsonObj["inpFile"]=inpFileDir->text();
         jsonObj["outFile"]=outFileDir->text();
+    } else {
+        jsonObj["inpFile"]="NA";
+        jsonObj["outFile"]="NA";
     }
     return result;    
 }
@@ -619,4 +634,14 @@ int
 SurrogateDoEInputWidget::getNumberTasks()
 {
   return numSamples->text().toInt();
+}
+
+void
+SurrogateDoEInputWidget::setRV_Defaults(void) {
+
+  RandomVariablesContainer *theRVs =  RandomVariablesContainer::getInstance();
+  QString classType("Uniform");
+  QString engineType("SimCenterUQ");
+
+  theRVs->setDefaults(engineType, classType, Normal);
 }

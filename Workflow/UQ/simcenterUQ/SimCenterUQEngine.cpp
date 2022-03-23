@@ -74,15 +74,15 @@ SimCenterUQEngine::SimCenterUQEngine(QWidget *parent)
     QHBoxLayout *theSelectionLayout = new QHBoxLayout();
     QLabel *label = new QLabel();
     label->setText(QString("SimCenterUQ Method Category"));
-    theEngineSelectionBox = new QComboBox();
-    theEngineSelectionBox->addItem(tr("Forward Propagation"));
-    theEngineSelectionBox->addItem(tr("Sensitivity Analysis"));
-    theEngineSelectionBox->addItem(tr("Train GP Surrogate Model"));
-    theEngineSelectionBox->addItem(tr("PLoM Model")); // PLoM, KZ
-    theEngineSelectionBox->setMinimumWidth(600);
+    theMethodSelectionBox = new QComboBox();
+    theMethodSelectionBox->addItem(tr("Forward Propagation"));
+    theMethodSelectionBox->addItem(tr("Sensitivity Analysis"));
+    theMethodSelectionBox->addItem(tr("Train GP Surrogate Model"));
+    theMethodSelectionBox->addItem(tr("PLoM Model")); // PLoM, KZ
+    theMethodSelectionBox->setMinimumWidth(600);
 
     theSelectionLayout->addWidget(label);
-    theSelectionLayout->addWidget(theEngineSelectionBox);
+    theSelectionLayout->addWidget(theMethodSelectionBox);
     theSelectionLayout->addStretch();
     layout->addLayout(theSelectionLayout);
 
@@ -113,8 +113,8 @@ SimCenterUQEngine::SimCenterUQEngine(QWidget *parent)
 //    this->setLayout(layout);
 //    theCurrentEngine = theSensitivityEngine;
 
-    connect(theEngineSelectionBox, SIGNAL(currentIndexChanged(QString)), this,
-          SLOT(engineSelectionChanged(QString)));
+    connect(theMethodSelectionBox, SIGNAL(currentIndexChanged(QString)), this,
+          SLOT(methodSelectionChanged(QString)));
 
     //connect(theSamplingEngine, SIGNAL(onNumModelsChanged(int)), this, SLOT(numModelsChanged(int)));
 
@@ -126,20 +126,12 @@ SimCenterUQEngine::~SimCenterUQEngine()
 }
 
 
-void SimCenterUQEngine::engineSelectionChanged(const QString &arg1)
+void SimCenterUQEngine::methodSelectionChanged(const QString &arg1)
 {
     QString thePreviousName = theCurrentEngine->getMethodName();
     UQ_Engine *theOldEngine = theCurrentEngine;
     
     // theEdpWidget->showAdvancedSensitivity(false);
-
-    // If previous was surrogate, reset everything
-    if (thePreviousName == "surrogate")
-    {
-        //theEdpWidget->setGPQoINames(QStringList({}) );// remove GP QoIs
-      //FMK theParameters->setGPVarNamesAndValues(QStringList({}));// remove GP RVs
-      //FMK theFemWidget->setFEMforGP("reset");// reset FEM
-    }
 
     if (arg1 == QString("Forward Propagation")) {
         theStackedWidget->setCurrentIndex(0);
@@ -166,8 +158,8 @@ void SimCenterUQEngine::engineSelectionChanged(const QString &arg1)
     }
 
     // emit signal if engine changed
-    if (theCurrentEngine != theOldEngine)
-        emit onUQ_EngineChanged();
+    //if (theCurrentEngine != theOldEngine)
+    emit onUQ_EngineChanged();
 }
 
 int
@@ -178,7 +170,7 @@ SimCenterUQEngine::getMaxNumParallelTasks(void) {
 bool
 SimCenterUQEngine::outputToJSON(QJsonObject &jsonObject) {
 
-    jsonObject["uqType"] = theEngineSelectionBox->currentText();
+    jsonObject["uqType"] = theMethodSelectionBox->currentText();
     return theCurrentEngine->outputToJSON(jsonObject);
 }
 
@@ -188,9 +180,9 @@ SimCenterUQEngine::inputFromJSON(QJsonObject &jsonObject) {
 
     QString selection = jsonObject["uqType"].toString();
 
-    int index = theEngineSelectionBox->findText(selection);
-    theEngineSelectionBox->setCurrentIndex(index);
-    this->engineSelectionChanged(selection);
+    int index = theMethodSelectionBox->findText(selection);
+    theMethodSelectionBox->setCurrentIndex(index);
+    this->methodSelectionChanged(selection);
     if (theCurrentEngine != 0)
         result = theCurrentEngine->inputFromJSON(jsonObject);
     else

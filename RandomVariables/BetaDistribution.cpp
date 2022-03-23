@@ -66,13 +66,9 @@ BetaDistribution::BetaDistribution(QString inpType, QWidget *parent) :RandomVari
     if (inpty==QString("Parameters"))
     {
         alpha = this->createTextEntry(tr("alpha"), mainLayout, 0);
-        alpha->setValidator(new QDoubleValidator);
         beta  = this->createTextEntry(tr("beta"), mainLayout, 1);
-        beta->setValidator(new QDoubleValidator);
         a = this->createTextEntry(tr("Min."), mainLayout, 2);
-        a->setValidator(new QDoubleValidator);
         b  = this->createTextEntry(tr("Max."), mainLayout, 3);
-        b->setValidator(new QDoubleValidator);
         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,4);
 
@@ -81,13 +77,9 @@ BetaDistribution::BetaDistribution(QString inpType, QWidget *parent) :RandomVari
     } else if (inpty==QString("Moments")) {
 
         mean = this->createTextEntry(tr("Mean"), mainLayout, 0);
-        mean->setValidator(new QDoubleValidator);        
         standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout, 1);
-        standardDev->setValidator(new QDoubleValidator);
         a = this->createTextEntry(tr("Min."), mainLayout, 2);
-        a->setValidator(new QDoubleValidator);
         b  = this->createTextEntry(tr("Max."), mainLayout, 3);
-        b->setValidator(new QDoubleValidator);
         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,4);
 
@@ -96,10 +88,7 @@ BetaDistribution::BetaDistribution(QString inpType, QWidget *parent) :RandomVari
     } else if (inpty==QString("Dataset")) {
 
         a = this->createTextEntry(tr("Min."), mainLayout, 0);
-        a->setValidator(new QDoubleValidator);
         b  = this->createTextEntry(tr("Max."), mainLayout, 1);
-        b->setValidator(new QDoubleValidator);
-
         dataDir = this->createTextEntry(tr("Data File"), mainLayout, 2);
         dataDir->setMinimumWidth(200);
         dataDir->setMaximumWidth(200);

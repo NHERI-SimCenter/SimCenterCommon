@@ -96,7 +96,7 @@ public:
     int getNumRandomVariables(void);
     QVector<RandomVariable *> getRVdists(void);
     QTableWidget * getRVcorr();
-    void copyRVs(RandomVariablesContainer *oldRVcontainers);
+    //void copyRVs(RandomVariablesContainer *oldRVcontainers);
     void copyFiles(QString fileName);
     void setDefaults (QString &theUQ_Engine,
 		      QString &theVariableClass,
@@ -107,8 +107,10 @@ public slots:
    void addRandomVariable(void);
    void variableNameChanged(const QString &newValue);
    void removeRandomVariable(void);
+   void removeThisRandomVariable(RandomVariable *);
    void addCorrelationMatrix(void); // added by padhye for correlation matrix
    //   void addSobolevIndices(bool);// added by padhye for sobolev indices
+   void refreshRandomVariables(void);
    void loadRVsFromJson(void);
    void saveRVsToJson(void);
 
@@ -134,6 +136,7 @@ private:
     SectionTitle *correlationtabletitle;
     int flag_for_correlationMatrix;
     QStringList randomVariableNames;
+
     // int flag_for_sobolev_indices;
 };
 

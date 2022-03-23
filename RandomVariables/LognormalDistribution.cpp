@@ -65,18 +65,14 @@ LognormalDistribution::LognormalDistribution(QString inpType, QWidget *parent) :
     if (inpty==QString("Parameters"))
     {
         lambda = this->createTextEntry(tr("lambda"), mainLayout, 0);
-        lambda->setValidator(new QDoubleValidator);
         zeta  = this->createTextEntry(tr("zeta"), mainLayout, 1);
-        zeta->setValidator(new QDoubleValidator);
         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
     } else if (inpty==QString("Moments")) {
 
         mean = this->createTextEntry(tr("Mean"), mainLayout, 0);
-        mean->setValidator(new QDoubleValidator);        
         standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout, 1);
-        standardDev->setValidator(new QDoubleValidator);
         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 

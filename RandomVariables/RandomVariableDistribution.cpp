@@ -70,7 +70,7 @@ RandomVariableDistribution::createTextEntry(QString text,
     QLineEdit *res = new QLineEdit();
     res->setMinimumWidth(minL);
     res->setMaximumWidth(maxL);
-    res->setValidator(new QDoubleValidator);
+    //res->setValidator(new QDoubleValidator);
 
     entryLayout->addWidget(entryLabel);
     entryLayout->addWidget(res);
@@ -97,7 +97,7 @@ RandomVariableDistribution::createTextEntry(QString text,
     QLineEdit *res = new QLineEdit();
     res->setMinimumWidth(minL);
     res->setMaximumWidth(maxL);
-    res->setValidator(new QDoubleValidator);
+    //res->setValidator(new QDoubleValidator);
 
     //entryLayout->addWidget(entryLabel);
     //entryLayout->addWidget(res);
@@ -112,3 +112,7 @@ RandomVariableDistribution::createTextEntry(QString text,
 
     return res;
 }
+
+//int RandomVariableDistribution::getLength(void) {
+//    return 1;
+//}

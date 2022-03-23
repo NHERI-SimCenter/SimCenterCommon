@@ -67,8 +67,7 @@ NormalDistribution::NormalDistribution(QString inpType, QWidget *parent) :Random
 
         mean = this->createTextEntry(tr("Mean"), mainLayout,0);
         standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout,1);
-        mean->setValidator(new QDoubleValidator);
-        standardDev->setValidator(new QDoubleValidator);
+        //standardDev->setValidator(new QDoubleValidator);
         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton,1,2);
         mainLayout->setColumnStretch(3,1);
@@ -127,8 +126,6 @@ NormalDistribution::NormalDistribution(double initValue, QWidget *parent) :Rando
     this->inpty = "Parameters";
     mean = this->createTextEntry(tr("Mean"), mainLayout,0);
     standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout,1);
-    mean->setValidator(new QDoubleValidator);
-    standardDev->setValidator(new QDoubleValidator);
 
     mainLayout->addWidget(showPlotButton,1,2);
     mainLayout->setColumnStretch(3,1);
