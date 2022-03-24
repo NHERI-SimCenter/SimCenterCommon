@@ -200,3 +200,8 @@ QLineEdit {
     border-radius: 5px;
     color: black;    
 }
+
+QTextEdit {
+    border-radius: 5px;
+    color: black;    
+}
