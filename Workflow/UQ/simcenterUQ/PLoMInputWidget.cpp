@@ -63,6 +63,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QComboBox>
+#include <QDebug>
 
 PLoMInputWidget::PLoMInputWidget(QWidget *parent)
     : UQ_Method(parent)

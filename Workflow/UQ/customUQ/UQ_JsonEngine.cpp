@@ -70,9 +70,9 @@ UQ_JsonEngine::UQ_JsonEngine(QWidget *parent)
     applicationNameLabel->setText(tr("UQ Application Name"));
     theApplicationName->setToolTip(tr("Input the UQ application name here to match what has been set in WorkflowApplications.json"));
 
-    applicationLayout->addWidget(applicationNameLabel);
-    applicationLayout->addWidget(theApplicationName);
-    applicationLayout->addStretch();
+    //applicationLayout->addWidget(applicationNameLabel);
+    //applicationLayout->addWidget(theApplicationName);
+    //applicationLayout->addStretch();
       
     theRandomVariables = RandomVariablesContainer::getInstance();
     theJsonConfigureWidget = new JsonConfiguredWidget(theRandomVariables);
@@ -104,7 +104,8 @@ UQ_JsonEngine::inputFromJSON(QJsonObject &rvObject) {
 
 bool
 UQ_JsonEngine::outputAppDataToJSON(QJsonObject &jsonObject) {
-  jsonObject["Application"] = theApplicationName->text();
+  //jsonObject["Application"] = theApplicationName->text();
+  jsonObject["Application"] = QString("CustomUQ");
   QJsonObject dataObj;
   jsonObject["ApplicationData"] = dataObj;
 

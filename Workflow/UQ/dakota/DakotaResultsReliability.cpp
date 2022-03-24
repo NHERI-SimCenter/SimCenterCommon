@@ -146,7 +146,7 @@ int DakotaResultsReliability::processResults(QString &filenameResults, QString &
 
 
   //
-  // check it actually ran with n errors
+  // check it actually ran with no errors
   //
 
   QFileInfo fileResultsInfo(filenameResults);

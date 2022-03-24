@@ -71,6 +71,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <MultiFidelityMonteCarlo.h>
 #include <SimCenterIntensityMeasureWidget.h>
 #include <QMessageBox>
+#include<QDebug>
 
 PLoMSimuWidget::PLoMSimuWidget(QWidget *parent)
     : UQ_Method(parent)

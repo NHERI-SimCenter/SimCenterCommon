@@ -61,6 +61,7 @@ public:
     void clear(void);
 
     int getNumberTasks(void);
+    void setRV_Defaults(void);
 
 
 private:
@@ -93,7 +94,6 @@ private:
     QLabel * theDoELabel;
     QComboBox * theDoESelection;
     QLineEdit *initialDoE;
-
 
     QPushButton *chooseOutFile;
     QPushButton *chooseInpFile;

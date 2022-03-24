@@ -36,7 +36,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include "UserDef.h"
+#include "UserDefVec.h"
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -45,7 +45,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QFileDialog>
 
 
-UserDef::UserDef(QWidget *parent) :RandomVariableDistribution(parent)
+UserDefVec::UserDefVec(QWidget *parent) :RandomVariableDistribution(parent)
 {
     //
     // create the main layout and add the input entries
@@ -61,7 +61,6 @@ UserDef::UserDef(QWidget *parent) :RandomVariableDistribution(parent)
     scriptDir->setMaximumWidth(200);
     QPushButton *chooseFileButton = new QPushButton("Choose");
     mainLayout->addWidget(chooseFileButton,1,1);
-    mainLayout->setColumnStretch(2,1);
 
     connect(chooseFileButton, &QPushButton::clicked, this, [=](){
               QString fileName = QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*)");
@@ -70,46 +69,67 @@ UserDef::UserDef(QWidget *parent) :RandomVariableDistribution(parent)
               }
           });
 
+    length = this->createTextEntry(tr("Length"), mainLayout,2);
+
+    mainLayout->setColumnStretch(2,1);
+
 }
-UserDef::~UserDef()
+UserDefVec::~UserDefVec()
 {
 
 }
 
 bool
-UserDef::outputToJSON(QJsonObject &rvObject){
+UserDefVec::outputToJSON(QJsonObject &rvObject){
 
     if (scriptDir->text().isEmpty()) {
-        this->errorMessage("ERROR:UserDefinedDistribution - script path has not been set");
+        this->errorMessage("ERROR:User Defined Vector Distribution - script path has not been set");
         return false;
     }
+
+    if (length->text().isEmpty()) {
+        this->errorMessage("ERROR:User Defined Vector Distribution - length not specified");
+        return false;
+    }
+
     rvObject["scriptDir"]=QString(scriptDir->text());
+    rvObject["length"]=QString(length->text()).toInt();
+
 
     return true;
 
 }
 
 bool
-UserDef::inputFromJSON(QJsonObject &rvObject){
+UserDefVec::inputFromJSON(QJsonObject &rvObject){
 
 
     if (rvObject.contains("scriptDir")) {
         QString theDataDir = rvObject["scriptDir"].toString();
         scriptDir->setText(theDataDir);
     } else {
-        this->errorMessage("ERROR: UserDefinedDistribution - no \"scriptDir\" entry");
+        this->errorMessage("ERROR:  User Defined Vector Distribution - no \"scriptDir\" entry");
         return false;
     }
+
+    if (rvObject.contains("length")) {
+        //auto aa = rvObject["length"].toInt();
+        length->setText( QString::number(rvObject["length"].toInt()));
+    } else {
+        this->errorMessage("ERROR: User Defined Vector Distribution - no \"length\" entry");
+        return false;
+    }
+
 
     return true;
 }
 
 void
-UserDef::copyFiles(QString fileDir) {
+UserDefVec::copyFiles(QString fileDir) {
         QFile::copy(scriptDir->text(), fileDir);
 }
 
 QString
-UserDef::getAbbreviatedName(void) {
-  return QString("UserDef");
+UserDefVec::getAbbreviatedName(void) {
+  return QString("UserDefVec");
 }

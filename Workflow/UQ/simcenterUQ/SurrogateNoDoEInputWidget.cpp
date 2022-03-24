@@ -52,6 +52,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <iterator>
 #include <string>
 #include <sstream>
+#include <RandomVariablesContainer.h>
 
 SurrogateNoDoEInputWidget::SurrogateNoDoEInputWidget(QWidget *parent)
 : UQ_Method(parent)
@@ -309,6 +310,7 @@ void SurrogateNoDoEInputWidget::setOutputDir(bool tog)
         //FMK theEdpWidget->setGPQoINames(QStringList({}) );// remove GP RVs
         //FMK theParameters->setVarNamesAndValues(QStringList({}));// remove GP RVs
     }
+
 }
 
 bool
@@ -494,4 +496,17 @@ int
 SurrogateNoDoEInputWidget::getNumberTasks()
 {
   return numSamples;
+}
+
+void
+SurrogateNoDoEInputWidget::setRV_Defaults(void) {
+    RandomVariablesContainer *theRVs =  RandomVariablesContainer::getInstance();
+    QString engineType("SimCenterUQ");
+    QString classType;
+    //if (theCheckButton->isChecked()) {
+        classType=QString("NA");
+    //} else {
+    //    classType=QString("Uniform");
+    //}
+    theRVs->setDefaults(engineType, classType, Normal);
 }

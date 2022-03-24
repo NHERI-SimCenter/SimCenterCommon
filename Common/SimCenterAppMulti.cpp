@@ -116,6 +116,8 @@ SimCenterAppMulti::addTab() {
 
 
     newLayout->setColumnStretch(3,1);
+
+    return 0;
 }
 
 bool SimCenterAppMulti::outputToJSON(QJsonObject &jsonObject)

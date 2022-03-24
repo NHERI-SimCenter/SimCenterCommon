@@ -244,10 +244,9 @@ int UCSD_Results::processResults(QString &filenameTab, QString &filenamePrior)
 //    QVector<QVector<double>> statisticsVectorPrior = theDataTablePrior->getStatistics();
 
     // Read the dakota.json file located in ./templatedir
-    QDir fileDir = filenameTabInfo.absoluteDir();
-    QFileInfo jsonFileInfo(fileDirTab, QString("dakota.json"));
+    QFileInfo jsonFileInfo(fileDirTab.absolutePath() + QDir::separator() + QString("templatedir"), QString("scInput.json"));
     if (!jsonFileInfo.exists()) {
-        errorMessage("ERROR: No dakota.json file");
+        errorMessage("ERROR: No scInput.json file");
         return 0;
     }
     

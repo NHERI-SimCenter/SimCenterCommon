@@ -133,6 +133,9 @@ UQ_EngineSelection::UQ_EngineSelection(UQ_EngineType type,
             SLOT(engineSelectionChanged(QString)));
 
     connect(theDakotaEngine, SIGNAL(onUQ_EngineChanged()), this, SLOT(enginesEngineSelectionChanged()));
+    connect(theSimCenterUQEngine, SIGNAL(onUQ_EngineChanged()), this, SLOT(enginesEngineSelectionChanged()));
+    connect(theCustomEngine, SIGNAL(onUQ_EngineChanged()), this, SLOT(enginesEngineSelectionChanged()));
+    connect(theUCSD_Engine, SIGNAL(onUQ_EngineChanged()), this, SLOT(enginesEngineSelectionChanged()));
 
     // connect(theCustomEngine, SIGNAL(onNumModelsChanged(int)), this, SLOT(numModelsChanged(int)));    
     // connect(theCustomEngine, SIGNAL(onUQ_EngineChanged()), this, SLOT(enginesEngineSelectionChanged()));
@@ -216,12 +219,13 @@ void UQ_EngineSelection::engineSelectionChanged(const QString &arg1)
     } else {
       qDebug() << "ERROR .. UQ_EngineSelection selection .. type unknown: " << arg1;
     }
+    theCurrentEngine->setRV_Defaults();
 
-    connect(theCurrentEngine, SIGNAL(onUQ_EngineChanged()), this, SLOT(enginesEngineSelectionChanged()));
+    //connect(theCurrentEngine, SIGNAL(onUQ_EngineChanged()), this, SLOT(enginesEngineSelectionChanged()));
     connect(theCurrentEngine,SIGNAL(onNumModelsChanged(int)), this, SLOT(numModelsChanged(int)));
 
 
-    theCurrentEngine->setRV_Defaults();
+    // theCurrentEngine->setRV_Defaults();
     
     /* FMK
     if (thePreviousEngine->getMethodName() == "surrogate")
@@ -239,6 +243,7 @@ void UQ_EngineSelection::engineSelectionChanged(const QString &arg1)
 void
 UQ_EngineSelection::enginesEngineSelectionChanged(){
     qDebug() << "UQ_EngineSelection::enginesSelectionChanged()";
+    theCurrentEngine->setRV_Defaults();
     emit onUQ_EngineChanged(true);
 }
 
@@ -271,11 +276,11 @@ UQ_EngineSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
                     (type == QString("DakotaEngine")) ||
                     (type == QString("Dakota-UQ"))) {
                 index = 0;
-            } else if ((type == QString("SimCenterUQ"))) {
+            } else if ((type == QString("SimCenterUQ")) || (type == QString("SimCenter-UQ"))) {
                 index = 1;
                 // } else if ((type == QString("UQpy")) || (type == QString("UQpyEngine"))) {
                 //   index = 2;
-            } else if ((type == QString("CustomUQ")) || type == QString("CustomUQEngine")  || type == QString("Other-UQ")) {
+            } else if ((type == QString("CustomUQ")) || type == QString("CustomUQEngine")  || type == QString("Other-UQ") || type == QString("")) {
                 index = 2;
             } else if ((type == QString("UCSD-UQ"))) {
                 index = 3;

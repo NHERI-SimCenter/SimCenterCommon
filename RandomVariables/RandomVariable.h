@@ -67,17 +67,23 @@ public:
 
     bool isSelectedForRemoval(void);
     QString getVariableName(void);
-    void fixToUniform(double dValue);
-    void uqEngineChanged(QString engineName);
+    QString getAbbreviatedName(void);
+    int getLength(void);
+   // void fixToUniform(double dValue);
+    void uqEngineChanged(QString newUqEngineName, QString newClass);
     void copyFiles(QString fileDir);
     QLineEdit *variableName;
     int refCount;
 
 signals:
+    void removeRVclicked(RandomVariable*);
 
 public slots:
+     void xButtonClicked(void);
      void distributionChanged(const QString &arg1);
      void typeChanged(const QString &arg1);
+     void setButtonVisible(bool tog);
+
 
 private:
     RandomVariableDistribution *theDistribution;

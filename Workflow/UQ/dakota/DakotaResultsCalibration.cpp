@@ -345,7 +345,7 @@ int DakotaResultsCalibration::processResults(QString &filenameResults, QString &
 
     summary = new QWidget();
     summaryLayout = new QVBoxLayout();
-    summaryLayout->setContentsMargins(0,0,0,0);
+//    summaryLayout->setContentsMargins(0,0,0,0);
     summary->setLayout(summaryLayout);
     sa->setWidget(summary);
 

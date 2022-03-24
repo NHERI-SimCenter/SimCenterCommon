@@ -480,9 +480,9 @@ void MainWindowWorkflowApp::updateExamplesMenu(void)
     exampleMenu->addAction("Manage Examples", this, &MainWindowWorkflowApp::showExampleDownloader);
     exampleMenu->addSeparator();
 
-    auto pathExamplesFolder = QCoreApplication::applicationDirPath() + QDir::separator() + "Examples";
+    auto pathExamplesFolder = QCoreApplication::applicationDirPath() + "/" + "Examples";
 
-    auto pathToExamplesJson = pathExamplesFolder + QDir::separator() + "Examples.json";
+    auto pathToExamplesJson = pathExamplesFolder + "/" + "Examples.json";
   
     QFile jsonFile(pathToExamplesJson);
     if (jsonFile.exists())
@@ -501,7 +501,7 @@ void MainWindowWorkflowApp::updateExamplesMenu(void)
             QString downloadUrl = exampleObj["downloadUrl"].toString();
             QString description = exampleObj["description"].toString();
 
-            QFile inputFile(pathExamplesFolder + QDir::separator() + inputFileName);
+            QFile inputFile(pathExamplesFolder + "/" + inputFileName);
 
             if(inputFile.exists() && !inputFileName.isEmpty())
             {
@@ -861,7 +861,7 @@ MainWindowWorkflowApp::loadExamples()
     if(senderObj == nullptr)
         return;
 
-    auto pathToExample = QCoreApplication::applicationDirPath() + QDir::separator() + "Examples" + QDir::separator();
+    auto pathToExample = QCoreApplication::applicationDirPath() + "/" + "Examples" + "/";
     pathToExample += senderObj->property("inputFile").toString();
 
     if(pathToExample.isNull())
@@ -889,7 +889,7 @@ MainWindowWorkflowApp::loadExamples()
     emit sendStatusMessage("Loading Example file. Wait till Done Loading appears before progressing.");
     this->loadFile(pathToExample);
     
-    // statusWidget->hideProgressBar();
+     statusWidget->hideProgressBar();
     emit sendStatusMessage("Done Loading.");    
 
     // Automatically hide after n seconds

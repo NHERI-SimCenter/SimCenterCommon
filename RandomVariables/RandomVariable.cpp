@@ -46,6 +46,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QRadioButton>
 #include <QDebug>
 #include <QDir>
+#include <QPushButton>
 //
 // headers for RandomVariableDistribution subclasses that user can select
 //
@@ -65,6 +66,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "ConstantDistribution.h"
 #include "ContinuousDesignDistribution.h"
 #include "UserDef.h"
+#include "UserDefVec.h"
 
 
 RandomVariable::RandomVariable()
@@ -88,7 +90,24 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     // create radio button
     //
     button = new QRadioButton();
+    //button->setToolTip("Select to remove");
     mainLayout->addWidget(button,1,0);
+    button->setDisabled(true);
+    button->setVisible(false);
+
+    QPushButton *removeButton_background = new QPushButton("");
+    QPushButton *removeButton = new QPushButton("×");
+    const QSize BUTTON_SIZE = QSize(15, 15);
+    removeButton_background->setFixedSize(BUTTON_SIZE);
+    removeButton->setFixedSize(BUTTON_SIZE);
+    removeButton_background->setStyleSheet({ "font-size:10px; text-align: center; padding: 0px 0px 3px 0px; text-decoration: none; " });
+    removeButton->setStyleSheet("QPushButton { color: white; border: 0px; font-size:15px;  font-weight: bold;padding: 0px 0px 2px 0px; }");
+    //removeButton->hide();
+    //removeButton_background->setStyleSheet({ "padding: 0px 0px 13px 0px;" });
+    //mainLayout->addWidget(removeButton_background,1,0,1,1);
+    mainLayout->addWidget(removeButton,1,0,2,1);
+    connect(removeButton, SIGNAL(clicked()), this, SLOT(xButtonClicked()) );
+
 
     //
     // create variable name block
@@ -112,15 +131,13 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     mainLayout->addWidget(typeLabel,0,2);
     mainLayout->addWidget(typeComboBox,1,2);
 
-    //    if (uqengin!=QString("SimCenterUQ")){
+    //if (uqengin!=QString("SimCenterUQ")){
         typeComboBox->addItem(tr("Parameters"));
         typeComboBox->addItem(tr("Moments"));
         typeComboBox->addItem(tr("Dataset"));
     //}
 
-
-    connect(typeComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(typeChanged(QString)));
-
+    connect(typeComboBox, SIGNAL(currentTextChanged(QString)), this, SLOT(typeChanged(QString)));
     typeComboBox->setCurrentIndex(0);
 
     //
@@ -145,6 +162,17 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
         distributionComboBox->addItem(tr("Constant"));
         theDistribution = new ContinuousDesignDistribution();
 
+    } else if (variableClass == QString("Uniform")) {
+
+        distributionComboBox->addItem(tr("Uniform"));
+        theDistribution = new UniformDistribution(0);
+
+    } else if (variableClass == QString("NA")) {
+
+        distributionComboBox->addItem(tr("None"));
+        theDistribution = new UniformDistribution(0);
+        distributionLabel->setVisible(false);
+        distributionComboBox->setVisible(false);
 
     } else if (variableClass == QString("Uncertain")) {
 
@@ -157,29 +185,39 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
         distributionComboBox->addItem(tr("Constant"));
         theDistribution = new NormalDistribution();
 
+        if ((uqEngineName!=QString("Dakota")))
+        {
+            distributionComboBox->addItem(tr("Exponential"));
+            distributionComboBox->addItem(tr("Discrete"));
+            distributionComboBox->addItem(tr("Gamma"));
+            distributionComboBox->addItem(tr("Chisquare"));
+            distributionComboBox->addItem(tr("Truncated exponential"));
+        }
+        if ((uqEngineName==QString("Custom"))){
+            distributionComboBox->addItem(tr("User Defined"));
+            distributionComboBox->addItem(tr("User Defined Vector"));
+        }
+
+
+
     }
 
-    if (uqEngineName==QString("SimCenterUQ")){
-        distributionComboBox->addItem(tr("Exponential"));
-        distributionComboBox->addItem(tr("Discrete"));
-        distributionComboBox->addItem(tr("Gamma"));
-        distributionComboBox->addItem(tr("Chisquare"));
-        distributionComboBox->addItem(tr("Truncated exponential"));
-    }
+    connect(distributionComboBox, SIGNAL(currentTextChanged(QString)), this, SLOT(distributionChanged(QString)));
 
-    connect(distributionComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(distributionChanged(QString)));
-
-    if (uqengin!=QString("SimCenterUQ")){
+    if (! ((uqengin==QString("SimCenterUQ")) && (variableClass==QString("Uncertaint")))){
         typeLabel->setVisible(false);
         typeComboBox->setVisible(false);
     }
     //mainLayout->addStretch();
 
-    mainLayout->addWidget(theDistribution,0,4,2,1);
-    // connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+    if (variableClass!=QString("NA")){
+        mainLayout->addWidget(theDistribution,0,4,2,1);
+    }// connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+
 
     //this->setLayout(mainLayout);
   // mainLayout->setSizeConstraint(QLayout::SetMaximumSize);
+    mainLayout->setColumnStretch(6,1);
 }
 
 RandomVariable::~RandomVariable()
@@ -219,6 +257,10 @@ RandomVariable::RandomVariable(const QString &type,
     // connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 }
 
+void
+RandomVariable::xButtonClicked(void){
+    emit removeRVclicked(this);
+}
 
  bool
  RandomVariable::isSelectedForRemoval(void)
@@ -292,18 +334,25 @@ RandomVariable::inputFromJSON(QJsonObject &rvObject){
         return false;
     }
 
-    if ((distributionType==tr("Exponential")) ||
-        (distributionType==tr("Discrete")) ||
-        (distributionType==tr("Gamma")) ||
-        (distributionType==tr("Chisquare")) ||
-        (distributionType==tr("Truncated exponential")))
-    {
-        distributionComboBox->addItem(tr("Exponential"));
-        distributionComboBox->addItem(tr("Discrete"));
-        distributionComboBox->addItem(tr("Gamma"));
-        distributionComboBox->addItem(tr("Chisquare"));
-        distributionComboBox->addItem(tr("Truncated exponential"));
-    }
+//    if ((distributionType==tr("Exponential")) ||
+//        (distributionType==tr("Discrete")) ||
+//        (distributionType==tr("Gamma")) ||
+//        (distributionType==tr("Chisquare")) ||
+//        (distributionType==tr("Truncated exponential")))
+//    {
+//        distributionComboBox->addItem(tr("Exponential"));
+//        distributionComboBox->addItem(tr("Discrete"));
+//        distributionComboBox->addItem(tr("Gamma"));
+//        distributionComboBox->addItem(tr("Chisquare"));
+//        distributionComboBox->addItem(tr("Truncated exponential"));
+//    }
+
+//    if ((distributionType==tr("User defined vector")) ||
+//         distributionType==tr("Truncated exponential")   )
+//    {
+//        distributionComboBox->addItem(tr("User defined vector"));
+//        distributionComboBox->addItem(tr("User defined"));
+//    }
 
     int index1 = typeComboBox->findText(inputType);
     this->typeChanged(inputType);
@@ -384,6 +433,10 @@ void RandomVariable::distributionChanged(const QString &arg1)
         theDistribution = new TruncatedExponentialDistribution(typeOpt);
     } else if (arg1 == QString("ContinuousDesign")) {
          theDistribution = new ContinuousDesignDistribution();
+    } else if (arg1 == QString("User defined")) {
+         theDistribution = new UserDef();
+    } else if (arg1 == QString("User defined vector")) {
+         theDistribution = new UserDefVec();
     }
 
     if (theDistribution) {
@@ -393,55 +446,213 @@ void RandomVariable::distributionChanged(const QString &arg1)
     // connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 }
 
-void RandomVariable::fixToUniform(double dValue)
-{
-    distributionComboBox->setCurrentIndex(3); // Uniform
-    distributionComboBox->setDisabled(1);
-    typeComboBox->setDisabled(1);
+//void RandomVariable::fixToUniform(double dValue)
+//{
+//    distributionComboBox->setCurrentIndex(3); // Uniform
+//    distributionComboBox->setDisabled(1);
+//    typeComboBox->setDisabled(1);
 
-    delete theDistribution;
-    theDistribution = 0;
-    theDistribution = new UniformDistribution(dValue);
-    mainLayout->addWidget(theDistribution,0,4,2,1);
+//    delete theDistribution;
+//    theDistribution = 0;
+//    theDistribution = new UniformDistribution(dValue);
+//    mainLayout->addWidget(theDistribution,0,4,2,1);
 
-}
+//}
 
-void RandomVariable::uqEngineChanged(QString newUqEngineName) {
-    if (uqEngineName!=newUqEngineName) {
-        if (newUqEngineName==QString("SimCenterUQ")){
-            typeLabel->setVisible(true);
-            typeComboBox->setVisible(true);
-            if (distributionComboBox->count()<8) {
-                distributionComboBox->addItem(tr("Exponential"));
-                distributionComboBox->addItem(tr("Discrete"));
-                distributionComboBox->addItem(tr("Gamma"));
-                distributionComboBox->addItem(tr("Chisquare"));
-                distributionComboBox->addItem(tr("Truncated exponential"));
-            }
+void RandomVariable::uqEngineChanged(QString newUqEngineName, QString newClass) {
+
+    if ((newClass==variableClass) &&(newUqEngineName==uqEngineName)){
+        return;
+    }
+
+    QString currentType = distributionComboBox->currentText();
+
+    if ((newClass == QString("NA")) && (newClass != variableClass)) {
+        typeLabel->setVisible(false);
+        typeComboBox->setVisible(false);
+        distributionLabel->setVisible(false);
+        distributionComboBox->setVisible(false);
+
+        if (typeComboBox->currentText()!="Parameters"){
+            typeComboBox->setCurrentText("Parameters");
         }
-        if (newUqEngineName==QString("Dakota")){
+        for (int i=distributionComboBox->count()-1; i>=0; i--) {
+            distributionComboBox->removeItem(i);
+        }
+        distributionComboBox->insertItem(0,tr("Uniform"));
+
+        uqEngineName=newUqEngineName;
+        variableClass=newClass;
+
+        auto idx = mainLayout->indexOf(theDistribution);
+        if (idx>=0){
+            mainLayout->removeItem(mainLayout->itemAt(idx));
+        }
+        return;
+
+    } else {
+        distributionLabel->setVisible(true);
+        distributionComboBox->setVisible(true);
+
+        auto idx = mainLayout->indexOf(theDistribution);
+        if (idx<0){
+            mainLayout->addWidget(theDistribution,0,4,2,1);
+        }
+    }
+
+    if ((newClass == QString("Uniform")) && (newClass != variableClass)) {
+        typeLabel->setVisible(false);
+        typeComboBox->setVisible(false);
+        if (typeComboBox->currentText()!="Parameters"){
+            typeComboBox->setCurrentText("Parameters");
+        }
+//        for (int i=distributionComboBox->count()-1; i>=0; i--) {
+//            if (distributionComboBox->itemText(i) != QString("Uniform")) {
+//                distributionComboBox->removeItem(i);
+//            }
+//        }
+//        if (distributionComboBox->count()==0){
+//            distributionComboBox->addItem("Uniform");
+//        }
+       for (int i=distributionComboBox->count()-1; i>=0; i--) {
+                distributionComboBox->removeItem(i);
+        }
+        distributionComboBox->addItem("Uniform");
+
+        uqEngineName=newUqEngineName;
+        variableClass=newClass;
+        return;
+    }
+
+    if ((newClass == QString("Design")) && (newClass != variableClass)) {
             typeLabel->setVisible(false);
             typeComboBox->setVisible(false);
-            for (int i=distributionComboBox->count(); i>6; i--) {
-                distributionComboBox->removeItem(i);
-            }
 
-            QString distName = distributionComboBox->currentText();
-            if (distName=="Lognormal") {
-                typeComboBox->setCurrentText("Moments");
-                distributionComboBox->setCurrentText(distName);
+            for (int i=distributionComboBox->count()-1; i>=0; i--) {
+                if (distributionComboBox->itemText(i) == QString("Constant")) {
+                    // pass
+                } else if (distributionComboBox->itemText(i) == QString("Uniform")) {
+                    //if uniform, convert it to ContinuousDesign
+                    distributionComboBox->removeItem(i);
+                } else {
+                    distributionComboBox->removeItem(i);
+                }
+            }
+            distributionComboBox->insertItem(0,tr("ContinuousDesign"));
+            if (currentType == QString("Constant")) {
+                distributionComboBox->setCurrentIndex(0);
             } else {
-                typeComboBox->setCurrentText("Parameters");
-                distributionComboBox->setCurrentText(distName);
+                distributionComboBox->setCurrentIndex(1);
             }
-        }
-        uqEngineName = newUqEngineName;
+            //theDistribution = new ContinuousDesignDistribution();
+
+            uqEngineName=newUqEngineName;
+            variableClass=newClass;
+            return;
+
     }
 
-    // surrogate and design
-    if (variableClass == QString("Design")) {
-        distributionComboBox->addItem(tr("ContinuousDesign"));
-        distributionComboBox->addItem(tr("Constant"));
-        theDistribution = new ContinuousDesignDistribution();
+    if ((newClass == QString("Uncertain")) && (newClass != variableClass)) {
+
+                for (int i=distributionComboBox->count()-1; i>=0; i--) {
+                        distributionComboBox->removeItem(i);
+                }
+                distributionComboBox->insertItem(0,tr("Normal"));
+                distributionComboBox->insertItem(1,tr("Lognormal"));
+                distributionComboBox->insertItem(2,tr("Beta"));
+                distributionComboBox->insertItem(3,tr("Uniform"));
+                distributionComboBox->insertItem(4,tr("Weibull"));
+                distributionComboBox->insertItem(5,tr("Gumbel"));
+                distributionComboBox->insertItem(6,tr("Constant"));
+
+                // 6 is continuous, 7 is constant.
+                // if continuousDesign, convert it to uniform
+                // remove
+                //int idx = distributionComboBox->findText("ContinuousDesign");
+                //distributionComboBox->removeItem(idx);
     }
+
+
+    if (newUqEngineName==QString("SimCenterUQ")){
+        typeLabel->setVisible(true);
+        typeComboBox->setVisible(true);
+        if (distributionComboBox->count()<8) {
+            distributionComboBox->addItem(tr("Exponential"));
+            distributionComboBox->addItem(tr("Discrete"));
+            distributionComboBox->addItem(tr("Gamma"));
+            distributionComboBox->addItem(tr("Chisquare"));
+            distributionComboBox->addItem(tr("Truncated exponential"));
+        }
+    }
+    if (newUqEngineName==QString("Dakota")){
+        typeLabel->setVisible(false);
+        typeComboBox->setVisible(false);
+        for (int i=distributionComboBox->count(); i>6; i--) {
+            distributionComboBox->removeItem(i);
+        }
+
+        QString distName = distributionComboBox->currentText();
+        if (distName=="Lognormal") {
+            //if (typeComboBox->currentText()!="Moments"){
+            typeComboBox->setCurrentText("Moments");
+            distributionComboBox->setCurrentText(distName);
+            //}
+        } else {
+            //if (typeComboBox->currentText()!="Parameters"){
+            typeComboBox->setCurrentText("Parameters");
+            distributionComboBox->setCurrentText(distName);
+            //}
+        }
+    }
+
+    if (newUqEngineName==QString("UCSD")){
+
+        typeLabel->setVisible(false);
+        typeComboBox->setVisible(false);
+        for (int i=distributionComboBox->count(); i>6; i--) {
+            distributionComboBox->removeItem(i);
+        }
+        if (distributionComboBox->count()<8) {
+            distributionComboBox->addItem(tr("Exponential"));
+            distributionComboBox->addItem(tr("Discrete"));
+            distributionComboBox->addItem(tr("Gamma"));
+            distributionComboBox->addItem(tr("Chisquare"));
+            distributionComboBox->addItem(tr("Truncated exponential"));
+        }
+        typeComboBox->setCurrentText("Parameters");
+    }
+
+    if (newUqEngineName==QString("Custom")){
+
+        typeLabel->setVisible(false);
+        typeComboBox->setVisible(false);
+        for (int i=distributionComboBox->count(); i>6; i--) {
+            distributionComboBox->removeItem(i);
+        }
+        if (distributionComboBox->count()<8) {
+            distributionComboBox->addItem(tr("Exponential"));
+            distributionComboBox->addItem(tr("Discrete"));
+            distributionComboBox->addItem(tr("Gamma"));
+            distributionComboBox->addItem(tr("Chisquare"));
+            distributionComboBox->addItem(tr("Truncated exponential"));
+            distributionComboBox->addItem(tr("User defined"));
+            distributionComboBox->addItem(tr("User defined vector"));
+        }
+        typeComboBox->setCurrentText("Parameters");
+    }
+
+    uqEngineName=newUqEngineName;
+    variableClass=newClass;
+    return;
 }
+
+void RandomVariable::setButtonVisible(bool tog)
+{
+    button->setVisible(tog);
+}
+
+QString
+RandomVariable::getAbbreviatedName(void) {
+  return theDistribution->getAbbreviatedName();
+}
+

@@ -69,7 +69,7 @@ public:
     bool copyFiles(QString &fileName);
 
     // set event type
-    // void setEventType(QString type);
+    void setEventType(QString type);
 
 signals:
     void onUQ_EngineChanged(void);
@@ -77,11 +77,11 @@ signals:
     void queryEVT(void);
 
 public slots:
-    void engineSelectionChanged(const QString &arg1);
+    void methodSelectionChanged(const QString &arg1);
     void numModelsChanged(int newNum);
 
 private:
-   QComboBox   *theEngineSelectionBox;
+   QComboBox   *theMethodSelectionBox;
    QStackedWidget *theStackedWidget;
 
    UQ_Engine *theCurrentEngine;
