@@ -199,7 +199,7 @@ int SimCenterUQResultsSampling::processResults(QString &filenameResults, QString
 
     QFileInfo filenameErrorInfo(filenameErrorString);
     if (!filenameErrorInfo.exists()) {
-        errorMessage("No dakota.err file - SimCenterUQ did not run - problem with SimCenterUQ setup or the applications failed with inputs provided");
+        errorMessage("No error file - SimCenterUQ did not run - problem with SimCenterUQ setup or the applications failed with inputs provided");
         return 0;
     }
     QFile fileError(filenameErrorString);

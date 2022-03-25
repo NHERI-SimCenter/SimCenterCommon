@@ -156,7 +156,7 @@ int SimCenterUQResultsSurrogate::processResults(QString &filenameResults, QStrin
 
     QFileInfo filenameErrorInfo(filenameErrorString);
     if (!filenameErrorInfo.exists()) {
-        errorMessage("No dakota.err file - SimCenterUQ did not run - problem with dakota setup or the applications failed with inputs provided");
+        errorMessage("No error file - SimCenterUQ did not run - problem with quoFEM setup or the applications failed with inputs provided");
         return 0;
     }
     QFile fileError(filenameErrorString);
@@ -177,7 +177,7 @@ int SimCenterUQResultsSurrogate::processResults(QString &filenameResults, QStrin
 
     QFileInfo filenameTabInfo(filenameTab);
     if (!filenameTabInfo.exists()) {
-        errorMessage("No dakotaTab.out file - dakota failed .. possibly no QoI or a permission issue. Check out Jobs Directory");
+        errorMessage("No Tab file - surrogate modeling failed - possibly no QoI or a permission issue.");
         return 0;
     }
 

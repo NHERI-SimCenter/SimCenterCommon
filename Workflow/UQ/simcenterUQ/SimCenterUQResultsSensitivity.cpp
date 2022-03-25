@@ -202,7 +202,7 @@ int SimCenterUQResultsSensitivity::processResults(QString &filenameResults, QStr
 
     QFileInfo filenameErrorInfo(filenameErrorString);
     if (!filenameErrorInfo.exists()) {
-        errorMessage("No dakota.err file - SimCenterUQ did not run - problem with dakota setup or the applications failed with inputs provided");
+        errorMessage("No error file - SimCenterUQ did not run - problem with quoFEM setup or the applications failed with inputs provided");
         return 0;
     }
     QFile fileError(filenameErrorString);
@@ -222,7 +222,7 @@ int SimCenterUQResultsSensitivity::processResults(QString &filenameResults, QStr
 
     QFileInfo filenameTabInfo(filenameTab);
     if (!filenameTabInfo.exists()) {
-        errorMessage("No dakotaTab.out file - dakota failed .. possibly no QoI");
+        errorMessage("No Tab.out file - sensitivity analysis failed - possibly no QoI or a permission issue.");
         return 0;
     }
 
