@@ -87,24 +87,23 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     mainLayout->setHorizontalSpacing(10);
 
     //
-    // create radio button
+    // create radio button (not used any more - sy)
     //
-    button = new QRadioButton();
+    //button = new QRadioButton();
     //button->setToolTip("Select to remove");
-    mainLayout->addWidget(button,1,0);
-    button->setDisabled(true);
-    button->setVisible(false);
+    //mainLayout->addWidget(button,1,0);
+    //button->setDisabled(true);
+    //button->setVisible(false);  // not used any more
 
-    QPushButton *removeButton_background = new QPushButton("");
+
+
+    //
+    // create remove button (not used any more - sy)
+    //
     QPushButton *removeButton = new QPushButton("×");
     const QSize BUTTON_SIZE = QSize(15, 15);
-    removeButton_background->setFixedSize(BUTTON_SIZE);
     removeButton->setFixedSize(BUTTON_SIZE);
-    removeButton_background->setStyleSheet({ "font-size:10px; text-align: center; padding: 0px 0px 3px 0px; text-decoration: none; " });
-    removeButton->setStyleSheet("QPushButton { color: white; border: 0px; font-size:15px;  font-weight: bold;padding: 0px 0px 2px 0px; }");
-    //removeButton->hide();
-    //removeButton_background->setStyleSheet({ "padding: 0px 0px 13px 0px;" });
-    //mainLayout->addWidget(removeButton_background,1,0,1,1);
+    removeButton->setStyleSheet("QPushButton { font-size:15px;  font-weight: bold;padding: 0px 0px 2px 0px; }");
     mainLayout->addWidget(removeButton,1,0,2,1);
     connect(removeButton, SIGNAL(clicked()), this, SLOT(xButtonClicked()) );
 
@@ -200,11 +199,13 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
 
 
 
+
+
     }
 
     connect(distributionComboBox, SIGNAL(currentTextChanged(QString)), this, SLOT(distributionChanged(QString)));
 
-    if (! ((uqengin==QString("SimCenterUQ")) && (variableClass==QString("Uncertaint")))){
+    if (! ((uqengin==QString("SimCenterUQ")) && (variableClass==QString("Uncertain")))){
         typeLabel->setVisible(false);
         typeComboBox->setVisible(false);
     }

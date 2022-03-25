@@ -224,7 +224,8 @@ ExponentialDistribution::updateDistributionPlot() {
                 y[i] = lam*exp(-lam*xi);
             }
             thePlot->clear();
-            thePlot->addLine(x,y);
+            thePlot->drawPDF(x,y);
+        } else {
+            thePlot->clear();
         }
-
 }

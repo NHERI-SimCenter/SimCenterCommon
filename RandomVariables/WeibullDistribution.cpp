@@ -267,7 +267,9 @@ WeibullDistribution::updateDistributionPlot() {
             y[i] =(kk/aa)*(pow((xi/aa),(kk-1))*exp(-(pow((xi/aa),kk))));
         }
         thePlot->clear();
-        thePlot->addLine(x,y);
+        thePlot->drawPDF(x,y);
+    } else {
+        thePlot->clear();
     }
 
 }

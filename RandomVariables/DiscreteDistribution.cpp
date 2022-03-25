@@ -329,7 +329,7 @@ DiscreteDistribution::updateDistributionPlot() {
             bary.push_back(0.0);
 
           thePlot->clear();
-          thePlot->addLine(barx,bary);
+          thePlot->drawPDF(barx,bary);
         }
     }
 }

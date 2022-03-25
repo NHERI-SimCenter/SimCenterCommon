@@ -244,7 +244,7 @@ LognormalDistribution::updateDistributionPlot() {
                 y[i] = 1.0/(xi*ze*sqrt(2*3.141592))*exp( - pow((log(xi)-la)/ze,2)/2  );
             }
             thePlot->clear();
-            thePlot->addLine(x,y);
+            thePlot->drawPDF(x,y);
         }
 
        if ((st <= 0.0)|| (me <= 0)) {

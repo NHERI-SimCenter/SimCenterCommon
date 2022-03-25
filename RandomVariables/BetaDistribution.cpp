@@ -98,11 +98,6 @@ BetaDistribution::BetaDistribution(QString inpType, QWidget *parent) :RandomVari
 
         mainLayout->setColumnStretch(4,1);
 
-        // Action
-//        connect(chooseFileButton, &QPushButton::clicked, this, [=](){
-//                dataDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
-//        });
-
         connect(chooseFileButton, &QPushButton::clicked, this, [=](){
                   QString fileName = QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*)");
                   if (!fileName.isEmpty()) {
@@ -286,6 +281,10 @@ BetaDistribution::updateDistributionPlot() {
         alp = ((bb-me)*(me-aa)/pow(st,2)-1)*(me-aa)/(bb-aa);
         bet = alp*(bb-me)/(me-aa);
     }
+    if (aa>bb) {
+        thePlot->clear();
+        return;
+    }
 
         if (alp >= 0.0 && bet > 0.0 && me != aa) {
             double min = aa; // defined in x>0
@@ -297,27 +296,26 @@ BetaDistribution::updateDistributionPlot() {
                 x[i] = xi;
                 double betai=tgamma(alp)*tgamma(bet)/tgamma(alp+bet);
                 y[i] = pow(xi-aa,alp-1)*pow(bb-xi,bet-1)/betai/pow(bb-aa,alp+bet-1);
-            thePlot->clear();
-            thePlot->addLine(x,y);
-
             }
+            thePlot->clear();
+            thePlot->drawPDF(x,y);
         } else {
-            QVector<double> x(100);
-            QVector<double> y(100);
-            QVector<double> x1(100);
-            QVector<double> y1(100);
-            for (int i=0; i<100; i++) {
-                x[i] =  aa+1;
-                y[i] =  bb+10;
-                x1[i] =  me+1;
-                y1[i] =  st+10;
-            }
             thePlot->clear();
-            thePlot->addLine(x,y);
-            thePlot->addLine(x1,y1);
         }
 
-        if (aa>bb) {
-            thePlot->clear();
-        }
+//        else {
+//            QVector<double> x(100);
+//            QVector<double> y(100);
+//            QVector<double> x1(100);
+//            QVector<double> y1(100);
+//            for (int i=0; i<100; i++) {
+//                x[i] =  aa+1;
+//                y[i] =  bb+10;
+//                x1[i] =  me+1;
+//                y1[i] =  st+10;
+//            }
+//            thePlot->clear();
+//            thePlot->drawPDF(x,y);
+//            thePlot->drawPDF(x1,y1);
+//        }
 }

@@ -363,7 +363,7 @@ TruncatedExponentialDistribution::updateDistributionPlot() {
             }
         }
         thePlot->clear();
-        thePlot->addLine(x,y);
+        thePlot->drawPDF(x,y);
     } else {
         thePlot->clear();
     }

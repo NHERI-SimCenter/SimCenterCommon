@@ -247,6 +247,8 @@ GumbelDistribution::updateDistributionPlot() {
             y[i] = a*zi*exp(-zi);
         }
         thePlot->clear();
-        thePlot->addLine(x,y);
+        thePlot->drawPDF(x,y);
+    } else {
+        thePlot->clear();
     }
 }

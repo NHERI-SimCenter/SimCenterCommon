@@ -229,7 +229,9 @@ ChiSquaredDistribution::updateDistributionPlot() {
                 y[i] = exp(-kk/2*log(2)-lgamma(kk/2) + (kk/2-1)*log(xi)+ (-xi/2));
             }
             thePlot->clear();
-            thePlot->addLine(x,y);
+            thePlot->drawPDF(x,y);
+        } else {
+            thePlot->clear();
         }
 
 }

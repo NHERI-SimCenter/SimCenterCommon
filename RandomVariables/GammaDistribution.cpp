@@ -247,7 +247,9 @@ GammaDistribution::updateDistributionPlot() {
                 y[i] = pow(la,kk)*pow(xi,kk-1)*exp(-la*xi)/tgamma(kk);
             }
             thePlot->clear();
-            thePlot->addLine(x,y);
+            thePlot->drawPDF(x,y);
+        } else {
+            thePlot->clear();
         }
 
 }

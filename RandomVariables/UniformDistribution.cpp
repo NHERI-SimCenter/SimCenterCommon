@@ -297,8 +297,6 @@ UniformDistribution::updateDistributionPlot() {
         aa = me - sqrt(12)*st/2;
         bb = me + sqrt(12)*st/2;
     }
-
-
     if (bb > aa) {
 
         QVector<double> x(103);
@@ -313,7 +311,9 @@ UniformDistribution::updateDistributionPlot() {
             y[i+1] =1.0/(bb-aa);
         }
         thePlot->clear();
-        thePlot->addLine(x,y);
+        thePlot->drawPDF(x,y);
+    } else {
+        thePlot->clear();
     }
 }
 
