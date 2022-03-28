@@ -251,9 +251,11 @@ BetaDistribution::inputFromJSON(QJsonObject &rvObject){
     return true;
 }
 
-void BetaDistribution::copyFiles(QString fileDir) {
+bool BetaDistribution::copyFiles(QString fileDir) {
     if (inpty==QString("Dataset")) {
-        QFile::copy(dataDir->text(), fileDir);
+        return QFile::copy(dataDir->text(), fileDir);
+    } else {
+        return true;
     }
 }
 

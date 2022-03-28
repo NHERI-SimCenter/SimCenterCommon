@@ -271,16 +271,19 @@ UniformDistribution::inputFromJSON(QJsonObject &rvObject){
     return true;
 }
 
-void
+bool
 UniformDistribution::copyFiles(QString fileDir) {
     if (inpty==QString("Dataset")) {
         QFile::copy(dataDir->text(), fileDir);
+        return QFile::copy(dataDir->text(), fileDir);
+    } else {
+        return true;
     }
 }
 
 QString 
 UniformDistribution::getAbbreviatedName(void) {
-  return QString("Normal");
+  return QString("Uniform");
 }
 
 void

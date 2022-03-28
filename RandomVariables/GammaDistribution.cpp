@@ -209,10 +209,13 @@ GammaDistribution::inputFromJSON(QJsonObject &rvObject){
 }
 
 
-void
+bool
 GammaDistribution::copyFiles(QString fileDir) {
     if (inpty==QString("Dataset")) {
-        QFile::copy(dataDir->text(), fileDir);
+        return QFile::copy(dataDir->text(), fileDir);
+
+    } else {
+        return true;
     }
 }
 

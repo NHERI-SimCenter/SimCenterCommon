@@ -209,10 +209,12 @@ WeibullDistribution::inputFromJSON(QJsonObject &rvObject){
     return true;
 }
 
-void
+bool
 WeibullDistribution::copyFiles(QString fileDir) {
     if (inpty==QString("Dataset")) {
-        QFile::copy(dataDir->text(), fileDir);
+        return QFile::copy(dataDir->text(), fileDir);
+    } else {
+        return true;
     }
 }
 

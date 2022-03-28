@@ -204,7 +204,7 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     }
 
     connect(distributionComboBox, SIGNAL(currentTextChanged(QString)), this, SLOT(distributionChanged(QString)));
-
+    distributionComboBox->setCurrentIndex(0);
     if (! ((uqengin==QString("SimCenterUQ")) && (variableClass==QString("Uncertain")))){
         typeLabel->setVisible(false);
         typeComboBox->setVisible(false);
@@ -263,11 +263,11 @@ RandomVariable::xButtonClicked(void){
     emit removeRVclicked(this);
 }
 
- bool
- RandomVariable::isSelectedForRemoval(void)
-{
-  return button->isChecked();
- }
+// bool
+// RandomVariable::isSelectedForRemoval(void)
+//{
+//  return button->isChecked();
+// }
 
 
  QString
@@ -275,9 +275,9 @@ RandomVariable::xButtonClicked(void){
    return variableName->text().trimmed();
  }
 
- void
+ bool
  RandomVariable::copyFiles(QString fileDir){
-     theDistribution->copyFiles(fileDir + QDir::separator() + variableName->text() +".in");
+     return theDistribution->copyFiles(fileDir + QDir::separator() + variableName->text() +".in");
  }
 
 
@@ -645,11 +645,6 @@ void RandomVariable::uqEngineChanged(QString newUqEngineName, QString newClass) 
     uqEngineName=newUqEngineName;
     variableClass=newClass;
     return;
-}
-
-void RandomVariable::setButtonVisible(bool tog)
-{
-    button->setVisible(tog);
 }
 
 QString
