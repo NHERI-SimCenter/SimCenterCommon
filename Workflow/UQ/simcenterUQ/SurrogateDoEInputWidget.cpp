@@ -309,9 +309,11 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     chooseInpFile = new QPushButton("Choose");
     connect(chooseInpFile, &QPushButton::clicked, this, [=](){
         QString fileName = QFileDialog::getOpenFileName(this, "Open Simulation Model", "", "All files (*.*)");
-        inpFileDir->setText(fileName);
-        this->checkValidityData(fileName);
-        setWindowFilePath(fileName);
+        if(!fileName.isEmpty()) {
+            inpFileDir->setText(fileName);
+            this->checkValidityData(fileName);
+            setWindowFilePath(fileName);
+        }
     });
     inpFileDir->setMaximumWidth(150);
     theInputLabel=new QLabel("Training Points (Input RV)");
@@ -328,8 +330,12 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     outFileDir = new QLineEdit();
     chooseOutFile = new QPushButton("Choose");
     connect(chooseOutFile, &QPushButton::clicked, this, [=](){
-        outFileDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
-        this->checkValidityData(outFileDir->text());
+        QString outputName =QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)");
+
+        if(!outputName.isEmpty()) {
+            outFileDir->setText(outputName);
+            this->checkValidityData(outputName);
+        }
     });
     outFileDir->setMaximumWidth(150);
     theOutputLabel = new QLabel("System Responses (Output QoI)");
@@ -390,6 +396,7 @@ SurrogateDoEInputWidget::showDoEBox(int idx)
         initialDoE->hide();
     } else {
         initialDoE->show();
+        theNuggetSelection->setCurrentIndex(3);
     }
 };
 
@@ -575,10 +582,13 @@ SurrogateDoEInputWidget::inputFromJSON(QJsonObject &jsonObject){
             gpKernel->setCurrentIndex(index);
             theLinearCheckBox->setChecked(jsonObject["linear"].toBool());
             theLogtCheckBox->setChecked(jsonObject["logTransform"].toBool());
-            double accuracy=jsonObject["initialDoE"].toDouble();
             theDoESelection -> setCurrentText(jsonObject["DoEmethod"].toString());
-            initialDoE->setText(QString::number(accuracy));
-
+            int initDoE=jsonObject["initialDoE"].toInt();
+            if (initDoE!=0) {
+                initialDoE->setText(QString::number(initDoE));
+            } else {
+                initialDoE->setText("");
+            }
             if (jsonObject.contains("nuggetOpt")) {
                 QString nuggetOpt =jsonObject["nuggetOpt"].toString();
                 index = theNuggetSelection->findText(nuggetOpt);
@@ -643,5 +653,5 @@ SurrogateDoEInputWidget::setRV_Defaults(void) {
   QString classType("Uniform");
   QString engineType("SimCenterUQ");
 
-  theRVs->setDefaults(engineType, classType, Normal);
+  theRVs->setDefaults(engineType, classType, Uniform);
 }

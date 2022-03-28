@@ -98,7 +98,7 @@ SurrogateNoDoEInputWidget::SurrogateNoDoEInputWidget(QWidget *parent)
     chooseOutFile = new QPushButton("Choose");
     connect(chooseOutFile, &QPushButton::clicked, this, [=](){
         outFileDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
-        this->parseOutputDataForQoI(outFileDir->text());
+        //this->parseOutputDataForQoI(outFileDir->text());
     });
     outFileDir->setMinimumWidth(600);
     outFileDir->setReadOnly(true);
@@ -298,7 +298,7 @@ void SurrogateNoDoEInputWidget::setOutputDir(bool tog)
         chooseOutFile->setStyleSheet("color: white");
         // FMK theFemWidget->setFEMforGP("GPdata");
         parseInputDataForRV(inpFileDir->text());
-        parseOutputDataForQoI(outFileDir->text());
+        //parseOutputDataForQoI(outFileDir->text());
     } else {
         outFileDir->setDisabled(1);
         chooseOutFile->setDisabled(1);
@@ -318,26 +318,33 @@ SurrogateNoDoEInputWidget::outputToJSON(QJsonObject &jsonObj){
 
     bool result = true;
 
-    jsonObj["inpFile"]=inpFileDir->text();
+        jsonObj["inpFile"]=inpFileDir->text();
 
-    jsonObj["outputData"]=theCheckButton->isChecked();
-    if (theCheckButton->isChecked())
-    {
-        jsonObj["outFile"]=outFileDir->text();
-    }
+        jsonObj["outputData"]=theCheckButton->isChecked();
+        if (theCheckButton->isChecked())
+        {
+            jsonObj["outFile"]=outFileDir->text();
+        } else {
+            jsonObj["outFile"]="NA";
+        }
 
-    jsonObj["advancedOpt"]=theAdvancedCheckBox->isChecked();
-    if (theAdvancedCheckBox->isChecked())
-    {
-        jsonObj["kernel"]=gpKernel->currentText();
-        jsonObj["linear"]=theLinearCheckBox->isChecked();
-        jsonObj["logTransform"]=theLogtCheckBox->isChecked();
-        jsonObj["nuggetOpt"]=theNuggetSelection->currentText();
-        jsonObj["nuggetString"]=theNuggetVals->text();
-    }
-    jsonObj["parallelExecution"]=false;
-
-    return result;    
+        jsonObj["advancedOpt"]=theAdvancedCheckBox->isChecked();
+        if (theAdvancedCheckBox->isChecked())
+        {
+            jsonObj["kernel"]=gpKernel->currentText();
+            jsonObj["linear"]=theLinearCheckBox->isChecked();
+            jsonObj["logTransform"]=theLogtCheckBox->isChecked();
+            jsonObj["nuggetOpt"]=theNuggetSelection->currentText();
+            jsonObj["nuggetString"]=theNuggetVals->text();
+        } else {
+            jsonObj["kernel"]="Radial Basis";
+            jsonObj["linear"]=false;
+            jsonObj["logTransform"]=false;
+            jsonObj["nuggetOpt"]="Optimize";
+            jsonObj["nuggetString"]="NA";
+        }
+        jsonObj["parallelExecution"]=false;
+        return result;
 }
 
 
@@ -350,21 +357,23 @@ int SurrogateNoDoEInputWidget::parseInputDataForRV(QString name1){
         varNamesAndValues.append(QString("RV_column%1").arg(i+1));
         varNamesAndValues.append("nan");
     }
-    //FMK theParameters->setGPVarNamesAndValues(varNamesAndValues);
+    RandomVariablesContainer *theRVs =  RandomVariablesContainer::getInstance();
+    theRVs->addRVsWithValues(varNamesAndValues);
+
     numSamples=0;
     return 0;
 }
 
-int SurrogateNoDoEInputWidget::parseOutputDataForQoI(QString name1){
-    // get number of columns
-    double numberOfColumns=countColumn(name1);
-    QStringList qoiNames;
-    for (int i=0;i<numberOfColumns;i++) {
-        qoiNames.append(QString("QoI_column%1").arg(i+1));
-    }
-    //fmk TheEdpWidget->setGPQoINames(qoiNames);
-    return 0;
-}
+//int SurrogateNoDoEInputWidget::parseOutputDataForQoI(QString name1){
+//    // get number of columns
+//    double numberOfColumns=countColumn(name1);
+//    QStringList qoiNames;
+//    for (int i=0;i<numberOfColumns;i++) {
+//        qoiNames.append(QString("QoI_column%1").arg(i+1));
+//    }
+//    //fmk TheEdpWidget->setGPQoINames(qoiNames);
+//    return 0;
+//}
 
 int SurrogateNoDoEInputWidget::countColumn(QString name1){
     // get number of columns
@@ -503,10 +512,6 @@ SurrogateNoDoEInputWidget::setRV_Defaults(void) {
     RandomVariablesContainer *theRVs =  RandomVariablesContainer::getInstance();
     QString engineType("SimCenterUQ");
     QString classType;
-    //if (theCheckButton->isChecked()) {
-        classType=QString("NA");
-    //} else {
-    //    classType=QString("Uniform");
-    //}
-    theRVs->setDefaults(engineType, classType, Normal);
+    classType=QString("NA");
+    theRVs->setDefaults(engineType, classType, Uniform);
 }
