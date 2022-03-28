@@ -184,7 +184,7 @@ static int mergesort(double *input, int size)
 int CustomUQ_Results::processResults(QString &dirName)
 {
     QString filenameOUT = dirName + QDir::separator() + tr("dakota.out");
-    QString filenameTAB = dirName + QDir::separator() + tr("dakotaTab.out");
+    QString filenameTAB = dirName + QDir::separator() + tr("tabularResults.out");
     return this->processResults(filenameOUT, filenameTAB);
 }
 
@@ -221,7 +221,7 @@ int CustomUQ_Results::processResults(QString &filenameResults, QString &filename
 
     QWidget *summary = new QWidget();
     QVBoxLayout *summaryLayout = new QVBoxLayout();
-    summaryLayout->setContentsMargins(0,0,0,0); // adding back
+//    summaryLayout->setContentsMargins(0,0,0,0); // adding back
     summary->setLayout(summaryLayout);
 
     sa->setWidget(summary);
