@@ -255,7 +255,19 @@ RandomVariable::RandomVariable(const QString &type,
     // set new
     theDistribution = &theD;
     mainLayout->addWidget(theDistribution,0,4,2,1);
+    // uqEngineChanged(uqengin,type);
     // connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+
+    if (variableClass == QString("NA")) {
+        distributionLabel->setVisible(false);
+        distributionComboBox->setVisible(false);
+        auto idx = mainLayout->indexOf(theDistribution);
+        if (idx>=0){
+            mainLayout->removeItem(mainLayout->itemAt(idx));
+        }
+        // show only name
+    }
+
 }
 
 void
@@ -277,7 +289,11 @@ RandomVariable::xButtonClicked(void){
 
  bool
  RandomVariable::copyFiles(QString fileDir){
-     return theDistribution->copyFiles(fileDir + QDir::separator() + variableName->text() +".in");
+     if (theDistribution==NULL) {
+         return theDistribution->copyFiles(fileDir + QDir::separator() + variableName->text() +".in");
+     } else {
+         return true;
+     }
  }
 
 
@@ -362,10 +378,16 @@ RandomVariable::inputFromJSON(QJsonObject &rvObject){
 
 
     int index2 = distributionComboBox->findText(distributionType);
-    this->distributionChanged(distributionType);
-    distributionComboBox->setCurrentIndex(index2);
-    return theDistribution->inputFromJSON(rvObject);
+    if (index2>=0) {
+        this->distributionChanged(distributionType);
+        distributionComboBox->setCurrentIndex(index2);
+        theDistribution->inputFromJSON(rvObject);
+    }
+    if (distributionType==QString("")) {
+        delete theDistribution;
+    }
 
+    return true;
 }
 
 void RandomVariable::typeChanged(const QString &arg1) {
@@ -649,6 +671,10 @@ void RandomVariable::uqEngineChanged(QString newUqEngineName, QString newClass) 
 
 QString
 RandomVariable::getAbbreviatedName(void) {
-  return theDistribution->getAbbreviatedName();
+    if (theDistribution==NULL) {
+        return theDistribution->getAbbreviatedName();
+    } else {
+        return QString("");
+    }
 }
 
