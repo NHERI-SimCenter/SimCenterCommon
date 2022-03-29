@@ -62,13 +62,11 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
 {
     auto layout = new QGridLayout();
 
-    theHighSimLabel = new QLabel("     Simulation model");
-    theHighSimButton = new QCheckBox();
-    theHighSimLabel -> setStyleSheet("font-weight: bold; color: grey");
+    theHighSimButton = new QCheckBox("Simulation model");
+    theHighSimButton -> setStyleSheet("font-weight: bold; color: grey");
 
-    theLowSimLabel = new QLabel("     Simulation model");
-    theLowSimButton = new QCheckBox();
-    theLowSimLabel -> setStyleSheet("font-weight: bold; color: grey");
+    theLowSimButton = new QCheckBox("Simulation model");
+    theLowSimButton -> setStyleSheet("font-weight: bold; color: grey");
 
 
     // /////////////////////////////////////
@@ -91,11 +89,15 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
     inpFileDir_HF = new QLineEdit();
     chooseInpFile_HF = new QPushButton("Choose");
     connect(chooseInpFile_HF, &QPushButton::clicked, this, [=](){
-        inpFileDir_HF->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
-        if ((!theHighSimButton->isChecked()) && (!theLowSimButton->isChecked()) )
-            this->parseInputDataForRV(inpFileDir_HF->text());
-        else
-            this->countColumn(inpFileDir_HF->text()); // to give error
+        QString filename = QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)");
+        if(!filename.isEmpty()) {
+            inpFileDir_HF->setText(filename);
+            if ((!theHighSimButton->isChecked()) && (!theLowSimButton->isChecked()) )
+                this->parseInputDataForRV(inpFileDir_HF->text());
+            else
+                this->countColumn(inpFileDir_HF->text()); // to give error
+        }
+
     });
     inpFileDir_HF->setMinimumWidth(600);
     inpFileDir_HF->setReadOnly(true);
@@ -108,11 +110,14 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
     outFileDir_HF = new QLineEdit();
     chooseOutFile_HF = new QPushButton("Choose");
     connect(chooseOutFile_HF, &QPushButton::clicked, this, [=](){
-        outFileDir_HF->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
-        if ((!theHighSimButton->isChecked()) && (!theLowSimButton->isChecked()) )
-            this->parseOutputDataForQoI(outFileDir_HF->text());
-        else
-            this->countColumn(outFileDir_HF->text()); // to give error
+        QString filename = QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)");
+        if(!filename.isEmpty()) {
+            outFileDir_HF->setText(filename);
+            if ((!theHighSimButton->isChecked()) && (!theLowSimButton->isChecked()) )
+                this->parseOutputDataForQoI(outFileDir_HF->text());
+            else
+                this->countColumn(outFileDir_HF->text(),true); // to give error
+        }
     });
     outFileDir_HF->setMinimumWidth(600);
     outFileDir_HF->setReadOnly(true);
@@ -132,7 +137,6 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
     QGridLayout *theHighSimGrid = new QGridLayout(theHighSimOptions);
     theHighSimGrid->setMargin(0);
 
-    theHFlayout->addWidget(theHighSimLabel,id_hf,1);
     theHFlayout->addWidget(theHighSimButton,id_hf,1);
     theHFlayout->addWidget(theHighSimOptions,id_hf++,2,3,-1);
     theHFlayout->addWidget(line0, id_hf++, 1);
@@ -188,13 +192,14 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
     inpFileDir_LF = new QLineEdit();
     chooseInpFile_LF = new QPushButton("Choose");
     connect(chooseInpFile_LF, &QPushButton::clicked, this, [=](){
-        inpFileDir_LF->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
-
-        if ((!theHighSimButton->isChecked()) && (!theLowSimButton->isChecked()) )
-            this->parseInputDataForRV(inpFileDir_LF->text());
-        else
-            this->countColumn(inpFileDir_LF->text()); // to give error
-
+        QString filename = QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)");
+        if(!filename.isEmpty()) {
+            inpFileDir_LF->setText(filename);
+            if ((!theHighSimButton->isChecked()) && (!theLowSimButton->isChecked()) )
+                this->parseInputDataForRV(inpFileDir_LF->text());
+            else
+                this->countColumn(inpFileDir_LF->text()); // to give error
+            }
     });
     inpFileDir_LF->setMinimumWidth(600);
     inpFileDir_LF->setReadOnly(true);
@@ -205,13 +210,14 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
     outFileDir_LF = new QLineEdit();
     chooseOutFile_LF = new QPushButton("Choose");
     connect(chooseOutFile_LF, &QPushButton::clicked, this, [=](){
-        outFileDir_LF->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
-
-        if ((!theHighSimButton->isChecked()) && (!theLowSimButton->isChecked()) )
-            this->parseOutputDataForQoI(outFileDir_LF->text());
-        else
-            this->countColumn(outFileDir_LF->text()); // to give error
-
+        QString filename = QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)");
+        if(!filename.isEmpty()) {
+            outFileDir_LF->setText(filename);
+            if ((!theHighSimButton->isChecked()) && (!theLowSimButton->isChecked()) )
+                this->parseOutputDataForQoI(outFileDir_LF->text());
+            else
+                this->countColumn(outFileDir_LF->text(),true); // to give error
+     }
     });
     outFileDir_LF->setMinimumWidth(600);
     outFileDir_LF->setReadOnly(true);
@@ -231,7 +237,6 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
     QGridLayout *theLowSimGrid = new QGridLayout(theLowSimOptions);
     theLowSimGrid->setMargin(0);
 
-    theLFlayout->addWidget(theLowSimLabel,id,1);
     theLFlayout->addWidget(theLowSimButton,id,1);
     theLFlayout->addWidget(theLowSimOptions,id++,2,3,-1);
     theLFlayout->addWidget(line1, id++, 1);
@@ -274,10 +279,15 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
     // Errors
     //
 
-    errMSG=new QLabel("Unrecognized file format");
+    ignore_fem_message=new QLabel("Any information entered on the FEM tab will be ignored");
+    ignore_fem_message->setStyleSheet({"color: blue"});
+    layout->addWidget(ignore_fem_message,2,0,Qt::AlignLeft);
+
+
+    errMSG=new QLabel("");
     errMSG->setStyleSheet({"color: red"});
-    layout->addWidget(errMSG,2,0,Qt::AlignLeft);
-    errMSG->hide();
+    layout->addWidget(errMSG,3,0,Qt::AlignLeft);
+
 
 
     // /////////////////////////////////////
@@ -287,7 +297,7 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
     theSimBox = new QGroupBox("Simulation Options");
     QGridLayout *theSimGrid = new QGridLayout();
     theSimBox->setLayout(theSimGrid);
-    layout->addWidget(theSimBox,2,0,1,-1);
+    layout->addWidget(theSimBox,3,0,1,-1);
     theSimBox->setVisible(false);
 
     srand(time(NULL));
@@ -357,17 +367,15 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
     // ADVANCED
     // /////////////////////////////////////
 
-    theAdvancedCheckBox = new QCheckBox();
-    theAdvancedTitle=new QLabel("\n     Advanced Options for Gaussian Process Model");
-    theAdvancedTitle->setStyleSheet("font-weight: bold; color: gray");
-    layout->addWidget(theAdvancedTitle, 3, 0,1,3,Qt::AlignBottom);
-    layout->addWidget(theAdvancedCheckBox, 3, 0,Qt::AlignBottom);
+    theAdvancedCheckBox = new QCheckBox("Advanced Options for Gaussian Process Model");
+    theAdvancedCheckBox->setStyleSheet("font-weight: bold; color: gray");
+    layout->addWidget(theAdvancedCheckBox, 4, 0,Qt::AlignBottom);
 
     lineA = new QFrame;
     lineA->setFrameShape(QFrame::HLine);
     lineA->setFrameShadow(QFrame::Sunken);
     lineA->setMaximumWidth(420);
-    layout->addWidget(lineA, 4, 0, 1, 3);
+    layout->addWidget(lineA, 5, 0, 1, 3);
     lineA->setVisible(false);
 
     // Selection of GP kernel
@@ -380,8 +388,8 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
     gpKernel->addItem(tr("Radial Basis"));
     gpKernel->addItem(tr("Exponential"));
     gpKernel->setMaximumWidth(150);
-    layout->addWidget(theKernelLabel, 5, 0);
-    layout->addWidget(gpKernel, 5, 1);
+    layout->addWidget(theKernelLabel, 6, 0);
+    layout->addWidget(gpKernel, 6, 1);
     gpKernel->setCurrentIndex(0);
     theKernelLabel->setVisible(false);
     gpKernel->setVisible(false);
@@ -391,8 +399,8 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
     theLinearLabel=new QLabel("Add Linear Trend Function");
 
     theLinearCheckBox = new QCheckBox();
-    layout->addWidget(theLinearLabel, 6, 0);
-    layout->addWidget(theLinearCheckBox, 6, 1);
+    layout->addWidget(theLinearLabel, 7, 0);
+    layout->addWidget(theLinearCheckBox, 7, 1);
     //theLinearLabel->setStyleSheet("color: gray");
     //theLinearCheckBox->setDisabled(1);
     theLinearLabel->setVisible(false);
@@ -404,9 +412,9 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
     theLogtLabel2=new QLabel("     (check this box only when all responses are always positive)");
 
     theLogtCheckBox = new QCheckBox();
-    layout->addWidget(theLogtLabel, 7, 0);
-    layout->addWidget(theLogtLabel2, 7, 1);
-    layout->addWidget(theLogtCheckBox, 7, 1);
+    layout->addWidget(theLogtLabel, 8, 0);
+    layout->addWidget(theLogtLabel2, 8, 1);
+    layout->addWidget(theLogtCheckBox, 8, 1);
     theLogtLabel->setVisible(false);
     theLogtLabel2->setVisible(false);
     theLogtCheckBox->setVisible(false);
@@ -429,9 +437,9 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
     theNuggetVals->setToolTip("Provide nugget values");
     //theNuggetVals->setMaximumWidth(150);
 
-    layout->addWidget(theNuggetLabel, 8, 0);
-    layout->addWidget(theNuggetSelection, 8, 1);
-    layout->addWidget(theNuggetVals, 9, 1,1,2);
+    layout->addWidget(theNuggetLabel, 9, 0);
+    layout->addWidget(theNuggetSelection, 9, 1);
+    layout->addWidget(theNuggetVals, 10, 1,1,2);
 
     theNuggetLabel->setVisible(false);
     theNuggetSelection->setVisible(false);
@@ -443,8 +451,8 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
     // Finish
     //
 
-    layout->setRowStretch(10, 1);
-    layout->setColumnStretch(7, 1);
+    layout->setRowStretch(11, 1);
+    layout->setColumnStretch(8, 1);
     this->setLayout(layout);
 
     connect(theLowSimButton,SIGNAL(toggled(bool)),this,SLOT(setLowSim(bool)));
@@ -526,11 +534,11 @@ void SurrogateMFInputWidget::doExistingHF(bool tog)
 void SurrogateMFInputWidget::doAdvancedGP(bool tog)
 {
     if (tog) {
-        theAdvancedTitle->setStyleSheet("font-weight: bold; color: black");
+        theAdvancedCheckBox->setStyleSheet("font-weight: bold; color: black");
         theNuggetSelection->setCurrentIndex(0);
         theNuggetVals->hide();
     } else {
-        theAdvancedTitle->setStyleSheet("font-weight: bold; color: gray");
+        theAdvancedCheckBox->setStyleSheet("font-weight: bold; color: gray");
         gpKernel->setCurrentIndex(0);
         theLinearCheckBox->setChecked(false);
         theLogtCheckBox->setChecked(false);
@@ -555,88 +563,79 @@ void SurrogateMFInputWidget::setLowSim(bool tog)
     theExistingCheckBox_LF->setChecked(!tog);
 
     // Temporary
-//    if (theLowSimButton->isChecked() && theHighSimButton->isChecked()) {
-//        errorMessage("Currently, the option to use both high- and low-fidelity models is not supported");
-//        theLowSimButton->setChecked(false);
-//        return;
-//    }
+    if (theLowSimButton->isChecked() && theHighSimButton->isChecked()) {
+        errorMessage("Currently, the option to use both high- and low-fidelity models is not supported");
+        theLowSimButton->setChecked(false);
+        return;
+    }
 
     if (theLowSimButton->isChecked() && theHighSimButton->isChecked()) {
-        //FMK theEdpWidget->setGPQoINames(QStringList("") );
-        //FMK theFemWidget->setFEMforGP("GPMFmodel");
-        //FMK theEdpWidget->setGPQoINames(QStringList({}) );// remove GP RVs
-        //FMK theParameters->setGPVarNamesAndValues(QStringList({}));// remove GP RVs
-        errMSG->hide();
+        errMSG->setText("");
         theSimBox->setVisible(true);
+        ignore_fem_message->setText("");
     } else if (!theLowSimButton->isChecked() && !theHighSimButton->isChecked()) {
-        //FMK theFemWidget->setFEMforGP("GPdata");
         theSimBox->setVisible(false);
+        ignore_fem_message->setText("Any information entered on the FEM tab will be ignored");
     } else {
-        //FMK theEdpWidget->setGPQoINames(QStringList("") );
-        //FMK theFemWidget->setFEMforGP("GPmodel");
-        //theFemWidget->femProgramChanged("OpenSees");
-        //FMK theEdpWidget->setGPQoINames(QStringList({}) );// remove GP RVs
-        //FMK theParameters->setGPVarNamesAndValues(QStringList({}));// remove GP RVs
-        errMSG->hide();
+        errMSG->setText("");
         theSimBox->setVisible(true);
+        ignore_fem_message->setText("");
+
     }
 
     if (theLowSimButton->isChecked()) {
         theLowSimOptions->show();
         line1->show();
-        theLowSimLabel -> setStyleSheet("font-weight: bold; color: black");
+        theLowSimButton -> setStyleSheet("font-weight: bold; color: black");
     } else {
         theExistingCheckBox_LF->setChecked(true);
         parseInputDataForRV(inpFileDir_LF->text());
         parseOutputDataForQoI(outFileDir_LF->text());
         theLowSimOptions->hide();
         line1->hide();
-        theLowSimLabel -> setStyleSheet("font-weight: bold; color: grey");
+        theLowSimButton -> setStyleSheet("font-weight: bold; color: grey");
     }
+    setRV_Defaults();
 }
 void SurrogateMFInputWidget::setHighSim(bool tog) {
 
     // Temporary
-//    if (theHighSimButton->isChecked() && theLowSimButton->isChecked()) {
-//        errorMessage("Currently, the option to use both high- and low-fidelity models is not supported");
-//        theHighSimButton->setChecked(false);
-//        return;
-//    }
+    if (theHighSimButton->isChecked() && theLowSimButton->isChecked()) {
+        errorMessage("Currently, the option to use both high- and low-fidelity models is not supported");
+        theHighSimButton->setChecked(false);
+        return;
+    }
 
     theExistingCheckBox_HF->setChecked(!tog);
 
     if (theLowSimButton->isChecked() && theHighSimButton->isChecked()) {
-        //FMK theEdpWidget->setGPQoINames(QStringList("") );
-        //FMK theFemWidget->setFEMforGP("GPMFmodel");
-        //FMK theEdpWidget->setGPQoINames(QStringList({}) );// remove GP RVs
-        //FMK theParameters->setGPVarNamesAndValues(QStringList({}));// remove GP RVs
-        errMSG->hide();
+        errMSG->setText("");
         theSimBox->setVisible(true);
+        ignore_fem_message->setText("");
     } else if (!theLowSimButton->isChecked() && !theHighSimButton->isChecked()) {
         //FMK theFemWidget->setFEMforGP("GPdata");
         theSimBox->setVisible(false);
+        ignore_fem_message->setText("Any information entered on the FEM tab will be ignored");
+
     } else {
-        //FMK theEdpWidget->setGPQoINames(QStringList("") );
-        //FMK theFemWidget->setFEMforGP("GPmodel");
-        //theFemWidget->femProgramChanged("OpenSees");
-        //FMK theEdpWidget->setGPQoINames(QStringList({}) );// remove GP RVs
-        //FMK theParameters->setGPVarNamesAndValues(QStringList({}));// remove GP RVs
-        errMSG->hide();
+        errMSG->setText("");
         theSimBox->setVisible(true);
+        ignore_fem_message->setText("");
     }
 
     if (theHighSimButton->isChecked()) {
         theHighSimOptions->show();
         line0->show();
-        theHighSimLabel -> setStyleSheet("font-weight: bold; color: black");
+        theHighSimButton -> setStyleSheet("font-weight: bold; color: black");
     } else {
         theExistingCheckBox_HF->setChecked(true);
         parseInputDataForRV(inpFileDir_HF->text());
         parseOutputDataForQoI(outFileDir_HF->text());
         theHighSimOptions->hide();
         line0->hide();
-        theHighSimLabel -> setStyleSheet("font-weight: bold; color: grey");
+        theHighSimButton -> setStyleSheet("font-weight: bold; color: grey");
     }
+    setRV_Defaults();
 }
 
 bool
@@ -741,6 +740,7 @@ SurrogateMFInputWidget::outputToJSON(QJsonObject &jsonObj){
 
 int SurrogateMFInputWidget::parseInputDataForRV(QString name1){
 
+
     double numberOfColumns=countColumn(name1);
 
     QStringList varNamesAndValues;
@@ -748,14 +748,16 @@ int SurrogateMFInputWidget::parseInputDataForRV(QString name1){
         varNamesAndValues.append(QString("RV_column%1").arg(i+1));
         varNamesAndValues.append("nan");
     }
-    //FMK theParameters->setGPVarNamesAndValues(varNamesAndValues);
-    //numSamples=0;
+    setRV_Defaults();
+    RandomVariablesContainer *theRVs =  RandomVariablesContainer::getInstance();
+    theRVs->addRVsWithValues(varNamesAndValues);
+
     return 0;
 }
 
 int SurrogateMFInputWidget::parseOutputDataForQoI(QString name1){
     // get number of columns
-    double numberOfColumns=countColumn(name1);
+    double numberOfColumns=countColumn(name1, true);
     QStringList qoiNames;
     for (int i=0;i<numberOfColumns;i++) {
         qoiNames.append(QString("QoI_column%1").arg(i+1));
@@ -764,19 +766,17 @@ int SurrogateMFInputWidget::parseOutputDataForQoI(QString name1){
     return 0;
 }
 
-int SurrogateMFInputWidget::countColumn(QString name1){
+int SurrogateMFInputWidget::countColumn(QString name1, bool is_qoi){
     // get number of columns
-    if (name1.isEmpty())
-        return 0;
-
     std::ifstream inFile(name1.toStdString());
     // read lines of input searching for pset using regular expression
     std::string line;
-    errMSG->hide();
 
     int numberOfColumns_pre = -100;
+    int  numberOfColumns=1;
+
     while (getline(inFile, line)) {
-        int  numberOfColumns=1;
+        numberOfColumns=1;
         bool previousWasSpace=false;
         //for(int i=0; i<line.size(); i++){
         for(size_t i=0; i<line.size(); i++){
@@ -802,22 +802,35 @@ int SurrogateMFInputWidget::countColumn(QString name1){
         }
         if (numberOfColumns != numberOfColumns_pre)// Send an error
         {
-            errMSG->show();
+            errMSG->setText("Unrecognized file format");
+            errMSG->setStyleSheet({"color: red"});
+
             numberOfColumns_pre=0;
+
+            inFile.close();
             return 0;
         }
     }
-    // close file
-    if (numberOfColumns_pre<0)// The FIle is empty
-    {
-        errMSG->show();
-        return 0;
+
+    if ((numberOfColumns_pre!=-100)) {
+        if (is_qoi) {
+            if (numberOfColumns==1) {
+                errMSG->setText("Total number of QoI variable is 1. Create 1 entry on the QoI Tab.");
+            } else {
+                errMSG->setText("Total number of QoI variables is " + QString::number(numberOfColumns) + ". Create " + QString::number(numberOfColumns) + " entries on the QoI Tab.");
+            }
+            errMSG->setStyleSheet({"color: blue"});
+        } else {
+                errMSG->setText({""});
+
+         }
     }
 
-
+    // close file
     inFile.close();
     return numberOfColumns_pre;
 }
+
 
 bool
 SurrogateMFInputWidget::inputFromJSON(QJsonObject &jsonObject){
@@ -992,8 +1005,13 @@ void
 SurrogateMFInputWidget::setRV_Defaults(void) {
 
   RandomVariablesContainer *theRVs =  RandomVariablesContainer::getInstance();
-  QString classType("Uniform");
+  //QString classType("Uniform");
   QString engineType("SimCenterUQ");
-
+  QString classType;
+  if ((!theHighSimButton->isChecked()) && (!theLowSimButton->isChecked()) ){
+      classType=QString("NA");
+  } else {
+      classType=QString("Uniform");
+    }
   theRVs->setDefaults(engineType, classType, Uniform);
 }

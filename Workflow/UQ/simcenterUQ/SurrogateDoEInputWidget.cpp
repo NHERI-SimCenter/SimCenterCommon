@@ -627,7 +627,8 @@ SurrogateDoEInputWidget::inputFromJSON(QJsonObject &jsonObject){
 void
 SurrogateDoEInputWidget::clear(void)
 {
-
+    theAdvancedCheckBox->setChecked(false);
+    theExistingCheckBox->setChecked(false);
 }
 
 bool

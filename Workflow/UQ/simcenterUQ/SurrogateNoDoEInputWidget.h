@@ -96,14 +96,14 @@ private:
     QCheckBox * theNugCheckBox;
     QLineEdit * theNuggetVals;
     QLabel * theNuggetLabel;
-    QLabel * theNuggetMsg;
+    QLabel * theNuggetMsg,* ignore_fem_message;
   // InputWidgetParameters *theParameters;
   //    InputWidgetEDP *theEdpWidget;
   //    InputWidgetFEM *theFemWidget;
 
     QFrame * lineA;
 
-    int countColumn(QString name1);
+    int countColumn(QString name1, bool is_qoi=false);
 };
 
 #endif // SURROGATE_NO_DOE_INPUT_WIDGET_H

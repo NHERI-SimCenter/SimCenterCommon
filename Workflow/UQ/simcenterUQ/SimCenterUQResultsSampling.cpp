@@ -202,21 +202,39 @@ int SimCenterUQResultsSampling::processResults(QString &filenameResults, QString
         errorMessage("No error file - SimCenterUQ did not run - problem with SimCenterUQ setup or the applications failed with inputs provided");
         return 0;
     }
+
     QFile fileError(filenameErrorString);
     QString line("");
     if (fileError.open(QIODevice::ReadOnly)) {
-       QTextStream in(&fileError);
-       while (!in.atEnd()) {
-          line = in.readLine();
-       }
-       fileError.close();
+        QTextStream in(&fileError);
+        QString contents = in.readAll();
+//        while (!in.atEnd()) {
+//            line = in.readLine();
+//        }
+        if (!contents.isEmpty()) {
+            //errorMessage(QString(QString("Error Running SimCenterUQ: ") + line));
+            errorMessage(QString(QString("Error Running SimCenterUQ: ") + contents));
+            return 0;
+        }
     }
 
-    if (line.length() != 0) {
-        qDebug() << line.length() << " " << line;
-        errorMessage(QString(QString("Error Running SimCenterUQ: ") + line));
-        return 0;
-    }
+
+
+//    QFile fileError(filenameErrorString);
+//    QString line("");
+//    if (fileError.open(QIODevice::ReadOnly)) {
+//       QTextStream in(&fileError);
+//       while (!in.atEnd()) {
+//          line = in.readLine();
+//       }
+//       fileError.close();
+//    }
+
+//    if (line.length() != 0) {
+//        qDebug() << line.length() << " " << line;
+//        errorMessage(QString(QString("Error Running SimCenterUQ: ") + line));
+//        return 0;
+//    }
 
     QFileInfo filenameTabInfo(filenameTab);
     if (!filenameTabInfo.exists()) {

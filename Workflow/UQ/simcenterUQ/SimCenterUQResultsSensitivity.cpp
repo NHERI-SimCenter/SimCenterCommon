@@ -209,16 +209,18 @@ int SimCenterUQResultsSensitivity::processResults(QString &filenameResults, QStr
     QString line("");
     if (fileError.open(QIODevice::ReadOnly)) {
         QTextStream in(&fileError);
-        while (!in.atEnd()) {
-            line = in.readLine();
+        QString contents = in.readAll();
+//        while (!in.atEnd()) {
+//            line = in.readLine();
+//        }
+        if (!contents.isEmpty()) {
+            //errorMessage(QString(QString("Error Running SimCenterUQ: ") + line));
+            errorMessage(QString(QString("Error Running SimCenterUQ: ") + contents));
+            return 0;
         }
-        fileError.close();
     }
 
-    if (line.length() != 0) {
-        errorMessage(QString(QString("Error Running SimCenterUQ: ") + line));
-        return 0;
-    }
+
 
     QFileInfo filenameTabInfo(filenameTab);
     if (!filenameTabInfo.exists()) {

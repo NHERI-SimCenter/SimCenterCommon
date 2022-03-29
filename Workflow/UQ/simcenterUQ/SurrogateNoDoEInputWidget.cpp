@@ -80,15 +80,12 @@ SurrogateNoDoEInputWidget::SurrogateNoDoEInputWidget(QWidget *parent)
     // Create Output selection checkbox
     //
 
-    QHBoxLayout *theSelectionLayout = new QHBoxLayout();
+//    QHBoxLayout *theSelectionLayout = new QHBoxLayout();
 
-    theCheckButton = new QCheckBox();
+    theCheckButton = new QCheckBox("Get results from datafile");
 
-    QLabel *theLabel = new QLabel();
-    theLabel->setText("Get results from datafile");
-
-    theSelectionLayout->addWidget(theCheckButton,0);
-    theSelectionLayout->addWidget(theLabel,1);
+//    theSelectionLayout->addWidget(theCheckButton,0);
+//    theSelectionLayout->addWidget(theLabel,1);
 
 
     //
@@ -98,20 +95,21 @@ SurrogateNoDoEInputWidget::SurrogateNoDoEInputWidget(QWidget *parent)
     chooseOutFile = new QPushButton("Choose");
     connect(chooseOutFile, &QPushButton::clicked, this, [=](){
         outFileDir->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"));
-        //this->parseOutputDataForQoI(outFileDir->text());
+        this->countColumn(outFileDir->text(), true);
     });
     outFileDir->setMinimumWidth(600);
     outFileDir->setReadOnly(true);
     layout->addWidget(new QLabel("System Results (Output) File     "),wid,0,Qt::AlignTop);
     layout->addWidget(outFileDir,wid,1,1,3,Qt::AlignTop);
     layout->addWidget(chooseOutFile,wid,4,Qt::AlignTop);
-    layout->addWidget(theCheckButton,wid,5,Qt::AlignTop);
-    layout->addWidget(theLabel,wid++,6,Qt::AlignTop);
+    layout->addWidget(theCheckButton,wid++,5,Qt::AlignTop);
 
-    errMSG=new QLabel("Unrecognized file format");
+    errMSG=new QLabel("");
     errMSG->setStyleSheet({"color: red"});
-    layout->addWidget(errMSG,wid++,1,Qt::AlignLeft);
-    errMSG->hide();
+    layout->addWidget(errMSG,wid,1,Qt::AlignLeft);
+    ignore_fem_message = new QLabel("");
+    ignore_fem_message->setStyleSheet({"color: blue"});
+    layout->addWidget(ignore_fem_message,wid++,5,Qt::AlignLeft);
 
     //
     // Create Advanced options
@@ -299,6 +297,8 @@ void SurrogateNoDoEInputWidget::setOutputDir(bool tog)
         // FMK theFemWidget->setFEMforGP("GPdata");
         parseInputDataForRV(inpFileDir->text());
         //parseOutputDataForQoI(outFileDir->text());
+        ignore_fem_message->setText("Any information entered on the FEM tab will be ignored");
+        parseInputDataForRV(inpFileDir->text());
     } else {
         outFileDir->setDisabled(1);
         chooseOutFile->setDisabled(1);
@@ -309,6 +309,7 @@ void SurrogateNoDoEInputWidget::setOutputDir(bool tog)
         //FMK theFemWidget->femProgramChanged("OpenSees");
         //FMK theEdpWidget->setGPQoINames(QStringList({}) );// remove GP RVs
         //FMK theParameters->setVarNamesAndValues(QStringList({}));// remove GP RVs
+        ignore_fem_message->setText("");
     }
 
 }
@@ -352,39 +353,46 @@ int SurrogateNoDoEInputWidget::parseInputDataForRV(QString name1){
 
     double numberOfColumns=countColumn(name1);
 
-    QStringList varNamesAndValues;
-    for (int i=0;i<numberOfColumns;i++) {
-        varNamesAndValues.append(QString("RV_column%1").arg(i+1));
-        varNamesAndValues.append("nan");
-    }
-    RandomVariablesContainer *theRVs =  RandomVariablesContainer::getInstance();
-    theRVs->addRVsWithValues(varNamesAndValues);
+    if (theCheckButton->isChecked()) {
 
-    numSamples=0;
+        QStringList varNamesAndValues;
+        for (int i=0;i<numberOfColumns;i++) {
+            varNamesAndValues.append(QString("RV_column%1").arg(i+1));
+            varNamesAndValues.append(0);
+        }
+        setRV_Defaults();
+        RandomVariablesContainer *theRVs =  RandomVariablesContainer::getInstance();
+        //theRVs->removeRandomVariables();
+        theRVs->addRVsWithValues(varNamesAndValues);
+
+        numSamples=0;
+     }
     return 0;
 }
 
-//int SurrogateNoDoEInputWidget::parseOutputDataForQoI(QString name1){
-//    // get number of columns
-//    double numberOfColumns=countColumn(name1);
-//    QStringList qoiNames;
-//    for (int i=0;i<numberOfColumns;i++) {
-//        qoiNames.append(QString("QoI_column%1").arg(i+1));
-//    }
-//    //fmk TheEdpWidget->setGPQoINames(qoiNames);
-//    return 0;
-//}
+/*
+int SurrogateNoDoEInputWidget::parseOutputDataForQoI(QString name1){
+    // get number of columns
+    double numberOfColumns=countColumn(name1);
+    QStringList qoiNames;
+    for (int i=0;i<numberOfColumns;i++) {
+        qoiNames.append(QString("QoI_column%1").arg(i+1));
+    }
+    //fmk TheEdpWidget->setGPQoINames(qoiNames);
+    return 0;
+}*/
 
-int SurrogateNoDoEInputWidget::countColumn(QString name1){
+int SurrogateNoDoEInputWidget::countColumn(QString name1, bool is_qoi){
     // get number of columns
     std::ifstream inFile(name1.toStdString());
     // read lines of input searching for pset using regular expression
     std::string line;
-    errMSG->hide();
 
     int numberOfColumns_pre = -100;
+    int  numberOfColumns=1;
+
     while (getline(inFile, line)) {
-        int  numberOfColumns=1;
+        numberOfColumns=1;
         bool previousWasSpace=false;
         //for(int i=0; i<line.size(); i++){
         for(size_t i=0; i<line.size(); i++){
@@ -410,11 +418,25 @@ int SurrogateNoDoEInputWidget::countColumn(QString name1){
         }
         if (numberOfColumns != numberOfColumns_pre)// Send an error
         {
-            errMSG->show();
+            errMSG->setText("Unrecognized file format");
+            errMSG->setStyleSheet({"color: red"});
+
             numberOfColumns_pre=0;
-            break;
+
+            inFile.close();
+            return 0;
         }
     }
+
+    if ((numberOfColumns_pre!=-100) && (is_qoi)) {
+        if (numberOfColumns==1) {
+            errMSG->setText("Total number of QoI variable is 1. Create 1 entry on the QoI Tab.");
+        } else {
+            errMSG->setText("Total number of QoI variables is " + QString::number(numberOfColumns) + ". Create " + QString::number(numberOfColumns) + " entries on the QoI Tab.");
+        }
+            errMSG->setStyleSheet({"color: blue"});
+    }
+
     // close file
     inFile.close();
     return numberOfColumns_pre;

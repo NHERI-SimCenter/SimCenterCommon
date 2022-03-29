@@ -230,7 +230,8 @@ SimCenterUQInputSensitivity::getMaxNumParallelTasks(void){
 
 void SimCenterUQInputSensitivity::clear(void)
 {
-
+    pairedRVCheckBox->setChecked(false);
+    groupRVCheckBox->setChecked(false);
 }
 
 bool

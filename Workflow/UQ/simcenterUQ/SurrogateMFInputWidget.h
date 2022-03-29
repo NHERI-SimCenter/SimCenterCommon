@@ -102,12 +102,12 @@ private:
   //FMK    InputWidgetFEM *theFemWidget;
     QPushButton *chooseInpFile_LF, *chooseInpFile_HF, *chooseOutFile_LF, *chooseOutFile_HF;
     QFrame * line0,* line1, * lineA;
-    int countColumn(QString name1);
-
+    int countColumn(QString name1, bool is_qoi=false);
     QLabel *theLowDataLabel,*theLowSimLabel,* theHighSimLabel,* theHighDataLabel;
     QCheckBox* theLowDataButton, *theLowSimButton, * theHighDataButton, *theHighSimButton;
     QWidget *theLowSimOptions, *theHighSimOptions;
     QGroupBox * theSimBox;
+    QLabel * ignore_fem_message;
 
 
 };
