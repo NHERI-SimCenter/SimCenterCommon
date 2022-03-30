@@ -237,6 +237,16 @@ QLineEdit {
     font-size: 12px;
 }
 
+
+QTextEdit {
+    background-color: white;
+    border: 1px solid gray;
+    border-style: inset;
+    border-radius: 2px;
+    font-size: 12px;
+}
+
+
 /*----------------------------------------------------------------------------*/
 /* QLineEdit                                                                  */
 /*----------------------------------------------------------------------------*/
