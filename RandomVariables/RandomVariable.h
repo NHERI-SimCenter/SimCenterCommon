@@ -65,13 +65,13 @@ public:
     virtual bool outputToJSON(QJsonObject &rvObject);
     virtual bool inputFromJSON(QJsonObject &rvObject);
 
-    bool isSelectedForRemoval(void);
+    //bool isSelectedForRemoval(void);
     QString getVariableName(void);
     QString getAbbreviatedName(void);
     int getLength(void);
    // void fixToUniform(double dValue);
     void uqEngineChanged(QString newUqEngineName, QString newClass);
-    void copyFiles(QString fileDir);
+    bool copyFiles(QString fileDir);
     QLineEdit *variableName;
     int refCount;
 
@@ -82,7 +82,6 @@ public slots:
      void xButtonClicked(void);
      void distributionChanged(const QString &arg1);
      void typeChanged(const QString &arg1);
-     void setButtonVisible(bool tog);
 
 
 private:

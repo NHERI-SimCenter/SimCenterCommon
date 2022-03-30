@@ -87,24 +87,23 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     mainLayout->setHorizontalSpacing(10);
 
     //
-    // create radio button
+    // create radio button (not used any more - sy)
     //
-    button = new QRadioButton();
+    //button = new QRadioButton();
     //button->setToolTip("Select to remove");
-    mainLayout->addWidget(button,1,0);
-    button->setDisabled(true);
-    button->setVisible(false);
+    //mainLayout->addWidget(button,1,0);
+    //button->setDisabled(true);
+    //button->setVisible(false);  // not used any more
 
-    QPushButton *removeButton_background = new QPushButton("");
+
+
+    //
+    // create remove button (not used any more - sy)
+    //
     QPushButton *removeButton = new QPushButton("×");
     const QSize BUTTON_SIZE = QSize(15, 15);
-    removeButton_background->setFixedSize(BUTTON_SIZE);
     removeButton->setFixedSize(BUTTON_SIZE);
-    removeButton_background->setStyleSheet({ "font-size:10px; text-align: center; padding: 0px 0px 3px 0px; text-decoration: none; " });
-    removeButton->setStyleSheet("QPushButton { color: white; border: 0px; font-size:15px;  font-weight: bold;padding: 0px 0px 2px 0px; }");
-    //removeButton->hide();
-    //removeButton_background->setStyleSheet({ "padding: 0px 0px 13px 0px;" });
-    //mainLayout->addWidget(removeButton_background,1,0,1,1);
+    removeButton->setStyleSheet("QPushButton { font-size:15px;  font-weight: bold;padding: 0px 0px 2px 0px; }");
     mainLayout->addWidget(removeButton,1,0,2,1);
     connect(removeButton, SIGNAL(clicked()), this, SLOT(xButtonClicked()) );
 
@@ -200,11 +199,13 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
 
 
 
+
+
     }
 
     connect(distributionComboBox, SIGNAL(currentTextChanged(QString)), this, SLOT(distributionChanged(QString)));
-
-    if (! ((uqengin==QString("SimCenterUQ")) && (variableClass==QString("Uncertaint")))){
+    distributionComboBox->setCurrentIndex(0);
+    if (! ((uqengin==QString("SimCenterUQ")) && (variableClass==QString("Uncertain")))){
         typeLabel->setVisible(false);
         typeComboBox->setVisible(false);
     }
@@ -254,7 +255,19 @@ RandomVariable::RandomVariable(const QString &type,
     // set new
     theDistribution = &theD;
     mainLayout->addWidget(theDistribution,0,4,2,1);
+    // uqEngineChanged(uqengin,type);
     // connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+
+    if (variableClass == QString("NA")) {
+        distributionLabel->setVisible(false);
+        distributionComboBox->setVisible(false);
+        auto idx = mainLayout->indexOf(theDistribution);
+        if (idx>=0){
+            mainLayout->removeItem(mainLayout->itemAt(idx));
+        }
+        // show only name
+    }
+
 }
 
 void
@@ -262,11 +275,11 @@ RandomVariable::xButtonClicked(void){
     emit removeRVclicked(this);
 }
 
- bool
- RandomVariable::isSelectedForRemoval(void)
-{
-  return button->isChecked();
- }
+// bool
+// RandomVariable::isSelectedForRemoval(void)
+//{
+//  return button->isChecked();
+// }
 
 
  QString
@@ -274,9 +287,13 @@ RandomVariable::xButtonClicked(void){
    return variableName->text().trimmed();
  }
 
- void
+ bool
  RandomVariable::copyFiles(QString fileDir){
-     theDistribution->copyFiles(fileDir + QDir::separator() + variableName->text() +".in");
+     if (theDistribution==NULL) {
+         return theDistribution->copyFiles(fileDir + QDir::separator() + variableName->text() +".in");
+     } else {
+         return true;
+     }
  }
 
 
@@ -361,10 +378,16 @@ RandomVariable::inputFromJSON(QJsonObject &rvObject){
 
 
     int index2 = distributionComboBox->findText(distributionType);
-    this->distributionChanged(distributionType);
-    distributionComboBox->setCurrentIndex(index2);
-    return theDistribution->inputFromJSON(rvObject);
+    if (index2>=0) {
+        this->distributionChanged(distributionType);
+        distributionComboBox->setCurrentIndex(index2);
+        theDistribution->inputFromJSON(rvObject);
+    }
+    if (distributionType==QString("")) {
+        delete theDistribution;
+    }
 
+    return true;
 }
 
 void RandomVariable::typeChanged(const QString &arg1) {
@@ -646,13 +669,12 @@ void RandomVariable::uqEngineChanged(QString newUqEngineName, QString newClass) 
     return;
 }
 
-void RandomVariable::setButtonVisible(bool tog)
-{
-    button->setVisible(tog);
-}
-
 QString
 RandomVariable::getAbbreviatedName(void) {
-  return theDistribution->getAbbreviatedName();
+    if (theDistribution==NULL) {
+        return theDistribution->getAbbreviatedName();
+    } else {
+        return QString("");
+    }
 }
 

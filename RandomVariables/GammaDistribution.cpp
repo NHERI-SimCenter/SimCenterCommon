@@ -209,10 +209,13 @@ GammaDistribution::inputFromJSON(QJsonObject &rvObject){
 }
 
 
-void
+bool
 GammaDistribution::copyFiles(QString fileDir) {
     if (inpty==QString("Dataset")) {
-        QFile::copy(dataDir->text(), fileDir);
+        return QFile::copy(dataDir->text(), fileDir);
+
+    } else {
+        return true;
     }
 }
 
@@ -247,7 +250,9 @@ GammaDistribution::updateDistributionPlot() {
                 y[i] = pow(la,kk)*pow(xi,kk-1)*exp(-la*xi)/tgamma(kk);
             }
             thePlot->clear();
-            thePlot->addLine(x,y);
+            thePlot->drawPDF(x,y);
+        } else {
+            thePlot->clear();
         }
 
 }

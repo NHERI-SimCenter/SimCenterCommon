@@ -97,11 +97,14 @@ public:
     QVector<RandomVariable *> getRVdists(void);
     QTableWidget * getRVcorr();
     //void copyRVs(RandomVariablesContainer *oldRVcontainers);
-    void copyFiles(QString fileName);
+    bool copyFiles(QString fileName);
     void setDefaults (QString &theUQ_Engine,
 		      QString &theVariableClass,
 		      RV_Type Normal);
-  
+
+    QString getRVStringDatasetDiscrete(void);
+    QString getAllRVString(void);
+
 public slots:
    void errorMessage(QString message);
    void addRandomVariable(void);

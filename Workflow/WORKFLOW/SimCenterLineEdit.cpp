@@ -72,7 +72,7 @@ bool SimCenterLineEdit::inputFromJSON(QJsonObject& jsonObject) {
 bool SimCenterLineEdit::outputToJSON(QJsonObject& jsonObject) {
 
   jsonObject.insert("name", theLineEditLabel->text());
-  jsonObject.insert("type", "RVLineEdit");
+  jsonObject.insert("type", "LineEdit");
   jsonObject.insert("value", theLineEdit->text());
 
   return true;

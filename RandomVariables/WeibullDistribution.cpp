@@ -209,10 +209,12 @@ WeibullDistribution::inputFromJSON(QJsonObject &rvObject){
     return true;
 }
 
-void
+bool
 WeibullDistribution::copyFiles(QString fileDir) {
     if (inpty==QString("Dataset")) {
-        QFile::copy(dataDir->text(), fileDir);
+        return QFile::copy(dataDir->text(), fileDir);
+    } else {
+        return true;
     }
 }
 
@@ -267,7 +269,9 @@ WeibullDistribution::updateDistributionPlot() {
             y[i] =(kk/aa)*(pow((xi/aa),(kk-1))*exp(-(pow((xi/aa),kk))));
         }
         thePlot->clear();
-        thePlot->addLine(x,y);
+        thePlot->drawPDF(x,y);
+    } else {
+        thePlot->clear();
     }
 
 }

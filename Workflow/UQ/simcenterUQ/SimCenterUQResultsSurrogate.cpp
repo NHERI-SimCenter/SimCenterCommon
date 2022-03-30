@@ -156,7 +156,7 @@ int SimCenterUQResultsSurrogate::processResults(QString &filenameResults, QStrin
 
     QFileInfo filenameErrorInfo(filenameErrorString);
     if (!filenameErrorInfo.exists()) {
-        errorMessage("No dakota.err file - SimCenterUQ did not run - problem with dakota setup or the applications failed with inputs provided");
+        errorMessage("No error file - SimCenterUQ did not run - problem with quoFEM setup or the applications failed with inputs provided");
         return 0;
     }
     QFile fileError(filenameErrorString);
@@ -177,7 +177,7 @@ int SimCenterUQResultsSurrogate::processResults(QString &filenameResults, QStrin
 
     QFileInfo filenameTabInfo(filenameTab);
     if (!filenameTabInfo.exists()) {
-        errorMessage("No dakotaTab.out file - dakota failed .. possibly no QoI or a permission issue. Check out Jobs Directory");
+        errorMessage("No Tab file - surrogate modeling failed - possibly no QoI or a permission issue.");
         return 0;
     }
 
@@ -539,18 +539,18 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
     summaryLayout->addWidget(lineA, 1, 0,1,2);
     int idSum=0;
     if (isMultiFidelity) {
-
-
-        int nSamp_HF = jsonObj["valSamp_HF"].toInt();
+        QJsonObject jsonObjLF = jsonObj["lowFidelityInfo"].toObject();
+        int nSamp_LF = jsonObjLF["valSamp"].toInt();
+        int nSim_LF = jsonObjLF["valSim"].toInt();
         resultsLayout->addWidget(new QLabel("# high-fidelity (HF) samples"), idSum, 0);
-        resultsLayout->addWidget(new QLabel(QString::number(nSamp_HF)), idSum++, 1);
-        resultsLayout->addWidget(new QLabel("# low-fidelity (LF) samples"), idSum, 0);
         resultsLayout->addWidget(new QLabel(QString::number(nSamp)), idSum++, 1);
-        resultsLayout->addWidget(new QLabel("# low-fidelity (LF) model simulations"), idSum, 0);
+        resultsLayout->addWidget(new QLabel("# high-fidelity (HF) model simulations"), idSum, 0);
         resultsLayout->addWidget(new QLabel(QString::number(nSim)), idSum++, 1);
+        resultsLayout->addWidget(new QLabel("# low-fidelity (LF) samples"), idSum, 0);
+        resultsLayout->addWidget(new QLabel(QString::number(nSamp_LF)), idSum++, 1);
+        resultsLayout->addWidget(new QLabel("# low-fidelity (LF) model simulations"), idSum, 0);
+        resultsLayout->addWidget(new QLabel(QString::number(nSim_LF)), idSum++, 1);
     } else {
-
-
         resultsLayout->addWidget(new QLabel("# training samples"), idSum, 0);
         resultsLayout->addWidget(new QLabel(QString::number(nSamp)), idSum++, 1);
         resultsLayout->addWidget(new QLabel("# model simulations"), idSum, 0);
