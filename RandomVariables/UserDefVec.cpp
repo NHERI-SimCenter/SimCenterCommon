@@ -124,9 +124,9 @@ UserDefVec::inputFromJSON(QJsonObject &rvObject){
     return true;
 }
 
-void
+bool
 UserDefVec::copyFiles(QString fileDir) {
-        QFile::copy(scriptDir->text(), fileDir);
+        return QFile::copy(scriptDir->text(), fileDir);
 }
 
 QString

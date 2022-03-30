@@ -190,10 +190,12 @@ ChiSquaredDistribution::inputFromJSON(QJsonObject &rvObject){
     return true;
 }
 
-void
+bool
 ChiSquaredDistribution::copyFiles(QString fileDir) {
     if (inpty==QString("Dataset")) {
-        QFile::copy(dataDir->text(), fileDir);
+        return QFile::copy(dataDir->text(), fileDir);
+    } else {
+        return true;
     }
 }
 
@@ -229,7 +231,9 @@ ChiSquaredDistribution::updateDistributionPlot() {
                 y[i] = exp(-kk/2*log(2)-lgamma(kk/2) + (kk/2-1)*log(xi)+ (-xi/2));
             }
             thePlot->clear();
-            thePlot->addLine(x,y);
+            thePlot->drawPDF(x,y);
+        } else {
+            thePlot->clear();
         }
 
 }

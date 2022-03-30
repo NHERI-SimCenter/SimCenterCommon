@@ -160,7 +160,8 @@ SimCenterUQInputSurrogate::getMaxNumParallelTasks(void){
 
 void SimCenterUQInputSurrogate::clear(void)
 {
-
+    inpMethod->setCurrentIndex(0);
+    //theInpCurrentMethod->clear();
 }
 
 void SimCenterUQInputSurrogate::numModelsChanged(int numModels) {

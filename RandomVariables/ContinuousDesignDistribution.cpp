@@ -116,9 +116,9 @@ ContinuousDesignDistribution::inputFromJSON(QJsonObject &rvObject){
 
     return true;
 }
-void
+bool
 ContinuousDesignDistribution::copyFiles(QString fileDir) {
-    //do nothing
+    return true;//do nothing
 }
 
 QString 

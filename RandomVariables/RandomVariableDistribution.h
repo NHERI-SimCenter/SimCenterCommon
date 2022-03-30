@@ -66,7 +66,7 @@ public:
                    int minL=100,
                    int maxL=100);
 
-    virtual void copyFiles(QString fileDir) = 0;
+    virtual bool copyFiles(QString fileDir)=0;
     virtual QString getAbbreviatedName(void) = 0;
 
 signals:

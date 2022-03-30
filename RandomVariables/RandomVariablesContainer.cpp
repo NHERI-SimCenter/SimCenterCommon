@@ -94,7 +94,6 @@ RandomVariablesContainer::setDefaults (QString &theEngine, QString &theClass, RV
   defaultRVsType = theType;
   this->refreshRandomVariables();
 
-
 }
 
 
@@ -167,7 +166,7 @@ RandomVariablesContainer::addUniformRVs(QStringList &varNamesAndValues)
         QString value = varNamesAndValues.at(i+1);
 
         double dValue = value.toDouble();
-        ConstantDistribution *theDistribution = new ConstantDistribution(dValue);
+        UniformDistribution *theDistribution = new UniformDistribution(dValue);
         RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution, uqEngineName);
         //theRV->fixToUniform(dValue);
 
@@ -214,6 +213,41 @@ QVector<RandomVariable *>
 RandomVariablesContainer::getRVdists()
 {
     return theRandomVariables;
+}
+
+QString
+RandomVariablesContainer::getRVStringDatasetDiscrete()
+{
+
+    int numRandomVariables = theRandomVariables.size();
+    QString names="";
+    for (int j =0; j < numRandomVariables; j++) {
+        RandomVariable *theRV = theRandomVariables.at(j);
+        auto aa = theRV->getAbbreviatedName();
+        if (theRV->getAbbreviatedName()==QString("Discrete_dataset")){
+            names += theRV->getVariableName() + QString(", ");
+        }
+    }
+    if (names==QString("")) {
+        return QString("");
+    } else {
+        int pos = names.lastIndexOf(QChar(','));
+        return QString("{")+names.left(pos)+QString("}");
+    }
+}
+
+QString
+RandomVariablesContainer::getAllRVString()
+{
+
+    int numRandomVariables = theRandomVariables.size();
+    QString names="";
+    for (int j =0; j < numRandomVariables; j++) {
+        RandomVariable *theRV = theRandomVariables.at(j);
+            names += QString("{")+ theRV->getVariableName() +QString("}") + QString(", ");
+    }
+    int pos = names.lastIndexOf(QChar(','));
+    return names.left(pos);
 }
 
 QTableWidget *
@@ -980,12 +1014,17 @@ RandomVariablesContainer::getNumRandomVariables(void)
     return theRandomVariables.size(); 
 }
 
-void
+bool
 RandomVariablesContainer::copyFiles(QString fileDir)
 {
+
     for (int i = 0; i <theRandomVariables.size(); ++i) {
-        theRandomVariables.at(i)->copyFiles(fileDir);
+        bool idx = theRandomVariables.at(i)->copyFiles(fileDir);
+        if (!idx) {
+            return false;
+        }
     }
+    return true;
 }
 
 

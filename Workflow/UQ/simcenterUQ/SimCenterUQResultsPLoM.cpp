@@ -213,7 +213,7 @@ int SimCenterUQResultsPLoM::processResults(QString &filenameResults, QString &fi
 
     QFileInfo filenameErrorInfo(filenameErrorString);
     if (!filenameErrorInfo.exists()) {
-        errorMessage("No dakota.err file - SimCenterUQ did not run - problem with dakota setup or the applications failed with inputs provided");
+        errorMessage("No error file - SimCenterUQ did not run - problem with quoFEM setup or the applications failed with inputs provided");
         return 0;
     }
     QFile fileError(filenameErrorString);
@@ -234,7 +234,7 @@ int SimCenterUQResultsPLoM::processResults(QString &filenameResults, QString &fi
 
     QFileInfo filenameTabInfo(filenameTab);
     if (!filenameTabInfo.exists()) {
-        errorMessage("No dakotaTab.out file - dakota failed .. possibly no QoI or a permission issue. Check out Jobs Directory");
+        errorMessage("No Tab file - PLoM failed .. possibly no QoI or a permission issue. Check out Jobs Directory");
         return 0;
     }
 

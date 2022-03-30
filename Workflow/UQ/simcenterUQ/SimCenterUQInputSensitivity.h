@@ -80,6 +80,7 @@ public slots:
    void clear(void);
    void onMethodChanged(QString);
    void showDataOptions(bool);
+   void showAdvancedOptions(bool);
 
 private:
     QWidget     *methodSpecific;
@@ -101,11 +102,12 @@ private:
 //    UQ_Method *theIS;
 //    UQ_Method *theGP;
 //    UQ_Method *thePCE;
-    QWidget *corrDataLayoutWrap;
-    QCheckBox *importCorrDataCheckBox;
-    QHBoxLayout *checkBoxLayout;
-    QLabel *label2;
-    QLineEdit * varList;
+    QWidget *pairedRVLayoutWrap, *groupRVLayoutWrap;
+    QHBoxLayout *pairedRVLayout, *groupRVLayout;
+    QCheckBox *pairedRVCheckBox, *groupRVCheckBox;
+    QLabel *pairedRVLabel, *groupRVLabel;
+    QLineEdit * RVdataList, *RVvarList;
+
 };
 
 #endif // SIMCENTERUQ_INPUT_SENSITIVITY_H

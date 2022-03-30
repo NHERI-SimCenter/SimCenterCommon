@@ -263,10 +263,13 @@ TruncatedExponentialDistribution::inputFromJSON(QJsonObject &rvObject){
     return true;
 }
 
-void
+bool
 TruncatedExponentialDistribution::copyFiles(QString fileDir) {
     if (inpty==QString("Dataset")) {
         QFile::copy(dataDir->text(), fileDir);
+        return QFile::copy(dataDir->text(), fileDir);
+    } else {
+        return true;
     }
 }
 
@@ -363,7 +366,7 @@ TruncatedExponentialDistribution::updateDistributionPlot() {
             }
         }
         thePlot->clear();
-        thePlot->addLine(x,y);
+        thePlot->drawPDF(x,y);
     } else {
         thePlot->clear();
     }

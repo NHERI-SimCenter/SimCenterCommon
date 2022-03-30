@@ -188,10 +188,13 @@ ExponentialDistribution::inputFromJSON(QJsonObject &rvObject){
     return true;
 }
 
-void
+bool
 ExponentialDistribution::copyFiles(QString fileDir) {
     if (inpty==QString("Dataset")) {
-        QFile::copy(dataDir->text(), fileDir);
+        return QFile::copy(dataDir->text(), fileDir);
+
+    } else {
+        return true;
     }
 }
 
@@ -224,7 +227,8 @@ ExponentialDistribution::updateDistributionPlot() {
                 y[i] = lam*exp(-lam*xi);
             }
             thePlot->clear();
-            thePlot->addLine(x,y);
+            thePlot->drawPDF(x,y);
+        } else {
+            thePlot->clear();
         }
-
 }
