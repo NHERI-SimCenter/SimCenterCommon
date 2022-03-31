@@ -170,6 +170,8 @@ RemoteApplication::outputToJSON(QJsonObject &jsonObject)
         jsonObject["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();
         jsonObject["remoteAppWorkingDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();
         jsonObject["workingDir"]=SimCenterPreferences::getInstance()->getRemoteWorkDir();
+    } else {
+        jsonObject["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();
     }
 
     jsonObject["runType"]=QString("runningRemote");
