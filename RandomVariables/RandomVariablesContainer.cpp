@@ -421,10 +421,10 @@ RandomVariablesContainer::makeRV(void)
 
     //titleLayout->addWidget(addCorrelation,0,Qt::AlignTop);
     QString appName = QApplication::applicationName();
-    if (appName == "quoFEM") {
+    //if (appName == "quoFEM") {
         titleLayout->addWidget(addCorrelation);
         titleLayout->addItem(spacer4);
-    }
+    //}
 
     titleLayout->addWidget(RVsToJson);
     titleLayout->addItem(spacer5);

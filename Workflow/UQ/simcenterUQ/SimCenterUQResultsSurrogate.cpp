@@ -525,6 +525,8 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
         termMsg = termMsg+"- Process ended as the time limit is exceeded";
     } else if (termCode=="accuracy"){
         termMsg = termMsg+"- Model Converged";
+    } else if (termCode=="data"){
+        //pass
     } else {
         termMsg = termMsg + "termination code unidentified";
     }

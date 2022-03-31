@@ -297,7 +297,7 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
     theSimBox = new QGroupBox("Simulation Options");
     QGridLayout *theSimGrid = new QGridLayout();
     theSimBox->setLayout(theSimGrid);
-    layout->addWidget(theSimBox,3,0,1,-1);
+    layout->addWidget(theSimBox,4,0,1,-1);
     theSimBox->setVisible(false);
 
     srand(time(NULL));
@@ -369,13 +369,13 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
 
     theAdvancedCheckBox = new QCheckBox("Advanced Options for Gaussian Process Model");
     theAdvancedCheckBox->setStyleSheet("font-weight: bold; color: gray");
-    layout->addWidget(theAdvancedCheckBox, 4, 0,Qt::AlignBottom);
+    layout->addWidget(theAdvancedCheckBox, 5, 0,Qt::AlignBottom);
 
     lineA = new QFrame;
     lineA->setFrameShape(QFrame::HLine);
     lineA->setFrameShadow(QFrame::Sunken);
     lineA->setMaximumWidth(420);
-    layout->addWidget(lineA, 5, 0, 1, 3);
+    layout->addWidget(lineA, 6, 0, 1, 3);
     lineA->setVisible(false);
 
     // Selection of GP kernel
@@ -388,8 +388,8 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
     gpKernel->addItem(tr("Radial Basis"));
     gpKernel->addItem(tr("Exponential"));
     gpKernel->setMaximumWidth(150);
-    layout->addWidget(theKernelLabel, 6, 0);
-    layout->addWidget(gpKernel, 6, 1);
+    layout->addWidget(theKernelLabel, 7, 0);
+    layout->addWidget(gpKernel, 7, 1);
     gpKernel->setCurrentIndex(0);
     theKernelLabel->setVisible(false);
     gpKernel->setVisible(false);
@@ -399,8 +399,8 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
     theLinearLabel=new QLabel("Add Linear Trend Function");
 
     theLinearCheckBox = new QCheckBox();
-    layout->addWidget(theLinearLabel, 7, 0);
-    layout->addWidget(theLinearCheckBox, 7, 1);
+    layout->addWidget(theLinearLabel, 8, 0);
+    layout->addWidget(theLinearCheckBox, 8, 1);
     //theLinearLabel->setStyleSheet("color: gray");
     //theLinearCheckBox->setDisabled(1);
     theLinearLabel->setVisible(false);
@@ -412,9 +412,9 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
     theLogtLabel2=new QLabel("     (check this box only when all responses are always positive)");
 
     theLogtCheckBox = new QCheckBox();
-    layout->addWidget(theLogtLabel, 8, 0);
-    layout->addWidget(theLogtLabel2, 8, 1);
-    layout->addWidget(theLogtCheckBox, 8, 1);
+    layout->addWidget(theLogtLabel, 9, 0);
+    layout->addWidget(theLogtLabel2, 9, 1);
+    layout->addWidget(theLogtCheckBox, 9, 1);
     theLogtLabel->setVisible(false);
     theLogtLabel2->setVisible(false);
     theLogtCheckBox->setVisible(false);
@@ -437,9 +437,9 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
     theNuggetVals->setToolTip("Provide nugget values");
     //theNuggetVals->setMaximumWidth(150);
 
-    layout->addWidget(theNuggetLabel, 9, 0);
-    layout->addWidget(theNuggetSelection, 9, 1);
-    layout->addWidget(theNuggetVals, 10, 1,1,2);
+    layout->addWidget(theNuggetLabel, 10, 0);
+    layout->addWidget(theNuggetSelection, 10, 1);
+    layout->addWidget(theNuggetVals, 11, 1,1,2);
 
     theNuggetLabel->setVisible(false);
     theNuggetSelection->setVisible(false);
