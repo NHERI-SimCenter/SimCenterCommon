@@ -50,7 +50,7 @@ class SimCenterUQEngine : public UQ_Engine
 {
     Q_OBJECT
 public:
-    explicit SimCenterUQEngine(QWidget *parent = 0);
+  explicit SimCenterUQEngine(UQ_EngineType type, QWidget *parent = 0);
   
     virtual ~SimCenterUQEngine();
 

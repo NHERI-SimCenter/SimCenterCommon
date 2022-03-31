@@ -53,7 +53,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <UCSD_TMMC.h>
 
-UCSD_Engine::UCSD_Engine(QWidget *parent)
+UCSD_Engine::UCSD_Engine(UQ_EngineType type, QWidget *parent)
 : UQ_Engine(parent), theCurrentMethod(0)
 {
 

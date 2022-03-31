@@ -87,9 +87,10 @@ UQ_EngineSelection::UQ_EngineSelection(UQ_EngineType type,
     theEngineSelectionBox->addItem(tr("Dakota"));
     // theEngineSelectionBox->addItem(tr("UQpy"));
     theEngineSelectionBox->addItem(tr("SimCenterUQ"));    
-    theEngineSelectionBox->addItem(tr("CustomUQ"));    
-    theEngineSelectionBox->addItem(tr("UCSD-UQ"));
-
+    theEngineSelectionBox->addItem(tr("CustomUQ"));
+    
+    if (type == All)
+      theEngineSelectionBox->addItem(tr("UCSD-UQ"));
 
     theEngineSelectionBox->setItemData(0, "Dakota engine", Qt::ToolTipRole);
     theEngineSelectionBox->setItemData(1, "SimCenterUQ engine", Qt::ToolTipRole);
@@ -112,10 +113,10 @@ UQ_EngineSelection::UQ_EngineSelection(UQ_EngineType type,
     // create the individual widgets add to stacked widget
     //
 
-    theDakotaEngine = new DakotaEngine();
-    theSimCenterUQEngine = new SimCenterUQEngine();
-    theCustomEngine = new UQ_JsonEngine();
-    theUCSD_Engine = new UCSD_Engine();
+    theDakotaEngine = new DakotaEngine(type);
+    theSimCenterUQEngine = new SimCenterUQEngine(type);
+    theCustomEngine = new UQ_JsonEngine(type);
+    theUCSD_Engine = new UCSD_Engine(type);
 
     theStackedWidget->addWidget(theDakotaEngine);
     theStackedWidget->addWidget(theSimCenterUQEngine);

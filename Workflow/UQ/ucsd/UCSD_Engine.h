@@ -61,7 +61,7 @@ class UCSD_Engine : public UQ_Engine
 
 public:
 
-    explicit UCSD_Engine(QWidget *parent = 0);
+    explicit UCSD_Engine(UQ_EngineType type, QWidget *parent = 0);
     virtual ~UCSD_Engine();
 
     int getMaxNumParallelTasks(void);

@@ -61,12 +61,25 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SimCenterUQInputPLoM.h> // PLoM, KZ
 
 
-SimCenterUQEngine::SimCenterUQEngine(QWidget *parent)
+SimCenterUQEngine::SimCenterUQEngine(UQ_EngineType type, QWidget *parent)
   : UQ_Engine(parent), theCurrentEngine(0)
 {
   
     QVBoxLayout *layout = new QVBoxLayout();
 
+    bool doForward = true;
+    bool doSensitivity = true;
+    bool doReliability = true;
+    bool doCalibration = true;        
+
+    if (type == ForwardOnly) {
+      doSensitivity = false;
+      doReliability = false;
+      doCalibration = false;              
+    } else if (type == ForwardReliabilitySensitivity) {
+      doCalibration = false;
+    }
+    
     //
     // the selection part
     //
@@ -76,8 +89,13 @@ SimCenterUQEngine::SimCenterUQEngine(QWidget *parent)
     label->setText(QString("SimCenterUQ Method Category"));
     theMethodSelectionBox = new QComboBox();
     theMethodSelectionBox->addItem(tr("Forward Propagation"));
-    theMethodSelectionBox->addItem(tr("Sensitivity Analysis"));
-    theMethodSelectionBox->addItem(tr("Train GP Surrogate Model"));
+    
+    if (doSensitivity == true)
+      theMethodSelectionBox->addItem(tr("Sensitivity Analysis"));
+    
+    if (doCalibration == true)
+      theMethodSelectionBox->addItem(tr("Train GP Surrogate Model"));
+    
     theMethodSelectionBox->addItem(tr("PLoM Model")); // PLoM, KZ
     theMethodSelectionBox->setMinimumWidth(600);
 

@@ -59,12 +59,25 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <DakotaInputBayesianCalibration.h>
 
 
-DakotaEngine::DakotaEngine(QWidget *parent)
+DakotaEngine::DakotaEngine(UQ_EngineType type, QWidget *parent)
 : UQ_Engine(parent), theCurrentEngine(0)
 {
 
     QVBoxLayout *layout = new QVBoxLayout();
 
+    bool doForward = true;
+    bool doSensitivity = true;
+    bool doReliability = true;
+    bool doCalibration = true;        
+
+    if (type == ForwardOnly) {
+      doSensitivity = false;
+      doReliability = false;
+      doCalibration = false;              
+    } else if (type == ForwardReliabilitySensitivity) {
+      doCalibration = false;
+    }
+    
     //
     // the selection part
     //
@@ -74,10 +87,15 @@ DakotaEngine::DakotaEngine(QWidget *parent)
     label->setText(QString("Dakota Method Category"));
     theEngineSelectionBox = new QComboBox();
     theEngineSelectionBox->addItem(tr("Forward Propagation"));
-    theEngineSelectionBox->addItem(tr("Parameters Estimation"));
-    theEngineSelectionBox->addItem(tr("Inverse Problem"));
-    theEngineSelectionBox->addItem(tr("Reliability Analysis"));
-    theEngineSelectionBox->addItem(tr("Sensitivity Analysis"));
+    if (doReliability == true)
+      theEngineSelectionBox->addItem(tr("Reliability Analysis"));
+    if (doSensitivity == true)
+      theEngineSelectionBox->addItem(tr("Sensitivity Analysis"));
+    if (doCalibration == true) {
+      theEngineSelectionBox->addItem(tr("Parameters Estimation"));
+      theEngineSelectionBox->addItem(tr("Inverse Problem"));
+    }
+    
     theEngineSelectionBox->setMinimumWidth(600);
 
     theSelectionLayout->addWidget(label);
@@ -113,10 +131,10 @@ DakotaEngine::DakotaEngine(QWidget *parent)
     theSensitivityEngine = new DakotaInputSensitivity();
 
     theStackedWidget->addWidget(theSamplingEngine);
+    theStackedWidget->addWidget(theReliabilityEngine);
+    theStackedWidget->addWidget(theSensitivityEngine);    
     theStackedWidget->addWidget(theCalibrationEngine);
     theStackedWidget->addWidget(theBayesianCalibrationEngine);
-    theStackedWidget->addWidget(theReliabilityEngine);
-    theStackedWidget->addWidget(theSensitivityEngine);
 
     layout->addWidget(theStackedWidget);
     this->setLayout(layout);
@@ -141,23 +159,31 @@ void DakotaEngine::engineSelectionChanged(const QString &arg1)
     UQ_Engine *theOldEngine = theCurrentEngine;
 
     if ((arg1 == QString("Sampling")) || (arg1 == QString("Forward Propagation"))) {
+      
       theStackedWidget->setCurrentIndex(0);
-      theCurrentEngine = theSamplingEngine;   
+      theCurrentEngine = theSamplingEngine;
+      
+    } else if ((arg1 == QString("Reliability")) || (arg1 == QString("Reliability Analysis"))) {
+      
+      theStackedWidget->setCurrentIndex(1);
+      theCurrentEngine = theReliabilityEngine;
+      
+    } else if ((arg1 == QString("Sensitivity")) || (arg1 == QString("Sensitivity Analysis"))) {
+      
+      theStackedWidget->setCurrentIndex(2);
+      theCurrentEngine = theSensitivityEngine;
+      
     } else if ((arg1 == QString("Calibration"))
                || (arg1 == QString("Parameters Estimation"))
                || (arg1 == QString("Parameter Estimation"))) {
 
-      theStackedWidget->setCurrentIndex(1);
-      theCurrentEngine = theCalibrationEngine;
-    } else if ((arg1 == QString("Bayesian Calibration")) || (arg1 == QString("Inverse Problem"))) {
-      theStackedWidget->setCurrentIndex(2);
-      theCurrentEngine = theBayesianCalibrationEngine;
-    } else if ((arg1 == QString("Reliability")) || (arg1 == QString("Reliability Analysis"))) {
       theStackedWidget->setCurrentIndex(3);
-      theCurrentEngine = theReliabilityEngine;
-    } else if ((arg1 == QString("Sensitivity")) || (arg1 == QString("Sensitivity Analysis"))) {
+      theCurrentEngine = theCalibrationEngine;
+      
+    } else if ((arg1 == QString("Bayesian Calibration")) || (arg1 == QString("Inverse Problem"))) {
       theStackedWidget->setCurrentIndex(4);
-      theCurrentEngine = theSensitivityEngine;
+      theCurrentEngine = theBayesianCalibrationEngine;
+      
     } else {
       qDebug() << "ERROR .. DakotaEngine selection .. type unknown: " << arg1;
     }

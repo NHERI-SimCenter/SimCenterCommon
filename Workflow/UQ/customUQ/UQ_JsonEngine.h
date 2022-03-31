@@ -54,7 +54,7 @@ class UQ_JsonEngine : public UQ_Engine
 {
     Q_OBJECT
 public:
-  explicit UQ_JsonEngine(QWidget * parent = 0);
+  explicit UQ_JsonEngine(UQ_EngineType type, QWidget * parent = 0);
   virtual ~UQ_JsonEngine();
 
   int getMaxNumParallelTasks(void) override;

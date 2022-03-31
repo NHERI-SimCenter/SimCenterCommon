@@ -55,7 +55,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "CustomUQ_Results.h"
 
-UQ_JsonEngine::UQ_JsonEngine(QWidget *parent)
+UQ_JsonEngine::UQ_JsonEngine(UQ_EngineType type, QWidget *parent)
 : UQ_Engine(parent)
 {
 
