@@ -268,7 +268,7 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
 
     layout->addWidget(theNuggetLabel, wid, 0);
     layout->addWidget(theNuggetSelection, wid, 1);
-    layout->addWidget(theNuggetMsg, wid++, 2);
+    layout->addWidget(theNuggetMsg, wid++, 2, Qt::AlignLeft);
     layout->addWidget(theNuggetVals, wid++, 1,1,3);
 
     theNuggetLabel->setVisible(false);
