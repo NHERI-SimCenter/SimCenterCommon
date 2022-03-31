@@ -197,11 +197,13 @@ QComboBox {
 }
 
 QLineEdit {
+    background: rgb(210, 210, 210);
     border-radius: 5px;
     color: black;    
 }
 
 QTextEdit {
+    background: rgb(210, 210, 210);
     border-radius: 5px;
     color: black;    
 }
