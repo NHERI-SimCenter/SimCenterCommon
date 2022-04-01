@@ -214,7 +214,7 @@ PLoMInputWidget::PLoMInputWidget(QWidget *parent)
     advOptLayout->addWidget(advComboWidget);
     advComboWidget->setVisible(false);
     advComboWidget->setStyleSheet("QTabBar {font-size: 10pt}");
-
+    advComboWidget->setContentsMargins(0, 0, 0, 0);
     // adv. opt. general widget
     advGeneralWidget = new QWidget();
     advGeneralWidget->setMaximumWidth(800);
