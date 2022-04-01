@@ -126,12 +126,14 @@ UQ_Results::processResults(QString &dirName) {
 void
 UQ_Results::setResultWidget(UQ_Results *result) {
   
-    if (resultWidget != 0) {
-      
-        layout->removeWidget(resultWidget);
-        delete resultWidget;
-        resultWidget = 0;
+//    if (resultWidget != NULL) {
+//        layout->removeWidget(resultWidget);
+//        delete resultWidget;
+//        resultWidget = 0;
+//    }
 
+    for (int i =0; i<layout->count();i++) {
+        layout->removeItem(layout->itemAt(i));
     }
 
     if (result != 0) {
