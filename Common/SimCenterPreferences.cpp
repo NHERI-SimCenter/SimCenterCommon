@@ -984,7 +984,7 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
 
     //Default appDir is the location of the application
     QString appName = QCoreApplication::applicationName();
-    QString remoteApp = QString("simcenter-uq-frontera-2.0.0");
+    QString remoteApp = QString("simcenter-uq-frontera-2.0.0u1");
 
     if (appName == QString("R2D"))
       remoteApp = QString("rWhale-frontera-3.0.0");
