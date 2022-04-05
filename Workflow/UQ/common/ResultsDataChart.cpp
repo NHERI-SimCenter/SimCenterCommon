@@ -95,7 +95,8 @@ ResultsDataChart::ResultsDataChart(QString filenameTab, bool isSur, int nRV, QWi
     col2 = 0;
     spreadsheet = new MyTableWidget();
     this->readTableFromTab(filenameTab);
-
+    spreadsheet->setSelectionBehavior(QAbstractItemView::SelectRows);
+    
     if (rowCount==0) {
         errorMessage("ERROR: reading Dakota Results - no result widget set!");
     } else {

@@ -212,9 +212,11 @@ QTextEditFMK {
 }
 
 QLineEdit {
-    background: rgb(212, 212, 212);
+    background: rgb(255, 255, 255);
+    color: black;        
 }
 
 QTextEdit {
-    background: rgb(212, 212, 212);
+    background: rgb(255, 255, 255);
+    color: black;        
 }
