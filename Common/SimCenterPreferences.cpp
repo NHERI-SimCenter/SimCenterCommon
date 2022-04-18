@@ -887,6 +887,12 @@ SimCenterPreferences::getAppDir(void) {
 QString
 SimCenterPreferences::getRemoteAppDir(void) {
 
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();    
+    QString workDir = env.value("SIMCENTER_WORKDIR","None");
+    if (workDir != "None") {
+      return workDir;
+    }
+
     QString remoteDir = this->getDefaultRemoteAppDir();
 
     //If custom is checked we will try to get the custom app dir defined
@@ -938,6 +944,15 @@ SimCenterPreferences::getRemoteAgaveApp(void) {
 QString
 SimCenterPreferences::getLocalWorkDir(void) {
 
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();    
+    QString workDir = env.value("SIMCENTER_WORKDIR","None");
+    if (workDir != "None") {
+      QDir workingDir(workDir);
+      if (!workingDir.exists())
+	workingDir.mkpath("./LocalWorkDir");
+      return workDir + QString("/LocalWorkDir");
+    }
+  
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
     QVariant  localWorkDirVariant = settingsApplication.value("localWorkDir");
 
@@ -959,6 +974,17 @@ SimCenterPreferences::getLocalWorkDir(void) {
 
 QString
 SimCenterPreferences::getRemoteWorkDir(void) {
+
+
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();    
+    QString workDir = env.value("SIMCENTER_WORKDIR","None");
+    if (workDir != "None") {
+      QDir workingDir(workDir);
+      if (!workingDir.exists())
+	workingDir.mkpath("./RemoteWorkDir");
+      
+      return workDir + QString("/RemoteWorkDir");
+    }
 
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
     QVariant  remoteWorkDirVariant = settingsApplication.value("remoteWorkDir");
