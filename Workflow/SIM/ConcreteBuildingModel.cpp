@@ -128,7 +128,7 @@ ConcreteBuildingModel::ConcreteBuildingModel(RandomVariablesContainer *theRandom
     QGridLayout *frameGeometryGrid = new QGridLayout(frameGeometryBox);
 
 
-    QLabel* vecStoryLabel = new QLabel("Vector of story heigths (m) = h1,h2,h3,...");
+    QLabel* vecStoryLabel = new QLabel("Vector of story heights (m) = h1,h2,h3,...");
     vecStoryLE = new QLineEdit();
     connect(vecStoryLE,&QLineEdit::editingFinished,this,&ConcreteBuildingModel::onStoryLEChange);
 
