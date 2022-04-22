@@ -237,13 +237,15 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
         {
             QString pythonVersionStr = resultList.at(1);
 
-            int loc =  pythonVersionStr.indexOf(".");
+            int locFirst =  pythonVersionStr.indexOf(".");
+            int locSecond =  pythonVersionStr.indexOf(".", locFirst+1);	    
 
-            QStringRef pythonVersion(&pythonVersionStr, loc-1, loc+2);
 
-            auto verNum = pythonVersion.toDouble();
+            QStringRef pythonVersion(&pythonVersionStr, locFirst-1, locSecond);
+	    
+            double verNum = pythonVersion.toDouble();
 
-            if(verNum != 3.8)
+            if(verNum != 3.8 && verNum != 3.1) // 3.1 being 3.10
             {
                 emit errorMessage("Python version 3.8 is required, you have Python version "+QString::number(verNum)+" installed");
                 emit runComplete();
