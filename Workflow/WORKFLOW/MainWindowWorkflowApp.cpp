@@ -91,7 +91,9 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     // SG change
     int height = this->height()<int(rec.height())?int(rec.height()):this->height();
     int width  = this->width()<int(rec.width())?int(rec.width()):this->width();
-
+    height = abs(0.85*height);
+    width = abs(0.85*width);    
+    
     // if (width>1280) width=1280;
     this->resize(width, height);
 
@@ -886,11 +888,11 @@ MainWindowWorkflowApp::loadExamples()
     statusWidget->showProgressBar();
     QApplication::processEvents();
 
-    emit sendStatusMessage("Loading Example file. Wait till Done Loading appears before progressing.");
+    emit sendStatusMessage("Loading Example file. Wait till Done Loading Example appears before progressing.");
     this->loadFile(pathToExample);
     
      statusWidget->hideProgressBar();
-    emit sendStatusMessage("Done Loading.");    
+    emit sendStatusMessage("Done Loading Example.");    
 
     // Automatically hide after n seconds
     // progressDialog->hideAfterElapsedTime(4);
