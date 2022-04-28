@@ -209,6 +209,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
         return false;
     }
 
+    /* ****************************************** removing python checks ********************
 
     // Check if python and required packages exist at the given path
     {
@@ -301,6 +302,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
         }
     }
 
+    ******************************************************************************** */
 
     QString openseesExe = preferences->getOpenSees();
     QFileInfo openseesFile(openseesExe);
