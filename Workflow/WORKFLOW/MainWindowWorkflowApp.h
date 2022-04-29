@@ -81,7 +81,7 @@ public:
  private:
     void setCurrentFile(const QString &fileName);
     bool saveFile(const QString &fileName);
-    void loadFile(const QString &fileName);
+    int loadFile(const QString &fileName);
 
     void createActions();
 
@@ -125,6 +125,8 @@ public:
     SimCenterPreferences *thePreferences;
     ExampleDownloader* theExampleDownloader;
     PythonProgressDialog* statusWidget;
+
+    friend class R2DUnitTests;
 
 };
 
