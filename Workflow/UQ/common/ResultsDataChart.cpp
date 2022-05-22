@@ -493,11 +493,22 @@ ResultsDataChart::onSaveSpreadsheetClicked()
             for (int j=0; j<columnCount; j++)
             {
                 QTableWidgetItem *item_value = spreadsheet->item(i,j);
-                double value = item_value->text().toDouble();
+                //double value = item_value->text().toDouble();
+                // for "MutlipleEvent" column in EE-UQ (string-type)
+                if (theHeadings.at(j).compare("MultipleEvent")==0)
+                {
+                    QString value = item_value->text();
+                    if (j == columnCount-1)
+                      stream << value ;
+                    else
+                      stream << value << ", ";
+                } else {
+                    double value = item_value->text().toDouble();
         if (j == columnCount-1)
           stream << value ;
         else
           stream << value << ", ";
+            }
             }
             stream<<endl;
         }
