@@ -21,8 +21,8 @@ class PythonProgressDialog;
 
 class MainWindowWorkflowApp : public QMainWindow
 {
-  Q_OBJECT
-    
+  Q_OBJECT   
+
 public:
     explicit MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theRemoteInterface, QWidget *parent = 0);
     ~MainWindowWorkflowApp();
@@ -34,6 +34,8 @@ public:
     void setFeedbackURL(QString &feedback);
     void setCite(QString &cite);
     void updateExamplesMenu(void);
+
+    QString outputFilePath;
 
  protected:
 

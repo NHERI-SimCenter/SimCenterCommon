@@ -39,7 +39,6 @@
 #include <QScreen>
 #include <QSettings>
 
-
 MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theService, QWidget *parent)
     : QMainWindow(parent), loggedIn(false), inputWidget(theApp),   theRemoteInterface(theService), isAutoLogin(false)
 {
@@ -437,6 +436,7 @@ bool MainWindowWorkflowApp::saveFile(const QString &fileName)
         return false;
     }
 
+    outputFilePath = fileName;
 
     //
     // create a json object, fill it in & then use a QJsonDocument
