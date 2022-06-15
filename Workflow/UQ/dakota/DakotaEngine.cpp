@@ -76,7 +76,7 @@ DakotaEngine::DakotaEngine(RandomVariablesContainer *theRVs, UQ_EngineType type,
         theEngineSelectionBox->addItem(tr("Sensitivity Analysis"));
         theEngineSelectionBox->addItem(tr("Reliability Analysis"));
     }
-    theEngineSelectionBox->setMinimumWidth(600);
+    theEngineSelectionBox->setMinimumWidth(400);
 
     theSelectionLayout->addWidget(label);
     theSelectionLayout->addWidget(theEngineSelectionBox);
