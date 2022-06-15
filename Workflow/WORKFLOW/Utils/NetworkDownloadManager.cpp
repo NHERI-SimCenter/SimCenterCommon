@@ -352,6 +352,7 @@ void NetworkDownloadManager::fileDownloadFinished(QNetworkReply *reply)
         statusMessage(msg);
         emit downloadSuccess(true);
         this->cleanup();
+        this->getProgressDialog()->hideProgressBar();
     }
 }
 

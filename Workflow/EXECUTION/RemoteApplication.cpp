@@ -167,11 +167,11 @@ RemoteApplication::outputToJSON(QJsonObject &jsonObject)
 
     if (appName != "R2D"){
         jsonObject["localAppDir"]=SimCenterPreferences::getInstance()->getAppDir();
-        jsonObject["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();
         jsonObject["remoteAppWorkingDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();
         jsonObject["workingDir"]=SimCenterPreferences::getInstance()->getRemoteWorkDir();
     }
 
+    jsonObject["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();    
     jsonObject["runType"]=QString("runningRemote");
 
     return true;

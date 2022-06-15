@@ -463,10 +463,9 @@ bool MainWindowWorkflowApp::saveFile(const QString &fileName)
 }
 
 
-void MainWindowWorkflowApp::loadFile(const QString &fileName)
+int MainWindowWorkflowApp::loadFile(const QString &fileName)
 {
-  
-    inputWidget->loadFile(fileName);
+    return inputWidget->loadFile(fileName);
 }
 
 
