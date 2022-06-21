@@ -92,7 +92,8 @@ PLoMSimuWidget::PLoMSimuWidget(QWidget *parent)
     typeLayout->addWidget(rawDataRadioButton);
     typeLayout->addStretch();
     layout->addWidget(typeGroupBox,wid++);
-
+    layout->setSpacing(0);
+    layout->setMargin(0);
     // sampling method
     samplingMethodGroup = new QWidget(this);
     QHBoxLayout *methodLayout= new QHBoxLayout;
@@ -237,8 +238,10 @@ PLoMSimuWidget::PLoMSimuWidget(QWidget *parent)
     // tab widget for adv. options
     advComboWidget = new QTabWidget(this);
     advOptLayout->addWidget(advComboWidget);
+
     advComboWidget->setVisible(false);
     advComboWidget->setStyleSheet("QTabBar {font-size: 10pt}");
+    advComboWidget->setContentsMargins(0,0,0,0);
 
     // adv. opt. general widget
     advGeneralWidget = new QWidget();

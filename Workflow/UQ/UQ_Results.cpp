@@ -143,3 +143,17 @@ UQ_Results::setResultWidget(UQ_Results *result) {
         errorMessage(QString("ResultWidget::set result widget new:  NULL!"));
     }
 }
+
+void
+UQ_Results::clear(void) {
+
+//    if (resultWidget != NULL) {
+//        layout->removeWidget(resultWidget);
+//        delete resultWidget;
+//        resultWidget = 0;
+//    }
+
+    for (int i =0; i<layout->count();i++) {
+        layout->removeItem(layout->itemAt(i));
+    }
+}
