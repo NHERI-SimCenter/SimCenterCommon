@@ -147,24 +147,36 @@ ResultsDataChart::makeChart() {
     QPushButton* save_spreadsheet = new QPushButton();
     save_spreadsheet->setText("Save Table");
     save_spreadsheet->setToolTip(tr("Save data into file in a CSV format"));
-    save_spreadsheet->resize(30,30);
+    save_spreadsheet->resize(save_spreadsheet->sizeHint().width(), save_spreadsheet->sizeHint().height());
     connect(save_spreadsheet,SIGNAL(clicked()),this,SLOT(onSaveSpreadsheetClicked()));
 
     QPushButton* save_columns = new QPushButton();
     save_columns->setText("Save Columns Separately");
     save_columns->setToolTip(tr("Select an existing folder"));
-    save_columns->resize(30,30);
-    connect(save_columns,SIGNAL(clicked()),this,SLOT(onSaveSpreadsheetSeparatelyClicked()));
+   // save_columns->resize(30,30);
+    save_columns->resize(save_columns->sizeHint().width(), save_columns->sizeHint().height());
+    connect(save_columns,SIGNAL(clicked()),this,SLOT(onSaveEachColumnsClicked()));
+
+    QPushButton* save_RVs = new QPushButton();
+    save_RVs->setText("Save RVs");
+    save_RVs->setToolTip(tr("Select an existing folder"));
+    save_RVs->resize(save_RVs->sizeHint().width(), save_RVs->sizeHint().height());
+    connect(save_RVs,SIGNAL(clicked()),this,SLOT(onSaveRVsClicked()));
+
+    QPushButton* save_QoIs = new QPushButton();
+    save_QoIs->setText("Save QoIs");
+    save_QoIs->setToolTip(tr("Select an existing folder"));
+    save_QoIs->resize(save_QoIs->sizeHint().width(), save_QoIs->sizeHint().height());
+    connect(save_QoIs,SIGNAL(clicked()),this,SLOT(onSaveQoIsClicked()));
 
     if (isSurrogate) {
 
         QPushButton* save_surrogate = new QPushButton();
         save_surrogate->setText("Save Surrogate Predictions");
         save_surrogate->setToolTip(tr("Select an existing folder"));
-        save_surrogate->resize(30,30);
-        save_surrogate->setMaximumWidth(200);
+        save_surrogate->resize(save_RVs->sizeHint().width(), save_RVs->sizeHint().height());
         connect(save_surrogate,SIGNAL(clicked()),this,SLOT(onSaveSurrogateClicked()));
-        layout_tmp->addWidget(save_surrogate, 0,5);
+        layout_tmp->addWidget(save_surrogate, 0,7);
 
         QCheckBox *surrogateShowbutton = new QCheckBox();
         surrogateShowbutton->setChecked(true);
@@ -199,12 +211,13 @@ ResultsDataChart::makeChart() {
     //
     // add summary, detained info and spreadsheet with chart to the tabed widget
     //
-    save_spreadsheet->setMaximumWidth(100);
-    save_columns->setMaximumWidth(180);
+
     layout_tmp->setColumnStretch(2,1);
 
     layout_tmp->addWidget(save_spreadsheet,0,3);
     layout_tmp->addWidget(save_columns,0,4);
+    layout_tmp->addWidget(save_RVs,0,5);
+    layout_tmp->addWidget(save_QoIs,0,6);
     layout_tmp ->addWidget(layout,1,0,1,-1);
 
     //this->setLayout(layout);
@@ -567,7 +580,7 @@ static int mergesort(double *input, int size)
     }
 }
 void
-ResultsDataChart::onSaveSpreadsheetSeparatelyClicked()
+ResultsDataChart::onSaveEachColumnsClicked()
 {
 
     int rowCount = spreadsheet->rowCount();
@@ -602,6 +615,111 @@ ResultsDataChart::onSaveSpreadsheetSeparatelyClicked()
 
 }
 
+void
+ResultsDataChart::onSaveRVsClicked()
+{
+
+    int rowCount = spreadsheet->rowCount();
+    int columnCount = nrv+1;
+
+    QString fileName = QFileDialog::getSaveFileName(this,
+                                                    tr("Save Data"), "RVs",
+                                                    tr("Text Documents (*.txt)"));
+
+    QFile file(fileName);
+    if (file.open(QIODevice::WriteOnly))
+    {
+        QTextStream stream(&file);
+        stream <<"% "; //for header
+        for (int j=1; j<columnCount; j++)
+        {
+          if (j == columnCount -1)
+                stream <<theHeadings.at(j);
+          else
+                stream <<theHeadings.at(j)<<" ";
+        }
+        stream <<endl;
+        for (int i=0; i<rowCount; i++)
+        {
+            for (int j=1; j<columnCount; j++)
+            {
+                QTableWidgetItem *item_value = spreadsheet->item(i,j);
+                //double value = item_value->text().toDouble();
+                // for "MutlipleEvent" column in EE-UQ (string-type)
+                if (theHeadings.at(j).compare("MultipleEvent")==0)
+                {
+                    QString value = item_value->text();
+                    if (j == columnCount-1)
+                      stream << value ;
+                    else
+                      stream << value << " ";
+                } else {
+                    double value = item_value->text().toDouble();
+        if (j == columnCount-1)
+          stream << value ;
+        else
+          stream << value << " ";
+            }
+            }
+            stream<<endl;
+        }
+    file.close();
+    }
+
+}
+
+void
+ResultsDataChart::onSaveQoIsClicked()
+{
+
+    int rowCount = spreadsheet->rowCount();
+    int columnCount = spreadsheet->columnCount();
+
+    QString fileName = QFileDialog::getSaveFileName(this,
+                                                    tr("Save Data"), "QoIs",
+                                                    tr("Text Documents (*.txt)"));
+
+    QFile file(fileName);
+    if (file.open(QIODevice::WriteOnly))
+    {
+        QTextStream stream(&file);
+        stream <<"% "; //for header
+        for (int j=nrv+1; j<columnCount; j++)
+        {
+      if (j == columnCount -1)
+            stream <<theHeadings.at(j);
+      else
+            stream <<theHeadings.at(j)<<" ";
+        }
+        stream <<endl;
+        for (int i=0; i<rowCount; i++)
+        {
+            for (int j=nrv+1; j<columnCount; j++)
+            {
+                QTableWidgetItem *item_value = spreadsheet->item(i,j);
+                //double value = item_value->text().toDouble();
+                // for "MutlipleEvent" column in EE-UQ (string-type)
+                if (theHeadings.at(j).compare("MultipleEvent")==0)
+                {
+                    QString value = item_value->text();
+                    if (j == columnCount-1)
+                      stream << value ;
+                    else
+                      stream << value << " ";
+                } else {
+                    double value = item_value->text().toDouble();
+        if (j == columnCount-1)
+          stream << value ;
+        else
+          stream << value << " ";
+            }
+            }
+            stream<<endl;
+        }
+    file.close();
+    }
+
+}
 
 void
 ResultsDataChart::onSaveSurrogateClicked()
