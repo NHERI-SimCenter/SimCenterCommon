@@ -102,12 +102,12 @@ private:
 //    UQ_Method *theIS;
 //    UQ_Method *theGP;
 //    UQ_Method *thePCE;
-    QWidget *pairedRVLayoutWrap, *groupRVLayoutWrap;
-    QHBoxLayout *pairedRVLayout, *groupRVLayout;
-    QCheckBox *pairedRVCheckBox, *groupRVCheckBox;
-    QLabel *pairedRVLabel, *groupRVLabel;
-    QLineEdit * RVdataList, *RVvarList;
-
+    QWidget *pairedRVLayoutWrap, *advancedLayoutWrap;
+    QHBoxLayout *pairedRVLayout, *advancedLayout;
+    QCheckBox *pairedRVCheckBox, *advancedCheckBox;
+    QLabel *pairedRVLabel, *advancedLabel, *PCAautoText;
+    QLineEdit * RVdataList, *RVvarList, *PCAvarRatio;
+    QComboBox *performPCA;
 };
 
 #endif // SIMCENTERUQ_INPUT_SENSITIVITY_H

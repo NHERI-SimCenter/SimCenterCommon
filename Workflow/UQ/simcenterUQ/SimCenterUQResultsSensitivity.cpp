@@ -256,27 +256,27 @@ int SimCenterUQResultsSensitivity::processResults(QString &filenameResults, QStr
     }
 
     std::string readline;
-    getline(fileResults, readline);// header
+    getline(fileResults, readline);// header- number of input combinations
     getline(fileResults, readline);// value
     ncomb=atoi(readline.c_str());
 
-    getline(fileResults, readline);// header
+    getline(fileResults, readline);// header- input names
     for (int nc=0; nc<ncomb; nc++) {
         getline(fileResults, readline);
         combs.push_back(QString::fromStdString(readline));
     }
 
-    getline(fileResults, readline);// header
+    getline(fileResults, readline);// header- number of outputs
     getline(fileResults, readline);// value
     nQoI=atoi(readline.c_str());
 
-    getline(fileResults, readline);// header
+    getline(fileResults, readline);// header- output names
     for (int nq=0; nq<nQoI; nq++) {
         getline(fileResults, readline);// value
         QoInames.push_back(QString::fromStdString(readline));
     }
 
-    getline(fileResults, readline);// header
+    getline(fileResults, readline);// header- Sm(E) Sm(P) Sm(Ao) Sm(Au) St(E) St(P) St(Ao) St(Au)
     for (int nq=0; nq<nQoI; nq++) {
         QVector<double> sobols_vec;
         getline(fileResults, readline);// value
@@ -285,6 +285,38 @@ int SimCenterUQResultsSensitivity::processResults(QString &filenameResults, QStr
         while( stm >> val ) sobols_vec.push_back(val) ;
         sobols.push_back(sobols_vec);
     }
+
+    getline(fileResults, readline);// header- number of samples
+    getline(fileResults, readline);// value
+    int nSamp=atoi(readline.c_str());
+
+    getline(fileResults, readline);// header- elapsed time
+    getline(fileResults, readline);// value
+    std::istringstream strm(readline);
+    std::string elaps_str;
+    strm >> elaps_str; // only read the first number
+    elaps=QString::fromStdString(elaps_str);
+
+    // default - older version.
+    performedPCA=QString("no");
+    PCAncomp = "";
+    PCAvarRatio = "";
+    // for newer version - sy.
+    if (!fileResults.eof()) {
+        getline(fileResults, readline);// header- PCA
+        getline(fileResults, readline);// value
+        performedPCA=QString::fromStdString(readline);
+        if (performedPCA==QString("yes")) {
+            getline(fileResults, readline);// header- number of PCA components
+            getline(fileResults, readline);// value
+            PCAncomp=QString::fromStdString(readline);
+
+            getline(fileResults, readline);// header- PCA
+            getline(fileResults, readline);// value
+            PCAvarRatio=QString::fromStdString(readline);
+        }
+    }
+
 
 
     gsaGraph(*&sa);
@@ -454,6 +486,21 @@ void SimCenterUQResultsSensitivity::gsaGraph(QScrollArea *&sa)
         trainingDataLayout->setColumnStretch(0 | 1 | 2, 1);
     }
 
+    QString elapsCutoff = QString::number(elaps.toDouble(), 'f', 1);
+    QLabel *elapsLabel = new QLabel(QString("Elapsed time:")+elapsCutoff+QString("s"));
+    elapsLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    summaryLayout -> addWidget(elapsLabel);
+
+    //
+    // PCA summary
+    //
+    if (performedPCA==QString("yes")) {
+        QString PCAratioPerc = QString::number(100*PCAvarRatio.toDouble());
+        QLabel *PCALabel = new QLabel(QString("PCA is performed for QoI. "+PCAratioPerc+"% of the total variance is explained by "+PCAncomp+" principal component(s)"));
+        PCALabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        summaryLayout -> addWidget(PCALabel);
+    }
+
     //
     // save button
     //
@@ -514,6 +561,11 @@ SimCenterUQResultsSensitivity::outputToJSON(QJsonObject &jsonObject)
 
     jsonObject["numQoI"]=nQoI;
     jsonObject["numCombs"]=ncomb;
+
+    jsonObject["ElapsedTime"]=elaps;
+    jsonObject["PCAncomp"]=PCAncomp;
+    jsonObject["PCAvarRatio"]=PCAvarRatio;
+    jsonObject["performedPCA"]=performedPCA;
 
     //
     // add spreadsheet data
@@ -579,11 +631,33 @@ SimCenterUQResultsSensitivity::inputFromJSON(QJsonObject &jsonObject)
         combs.push_back(comblist[nc].toString());
     }
 
+    if (jsonObject.contains("ElapsedTime")) { //
+        elaps=jsonObject["ElapsedTime"].toString();
+    } else {
+        elaps="";
+    }
+
+    if (jsonObject.contains("performedPCA")) { //
+        performedPCA=jsonObject["performedPCA"].toBool();
+    } else {
+        performedPCA="no";
+    }
+
+    if (jsonObject.contains("PCAncomp")) { //
+        PCAncomp=jsonObject["PCAncomp"].toString();
+    } else {
+        PCAncomp="";
+    }
+
+    if (jsonObject.contains("PCAvarRatio")) { //
+        PCAvarRatio=jsonObject["PCAvarRatio"].toString();
+    } else {
+        PCAvarRatio="";
+    }
+
     QScrollArea *sa = new QScrollArea;
     gsaGraph(*&sa);
 
-
-    //isSurrogate=jsonObject["isSurrogate"].toBool();
     if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
         isSurrogate=jsonObject["isSurrogate"].toBool();
     } else {

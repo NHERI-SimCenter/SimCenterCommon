@@ -95,9 +95,11 @@ private:
    ResultsDataChart* theDataTable;
 
    bool isSurrogate = false;
-
+   QString PCAncomp;
+   QString PCAvarRatio;
+   QString performedPCA;
    void gsaGraph(QScrollArea *&summaryLayout);
-
+   QString elaps;
 };
 
 #endif // SIMCENTERUQ_RESULTS_SENSITIVITY_H

@@ -138,40 +138,62 @@ SimCenterUQInputSensitivity::SimCenterUQInputSensitivity(QWidget *parent)
     // Set sensitivity group
     //
 
-    groupRVLayout= new QHBoxLayout;
-    groupRVLayout->setMargin(0);
-    groupRVLayout->setAlignment(Qt::AlignTop);
+    advancedLayout= new QHBoxLayout;
+    advancedLayout->setMargin(0);
+    advancedLayout->setAlignment(Qt::AlignTop);
 
-    groupRVLabel = new QLabel(QString("Advanced option for global sensitivity analysis"));
-    groupRVLabel->setStyleSheet("font-weight: bold; color: gray");
-    groupRVCheckBox = new QCheckBox();
-    groupRVLayout->addWidget(groupRVCheckBox,0);
-    groupRVLayout->addWidget(groupRVLabel,1);
+    advancedLabel = new QLabel(QString("Advanced option for global sensitivity analysis"));
+    advancedLabel->setStyleSheet("font-weight: bold; color: gray");
+    advancedCheckBox = new QCheckBox();
+    advancedLayout->addWidget(advancedCheckBox,0);
+    advancedLayout->addWidget(advancedLabel,1);
 
-    groupRVLayoutWrap= new QWidget;
-    QGridLayout *groupRVLayout2= new QGridLayout(groupRVLayoutWrap);
+    advancedLayoutWrap= new QWidget;
+    QGridLayout *advancedLayout2= new QGridLayout(advancedLayoutWrap);
 
     QFrame * lineB = new QFrame;
     lineB->setFrameShape(QFrame::HLine);
     lineB->setFrameShadow(QFrame::Sunken);
     lineB->setMaximumWidth(300);
-    groupRVLayout2->addWidget(lineB,0,0,1,-1);
+    advancedLayout2->addWidget(lineB,0,0,1,-1);
 
-    groupRVLayout2->setMargin(0);
+    advancedLayout2->setMargin(0);
     QLabel *label3 = new QLabel(QString("Get group Sobol indicies"));
     RVvarList = new QLineEdit();
-    RVvarList->setPlaceholderText("e.g. {RV_name1},{RV_name1,RV_name2,RV_name6}");
+    RVvarList->setPlaceholderText("(optional) e.g. {RV_name1},{RV_name1,RV_name2,RV_name6}");
     RVvarList->setMaximumWidth(420);
     RVvarList->setMinimumWidth(420);
-    groupRVLayout2->addWidget(label3,1,0);
-    groupRVLayout2->addWidget(RVvarList,1,1);
-    groupRVLayout2->setRowStretch(3,1);
-    groupRVLayout2->setColumnStretch(2,1);
+    advancedLayout2->addWidget(label3,1,0);
+    advancedLayout2->addWidget(RVvarList,1,1,1,2);
+    //advancedLayout2->setRowStretch(3,1);
+    //advancedLayout2->setColumnStretch(2,1);
 
-    groupRVLayoutWrap ->setVisible(false);
+    advancedLayout2->setMargin(0);
+    QLabel *label4 = new QLabel(QString("Perform PCA with QoI"));
+    performPCA = new QComboBox();
+    performPCA->addItem("Automatic");
+    performPCA->addItem("Yes");
+    performPCA->addItem("No");
+    performPCA->setMinimumWidth( performPCA->minimumSizeHint().width()*1.2);
+    performPCA->setMaximumWidth( performPCA->minimumSizeHint().width()*1.2);
+    PCAautoText = new QLabel("(PCA is performed if the number of QoI is greater than 15)");
+    PCAvarRatio = new QLineEdit();
+    PCAvarRatio->setVisible(false);
+    PCAvarRatio->setPlaceholderText("(default:0.99) Portion of variance explained");
+    //PCAvarRatio->setMaximumWidth(420);
+    //PCAvarRatio->setMinimumWidth(420);
+    advancedLayout2->addWidget(label4,2,0);
+    advancedLayout2->addWidget(performPCA,2,1);
+    advancedLayout2->addWidget(PCAautoText,2,2);
+    advancedLayout2->addWidget(PCAvarRatio,2,2);
 
-    mLayout->addLayout(groupRVLayout);
-    mLayout->addWidget(groupRVLayoutWrap);
+    advancedLayout2->setRowStretch(4,1);
+    advancedLayout2->setColumnStretch(3,1);
+
+    advancedLayoutWrap ->setVisible(false);
+
+    mLayout->addLayout(advancedLayout);
+    mLayout->addWidget(advancedLayoutWrap);
 
     //void InputWidgetEDP::setDefaultGroup(bool tog)
     //{
@@ -202,8 +224,18 @@ SimCenterUQInputSensitivity::SimCenterUQInputSensitivity(QWidget *parent)
 
     //connect(samplingMethod, SIGNAL(currentTextChanged(QString)), this, SLOT(onTextChanged(QString)));
     connect(pairedRVCheckBox,SIGNAL(toggled(bool)),this,SLOT(showDataOptions(bool)));
-    connect(groupRVCheckBox,SIGNAL(toggled(bool)),this,SLOT(showAdvancedOptions(bool)));
+    connect(advancedCheckBox,SIGNAL(toggled(bool)),this,SLOT(showAdvancedOptions(bool)));
+    connect(performPCA, &QComboBox::currentTextChanged, this, [=](QString selec)  {
+        if (selec==QString("Yes"))
+            PCAvarRatio -> setVisible(true);
+        else
+            PCAvarRatio->setVisible(false);
 
+        if (selec==QString("Automatic"))
+            PCAautoText -> setVisible(true);
+        else
+            PCAautoText->setVisible(false);
+    });
 }
 
 void SimCenterUQInputSensitivity::onMethodChanged(QString text)
@@ -231,7 +263,7 @@ SimCenterUQInputSensitivity::getMaxNumParallelTasks(void){
 void SimCenterUQInputSensitivity::clear(void)
 {
     pairedRVCheckBox->setChecked(false);
-    groupRVCheckBox->setChecked(false);
+    advancedCheckBox->setChecked(false);
 }
 
 bool
@@ -252,11 +284,29 @@ SimCenterUQInputSensitivity::outputToJSON(QJsonObject &jsonObject)
         jsonObject["RVdataGroup"] = ""; // empty
     }
 
-    if (groupRVCheckBox->isChecked()) {
+    jsonObject["advancedOptions"] = advancedCheckBox->isChecked();
+    if (advancedCheckBox->isChecked()) {
         jsonObject["RVsensitivityGroup"] = RVvarList->text();
+        jsonObject["performPCA"] = performPCA->currentText();
+        if (performPCA->currentText()=="Yes") {
+            if (PCAvarRatio->text().isEmpty()){
+                jsonObject["PCAvarianceRatio"] = 0.99;
+            } else {
+                jsonObject["PCAvarianceRatio"] = PCAvarRatio->text().toDouble();
+            }
+        } else if (performPCA->currentText()=="No") {
+            jsonObject["PCAvarianceRatio"] = "N/A";
+        } else {
+            jsonObject["PCAvarianceRatio"] = 0.99;
+        }
+
     } else {
         jsonObject["RVsensitivityGroup"] = ""; // empty
+        jsonObject["performPCA"] = "Automatic"; // default
+        jsonObject["PCAvarianceRatio"] = 0.99; // default
     }
+
+
 
     return result;
 }
@@ -298,15 +348,20 @@ SimCenterUQInputSensitivity::inputFromJSON(QJsonObject &jsonObject)
       }
   }
 
-   if (jsonObject.contains("RVsensitivityGroup")) {
-      RVvarList->setText(jsonObject["RVsensitivityGroup"].toString());
-      if ((RVvarList->text()).isEmpty()) {
-          groupRVCheckBox->setChecked(false);
-      } else {
-          groupRVCheckBox->setChecked(true);
-      }
+   if (jsonObject.contains("advancedOptions")) {
+      advancedCheckBox->setChecked(jsonObject["advancedOptions"].toBool());
   }
 
+   if (jsonObject.contains("RVsensitivityGroup")) {
+      RVvarList->setText(jsonObject["RVsensitivityGroup"].toString());
+  }
+
+   if (jsonObject.contains("performPCA")) {
+      performPCA->setCurrentText(jsonObject["performPCA"].toString());
+      if (performPCA->currentText()=="Yes") {
+          PCAvarRatio->setText(QString::number(jsonObject["PCAvarianceRatio"].toDouble()));
+      }
+  }
 
   return result;
 }
@@ -329,14 +384,14 @@ void SimCenterUQInputSensitivity::showDataOptions(bool tog)
 void SimCenterUQInputSensitivity::showAdvancedOptions(bool tog)
 {
     if (tog) {
-        groupRVLabel->setStyleSheet("font-weight: bold; color: black");
+        advancedLabel->setStyleSheet("font-weight: bold; color: black");
         RandomVariablesContainer *theRVs = RandomVariablesContainer::getInstance();
         RVvarList->setText(theRVs->getAllRVString());
-        groupRVLayoutWrap->setVisible(true);
+        advancedLayoutWrap->setVisible(true);
     } else {
-        groupRVLabel->setStyleSheet("font-weight: bold; color: gray");
+        advancedLabel->setStyleSheet("font-weight: bold; color: gray");
         RVvarList->setText("");
-        groupRVLayoutWrap->setVisible(false);
+        advancedLayoutWrap->setVisible(false);
     }
 }
 
