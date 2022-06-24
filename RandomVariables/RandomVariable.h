@@ -47,6 +47,7 @@ class QLabel;
 class QGridLayout;
 class RandomVariableDistribution;
 class QRadioButton;
+class QPushButton;
 
 class RandomVariable : public SimCenterWidget
 {
@@ -86,7 +87,7 @@ public slots:
 
 private:
     RandomVariableDistribution *theDistribution;
-
+    QPushButton * removeButton;
     QString variableClass, typeOpt, uqEngineName; //=QString("Parameters");
     QLabel *variableLabel;
     QLabel *distributionLabel, *typeLabel;
