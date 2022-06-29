@@ -44,6 +44,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QMessageBox>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QStackedWidget>
 #include <ResultsDataChart.h>
 
 
@@ -99,6 +100,8 @@ private:
    QString PCAvarRatio;
    QString performedPCA;
    void gsaGraph(QScrollArea *&summaryLayout);
+   void getGroupBox(QGroupBox *&groupBox, int nq, bool useAnimation);
+   QStackedWidget *stacked; // for larger QoI
    QString elaps;
 };
 

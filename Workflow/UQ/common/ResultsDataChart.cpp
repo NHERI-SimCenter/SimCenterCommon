@@ -84,6 +84,12 @@ ResultsDataChart::ResultsDataChart(QJsonObject spread, bool isSur, int nRV, QWid
                 spreadsheet->setColumnHidden(i,true);
         }
     }
+
+    if  ((spreadsheet->rowCount()) > 1.e5) {
+        chart->setAnimationOptions(QChart::AllAnimations);
+    } else {
+        chart->setAnimationOptions(QChart::NoAnimation);
+    }
 }
 
 ResultsDataChart::ResultsDataChart(QString filenameTab, bool isSur, int nRV, QWidget *parent)
@@ -107,6 +113,12 @@ ResultsDataChart::ResultsDataChart(QString filenameTab, bool isSur, int nRV, QWi
                 spreadsheet->setColumnHidden(i,true);
         }
     }
+
+    if  ((spreadsheet->rowCount()) > 1.e5) {
+        chart->setAnimationOptions(QChart::AllAnimations);
+    } else {
+        chart->setAnimationOptions(QChart::NoAnimation);
+    }
 }
 
 void
@@ -122,7 +134,7 @@ ResultsDataChart::makeChart() {
     // create a chart, setting data points from first and last col of spreadsheet
     //
     chart = new QChart();
-    chart->setAnimationOptions(QChart::AllAnimations);
+    //chart->setAnimationOptions(QChart::AllAnimations);
 
     // by default the constructor is called and it plots the graph of the last column on Y-axis w.r.t first column on the
     // X-axis

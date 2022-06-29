@@ -68,6 +68,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 //#include <QMessageBox>
 #include <QVBoxLayout>
+#include <QComboBox>
+#include <QStackedWidget>
 #include <QLineEdit>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -350,141 +352,50 @@ void SimCenterUQResultsSensitivity::gsaGraph(QScrollArea *&sa)
     sa->setWidgetResizable(true);
     sa->setLineWidth(0);
     sa->setFrameShape(QFrame::NoFrame);
-
-
     QWidget *summary = new QWidget();
-    QVBoxLayout *summaryLayout = new QVBoxLayout();
-    summaryLayout->setContentsMargins(0,0,0,0); // adding back
-    summary->setLayout(summaryLayout);
     sa->setWidget(summary);
+    QVBoxLayout *summaryLayout = new QVBoxLayout();
+    summary->setLayout(summaryLayout);
 
-    QStringList theTableHeadings;
-    theTableHeadings << "Random Variable" << "Main" << "Total";
-
-    QGroupBox *groupBox = NULL;
-    for (int nq=0; nq<nQoI; nq++){
-        QGridLayout * trainingDataLayout = NULL;
-        QString h(QoInames[nq]+" Sobol' Indicies");
-        groupBox = new QGroupBox(h);
-        summaryLayout->addWidget(groupBox);
-        summaryLayout->setSpacing(10);
-        summaryLayout->setMargin(10);
-
-        /***** TABLE LAYOUT OPTION  ******
-        // QTable option
-        table = new MyTableWidget();
-        table->setColumnCount(3);
-        table->setHorizontalHeaderLabels(theTableHeadings);
-        table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-        table->verticalHeader()->setVisible(false);
-        tableLayout = new QHBoxLayout();
-        tableLayout->addWidget(table);
-        tableLayout->addStretch();
-        groupBox->setLayout(tableLayout);
-        ********************************************/
-
-        trainingDataLayout = new QGridLayout();
-        QLabel *l1 = new QLabel("Random Variable");
-        QLabel *l2 = new QLabel("Main");
-        QLabel *l3 = new QLabel("Total");
-        trainingDataLayout->addWidget(l1, 0,0);
-        trainingDataLayout->addWidget(l2, 0,1);
-        trainingDataLayout->addWidget(l3, 0,2);
-        QFont font;
-        font.setBold(true);
-
-        l1->setMaximumHeight(25);
-        l1->setMinimumHeight(25);
-        l1->setAlignment(Qt::AlignCenter);
-        l1->setFont(font);
-
-        l2->setMaximumHeight(25);
-        l2->setMinimumHeight(25);
-        l2->setAlignment(Qt::AlignCenter);
-        l2->setFont(font);
-
-        l3->setMaximumHeight(25);
-        l3->setMinimumHeight(25);
-        l3->setAlignment(Qt::AlignCenter);
-        l3->setFont(font);
-
-        groupBox->setLayout(trainingDataLayout);
-
-        QBarSet *set0 = new QBarSet("Main");
-        QBarSet *set1 = new QBarSet("Total");
-
-        for (int nc=0; nc<ncomb; nc++) {
-            QLabel *e1 = new QLabel(combs[nc]); e1->setAlignment(Qt::AlignCenter);
-            QLineEdit *e2 = new QLineEdit(QString::number(sobols[nq][nc],'f', 3)); e2->setReadOnly(true);  e2->setAlignment(Qt::AlignRight);
-            QLineEdit *e3 = new QLineEdit(QString::number(sobols[nq][nc+ncomb],'f', 3)); e3->setReadOnly(true); e3->setAlignment(Qt::AlignRight);
-            e1->setMaximumWidth(100);
-            e2->setMaximumWidth(100);
-            e3->setMaximumWidth(100);
-
-            e1->setMinimumWidth(100);
-            e2->setMinimumWidth(100);
-            e3->setMinimumWidth(100);
-
-            trainingDataLayout->addWidget(e1, nc+1,0);
-            trainingDataLayout->addWidget(e2, nc+1,1);
-            trainingDataLayout->addWidget(e3, nc+1,2);
-            trainingDataLayout->setColumnStretch(1,0);
-            trainingDataLayout->setColumnStretch(2,0);
-            trainingDataLayout->setColumnStretch(3,1);
-
-            *set0 << sobols[nq][nc];
-            *set1 << sobols[nq][nc+ncomb];
-            //*set0 << 2;
-            //*set1 << 3;
-         }
-
-        QBarSeries *series = new QBarSeries();
-        series->append(set0);
-        series->append(set1);
-
-        QChart *chartSobol = new QChart();
-        chartSobol->addSeries(series);
-        //chart->setTitle("");
-        chartSobol->setAnimationOptions(QChart::SeriesAnimations);
-
-        QStringList categories;
-        foreach (const QString str, combs) {
-            categories << str;
+    if (nQoI<20) {
+        for (int nq=0; nq<nQoI; nq++){
+            QGroupBox *groupBox;
+            bool useAnimation = true;
+            getGroupBox(groupBox, nq, useAnimation);
+            summaryLayout->addWidget(groupBox);
         }
-
-        QBarCategoryAxis *axisX = new QBarCategoryAxis();
-        axisX->append(categories);
-
-
-        chartSobol->addAxis(axisX, Qt::AlignBottom);
-        series->attachAxis(axisX);
-
-        QValueAxis *axisY = new QValueAxis();
-        axisY->setRange(0.0, 1.05);
-        axisY->setTickType(QValueAxis::TickType::TicksDynamic);
-        axisY->setTickInterval(0.5);
-        axisY->setTickAnchor(0.0);
-        chartSobol->addAxis(axisY, Qt::AlignLeft);
-        series->attachAxis(axisY);
-
-        chartSobol->setMargins(QMargins(10,10,10,10));
-        chartSobol->setBackgroundRoundness(0);
-        chartSobol->setMinimumHeight(120);
-        if (ncomb<5) {
-            //chartSobol->setMaximumWidth(400);
-        }
-
-
-        QChartView *chartView = new QChartView(chartSobol);
-        chartView->setRenderHint(QPainter::Antialiasing);
-
-        chartSobol->legend()->setVisible(true);
-        chartSobol->legend()->setAlignment(Qt::AlignRight);
-        trainingDataLayout->addWidget(chartView, 0,3,ncomb+1,1);
-        trainingDataLayout->setSpacing(5);
-        trainingDataLayout->setMargin(10);
-        trainingDataLayout->setColumnStretch(0 | 1 | 2, 1);
     }
+    else if (nQoI<400) {
+        QComboBox *qoiSelection = new QComboBox();
+        qoiSelection->setMinimumWidth(minimumSizeHint().width()*1.2);
+        qoiSelection->setMaximumWidth(minimumSizeHint().width()*1.2);
+        bool useAnimation = true;
+
+        for (int nq=0; nq<nQoI; nq++)
+        {
+            qoiSelection->addItem(QoInames[nq]);
+        }
+        QGroupBox *groupBox;
+        getGroupBox(groupBox, 0, useAnimation);
+        summaryLayout->addWidget(qoiSelection);
+        summaryLayout->addWidget(groupBox);
+
+        connect(qoiSelection,static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),this,[=](int selec) {
+            QLayoutItem  *w = summaryLayout->takeAt(1);
+            summaryLayout->removeItem(w);
+            delete w->widget();
+            delete w;
+            //delete summaryLayout->takeAt(1);
+            QGroupBox *groupBox;
+            getGroupBox(groupBox, selec, useAnimation);
+            summaryLayout->insertWidget(1, groupBox);
+        });
+
+
+    }
+    summaryLayout->setContentsMargins(0,0,0,0); // adding back
+    summaryLayout->setSpacing(10);
+    summaryLayout->setMargin(10);
 
     QString elapsCutoff = QString::number(elaps.toDouble(), 'f', 1);
     QLabel *elapsLabel = new QLabel(QString("Elapsed time:")+elapsCutoff+QString("s"));
@@ -517,6 +428,121 @@ void SimCenterUQResultsSensitivity::gsaGraph(QScrollArea *&sa)
 
 
     summaryLayout->addStretch();
+}
+
+void
+SimCenterUQResultsSensitivity::getGroupBox(QGroupBox *&groupBox, int nq, bool useAnimation) {
+
+    //QStringList theTableHeadings;
+    //theTableHeadings << "Random Variable" << "Main" << "Total";
+
+    QGridLayout * trainingDataLayout = NULL;
+    QString h(QoInames[nq]+" Sobol' Indicies");
+    groupBox = new QGroupBox(h);
+
+    trainingDataLayout = new QGridLayout();
+    QLabel *l1 = new QLabel("Random Variable");
+    QLabel *l2 = new QLabel("Main");
+    QLabel *l3 = new QLabel("Total");
+    trainingDataLayout->addWidget(l1, 0,0);
+    trainingDataLayout->addWidget(l2, 0,1);
+    trainingDataLayout->addWidget(l3, 0,2);
+    QFont font;
+    font.setBold(true);
+
+    l1->setMaximumHeight(25);
+    l1->setMinimumHeight(25);
+    l1->setAlignment(Qt::AlignCenter);
+    l1->setFont(font);
+
+    l2->setMaximumHeight(25);
+    l2->setMinimumHeight(25);
+    l2->setAlignment(Qt::AlignCenter);
+    l2->setFont(font);
+
+    l3->setMaximumHeight(25);
+    l3->setMinimumHeight(25);
+    l3->setAlignment(Qt::AlignCenter);
+    l3->setFont(font);
+
+    groupBox->setLayout(trainingDataLayout);
+
+    QBarSet *set0 = new QBarSet("Main");
+    QBarSet *set1 = new QBarSet("Total");
+
+    for (int nc=0; nc<ncomb; nc++) {
+        QLabel *e1 = new QLabel(combs[nc]); e1->setAlignment(Qt::AlignCenter);
+        QLineEdit *e2 = new QLineEdit(QString::number(sobols[nq][nc],'f', 3)); e2->setReadOnly(true);  e2->setAlignment(Qt::AlignRight);
+        QLineEdit *e3 = new QLineEdit(QString::number(sobols[nq][nc+ncomb],'f', 3)); e3->setReadOnly(true); e3->setAlignment(Qt::AlignRight);
+        e1->setMaximumWidth(100);
+        e2->setMaximumWidth(100);
+        e3->setMaximumWidth(100);
+
+        e1->setMinimumWidth(100);
+        e2->setMinimumWidth(100);
+        e3->setMinimumWidth(100);
+
+        trainingDataLayout->addWidget(e1, nc+1,0);
+        trainingDataLayout->addWidget(e2, nc+1,1);
+        trainingDataLayout->addWidget(e3, nc+1,2);
+        trainingDataLayout->setColumnStretch(1,0);
+        trainingDataLayout->setColumnStretch(2,0);
+        trainingDataLayout->setColumnStretch(3,1);
+
+        *set0 << sobols[nq][nc];
+        *set1 << sobols[nq][nc+ncomb];
+        //*set0 << 2;
+        //*set1 << 3;
+     }
+
+    QBarSeries *series = new QBarSeries();
+    series->append(set0);
+    series->append(set1);
+
+    QChart *chartSobol = new QChart();
+    chartSobol->addSeries(series);
+    //chart->setTitle("");
+    if (useAnimation){
+     chartSobol->setAnimationOptions(QChart::SeriesAnimations);
+    }
+    QStringList categories;
+    foreach (const QString str, combs) {
+        categories << str;
+    }
+
+    QBarCategoryAxis *axisX = new QBarCategoryAxis();
+    axisX->append(categories);
+
+
+    chartSobol->addAxis(axisX, Qt::AlignBottom);
+    series->attachAxis(axisX);
+
+    QValueAxis *axisY = new QValueAxis();
+    axisY->setRange(0.0, 1.05);
+    axisY->setTickType(QValueAxis::TickType::TicksDynamic);
+    axisY->setTickInterval(0.5);
+    axisY->setTickAnchor(0.0);
+    chartSobol->addAxis(axisY, Qt::AlignLeft);
+    series->attachAxis(axisY);
+
+    chartSobol->setMargins(QMargins(10,10,10,10));
+    chartSobol->setBackgroundRoundness(0);
+    chartSobol->setMinimumHeight(120);
+    if (ncomb<5) {
+        //chartSobol->setMaximumWidth(400);
+    }
+
+
+    QChartView *chartView = new QChartView(chartSobol);
+    chartView->setRenderHint(QPainter::Antialiasing);
+
+    chartSobol->legend()->setVisible(true);
+    chartSobol->legend()->setAlignment(Qt::AlignRight);
+    trainingDataLayout->addWidget(chartView, 0,3,ncomb+1,1);
+    trainingDataLayout->setSpacing(5);
+    trainingDataLayout->setMargin(10);
+    trainingDataLayout->setColumnStretch(0 | 1 | 2, 1);
+
 }
 
 // padhye
