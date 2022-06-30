@@ -102,7 +102,7 @@ LocalReliabilityWidget::LocalReliabilityWidget(QWidget *parent)
 
   //responseLevel = new QLineEdit();
   levelType = new QComboBox();
-  levelType->addItem("Probability Levels");
+  levelType->addItem("Reliability Levels (Failure Pf)");
   levelType->addItem("Response Levels");
 
   probabilityLevel = new QLineEdit();
@@ -160,21 +160,28 @@ LocalReliabilityWidget::outputToJSON(QJsonObject &jsonObj){
         jsonObj["localMethod"]=QString("Mean Value");
    }
 
-   jsonObj["integrationMethod"]= integrationMethod->currentText();
+   jsonObj["mpp_Method"]= mppMethod->currentText();
 
-   QString mpp_method =mppMethod->currentText();
-   if (mpp_method  == QString("First Order (FORM)"))
+   QString int_method =integrationMethod->currentText();
+   if (int_method  == QString("First Order (FORM)"))
     {
-       jsonObj["mpp_Method"]=QString("First Order");
-    } else if (mpp_method  == QString("Second Order (SORM)"))
+       jsonObj["integrationMethod"]=QString("First Order");
+    } else if (int_method  == QString("Second Order (SORM)"))
    {
-       jsonObj["mpp_Method"]=QString("Second Order");
+       jsonObj["integrationMethod"]=QString("Second Order");
     }
-    jsonObj["levelType"]=levelType->currentText();
+
+   QString level = levelType->currentText();
+   if (level  == QString("Reliability Levels (Failure Pf)")) {
+    jsonObj["levelType"]="Probability Levels";
+   } else {
+    jsonObj["levelType"]=level;
+   }
+
     QJsonArray probLevel;
     QStringList probLevelList = QStringList(probabilityLevel->text().split(" "));
     for (int i = 0; i < probLevelList.size(); ++i)
-        probLevel.push_back(probLevelList.at(i).toDouble());
+        probLevel.push_back(1-probLevelList.at(i).toDouble());
     jsonObj["probabilityLevel"]=probLevel;
 
     /*
@@ -183,7 +190,7 @@ LocalReliabilityWidget::outputToJSON(QJsonObject &jsonObj){
     for (int i = 0; i < respLevelList.size(); ++i)
         respLevel.push_back(respLevelList.at(i).toDouble());
     jsonObj["responseLevel"]=respLevel;
-*/
+    */
 
   /*
     if (checkedResponseLevel->isChecked())
@@ -209,15 +216,30 @@ LocalReliabilityWidget::inputFromJSON(QJsonObject &jsonObject){
         probabilityLevel->setText("");
 
         QString localMethod=jsonObject["localMethod"].toString();
-        integrationMethod->setCurrentIndex(integrationMethod->findText(localMethod));
+        if (localMethod == QString("Most Probable Point")) {
+            localMethod=QString("Design Point (Most Probable Point)");
+        } else if (localMethod == QString("Mean Value (MVFOSM)")) {
+            localMethod=QString("Mean Value");
+       }
+       method->setCurrentIndex(method->findText(localMethod));
 
-        QString scheme=jsonObject["integrationMethod"].toString();
-        integrationMethod->setCurrentIndex(integrationMethod->findText(scheme));
+       QString method=jsonObject["integrationMethod"].toString();
+       if (method  == QString("First Order"))
+        {
+           method=QString("First Order (FORM)");
+        } else if (method  == QString("Second Order"))
+        {
+           method=QString("Second Order (SORM)");
+        }
+        integrationMethod->setCurrentIndex(integrationMethod->findText(method));
 
-        QString method=jsonObject["mpp_Method"].toString();
-        mppMethod->setCurrentIndex(mppMethod->findText(method));
+        QString scheme=jsonObject["mpp_Method"].toString();
+        mppMethod->setCurrentIndex(mppMethod->findText(scheme));
 
         QString levelT=jsonObject["levelType"].toString();
+        if (levelT  == QString("Probability Levels")) {
+         levelT="Reliability Levels (Failure Pf)";
+        }
         levelType->setCurrentIndex(levelType->findText(levelT));
 
         QStringList respLevelList;
