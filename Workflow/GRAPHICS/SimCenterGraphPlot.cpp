@@ -96,6 +96,38 @@ SimCenterGraphPlot::clear() {
    yMaxValue = -1e10;
    xMinValue = 1e10;
    xMaxValue = -1e10;
+   thePlot->replot();
+}
+
+
+void
+SimCenterGraphPlot::drawPDF(QVector<double> &x, QVector<double> &y) {
+    addLine(x,y);
+
+    //
+    // add shade
+    //
+
+    thePlot->graph(numGraphs-1)->setBrush(QBrush(QColor(0, 75, 148,20)));
+
+    //
+    // add some margin
+    //
+
+    double ymargin =  (yMaxValue - yMinValue)*0.3;
+    double xmargin =  (xMaxValue - xMinValue)*0.05;
+    thePlot->yAxis->setRange(yMinValue, yMaxValue + ymargin);
+    thePlot->xAxis->setRange(xMinValue - xmargin, xMaxValue + xmargin);
+    thePlot->replot();
+
+    //
+    // righthandside/top axis without ticklabels ("box on")
+    //
+    thePlot->xAxis2->setVisible(true);
+    thePlot->xAxis2->setTickLabels(false);
+    thePlot->yAxis2->setVisible(true);
+    thePlot->yAxis2->setTickLabels(false);
+
 }
 
 void

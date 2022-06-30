@@ -65,7 +65,7 @@ public:
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
 
-    int processResults(QString &filenameResults, QString &filenameTab);
+    int processResults(QString &dirName);
 
 signals:
 
@@ -77,6 +77,9 @@ public slots:
    // modified by padhye 08/25/2018
 
 private:
+   int processResults(QString &filenameResults, QString &filenameTab);
+
+  
    RandomVariablesContainer *theRVs;
 
    MyTableWidget *spreadsheet;  
@@ -87,6 +90,9 @@ private:
    int col1, col2;
    bool mLeft;
    QStringList theHeadings;
+
+   void clearLayout(QLayout *layout);
+
 
    //   QVector<QString>theHeadings;
 };

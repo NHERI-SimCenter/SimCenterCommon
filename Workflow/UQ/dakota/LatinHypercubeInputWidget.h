@@ -39,11 +39,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <UQ_MethodInputWidget.h>
+#include <UQ_Method.h>
 class QLineEdit;
-class QCheckBox;
 
-class LatinHypercubeInputWidget : public UQ_MethodInputWidget
+class LatinHypercubeInputWidget : public UQ_Method
 {
     Q_OBJECT
 public:
@@ -59,7 +58,6 @@ public:
 private:
     QLineEdit *randomSeed;
     QLineEdit *numSamples;
-    QCheckBox *checkBox;
 };
 
 #endif // LATIN_HYPERCUBE_H

@@ -121,7 +121,7 @@ LocalApplication::onRunButtonPressed(void)
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
     QDir dirApp(appDir);
     if (!dirApp.exists()) {
-        QString errorMessage = QString("The application directory, ") + appDir +QString(" specified does not exist!. Check Local Application Directory im Preferences");
+        QString errorMessage = QString("The application directory, ") + appDir +QString(" specified does not exist!. Check Local Application Directory in Preferences");
         emit sendErrorMessage(errorMessage);;
         return;
     }
@@ -209,6 +209,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
         return false;
     }
 
+    /* ****************************************** removing python checks ********************
 
     // Check if python and required packages exist at the given path
     {
@@ -237,15 +238,17 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
         {
             QString pythonVersionStr = resultList.at(1);
 
-            int loc =  pythonVersionStr.indexOf(".");
+            int locFirst =  pythonVersionStr.indexOf(".");
+            int locSecond =  pythonVersionStr.indexOf(".", locFirst+1);	    
 
-            QStringRef pythonVersion(&pythonVersionStr, loc-1, loc+2);
 
-            auto verNum = pythonVersion.toDouble();
+            QStringRef pythonVersion(&pythonVersionStr, locFirst-1, locSecond);
+	    
+            double verNum = pythonVersion.toDouble();
 
-            if(verNum != 3.8)
+            if(verNum != 3.8 && verNum != 3.1) // 3.1 being 3.10
             {
-                emit errorMessage("Python version 3.8 or 3.9 is required, you have Python version "+QString::number(verNum)+" installed");
+                emit errorMessage("Python version 3.8 is required, you have Python version "+QString::number(verNum)+" installed");
                 emit runComplete();
                 return false;
             }
@@ -299,6 +302,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
         }
     }
 
+    ******************************************************************************** */
 
     QString openseesExe = preferences->getOpenSees();
     QFileInfo openseesFile(openseesExe);
@@ -508,24 +512,28 @@ void LocalApplication::handleProcessFinished(int exitCode, QProcess::ExitStatus 
     QString appName = QCoreApplication::applicationName();
 
     if (appName != "R2D"){
+      
         //
         // copy input file to main directory & process results
         //
 
+        /* 
         QString filenameIN = tempDirectory + QDir::separator() +  QString("dakota.json");
         QFile::copy(inputFilePath, filenameIN);
         QString filenameOUT = tempDirectory + QDir::separator() +  QString("dakota.out");
         QString filenameTAB = tempDirectory + QDir::separator() +  QString("dakotaTab.out");
-
         emit processResults(filenameOUT, filenameTAB, inputFilePath);
+	*/
+      
+	emit processResults(tempDirectory);
     }
     else
     {
         QString dirOut = tempDirectory + QDir::separator() +  QString("Results");
-        QString name2("");
-        QString name3("");
-
-        emit processResults(dirOut, name2, name3);
+        // QString name2("");
+        // QString name3("");
+	//        emit processResults(dirOut, name2, name3);
+        emit processResults(dirOut);	
     }
 
     emit sendStatusMessage("Analysis complete");

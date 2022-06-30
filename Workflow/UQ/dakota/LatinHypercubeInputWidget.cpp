@@ -42,16 +42,15 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLabel>
 #include <QValidator>
 #include <QJsonObject>
-#include <QCheckBox>
 
 LatinHypercubeInputWidget::LatinHypercubeInputWidget(QWidget *parent) 
-: UQ_MethodInputWidget(parent)
+: UQ_Method(parent)
 {
     auto layout = new QGridLayout();
 
     // create layout label and entry for # samples
     numSamples = new QLineEdit();
-    numSamples->setText(tr("20"));
+    numSamples->setText(tr("500"));
     numSamples->setValidator(new QIntValidator);
     numSamples->setToolTip("Specify the number of samples");
 
@@ -69,12 +68,7 @@ LatinHypercubeInputWidget::LatinHypercubeInputWidget(QWidget *parent)
     layout->addWidget(new QLabel("Seed"), 1, 0);
     layout->addWidget(randomSeed, 1, 1);
 
-    layout->addWidget(new QLabel("Keep Samples"), 2, 0);
-    checkBox = new QCheckBox();
-    checkBox->setChecked(true);
-    layout->addWidget(checkBox, 2, 1);
-
-    layout->setRowStretch(3, 1);
+    layout->setRowStretch(2, 1);
     layout->setColumnStretch(2, 1);
     this->setLayout(layout);
 }
@@ -90,7 +84,6 @@ LatinHypercubeInputWidget::outputToJSON(QJsonObject &jsonObj){
     bool result = true;
     jsonObj["samples"]=numSamples->text().toInt();
     jsonObj["seed"]=randomSeed->text().toDouble();
-    jsonObj["keepSamples"]=checkBox->isChecked();
     return result;    
 }
 
@@ -98,20 +91,14 @@ bool
 LatinHypercubeInputWidget::inputFromJSON(QJsonObject &jsonObject){
 
   bool result = false;
-  if (jsonObject.contains("samples")) {
+  if (jsonObject.contains("samples") && jsonObject.contains("seed")) {
     int samples=jsonObject["samples"].toInt();
+    double seed=jsonObject["seed"].toDouble();
     numSamples->setText(QString::number(samples));
+    randomSeed->setText(QString::number(seed));
     result = true;
   }
-  if (jsonObject.contains("seed")) {
-    double seed=jsonObject["seed"].toDouble();  
-    randomSeed->setText(QString::number(seed));
-  }
 
-  if (jsonObject.contains("keepSamples")) {
-      bool keepSamples = jsonObject["keepSamples"].toBool();
-      checkBox->setChecked(keepSamples);
-  }
   return result;
 }
 

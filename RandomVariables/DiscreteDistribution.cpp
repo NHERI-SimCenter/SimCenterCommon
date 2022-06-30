@@ -246,16 +246,23 @@ DiscreteDistribution::inputFromJSON(QJsonObject &rvObject){
 }
 
 
-void
+bool
 DiscreteDistribution::copyFiles(QString fileDir) {
     if (inpty==QString("Dataset")) {
-        QFile::copy(dataDir->text(), fileDir);
+        return QFile::copy(dataDir->text(), fileDir);
+    } else {
+        return true;
     }
 }
 
 QString 
 DiscreteDistribution::getAbbreviatedName(void) {
-  return QString("Discrete");
+    if (inpty==QString("Dataset")) {
+        return QString("Discrete_dataset");
+    } else {
+        return QString("Discrete");
+    }
+
 }
 
 void
@@ -329,7 +336,7 @@ DiscreteDistribution::updateDistributionPlot() {
             bary.push_back(0.0);
 
           thePlot->clear();
-          thePlot->addLine(barx,bary);
+          thePlot->drawPDF(barx,bary);
         }
     }
 }

@@ -108,6 +108,10 @@ QLineEdit {
     font-size: 10pt;
 }
 
+QTextEdit {
+    font-size: 10pt;
+}
+
 /*----------------------------------------------------------------------------*/
 /* QRadioButton                                                               */
 /*----------------------------------------------------------------------------*/
@@ -292,6 +296,12 @@ QComboBox:!editable:on, QComboBox::drop-down:editable:on {
 }
 
 QLineEdit {
+    background: white;
+    border-radius: 5px;
+    color: black;    
+}
+
+QTextEdit {
     background: white;
     border-radius: 5px;
     color: black;    

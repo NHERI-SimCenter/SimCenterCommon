@@ -75,8 +75,8 @@ signals:
     void getJobDetails(QString);
     void deleteJob(QString, QStringList);
     void downloadFiles(QStringList, QStringList);
-    void processResults(QString, QString, QString);
-    void loadFile(QString);
+    void processResults(QString &);
+    void loadFile(QString&);
 
   //  void deleteDirectory(QString);
   //  void downloadFile(QString);

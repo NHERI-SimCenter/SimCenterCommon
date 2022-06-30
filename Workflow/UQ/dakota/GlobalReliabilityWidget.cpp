@@ -46,11 +46,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonArray>
 #include <QButtonGroup>
 #include <QCheckBox>
-#include <QIntValidator>
 
 
 GlobalReliabilityWidget::GlobalReliabilityWidget(QWidget *parent) 
-: UQ_MethodInputWidget(parent)
+: UQ_Method(parent)
 {
      QGridLayout *layout = new QGridLayout();
 
@@ -59,8 +58,8 @@ GlobalReliabilityWidget::GlobalReliabilityWidget(QWidget *parent)
     QLabel *label2 = new QLabel();
     label2->setText(QString("GP Approximation"));
     gpApproximation = new QComboBox();
-    gpApproximation->addItem(tr("x_gaussian_process"));
-    gpApproximation->addItem(tr("u-gaussian_process"));
+    gpApproximation->addItem(tr("x-space"));
+    gpApproximation->addItem(tr("u-space"));
     gpApproximation->setToolTip("Create Gaussian Proccess Approximation in x-space or u-space");
 
     layout->addWidget(label2, 0,1);
@@ -84,33 +83,16 @@ GlobalReliabilityWidget::GlobalReliabilityWidget(QWidget *parent)
     layout->addWidget(checkedProbabilityLevel, 3,0);
     */
 
-    /*
     probabilityLevel = new QLineEdit();
-    probabilityLevel->setText(".02 .20 .40 .60 0.80 0.99");
+    probabilityLevel->setText("");
 
-    layout->addWidget(new QLabel("Probability Levels"), 1, 1);
-    layout->addWidget(probabilityLevel, 1, 2);
-    */
-
-    responseLevel = new QLineEdit();
-    responseLevel->setText("");
-    //responseLevel->setText(".02 .20 .40 .60 0.80 0.99");
-    responseLevel->setToolTip("Response level for which probability of exceedence is to be computed");
     layout->addWidget(new QLabel("Response Levels"), 1, 1);
-    layout->addWidget(responseLevel, 1, 2);
+    layout->addWidget(probabilityLevel, 1, 2);
 
-    layout->addWidget(new QLabel("Seed"), 2, 1);
-
-    srand(time(NULL));
-    int randomNumber = rand() % 1000 + 1;
-    seedEdit = new QLineEdit();
-    seedEdit->setText(QString::number(randomNumber));
-    seedEdit->setValidator(new QIntValidator);
-    seedEdit->setToolTip("seed value, use of same seed in different studies will result in identical results");
-    layout->addWidget(seedEdit, 2, 2);
-
+    layout->setColumnStretch(2,2);
     layout->setColumnStretch(3,4);
-    layout->setRowStretch(3,1);
+    layout->setRowStretch(5,1);
+
 
     this->setLayout(layout);
 }
@@ -126,35 +108,11 @@ GlobalReliabilityWidget::outputToJSON(QJsonObject &jsonObj){
     bool result = true;
     jsonObj["gpApproximation"]=gpApproximation->currentText();
 
-    QJsonArray probLevel;
-    if (responseLevel->text() == "") {
-        qDebug() << "GlobalReliability - At least one response value must be set";
-        this->errorMessage("GlobalReliability - At least one response value must be set");
-        return false;
-    }
-    QStringList probLevelList = QStringList(responseLevel->text().split(" "));
-    if (probLevelList.size() == 0) {
-        this->errorMessage("GlobalReliability - At least one response value must be set");
-        return false;
-    }
-
-    for (int i = 0; i < probLevelList.size(); ++i)
-        probLevel.push_back(probLevelList.at(i).toDouble());
-    jsonObj["responseLevel"]=probLevel;
-    jsonObj["seed"]=seedEdit->text().toInt();
-
-    /*
-    QJsonArray respLevel;
-    QStringList respLevelList = QStringList(responseLevel->text().split(" "));
-    for (int i = 0; i < respLevelList.size(); ++i)
-        respLevel.push_back(respLevelList.at(i).toDouble());
-    jsonObj["responseLevel"]=respLevel;
-
-    if (checkedResponseLevel->isChecked())
-        jsonObj["activeLevel"]=QString("ResponseLevel");
-    else
-        jsonObj["activeLevel"]=QString("ProbabilityLevel");
-    */
+    QJsonArray responseLevel;
+    QStringList responseLevelList = QStringList(probabilityLevel->text().split(" "));
+    for (int i = 0; i < responseLevelList.size(); ++i)
+        responseLevel.push_back(responseLevelList.at(i).toDouble());
+    jsonObj["responseLevel"]=responseLevel;
 
     return result;    
 }
@@ -165,28 +123,13 @@ GlobalReliabilityWidget::inputFromJSON(QJsonObject &jsonObject){
     bool result = false;
     if ( (jsonObject.contains("gpApproximation"))
          && (jsonObject.contains("responseLevel"))
-         && (jsonObject.contains("seed"))
          ) {
 
         //responseLevel->setText("");
-        responseLevel->setText("");
+        probabilityLevel->setText("");
 
         QString scheme=jsonObject["gpApproximation"].toString();
         gpApproximation->setCurrentIndex(gpApproximation->findText(scheme));
-
-        /*
-         QString activeLevel=jsonObject["activeLevel"].toString();
-         if (activeLevel ==  QString("ProbabilityLevel"))
-             checkedProbabilityLevel->setChecked(true);
-         else
-             checkedResponseLevel->setChecked(true);
-
-        QStringList respLevelList;
-        */
-
-        QJsonValue seedVal = jsonObject["seed"];
-        int seedV = seedVal.toInt(); qDebug() << "SEED" << seedV;
-        seedEdit->setText(QString::number(seedVal.toInt()));
 
         QJsonArray probLevels;
 
@@ -201,29 +144,10 @@ GlobalReliabilityWidget::inputFromJSON(QJsonObject &jsonObject){
                 double levelV = value.toDouble();
                 levelList << QString::number(levelV);
             }
-            responseLevel->setText(levelList.join(" "));
+            probabilityLevel->setText(levelList.join(" "));
         } else {
-            qDebug() << "FORM Input: Response level not a json array";
+            qDebug() << "FORM Input: Probability level not json array";
         }
-
-
-    /*
-        QJsonValue respLevelVal = jsonObject["responseLevel"];
-        if (respLevelVal.isArray()) {
-
-            QStringList levelList;
-            QJsonArray levels = respLevelVal.toArray();
-
-            for (int i=0; i<levels.count(); i++) {
-                QJsonValue value = levels.at(i);
-                double levelV = value.toDouble();
-                levelList << QString::number(levelV);
-            }
-            responseLevel->setText(levelList.join(" "));
-        } else {
-            qDebug() << "FORM Input: Response level not json array";
-        }
-*/
 
         return true;
     }

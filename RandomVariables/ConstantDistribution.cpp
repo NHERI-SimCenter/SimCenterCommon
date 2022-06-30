@@ -110,9 +110,10 @@ ConstantDistribution::inputFromJSON(QJsonObject &rvObject){
     return true;
 }
 
-void
+bool
 ConstantDistribution::copyFiles(QString fileDir) {
     //do nothing
+    return true;
 }
 
 QString 

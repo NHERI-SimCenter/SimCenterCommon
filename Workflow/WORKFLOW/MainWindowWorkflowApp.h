@@ -83,7 +83,7 @@ public:
  private:
     void setCurrentFile(const QString &fileName);
     bool saveFile(const QString &fileName);
-    int loadFile(const QString &fileName);
+    void loadFile(QString &fileName);
 
     void createActions();
 

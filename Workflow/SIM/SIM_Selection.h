@@ -40,56 +40,22 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterAppWidget.h>
-//#include "EDP.h"
-#include <QGroupBox>
-#include <QVector>
-#include <QVBoxLayout>
-#include <QComboBox>
-#include <QPushButton>
+#include <SimCenterAppSelection.h>
 
-class RandomVariablesContainer;
-
-class SIM_Selection : public SimCenterAppWidget
+class SIM_Selection : public SimCenterAppSelection
 {
     Q_OBJECT
 public:
-  explicit SIM_Selection(RandomVariablesContainer *, bool includeCentroid = false, QWidget *parent = 0);
-    ~SIM_Selection();
+  explicit SIM_Selection(bool includeCentroid = false,
+			 bool doMulti = true,
+			 QWidget *parent = 0);
+  ~SIM_Selection();
 
-    bool outputToJSON(QJsonObject &rvObject);
-    bool inputFromJSON(QJsonObject &rvObject);
-    bool outputAppDataToJSON(QJsonObject &rvObject);
-    bool inputAppDataFromJSON(QJsonObject &rvObject);
-    bool copyFiles(QString &destDir);
-
-signals:
-
-public slots:
-   void clear(void);
-   void bimSelectionChanged(const QString &arg1);
-
-signals:
-    void bimWidgetChanged(void);
- //  void uqMethodChanged(const QString &arg1);
-
-
+  SimCenterAppWidget *getClone();
+  
 private:
-    QVBoxLayout *layout;
-    QWidget     *methodSpecific;
-    //    QComboBox   *samplingMethod;
-    //    QLineEdit   *numSamples;
-    //    QLineEdit   *randomSeed;
-    //    QPushButton *run;
-
-    QComboBox   *bimSelection;
-
-    //    SimCenterWidget *uqType;
-    SimCenterAppWidget *bimInput;
-    bool selectionChangeOK;
     bool includeCentroid;
-    RandomVariablesContainer *theRandomVariablesContainer;
-
+  
 };
 
 #endif // 	SIM_SELECTION_H

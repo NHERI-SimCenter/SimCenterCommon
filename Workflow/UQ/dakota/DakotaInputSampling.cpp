@@ -60,12 +60,13 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QStackedWidget>
 #include <MonteCarloInputWidget.h>
 #include <LatinHypercubeInputWidget.h>
-#include <ImportanceSamplingInputWidget.h>
+//#include <ImportanceSamplingInputWidget.h>
 #include <GaussianProcessInputWidget.h>
 #include <PCEInputWidget.h>
+#include <MultiFidelityMonteCarlo.h>
 
-DakotaInputSampling::DakotaInputSampling(RandomVariablesContainer *theRVs, QWidget *parent)
-: UQ_Engine(parent), uqSpecific(0), theRandomVariables(theRVs)
+DakotaInputSampling::DakotaInputSampling(QWidget *parent)
+: UQ_Engine(parent),uqSpecific(0)
 {
     layout = new QVBoxLayout();
     mLayout = new QVBoxLayout();
@@ -78,13 +79,14 @@ DakotaInputSampling::DakotaInputSampling(RandomVariablesContainer *theRVs, QWidg
     QLabel *label1 = new QLabel();
     label1->setText(QString("Method"));
     samplingMethod = new QComboBox();
-    //samplingMethod->setMaximumWidth(800);
-    //samplingMethod->setMinimumWidth(800);
+    samplingMethod->setMaximumWidth(200);
+    samplingMethod->setMinimumWidth(200);
     samplingMethod->addItem(tr("LHS"));
     samplingMethod->addItem(tr("Monte Carlo"));
-    samplingMethod->addItem(tr("Importance Sampling"));
+    //samplingMethod->addItem(tr("Importance Sampling"));
     samplingMethod->addItem(tr("Gaussian Process Regression"));
     samplingMethod->addItem(tr("Polynomial Chaos Expansion"));
+    // samplingMethod->addItem(tr("Multi Fidelity Monte Carlo"));
 
     /*
     samplingMethod->addItem(tr("Multilevel Monte Carlo"));
@@ -96,8 +98,8 @@ DakotaInputSampling::DakotaInputSampling(RandomVariablesContainer *theRVs, QWidg
     */
 
     methodLayout->addWidget(label1);
-    methodLayout->addWidget(samplingMethod,2);
-    methodLayout->addStretch(4);
+    methodLayout->addWidget(samplingMethod);
+    methodLayout->addStretch(1);
 
     mLayout->addLayout(methodLayout);
 
@@ -113,14 +115,17 @@ DakotaInputSampling::DakotaInputSampling(RandomVariablesContainer *theRVs, QWidg
     theMC = new MonteCarloInputWidget();
     theStackedWidget->addWidget(theMC);
 
-    theIS = new ImportanceSamplingInputWidget();
-    theStackedWidget->addWidget(theIS);
+    //theIS = new ImportanceSamplingInputWidget();
+    //theStackedWidget->addWidget(theIS);
 
     theGP = new GaussianProcessInputWidget();
     theStackedWidget->addWidget(theGP);
 
     thePCE = new PCEInputWidget();
     theStackedWidget->addWidget(thePCE);
+
+    theMFMC = new MultiFidelityMonteCarlo();
+    theStackedWidget->addWidget(theMFMC);
 
     // set current widget to index 0
     theCurrentMethod = theLHS;
@@ -131,6 +136,7 @@ DakotaInputSampling::DakotaInputSampling(RandomVariablesContainer *theRVs, QWidg
 
     this->setLayout(layout);
 
+    connect(theMFMC, SIGNAL(onNumModelsChanged(int)), this, SLOT(numModelsChanged(int)));
     connect(samplingMethod, SIGNAL(currentTextChanged(QString)), this, SLOT(onTextChanged(QString)));
 
 }
@@ -145,17 +151,21 @@ void DakotaInputSampling::onTextChanged(const QString &text)
     theStackedWidget->setCurrentIndex(1);
     theCurrentMethod = theMC;  
   }
-  else if (text=="Importance Sampling") {
-    theStackedWidget->setCurrentIndex(2);
-    theCurrentMethod = theIS;
-  }
+  //else if (text=="Importance Sampling") {
+  //  theStackedWidget->setCurrentIndex(2);
+  //  theCurrentMethod = theIS;
+  //}
   else if (text=="Gaussian Process Regression") {
-    theStackedWidget->setCurrentIndex(3);
+    theStackedWidget->setCurrentIndex(2);
     theCurrentMethod = theGP;
   }
   else if (text=="Polynomial Chaos Expansion") {
-    theStackedWidget->setCurrentIndex(4);
+    theStackedWidget->setCurrentIndex(3);
     theCurrentMethod = thePCE;
+  }
+  else if (text=="Multi Fidelity Monte Carlo") {
+    theStackedWidget->setCurrentIndex(4);
+    theCurrentMethod = theMFMC;
   }
 }
 
@@ -174,6 +184,9 @@ void DakotaInputSampling::clear(void)
 
 }
 
+void DakotaInputSampling::numModelsChanged(int numModels) {
+    emit onNumModelsChanged(numModels);
+}
 
 bool
 DakotaInputSampling::outputToJSON(QJsonObject &jsonObject)
@@ -223,7 +236,6 @@ DakotaInputSampling::inputFromJSON(QJsonObject &jsonObject)
 bool
 DakotaInputSampling::outputAppDataToJSON(QJsonObject &jsonObject)
 {
-    qDebug() << ":HI DakotaINputSampling";
     bool result = true;
 
     jsonObject["Application"] = "Dakota-UQ";
@@ -241,10 +253,8 @@ DakotaInputSampling::inputAppDataFromJSON(QJsonObject &jsonObject)
 {
     bool result = false;
     this->clear();
-    
     //
-    // get samplingMethodData, if not present it's an error
-    //
+    // get sampleingMethodData, if not present it's an error
 
     if (jsonObject.contains("ApplicationData")) {
         QJsonObject uq = jsonObject["ApplicationData"].toObject();
@@ -254,7 +264,7 @@ DakotaInputSampling::inputAppDataFromJSON(QJsonObject &jsonObject)
           int index = samplingMethod->findText(method);
 
           if (index == -1) {
-              this->errorMessage(QString("ERROR: Unknown Method") + method);
+              errorMessage(QString("ERROR: Unknown Method ") + method);
               return false;
           }
           samplingMethod->setCurrentIndex(index);
@@ -262,7 +272,7 @@ DakotaInputSampling::inputAppDataFromJSON(QJsonObject &jsonObject)
         }
 
     } else {
-        this->errorMessage("ERROR: Sampling Input Widget - no \"samplingMethodData\" input");
+        errorMessage("ERROR: Sampling Input Widget - no \"samplingMethodData\" input");
         return false;
     }
 
@@ -270,26 +280,21 @@ DakotaInputSampling::inputAppDataFromJSON(QJsonObject &jsonObject)
 }
 
 
-
-int DakotaInputSampling::processResults(QString &filenameResults, QString &filenameTab) {
-
-    Q_UNUSED(filenameResults);
-    Q_UNUSED(filenameTab);
-    return 0;
-}
-
 UQ_Results *
 DakotaInputSampling::getResults(void) {
-    return new DakotaResultsSampling(theRandomVariables);
+  return new DakotaResultsSampling(RandomVariablesContainer::getInstance());
 }
 
-RandomVariablesContainer *
-DakotaInputSampling::getParameters(void) {
+void
+DakotaInputSampling::setRV_Defaults(void) {
+  RandomVariablesContainer *theRVs = RandomVariablesContainer::getInstance();
+  QString classType = "Uncertain";
+  QString engineType = "Dakota";
+  
+  theRVs->setDefaults(engineType, classType, Normal);
+}
 
-  if (theRandomVariables == NULL) {
-    QString classType("Uncertain");
-    theRandomVariables =  new RandomVariablesContainer(classType);
-  } 
-
-  return theRandomVariables;
+QString
+DakotaInputSampling::getMethodName(void){
+  return QString("sampling");
 }

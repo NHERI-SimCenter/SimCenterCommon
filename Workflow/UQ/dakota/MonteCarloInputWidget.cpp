@@ -44,13 +44,13 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 
 MonteCarloInputWidget::MonteCarloInputWidget(QWidget *parent) 
-: UQ_MethodInputWidget(parent)
+: UQ_Method(parent)
 {
     auto layout = new QGridLayout();
 
     // create layout label and entry for # samples
     numSamples = new QLineEdit();
-    numSamples->setText(tr("20"));
+    numSamples->setText(tr("500"));
     numSamples->setValidator(new QIntValidator);
     numSamples->setToolTip("Specify the number of samples");
 
@@ -82,6 +82,7 @@ bool
 MonteCarloInputWidget::outputToJSON(QJsonObject &jsonObj){
 
     bool result = true;
+
     jsonObj["samples"]=numSamples->text().toInt();
     jsonObj["seed"]=randomSeed->text().toDouble();
     return result;    

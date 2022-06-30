@@ -43,6 +43,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QtCharts/QChart>
 #include <QMessageBox>
 #include <QPushButton>
+//#include <ResultsDataChart.h>
 
 
 using namespace QtCharts;
@@ -52,6 +53,7 @@ class QTabWidget;
 class MyTableWidget;
 class MainWindow;
 class RandomVariablesContainer;
+class ResultsDataChart;
 
 //class QChart;
 
@@ -65,30 +67,26 @@ public:
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
 
-    int processResults(QString &filenameResults, QString &filenameTab);
-    QWidget *createResultEDPWidget(QString &name, double mean, double stdDev, double skewness, double kurtosis);
+    int processResults(QString &dirName);  
+    QWidget *createResultEDPWidget(QString &name, QVector<double> statistics);
 
 signals:
 
 public slots:
    void clear(void);
-   void onSpreadsheetCellClicked(int, int);
-   void onSaveSpreadsheetClicked();
 
    // modified by padhye 08/25/2018
 
 private:
+    int processResults(QString &filenameResults, QString &filenameTab);
+  
    RandomVariablesContainer *theRVs;
    QTabWidget *tabWidget;
 
-   MyTableWidget *spreadsheet;  // MyTableWidget inherits the QTableWidget
-   QChart *chart;
    QPushButton* save_spreadheet; // save the data from spreadsheet 
    QLabel *label;
    QLabel *best_fit_instructions;
 
-   int col1, col2;
-   bool mLeft;
    QStringList theHeadings;
 
    QVector<QString>theNames;
@@ -96,6 +94,10 @@ private:
    QVector<double>theStdDevs;
    QVector<double>theKurtosis;
    QVector<double>theSkewness;
+   ResultsDataChart *theDataTable;
+
+   bool isSurrogate = false;
+
 };
 
 #endif // DAKOTA_RESULTS_SAMPLING_H

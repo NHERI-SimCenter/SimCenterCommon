@@ -10,6 +10,9 @@ const QString CurrentDirPrefix = "{Current_Dir}/";
 
 QString ResolveAbsolutePaths(QString string, QDir baseDir)
 {
+  // remove any spaces from begin or end of string
+  string = string.trimmed();
+  
     if(string.startsWith(CurrentDirPrefix))
     {
         auto filepath = baseDir.absoluteFilePath(string.remove(CurrentDirPrefix));
@@ -56,6 +59,9 @@ void ResolveAbsolutePaths(QJsonObject& jsonObject, QDir baseDir)
 
 QString ResolveRelativePaths(QString string, QDir baseDir)
 {
+    // remove any spaces from begin or end of string
+    string = string.trimmed();
+    
     QFileInfo fileInfo (string);
     if(fileInfo.exists() && fileInfo.isAbsolute())
     {

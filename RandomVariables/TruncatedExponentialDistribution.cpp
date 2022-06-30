@@ -68,12 +68,8 @@ TruncatedExponentialDistribution::TruncatedExponentialDistribution(QString inpTy
     if (inpty==QString("Parameters"))
     {
         lambda = this->createTextEntry(tr("lambda"), mainLayout, 0);
-        //lambda->setValidator(new QDoubleValidator);
-        lambda->setValidator(new QDoubleValidator(0.0,1.e10,1000));
-        a  = this->createTextEntry(tr("Min."), mainLayout, 1);
-        a->setValidator(new QDoubleValidator(0.0,1.e10,1000));
-        b  = this->createTextEntry(tr("Max."), mainLayout, 2);
-        b->setValidator(new QDoubleValidator(0.0,1.e10,1000));
+         a  = this->createTextEntry(tr("Min."), mainLayout, 1);
+         b  = this->createTextEntry(tr("Max."), mainLayout, 2);
         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,3);
 
@@ -81,20 +77,15 @@ TruncatedExponentialDistribution::TruncatedExponentialDistribution(QString inpTy
     } else if (inpty==QString("Moments")) {
 
         mean = this->createTextEntry(tr("Mean"), mainLayout, 0);
-        mean->setValidator(new QDoubleValidator(0.0,1.e10,1000));
         a  = this->createTextEntry(tr("Min."), mainLayout, 1);
-        a->setValidator(new QDoubleValidator(0.0,1.e10,1000));
-        b  = this->createTextEntry(tr("Max."), mainLayout, 2);
-        b->setValidator(new QDoubleValidator(0.0,1.e10,1000));
+         b  = this->createTextEntry(tr("Max."), mainLayout, 2);
         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,3);
 
     } else if (inpty==QString("Dataset")) {
 
         a  = this->createTextEntry(tr("Min."), mainLayout, 0);
-        a->setValidator(new QDoubleValidator(0.0,1.e10,1000));
         b  = this->createTextEntry(tr("Max."), mainLayout, 1);
-        b->setValidator(new QDoubleValidator(0.0,1.e10,1000));
         dataDir = this->createTextEntry(tr("Data File"), mainLayout, 2);
         dataDir->setMinimumWidth(200);
         dataDir->setMinimumWidth(200);
@@ -272,10 +263,13 @@ TruncatedExponentialDistribution::inputFromJSON(QJsonObject &rvObject){
     return true;
 }
 
-void
+bool
 TruncatedExponentialDistribution::copyFiles(QString fileDir) {
     if (inpty==QString("Dataset")) {
         QFile::copy(dataDir->text(), fileDir);
+        return QFile::copy(dataDir->text(), fileDir);
+    } else {
+        return true;
     }
 }
 
@@ -372,7 +366,7 @@ TruncatedExponentialDistribution::updateDistributionPlot() {
             }
         }
         thePlot->clear();
-        thePlot->addLine(x,y);
+        thePlot->drawPDF(x,y);
     } else {
         thePlot->clear();
     }

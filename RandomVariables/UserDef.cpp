@@ -42,6 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLineEdit>
 #include <QPushButton>
 #include <QDebug>
+#include <QFileDialog>
 
 
 UserDef::UserDef(QWidget *parent) :RandomVariableDistribution(parent)
@@ -52,17 +53,22 @@ UserDef::UserDef(QWidget *parent) :RandomVariableDistribution(parent)
     QGridLayout *mainLayout = new QGridLayout(this);
 
     // set some defaults, and set layout for widget to be the horizontal layout
-    mainLayout->setSpacing(10);
+    mainLayout->setHorizontalSpacing(10);
+    mainLayout->setVerticalSpacing(0);
     mainLayout->setMargin(0);
+    scriptDir = this->createTextEntry(tr("Script File"), mainLayout,0);
+    scriptDir->setMinimumWidth(200);
+    scriptDir->setMaximumWidth(200);
+    QPushButton *chooseFileButton = new QPushButton("Choose");
+    mainLayout->addWidget(chooseFileButton,1,1);
+    mainLayout->setColumnStretch(2,1);
 
-    QPushButton *showPlotButton = new QPushButton("Show PDF");
-
-    //alphaparam = this->createTextEntry(tr("Alpha"), mainLayout, 0);   // column 0
-    //betaparam = this->createTextEntry(tr("Beta"), mainLayout, 1);     // column 1
-
-    mainLayout->addWidget(showPlotButton,1,2);
-
-    mainLayout->setColumnStretch(3,1);   // create a space.  Index is numper of columns == one past the last text/data column
+    connect(chooseFileButton, &QPushButton::clicked, this, [=](){
+              QString fileName = QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*)");
+              if (!fileName.isEmpty()) {
+                  scriptDir->setText(fileName);
+              }
+          });
 
 }
 UserDef::~UserDef()
@@ -73,47 +79,34 @@ UserDef::~UserDef()
 bool
 UserDef::outputToJSON(QJsonObject &rvObject){
 
-    Q_UNUSED(rvObject);
-    // check for error condition, an entry had no value
-   // if (alphaparam->text().isEmpty() || betaparam->text().isEmpty()) {
-     //   emit sendErrorMessage("ERROR: UserDef - data has not been set");
-     //   return false;
-   // }
-   // rvObject["alphaparam"]=alphaparam->text().toDouble();
-   // rvObject["betaparam"]=betaparam->text().toDouble();
+    if (scriptDir->text().isEmpty()) {
+        this->errorMessage("ERROR:UserDefinedDistribution - script path has not been set");
+        return false;
+    }
+    rvObject["scriptDir"]=QString(scriptDir->text());
+
     return true;
+
 }
 
 bool
 UserDef::inputFromJSON(QJsonObject &rvObject){
 
-    Q_UNUSED(rvObject);
-    //
-    // for all entries, make sure i exists and if it does get it, otherwise return error
-    //
 
-    /*if (rvObject.contains("alphaparam")) {
-        QJsonValue theAlphaValue = rvObject["alphaparam"];
-        alphaparam->setText(QString::number(theAlphaValue.toDouble()));
+    if (rvObject.contains("scriptDir")) {
+        QString theDataDir = rvObject["scriptDir"].toString();
+        scriptDir->setText(theDataDir);
     } else {
-        emit sendErrorMessage("ERROR: GumbelDistribution - no \"Alpha\" entry");
+        this->errorMessage("ERROR: UserDefinedDistribution - no \"scriptDir\" entry");
         return false;
     }
-
-    if (rvObject.contains("betaparam")) {
-        QJsonValue theBetaValue = rvObject["betaparam"];
-        betaparam->setText(QString::number(theBetaValue.toDouble()));
-    } else {
-        emit sendErrorMessage("ERROR: GumbelDistribution - no \"Beta\" entry");
-        return false;
-    }*/
 
     return true;
 }
 
-void
+bool
 UserDef::copyFiles(QString fileDir) {
-    //do nothing
+        return QFile::copy(scriptDir->text(), fileDir);
 }
 
 QString

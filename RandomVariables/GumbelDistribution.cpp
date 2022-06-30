@@ -65,18 +65,14 @@ GumbelDistribution::GumbelDistribution(QString inpType, QWidget *parent) :Random
     if (inpty==QString("Parameters"))
     {
         alpha = this->createTextEntry(tr("alpha (1/an)"), mainLayout,0);
-        alpha->setValidator(new QDoubleValidator);
-        bn  = this->createTextEntry(tr("beta (bn)"), mainLayout,1);
-        bn->setValidator(new QDoubleValidator);
+         bn  = this->createTextEntry(tr("beta (bn)"), mainLayout,1);
         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
     } else if (inpty==QString("Moments")) {
 
         mean = this->createTextEntry(tr("Mean"), mainLayout, 0);
-        mean->setValidator(new QDoubleValidator);        
         standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout, 1);
-        standardDev->setValidator(new QDoubleValidator);
         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
@@ -211,10 +207,13 @@ GumbelDistribution::inputFromJSON(QJsonObject &rvObject){
     return true;
 }
 
-void
+bool
 GumbelDistribution::copyFiles(QString fileDir) {
     if (inpty==QString("Dataset")) {
-        QFile::copy(dataDir->text(), fileDir);
+        return QFile::copy(dataDir->text(), fileDir);
+
+    } else {
+        return true;
     }
 }
 
@@ -251,6 +250,8 @@ GumbelDistribution::updateDistributionPlot() {
             y[i] = a*zi*exp(-zi);
         }
         thePlot->clear();
-        thePlot->addLine(x,y);
+        thePlot->drawPDF(x,y);
+    } else {
+        thePlot->clear();
     }
 }

@@ -1,5 +1,5 @@
-#ifndef FEM_SELECTION_H
-#define FEM_SELECTION_H
+#ifndef DAKOTA_RESULTS_CALIBRATION_H
+#define DAKOTA_RESULTS_CALIBRATION_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -39,45 +39,58 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterAppWidget.h>
+#include <UQ_Results.h>
+#include <QtCharts/QChart>
 
-class QComboBox;
-class QStackedWidget;
-class RandomVariablesContainer;
-class UQ_Results;
-class UQ_Engine;
+using namespace QtCharts;
+
+class QTextEdit;
+class QTabWidget;
+class MyTableWidget;
+class ResultsDataChart;
 class RandomVariablesContainer;
 
-class FEM_Selection : public  SimCenterAppWidget
+//class QChart;
+
+class DakotaResultsCalibration : public UQ_Results
 {
-  Q_OBJECT
+    Q_OBJECT
+public:
+    explicit DakotaResultsCalibration(RandomVariablesContainer * theRVs, QWidget *parent = 0);
+    ~DakotaResultsCalibration();
 
-    public:
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
 
-  explicit FEM_Selection(RandomVariablesContainer *, QWidget *parent = 0);
-  ~FEM_Selection();
+    int processResults(QString &dirName);  
+    QWidget *createResultParameterWidget(QString &name, double value);
 
-  bool outputAppDataToJSON(QJsonObject &jsonObject);
-  bool inputAppDataFromJSON(QJsonObject &jsonObject);
-  bool outputToJSON(QJsonObject &rvObject);
-  bool inputFromJSON(QJsonObject &rvObject);
-  bool copyFiles(QString &destName);
-  
-  void clear(void);
-  
- signals:
-  void onSelectionChanged(void);
+signals:
 
- public slots:
-  void selectionChanged(const QString &arg1);
-  void selectionChanged(void);
-  
+public slots:
+   void clear(void);
+
 private:
-   QComboBox   *theSelectionBox;
-   QStackedWidget *theStackedWidget;
+   int processResults(QString &filenameResults, QString &filenameTab);
+   RandomVariablesContainer *theRVs;
 
-   SimCenterAppWidget *theCurrentSelection;
-   SimCenterAppWidget *theOpenSeesApplication;
+   QTabWidget *tabWidget;
+   QTextEdit  *dakotaText;
+   MyTableWidget *spreadsheet;
+   QChart *chart;
+   ResultsDataChart* theDataTable;
+
+   int col1, col2;
+   bool mLeft;
+   QStringList theHeadings;
+
+   QVector<QString>theNames;
+   QVector<double>theBestValues;
+
+   QWidget *summary;
+   QVBoxLayout *summaryLayout;
+
+   bool isSurrogate;
 };
 
-#endif // FEM_SELECTION_H
+#endif // DAKOTA_RESULTS_CALIBRATION_H
