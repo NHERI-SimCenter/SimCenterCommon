@@ -98,9 +98,9 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
 
 
     //
-    // create remove button (not used any more - sy)
+    // create remove button - sy
     //
-    QPushButton *removeButton = new QPushButton("×");
+    removeButton = new QPushButton("×");
     const QSize BUTTON_SIZE = QSize(15, 15);
     removeButton->setFixedSize(BUTTON_SIZE);
     removeButton->setStyleSheet("QPushButton { font-size:15px;  font-weight: bold;padding: 0px 0px 2px 0px; }");
@@ -254,18 +254,21 @@ RandomVariable::RandomVariable(const QString &type,
 
     // set new
     theDistribution = &theD;
-    mainLayout->addWidget(theDistribution,0,4,2,1);
-    // uqEngineChanged(uqengin,type);
-    // connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
 
     if (variableClass == QString("NA")) {
         distributionLabel->setVisible(false);
         distributionComboBox->setVisible(false);
-        auto idx = mainLayout->indexOf(theDistribution);
-        if (idx>=0){
-            mainLayout->removeItem(mainLayout->itemAt(idx));
-        }
+        //auto idx = mainLayout->indexOf(theDistribution);
+        //if (idx>=0){
+        //    mainLayout->removeItem(mainLayout->itemAt(idx));
+        //    connect(removeButton, SIGNAL(clicked()), this, SLOT(xButtonClicked()) );
+        //}
+
         // show only name
+    } else {
+
+        // set new
+        mainLayout->addWidget(theDistribution,0,4,2,1);
     }
 
 }
@@ -509,7 +512,12 @@ void RandomVariable::uqEngineChanged(QString newUqEngineName, QString newClass) 
 
         auto idx = mainLayout->indexOf(theDistribution);
         if (idx>=0){
+           RandomVariableDistribution *theD = theDistribution;
+            //mainLayout->removeWidget(theDistribution);
             mainLayout->removeItem(mainLayout->itemAt(idx));
+            delete theDistribution;
+            theDistribution = NULL;
+            typeChanged("PAR"); // redefine RV
         }
         return;
 

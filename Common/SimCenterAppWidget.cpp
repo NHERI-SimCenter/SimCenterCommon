@@ -94,8 +94,12 @@ SimCenterAppWidget::copyPath(QString sourceDir, QString destinationDir, bool ove
   // don't copy self!
   if (sourceDir == destinationDir)
     return true;
-  
-    QDir sourceDirectory(sourceDir);
+
+  // don't copy entire quoFEM - sy
+  if (sourceDir==QString("."))
+    return true;
+
+   QDir sourceDirectory(sourceDir);
 
     if (! sourceDirectory.exists()) {
         qDebug() << "Source Directory: " << sourceDir << " Does not exist";

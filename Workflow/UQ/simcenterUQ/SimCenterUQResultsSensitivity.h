@@ -44,6 +44,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QMessageBox>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QStackedWidget>
 #include <ResultsDataChart.h>
 
 
@@ -95,9 +96,13 @@ private:
    ResultsDataChart* theDataTable;
 
    bool isSurrogate = false;
-
+   QString PCAncomp;
+   QString PCAvarRatio;
+   QString performedPCA;
    void gsaGraph(QScrollArea *&summaryLayout);
-
+   void getGroupBox(QGroupBox *&groupBox, int nq, bool useAnimation);
+   QStackedWidget *stacked; // for larger QoI
+   QString elaps;
 };
 
 #endif // SIMCENTERUQ_RESULTS_SENSITIVITY_H

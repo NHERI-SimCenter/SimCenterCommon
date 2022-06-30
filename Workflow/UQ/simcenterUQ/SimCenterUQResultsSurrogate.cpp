@@ -559,7 +559,11 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
         resultsLayout->addWidget(new QLabel(QString::number(nSim)), idSum++, 1);
     }
     resultsLayout->addWidget(new QLabel("Analysis time"), idSum, 0);
-    resultsLayout->addWidget(new QLabel(QString::number(nTime/60, 'f', 1).append(" min.")), idSum++, 1);
+    if (nTime<60) {
+        resultsLayout->addWidget(new QLabel(QString::number(nTime, 'f', 1).append(" sec.")), idSum++, 1);
+    } else {
+        resultsLayout->addWidget(new QLabel(QString::number(nTime/60, 'f', 1).append(" min.")), idSum++, 1);
+    }
     resultsLayout->addWidget(new QLabel(" "), idSum++, 0);
 
     // blank space

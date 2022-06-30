@@ -465,10 +465,13 @@ SurrogateDoEInputWidget::checkValidityData(QString name1){
     while (getline(inFile, line)) {
         int  numberOfColumns=1;
         bool previousWasSpace=false;
+        bool previousWasHeader=false;
+
         //for(int i=0; i<line.size(); i++){
         for(size_t i=0; i<line.size(); i++){
             if(line[i] == '%' || line[i] == '#'){ // ignore header
                 numberOfColumns = numberOfColumns_pre;
+                previousWasHeader=false;
                 break;
             }
             if(line[i] == ' ' || line[i] == '\t' || line[i] == ','){
@@ -479,7 +482,7 @@ SurrogateDoEInputWidget::checkValidityData(QString name1){
                 previousWasSpace = false;
             }
         }
-        if(previousWasSpace)// when there is a blank space at the end of each row
+        if(previousWasSpace && !previousWasHeader)// when there is a blank space at the end of each row
             numberOfColumns--;
 
         if (numberOfColumns_pre==-100)  // to pass header

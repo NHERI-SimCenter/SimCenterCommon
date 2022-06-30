@@ -55,6 +55,7 @@ public:
     virtual int processResults(QString &dirName);  
 
     void setResultWidget(UQ_Results *result);
+    void clear(void);
 
 signals:
 

@@ -98,9 +98,14 @@ DakotaResultsReliability::DakotaResultsReliability(RandomVariablesContainer *the
   chartView->chart()->legend()->hide();
 
   //layout = new QVBoxLayout();
-  spreadsheet = new MyTableWidget();  
+  spreadsheet = new MyTableWidget();
+  QScrollArea *sa = new QScrollArea;
+  sa->setWidgetResizable(true);
+  sa->setLineWidth(0);
+  sa->setFrameShape(QFrame::NoFrame);
+  sa->setWidget(spreadsheet);
   layout->addWidget(chartView);
-  layout->addWidget(spreadsheet);
+  layout->addWidget(sa);
 
   mLeft = true;
   col1 = 0;
@@ -239,10 +244,10 @@ int DakotaResultsReliability::processResults(QString &filenameResults, QString &
      
   *************************************************************************** */
 
-  numSpreadsheetCols = 2;
+  numSpreadsheetCols = 3;
   numSpreadsheetRows = 0;
 
-  spreadsheet->setColumnCount(2);
+  spreadsheet->setColumnCount(numSpreadsheetCols);
 
   const std::string needleStart = "Cumulative Distribution Function (CDF)";
   const std::string needleEnd = "---------------------------------------";
@@ -250,12 +255,13 @@ int DakotaResultsReliability::processResults(QString &filenameResults, QString &
 
   std::string haystack;
   bool isStartOrEnd = true;
-  int numCols = 2;
+  int numCols = 3;
 
   while(fileResults.eof() != true) {
 
       std::vector<double>col1;
       std::vector<double>col2;
+      std::vector<double>col3;
 
     if (isStartOrEnd) {
         // to remove all the text before and after the results we are interested in
@@ -281,8 +287,10 @@ int DakotaResultsReliability::processResults(QString &filenameResults, QString &
           iss >> subs;
       } while (iss);
 
-      theHeadings << QString("Pr(")+QString(subs.c_str()).remove(QChar(':'))+QString(")");
+      //theHeadings << QString("Pr(")+QString(subs.c_str()).remove(QChar(':'))+QString(")");
       theHeadings << QString(subs.c_str()).remove(QChar(':'));
+      theHeadings << QString("Probability level: "+QString(subs.c_str()).remove(QChar(':')));
+      theHeadings << QString("Reliability index: "+QString(subs.c_str()).remove(QChar(':')));
 
       // read next 2 lines of drivel
       std::getline(fileResults, haystack);
@@ -312,7 +320,8 @@ int DakotaResultsReliability::processResults(QString &filenameResults, QString &
                isStartOrEnd = false;
                spreadsheet->insertColumn(numCols);
                spreadsheet->insertColumn(numCols);
-               numCols = numCols+2;
+               spreadsheet->insertColumn(numCols);
+               numCols = numCols+3;
                break;
            } else {
                // read column entries
@@ -328,13 +337,15 @@ int DakotaResultsReliability::processResults(QString &filenameResults, QString &
                else if (data1.find("Warning:") != std::string::npos) {
                    errorMessage(QString(QString("Dakota ") + QString::fromStdString(haystack)));
                } else {
-                   if (numSpreadsheetCols == 2)
+                   if (numSpreadsheetCols == 3)
                        spreadsheet->insertRow(numRows);
-                   data.insert(std::stod(data2),std::stod(data1));
-                   QModelIndex index = spreadsheet->model()->index(numRows, numCols-2);
-                   spreadsheet->model()->setData(index, data2.c_str());
-                   QModelIndex index2 = spreadsheet->model()->index(numRows, numCols-1);
-                   spreadsheet->model()->setData(index2, data1.c_str());
+                   data.insert(std::stod(data1),std::stod(data2));
+                   QModelIndex index = spreadsheet->model()->index(numRows, numCols-3);
+                   spreadsheet->model()->setData(index, data1.c_str());
+                   QModelIndex index2 = spreadsheet->model()->index(numRows, numCols-2);
+                   spreadsheet->model()->setData(index2, data2.c_str());
+                   QModelIndex index3 = spreadsheet->model()->index(numRows, numCols-1);
+                   spreadsheet->model()->setData(index3, data3.c_str());
                    numRows++;
                }
                //}
@@ -347,6 +358,9 @@ int DakotaResultsReliability::processResults(QString &filenameResults, QString &
   spreadsheet->setHorizontalHeaderLabels(theHeadings);
   spreadsheet->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
+  for (int i=0; i<numSpreadsheetCols; i++) {
+      spreadsheet->horizontalHeaderItem(i)->setToolTip(theHeadings[i]);
+  }
   fileResults.close();
 
   this->onSpreadsheetCellClicked(0,1);
@@ -409,13 +423,16 @@ void DakotaResultsReliability::onSpreadsheetCellClicked(int row, int col)
     if (col == 0)
         return;
     else
-        col2 = col;
-        if (col2%2 == 1) {
-            col2 = col2;
-            col1 = col2-1;
+        //col2 = col;
+        if (col%3 == 1) {
+            col2 = col-1;
+            col1 = col;
+        } else if (col%3 == 2) {
+            col2 = col-2;
+            col1 = col;
         } else {
-            col2 = col2+1;
-            col1 = col2-1;
+            col2 = col;
+            col1 = col+1;
         }
     //
     // remove old
@@ -437,8 +454,10 @@ void DakotaResultsReliability::onSpreadsheetCellClicked(int row, int col)
     int rowCount = spreadsheet->rowCount();
 
 
-    double minX = 1e6;
-    double maxX = -1e6;
+    double minX=std::numeric_limits<double>::infinity();
+    double maxX=-std::numeric_limits<double>::infinity();
+    double minY=std::numeric_limits<double>::infinity();
+    double maxY=-std::numeric_limits<double>::infinity();
 
     if (rowCount>1)     {
         QLineSeries *series= new QLineSeries;
@@ -450,29 +469,36 @@ void DakotaResultsReliability::onSpreadsheetCellClicked(int row, int col)
             double value2 = itemY->text().toDouble();
             if (value1 > maxX) maxX = value1;
             if (value1 < minX) minX = value1;
-
+            if (value2 > maxY) maxY = value2;
+            if (value2 < minY) minY = value2;
             series->append(value1, value2);
         }
         chart->addSeries(series);
-        series->setName("CDF");
+       // series->setName("CDF");
 
 
         // if value is constant, adjust axes
+        double axisMargin;
         if (minX==maxX) {
-            double axisMargin=abs(minX)*0.1;
+            axisMargin=abs(maxX-minX)*0.1;
             minX=minX-axisMargin;
             maxX=maxX+axisMargin;
+        }
+        if (minY==maxY) {
+            axisMargin=abs(maxY-minY)*0.1;
+            minY=minY-axisMargin;
+            maxY=maxY+axisMargin;
         }
 
         QValueAxis *axisX = new QValueAxis();
         QValueAxis *axisY = new QValueAxis();
 
         axisX->setRange(minX, maxX);
-        axisY->setRange(0., 1.);
+        axisY->setRange(minY, maxY);
 
 
-        axisY->setTitleText("Probability Level");
         axisX->setTitleText(theHeadings.at(col2));
+        axisY->setTitleText(theHeadings.at(col1));
 
         axisY->setTickCount(5);
         axisX->setTickCount(NUM_DIVISIONS+1);
@@ -655,7 +681,7 @@ DakotaResultsReliability::inputFromJSON(QJsonObject &jsonObject)
         }
     }
     //spreadsheet->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    //connect(spreadsheet,SIGNAL(cellPressed(int,int)),this,SLOT(onSpreadsheetCellClicked(int,int)));
+    connect(spreadsheet,SIGNAL(cellPressed(int,int)),this,SLOT(onSpreadsheetCellClicked(int,int)));
 
     spreadsheet->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     this->onSpreadsheetCellClicked(0,1);
