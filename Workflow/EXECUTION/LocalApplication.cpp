@@ -475,6 +475,32 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     proc->start("bash", QStringList() << "-c" <<  command);
     proc->waitForStarted();
 
+    bool failed = false;
+    if(!proc->waitForFinished(-1))
+    {
+        qDebug() << "Failed to finish running the workflow!!! exit code returned: " << proc->exitCode();
+        qDebug() << proc->errorString();
+        emit sendStatusMessage("Failed to finish running the workflow!!!");
+        failed = true;
+    }
+
+
+    if(0 != proc->exitCode())
+    {
+        qDebug() << "Failed to run the workflow!!! exit code returned: " << proc->exitCode();
+        qDebug() << proc->errorString();
+        emit sendStatusMessage("Failed to run the workflow!!!");
+        failed = true;
+    }
+
+    if(failed)
+    {
+        qDebug().noquote() << proc->readAllStandardOutput();
+        qDebug().noquote() << proc->readAllStandardError();
+        emit runComplete();
+        return false;
+    }    
+    
 #endif
 
     return 0;
