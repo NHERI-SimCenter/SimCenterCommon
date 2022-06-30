@@ -98,9 +98,14 @@ DakotaResultsReliability::DakotaResultsReliability(RandomVariablesContainer *the
   chartView->chart()->legend()->hide();
 
   //layout = new QVBoxLayout();
-  spreadsheet = new MyTableWidget();  
+  spreadsheet = new MyTableWidget();
+  QScrollArea *sa = new QScrollArea;
+  sa->setWidgetResizable(true);
+  sa->setLineWidth(0);
+  sa->setFrameShape(QFrame::NoFrame);
+  sa->setWidget(spreadsheet);
   layout->addWidget(chartView);
-  layout->addWidget(spreadsheet);
+  layout->addWidget(sa);
 
   mLeft = true;
   col1 = 0;
@@ -353,6 +358,9 @@ int DakotaResultsReliability::processResults(QString &filenameResults, QString &
   spreadsheet->setHorizontalHeaderLabels(theHeadings);
   spreadsheet->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
+  for (int i=0; i<numSpreadsheetCols; i++) {
+      spreadsheet->horizontalHeaderItem(i)->setToolTip(theHeadings[i]);
+  }
   fileResults.close();
 
   this->onSpreadsheetCellClicked(0,1);

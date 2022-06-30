@@ -218,8 +218,8 @@ LocalReliabilityWidget::inputFromJSON(QJsonObject &jsonObject){
         QString localMethod=jsonObject["localMethod"].toString();
         if (localMethod == QString("Most Probable Point")) {
             localMethod=QString("Design Point (Most Probable Point)");
-        } else if (localMethod == QString("Mean Value (MVFOSM)")) {
-            localMethod=QString("Mean Value");
+        } else if (localMethod == QString("Mean Value")) {
+            localMethod=QString("Mean Value (MVFOSM)");
        }
        method->setCurrentIndex(method->findText(localMethod));
 
