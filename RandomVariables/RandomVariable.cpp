@@ -292,11 +292,11 @@ RandomVariable::xButtonClicked(void){
 
  bool
  RandomVariable::copyFiles(QString fileDir){
-     if (theDistribution==NULL) {
+    // if (theDistribution==NULL) {
          return theDistribution->copyFiles(fileDir + QDir::separator() + variableName->text() +".in");
-     } else {
-         return true;
-     }
+     //} else {
+     //    return true;
+     //}
  }
 
 
