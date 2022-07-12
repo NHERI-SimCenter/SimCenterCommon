@@ -108,33 +108,33 @@ NormalDistribution::~NormalDistribution()
     delete thePlot;
 }
 
-NormalDistribution::NormalDistribution(double initValue, QWidget *parent) :RandomVariableDistribution(parent)
+NormalDistribution::NormalDistribution(double initValue, QWidget *parent) :NormalDistribution("Parameters", parent)
 {
-    //
-    // create the main layout and add the input entries
-    //
-    QGridLayout *mainLayout = new QGridLayout(this);
+//    //
+//    // create the main layout and add the input entries
+//    //
+//    QGridLayout *mainLayout = new QGridLayout(this);
 
-    // set some defaults, and set layout for widget to be the horizontal layout
-    mainLayout->setHorizontalSpacing(10);
-    mainLayout->setVerticalSpacing(0);
-    mainLayout->setMargin(0);
+//    // set some defaults, and set layout for widget to be the horizontal layout
+//    mainLayout->setHorizontalSpacing(10);
+//    mainLayout->setVerticalSpacing(0);
+//    mainLayout->setMargin(0);
 
-    QPushButton *showPlotButton = new QPushButton("Show PDF");
+//    QPushButton *showPlotButton = new QPushButton("Show PDF");
 
-    //Parameters
-    this->inpty = "Parameters";
-    mean = this->createTextEntry(tr("Mean"), mainLayout,0);
-    standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout,1);
+//    //Parameters
+//    this->inpty = "Parameters";
+//    mean = this->createTextEntry(tr("Mean"), mainLayout,0);
+//    standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout,1);
 
-    mainLayout->addWidget(showPlotButton,1,2);
-    mainLayout->setColumnStretch(3,1);
+//    mainLayout->addWidget(showPlotButton,1,2);
+//    mainLayout->setColumnStretch(3,1);
 
-    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
+//    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
 
-    connect(mean,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
-    connect(standardDev,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
-    connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
+//    connect(mean,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+//    connect(standardDev,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+//    connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
 
 
     // set initial or Disabled

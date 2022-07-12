@@ -388,7 +388,19 @@ RandomVariable::inputFromJSON(QJsonObject &rvObject){
     }
     if (distributionType==QString("")) {
         delete theDistribution;
+        theDistribution = 0;
     }
+
+
+//    if (rvObject.contains("variableClass")) {
+//        QString oldVariableClass = variableClass;
+//        variableClass = rvObject["variableClass"].toString(0);
+//        uqEngineChanged( uqEngineName,  oldVariableClass);
+//    } else {
+//        return false;
+//    }
+
+
 
     return true;
 }
@@ -412,7 +424,7 @@ void RandomVariable::typeChanged(const QString &arg1) {
 // distribution ..
 void RandomVariable::distributionChanged(const QString &arg1)
 {
-    if (theDistribution != 0) {
+    if ((theDistribution != 0)) {
         delete theDistribution;
         theDistribution = 0;
     }
@@ -494,6 +506,7 @@ void RandomVariable::uqEngineChanged(QString newUqEngineName, QString newClass) 
     QString currentType = distributionComboBox->currentText();
 
     if ((newClass == QString("NA")) && (newClass != variableClass)) {
+        // NA is for GP (data) - sy
         typeLabel->setVisible(false);
         typeComboBox->setVisible(false);
         distributionLabel->setVisible(false);
@@ -526,12 +539,13 @@ void RandomVariable::uqEngineChanged(QString newUqEngineName, QString newClass) 
         distributionComboBox->setVisible(true);
 
         auto idx = mainLayout->indexOf(theDistribution);
-        if (idx<0){
+        if (idx>0){
             mainLayout->addWidget(theDistribution,0,4,2,1);
         }
     }
 
     if ((newClass == QString("Uniform")) && (newClass != variableClass)) {
+        // Uniform only is for GP (Only bounds matters) - sy
         typeLabel->setVisible(false);
         typeComboBox->setVisible(false);
         if (typeComboBox->currentText()!="Parameters"){
@@ -556,6 +570,7 @@ void RandomVariable::uqEngineChanged(QString newUqEngineName, QString newClass) 
     }
 
     if ((newClass == QString("Design")) && (newClass != variableClass)) {
+        // Design only is for Deterministic Optimization - sy
             typeLabel->setVisible(false);
             typeComboBox->setVisible(false);
 
