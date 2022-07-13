@@ -128,7 +128,6 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     );
 
 #ifdef USE_SIMCENTER_PYTHON
-
     customPythonCheckBox->setChecked(false);
     python->setEnabled(false);
     pythonButton->setEnabled(false);
@@ -138,7 +137,8 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
         python->setEnabled(checked);
         pythonButton->setEnabled(checked);
         pythonButton->setFlat(!checked);
-        if (checked == false) python->setText(this->getDefaultPython());
+        if (checked == false)
+	  python->setText(this->getDefaultPython());
     });
 #endif    
 
@@ -513,8 +513,8 @@ SimCenterPreferences::savePreferences(bool) {
     settingsApp.setValue("pythonExePath", python->text());
 #else
     settingsCommon.setValue("pythonExePath", python->text());
+    qDebug() << "reset: pythonExePath: " << python->text();
 #endif
-
 
     settingsApp.setValue("version", currentVersion);
     settingsApp.setValue("appDir", appDir->text());
@@ -634,7 +634,6 @@ SimCenterPreferences::loadPreferences() {
     // common setting first
     //
 
-
 #ifdef USE_SIMCENTER_PYTHON    
     auto customPython = settingsApplication.value("customPython", false);
     if (customPython.isValid() && customPython.toBool() == true) {
@@ -653,7 +652,7 @@ SimCenterPreferences::loadPreferences() {
         python->setText(pythonApp);
     }
 #else
-    QVariant  pythonPathVariant = settingsCommon.value("pythonExePath");    
+    QVariant  pythonPathVariant = settingsApplication.value("pythonExePath");    
     if (!pythonPathVariant.isValid()) {
         QString pythonPath=this->getPython();
         settingsCommon.setValue("pythonExePath", pythonPath);
@@ -662,7 +661,7 @@ SimCenterPreferences::loadPreferences() {
         python->setText(pythonPathVariant.toString());
     }
 #endif
-
+    
     //
     // now app specific settings
     //
@@ -1129,25 +1128,28 @@ SimCenterPreferences::getDefaultPython(void) {
     if(pythonPath.isEmpty())
         pythonPath = QStandardPaths::findExecutable("python.exe");
 #else
-    QString pythonPath;// = QStandardPaths::findExecutable("python3");
-    // this is where python.org installer puts it
-    QFileInfo installedPython38("/Library/Frameworks/Python.framework/Versions/3.8/bin/python3");
-    QFileInfo installedPython37("/Library/Frameworks/Python.framework/Versions/3.7/bin/python3");
-    if (installedPython38.exists()) {
-        pythonPath = installedPython38.filePath();
-    } else if (installedPython37.exists()) {
-        pythonPath = installedPython37.filePath();
-    } else {
-        // maybe user has a local installed copy .. look in standard path
-        QFileInfo localPython3("/usr/local/bin/python3");
-        if (localPython3.exists()) {
-            pythonPath = localPython3.filePath();
-        } else {
-            // assume user has it correct in shell startup script
-            pythonPath = QStandardPaths::findExecutable("python3");
-        }
-    }
-#endif
+    
+    QString pythonPath; //  = QStandardPaths::findExecutable("python3");
+    //    QFileInfo pythonPathFileInfo(pythonPath);
 
+    //if (!pythonPathFileInfo.exists()) {
+      
+    // this is where python.org installer puts it .. documented installer
+    QFileInfo installedPython310("/Library/Frameworks/Python.framework/Versions/3.10/bin/python3");
+    QFileInfo installedPython38("/Library/Frameworks/Python.framework/Versions/3.8/bin/python3");
+    
+    if (installedPython38.exists()) {
+      pythonPath = installedPython38.filePath();
+    } else if (installedPython310.exists()) {
+      pythonPath = installedPython310.filePath();	
+    } else {
+      pythonPath = QStandardPaths::findExecutable("python3");
+    }
+    //}
+    
+#endif
+    
+    qDebug() << "getDefault::pythonPath: " << pythonPath;
+    
     return pythonPath;
 }
