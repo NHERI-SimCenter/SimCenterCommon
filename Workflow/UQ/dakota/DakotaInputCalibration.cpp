@@ -267,8 +267,7 @@ DakotaInputCalibration::setRV_Defaults(void) {
   RandomVariablesContainer *theRVs = RandomVariablesContainer::getInstance();
   QString classType("Design");  
   QString engineType("Dakota");
-
-  theRVs->setDefaults(engineType, classType, Normal);  
+  theRVs->setDefaults(engineType, classType, ContinuousDesign);
 }
 
 QString
