@@ -57,15 +57,23 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QCheckBox>
 
 class QDialog;
+enum  RV_Type {Normal, Constant, Uniform};
 
 class RandomVariablesContainer : public SimCenterWidget
 {
     Q_OBJECT
-public:
+
+
+private:
+    static RandomVariablesContainer *theInstance;  
+  
     explicit RandomVariablesContainer(QWidget *parent = 0);
     explicit RandomVariablesContainer(QString &randomVariableClass, QString uqengin="Dakota", QWidget *parent = 0);
-
     ~RandomVariablesContainer();
+  
+public:
+  
+    static RandomVariablesContainer *getInstance();
 
     void addRandomVariable(RandomVariable *theRV);
     bool inputFromJSON(QJsonObject &rvObject);
@@ -88,15 +96,24 @@ public:
     int getNumRandomVariables(void);
     QVector<RandomVariable *> getRVdists(void);
     QTableWidget * getRVcorr();
-    void copyRVs(RandomVariablesContainer *oldRVcontainers);
-    void copyFiles(QString fileName);
+    //void copyRVs(RandomVariablesContainer *oldRVcontainers);
+    bool copyFiles(QString fileName);
+    void setDefaults (QString &theUQ_Engine,
+		      QString &theVariableClass,
+		      RV_Type Normal);
+
+    QString getRVStringDatasetDiscrete(void);
+    QString getAllRVString(void);
+
 public slots:
    void errorMessage(QString message);
    void addRandomVariable(void);
    void variableNameChanged(const QString &newValue);
    void removeRandomVariable(void);
+   void removeThisRandomVariable(RandomVariable *);
    void addCorrelationMatrix(void); // added by padhye for correlation matrix
    //   void addSobolevIndices(bool);// added by padhye for sobolev indices
+   void refreshRandomVariables(void);
    void loadRVsFromJson(void);
    void saveRVsToJson(void);
 
@@ -105,7 +122,7 @@ public slots:
    void checkCorrValidity(void);
 
 private:
-    int addRVsType;
+    RV_Type defaultRVsType;
     void makeRV(void);
     QVBoxLayout *verticalLayout;
     QVBoxLayout *rvLayout;
@@ -122,7 +139,8 @@ private:
     SectionTitle *correlationtabletitle;
     int flag_for_correlationMatrix;
     QStringList randomVariableNames;
-    // int flag_for_sobolev_indices;
+
+    bool x_button_clicked_before;
 };
 
 #endif // RANDOM_VARIABLES_CONTAINER_H

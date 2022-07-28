@@ -67,8 +67,7 @@ NormalDistribution::NormalDistribution(QString inpType, QWidget *parent) :Random
 
         mean = this->createTextEntry(tr("Mean"), mainLayout,0);
         standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout,1);
-        mean->setValidator(new QDoubleValidator);
-        standardDev->setValidator(new QDoubleValidator);
+        //standardDev->setValidator(new QDoubleValidator);
         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton,1,2);
         mainLayout->setColumnStretch(3,1);
@@ -127,8 +126,6 @@ NormalDistribution::NormalDistribution(double initValue, QWidget *parent) :Rando
     this->inpty = "Parameters";
     mean = this->createTextEntry(tr("Mean"), mainLayout,0);
     standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout,1);
-    mean->setValidator(new QDoubleValidator);
-    standardDev->setValidator(new QDoubleValidator);
 
     mainLayout->addWidget(showPlotButton,1,2);
     mainLayout->setColumnStretch(3,1);
@@ -213,10 +210,12 @@ NormalDistribution::inputFromJSON(QJsonObject &rvObject){
     return true;
 }
 
-void
+bool
 NormalDistribution::copyFiles(QString fileDir) {
     if (inpty==QString("Dataset")) {
-        QFile::copy(dataDir->text(), fileDir);
+        return QFile::copy(dataDir->text(), fileDir);
+    } else {
+        return true;
     }
 }
 
@@ -231,19 +230,20 @@ NormalDistribution::updateDistributionPlot() {
         double me = mean->text().toDouble();
         double st =standardDev->text().toDouble();
         if (st < 0.0) {
-            st = 0;
-            me = 0;
-        }
-            double min = me - 5*st;
-            double max = me + 5*st;
-            QVector<double> x(100);
-            QVector<double> y(100);
-            for (int i=0; i<100; i++) {
-                double xi = min + i*(max-min)/99;
-                x[i] = xi;
-                y[i] =1.0/(sqrt(2*3.1415926535)*st)*exp(-(0.5*(xi-me)*(xi-me)/(st*st)));
-            }
             thePlot->clear();
-            thePlot->addLine(x,y);
+            return;
+        }
+        double min = me - 5*st;
+        double max = me + 5*st;
+        QVector<double> x(100);
+        QVector<double> y(100);
+        for (int i=0; i<100; i++) {
+            double xi = min + i*(max-min)/99;
+            x[i] = xi;
+            y[i] =1.0/(sqrt(2*3.1415926535)*st)*exp(-(0.5*(xi-me)*(xi-me)/(st*st)));
+        }
+        thePlot->clear();
+        thePlot->drawPDF(x,y);
     }
+
 }

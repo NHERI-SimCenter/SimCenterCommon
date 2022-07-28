@@ -38,13 +38,13 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 
-#include <UQ_MethodInputWidget.h>
+#include <UQ_Method.h>
 #include <QComboBox>
 
 class QLineEdit;
 class QCheckBox;
 
-class GlobalReliabilityWidget : public UQ_MethodInputWidget
+class GlobalReliabilityWidget : public UQ_Method
 {
     Q_OBJECT
 public:
@@ -59,9 +59,8 @@ public:
 
 private:
     QComboBox *gpApproximation;
-    //QLineEdit *probabilityLevel;
-    QLineEdit *responseLevel;
-    QLineEdit *seedEdit;
+    QLineEdit *probabilityLevel;
+    //QLineEdit *responseLevel;
     //QCheckBox *checkedResponseLevel;
     //QCheckBox *checkedProbabilityLevel;
 };

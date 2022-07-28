@@ -39,10 +39,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <UQ_MethodInputWidget.h>
+#include <UQ_Method.h>
 class QLineEdit;
 
-class MonteCarloInputWidget : public UQ_MethodInputWidget
+class MonteCarloInputWidget : public UQ_Method
 {
     Q_OBJECT
 public:

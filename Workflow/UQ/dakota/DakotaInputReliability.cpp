@@ -50,7 +50,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QFileDialog>
 #include <QPushButton>
 #include <sectiontitle.h>
-//#include <InputWidgetEDP.h>
 
 #include <iostream>
 #include <sstream>
@@ -61,9 +60,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QStackedWidget>
 #include <LocalReliabilityWidget.h>
 #include <GlobalReliabilityWidget.h>
+#include <ImportanceSamplingInputWidget.h>
 
-DakotaInputReliability::DakotaInputReliability(RandomVariablesContainer *theRVs, QWidget *parent)
-: UQ_Engine(parent), theRandomVariables(theRVs)
+DakotaInputReliability::DakotaInputReliability(QWidget *parent)
+: UQ_Engine(parent)
 {
     layout = new QVBoxLayout();
     mLayout = new QVBoxLayout();
@@ -76,10 +76,11 @@ DakotaInputReliability::DakotaInputReliability(RandomVariablesContainer *theRVs,
     QLabel *label1 = new QLabel();
     label1->setText(QString("Reliability Method"));
     reliabilityMethod = new QComboBox();
-   // reliabilityMethod->setMaximumWidth(200);
-   // reliabilityMethod->setMinimumWidth(200);
+    reliabilityMethod->setMaximumWidth(200);
+    reliabilityMethod->setMinimumWidth(200);
     reliabilityMethod->addItem(tr("Local Reliability"));
     reliabilityMethod->addItem(tr("Global Reliability"));
+    reliabilityMethod->addItem(tr("Importance Sampling"));
 
     methodLayout->addWidget(label1);
     methodLayout->addWidget(reliabilityMethod,2);
@@ -99,6 +100,9 @@ DakotaInputReliability::DakotaInputReliability(RandomVariablesContainer *theRVs,
     theGlobal = new GlobalReliabilityWidget();
     theStackedWidget->addWidget(theGlobal);
 
+    theIS = new ImportanceSamplingInputWidget();
+    theStackedWidget->addWidget(theIS);
+
     // set current widget to index 0
     theCurrentMethod = theLocal;
 
@@ -116,14 +120,16 @@ DakotaInputReliability::DakotaInputReliability(RandomVariablesContainer *theRVs,
 
 void DakotaInputReliability::onMethodChanged(QString text)
 {
-    qDebug() << text;
-
   if (text=="Local Reliability") {
     theStackedWidget->setCurrentIndex(0);
     theCurrentMethod = theLocal;
-  } else {
+  } else if (text=="Global Reliability") {
     theStackedWidget->setCurrentIndex(1);
     theCurrentMethod = theGlobal;
+  }
+  else if (text=="Importance Sampling") {
+    theStackedWidget->setCurrentIndex(2);
+    theCurrentMethod = theIS;
   }
 }
 
@@ -187,23 +193,27 @@ DakotaInputReliability::inputFromJSON(QJsonObject &jsonObject)
 
 
 int DakotaInputReliability::processResults(QString &filenameResults, QString &filenameTab) {
-    Q_UNUSED(filenameResults);
-    Q_UNUSED(filenameTab);
+
     return 0;
 }
 
 UQ_Results *
 DakotaInputReliability::getResults(void) {
-    return new DakotaResultsReliability(theRandomVariables);
+
+  return new DakotaResultsReliability(RandomVariablesContainer::getInstance());
 }
 
-RandomVariablesContainer *
-DakotaInputReliability::getParameters(void) {
-
-  if (theRandomVariables != NULL)
-    return theRandomVariables;
+void
+DakotaInputReliability::setRV_Defaults(void) {
+  RandomVariablesContainer *theRVs = RandomVariablesContainer::getInstance();
+  QString classType = "Uncertain";
+  QString engineType = "Dakota";
   
-  QString classType("Uncertain");
-  theRandomVariables =  new RandomVariablesContainer(classType);
-  return theRandomVariables;
+  theRVs->setDefaults(engineType, classType, Normal);
+}
+
+
+QString
+DakotaInputReliability::getMethodName(void){
+  return QString("reliability");
 }

@@ -6,7 +6,7 @@
 #include <QGroupBox>
 #include <QVBoxLayout>
 
-PCEInputWidget::PCEInputWidget(QWidget *parent) : UQ_MethodInputWidget(parent)
+PCEInputWidget::PCEInputWidget(QWidget *parent) : UQ_Method(parent)
 {
   QVBoxLayout *layout = new QVBoxLayout();
 
@@ -19,7 +19,7 @@ PCEInputWidget::PCEInputWidget(QWidget *parent) : UQ_MethodInputWidget(parent)
     dataMethod = new QComboBox();
     dataMethod->addItem("Quadrature");
     dataMethod->addItem("Smolyak Sparse_Grid");
-    dataMethod->addItem("Stroud Curbature");
+    dataMethod->addItem("Stroud Cubature");
     dataMethod->addItem("Orthogonal Least_Interpolation");
     connect(dataMethod,SIGNAL(currentIndexChanged(int)),this,SLOT(trainingDataMethodChanged(int)));
     trainingDataLayout->addWidget(dataMethod, 0, 1);

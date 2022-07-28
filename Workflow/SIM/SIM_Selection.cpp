@@ -37,81 +37,41 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include "SIM_Selection.h"
-#include <QPushButton>
-#include <QScrollArea>
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QLabel>
-#include <QLineEdit>
-#include <QDebug>
-#include <QFileDialog>
-#include <QPushButton>
-#include <sectiontitle.h>
-
-#include <SimCenterWidget.h>
 
 #include <OpenSeesBuildingModel.h>
 #include <MDOF_BuildingModel.h>
 #include <SteelBuildingModel.h>
-#include "ConcreteBuildingModel.h"
-#include <QCoreApplication>
+#include <SimCenterAppMulti.h>
+#include <RandomVariablesContainer.h>
+#include <ConcreteBuildingModel.h>
 
-SIM_Selection::SIM_Selection(RandomVariablesContainer *theRandomVariableIW, 
-                             bool includeC,
+#include <QApplication>
+
+SIM_Selection::SIM_Selection(bool includeC,
+			     bool doMulti,
                              QWidget *parent)
-    : SimCenterAppWidget(parent), bimInput(0),
-      includeCentroid(includeC), theRandomVariablesContainer(theRandomVariableIW)
+  : SimCenterAppSelection(QString("Building Model Generator"), QString("Modeling"), QString("StructuralInformation"), parent),
+    includeCentroid(includeC)
 {
-    layout = new QVBoxLayout();
+  
+  RandomVariablesContainer *theRVs = RandomVariablesContainer::getInstance();
+  SimCenterAppWidget *opensees = new OpenSeesBuildingModel(theRVs, includeCentroid);
+  SimCenterAppWidget *mdof = new MDOF_BuildingModel(theRVs);
+  this->addComponent(QString("MDOF"), QString("MDOF_BuildingModel"), mdof);    
+  this->addComponent(QString("OpenSees"), QString("OpenSeesInput"), opensees);
+  QString appName = QCoreApplication::applicationName();
 
-    QVBoxLayout *name= new QVBoxLayout;
-
-    // text and add button at top
-    QHBoxLayout *titleLayout = new QHBoxLayout();
-
-    SectionTitle *textBIM=new SectionTitle();
-    textBIM->setText(tr("Building Model Generator"));
-    textBIM->setMinimumWidth(250);
-    QSpacerItem *spacer = new QSpacerItem(50,10);
-
-    bimSelection = new QComboBox();
-    // bimSelection->setMaximumWidth(200);
-    // bimSelection->setMinimumWidth(200);
-
-    titleLayout->addWidget(textBIM);
-    titleLayout->addItem(spacer);
-    titleLayout->addWidget(bimSelection, 1);
-    titleLayout->addStretch(1);
-    titleLayout->setSpacing(0);
-    titleLayout->setMargin(0);
-
-    name->addLayout(titleLayout);
-
-    name->setSpacing(10);
-    name->setMargin(0);
-
-    // bimSelection->addItem(tr("Spreadsheet"));
-    bimSelection->addItem(tr("MDOF"));
-    bimSelection->addItem(tr("OpenSees"));
-
-    QString appName = QCoreApplication::applicationName();
-    if (appName == "PBE" || appName == "EE-UQ")
-    {
-        bimSelection->addItem(tr("Steel Building Model"));
-        bimSelection->addItem(tr("Concrete Building Model"));
-    }
-
-    connect(bimSelection, SIGNAL(currentIndexChanged(QString)), this, SLOT(bimSelectionChanged(QString)));
-
-    layout->addLayout(name);
-    layout->addStretch();
-
-    this->setLayout(layout);
-
-    // set Samlping as the default
-    //    this->bimSelectionChanged(tr("Spreadsheet"));
-    this->bimSelectionChanged(tr("MDOF"));
-    layout->setMargin(0);
+  if (appName == "PBE" || appName == "EE-UQ") {
+    SimCenterAppWidget *autosda = new SteelBuildingModel(theRVs);
+    SimCenterAppWidget *concrete = new ConcreteBuildingModel(theRVs);    
+    this->addComponent(QString("Steel Building Model"), QString("SteelBuildingModel"), autosda);
+    this->addComponent(QString("Concrete Building Model"), QString("ConcreteBuildingModel"), concrete);          
+  }
+  
+  if (doMulti == true) {
+    SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Modeling"), QString("MultiModel-SIM"),this, this);
+    this->addComponent(QString("Multi Model"), QString("MultiModel-SIM"), multi);
+  }    
 }
 
 SIM_Selection::~SIM_Selection()
@@ -120,167 +80,9 @@ SIM_Selection::~SIM_Selection()
 }
 
 
-void SIM_Selection::clear(void)
+SimCenterAppWidget *
+SIM_Selection::getClone()
 {
-
+  SIM_Selection *newSelection = new SIM_Selection(includeCentroid, false);
+  return newSelection;
 }
-
-
-
-
-bool
-SIM_Selection::outputToJSON(QJsonObject &jsonObject)
-{
-    bool result = true;
-
-    //
-    // create a json object, fill it and then add this to the object with uqMethod key
-    //
-
-    //QJsonObject uq;
-    if (bimInput != 0) {
-        result = bimInput->outputToJSON(jsonObject);
-    }
-    //uq["uqType"] = bimSelection->currentText();
-
-    //jsonObject["uqMethod"]=uq;
-
-    return result;
-}
-
-
-bool
-SIM_Selection::inputFromJSON(QJsonObject &jsonObject)
-{
-    bool result = false;
-    if (bimInput != 0) {
-        result =  bimInput->inputFromJSON(jsonObject);
-        if (result == false) {
-            qDebug() << "SIM_Selection inputFromJSON failed in object " << bimSelection->currentText();
-        } else
-            return true;
-    }
-
-    return result;
-}
-
-
-bool
-SIM_Selection::outputAppDataToJSON(QJsonObject &jsonObject)
-{
-    bool result = false;
-
-    if (bimInput != 0) {
-        result = bimInput->outputAppDataToJSON(jsonObject);
-    }
-
-    return result;
-}
-
-
-bool
-SIM_Selection::inputAppDataFromJSON(QJsonObject &jsonObject)
-{
-    bool result = false;
-    this->clear();
-
-    //
-    // get type, determine index & invoke setCurrentIndex on combobox
-    //
-
-    QString type;
-    if (jsonObject.contains("Application")) {
-        QJsonValue theName = jsonObject["Application"];
-        type = theName.toString();
-    } else
-        return false;
-
-    int index = 0;
-
-    /*
-    if (type == QString("SimCenterSIM")) {
-       index = 2;
-    } else
-    */
-
-    if (type == QString("MDOF_BuildingModel")) {
-        index = 0;
-    } else if (type == QString("OpenSeesInput")) {
-        index = 1;
-    } else if (type == QString("SteelBuildingModel")) {
-        index = 2;
-    }
-    else if (type == QString("ConcreteBuildingModel")) {
-        index = 3;
-    }
-    else {
-        return false;
-    }
-
-    bimSelection->setCurrentIndex(index);
-
-    if (bimInput != 0) {
-        result = bimInput->inputAppDataFromJSON(jsonObject);
-        if (result == false)
-            qDebug() << "SIM_SELECTION: failed inputAppData type, index: " << type << " " << index;
-    }
-
-    return result;
-}
-
-
-bool
-SIM_Selection::copyFiles(QString &destDir) {
-
-    if (bimInput != 0) {
-        return  bimInput->copyFiles(destDir);
-    }
-
-    return false;
-}
-
-void SIM_Selection::bimSelectionChanged(const QString &arg1)
-{
-    selectionChangeOK = true;
-
-    if (bimInput != 0)
-        layout->removeWidget(bimInput);
-
-    //
-    // note type output in json and name in pull down are not the same and hence the ||
-    //
-
-
-
-    if (arg1 == QString("OpenSees") || (arg1 == QString("OpenSeesInput"))) {
-
-        delete bimInput;
-        bimInput = new OpenSeesBuildingModel(theRandomVariablesContainer, includeCentroid);
-    } else if (arg1 == QString("MDOF") || (arg1 == QString("MDOF_BuildingModel"))) {
-        delete bimInput;
-        bimInput = new MDOF_BuildingModel(theRandomVariablesContainer);
-    }
-    else if (arg1 == QString("Steel Building Model")) {
-        delete bimInput;
-        bimInput = new SteelBuildingModel(theRandomVariablesContainer);
-    }
-    else if (arg1 == QString("Concrete Building Model")) {
-        delete bimInput;
-        bimInput = new ConcreteBuildingModel(theRandomVariablesContainer);
-    } else {
-        selectionChangeOK = false;
-        errorMessage("ERROR: BIM Input - no valid Method provided .. keeping old");
-    }
-
-    if (bimInput != 0) {
-        this->bimWidgetChanged();
-        layout->insertWidget(1, bimInput,1);
-        connect(bimInput,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
-    }
-
-    return;
-}
-
-
-
-

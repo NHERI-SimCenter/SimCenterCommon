@@ -21,8 +21,8 @@ class PythonProgressDialog;
 
 class MainWindowWorkflowApp : public QMainWindow
 {
-  Q_OBJECT
-    
+  Q_OBJECT   
+
 public:
     explicit MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theRemoteInterface, QWidget *parent = 0);
     ~MainWindowWorkflowApp();
@@ -34,6 +34,8 @@ public:
     void setFeedbackURL(QString &feedback);
     void setCite(QString &cite);
     void updateExamplesMenu(void);
+
+    QString outputFilePath;
 
  protected:
 
@@ -81,7 +83,7 @@ public:
  private:
     void setCurrentFile(const QString &fileName);
     bool saveFile(const QString &fileName);
-    int loadFile(const QString &fileName);
+    void loadFile(QString &fileName);
 
     void createActions();
 

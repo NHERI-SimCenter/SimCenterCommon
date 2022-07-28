@@ -60,6 +60,15 @@ UQ_Engine::getProcessingScript() {
 }
 
 
+QString
+UQ_Engine::getMethodName() {
+    return QString("UNKNOWN");
+}
+
+void
+UQ_Engine::setEventType(QString type) {
+
+}
 
 
 

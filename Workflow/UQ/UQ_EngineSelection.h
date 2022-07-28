@@ -44,26 +44,26 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class QComboBox;
 class QStackedWidget;
-class RandomVariablesContainer;
-class UQ_Results;
 class UQ_Engine;
-class RandomVariablesContainer;
+class InputWidgetEDP;
 
 
 class UQ_EngineSelection : public  SimCenterAppWidget
 {
   Q_OBJECT
 
-    public:
+  public:
 
-  explicit UQ_EngineSelection(RandomVariablesContainer *, UQ_EngineType = ForwardReliabilitySensivity, QWidget *parent = 0);
+  explicit UQ_EngineSelection(UQ_EngineType = All,
+			      QWidget *parent = 0);  
+  
   ~UQ_EngineSelection();
 
-  RandomVariablesContainer  *getParameters();
+  void setRV_Defaults(void);
   UQ_Results  *getResults();
-  UQ_Engine  *getCurrentEngine();
 
   int getNumParallelTasks(void);
+  UQ_Engine *getCurrentEngine();
   
   bool outputAppDataToJSON(QJsonObject &jsonObject);
   bool inputAppDataFromJSON(QJsonObject &jsonObject);
@@ -71,23 +71,44 @@ class UQ_EngineSelection : public  SimCenterAppWidget
   bool outputToJSON(QJsonObject &rvObject);
   bool inputFromJSON(QJsonObject &rvObject);
   bool copyFiles(QString &destName);
-  
+
   void clear(void);
   
  signals:
-  void onUQ_EngineChanged(void);
+  void onUQ_EngineChanged(bool);
+  void onNumModelsChanged(int);
+  // FMK void onSurrogateModelSpecified(int);  
+
+  // void remoteRunningCapability(bool);
+  // KZ relay queryEVT from SimCenterUQ
+  void queryEVT(void);
 
  public slots:
+  
   void engineSelectionChanged(const QString &arg1);
   void enginesEngineSelectionChanged(void);
+  void numModelsChanged(int newNum);
+  // FMK void surrogateModelSpecified(void);  
+  // KZ relay queryEVT from SimCenterUQ
+  void relayQueryEVT(void);
+  void setEventType(QString type);
   
 private:
+
    QComboBox   *theEngineSelectionBox;
    QStackedWidget *theStackedWidget;
 
    UQ_Engine *theCurrentEngine;
+   UQ_Engine *thePreviousEngine;  
    UQ_Engine *theDakotaEngine;
+   UQ_Engine *theSimCenterUQEngine;
    UQ_Engine *theUQpyEngine;
+   UQ_Engine *theUCSD_Engine;
+   UQ_Engine *thefilterEngine;
+   UQ_Engine *theCustomEngine;
+
+   InputWidgetEDP *theEDPs;
+   
 };
 
 #endif // WIND_SELECTION_H

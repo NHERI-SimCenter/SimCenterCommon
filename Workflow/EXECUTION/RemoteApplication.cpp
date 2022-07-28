@@ -169,6 +169,8 @@ RemoteApplication::outputToJSON(QJsonObject &jsonObject)
         jsonObject["localAppDir"]=SimCenterPreferences::getInstance()->getAppDir();
         jsonObject["remoteAppWorkingDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();
         jsonObject["workingDir"]=SimCenterPreferences::getInstance()->getRemoteWorkDir();
+    } else {
+        jsonObject["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();
     }
 
     jsonObject["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();    
@@ -251,9 +253,6 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
             return false;
         }
 
-        qDebug() << "SCRIPT: " << pySCRIPT;
-        qDebug() << "REGISTRY: " << registryFile;
-
         QStringList files;
         files << "dakota.in" << "dakota.out" << "dakotaTab.out" << "dakota.err";
 
@@ -293,10 +292,10 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
         QString templateDIR = templateDir.absolutePath();
 
 #ifdef Q_OS_WIN
-        templateDir.rename("workflow_driver.bat","workflow_driver");
+        templateDir.rename("driver.bat","driver");
 #endif
 
-        QFileInfo check_workflow(templateDir.absoluteFilePath("workflow_driver"));
+        QFileInfo check_workflow(templateDir.absoluteFilePath("driver"));
         if (!check_workflow.exists() || !check_workflow.isFile()) {
             emit sendErrorMessage(("Local Failure Setting up Dakota"));
             qDebug() << "Local Failure Setting Up Dakota ";
@@ -383,11 +382,17 @@ RemoteApplication::uploadDirReturn(bool result)
       //job["processorsPerNode"]=nodeCount*numProcessorsPerNode; // DesignSafe has inconsistant documentation
       job["processorsOnEachNode"]=numProcessorsPerNode;
       job["maxRunTime"]=runtimeLineEdit->text();
-      
+
+      QString queue = "small";
+      if (nodeCount > 2)
+	queue = "normal";
+      if (nodeCount > 512)
+	queue = "large";
+	
       job["appId"]=SimCenterPreferences::getInstance()->getRemoteAgaveApp();
       job["memoryPerNode"]= "1GB";
       job["archive"]=true;
-      job["batchQueue"]="skx-normal";      
+      job["batchQueue"]=queue;      
       job["archivePath"]="";
       job["archiveSystem"]="designsafe.storage.default";
       
@@ -396,10 +401,13 @@ RemoteApplication::uploadDirReturn(bool result)
       if (appName != "R2D"){
 
           QJsonObject parameters;
-          parameters["inputFile"]="dakota.in";
-          parameters["outputFile"]="dakota.out";
-          parameters["errorFile"]="dakota.err";
-          parameters["driverFile"]="workflow_driver";
+          parameters["inputFile"]="scInput.json";
+	  
+	  if (appName == "quoFEM")
+	    parameters["driverFile"]="driver";
+	  else
+	    parameters["driverFile"]="sc_driver";
+	  
           parameters["modules"]="petsc,python3";
           for (auto parameterName : extraParameters.keys())
           {

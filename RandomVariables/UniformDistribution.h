@@ -55,7 +55,7 @@ public:
 
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
-    void copyFiles(QString fileDir);
+    bool copyFiles(QString fileDir);
 
     QString getAbbreviatedName(void);
 

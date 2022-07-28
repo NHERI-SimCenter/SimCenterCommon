@@ -45,39 +45,39 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QComboBox>
 #include <QPushButton>
 
+class UQ_EngineMethod;
 class DakotaSamplingResults;
 class DakotaResults;
 class QCheckBox;
-class RandomVariablesContainer;
 class QStackedWidget;
-class UQ_MethodInputWidget;
 
 class DakotaInputSampling : public UQ_Engine
 {
     Q_OBJECT
 public:
-  explicit DakotaInputSampling(RandomVariablesContainer *, QWidget *parent = 0);
-    ~DakotaInputSampling();
+  explicit DakotaInputSampling(QWidget *parent = 0);
+  ~DakotaInputSampling();
 
-    bool outputToJSON(QJsonObject &rvObject);
-    bool inputFromJSON(QJsonObject &rvObject);
-    bool outputAppDataToJSON(QJsonObject &rvObject);
-    bool inputAppDataFromJSON(QJsonObject &rvObject);
+  bool outputToJSON(QJsonObject &jsonObject);
+  bool inputFromJSON(QJsonObject &jsonObject);
+  bool outputAppDataToJSON(QJsonObject &jsonObject);
+  bool inputAppDataFromJSON(QJsonObject &jsonObject);
 
-    int processResults(QString &filenameResults, QString &filenameTab);
-
-    UQ_Results *getResults(void);
-    RandomVariablesContainer  *getParameters();
+  
+  UQ_Results *getResults(void);
+  void setRV_Defaults(void);
 
     int getMaxNumParallelTasks(void);
 
     QVBoxLayout *mLayout;
+    QString getMethodName();
 
 signals:
 
 public slots:
    void clear(void);
    void onTextChanged(const QString &arg1);
+   void numModelsChanged(int numModels);
 
 private:
     QVBoxLayout *layout;
@@ -85,21 +85,20 @@ private:
     QComboBox   *samplingMethod;
     QLineEdit   *numSamples;
     QLineEdit   *randomSeed;
-    //    QPushButton *run;
 
     QComboBox   *uqSelection;
     QWidget     *uqSpecific;
 
-    RandomVariablesContainer *theRandomVariables;
     DakotaSamplingResults *results;
 
     QStackedWidget *theStackedWidget;
-    UQ_MethodInputWidget *theCurrentMethod;
-    UQ_MethodInputWidget *theMC;
-    UQ_MethodInputWidget *theLHS;
-    UQ_MethodInputWidget *theIS;
-    UQ_MethodInputWidget *theGP;
-    UQ_MethodInputWidget *thePCE;
+    UQ_Method *theCurrentMethod;
+    UQ_Method *theMC;
+    UQ_Method *theLHS;
+    //UQ_Method *theIS;
+    UQ_Method *theGP;
+    UQ_Method *thePCE;
+    UQ_Method *theMFMC;
 };
 
 #endif // DAKOTA_INPUT_SAMPLING_H
