@@ -55,8 +55,8 @@ SIM_Selection::SIM_Selection(bool includeC,
 {
   
   RandomVariablesContainer *theRVs = RandomVariablesContainer::getInstance();
-  SimCenterAppWidget *opensees = new OpenSeesBuildingModel(theRVs, includeCentroid);
-  SimCenterAppWidget *mdof = new MDOF_BuildingModel(theRVs);
+  SimCenterAppWidget *opensees = new OpenSeesBuildingModel(includeCentroid);
+  SimCenterAppWidget *mdof = new MDOF_BuildingModel();
   this->addComponent(QString("MDOF"), QString("MDOF_BuildingModel"), mdof);    
   this->addComponent(QString("OpenSees"), QString("OpenSeesInput"), opensees);
   QString appName = QCoreApplication::applicationName();

@@ -201,8 +201,8 @@ createTextEntry(QString text,
     return res;
 }
 
-MDOF_BuildingModel::MDOF_BuildingModel(RandomVariablesContainer *theRandomVariableIW, QWidget *parent)
-  : SimCenterAppWidget(parent), theRandomVariablesContainer(theRandomVariableIW), 
+MDOF_BuildingModel::MDOF_BuildingModel(QWidget *parent)
+  : SimCenterAppWidget(parent),
     numStories(0),
     floorHeights(0), storyHeights(0),
     fMinSelected(-1),fMaxSelected(-1), 
@@ -446,6 +446,7 @@ MDOF_BuildingModel::on_inFloors_editingFinished()
         QStringList rvs;
         for (i = randomVariables.begin(); i != randomVariables.end(); ++i)
             rvs << i.key();
+	RandomVariablesContainer *theRandomVariablesContainer = RandomVariablesContainer::getInstance();
         theRandomVariablesContainer->removeRandomVariables(rvs);
 
         randomVariables.clear();
@@ -1772,6 +1773,7 @@ MDOF_BuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
      } else {
          randomVariables[text] = numReferences;
          RandomVariable *theRV = new RandomVariable(QString("Uncertain"), text, "Dakota");
+	RandomVariablesContainer *theRandomVariablesContainer = RandomVariablesContainer::getInstance();	 
          theRandomVariablesContainer->addRandomVariable(theRV);
      }
  }
@@ -1783,6 +1785,7 @@ MDOF_BuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
 
          if (randomVariables[text] < 1) {
              QStringList rvsToRemove; rvsToRemove << text;
+	     RandomVariablesContainer *theRandomVariablesContainer = RandomVariablesContainer::getInstance();	     
              theRandomVariablesContainer->removeRandomVariables(rvsToRemove);
 
              randomVariables.remove(text);

@@ -54,7 +54,7 @@ class EDP_Selection : public  SimCenterAppWidget
 {
     Q_OBJECT
 public:
-    explicit EDP_Selection(RandomVariablesContainer *, QWidget *parent = 0);
+    explicit EDP_Selection(QWidget *parent = 0);
     ~EDP_Selection();
 
     bool outputToJSON(QJsonObject &rvObject);

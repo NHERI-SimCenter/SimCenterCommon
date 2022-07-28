@@ -41,8 +41,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 //#include <InputWidgetParameters.h>
 
-StandardEarthquakeEDP::StandardEarthquakeEDP(RandomVariablesContainer *theRandomVariableIW, QWidget *parent)
-    : SimCenterAppWidget(parent), theRandomVariablesContainer(theRandomVariableIW)
+StandardEarthquakeEDP::StandardEarthquakeEDP(QWidget *parent)
+    : SimCenterAppWidget(parent)
 {
 
 }
