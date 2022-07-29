@@ -1,14 +1,7 @@
-// #include <QObject>
-// #include <QWidget>
-// #include <QString>
-// #include <WorkflowAppWidget.h>
-// #include <RemoteService.h>
-
 class MainWindowWorkflowApp;
 class WorkflowAppWidget;
 
 class WorkflowCLI {
-  // Q_OBJECT
 
 public:
     WorkflowCLI(MainWindowWorkflowApp *windowApp, WorkflowAppWidget* inputApp);
