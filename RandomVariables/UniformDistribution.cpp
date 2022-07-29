@@ -59,7 +59,7 @@ UniformDistribution::UniformDistribution(QString inpType, QWidget *parent) :Rand
     mainLayout->setVerticalSpacing(0);
     mainLayout->setMargin(0);
 
-    QPushButton *showPlotButton = NULL; // new QPushButton("Show PDF");
+    showPlotButton = NULL; // new QPushButton("Show PDF");
 
     this->inpty=inpType;
 
@@ -118,35 +118,35 @@ UniformDistribution::UniformDistribution(QString inpType, QWidget *parent) :Rand
 
 
 
-UniformDistribution::UniformDistribution(double initValue, QWidget *parent)  :RandomVariableDistribution(parent)
+UniformDistribution::UniformDistribution(double initValue, QWidget *parent)  :UniformDistribution(QString("Parameters"), parent)
 {
-    //
-    // create the main layout and add the input entries
-    //
-    //mainWidget = new QWidget(this);
-    QGridLayout *mainLayout = new QGridLayout(this);
+//    //
+//    // create the main layout and add the input entries
+//    //
+//    //mainWidget = new QWidget(this);
+//    QGridLayout *mainLayout = new QGridLayout(this);
 
-    // set some defaults, and set layout for widget to be the horizontal layout
-    mainLayout->setHorizontalSpacing(10);
-    mainLayout->setVerticalSpacing(0);
-    mainLayout->setMargin(0);
+//    // set some defaults, and set layout for widget to be the horizontal layout
+//    mainLayout->setHorizontalSpacing(10);
+//    mainLayout->setVerticalSpacing(0);
+//    mainLayout->setMargin(0);
 
-    QPushButton *showPlotButton = new QPushButton("Show PDF");
+//    QPushButton *showPlotButton = new QPushButton("Show PDF");
 
-    // Parameters
-    this->inpty = "Parameters";
-    a = this->createTextEntry(tr("Min."), mainLayout, 0);
-    b  = this->createTextEntry(tr("Max."), mainLayout, 1);
-    mainLayout->addWidget(showPlotButton, 1,2);
-    mainLayout->setColumnStretch(3,1);
+//    // Parameters
+//    this->inpty = "Parameters";
+//    a = this->createTextEntry(tr("Min."), mainLayout, 0);
+//    b  = this->createTextEntry(tr("Max."), mainLayout, 1);
+//    mainLayout->addWidget(showPlotButton, 1,2);
+//    mainLayout->setColumnStretch(3,1);
 
-    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
+//    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
 
-    connect(a,SIGNAL(textChanged(QString)), this, SLOT(updateDistributionPlot()));
-    connect(b,SIGNAL(textChanged(QString)), this, SLOT(updateDistributionPlot()));
-    connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
+//    connect(a,SIGNAL(textChanged(QString)), this, SLOT(updateDistributionPlot()));
+//    connect(b,SIGNAL(textChanged(QString)), this, SLOT(updateDistributionPlot()));
+//    connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
 
-    mainLayout->setColumnStretch(3,1);
+//    mainLayout->setColumnStretch(3,1);
 
     // set initial or Disabled
     if (isnan(initValue)){

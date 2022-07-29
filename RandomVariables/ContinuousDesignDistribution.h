@@ -48,6 +48,7 @@ class ContinuousDesignDistribution : public RandomVariableDistribution
     Q_OBJECT
 public:
     explicit ContinuousDesignDistribution(QWidget *parent = 0);
+    explicit ContinuousDesignDistribution(double initValue, QWidget *parent) ;
     ~ContinuousDesignDistribution();
 
     bool outputToJSON(QJsonObject &rvObject);
