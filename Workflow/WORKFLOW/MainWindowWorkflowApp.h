@@ -129,7 +129,6 @@ public:
     PythonProgressDialog* statusWidget;
 
     friend class R2DUnitTests;
-    friend class MainCommandLineWorkflowApp2;
 
 };
 
