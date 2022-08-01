@@ -85,6 +85,7 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/WORKFLOW/SimCenterSpinBox.cpp \
     $$PWD/WORKFLOW/SimCenterDoubleSpinBox.cpp \
     $$PWD/WORKFLOW/SimCenterLineEdit.cpp \
+    $$PWD/WORKFLOW/WorkflowCLI.cpp \
     $$PWD/WORKFLOW/Utils/ExampleDownloader.cpp \
     $$PWD/WORKFLOW/Utils/NetworkDownloadManager.cpp \
     $$PWD/WORKFLOW/ModelViewItems/CheckableTreeModel.cpp \
