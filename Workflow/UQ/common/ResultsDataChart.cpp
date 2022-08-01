@@ -250,7 +250,7 @@ ResultsDataChart::getStatistics() {
     if (!isSurrogate) {
         numCol = colCount;
     } else {
-        numCol = colCount - 4*nqoi; // median, 5% quartile, 95% quartile, variance
+        numCol = colCount - 4*nqoi; // median, 5% quantile, 95% quantile, variance
     }
 
     for (int col = 0; col<numCol; ++col) { // +1 for first col which is nit an RV
