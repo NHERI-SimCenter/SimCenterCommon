@@ -344,7 +344,7 @@ SurrogateNoDoEInputWidget::outputToJSON(QJsonObject &jsonObj){
             jsonObj["nuggetOpt"]="Optimize";
             jsonObj["nuggetString"]="NA";
         }
-        jsonObj["parallelExecution"]=false;
+        jsonObj["parallelExecution"]=true;
         return result;
 }
 
