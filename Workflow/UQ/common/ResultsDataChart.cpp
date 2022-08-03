@@ -114,11 +114,7 @@ ResultsDataChart::ResultsDataChart(QString filenameTab, bool isSur, int nRV, QWi
         }
     }
 
-    if  ((spreadsheet->rowCount()) > 1.e5) {
-        chart->setAnimationOptions(QChart::AllAnimations);
-    } else {
-        chart->setAnimationOptions(QChart::NoAnimation);
-    }
+    //chart->setAnimationOptions(QChart::AllAnimations);
 }
 
 void
