@@ -42,13 +42,11 @@ class QStackedWidget;
 class UserDefinedApplication;
 class RockOutcrop;
 
-class RandomVariablesContainer;
-
 class EDP_EarthquakeSelection : public  SimCenterAppWidget
 {
     Q_OBJECT
       public:
-  explicit EDP_EarthquakeSelection(RandomVariablesContainer *, QWidget *parent = 0);
+  explicit EDP_EarthquakeSelection(QWidget *parent = 0);
   ~EDP_EarthquakeSelection();
 
   bool outputToJSON(QJsonObject &jsonObject) override;
@@ -72,7 +70,6 @@ class EDP_EarthquakeSelection : public  SimCenterAppWidget
   SimCenterAppWidget *theStandardEarthquakeEDPs;
   SimCenterAppWidget *theUserDefinedEDPs;
 
-  RandomVariablesContainer *theRandomVariablesContainer;
 };
 
 #endif // EDP_EARTHQUAKE_SELECTION_H

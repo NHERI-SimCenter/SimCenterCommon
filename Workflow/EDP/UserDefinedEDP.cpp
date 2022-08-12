@@ -63,8 +63,8 @@ using namespace std;
 
 //#include <InputWidgetParameters.h>
 
-UserDefinedEDP::UserDefinedEDP(RandomVariablesContainer *theRandomVariableIW, QWidget *parent)
-    : SimCenterAppWidget(parent), theRandomVariablesContainer(theRandomVariableIW)
+UserDefinedEDP::UserDefinedEDP(QWidget *parent)
+    : SimCenterAppWidget(parent)
 {
 
     QVBoxLayout *layout = new QVBoxLayout();

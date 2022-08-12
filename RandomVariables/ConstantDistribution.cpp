@@ -60,22 +60,22 @@ ConstantDistribution::ConstantDistribution(QWidget *parent) :RandomVariableDistr
     mainLayout->setColumnStretch(1,1);
 }
 
-ConstantDistribution::ConstantDistribution(double initValue, QWidget *parent) :RandomVariableDistribution(parent)
+ConstantDistribution::ConstantDistribution(double initValue, QWidget *parent) :ConstantDistribution(parent)
 {
     //
     // create the main horizontal layout and add the input entries
     //
 
-    QHBoxLayout *mainLayout = new QHBoxLayout();
+//    QHBoxLayout *mainLayout = new QHBoxLayout();
 
-    value = this->createTextEntry(tr("Constant Value"), mainLayout);
+//    value = this->createTextEntry(tr("Constant Value"), mainLayout);
 
-    mainLayout->addStretch();
+//    mainLayout->addStretch();
 
-    // set some defaults, and set layout for widget to be the horizontal layout
-    mainLayout->setSpacing(10);
-    mainLayout->setMargin(0);
-    this->setLayout(mainLayout);
+//    // set some defaults, and set layout for widget to be the horizontal layout
+//    mainLayout->setSpacing(10);
+//    mainLayout->setMargin(0);
+//    this->setLayout(mainLayout);
 
     value->setText(QString::number(initValue));
 }

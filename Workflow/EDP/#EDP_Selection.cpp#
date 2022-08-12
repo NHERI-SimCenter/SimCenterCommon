@@ -94,10 +94,9 @@ EDP_Selection::EDP_Selection(QWidget *parent)
     // create the individual widgets add to stacked widget
     //
 
-    theStandardEDPs = new StandardEDP();
-    theStackedWidget->addWidget(theStandardEDPs);
+    theStandardEDPs = new Standar->addWidget(theStandardEDPs);
 
-    theUserDefinedEDPs = new UserDefinedEDP();
+    theUserDefinedEDPs = new UserDefinedEDP(theRandomVariablesContainer);
     theStackedWidget->addWidget(theUserDefinedEDPs);
 
     layout->addWidget(theStackedWidget);

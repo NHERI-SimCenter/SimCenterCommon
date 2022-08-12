@@ -47,13 +47,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QComboBox>
 
 class InputWidgetParameters;
-class RandomVariablesContainer;
 
 class StandardEarthquakeEDP : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
-    explicit StandardEarthquakeEDP(RandomVariablesContainer *theRandomVariableIW, QWidget *parent = 0);
+    explicit StandardEarthquakeEDP(QWidget *parent = 0);
     ~StandardEarthquakeEDP();
 
     bool outputToJSON(QJsonObject &rvObject);
@@ -70,7 +69,7 @@ public slots:
 
 
 private:
-    RandomVariablesContainer *theRandomVariablesContainer;
+
 };
 
 #endif // STANDARD_EARTHQUAKE_EDP_H

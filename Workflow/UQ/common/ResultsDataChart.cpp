@@ -114,11 +114,7 @@ ResultsDataChart::ResultsDataChart(QString filenameTab, bool isSur, int nRV, QWi
         }
     }
 
-    if  ((spreadsheet->rowCount()) > 1.e5) {
-        chart->setAnimationOptions(QChart::AllAnimations);
-    } else {
-        chart->setAnimationOptions(QChart::NoAnimation);
-    }
+    //chart->setAnimationOptions(QChart::AllAnimations);
 }
 
 void
@@ -250,7 +246,7 @@ ResultsDataChart::getStatistics() {
     if (!isSurrogate) {
         numCol = colCount;
     } else {
-        numCol = colCount - 4*nqoi;
+        numCol = colCount - 4*nqoi; // median, 5% quantile, 95% quantile, variance
     }
 
     for (int col = 0; col<numCol; ++col) { // +1 for first col which is nit an RV
