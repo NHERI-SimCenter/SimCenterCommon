@@ -14,6 +14,22 @@
 #include <QApplication>
 #include <QSettings>
 
+static void print_help(const char* app_name) {
+  static const char *options = R"EOF(
+Options
+--config/-c          [<key>=<value>]    Set config value for <key> to <value> 
+                                        for current run.
+--persist-config/-C   <key>=<value>     Set config value for <key> to <value>, 
+                                        and store changes for app.
+
+Examples
+
+  ./quoFEM -c appDir=~/simcenter/SimCenterBackendApplications/ Examples/qfem-0001/src/input.json
+
+)EOF";
+  fprintf(stdout, "usage: %s [options] <input.json>\n%s", app_name, options);
+}
+
 WorkflowCLI::WorkflowCLI(MainWindowWorkflowApp *w, WorkflowAppWidget *input)
   : window(w), inputApp(input)
 {
