@@ -1039,6 +1039,7 @@ SimCenterPreferences::getDefaultOpenSees(void) {
     
   QString currentAppDir = QCoreApplication::applicationDirPath();
 
+
 #ifdef Q_OS_WIN
     
     QString openseesApp = currentAppDir + QDir::separator() + "applications" + QDir::separator() + "opensees" + QDir::separator() + "bin" + QDir::separator() + "OpenSees.exe";

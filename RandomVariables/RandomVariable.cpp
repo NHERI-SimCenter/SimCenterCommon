@@ -211,9 +211,11 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     }
     //mainLayout->addStretch();
 
+
     if (variableClass!=QString("NA")){
         mainLayout->addWidget(theDistribution,0,4,2,1);
     }// connect(theDistribution,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
+
 
 
     //this->setLayout(mainLayout);
@@ -270,6 +272,7 @@ RandomVariable::RandomVariable(const QString &type,
         // set new
         mainLayout->addWidget(theDistribution,0,4,2,1);
     }
+
 
 }
 

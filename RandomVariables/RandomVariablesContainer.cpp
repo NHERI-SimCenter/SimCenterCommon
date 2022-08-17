@@ -744,6 +744,7 @@ RandomVariablesContainer::addRandomVariable(RandomVariable *theRV) {
         theRV->variableName->setReadOnly(true);
 
        // connect(this,SLOT(randomVariableErrorMessage(QString)), theRV, SIGNAL(sendErrorMessage(QString)));
+
         connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(variableNameChanged(const QString &)));
 
         randomVariableNames << theRV->variableName->text();
