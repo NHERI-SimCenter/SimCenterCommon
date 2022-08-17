@@ -56,8 +56,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 
-InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(RandomVariablesContainer *theRandomVariableIW, QWidget *parent)
-    : SimCenterAppWidget(parent), theRandomVariablesContainer(theRandomVariableIW)
+InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(QWidget *parent)
+    : SimCenterAppWidget(parent)
 {   
     //
     // create layout for all qLineEdits
@@ -247,6 +247,8 @@ InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(RandomVariablesContaine
     this->setLayout(layout);
 
 
+    theRandomVariablesContainer = RandomVariablesContainer::getInstance();
+    
    //this->setMinimumWidth(200);
    // this->setMaximumWidth(400);
 }

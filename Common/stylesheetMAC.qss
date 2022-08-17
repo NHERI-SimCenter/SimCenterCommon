@@ -192,11 +192,31 @@ QTreeView#treeViewOnTheLeft::item:selected:!active {
     background: rgb(63, 147, 168);
 }
 
-QComboBox {
-    min-width: 8em;
+
+QComboBoxFMK {
+   background: rgb(211, 211, 211);
+   border-radius: 5px;   
+   min-width: 4em;
+}
+
+QLineEditFMK {
+    background: rgb(211, 211, 211);
+    border-radius: 5px;
+    color: black;    
+}
+
+QTextEditFMK {
+    background: rgb(211, 211, 211);
+    border-radius: 5px;
+    color: black;    
 }
 
 QLineEdit {
-    border-radius: 5px;
-    color: black;    
+    background: rgb(255, 255, 255);
+    color: black;        
+}
+
+QTextEdit {
+    background: rgb(255, 255, 255);
+    color: black;        
 }

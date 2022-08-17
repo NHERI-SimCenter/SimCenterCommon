@@ -62,6 +62,14 @@ ContinuousDesignDistribution::ContinuousDesignDistribution(QWidget *parent) :Ran
     mainLayout->setColumnStretch(3,1);
 }
 
+ContinuousDesignDistribution::ContinuousDesignDistribution(double initValue, QWidget *parent) :ContinuousDesignDistribution(parent)
+{
+    //
+    // create the main layout and add the input entries
+    //
+    initialPoint->setText(QString::number(initValue));
+}
+
 ContinuousDesignDistribution::~ContinuousDesignDistribution()
 {
 
@@ -116,12 +124,12 @@ ContinuousDesignDistribution::inputFromJSON(QJsonObject &rvObject){
 
     return true;
 }
-void
+bool
 ContinuousDesignDistribution::copyFiles(QString fileDir) {
-    //do nothing
+    return true;//do nothing
 }
 
 QString 
 ContinuousDesignDistribution::getAbbreviatedName(void) {
-  return QString("Continuous");
+  return QString("ContinuousDesign");
 }

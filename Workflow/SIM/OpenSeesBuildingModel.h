@@ -47,14 +47,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QComboBox>
 
 class InputWidgetParameters;
-class RandomVariablesContainer;
 
 class OpenSeesBuildingModel : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
-    explicit OpenSeesBuildingModel(RandomVariablesContainer *theRandomVariableIW, 
-				   bool includeCentroid = false,
+    explicit OpenSeesBuildingModel(bool includeCentroid = false,
 				   QWidget *parent = 0);
     ~OpenSeesBuildingModel();
 
@@ -73,7 +71,7 @@ public:
 signals:
 
 public slots:
-   void clear(void);
+   void clear(void) override;
    void chooseFileName1(void);
 
 private:
@@ -87,7 +85,6 @@ private:
     QLineEdit *ndm;
     QLineEdit *ndf;
     bool includeCentroid;
-    RandomVariablesContainer *theRandomVariablesContainer;
     QStringList varNamesAndValues;
 };
 

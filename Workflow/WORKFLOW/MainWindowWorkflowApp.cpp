@@ -39,7 +39,6 @@
 #include <QScreen>
 #include <QSettings>
 
-
 MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theService, QWidget *parent)
     : QMainWindow(parent), loggedIn(false), inputWidget(theApp),   theRemoteInterface(theService), isAutoLogin(false)
 {
@@ -62,6 +61,8 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     statusDockWidget->setWidget(statusWidget);
 
     this->addDockWidget(Qt::BottomDockWidgetArea, statusDockWidget);
+
+    resizeDocks({statusDockWidget}, {30}, Qt::Vertical);
 
     connect(statusWidget,&PythonProgressDialog::showDialog,statusDockWidget,&QDockWidget::setVisible);
 
@@ -89,7 +90,9 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     // SG change
     int height = this->height()<int(rec.height())?int(rec.height()):this->height();
     int width  = this->width()<int(rec.width())?int(rec.width()):this->width();
-
+    height = abs(0.85*height);
+    width = abs(0.85*width);    
+    
     // if (width>1280) width=1280;
     this->resize(width, height);
 
@@ -273,7 +276,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     //    featureRequestURL = QString("https://docs.google.com/forms/d/e/1FAIpQLScTLkSwDjPNzH8wx8KxkyhoIT7AI9KZ16Wg9TuW1GOhSYFOag/viewform");
     versionText = QString("");
     citeText = QString("");
-    aboutText = QString(tr("This is a SimCenter Workflow Applicatios"));
+    aboutText = QString(tr("This is a SimCenter Workflow Application"));
 
     aboutTitle = "About this SimCenter Application"; // this is the title displayed in the on About dialog
     aboutSource = ":/Resources/docs/textAbout.html";  // this is an HTML file stored under resources
@@ -435,6 +438,7 @@ bool MainWindowWorkflowApp::saveFile(const QString &fileName)
         return false;
     }
 
+    outputFilePath = fileName;
 
     //
     // create a json object, fill it in & then use a QJsonDocument
@@ -461,16 +465,14 @@ bool MainWindowWorkflowApp::saveFile(const QString &fileName)
 }
 
 
-void MainWindowWorkflowApp::loadFile(const QString &fileName)
+void MainWindowWorkflowApp::loadFile(QString &fileName)
 {
-  
     inputWidget->loadFile(fileName);
 }
 
 
 void MainWindowWorkflowApp::updateExamplesMenu(void)
 {
-
     if(exampleMenu == nullptr)
         exampleMenu = menuBar()->addMenu(tr("&Examples"));
     else
@@ -479,10 +481,10 @@ void MainWindowWorkflowApp::updateExamplesMenu(void)
     exampleMenu->addAction("Manage Examples", this, &MainWindowWorkflowApp::showExampleDownloader);
     exampleMenu->addSeparator();
 
-    auto pathExamplesFolder = QCoreApplication::applicationDirPath() + QDir::separator() + "Examples";
+    auto pathExamplesFolder = QCoreApplication::applicationDirPath() + "/" + "Examples";
 
-    auto pathToExamplesJson = pathExamplesFolder + QDir::separator() + "Examples.json";
-
+    auto pathToExamplesJson = pathExamplesFolder + "/" + "Examples.json";
+  
     QFile jsonFile(pathToExamplesJson);
     if (jsonFile.exists())
     {
@@ -500,9 +502,9 @@ void MainWindowWorkflowApp::updateExamplesMenu(void)
             QString downloadUrl = exampleObj["downloadUrl"].toString();
             QString description = exampleObj["description"].toString();
 
-            QFile inputFile(pathExamplesFolder + QDir::separator() + inputFileName);
+            QFile inputFile(pathExamplesFolder + "/" + inputFileName);
 
-            if(inputFile.exists())
+            if(inputFile.exists() && !inputFileName.isEmpty())
             {
                 auto action = exampleMenu->addAction(name, this, &MainWindowWorkflowApp::loadExamples);
                 action->setProperty("name",name);
@@ -860,7 +862,7 @@ MainWindowWorkflowApp::loadExamples()
     if(senderObj == nullptr)
         return;
 
-    auto pathToExample = QCoreApplication::applicationDirPath() + QDir::separator() + "Examples" + QDir::separator();
+    auto pathToExample = QCoreApplication::applicationDirPath() + "/" + "Examples" + "/";
     pathToExample += senderObj->property("inputFile").toString();
 
     if(pathToExample.isNull())
@@ -875,6 +877,7 @@ MainWindowWorkflowApp::loadExamples()
 
     auto exampleName = senderObj->property("name").toString();
     emit sendStatusMessage("Loading example "+exampleName);
+    emit sendStatusMessage(" - reading input file "+pathToExample);    
 
     auto description = senderObj->property("description").toString();
 
@@ -884,11 +887,11 @@ MainWindowWorkflowApp::loadExamples()
     statusWidget->showProgressBar();
     QApplication::processEvents();
 
-    emit sendStatusMessage("Loading Example file. Wait till Done Loading appears before progressing.");
+    emit sendStatusMessage("Loading Example file. Wait till Done Loading Example appears before progressing.");
     this->loadFile(pathToExample);
     
-    // statusWidget->hideProgressBar();
-    emit sendStatusMessage("Done Loading.");    
+     statusWidget->hideProgressBar();
+    emit sendStatusMessage("Done Loading Example.");    
 
     // Automatically hide after n seconds
     // progressDialog->hideAfterElapsedTime(4);

@@ -59,10 +59,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 //#include <InputWidgetParameters.h>
 
-OpenSeesBuildingModel::OpenSeesBuildingModel(RandomVariablesContainer *theRandomVariableIW, 
-					     bool includeC,
+OpenSeesBuildingModel::OpenSeesBuildingModel(bool includeC,
 					     QWidget *parent)
-  : SimCenterAppWidget(parent), responseNodes(0), theRandomVariablesContainer(theRandomVariableIW)
+  : SimCenterAppWidget(parent), responseNodes(0)
 {
   includeCentroid = includeC;
   centroidNodes = NULL;
@@ -134,7 +133,7 @@ OpenSeesBuildingModel::~OpenSeesBuildingModel()
     for (int i=0; i<varNamesAndValues.size()-1; i+=2) {
         names.append(varNamesAndValues.at(i));
     }
-
+    RandomVariablesContainer *theRandomVariablesContainer=RandomVariablesContainer::getInstance();
     theRandomVariablesContainer->removeRandomVariables(names);
 }
 
@@ -347,7 +346,7 @@ OpenSeesBuildingModel::setFilename1(QString name1){
     for (int i=0; i<varNamesAndValues.size()-1; i+=2) {
         names.append(varNamesAndValues.at(i));
     }
-
+    RandomVariablesContainer *theRandomVariablesContainer=RandomVariablesContainer::getInstance();
     theRandomVariablesContainer->removeRandomVariables(names);
 
     // set file name & ebtry in qLine edit
@@ -402,7 +401,7 @@ QString OpenSeesBuildingModel::getMainInput() {
      QString thePath = fileInfo.path();
 
      SimCenterAppWidget::copyPath(thePath, dirName, false);
-
+    RandomVariablesContainer *theRandomVariablesContainer=RandomVariablesContainer::getInstance();
      QStringList varNames = theRandomVariablesContainer->getRandomVariableNames();
 
      // now create special copy of original main script that handles the RV

@@ -1,5 +1,5 @@
-#ifndef FEM_SELECTION_H
-#define FEM_SELECTION_H
+#ifndef DAKOTA_RESULTS_SAMPLING_H
+#define DAKOTA_RESULTS_SAMPLING_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -37,47 +37,71 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: fmckenna and mhgardner
 
-#include <SimCenterAppWidget.h>
+#include <UQ_Results.h>
+#include <QtCharts/QChart>
+#include <QMessageBox>
+#include <QPushButton>
+#include <ResultsDataChart.h>
 
-class QComboBox;
-class QStackedWidget;
+
+using namespace QtCharts;
+
+class QTextEdit;
+class QTabWidget;
+class MyTableWidget;
+class MainWindow;
 class RandomVariablesContainer;
-class UQ_Results;
-class UQ_Engine;
-class RandomVariablesContainer;
 
-class FEM_Selection : public  SimCenterAppWidget
+//class QChart;
+
+class CustomUQ_Results : public UQ_Results
 {
-  Q_OBJECT
+    Q_OBJECT
+public:
+  explicit CustomUQ_Results(RandomVariablesContainer *, QWidget *parent = 0);
+    ~CustomUQ_Results();
 
-    public:
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
 
-  explicit FEM_Selection(RandomVariablesContainer *, QWidget *parent = 0);
-  ~FEM_Selection();
+    int processResults(QString &dirName);  
+    QWidget *createResultEDPWidget(QString &name, double mean, double stdDev, double skewness, double kurtosis);
 
-  bool outputAppDataToJSON(QJsonObject &jsonObject);
-  bool inputAppDataFromJSON(QJsonObject &jsonObject);
-  bool outputToJSON(QJsonObject &rvObject);
-  bool inputFromJSON(QJsonObject &rvObject);
-  bool copyFiles(QString &destName);
+signals:
+
+public slots:
   
-  void clear(void);
-  
- signals:
-  void onSelectionChanged(void);
+   void clear(void);
+   void onSpreadsheetCellClicked(int, int);
+   void onSaveSpreadsheetClicked();
 
- public slots:
-  void selectionChanged(const QString &arg1);
-  void selectionChanged(void);
-  
+   // modified by padhye 08/25/2018
+
 private:
-   QComboBox   *theSelectionBox;
-   QStackedWidget *theStackedWidget;
+   int processResults(QString &filenameResults, QString &filenameTab);
+  
+   RandomVariablesContainer *theRVs;
+   QTabWidget *tabWidget;
 
-   SimCenterAppWidget *theCurrentSelection;
-   SimCenterAppWidget *theOpenSeesApplication;
+   MyTableWidget *spreadsheet;  // MyTableWidget inherits the QTableWidget
+   QChart *chart;
+   QPushButton* save_spreadheet; // save the data from spreadsheet 
+   QLabel *label;
+   QLabel *best_fit_instructions;
+
+   int col1, col2;
+   bool mLeft;
+   QStringList theHeadings;
+
+   QVector<QString>theNames;
+   QVector<double>theMeans;
+   QVector<double>theStdDevs;
+   QVector<double>theKurtosis;
+   QVector<double>theSkewness;
+   ResultsDataChart *theDataTable;
+   QWidget *createResultEDPWidget(QString &name, QVector<double> statistics);
 };
 
-#endif // FEM_SELECTION_H
+#endif // DAKOTA_RESULTS_SAMPLING_H

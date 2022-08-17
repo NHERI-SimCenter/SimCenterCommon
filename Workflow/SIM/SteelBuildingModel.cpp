@@ -35,7 +35,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written: Stevan Gavrilovic
-// Last revision: 09/2020
 
 #include "SteelBuildingModel.h"
 #include "ReadWriteRVJSON.h"
@@ -314,8 +313,6 @@ bool SteelBuildingModel::checkRV(const QString& value)
 
 bool SteelBuildingModel::outputToJSON(QJsonObject &jsonObject)
 {
-    this->saveDataToFolder();
-
     jsonObject["type"]="SteelBuildingModel";
 
     jsonObject["numStories"]= numFloorsLE->text().toInt();
@@ -440,19 +437,17 @@ bool SteelBuildingModel::copyFiles(QString &dirName) {
     QString name;
 
     if (!fullPath.exists()){
-        // files not yet saved .. mkdir and use saveDataToFolder method to write files
         name = "autosda_files";
-        pathToDataFiles = dirName + QDir::separator() + name;
-        dir.mkpath(pathToDataFiles);
-        this->saveDataToFolder();
+	pathToDataFiles = dirName + QDir::separator() + name;	
+	dir.mkdir(name);    	
     } else {
         //mkdir and copy
         name = fullPath.fileName();
         dir.mkdir(name);
-        copyPath(pathToDataFiles, dirName + QDir::separator() + name, true);
+	pathToDataFiles = dirName + QDir::separator() + name;
     }
 
-
+    this->saveDataToFolder();
 
     return true;
 }
@@ -633,7 +628,7 @@ void SteelBuildingModel::onBuildingDimLEChange(void)
     auto buildingDepth = zBayWidth*static_cast<double>(numBayZ);
     auto planArea = buildingWidth*buildingDepth;
 
-    emit setBuildingDimensions(buildingWidth,buildingDepth,planArea);
+    emit buildingDimensionsChanged(buildingWidth,buildingDepth,planArea);
 
     return;
 }

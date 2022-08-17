@@ -67,8 +67,7 @@ NormalDistribution::NormalDistribution(QString inpType, QWidget *parent) :Random
 
         mean = this->createTextEntry(tr("Mean"), mainLayout,0);
         standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout,1);
-        mean->setValidator(new QDoubleValidator);
-        standardDev->setValidator(new QDoubleValidator);
+        //standardDev->setValidator(new QDoubleValidator);
         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton,1,2);
         mainLayout->setColumnStretch(3,1);
@@ -109,40 +108,38 @@ NormalDistribution::~NormalDistribution()
     delete thePlot;
 }
 
-NormalDistribution::NormalDistribution(double initValue, QWidget *parent) :RandomVariableDistribution(parent)
+NormalDistribution::NormalDistribution(double initValue, QWidget *parent) :NormalDistribution("Parameters", parent)
 {
-    //
-    // create the main layout and add the input entries
-    //
-    QGridLayout *mainLayout = new QGridLayout(this);
+//    //
+//    // create the main layout and add the input entries
+//    //
+//    QGridLayout *mainLayout = new QGridLayout(this);
 
-    // set some defaults, and set layout for widget to be the horizontal layout
-    mainLayout->setHorizontalSpacing(10);
-    mainLayout->setVerticalSpacing(0);
-    mainLayout->setMargin(0);
+//    // set some defaults, and set layout for widget to be the horizontal layout
+//    mainLayout->setHorizontalSpacing(10);
+//    mainLayout->setVerticalSpacing(0);
+//    mainLayout->setMargin(0);
 
-    QPushButton *showPlotButton = new QPushButton("Show PDF");
+//    QPushButton *showPlotButton = new QPushButton("Show PDF");
 
-    //Parameters
-    this->inpty = "Parameters";
-    mean = this->createTextEntry(tr("Mean"), mainLayout,0);
-    standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout,1);
-    mean->setValidator(new QDoubleValidator);
-    standardDev->setValidator(new QDoubleValidator);
+//    //Parameters
+//    this->inpty = "Parameters";
+//    mean = this->createTextEntry(tr("Mean"), mainLayout,0);
+//    standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout,1);
 
-    mainLayout->addWidget(showPlotButton,1,2);
-    mainLayout->setColumnStretch(3,1);
+//    mainLayout->addWidget(showPlotButton,1,2);
+//    mainLayout->setColumnStretch(3,1);
 
-    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
+//    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
 
-    connect(mean,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
-    connect(standardDev,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
-    connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
+//    connect(mean,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+//    connect(standardDev,SIGNAL(textEdited(QString)), this, SLOT(updateDistributionPlot()));
+//    connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
 
 
     // set initial or Disabled
     mean->setText(QString::number(initValue));
-    standardDev->setText(QString::number(std::abs(initValue)*0.1)); // 0.1 c.o.v
+    standardDev->setText(QString::number(fabs(initValue)*0.1)); // 0.1 c.o.v
     this->updateDistributionPlot();
 }
 
@@ -213,10 +210,12 @@ NormalDistribution::inputFromJSON(QJsonObject &rvObject){
     return true;
 }
 
-void
+bool
 NormalDistribution::copyFiles(QString fileDir) {
     if (inpty==QString("Dataset")) {
-        QFile::copy(dataDir->text(), fileDir);
+        return QFile::copy(dataDir->text(), fileDir);
+    } else {
+        return true;
     }
 }
 
@@ -231,19 +230,20 @@ NormalDistribution::updateDistributionPlot() {
         double me = mean->text().toDouble();
         double st =standardDev->text().toDouble();
         if (st < 0.0) {
-            st = 0;
-            me = 0;
-        }
-            double min = me - 5*st;
-            double max = me + 5*st;
-            QVector<double> x(100);
-            QVector<double> y(100);
-            for (int i=0; i<100; i++) {
-                double xi = min + i*(max-min)/99;
-                x[i] = xi;
-                y[i] =1.0/(sqrt(2*3.1415926535)*st)*exp(-(0.5*(xi-me)*(xi-me)/(st*st)));
-            }
             thePlot->clear();
-            thePlot->addLine(x,y);
+            return;
+        }
+        double min = me - 5*st;
+        double max = me + 5*st;
+        QVector<double> x(100);
+        QVector<double> y(100);
+        for (int i=0; i<100; i++) {
+            double xi = min + i*(max-min)/99;
+            x[i] = xi;
+            y[i] =1.0/(sqrt(2*3.1415926535)*st)*exp(-(0.5*(xi-me)*(xi-me)/(st*st)));
+        }
+        thePlot->clear();
+        thePlot->drawPDF(x,y);
     }
+
 }

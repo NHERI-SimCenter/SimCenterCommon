@@ -344,33 +344,24 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
         QString appName = QCoreApplication::applicationName();
         if (appName != "R2D"){
 
-            name1 = localDir + QDir::separator() + QString("dakota.json");
-            name2 = localDir + QDir::separator() + QString("dakota.out");
-            name3 = localDir + QDir::separator() + QString("dakotaTab.out");
-            name4 = localDir + QDir::separator() + QString("dakota.err");;
+	  name1 = localDir + QDir::separator() + QString("templatedir.zip");
+	  name2 = localDir + QDir::separator() + QString("results.zip");
+	  name3 = localDir;	  
+	  
+	  localFiles.append(name1);
+	  localFiles.append(name2);
+	  
+	  //
+	  // download data to temp files & then process them as normal
+	  //
+	  
+	  archiveDir = archiveDir + QString("/") + inputDir.remove(QRegExp(".*\\/")); // regex to remove up till last /
 
-            localFiles.append(name1);
-            localFiles.append(name2);
-            localFiles.append(name3);
-            localFiles.append(name4);
+         QString inputJSON = archiveDir + QString("/templatedir.zip");
+         QString resultsZIP = archiveDir + QString("/results.zip");
 
-            //
-            // download data to temp files & then process them as normal
-            //
-
-            archiveDir = archiveDir + QString("/") + inputDir.remove(QRegExp(".*\\/")); // regex to remove up till last /
-
-            QString dakotaJSON = archiveDir + QString("/dakota.json");
-            QString dakotaOUT = archiveDir + QString("/dakota.out");
-            QString dakotaTAB = archiveDir + QString("/dakotaTab.out");
-            QString dakotaERR = archiveDir + QString("/dakota.err");
-
-            // first download the input data & load it
-
-            filesToDownload.append(dakotaJSON);
-            filesToDownload.append(dakotaOUT);
-            filesToDownload.append(dakotaTAB);
-            filesToDownload.append(dakotaERR);
+	 filesToDownload.append(inputJSON);
+	 filesToDownload.append(resultsZIP);
 
         } else {
 
@@ -426,9 +417,28 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
         if (result == true) {
             QString appName = QCoreApplication::applicationName();
             if (appName != "R2D"){
-                emit loadFile(name1);
-                emit processResults(name2, name3, name1);
+		QString templateDir = name3 + QDir::separator() + QString("templatedir");
+		QDir templateD(templateDir);
+		if (templateD.exists())
+		  templateD.removeRecursively();
+
+		// unzip .. this places files in a new dir templatedir
+		ZipUtils::UnzipFile(name1, QDir(name3));
+		QString inputFile = templateDir + QDir::separator() + QString("scInput.json");
+		qDebug() << "loadingFile after download .. " << inputFile;
+                emit loadFile(inputFile);
+
+		// remove results dir if exists
+		QString resultsDir = name3 + QDir::separator() + QString("results");
+		QDir resultsD(resultsDir);
+		if (resultsD.exists())
+		  resultsD.removeRecursively();
+		
+		// unzip .. this places files in a new dir results
+		ZipUtils::UnzipFile(name2, QDir(name3));
+		emit processResults(resultsDir);		
                 this->close();
+		
             } else {
                 // unzip files
                 ZipUtils::UnzipFile(name3, localDir);
@@ -465,11 +475,11 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
                 // now load inputfile and process results
                 QFileInfo fileInfo(name1);
                 QString filePath = fileInfo.absolutePath();
-                QString name2("");
-                QString name3("");
+                //QString name2("");
+                //QString name3("");
 
                 emit loadFile(name1);
-                emit processResults(filePath, name2, name3);
+                emit processResults(filePath);
             }
         } else {
             emit sendErrorMessage("ERROR - Failed to download File - did Job finish successfully?");

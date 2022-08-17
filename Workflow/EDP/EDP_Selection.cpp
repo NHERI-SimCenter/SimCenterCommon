@@ -61,8 +61,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <StandardEDP.h>
 #include <UserDefinedEDP.h>
 
-EDP_Selection::EDP_Selection(RandomVariablesContainer *theRandomVariableIW, QWidget *parent)
-    : SimCenterAppWidget(parent), theCurrentEDP(0), theRandomVariablesContainer(theRandomVariableIW)
+EDP_Selection::EDP_Selection(QWidget *parent)
+    : SimCenterAppWidget(parent), theCurrentEDP(0)
 {
     QVBoxLayout *layout = new QVBoxLayout();
 
@@ -94,10 +94,10 @@ EDP_Selection::EDP_Selection(RandomVariablesContainer *theRandomVariableIW, QWid
     // create the individual widgets add to stacked widget
     //
 
-    theStandardEDPs = new StandardEDP(theRandomVariablesContainer);
+    theStandardEDPs = new StandardEDP();
     theStackedWidget->addWidget(theStandardEDPs);
 
-    theUserDefinedEDPs = new UserDefinedEDP(theRandomVariablesContainer);
+    theUserDefinedEDPs = new UserDefinedEDP();
     theStackedWidget->addWidget(theUserDefinedEDPs);
 
     layout->addWidget(theStackedWidget);

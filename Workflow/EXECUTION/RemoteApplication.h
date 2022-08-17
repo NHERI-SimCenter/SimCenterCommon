@@ -69,7 +69,7 @@ public:
     void clearExtraParameters();
 
 signals:
-   void processResults(QString &, QString &);
+   void processResults(QString &resultsDir);
    void getHomeDirCall(void);
    void uploadDirCall(const QString &local, const QString &remote);
    void startJobCall(QJsonObject theJob);

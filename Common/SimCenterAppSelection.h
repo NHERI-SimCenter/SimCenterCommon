@@ -66,7 +66,8 @@ public:
 
 public slots:
    void selectionChangedSlot(const QString &);
-   void setCurrentlyViewable(bool); 
+   void setCurrentlyViewable(bool);
+   void setSelectionsActive(bool);
 
 signals:
    void selectionChangedSignal(const QString &);

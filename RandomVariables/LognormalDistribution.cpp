@@ -65,18 +65,14 @@ LognormalDistribution::LognormalDistribution(QString inpType, QWidget *parent) :
     if (inpty==QString("Parameters"))
     {
         lambda = this->createTextEntry(tr("lambda"), mainLayout, 0);
-        lambda->setValidator(new QDoubleValidator);
         zeta  = this->createTextEntry(tr("zeta"), mainLayout, 1);
-        zeta->setValidator(new QDoubleValidator);
         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
     } else if (inpty==QString("Moments")) {
 
         mean = this->createTextEntry(tr("Mean"), mainLayout, 0);
-        mean->setValidator(new QDoubleValidator);        
         standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout, 1);
-        standardDev->setValidator(new QDoubleValidator);
         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
@@ -151,10 +147,12 @@ LognormalDistribution::outputToJSON(QJsonObject &rvObject){
     return true;
 }
 
-void
+bool
 LognormalDistribution::copyFiles(QString fileDir) {
     if (inpty==QString("Dataset")) {
-        QFile::copy(dataDir->text(), fileDir);
+        return QFile::copy(dataDir->text(), fileDir);
+    } else {
+        return true;
     }
 }
 
@@ -248,7 +246,7 @@ LognormalDistribution::updateDistributionPlot() {
                 y[i] = 1.0/(xi*ze*sqrt(2*3.141592))*exp( - pow((log(xi)-la)/ze,2)/2  );
             }
             thePlot->clear();
-            thePlot->addLine(x,y);
+            thePlot->drawPDF(x,y);
         }
 
        if ((st <= 0.0)|| (me <= 0)) {

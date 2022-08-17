@@ -50,7 +50,7 @@ class InputWidgetOpenSeesAnalysis : public  SimCenterAppWidget
 {
     Q_OBJECT
 public:
-    explicit InputWidgetOpenSeesAnalysis(RandomVariablesContainer *theRandomVariableIW, QWidget *parent = 0);
+    explicit InputWidgetOpenSeesAnalysis(QWidget *parent = 0);
     ~InputWidgetOpenSeesAnalysis();
 
     bool outputToJSON(QJsonObject &jsonObject) override;

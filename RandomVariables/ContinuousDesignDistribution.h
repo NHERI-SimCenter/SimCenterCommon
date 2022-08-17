@@ -48,11 +48,12 @@ class ContinuousDesignDistribution : public RandomVariableDistribution
     Q_OBJECT
 public:
     explicit ContinuousDesignDistribution(QWidget *parent = 0);
+    explicit ContinuousDesignDistribution(double initValue, QWidget *parent) ;
     ~ContinuousDesignDistribution();
 
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
-    void copyFiles(QString fileDir);
+    bool copyFiles(QString fileDir);
 
     QString getAbbreviatedName(void);
 

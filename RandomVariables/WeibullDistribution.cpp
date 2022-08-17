@@ -67,18 +67,14 @@ WeibullDistribution::WeibullDistribution(QString inpType, QWidget *parent) :Rand
     if (inpty==QString("Parameters"))
     {
         an = this->createTextEntry(tr("an (scale)"), mainLayout, 0);
-        an->setValidator(new QDoubleValidator);
         k  = this->createTextEntry(tr("k (shape)"), mainLayout, 1);
-        k->setValidator(new QDoubleValidator);
         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
     } else if (inpty==QString("Moments")) {
 
         mean = this->createTextEntry(tr("Mean"), mainLayout, 0);
-        mean->setValidator(new QDoubleValidator);        
-        standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout, 1);
-        standardDev->setValidator(new QDoubleValidator);
+         standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout, 1);
         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
@@ -213,10 +209,12 @@ WeibullDistribution::inputFromJSON(QJsonObject &rvObject){
     return true;
 }
 
-void
+bool
 WeibullDistribution::copyFiles(QString fileDir) {
     if (inpty==QString("Dataset")) {
-        QFile::copy(dataDir->text(), fileDir);
+        return QFile::copy(dataDir->text(), fileDir);
+    } else {
+        return true;
     }
 }
 
@@ -271,7 +269,9 @@ WeibullDistribution::updateDistributionPlot() {
             y[i] =(kk/aa)*(pow((xi/aa),(kk-1))*exp(-(pow((xi/aa),kk))));
         }
         thePlot->clear();
-        thePlot->addLine(x,y);
+        thePlot->drawPDF(x,y);
+    } else {
+        thePlot->clear();
     }
 
 }
