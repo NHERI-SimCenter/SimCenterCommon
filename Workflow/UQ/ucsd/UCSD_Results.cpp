@@ -179,12 +179,12 @@ void UCSD_Results::clear(void)
 // if sobelov indices are selected then we would need to do some processing outselves
 int UCSD_Results::processResults(QString &dirName)
 {
-  QString tabFile = dirName + QDir::separator() + tr("dakotaTab.out");;
-  QString tabPriorFile = dirName + QDir::separator() + tr("dakotaTabPrior.out");;    
+  QString tabFile = dirName + "/" + tr("dakotaTab.out");;
+  QString tabPriorFile = dirName + "/" + tr("dakotaTabPrior.out");;
   return this->processResults(tabFile, tabPriorFile);
 }
 
-int UCSD_Results::processResults(QString &filenameTab, QString &filenamePrior)
+int UCSD_Results::processResults(QString &filenameTab, QString &filenameTabPrior)
 {
     statusMessage(tr("Processing Results"));
 
@@ -199,16 +199,17 @@ int UCSD_Results::processResults(QString &filenameTab, QString &filenamePrior)
         errorMessage("ERROR: No dakotaTab.out file - TMCMC failed .. possibly no QoI");
         return 0;
     }
-
     QDir fileDirTab = filenameTabInfo.absoluteDir();
-    // QFileInfo priorFileInfo(fileDirTab, "dakotaTabPrior.out");
-    QFileInfo priorFileInfo(filenamePrior);    
-    
-    QString filenameTabPrior = priorFileInfo.absoluteFilePath();
+
+    QFileInfo priorFileInfo(filenameTabPrior);
+//    QString filenameTabPrior = priorFileInfo.absoluteFilePath();
     if (!priorFileInfo.exists()) {
         errorMessage("ERROR: No dakotaTabPrior.out file - TMCMC failed .. possibly no QoI");
         return 0;
     }
+
+    QString logFileName = "logFileTMCMC.txt";
+    QFileInfo logFileInfo(fileDirTab.absolutePath() + "/" + logFileName);
 
     //
     // create summary, a QWidget for summary data, the EDP name, mean, stdDev, kurtosis info
@@ -244,7 +245,7 @@ int UCSD_Results::processResults(QString &filenameTab, QString &filenamePrior)
 //    QVector<QVector<double>> statisticsVectorPrior = theDataTablePrior->getStatistics();
 
     // Read the dakota.json file located in ./templatedir
-    QFileInfo jsonFileInfo(fileDirTab.absolutePath() + QDir::separator() + QString("templatedir"), QString("scInput.json"));
+    QFileInfo jsonFileInfo(fileDirTab.absolutePath() + "/" + QString("templatedir"), QString("scInput.json"));
     if (!jsonFileInfo.exists()) {
         errorMessage("ERROR: No scInput.json file");
         return 0;
@@ -295,12 +296,43 @@ int UCSD_Results::processResults(QString &filenameTab, QString &filenamePrior)
 //    BayesPlots *thePlot = new BayesPlots(edpNames, edpLengths);
 //    thePlot->plotPosterior(minMaxVector, minMaxVectorPrior, statisticsVector, statisticsVectorPrior, statisticsVectorCalData);
 
+    // Create a tab for the TMCMC logfile
+    QScrollArea *logFileTMCMC = new QScrollArea;
+    logFileTMCMC->setWidgetResizable(true);
+    logFileTMCMC->setLineWidth(0);
+    logFileTMCMC->setFrameShape(QFrame::NoFrame);
+
+    QWidget *TMCMCDiagnostics = new QWidget();
+    QVBoxLayout *diagnosticsLayout = new QVBoxLayout();
+    diagnosticsLayout->setContentsMargins(0,0,0,0); // adding back
+    TMCMCDiagnostics->setLayout(diagnosticsLayout);
+
+    logFileTMCMC->setWidget(TMCMCDiagnostics);
+    QTextEdit *logFileText = new QTextEdit();
+    logFileText->setReadOnly(true); // make it so user cannot edit the contents
+
+    std::string logFileLine;
+    logFileText->setText("\n");
+
+    std::ifstream logFileStream(logFileInfo.absoluteFilePath().toStdString().c_str());
+    if (!logFileStream.is_open()) {
+        qDebug() << "Could not open file: " << logFileInfo.absoluteFilePath();
+//        return -1;
+    } else {
+        qDebug() << "Opened file: " << logFileInfo.absoluteFilePath();
+        while (std::getline(logFileStream, logFileLine)) {
+            logFileText->append(logFileLine.c_str());
+        }
+        // close TMCMC log file
+        logFileStream.close();
+    }
 
     //
     // add summary, detailed info and spreadsheet with chart to the tabbed widget
     //
 
     tabWidget->addTab(sa,tr("Summary"));
+    tabWidget->addTab(logFileText, tr("Diagnostics"));
 //    tabWidget->addTab(theDataTablePrior, tr("Prior"));
     tabWidget->addTab(theDataTable, tr("Data Values"));
 //    tabWidget->addTab(theDataTable, tr("Posterior"));
