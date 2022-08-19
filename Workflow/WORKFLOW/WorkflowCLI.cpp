@@ -2,8 +2,8 @@
 #include <string>
 #include <unordered_map>
 #include <LocalApplication.h>
-#include <WorkflowAppWidget.h>
-#include <MainWindowWorkflowApp.h>
+#include "WorkflowAppWidget.h"
+#include "MainWindowWorkflowApp.h"
 #include "WorkflowCLI.h"
 
 #include <QObject>
@@ -13,23 +13,17 @@
 #include <QEventLoop>
 #include <QApplication>
 #include <QSettings>
+#include <QTextStream>
 
-static void print_help(const char* app_name) {
-  static const char *options = R"EOF(
-Options
---config/-c          [<key>=<value>]    Set config value for <key> to <value> 
-                                        for current run.
---persist-config/-C   <key>=<value>     Set config value for <key> to <value>, 
-                                        and store changes for app.
+// Replicate qDebug() behavior with standard terminal streams.
+// The " \b" string quiets zero-length format string warnings.
+QTextStream qstderr(stderr);
+QTextStream qstdout(stdout);
+#define qStdErr(...) (fprintf(stderr, " \b" __VA_ARGS__), qstderr)
+#define qStdOut(...) (fprintf(stdout, " \b" __VA_ARGS__), qstdout)
 
-Examples
 
-  ./quoFEM -c appDir=~/simcenter/SimCenterBackendApplications/ Examples/qfem-0001/src/input.json
-
-)EOF";
-  fprintf(stdout, "usage: %s [options] <input.json>\n%s", app_name, options);
-}
-
+static void print_help(const char* app_name);
 WorkflowCLI::WorkflowCLI(MainWindowWorkflowApp *w, WorkflowAppWidget *input)
   : window(w), inputApp(input)
 {
@@ -51,14 +45,14 @@ int WorkflowCLI::parseAndRun(int argc, char **argv)
 
   current_arg = configureSimCenterApps(argc, argv);
   if (current_arg < argc) {
-    fprintf(stderr, "Running file '%s'\n", argv[current_arg]);
+    qStdErr("Running file '%s'\n", argv[current_arg]);
     inputApp->loadFile(*(new QString(argv[current_arg])));
     res  = runLocal();
 
   } else if (reset_config)
     resetConfiguration();
 
-  fprintf(stderr, "status = %d\n", res);
+  qStdErr("status = %d\n", res);
   
   return res;
 }
@@ -99,31 +93,35 @@ WorkflowCLI::configureSimCenterApps(int argc, char **argv) {
     QSettings settingsCommon("SimCenter", "Common");
     QSettings settingsApp("SimCenter", QCoreApplication::applicationName());
 
-    int used_count = 1;
+    // Count consumed arguments
+    int used_count = 1; 
+
     for (int i = 1; i < argc; i++){
       if (strcmp(argv[i], "--config") == 0 ||
           strcmp(argv[i], "-c") == 0 ||
           strcmp(argv[i], "--persist-config") == 0 ||
           strcmp(argv[i], "-C") == 0 ) {
 
-        used_count ++;
         if (strcmp(argv[i], "--persist-config") == 0 ||
             strcmp(argv[i], "-C") == 0 ) {
           reset_config = false;
         }
+        used_count ++;
 
-
-        if (argc > i + 1)  {
+        if ((argc > i + 1) && (argv[i + 1][0] != '-')) {
           used_count ++;
           char *tokptr = argv[++i];
           char *key = strtok_r(tokptr, "=", &tokptr);
           char *val = strtok_r(tokptr, "=", &tokptr);
 
           if (val) {
+            // 
+            // --config KEY=VALUE ; set KEY with VALUE
+            //
             if (app_options.find(key) != app_options.end()) {
               // Store current value to reset later
               app_options[key] = new QVariant(settingsApp.value(key));
-              fprintf(stderr, "%s: %s -> %s\n", key, app_options[key]->toString().toStdString().c_str(), val);
+              // qStdErr("%s: %s -> %s\n", key, app_options[key]->toString().toUtf8().data(), val);
               settingsApp.setValue(key, val);
 
               if (strcmp(key, "appDir") == 0)
@@ -135,25 +133,52 @@ WorkflowCLI::configureSimCenterApps(int argc, char **argv) {
               settingsCommon.setValue("pythonExePath", val);
 
             } else {
-              fprintf(stderr, "ERROR: Unknown configuration key '%s'\n", key);
+              qStdErr("ERROR: Unknown configuration key '%s'\n", key);
               exit(-1);
             }
 
           } else {
-            for (const auto&k : settingsApp.allKeys()) {
-              const char* value = settingsApp.value(k, "None").toString().toStdString().c_str();
-              fprintf(stdout, "%s: %s\n", k.toStdString().c_str(), value);
-            }
-            // exit(-1);
+            // --config VAR ; print out var
+              qStdOut() << key << ": " << settingsCommon.value(key,settingsApp.value(key, "Key unknown")).toString().toUtf8().data() << "\n";
           }
-        }
 
-      
+        } else {
+            // --config ; print out all key/value pairs
+            qStdOut() << "Application Settings:\n";
+            for (const auto&k : settingsApp.allKeys()) {
+              const char* svalue = settingsApp.value(k, "None").toString().toUtf8().data();
+              qStdOut() << "\t" << k.toUtf8().data() << ": " << svalue << "\n";
+            }
+            qStdOut() << "SimCenter Common Settings:\n";
+            for (const auto&k : settingsCommon.allKeys()) {
+              const char* svalue = settingsApp.value(k, "None").toString().toUtf8().data();
+              qStdOut() << "\t" << k.toUtf8().data() << ": " << svalue << "\n";
+            }
+        }
+ 
       } else if (argv[i][0] == '-') {
-          fprintf(stderr, "ERROR: Unknown option '%s'\n", argv[i]);
+          qStdErr("ERROR: Unknown key '%s'\n", argv[i]);
           exit(-1);
       }
 
     }
     return used_count;
 }
+
+static void print_help(const char* app_name) {
+  static const char *options = R"EOF(
+Options
+--config/-c          [<key>=<value>]    Set config value for <key> to <value> 
+                                        for current run.
+--persist-config/-C   <key>=<value>     Set config value for <key> to <value>, 
+                                        and store changes for app.
+
+Examples
+
+  ./quoFEM -c appDir=~/simcenter/SimCenterBackendApplications/ Examples/qfem-0001/src/input.json
+
+)EOF";
+
+  qStdOut("usage: %s [options] <input.json>\n%s", app_name, options);
+}
+
