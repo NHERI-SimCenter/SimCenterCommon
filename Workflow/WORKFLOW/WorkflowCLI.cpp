@@ -42,7 +42,11 @@ int WorkflowCLI::parseAndRun(int argc, char **argv)
 {
   int res = 0;
   int current_arg = 0;
-
+  
+  if (argc == 2 && strcmp(argv[1], "--help") == 0) {
+    print_help(argv[0]);
+    exit(0);
+  }
   current_arg = configureSimCenterApps(argc, argv);
   if (current_arg < argc) {
     qStdErr("Running file '%s'\n", argv[current_arg]);
@@ -52,7 +56,7 @@ int WorkflowCLI::parseAndRun(int argc, char **argv)
   } else if (reset_config)
     resetConfiguration();
 
-  qStdErr("status = %d\n", res);
+  // qStdErr("status = %d\n", res);
   
   return res;
 }
