@@ -199,8 +199,8 @@ int SimCenterUQResultsSensitivity::processResults(QString &filenameResults, QStr
     // check it actually ran with errors
     //
 
-    QFileInfo fileTabInfo(filenameTab);
-    QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
+    QFileInfo fileResInfo(filenameResults);
+    QString filenameErrorString = fileResInfo.absolutePath() + QDir::separator() + QString("dakota.err");
 
     QFileInfo filenameErrorInfo(filenameErrorString);
     if (!filenameErrorInfo.exists()) {
@@ -223,15 +223,8 @@ int SimCenterUQResultsSensitivity::processResults(QString &filenameResults, QStr
     }
 
 
-
-    QFileInfo filenameTabInfo(filenameTab);
-    if (!filenameTabInfo.exists()) {
-        errorMessage("No Tab.out file - sensitivity analysis failed - possibly no QoI or a permission issue.");
-        return 0;
-    }
-
     // If surrogate model is used, display additional info.
-    QDir tempFolder(filenameTabInfo.absolutePath());
+    QDir tempFolder(fileResInfo.absolutePath());
     QFileInfo surrogateTabInfo(tempFolder.filePath("surrogateTab.out"));
     if (surrogateTabInfo.exists()) {
         filenameTab = tempFolder.filePath("surrogateTab.out");
@@ -253,14 +246,33 @@ int SimCenterUQResultsSensitivity::processResults(QString &filenameResults, QStr
     // open file containing data
     std::ifstream fileResults(filenameResults.toStdString().c_str());
     if (!fileResults.is_open()) {
-        std::cerr << "SimCenterUQResultsReliability: Could not open file";
-        return -1;
+        errorMessage("No error file - SimCenterUQ did not run - problem with quoFEM setup or the applications failed with inputs provided");
+        return 0;
     }
 
     std::string readline;
-    getline(fileResults, readline);// header- number of input combinations
-    getline(fileResults, readline);// value
-    ncomb=atoi(readline.c_str());
+
+    bool usedData = false;
+    QString inpPath(""), outPath("");
+    getline(fileResults, readline);// header- data generation OR number of input combinations
+    if (readline.compare("* data generation")==0){
+        getline(fileResults, readline);// header- data generation
+        if (readline.compare("Import Data Files")==0){
+            usedData= true;
+            getline(fileResults, readline);// path_input
+            inpPath = QString::fromStdString(readline);
+            getline(fileResults, readline);// path_input
+            outPath = QString::fromStdString(readline);
+        }
+
+        getline(fileResults, readline);// header- number of input combinations
+        getline(fileResults, readline);// value- number of input combinations
+        ncomb=atoi(readline.c_str());
+    } else {
+        getline(fileResults, readline);// value- number of input combinations
+        ncomb=atoi(readline.c_str());
+    }
+
 
     getline(fileResults, readline);// header- input names
     for (int nc=0; nc<ncomb; nc++) {
@@ -268,18 +280,28 @@ int SimCenterUQResultsSensitivity::processResults(QString &filenameResults, QStr
         combs.push_back(QString::fromStdString(readline));
     }
 
-    getline(fileResults, readline);// header- number of outputs
-    getline(fileResults, readline);// value
-    nQoI=atoi(readline.c_str());
+    nAggQoI=0;
+    getline(fileResults, readline);// header- number of aggregated outputs OR number of outputs
+    if (readline.compare("* number of aggregated outputs")==0){
+        getline(fileResults, readline);// value
+        nAggQoI=atoi(readline.c_str());
+
+        getline(fileResults, readline);// header- number of outputs
+        getline(fileResults, readline);// value
+        nQoI=atoi(readline.c_str());
+    } else {
+        getline(fileResults, readline);// value
+        nQoI=atoi(readline.c_str());
+    }
 
     getline(fileResults, readline);// header- output names
-    for (int nq=0; nq<nQoI; nq++) {
+    for (int nq=0; nq<nQoI+nAggQoI; nq++) {
         getline(fileResults, readline);// value
         QoInames.push_back(QString::fromStdString(readline));
     }
 
     getline(fileResults, readline);// header- Sm(E) Sm(P) Sm(Ao) Sm(Au) St(E) St(P) St(Ao) St(Au)
-    for (int nq=0; nq<nQoI; nq++) {
+    for (int nq=0; nq<nQoI+nAggQoI; nq++) {
         QVector<double> sobols_vec;
         getline(fileResults, readline);// value
         std::istringstream stm(readline) ;
@@ -330,7 +352,15 @@ int SimCenterUQResultsSensitivity::processResults(QString &filenameResults, QStr
     // create spreadsheet,  a QTableWidget showing RV and results for each run
     //
 
-    theDataTable = new ResultsDataChart(filenameTab, isSurrogate, ncomb);
+    if (!usedData) {
+            theDataTable = new ResultsDataChart(filenameTab, isSurrogate, ncomb);
+    } else {
+        QStringList QoIlist; // w
+        for (int i=nAggQoI;i<(nAggQoI+nQoI); i++){
+            QoIlist <<QoInames[i];
+        }
+        theDataTable = new ResultsDataChart(inpPath, outPath, ncomb, nQoI, nSamp, combs.toList(), QoIlist);
+    }
     //theDataTable = new ResultsDataChart(filenameTab);
 
     //
@@ -349,6 +379,7 @@ int SimCenterUQResultsSensitivity::processResults(QString &filenameResults, QStr
 
 void SimCenterUQResultsSensitivity::gsaGraph(QScrollArea *&sa)
 {
+    int nQoIall = nQoI + nAggQoI;
     sa->setWidgetResizable(true);
     sa->setLineWidth(0);
     sa->setFrameShape(QFrame::NoFrame);
@@ -357,21 +388,50 @@ void SimCenterUQResultsSensitivity::gsaGraph(QScrollArea *&sa)
     QVBoxLayout *summaryLayout = new QVBoxLayout();
     summary->setLayout(summaryLayout);
 
-    if (nQoI<20) {
-        for (int nq=0; nq<nQoI; nq++){
+    if (nQoIall<20) {
+        for (int nq=0; nq<nQoIall; nq++){
             QGroupBox *groupBox;
             bool useAnimation = true;
             getGroupBox(groupBox, nq, useAnimation);
             summaryLayout->addWidget(groupBox);
         }
     }
-    else if (nQoI<400) {
+    else if (nQoIall<1000) {
         QComboBox *qoiSelection = new QComboBox();
         qoiSelection->setMinimumWidth(minimumSizeHint().width()*1.2);
         qoiSelection->setMaximumWidth(minimumSizeHint().width()*1.2);
         bool useAnimation = true;
 
-        for (int nq=0; nq<nQoI; nq++)
+        for (int nq=0; nq<nQoIall; nq++)
+        {
+            qoiSelection->addItem(QoInames[nq]);
+        }
+        QGroupBox *groupBox;
+        getGroupBox(groupBox, 0, useAnimation);
+        summaryLayout->addWidget(qoiSelection);
+        summaryLayout->addWidget(groupBox);
+        QLabel * warningMsg = new QLabel("The component sobol indices can be saved using \"save results\" button");
+        warningMsg->setStyleSheet({"color: blue"});
+        summaryLayout->addWidget(warningMsg);
+
+        connect(qoiSelection,static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),this,[=](int selec) {
+            QLayoutItem  *w = summaryLayout->takeAt(1);
+            summaryLayout->removeItem(w);
+            delete w->widget();
+            delete w;
+            //delete summaryLayout->takeAt(1);
+            QGroupBox *groupBox;
+            getGroupBox(groupBox, selec, useAnimation);
+            summaryLayout->insertWidget(1, groupBox);
+        });
+    } else {
+        // Display only aggregated ones...
+        QComboBox *qoiSelection = new QComboBox();
+        qoiSelection->setMinimumWidth(minimumSizeHint().width()*1.2);
+        qoiSelection->setMaximumWidth(minimumSizeHint().width()*1.2);
+        bool useAnimation = true;
+
+        for (int nq=0; nq<nAggQoI; nq++)
         {
             qoiSelection->addItem(QoInames[nq]);
         }
@@ -390,8 +450,6 @@ void SimCenterUQResultsSensitivity::gsaGraph(QScrollArea *&sa)
             getGroupBox(groupBox, selec, useAnimation);
             summaryLayout->insertWidget(1, groupBox);
         });
-
-
     }
     summaryLayout->setContentsMargins(0,0,0,0); // adding back
     summaryLayout->setSpacing(10);
@@ -567,7 +625,7 @@ SimCenterUQResultsSensitivity::outputToJSON(QJsonObject &jsonObject)
 
 
     QJsonArray sobols_vec;
-    for (int nq=0; nq<nQoI; nq++){
+    for (int nq=0; nq<nQoI+nAggQoI; nq++){
         for (int nc=0; nc<ncomb; nc++){
             sobols_vec.append(sobols[nq][nc]);
         }
@@ -578,7 +636,7 @@ SimCenterUQResultsSensitivity::outputToJSON(QJsonObject &jsonObject)
     jsonObject["sobols"]=sobols_vec;
 
     QJsonArray QoIlist;
-    for (int nq=0; nq<nQoI; nq++){
+    for (int nq=0; nq<nQoI+nAggQoI; nq++){
         QoIlist.append(QoInames[nq]);
     }
     jsonObject["QoIlist"]=QoIlist;
@@ -589,7 +647,7 @@ SimCenterUQResultsSensitivity::outputToJSON(QJsonObject &jsonObject)
     }
     jsonObject["Comblist"]=comblist;
 
-    jsonObject["numQoI"]=nQoI;
+    jsonObject["numQoI"]=nQoI+nAggQoI;
     jsonObject["numCombs"]=ncomb;
 
     jsonObject["ElapsedTime"]=elaps;
@@ -640,7 +698,7 @@ SimCenterUQResultsSensitivity::inputFromJSON(QJsonObject &jsonObject)
 
     QJsonArray sobols_vals=jsonObject["sobols"].toArray();
     int n=0;
-    for (int nq=0; nq<nQoI; nq++){
+    for (int nq=0; nq<nQoI+nAggQoI; nq++){
         QVector<double> sobols_vec;
         for (int nc=0; nc<ncomb; nc++){
             sobols_vec.push_back(sobols_vals[n++].toDouble());
@@ -652,7 +710,7 @@ SimCenterUQResultsSensitivity::inputFromJSON(QJsonObject &jsonObject)
     }
 
     QJsonArray QoIlist=jsonObject["QoIlist"].toArray();
-    for (int nq=0; nq<nQoI; nq++) {
+    for (int nq=0; nq<nQoI+nAggQoI; nq++) {
         QoInames.push_back(QoIlist[nq].toString());
     }
 
@@ -713,26 +771,57 @@ SimCenterUQResultsSensitivity::inputFromJSON(QJsonObject &jsonObject)
 void
 SimCenterUQResultsSensitivity::onSaveButtonClicked(void) {
 
-        QString fileName = QFileDialog::getSaveFileName(this,
-                                                        tr("Save Data"), "/sensitivityResults",
-                                                        tr("output (*.out)"));
-        QFile file(fileName);
-        if (file.open(QIODevice::WriteOnly))
-        {
-            QTextStream stream(&file);
+//        QString fileName = QFileDialog::getSaveFileName(this,
+//                                                        tr("Save Data"), "/sensitivityResults",
+//                                                        tr("output (*.out)"));
+//        QFile file(fileName);
+//        if (file.open(QIODevice::WriteOnly))
+//        {
+//            QTextStream stream(&file);
 
-             for (int nq=0; nq< nQoI; nq++) {
+//             for (int nq=0; nq< nQoI+nAggQoI; nq++) {
 
-                 stream << "* " << QoInames[nq] << endl;
-                 stream << "randomVariable   Main   Total" << endl;
-                 for (int nc=0; nc< ncomb; nc++) {
-                     stream << combs[nc] << "   " << QString::number(sobols[nq][nc],'f', 3) << "   " ;
-                     stream << QString::number(sobols[nq][nc+ncomb],'f', 3) << endl;
+//                 stream << "* " << QoInames[nq] << endl;
+//                 stream << "randomVariable   Main   Total" << endl;
+//                 for (int nc=0; nc< ncomb; nc++) {
+//                     stream << combs[nc] << "   " << QString::number(sobols[nq][nc],'f', 3) << "   " ;
+//                     stream << QString::number(sobols[nq][nc+ncomb],'f', 3) << endl;
+//                 }
+//            stream << endl;
+//             }
+//        file.close();
+//        }
+
+            QString fileName = QFileDialog::getSaveFileName(this,
+                                                            tr("Save Data"), "/sensitivityResults",
+                                                            tr("output (*.out)"));
+            QFile file(fileName);
+            if (file.open(QIODevice::WriteOnly))
+            {
+                QTextStream stream(&file);
+
+                stream << "QoIName" << "\t" ;
+                for (int nc = 0; nc<ncomb ; nc++) {
+                    stream << "\t" << "Sm(" << combs[nc] << ")";
+                }
+                for (int nc = 0; nc<ncomb ; nc++) {
+                    stream << "\t" << "St(" << combs[nc] << ")";
+                }
+                stream << "\n";
+
+                 for (int nq=0; nq< nQoI+nAggQoI; nq++) {
+                     stream << QoInames[nq]<< "\t";
+                     for (int nc=0; nc< ncomb; nc++) {
+                         stream << QString::number(sobols[nq][nc],'f', 3) << "\t" ;
+                     }
+                     for (int nc=0; nc<ncomb; nc++) {
+                         stream << QString::number(sobols[nq][nc+ncomb],'f', 3) << "\t" ;
+                     }
+                     stream << "\n";
                  }
-            stream << endl;
-             }
-        file.close();
-        }
+            file.close();
+            }
+            statusMessage("Sobol indices saved at "+ fileName);
 }
 
 extern QWidget *addLabeledLineEdit(QString theLabelName, QLineEdit **theLineEdit);
