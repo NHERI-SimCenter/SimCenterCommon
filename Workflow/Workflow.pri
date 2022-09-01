@@ -74,6 +74,8 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/UQ/simcenterUQ/PLoMInputWidget.cpp \
     $$PWD/UQ/simcenterUQ/SimCenterUQInputPLoM.cpp \
     $$PWD/UQ/simcenterUQ/SimCenterUQResultsPLoM.cpp \
+    $$PWD/UQ/simcenterUQ/ImportSamplesWidget.cpp \
+    $$PWD/UQ/simcenterUQ/MonteCarloInputSimWidget.cpp \
     $$PWD/WORKFLOW/MainWindowWorkflowApp.cpp \
     $$PWD/WORKFLOW/WorkflowAppWidget.cpp \
     $$PWD/WORKFLOW/SimCenterComponentSelection.cpp \
@@ -174,6 +176,8 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/UQ/simcenterUQ/PLoMInputWidget.h \
     $$PWD/UQ/simcenterUQ/SimCenterUQInputPLoM.h \
     $$PWD/UQ/simcenterUQ/SimCenterUQResultsPLoM.h \
+    $$PWD/UQ/simcenterUQ/ImportSamplesWidget.h \
+    $$PWD/UQ/simcenterUQ/MonteCarloInputSimWidget.h \
     $$PWD/WORKFLOW/MainWindowWorkflowApp.h \
     $$PWD/WORKFLOW/WorkflowAppWidget.h \
     $$PWD/WORKFLOW/SimCenterComponentSelection.h \
