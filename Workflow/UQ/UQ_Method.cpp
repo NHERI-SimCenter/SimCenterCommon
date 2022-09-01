@@ -66,3 +66,8 @@ void
 UQ_Method::setEventType(QString typeEVT) {
 
 }
+
+void
+UQ_Method::clear(void) {
+
+}
