@@ -78,7 +78,7 @@ public slots:
    void clear(void);
    void onTextChanged(const QString &arg1);
    void numModelsChanged(int numModels);
-   void showDataOptions(bool);
+   //void showDataOptions(bool);
 
 private:
     QWidget     *methodSpecific;
