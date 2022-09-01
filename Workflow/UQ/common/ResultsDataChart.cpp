@@ -70,9 +70,9 @@ ResultsDataChart::ResultsDataChart(QJsonObject spread, bool isSur, int nRV, QWid
 {
     // From json file
 
+    spreadsheet = new MyTableWidget();
     col1 = 0;
     col2 = 0;
-    spreadsheet = new MyTableWidget();
     this->readTableFromJson(spread);
     if (rowCount==0) {
         errorMessage("ERROR: reading Dakota Results - no result widget set!");
@@ -97,9 +97,17 @@ ResultsDataChart::ResultsDataChart(QString filenameTab, bool isSur, int nRV, QWi
 {
     // From surrogateTab.out
 
+
+    spreadsheet = new MyTableWidget();
     col1 = 0;
     col2 = 0;
-    spreadsheet = new MyTableWidget();
+
+    QFileInfo fileTabInfo(filenameTab);
+    if (!fileTabInfo.exists()) {
+        errorMessage("No Tab.out file - sensitivity analysis failed - possibly no QoI or a permission issue.");
+        return;
+    }
+
     this->readTableFromTab(filenameTab);
     spreadsheet->setSelectionBehavior(QAbstractItemView::SelectRows);
     
@@ -112,6 +120,44 @@ ResultsDataChart::ResultsDataChart(QString filenameTab, bool isSur, int nRV, QWi
             for (int i=nrv+nqoi+1; i<colCount; i++)
                 spreadsheet->setColumnHidden(i,true);
         }
+    }
+
+    //chart->setAnimationOptions(QChart::AllAnimations);
+}
+
+
+ResultsDataChart::ResultsDataChart(QString rvFileName, QString qoiFileName, int xdim, int ydim, int nsamp, QStringList listRVs, QStringList listQoIs, QWidget *parent)
+    : SimCenterWidget(parent),isSurrogate(false)
+{
+    // Use this when you want to visualize without writing dakotatab.out
+    // We directly read input.txt and output.txt
+
+    spreadsheet = new MyTableWidget();
+    col1 = 0;
+    col2 = 0;
+    nrv = xdim;
+    nqoi = ydim;
+    colCount = xdim+ ydim;
+    rowCount = nsamp;
+
+    if (colCount*rowCount>1.e7) {
+        // give up displaying
+        infoMessage("Data values are not displayed as data size exceeds 1.e7.");
+        return ;
+    }
+
+    spreadsheet->setColumnCount(colCount);
+    spreadsheet->setRowCount(rowCount);
+
+    this->readTableFromTxt(rvFileName, xdim, listRVs, 0); // starting column 0
+    this->readTableFromTxt(qoiFileName, ydim, listQoIs, xdim); // starting column xdim
+    spreadsheet->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+
+    if (rowCount==0) {
+        errorMessage("ERROR: reading Dakota Results - no result widget set!");
+    } else {
+        this->makeChart();
     }
 
     //chart->setAnimationOptions(QChart::AllAnimations);
@@ -461,6 +507,115 @@ ResultsDataChart::readTableFromJson(QJsonObject spreadsheetData) {
     spreadsheet->sortItems(0);
 
 }
+
+void
+ResultsDataChart::readTableFromTxt(QString filename, int ndim, QStringList listRvs, int startingCol) {
+
+
+        //theHeadings << "Run #";
+        theHeadings << listRvs;
+        spreadsheet->setHorizontalHeaderLabels(theHeadings);
+        spreadsheet->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+        spreadsheet->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+
+        spreadsheet->verticalHeader()->setVisible(false);
+
+        std::ifstream csv(filename.toStdString().c_str());
+
+        const std::string delimiter = ",";
+        const std::string delimiter2 = " ";
+        const std::string delimiter3 = "\t";
+        int i = 0;
+        int j; // jrv
+        bool fileIsCsv = false;
+        bool header_detected = false;
+        //int tenSecInterv = 10;
+        for (std::string line; std::getline(csv, line); ) {
+//            if (startingCol==1) {
+//                QModelIndex index = spreadsheet->model()->index(i, 0);
+//                spreadsheet->model()->setData(index, 0.0);
+//            }
+
+            if (line[0] == '%'){
+                header_detected = true;
+                continue;
+            }
+
+            // split string by delimeter
+            int start = 0U;
+            int end = line.find(delimiter);
+            j = 0;
+                // if comma seperated
+                while (end != std::string::npos) {
+                    fileIsCsv = true;
+                    if (start != end)
+                    {
+                        QModelIndex index = spreadsheet->model()->index(i, j+startingCol);
+                        double data = std::stod(line.substr(start, end - start));
+                        spreadsheet->model()->setData(index, (data));
+                        j++;
+                    }
+                    start = end + delimiter.length();
+                    end = line.find(delimiter, start);
+                }
+
+                // if space seperated
+                if (j == 0) {
+                    end = line.find(delimiter2);
+                    while (end != std::string::npos) {
+                        fileIsCsv = true;
+                        if (start != end)
+                        {
+                            QModelIndex index = spreadsheet->model()->index(i, j+startingCol);
+                            double data = std::stod(line.substr(start, end - start));
+                            spreadsheet->model()->setData(index, data); //col1 goes in x-axis, col2 on y-axis
+                            j++;
+                        }
+                        start = end + delimiter2.length();
+                        end = line.find(delimiter2, start);
+                    }
+                }
+
+                // if tab seperated
+                if (j == 0) {
+                    end = line.find(delimiter3);
+                    while (end != std::string::npos) {
+                        fileIsCsv = true;
+                        if (start != end)
+                        {
+                            QModelIndex index = spreadsheet->model()->index(i, j+startingCol);
+                            double data = std::stod(line.substr(start, end - start));
+                            spreadsheet->model()->setData(index, data);
+                            j++;
+                        }
+                        start = end + delimiter3.length();
+                        end = line.find(delimiter3, start);
+                    }
+                }
+                if (line.substr(start, end - start) != "")
+                {
+                    QModelIndex index = spreadsheet->model()->index(i, j+startingCol);
+                    double data = std::stod(line.substr(start, end - start));
+                    spreadsheet->model()->setData(index, data);
+                    j++;
+                }
+
+            if (j>0) {
+                i++;
+            }
+        }
+
+
+
+    //rowCount = i;
+    //
+    // why not enable sorting!
+    //
+    spreadsheet->setSortingEnabled(true);
+    spreadsheet->sortItems(0);
+}
+
+
 
 QVector<QString>
 ResultsDataChart::getNames() {
@@ -857,13 +1012,15 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
             //col1=0;
             QTableWidgetItem *itemY = spreadsheet->item(i,col2);
             QTableWidgetItem *itemOld = spreadsheet->item(i,oldCol);
-            itemOld->setData(Qt::BackgroundRole, QColor(Qt::white));
             itemX->setData(Qt::BackgroundRole, QColor(Qt::lightGray));
             itemY->setData(Qt::BackgroundRole, QColor(Qt::lightGray));
+            itemOld->setData(Qt::BackgroundRole, QColor(Qt::white));
 
             series->append(itemX->text().toDouble(), itemY->text().toDouble());
         }
 
+        auto abc = spreadsheet->item(row,col1)->text();
+        auto abcd = spreadsheet->item(row,col2)->text();
         series_selected->append(spreadsheet->item(row,col1)->text().toDouble(), spreadsheet->item(row,col2)->text().toDouble());
 
         chart->addSeries(series);
@@ -1580,7 +1737,7 @@ ResultsDataChart::outputToJSON(QJsonObject &jsonObj){
 
     QJsonObject spreadsheetData;
 
-    if (spreadsheet == NULL)
+    if ((spreadsheet == NULL) || (spreadsheet == 0))
         return true;
 
     int numCol = spreadsheet->columnCount();

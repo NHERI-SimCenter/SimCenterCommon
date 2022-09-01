@@ -55,6 +55,8 @@ class ResultsDataChart : public SimCenterWidget
 public:
     explicit ResultsDataChart(QString filenameTab, bool isSur=false, int nrv=0, QWidget *parent = 0);
     explicit ResultsDataChart(QJsonObject spreadsheet, bool isSur=false, int nrv=0, QWidget *parent = 0);
+    explicit ResultsDataChart(QString rvFileName, QString qoiFileName, QWidget *parent = 0);
+    explicit ResultsDataChart(QString rvFileName, QString qoiFileName, int xdim, int ydim, int nsamp, QStringList listRVs, QStringList listQoIs, QWidget *parent=0);
 
     //explicit ResultsDataChart(QWidget *parent = 0);
     ~ResultsDataChart();
@@ -87,6 +89,7 @@ private:
 
     void readTableFromTab(QString filenameTab);
     void readTableFromJson(QJsonObject jsonobj);
+    void readTableFromTxt(QString fileName, int dim, QStringList listRVs, int startingCol=0);
     void makeChart(void);
     float my_erfinvf(float a);
     float my_logf(float a);
