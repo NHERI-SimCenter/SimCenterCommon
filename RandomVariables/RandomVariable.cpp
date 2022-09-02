@@ -202,7 +202,6 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
 
 
     }
-
     connect(distributionComboBox, SIGNAL(currentTextChanged(QString)), this, SLOT(distributionChanged(QString)));
     distributionComboBox->setCurrentIndex(0);
     if (! ((uqengin==QString("SimCenterUQ")) && (variableClass==QString("Uncertain")))){
@@ -554,24 +553,29 @@ void RandomVariable::uqEngineChanged(QString newUqEngineName, QString newClass) 
     }
 
     if ((newClass == QString("Uniform")) && (newClass != variableClass)) {
+
         // Uniform only is for GP (Only bounds matters) - sy
         typeLabel->setVisible(false);
         typeComboBox->setVisible(false);
         if (typeComboBox->currentText()!="Parameters"){
             typeComboBox->setCurrentText("Parameters");
         }
-//        for (int i=distributionComboBox->count()-1; i>=0; i--) {
-//            if (distributionComboBox->itemText(i) != QString("Uniform")) {
-//                distributionComboBox->removeItem(i);
-//            }
-//        }
-//        if (distributionComboBox->count()==0){
-//            distributionComboBox->addItem("Uniform");
-//        }
-       for (int i=distributionComboBox->count()-1; i>=0; i--) {
-                distributionComboBox->removeItem(i);
+
+        int unifIdx=-1;
+        if (currentType==QString("Uniform")){
+            unifIdx = distributionComboBox->findText("Uniform");
+            distributionComboBox->blockSignals(true);
         }
-        distributionComboBox->addItem("Uniform");
+
+        for (int i=distributionComboBox->count()-1; i>=0; i--) {
+            if (i!=unifIdx) {
+                distributionComboBox->removeItem(i);
+            }
+        }
+
+        if (unifIdx<0) {
+            distributionComboBox->insertItem(0,tr("Uniform"));
+        }
 
         uqEngineName=newUqEngineName;
         variableClass=newClass;
@@ -595,9 +599,9 @@ void RandomVariable::uqEngineChanged(QString newUqEngineName, QString newClass) 
             }
             distributionComboBox->insertItem(0,tr("ContinuousDesign"));
             if (currentType == QString("Constant")) {
-                distributionComboBox->setCurrentIndex(0);
-            } else {
                 distributionComboBox->setCurrentIndex(1);
+            } else {
+                distributionComboBox->setCurrentIndex(0);
             }
             //theDistribution = new ContinuousDesignDistribution();
 
@@ -608,18 +612,28 @@ void RandomVariable::uqEngineChanged(QString newUqEngineName, QString newClass) 
     }
 
     if ((newClass == QString("Uncertain")) && (newClass != variableClass)) {
+                int unifIdx=-1;
+                if (currentType==QString("Uniform")){
+                    unifIdx = distributionComboBox->findText("Uniform");
+                    distributionComboBox->blockSignals(true);
+                }
 
                 for (int i=distributionComboBox->count()-1; i>=0; i--) {
+                    if (i!=unifIdx) {
                         distributionComboBox->removeItem(i);
+                    }
                 }
+
                 distributionComboBox->insertItem(0,tr("Normal"));
                 distributionComboBox->insertItem(1,tr("Lognormal"));
                 distributionComboBox->insertItem(2,tr("Beta"));
-                distributionComboBox->insertItem(3,tr("Uniform"));
+                if (unifIdx<0) {
+                    distributionComboBox->insertItem(3,tr("Uniform"));
+                }
                 distributionComboBox->insertItem(4,tr("Weibull"));
                 distributionComboBox->insertItem(5,tr("Gumbel"));
                 distributionComboBox->insertItem(6,tr("Constant"));
-
+                distributionComboBox->blockSignals(false);
                 // 6 is continuous, 7 is constant.
                 // if continuousDesign, convert it to uniform
                 // remove
@@ -631,12 +645,16 @@ void RandomVariable::uqEngineChanged(QString newUqEngineName, QString newClass) 
     if (newUqEngineName==QString("SimCenterUQ")){
         typeLabel->setVisible(true);
         typeComboBox->setVisible(true);
+        if (currentType==QString("Uniform")){
+            distributionComboBox->blockSignals(true);
+        }
         if (distributionComboBox->count()<8) {
             distributionComboBox->addItem(tr("Exponential"));
             distributionComboBox->addItem(tr("Discrete"));
             distributionComboBox->addItem(tr("Gamma"));
             distributionComboBox->addItem(tr("Chisquare"));
             distributionComboBox->addItem(tr("Truncated exponential"));
+            distributionComboBox->blockSignals(false);
         }
     }
     if (newUqEngineName==QString("Dakota")){
