@@ -59,7 +59,7 @@ public:
 
 private:
 
-    int countColumn(QString name1, bool is_qoi, QString ext);
+    int countColumn(QString name1, bool is_qoi, QString ext, int maxcount);
     int parseInputData(QString name1, bool is_qoi, QString ext);
     QLabel *importDataLabel, *errMSG;
     QLineEdit *xDataPath, *yDataPath;

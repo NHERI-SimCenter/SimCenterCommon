@@ -67,13 +67,15 @@ ImportSamplesWidget::ImportSamplesWidget(QWidget *parent)
     QPushButton *chooseInpFile = new QPushButton("Choose");
     connect(chooseInpFile, &QPushButton::clicked, this, [=](){
         QString filename = QFileDialog::getOpenFileName(this,tr("Open File"),"", "Data table (*.csv *.txt *.bin)");
-        QFileInfo fi(filename);
-        x_extention = fi.suffix();  // x_extention = "cvs, txt, or bin"
-        if (x_extention == "csv") {
-            x_extention = "txt";
+        if (filename!="") {
+            QFileInfo fi(filename);
+            x_extention = fi.suffix();  // x_extention = "cvs, txt, or bin"
+            if (x_extention == "csv") {
+                x_extention = "txt";
+            }
+            xDataPath->setText(filename);
+            this->parseInputData(xDataPath->text(), false, x_extention);
         }
-        xDataPath->setText(filename);
-        this->parseInputData(xDataPath->text(), false, x_extention);
     });
     xDataPath->setMinimumWidth(600);
 
@@ -81,13 +83,15 @@ ImportSamplesWidget::ImportSamplesWidget(QWidget *parent)
     QPushButton *chooseOutFile = new QPushButton("Choose");
     connect(chooseOutFile, &QPushButton::clicked, this, [=](){
         QString filename = QFileDialog::getOpenFileName(this,tr("Open File"),"", "Data table (*.csv *.txt *.bin)");
-        QFileInfo fi(filename);
-        y_extention = fi.suffix();  // x_extention = "cvs, txt, or bin"
-        if (y_extention == "csv") {
-            y_extention = "txt";
+        if (filename!="") {
+            QFileInfo fi(filename);
+            y_extention = fi.suffix();  // x_extention = "cvs, txt, or bin"
+            if (y_extention == "csv") {
+                y_extention = "txt";
+            }
+            yDataPath->setText(filename);
+            this->parseInputData(yDataPath->text(), true, y_extention);
         }
-        yDataPath->setText(filename);
-        this->parseInputData(yDataPath->text(), true, y_extention);
     });
     yDataPath->setMinimumWidth(600);
 
@@ -96,8 +100,13 @@ ImportSamplesWidget::ImportSamplesWidget(QWidget *parent)
     //
 
     connect(numSamples, &QLineEdit::editingFinished, this,  [=](){
-        this->parseInputData(xDataPath->text(), false, x_extention);
-        this->parseInputData(yDataPath->text(), true, y_extention);
+        if (xDataPath->text()!="") {
+            bool flag = this->parseInputData(xDataPath->text(), false, x_extention);
+            if ((flag) && (yDataPath->text()!="")) {
+                this->parseInputData(yDataPath->text(), true, y_extention);
+            }
+        }
+
     });
 
     QLabel *labelText = new QLabel(QString("Please select None in the FEM tab"));
@@ -186,98 +195,176 @@ ImportSamplesWidget::getNumberTasks()
 }
 
 int
-ImportSamplesWidget::countColumn(QString name1, bool is_qoi, QString ext){
+ImportSamplesWidget::countColumn(QString name1, bool is_qoi, QString ext, int maxcount){
     // get number of columns
-    std::ifstream inFile(name1.toStdString());
-    // read lines of input searching for pset using regular expression
-    std::string line;
+//    std::ifstream inFile(name1.toStdString());
+//    // read lines of input searching for pset using regular expression
+//    std::string line;
 
-    int numberOfPreCols = -100;
-    int numberOfThisCols;
-    int numberOfColumns = -1;
-    int maxcount = 3.e6;
-    int numberOfRows=1;
-    bool tooManyData = false;
+//    int numberOfPreCols = -100;
+//    int numberOfThisCols;
+//    int numberOfColumns = -100;
+//    int numberOfRows=1;
+//    bool tooManyData = false;
 
-    while (getline(inFile, line)) {
-        numberOfThisCols=0;
-        bool previousWasSpace=true;
-        bool previousWasHeader=false;
+//    while (getline(inFile, line)) {
+//        numberOfThisCols=0;
+//        bool previousWasSpace=true;
+//        bool previousWasHeader=false;
 
-        //for(int i=0; i<line.size(); i++){
-        for(size_t i=0; i<line.size(); i++){
-            if(line[i] == '%' || line[i] == '#'){ // ignore header
-                numberOfThisCols = numberOfPreCols;
-                previousWasHeader = true;
-                break;
-            } else {
+//        //for(int i=0; i<line.size(); i++){
+//        for(size_t i=0; i<line.size(); i++){
+//            if(line[i] == '%' || line[i] == '#'){ // ignore header
+//                numberOfThisCols = numberOfPreCols;
+//                previousWasHeader = true;
+//                break;
+//            } else {
 
-            }
-            if(line[i] == ' ' || line[i] == '\t' || line[i] == ','){
-                if(!previousWasSpace) {
-                    numberOfThisCols++;
-                    if (numberOfThisCols*numberOfRows>maxcount){
-                        tooManyData = true;
-                        break;
-                    }
-                }
-                previousWasSpace = true;
-            } else {
-                previousWasSpace = false;
-            }
-        }
+//            }
+//            if(line[i] == ' ' || line[i] == '\t' || line[i] == ','){
+//                if(!previousWasSpace) {
+//                    numberOfThisCols++;
+//                    if (numberOfThisCols*numberOfRows>maxcount){
+//                        tooManyData = true;
+//                        break;
+//                    }
+//                }
+//                previousWasSpace = true;
+//            } else {
+//                previousWasSpace = false;
+//            }
+//        }
 
-        if (tooManyData) {
-            break;
-        }
+//        if (tooManyData) {
+//            break;
+//        }
 
-        if(!previousWasSpace && !previousWasHeader)// at the end of each row
-            numberOfThisCols++;
+//        if(!previousWasSpace && !previousWasHeader)// at the end of each row
+//            numberOfThisCols++;
 
-        if (numberOfPreCols==-100)  // to pass header
-        {
-            numberOfPreCols=numberOfThisCols;
+//        if (numberOfPreCols==-100)  // to pass header
+//        {
+//            numberOfPreCols=numberOfThisCols;
+//            continue;
+//        }
+//        if( (numberOfThisCols != numberOfPreCols) && (numberOfThisCols !=0))// Send an error
+//        {
+//            inFile.close();
+//            return 0;
+//        }
+//        numberOfRows++;
+//        numberOfColumns = numberOfThisCols;
+//    }
+
+    int numberOfColumns = 0;
+    int numberOfRows = 0;
+
+    double readEnd;
+    std::ifstream csv(name1.toStdString());
+
+    const std::string delimiter = ",";
+    const std::string delimiter2 = " ";
+    const std::string delimiter3 = "\t";
+    int i = 0;
+    int j; // jrv
+    bool fileIsCsv = false;
+    //int tenSecInterv = 10;
+    for (std::string line; std::getline(csv, line); ) {
+
+        bool header_detected = false;
+        if (line[0] == '%' || line[0] == '#'){
+            header_detected = true;
             continue;
         }
-        if( (numberOfThisCols != numberOfPreCols) && (numberOfThisCols !=0))// Send an error
-        {
-            if (ext=="txt") {
-                errMSG->setText("Unrecognized file format");
-                errMSG->setStyleSheet({"color: red"});
+
+        // split string by delimeter
+        int start = 0U;
+        int end = line.find(delimiter);
+        j = 0;
+
+            // if comma seperated
+        while (end != std::string::npos) {
+            fileIsCsv = true;
+            if (start != end)
+            {
+                j++;
             }
-            numberOfPreCols=0;
-
-            inFile.close();
-            return 0;
+            start = end + delimiter.length();
+            end = line.find(delimiter, start);
         }
-        numberOfRows++;
-        numberOfColumns = numberOfThisCols;
+
+        // if space seperated
+        if (j == 0) {
+            end = line.find(delimiter2);
+            while (end != std::string::npos) {
+                fileIsCsv = true;
+                if (start != end)
+                {
+                    j++;
+                }
+                start = end + delimiter2.length();
+                end = line.find(delimiter2, start);
+            }
+        }
+
+        // if tab seperated
+        if (j == 0) {
+            end = line.find(delimiter3);
+            while (end != std::string::npos) {
+                fileIsCsv = true;
+                if (start != end)
+                {
+                    j++;
+                }
+                start = end + delimiter3.length();
+                end = line.find(delimiter3, start);
+            }
+        }
+        if (line.substr(start, end - start) != "")
+        {
+            j++;
+        }
+
+        if (j!=0) {
+             if (i==0) {
+                numberOfColumns = j;
+            } else {
+                if (numberOfColumns!=j) {
+                   return 0;
+                }
+            }
+            i++;
+        }
     }
 
-    if ((numberOfPreCols!=-100) && (is_qoi)) {
-        if (numberOfColumns==1) {
-            errMSG->setText("Total number of QoI variables is 1. Create 1 entry on the QoI Tab.");
-        } else if (numberOfColumns==-1) {
-            errMSG->setText("Total number of QoI variables is greather than " + QString::number(maxcount) + ". Create corresponding length of variable on the QoI Tab.");
-        } else {
-            errMSG->setText("Total number of QoI variables is " + QString::number(numberOfColumns) + ". Create entries on the QoI Tab such that total length is " + QString::number(numberOfColumns) + ".");
-        }
-            errMSG->setStyleSheet({"color: blue"});
-    }
+    numberOfRows = i;
 
     if (numberOfRows != numSamples->text().toInt()) {
-        errMSG->setText("The number of samples in the table (" + QString::number(numberOfRows) + ") is not " + QString::number(numSamples->text().toInt()));
+        QString type;
+
+        if (numSamples->text().toInt() ==0) {
+            errMSG->setText("Please provide the number of samples in your data file");
+        } else if (is_qoi){
+            errMSG->setText("The number of samples in the QoI table (" + QString::number(numberOfRows) + ") is not " + QString::number(numSamples->text().toInt()));
+        } else {
+            errMSG->setText("The number of samples in the RV table (" + QString::number(numberOfRows) + ") is not " + QString::number(numSamples->text().toInt()));
+
+        }
         errMSG->setStyleSheet({"color: red"});
-        return 0;
+        return -1; // errorcode
     }
 
     // close file
-    inFile.close();
+    csv.close();
     return numberOfColumns;
 }
 
 
 int ImportSamplesWidget::parseInputData(QString name1, bool is_qoi, QString ext){
+
+    bool results = true;
+
+    int maxcount = 3.e6;
     int numberOfColumns=0;
     if (ext == "bin") {
 
@@ -299,23 +386,55 @@ int ImportSamplesWidget::parseInputData(QString name1, bool is_qoi, QString ext)
             numberOfColumns=num_elements/numSamples->text().toInt();
         }
     } else if (ext == "txt") {
-        numberOfColumns=countColumn(name1,is_qoi,ext);
+        numberOfColumns=countColumn(name1,is_qoi,ext,maxcount);
     }
 
-    if (!is_qoi && numberOfColumns>0) {
-        // if RV
-        QStringList varNamesAndValues;
-        for (int i=0;i<numberOfColumns;i++) {
-            varNamesAndValues.append(QString("RV%1").arg(i+1));
-            varNamesAndValues.append(0);
-        }
-        setRV_Defaults();
-        RandomVariablesContainer *theRVs =  RandomVariablesContainer::getInstance();
-        theRVs->addRVsWithValues(varNamesAndValues);
-        if (numberOfColumns >0) {
-            errMSG->setText(QString::number(numberOfColumns)+ " RVs added in the RV tab.");
+    if (is_qoi) {
+        if (numberOfColumns==1) {
+            errMSG->setText("Total number of QoI variables is 1. Create 1 entry on the QoI Tab.");
             errMSG->setStyleSheet({"color: blue"});
+        } else if (numberOfColumns==-100) {
+            errMSG->setText("Total number of QoI variables is greather than " + QString::number(maxcount) + ". Create corresponding length of variable on the QoI Tab.");
+            errMSG->setStyleSheet({"color: blue"});
+        } else if (numberOfColumns==-1) {
+            // error messaged already displayed
+            results = false;
+        } else if (numberOfColumns>0) {
+            errMSG->setText("Total number of QoI variables is " + QString::number(numberOfColumns) + ". Create entries on the QoI Tab such that total length is " + QString::number(numberOfColumns) + ".");
+            errMSG->setStyleSheet({"color: blue"});
+        } else {
+            errMSG->setText("Unrecognized QoI data file format");
+            errMSG->setStyleSheet({"color: red"});
+            results = false;
         }
     }
-    return 0;
+
+    if (!is_qoi) {
+        if (numberOfColumns>0) {
+            // if RV
+            QStringList varNamesAndValues;
+            for (int i=0;i<numberOfColumns;i++) {
+                varNamesAndValues.append(QString("RV%1").arg(i+1));
+                varNamesAndValues.append(0);
+            }
+            setRV_Defaults();
+            RandomVariablesContainer *theRVs =  RandomVariablesContainer::getInstance();
+            theRVs->addRVsWithValues(varNamesAndValues);
+            if (numberOfColumns ==1) {
+                errMSG->setText(" 1 RV added in the RV tab.");
+                errMSG->setStyleSheet({"color: blue"});
+            } else if (numberOfColumns>1) {
+                errMSG->setText(QString::number(numberOfColumns)+ " RVs added in the RV tab.");
+                errMSG->setStyleSheet({"color: blue"});
+            }
+        } else if (numberOfColumns==-1){
+            // already displayed
+            results = false;
+        } else {
+            errMSG->setText("Unrecognized RV data file format");
+            errMSG->setStyleSheet({"color: red"});
+            results = false;
+        }
+    }
+    return results;
 }
