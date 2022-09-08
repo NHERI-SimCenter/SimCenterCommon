@@ -837,6 +837,9 @@ ResultsDataChart::onSaveQoIsClicked()
 
     int rowCount = spreadsheet->rowCount();
     int columnCount = spreadsheet->columnCount();
+    if (isSurrogate) {
+        columnCount = nrv+nqoi+1;
+    }
 
     QString fileName = QFileDialog::getSaveFileName(this,
                                                     tr("Save Data"), "QoIs",
