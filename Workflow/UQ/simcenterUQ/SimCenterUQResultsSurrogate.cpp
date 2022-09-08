@@ -741,8 +741,8 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
             nuggetstd = inteval*1.e-2;
         }
         for (int i=0; i<nd+1; i++) {
-            series_nugget_ub->append(miny+i*(maxy-miny)/nd, miny+i*(maxy-miny)/nd + nuggetstd);
-            series_nugget_lb->append(miny+i*(maxy-miny)/nd, miny+i*(maxy-miny)/nd - nuggetstd);
+            series_nugget_ub->append(miny+i*(maxy-miny)/nd, miny+i*(maxy-miny)/nd + 2*nuggetstd);
+            series_nugget_lb->append(miny+i*(maxy-miny)/nd, miny+i*(maxy-miny)/nd - 2*nuggetstd);
             if (didLogtransform) {
                 double log_mean = std::log(miny+i*(maxy-miny)/nd);
                 double log_var = nuggetvar;
@@ -756,7 +756,7 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
         }
 
         QAreaSeries *series_nugget = new QAreaSeries(series_nugget_ub,series_nugget_lb);
-        series_nugget->setName("± Nugget Std.");
+        series_nugget->setName("± 2 Nugget Std.");
 
         chart_CV->addSeries(series_nugget);
         series_nugget->setColor(QColor(180,180,180,alpha/2));
