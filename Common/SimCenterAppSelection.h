@@ -63,6 +63,7 @@ public:
     bool addComponent(QString comboBoxText, QString appNameText, SimCenterAppWidget *);
     SimCenterAppWidget *getComponent(QString text);
     SimCenterAppWidget *getCurrentSelection(void);
+    QString getCurrentSelectionName(void);
 
 public slots:
     void selectionChangedSlot(const QString &);

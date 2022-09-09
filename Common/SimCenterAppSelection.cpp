@@ -411,6 +411,19 @@ SimCenterAppSelection::getCurrentSelection(void) {
     return theCurrentSelection;
 }
 
+
+QString
+SimCenterAppSelection::getCurrentSelectionName(void)
+{
+    auto idx = theComponents.indexOf(theCurrentSelection);
+
+    if(idx == -1)
+        return QString();
+
+    return theApplicationNames.at(idx);
+}
+
+
 void
 SimCenterAppSelection::setSelectionsActive(bool visibility) {
     if (visibility == false) {
