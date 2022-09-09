@@ -84,6 +84,7 @@ private:
    UQ_Engine *theCalibrationEngine;
    UQ_Engine *theBayesianCalibrationEngine;
    UQ_Engine *theSensitivityEngine;
+   UQ_Engine *theOptimizationEngine;
 };
 
 #endif // DAKOTA_ENGINE_H

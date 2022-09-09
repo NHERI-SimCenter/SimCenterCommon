@@ -57,6 +57,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <DakotaInputSensitivity.h>
 #include <DakotaInputCalibration.h>
 #include <DakotaInputBayesianCalibration.h>
+#include <DakotaInputOptimization.h>
 
 
 DakotaEngine::DakotaEngine(UQ_EngineType type, QWidget *parent)
@@ -94,6 +95,7 @@ DakotaEngine::DakotaEngine(UQ_EngineType type, QWidget *parent)
     if (doCalibration == true) {
       theEngineSelectionBox->addItem(tr("Parameters Estimation"));
       theEngineSelectionBox->addItem(tr("Inverse Problem"));
+      theEngineSelectionBox->addItem(tr("Optimization"));
     }
     
     theEngineSelectionBox->setMinimumWidth(600);
@@ -129,12 +131,14 @@ DakotaEngine::DakotaEngine(UQ_EngineType type, QWidget *parent)
     theCalibrationEngine = new DakotaInputCalibration();
     theBayesianCalibrationEngine = new DakotaInputBayesianCalibration();
     theSensitivityEngine = new DakotaInputSensitivity();
+    theOptimizationEngine = new DakotaInputOptimization();
 
     theStackedWidget->addWidget(theSamplingEngine);
     theStackedWidget->addWidget(theReliabilityEngine);
     theStackedWidget->addWidget(theSensitivityEngine);    
     theStackedWidget->addWidget(theCalibrationEngine);
     theStackedWidget->addWidget(theBayesianCalibrationEngine);
+    theStackedWidget->addWidget(theOptimizationEngine);
 
     layout->addWidget(theStackedWidget);
     this->setLayout(layout);
@@ -184,6 +188,9 @@ void DakotaEngine::engineSelectionChanged(const QString &arg1)
       theStackedWidget->setCurrentIndex(4);
       theCurrentEngine = theBayesianCalibrationEngine;
       
+    } else if ((arg1 == QString("Optimization"))) {
+               theStackedWidget->setCurrentIndex(5);
+               theCurrentEngine = theOptimizationEngine;
     } else {
       qDebug() << "ERROR .. DakotaEngine selection .. type unknown: " << arg1;
     }
