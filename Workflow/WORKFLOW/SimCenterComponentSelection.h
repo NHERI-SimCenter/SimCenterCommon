@@ -48,6 +48,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  * selection widgets that provide the user a choice of options and display a window based on that * choice. They are used in workflow applications. Functionality used in many SimCenter clases.
  */
 
+#include "SimCenterAppWidget.h"
+
 #include <QWidget>
 #include <QModelIndex>
 #include <QList>
@@ -61,7 +63,7 @@ class QStandardItem;
 
 
 
-class SimCenterComponentSelection : public QWidget
+class SimCenterComponentSelection : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
@@ -101,6 +103,14 @@ public:
      *   @return bool true or false indicating success or failure to add
      */  
 
+    virtual bool displayComponent(int index);
+
+    /**
+     *   @brief displayComponent method to display a component
+     *   @param int index associated with widget to be displayed
+     *   @return bool true or false indicating success or failure to add
+     */
+
     //
 
     /**
@@ -115,6 +125,11 @@ public:
      *   @param int height of a treeview item
      */
     void setItemWidthHeight(const int width, const int height);
+
+    /**
+     *   @brief Function to return the text of currently selected component
+     */
+    QString selectedComponentText(void);
 
 signals:
 
