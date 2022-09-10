@@ -43,6 +43,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QtCharts/QChart>
 #include <QMessageBox>
 #include <QPushButton>
+#include <ResultsDataChart.h>
 
 
 using namespace QtCharts;
@@ -99,6 +100,8 @@ private:
    QVector<double>theStdDevs;
    QVector<double>theKurtosis;
    QVector<double>theSkewness;
+   ResultsDataChart *theDataTable;
+   QWidget *createResultEDPWidget(QString &name, QVector<double> statistics);
 };
 
 #endif // DAKOTA_RESULTS_SAMPLING_H

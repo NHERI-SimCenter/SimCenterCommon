@@ -1,11 +1,11 @@
-#ifndef DAKOTA_ENGINE_H
-#define DAKOTA_ENGINE_H
+#ifndef DAKOTAINPUTOPTIMIZATION_H
+#define DAKOTAINPUTOPTIMIZATION_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -29,62 +29,65 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: bsaakash
 
 #include <UQ_Engine.h>
 
-class QComboBox;
-class QStackedWidget;
-class QCheckBox;
-class UQ_Results;
+#include <QGroupBox>
+//#include <QVector>
+#include <QVBoxLayout>
+#include <QComboBox>
+#include <QPushButton>
+//#include <QtGui>
+//#include <QDialog>
+#include <QCheckBox>
 
-class DakotaEngine : public UQ_Engine
+class DakotaOptimizationResults;
+class UQ_Results;
+class UQ_Method;
+
+class DakotaInputOptimization : public UQ_Engine
 {
     Q_OBJECT
 public:
-  explicit DakotaEngine(UQ_EngineType type, QWidget *parent = 0);
-    virtual ~DakotaEngine();
+    explicit DakotaInputOptimization(QWidget *parent = 0);
+    ~DakotaInputOptimization();
 
     int getMaxNumParallelTasks(void);
     bool outputToJSON(QJsonObject &jsonObject);
     bool inputFromJSON(QJsonObject &jsonObject);
-    bool outputAppDataToJSON(QJsonObject &jsonObject);
-    bool inputAppDataFromJSON(QJsonObject &jsonObject);
 
-    void setRV_Defaults(void);
     UQ_Results *getResults(void);
 
-    QString getProcessingScript();
+    void setRV_Defaults(void);
     QString getMethodName();
 
 signals:
-    void onUQ_EngineChanged(void);
-    void onNumModelsChanged(int newNum);
 
 public slots:
-    void engineSelectionChanged(const QString &arg1);
-    void numModelsChanged(int newNum);
+   void clear(void);
+   void methodChanged(const QString &arg1);
+   void comboboxItemChanged(QString value);
 
 private:
-   QComboBox   *theEngineSelectionBox;
-   QStackedWidget *theStackedWidget;
-   QCheckBox *parallelCheckBox;
+    QComboBox   *optimizationMethod;
+    QLineEdit   *maxIterations;
+    QLineEdit   *convergenceTol;
+    QLineEdit   *initial_step_size_value;
+    QLineEdit   *final_step_size_value;
+    QLineEdit   *max_function_evals;
+    QLineEdit   *contraction_factor;
+    QLineEdit   *solutionTarget;
+    DakotaOptimizationResults *results;
 
-   UQ_Engine *theCurrentEngine;
-   UQ_Engine *theSamplingEngine;
-   UQ_Engine *theReliabilityEngine;
-   UQ_Engine *theCalibrationEngine;
-   UQ_Engine *theBayesianCalibrationEngine;
-   UQ_Engine *theSensitivityEngine;
-   UQ_Engine *theOptimizationEngine;
 };
 
-#endif // DAKOTA_ENGINE_H
+#endif // DAKOTAINPUTOPTIMIZATION_H

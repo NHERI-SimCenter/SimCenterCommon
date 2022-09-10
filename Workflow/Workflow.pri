@@ -57,6 +57,8 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/UQ/dakota/DakotaResultsReliability.cpp \
     $$PWD/UQ/dakota/LocalReliabilityWidget.cpp \
     $$PWD/UQ/dakota/GlobalReliabilityWidget.cpp \
+    $$PWD/UQ/dakota/DakotaInputOptimization.cpp\
+    $$PWD/UQ/dakota/DakotaResultsOptimization.cpp\
     $$PWD/UQ/ucsd/UCSD_Engine.cpp \
     $$PWD/UQ/ucsd/UCSD_TMMC.cpp \
     $$PWD/UQ/ucsd/UCSD_Results.cpp \
@@ -158,6 +160,8 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/UQ/dakota/DakotaResultsReliability.h \
     $$PWD/UQ/dakota/LocalReliabilityWidget.h \
     $$PWD/UQ/dakota/GlobalReliabilityWidget.h \
+    $$PWD/UQ/dakota/DakotaInputOptimization.h\
+    $$PWD/UQ/dakota/DakotaResultsOptimization.h\
     $$PWD/UQ/simcenterUQ/PLoMSimuWidget.h \
     $$PWD/UQ/ucsd/UCSD_Engine.h \
     $$PWD/UQ/ucsd/UCSD_TMMC.h \
