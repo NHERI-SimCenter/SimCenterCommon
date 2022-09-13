@@ -268,9 +268,13 @@ ImportSamplesWidget::countColumn(QString name1, bool is_qoi, QString ext, int ma
     int i = 0;
     int j; // jrv
     bool fileIsCsv = false;
+    bool skipColumnCount = false; // because the file is to large
     //int tenSecInterv = 10;
     for (std::string line; std::getline(csv, line); ) {
-
+        if (skipColumnCount==true) {
+            i++;
+            continue;
+        }
         bool header_detected = false;
         if (line[0] == '%' || line[0] == '#'){
             header_detected = true;
@@ -339,6 +343,11 @@ ImportSamplesWidget::countColumn(QString name1, bool is_qoi, QString ext, int ma
 
     numberOfRows = i;
 
+    if (numberOfRows*numberOfColumns>2.e5) {
+        skipColumnCount = true;
+    }
+
+
     if (numberOfRows != numSamples->text().toInt()) {
         QString type;
 
@@ -353,6 +362,7 @@ ImportSamplesWidget::countColumn(QString name1, bool is_qoi, QString ext, int ma
         errMSG->setStyleSheet({"color: red"});
         return -1; // errorcode
     }
+
 
     // close file
     csv.close();
@@ -379,7 +389,7 @@ int ImportSamplesWidget::parseInputData(QString name1, bool is_qoi, QString ext)
         const size_t num_elements = fin.tellg() / sizeof(float);
 
         if (num_elements % numSamples->text().toInt() !=0) {
-            errMSG->setText(QString("Number of entires (" + QString::number(num_elements) + ") are not completly divded by the number of samples (" + QString::number(num_elements) + ")"));
+            errMSG->setText(QString("Number of entires (" + QString::number(num_elements) + ") is not completly divded by the number of samples (" + QString::number(num_elements) + ")"));
             errMSG->setStyleSheet({"color: red"});
             return 0;
         } else {
