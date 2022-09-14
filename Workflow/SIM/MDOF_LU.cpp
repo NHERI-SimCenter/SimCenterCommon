@@ -36,7 +36,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include "MDOF_LU_TMP.h"
+#include "MDOF_LU.h"
 #include <RandomVariablesContainer.h>
 
 //#include <InputWidgetParameters.h>
