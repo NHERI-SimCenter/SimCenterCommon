@@ -51,7 +51,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 SIM_Selection::SIM_Selection(bool includeC,
 			     bool doMulti,
                              QWidget *parent)
-  : SimCenterAppSelection(QString("Building Model Generator"), QString("Modeling"), QString("StructuralInformation"), parent),
+  : SimCenterAppSelection(QString("Building Model Generator"), QString("Modeling"), QString("StructuralInformation"), QString(), parent),
     includeCentroid(includeC)
 {
   
