@@ -44,7 +44,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SimCenterAppMulti.h>
 #include <RandomVariablesContainer.h>
 #include <ConcreteBuildingModel.h>
-#include <MDOF_LU.h>
+#include <MDOF_LU_TMP.h>
 
 #include <QApplication>
 
