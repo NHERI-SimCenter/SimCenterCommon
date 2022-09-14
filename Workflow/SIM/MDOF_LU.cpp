@@ -36,57 +36,74 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include "SIM_Selection.h"
-
-#include <OpenSeesBuildingModel.h>
-#include <MDOF_BuildingModel.h>
-#include <SteelBuildingModel.h>
-#include <SimCenterAppMulti.h>
+#include "MDOF_LU_TMP.h"
 #include <RandomVariablesContainer.h>
-#include <ConcreteBuildingModel.h>
-#include <MDOF_LU.h>
 
-#include <QApplication>
+//#include <InputWidgetParameters.h>
 
-SIM_Selection::SIM_Selection(bool includeC,
-			     bool doMulti,
-                             QWidget *parent)
-  : SimCenterAppSelection(QString("Building Model Generator"), QString("Modeling"), QString("StructuralInformation"), QString(), parent),
-    includeCentroid(includeC)
+MDOF_LU_TMP::MDOF_LU_TMP(QWidget *parent)
+    : SimCenterAppWidget(parent)
 {
-  
-  RandomVariablesContainer *theRVs = RandomVariablesContainer::getInstance();
-  SimCenterAppWidget *opensees = new OpenSeesBuildingModel(includeCentroid);
-  SimCenterAppWidget *mdof = new MDOF_BuildingModel();
-  this->addComponent(QString("MDOF"), QString("MDOF_BuildingModel"), mdof);    
-  this->addComponent(QString("OpenSees"), QString("OpenSeesInput"), opensees);
-  QString appName = QCoreApplication::applicationName();
 
-  if (appName == "PBE" || appName == "EE-UQ") {
-    SimCenterAppWidget *autosda = new SteelBuildingModel(theRVs);
-    SimCenterAppWidget *concrete = new ConcreteBuildingModel(theRVs);    
-    this->addComponent(QString("Steel Building Model"), QString("SteelBuildingModel"), autosda);
-    this->addComponent(QString("Concrete Building Model"), QString("ConcreteBuildingModel"), concrete);          
-  }
-
-  SimCenterAppWidget *mdof_lu = new MDOF_LU_TMP();
-  this->addComponent(QString("MDOF-LU"), QString("MDOF-LU"), mdof_lu);
-    
-  if (doMulti == true) {
-    SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Modeling"), QString("MultiModel-SIM"),this, this);
-    this->addComponent(QString("Multi Model"), QString("MultiModel-SIM"), multi);
-  }    
 }
 
-SIM_Selection::~SIM_Selection()
+MDOF_LU_TMP::~MDOF_LU_TMP()
 {
 
 }
 
 
-SimCenterAppWidget *
-SIM_Selection::getClone()
+void
+MDOF_LU_TMP::clear(void)
 {
-  SIM_Selection *newSelection = new SIM_Selection(includeCentroid, false);
-  return newSelection;
+
 }
+
+
+
+bool
+MDOF_LU_TMP::outputToJSON(QJsonObject &jsonObject)
+{
+    // just need to send the class type here.. type needed in object in case user screws up
+    jsonObject["type"]="MDOF-LU";
+
+    return true;
+}
+
+
+bool
+MDOF_LU_TMP::inputFromJSON(QJsonObject &jsonObject)
+{
+    Q_UNUSED(jsonObject);
+
+    return true;
+}
+
+
+bool
+MDOF_LU_TMP::outputAppDataToJSON(QJsonObject &jsonObject) {
+
+    //
+    // per API, need to add name of application to be called in AppLication
+    // and all data to be used in ApplicationDate
+    //
+
+    jsonObject["Application"] = "MDOF-LU";
+    QJsonObject dataObj;
+    jsonObject["ApplicationData"] = dataObj;
+
+    return true;
+}
+bool
+MDOF_LU_TMP::inputAppDataFromJSON(QJsonObject &jsonObject) {
+    Q_UNUSED(jsonObject);
+    return true;
+}
+
+
+bool
+MDOF_LU_TMP::copyFiles(QString &dirName) {
+    Q_UNUSED(dirName);
+    return true;
+}
+
