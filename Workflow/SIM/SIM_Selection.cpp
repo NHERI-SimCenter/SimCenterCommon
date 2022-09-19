@@ -44,7 +44,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SimCenterAppMulti.h>
 #include <RandomVariablesContainer.h>
 #include <ConcreteBuildingModel.h>
-#include <MDOF_LU_TMP.h>
+#include <MDOF_LU.h>
 
 #include <QApplication>
 
@@ -69,7 +69,7 @@ SIM_Selection::SIM_Selection(bool includeC,
     this->addComponent(QString("Concrete Building Model"), QString("ConcreteBuildingModel"), concrete);          
   }
 
-  SimCenterAppWidget *mdof_lu = new MDOF_LU_TMP();
+  SimCenterAppWidget *mdof_lu = new MDOF_LU();
   this->addComponent(QString("MDOF-LU"), QString("MDOF-LU"), mdof_lu);
     
   if (doMulti == true) {
