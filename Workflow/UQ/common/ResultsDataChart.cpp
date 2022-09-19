@@ -76,20 +76,24 @@ ResultsDataChart::ResultsDataChart(QJsonObject spread, bool isSur, int nRV, QWid
     this->readTableFromJson(spread);
     if (rowCount==0) {
         errorMessage("ERROR: reading Dakota Results - no result widget set!");
+	dataGood = false;
     } else {
         this->makeChart();
 
         if (isSur) {
-            for (int i=nrv+nqoi+1; i<colCount; i++)
-                spreadsheet->setColumnHidden(i,true);
+	  for (int i=nrv+nqoi+1; i<colCount; i++)
+	    spreadsheet->setColumnHidden(i,true);
         }
+	
+	if  ((spreadsheet->rowCount()) > 1.e5) {
+	  chart->setAnimationOptions(QChart::AllAnimations);
+	} else {
+	  chart->setAnimationOptions(QChart::NoAnimation);
+	}
+	dataGood = true;
     }
 
-    if  ((spreadsheet->rowCount()) > 1.e5) {
-        chart->setAnimationOptions(QChart::AllAnimations);
-    } else {
-        chart->setAnimationOptions(QChart::NoAnimation);
-    }
+
 }
 
 ResultsDataChart::ResultsDataChart(QString filenameTab, bool isSur, int nRV, QWidget *parent)
@@ -105,6 +109,7 @@ ResultsDataChart::ResultsDataChart(QString filenameTab, bool isSur, int nRV, QWi
     
     if (rowCount==0) {
         errorMessage("ERROR: reading Dakota Results - no result widget set!");
+	dataGood = false;
     } else {
         this->makeChart();
 
@@ -112,6 +117,7 @@ ResultsDataChart::ResultsDataChart(QString filenameTab, bool isSur, int nRV, QWi
             for (int i=nrv+nqoi+1; i<colCount; i++)
                 spreadsheet->setColumnHidden(i,true);
         }
+	dataGood = true;
     }
 
     //chart->setAnimationOptions(QChart::AllAnimations);
