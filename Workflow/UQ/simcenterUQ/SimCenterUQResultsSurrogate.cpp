@@ -177,15 +177,24 @@ int SimCenterUQResultsSurrogate::processResults(QString &filenameResults, QStrin
 
     if (fileError.open(QIODevice::ReadOnly)) {
         QTextStream in(&fileError);
-        QString contents = in.readAll();
-//        while (!in.atEnd()) {
-//            line = in.readLine();
-//        }
-        if (!contents.isEmpty()) {
+        // QString contents = in.readAll(); -- not reading newline char
+
+
+        bool errorWritten = false;
+        QString errmsgs;
+
+        for (QString line = in.readLine();
+             !line.isNull();
+             line = in.readLine()) {
+             errmsgs +=  line + "<br>";
+             errorWritten = true;
+        };
+        if (errorWritten) {
             //errorMessage(QString(QString("Error Running SimCenterUQ: ") + line));
-            errorMessage(QString(QString("Error Running SimCenterUQ: ") + contents));
+            errorMessage(errmsgs);
             return -1;
         }
+
     }
 
 
