@@ -57,7 +57,21 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 SurrogateNoDoEInputWidget::SurrogateNoDoEInputWidget(QWidget *parent)
 : UQ_Method(parent)
 {
-    auto layout = new QGridLayout();
+
+
+    auto layout2 = new QVBoxLayout();
+    QScrollArea *sa = new QScrollArea;
+    sa->setWidgetResizable(true);
+    sa->setLineWidth(0);
+    sa->setFrameShape(QFrame::NoFrame);
+    QFrame *widget = new QFrame(sa);
+    sa->setWidget(widget);
+    auto layout = new QGridLayout(widget);
+
+    widget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    layout2 -> addWidget(sa);
+    widget -> setLayout(layout);
+
     int wid = 0; // widget id
 
     //
@@ -217,7 +231,7 @@ SurrogateNoDoEInputWidget::SurrogateNoDoEInputWidget(QWidget *parent)
 
     layout->setRowStretch(wid, 1);
     layout->setColumnStretch(6, 1);
-    this->setLayout(layout);
+    this->setLayout(layout2);
 
 
     outFileDir->setDisabled(1);
