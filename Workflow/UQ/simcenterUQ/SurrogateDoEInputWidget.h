@@ -65,29 +65,31 @@ public:
 
 
 private:
+
+
+    void createLineEdits(QLineEdit *&a, QString defaultVal, QString type, QString toolTipText, double wid, QString placeholderText="");
+    void createComboBox(QComboBox *&a, QStringList items, QString toolTipText, double wid, int curIdx);
+
+    QWidget *theGpAdvancedWidgetGroup;
+    QWidget *theExistingWidgetGroup;
     QLineEdit *randomSeed;
     QLineEdit *numSamples;
     QLineEdit *accuracyMeasure;
     QLineEdit *timeMeasure;
+    QLineEdit *numSampToBeRepl, *numRepl;
     QCheckBox *parallelCheckBox;
     QComboBox *gpKernel;
     QCheckBox *theLinearCheckBox;
-    QCheckBox *theAdvancedCheckBox;
+    QCheckBox *theGpAdvancedCheckBox;
     QCheckBox *theExistingCheckBox;
     QCheckBox *theLogtCheckBox;
 
     QLabel * theAdvancedTitle;
     QLabel * theExistingTitle;
-    QLabel * theKernelLabel;
-    QLabel * theLinearLabel;
-    QLabel * theLogtLabel;
-    QLabel * theLogtLabel2;
-    QLabel * theInitialLabel;
-    QLabel * theInputLabel;
-    QLabel * theOutputLabel;
     QLabel * errMSG;
     QLabel * theNuggetMsg;
     QLabel * theNuggetLabel;
+    QLabel * repLabelA, *repLabelB;
     QComboBox * theNuggetSelection;
     QLineEdit * theNuggetVals;
     QLabel * theDoEMsg;
@@ -100,10 +102,8 @@ private:
 
     QLineEdit * inpFileDir;
     QLineEdit * outFileDir;
-
-    QFrame *lineA;
-    QFrame *lineB;
-
+    QLabel * repMsg;
+    int numSims;
 
 private slots:
     void doAdvancedGP(bool tog);
@@ -111,6 +111,7 @@ private slots:
     void checkValidityData(QString name1);
     void showNuggetBox(int idx);
     void showDoEBox(int idx);
+    void updateSimNumber(QString tte);
 
 };
 
