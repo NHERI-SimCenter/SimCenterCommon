@@ -339,13 +339,14 @@ ImportSamplesWidget::countColumn(QString name1, bool is_qoi, QString ext, int ma
             }
             i++;
         }
+
+        if (i*numberOfColumns>2.e5) {
+            skipColumnCount = true;
+        }
     }
 
     numberOfRows = i;
 
-    if (numberOfRows*numberOfColumns>2.e5) {
-        skipColumnCount = true;
-    }
 
 
     if (numberOfRows != numSamples->text().toInt()) {
