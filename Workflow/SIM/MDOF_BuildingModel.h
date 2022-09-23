@@ -40,7 +40,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include <SimCenterAppWidget.h>
-
+#include <LineEditRV.h>
 #include <QGroupBox>
 #include <QVector>
 #include <Controller2D.h>
@@ -121,6 +121,7 @@ private:
     void removeRandmVariable(QString &text, int numReferences=1);
 
     QLineEdit *inFloors;
+    LineEditRV *dampingRatio;
     QLineEdit *inWeight;
     QLineEdit *storyHeight;
     QLineEdit *inKx;

@@ -233,7 +233,14 @@ MDOF_BuildingModel::MDOF_BuildingModel(QWidget *parent)
     QGroupBox* mainProperties = new QGroupBox("Building Information");
     QGridLayout *mainPropertiesLayout = new QGridLayout();
     inFloors = createTextEntry(tr("Number Stories"), tr("number of stories in building"),mainPropertiesLayout, 0, 0, 100, 100);
-    inWeight = createTextEntry(tr("Floor Weights"), tr("total building weight, each floor will have a weight given by weight/ number of floors"), mainPropertiesLayout, 1, 0, 100, 100);
+
+    RandomVariablesContainer *randomVariables = RandomVariablesContainer::getInstance();
+    dampingRatio = new LineEditRV(randomVariables);
+    dampingRatio->setToolTip(tr("damping ration, .02 = 2% damping"));    
+    mainPropertiesLayout->addWidget(new QLabel("Damping Ratio"), 0, 3);
+    mainPropertiesLayout->addWidget(dampingRatio, 0, 4);
+				    
+    inWeight = createTextEntry(tr("Floor Weights"),tr("total building weight, each floor will have a weight given by weight/ number of floors"),mainPropertiesLayout, 1, 0, 100, 100);
     storyHeight = createTextEntry(tr("Story Heights"), tr("story heights, building height equals number of fstories * story heighyt"),mainPropertiesLayout, 1, 3, 100, 100);
     inKx = createTextEntry(tr("Story Stiffness X dirn"), tr("story stiffnesses, that force required to push the floor above unit distance, assuming all other stories have infinite stiffness"),mainPropertiesLayout, 2, 0, 100, 100);
     inKy = createTextEntry(tr("Story Stiffness Y dirn"), tr("story stiffnesses, that force required to push the floor above unit distance, assuming all other stories have infinite stiffness"),mainPropertiesLayout, 2, 3, 100, 100);
@@ -260,6 +267,7 @@ MDOF_BuildingModel::MDOF_BuildingModel(QWidget *parent)
     //inKy->setValidator(new QDoubleValidator);
     //inK_theta->setValidator(new QDoubleValidator);
 
+    dampingRatio->setText(QString::number(0.02));    
     inFloors->setText(QString::number(1));
     inWeight->setText(floorW);
     storyHeight->setText(storyH);
@@ -1376,7 +1384,7 @@ MDOF_BuildingModel::outputToJSON(QJsonObject &jsonObject)
 
     int numStories = inFloors->text().toInt();
     jsonObject["numStories"]= numStories;
-
+    writeLineEditRV(jsonObject,"dampingRatio", dampingRatio);
     writeLineEditRV(jsonObject,"weight", inWeight);
     writeLineEditRV(jsonObject,"height", storyHeight);
     writeLineEditRV(jsonObject,"Kx", inKx);
@@ -1462,6 +1470,7 @@ MDOF_BuildingModel::inputFromJSON(QJsonObject &jsonObject)
         storyHeights = new double[numStories];
     }
 
+   readLineEditRV(jsonObject,"dampingRatio", dampingRatio);    
    readLineEditRV(jsonObject,"weight", inWeight);
    readLineEditRV(jsonObject,"height", inStoryHeight);
    readLineEditRV(jsonObject,"Kx", inKx);
