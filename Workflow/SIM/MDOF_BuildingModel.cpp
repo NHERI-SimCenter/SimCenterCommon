@@ -59,7 +59,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <string>
 #include <sstream>
 #include <iostream>
-
+#include <LineEditRV.h>
 //using namespace std;
 
 #include <QGridLayout>
@@ -236,7 +236,11 @@ MDOF_BuildingModel::MDOF_BuildingModel(QWidget *parent)
 
     RandomVariablesContainer *randomVariables = RandomVariablesContainer::getInstance();
     dampingRatio = new LineEditRV(randomVariables);
-    dampingRatio->setToolTip(tr("damping ration, .02 = 2% damping"));    
+    dampingRatio->setToolTip(tr("damping ratio, .02 = 2% damping"));
+    dampingRatio->setText("0.02");
+    dampingRatio->setMaximumWidth(100);
+    dampingRatio->setMinimumWidth(100);
+    
     mainPropertiesLayout->addWidget(new QLabel("Damping Ratio"), 0, 3);
     mainPropertiesLayout->addWidget(dampingRatio, 0, 4);
 				    

@@ -40,13 +40,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include <SimCenterAppWidget.h>
-#include <LineEditRV.h>
+
 #include <QGroupBox>
 #include <QVector>
 #include <Controller2D.h>
 #include <QMap>
 
 //class QVBoxLayout;
+class LineEditRV;
 class QLineEdit;
 class InputWidgetParameters;
 class QTableWidget;
