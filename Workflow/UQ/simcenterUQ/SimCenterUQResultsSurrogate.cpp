@@ -159,22 +159,8 @@ int SimCenterUQResultsSurrogate::processResults(QString &filenameResults, QStrin
         errorMessage("No error file - SimCenterUQ did not run - problem with quoFEM setup or the applications failed with inputs provided");
         return -1;
     }
+
     QFile fileError(filenameErrorString);
-//    QString line("");
-//    if (fileError.open(QIODevice::ReadOnly)) {
-//        QTextStream in(&fileError);
-//        while (!in.atEnd()) {
-//            line = in.readLine();
-//        }
-//        fileError.close();
-//    }
-
-//    if (line.length() != 0) {
-//        qDebug() << line.length() << " " << line;
-//        errorMessage(QString(QString("Error Running SimCenterUQ: ") + line));
-//        return 0;
-//    }
-
     if (fileError.open(QIODevice::ReadOnly)) {
         QTextStream in(&fileError);
         // QString contents = in.readAll(); -- not reading newline char
@@ -200,6 +186,26 @@ int SimCenterUQResultsSurrogate::processResults(QString &filenameResults, QStrin
 
     QFileInfo filenameTabInfo(filenameTab);
     if (!filenameTabInfo.exists()) {
+        // lets check simcenterUQ
+        QString filenameLogString = fileTabInfo.absolutePath() + QDir::separator() + QString("logFileSimUQ.txt");
+        QFile fileLog(filenameLogString);
+        if (fileLog.open(QIODevice::ReadOnly)) {
+            QTextStream in(&fileLog);
+            bool errorWritten = false;
+            QString errmsgs;
+            for (QString line = in.readLine(); !line.isNull(); line = in.readLine()) {
+                if (line.toLower().contains(QString("error"))) {
+                    errmsgs +=  line + "<br>";
+                    errorWritten = true;
+                }
+            };
+            if (errorWritten) {
+                errorMessage(errmsgs);
+                errorMessage("No Tab file - Read logFileSimUQ.txt at the working directory for details");
+                return -1;
+            }
+
+        }
         errorMessage("No Tab file - surrogate modeling failed - possibly no QoI or a permission issue.");
         return -1;
     }
@@ -736,6 +742,7 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
         axisX->setRange(miny, maxy);
         axisY->setRange(miny, maxy);
 
+        /*
         // draw nugget scale
         QLineSeries *series_nugget_ub = new QLineSeries;
         QLineSeries *series_nugget_lb = new QLineSeries;
@@ -776,7 +783,7 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
             chart_CV->legend()->markers(series_nugget)[0]->setVisible(false);
         }
         series_nugget->setBorderColor(QColor(255,255,255,0));
-
+        */
         // draw bounds first
 
         QPen pen;

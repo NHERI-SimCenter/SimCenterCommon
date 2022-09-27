@@ -73,6 +73,11 @@ ResultsDataChart::ResultsDataChart(QJsonObject spread, bool isSur, int nRV, QWid
     spreadsheet = new MyTableWidget();
     col1 = 0;
     col2 = 0;
+
+    nmetaSurrogate =7 ; // Additional columns of surrrogateTab.out file (per qoi)..
+                        // median, 5% quantile, 95% quantile, variance, 5% quantile (with noise), 95% quantile (with noise), variance (with noise)
+
+
     this->readTableFromJson(spread);
     if (rowCount==0) {
         errorMessage("ERROR: reading Dakota Results - no result widget set!");
@@ -99,6 +104,9 @@ ResultsDataChart::ResultsDataChart(QString filenameTab, bool isSur, int nRV, QWi
 
 
     spreadsheet = new MyTableWidget();
+    nmetaSurrogate =7 ; // Additional columns of surrrogateTab.out file (per qoi)..
+                        // median, 5% quantile, 95% quantile, variance, 5% quantile (with noise), 95% quantile (with noise), variance (with noise)
+
     col1 = 0;
     col2 = 0;
 
@@ -292,7 +300,7 @@ ResultsDataChart::getStatistics() {
     if (!isSurrogate) {
         numCol = colCount;
     } else {
-        numCol = colCount - 4*nqoi; // median, 5% quantile, 95% quantile, variance
+        numCol = colCount - nmetaSurrogate*nqoi; // median, 5% quantile, 95% quantile, variance, 5% quantile (with noise), 95% quantile (with noise), variance (with noise)
     }
 
     for (int col = 0; col<numCol; ++col) { // +1 for first col which is nit an RV
@@ -444,7 +452,7 @@ ResultsDataChart::readTableFromTab(QString filenameTab) {
                 col++;
             } else if ((includesInterface == true && i != 1) || (includesInterface == false)) {
                 QModelIndex index = spreadsheet->model()->index(rowCount, col);
-                spreadsheet->model()->setData(index, data.c_str());
+                spreadsheet->model()->setData(index, std::atof(data.c_str()));
                 col++;
             }
         }
@@ -453,7 +461,7 @@ ResultsDataChart::readTableFromTab(QString filenameTab) {
     tabResults.close();
 
     if (isSurrogate) {
-        nqoi = (colCount-nrv-1)/5;
+        nqoi = (colCount-nrv-1)/(1+nmetaSurrogate);
     }
     //
     // why not enable sorting!
@@ -497,7 +505,7 @@ ResultsDataChart::readTableFromJson(QJsonObject spreadsheetData) {
     spreadsheet->verticalHeader()->setVisible(false);
 
     if (isSurrogate) {
-        nqoi = (colCount-nrv-1)/5;
+        nqoi = (colCount-nrv-1)/(1+nmetaSurrogate);
     }
 
     //
@@ -625,7 +633,7 @@ ResultsDataChart::getNames() {
     if (!isSurrogate) {
         numNames = colCount;
     } else {
-        numNames = colCount - 4*nqoi;
+        numNames = colCount - nmetaSurrogate*nqoi;
     }
 
     for (int col =0; col<numNames; ++col) { // +1 for first col which is nit an RV
@@ -1517,27 +1525,35 @@ void ResultsDataChart::overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxi
 
     //QValueAxis *axisX = new QValueAxis();
     //QValueAxis *axisY = new QValueAxis();
-    int col1_mean, col1_lb, col1_ub, col2_mean, col2_lb, col2_ub;
+    int col1_mean, col1_lb, col1_lbm, col1_ub, col1_ubm, col2_mean, col2_lb, col2_lbm,col2_ub, col2_ubm;
 
     // offsets of columns
     if (isCol1Qoi) {
         col1_mean = col1+nqoi*1;
         col1_lb = col1+nqoi*2;
         col1_ub = col1+nqoi*3;
+        col1_lbm = col1+nqoi*5;
+        col1_ubm = col1+nqoi*6;
     } else {
         col1_mean = col1;
         col1_lb = col1;
         col1_ub = col1;
+        col1_lbm = col1;
+        col1_ubm = col1;
     }
 
     if (isCol2Qoi) {
         col2_mean = col2+nqoi*1;
         col2_lb = col2+nqoi*2;
         col2_ub = col2+nqoi*3;
+        col2_lbm = col2+nqoi*5;
+        col2_ubm = col2+nqoi*6;
     } else {
         col2_mean = col2;
         col2_lb = col2;
         col2_ub = col2;
+        col2_lbm = col2;
+        col2_ubm = col2;
     }
 
     bool drawPlots=false;
@@ -1581,10 +1597,10 @@ void ResultsDataChart::overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxi
         double minX, maxX, minY, maxY;
         for (int i=0; i<rowCount; i++) {
 
-            double valueXl = spreadsheet->item(i,col1_lb)->text().toDouble();
-            double valueYl = spreadsheet->item(i,col2_lb)->text().toDouble();
-            double valueXu = spreadsheet->item(i,col1_ub)->text().toDouble();
-            double valueYu = spreadsheet->item(i,col2_ub)->text().toDouble();
+            double valueXl = spreadsheet->item(i,col1_lbm)->text().toDouble(); // bounds based on w_mnoise
+            double valueYl = spreadsheet->item(i,col2_lbm)->text().toDouble();
+            double valueXu = spreadsheet->item(i,col1_ubm)->text().toDouble();
+            double valueYu = spreadsheet->item(i,col2_ubm)->text().toDouble();
             double valueXs = spreadsheet->item(i,col1)->text().toDouble();
             double valueYs = spreadsheet->item(i,col2)->text().toDouble();
 
@@ -1613,12 +1629,32 @@ void ResultsDataChart::overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxi
         axisY->setRange(minY - 0.1*yRange, maxY + 0.1*yRange);
 
         //
-        // draw bounds
+        // draw bounds 1
+        //
+        double eps = 1+1.e-15;
+
+        QPen pen_m;
+        pen_m.setWidth(markerSize/5);
+        for (int i=0; i<rowCount; i++) {
+            QLineSeries *series_err_m = new QLineSeries;
+            series_err_m->append(spreadsheet->item(i,col1_lbm)->text().toDouble(), spreadsheet->item(i,col2_lbm)->text().toDouble());
+            series_err_m->append(eps*spreadsheet->item(i,col1_ubm)->text().toDouble(), eps*spreadsheet->item(i,col2_ubm)->text().toDouble());
+            series_err_m->setPen(pen_m);
+            chart->addSeries(series_err_m);
+            //series_err->setColor(QColor(180,180,180));
+            series_err_m->setColor(QColor(180, 180, 180));
+            //series_err_m->setColor(QColor(255, 127, 14, alpha*2));
+            chart->legend()->markers(series_err_m)[0]->setVisible(false);
+            chart->setAxisX(axisX, series_err_m);
+            chart->setAxisY(axisY, series_err_m);
+        }
+
+        //
+        // draw bounds 2
         //
 
         QPen pen;
-        double eps = 1+1.e-15;
-        pen.setWidth(markerSize/5);
+        pen_m.setWidth(markerSize/5);
         for (int i=0; i<rowCount; i++) {
             QLineSeries *series_err = new QLineSeries;
             series_err->append(spreadsheet->item(i,col1_lb)->text().toDouble(), spreadsheet->item(i,col2_lb)->text().toDouble());
@@ -1626,8 +1662,8 @@ void ResultsDataChart::overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxi
             series_err->setPen(pen);
             chart->addSeries(series_err);
             //series_err->setColor(QColor(180,180,180));
-            series_err->setColor(QColor(180, 180, 180));
-            //series_err->setColor(QColor(255, 127, 14, alpha*2));
+            //series_err->setColor(QColor(2, 2, 22));
+            series_err->setColor(QColor(255, 127, 14, alpha));
             chart->legend()->markers(series_err)[0]->setVisible(false);
             chart->setAxisX(axisX, series_err);
             chart->setAxisY(axisY, series_err);

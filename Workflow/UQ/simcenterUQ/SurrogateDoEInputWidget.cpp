@@ -188,7 +188,7 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     theGpAdvancedWidgetLayout->addWidget(new QLabel("DoE Options"), aid, 0);
     theGpAdvancedWidgetLayout->addWidget(theDoESelection, aid, 1);
     //layout->addWidget(theDoEMsg, wid, 2);
-    theGpAdvancedWidgetLayout->addWidget(initialDoE, aid++, 2,1,3);
+    theGpAdvancedWidgetLayout->addWidget(initialDoE, aid++, 2);
 
     connect(theDoESelection,SIGNAL(currentIndexChanged(int)),this,SLOT(showDoEBox(int)));
 
@@ -196,10 +196,10 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     // Nugget function
     //
 
-    QStringList nuggetList = {tr("Optimize"), tr("Fixed Values"),tr("Fixed Bounds"), tr("Zero") , tr("Heterogeneous Kriging")};
+    QStringList nuggetList = {tr("Optimize"), tr("Fixed Values"),tr("Fixed Bounds"), tr("Zero") , tr("Heteroscedastic")};
 
     createComboBox(theNuggetSelection, nuggetList, tr(""), 150, 0);
-    createLineEdits(theNuggetVals, tr(""), tr("Double"), tr("Provide nugget values"), 300, tr("(Optional) Initial DoE #"));
+    createLineEdits(theNuggetVals, tr(""), tr("Double"), tr("Provide nugget values"), 300, tr(""));
 
     theNuggetMsg = new QLabel("in the log-transformed space");
 
@@ -218,17 +218,17 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
             theNuggetMsg -> setVisible(false);
     });
 
-    createLineEdits(numSampToBeRepl, tr(""), tr("Int"), tr("Number of samples to be replicated"), 300, tr("(Optional) Default: 8*#RVs"));
+    createLineEdits(numSampToBeRepl, tr(""), tr("Int"), tr("Number of samples to be replicated"), 300, tr("(Optional) Default: 8×#RVs"));
     createLineEdits(numRepl, tr(""), tr("Int"), tr("Number of replications"), 300, tr("(Optional) Default: 10"));
 
     repMsg = new QLabel("");
     repLabelA = new QLabel("# samples to be replicated (A)");
     repLabelB = new QLabel("# replication per sample (B)");
     theGpAdvancedWidgetLayout->addWidget(repLabelA, aid, 0);
-    theGpAdvancedWidgetLayout->addWidget(numSampToBeRepl, aid++, 1);
+    theGpAdvancedWidgetLayout->addWidget(numSampToBeRepl, aid++, 1,1,-1);
     theGpAdvancedWidgetLayout->addWidget(repLabelB, aid, 0);
-    theGpAdvancedWidgetLayout->addWidget(numRepl, aid++, 1);
-    theGpAdvancedWidgetLayout->addWidget(repMsg, aid++, 1,1,3);
+    theGpAdvancedWidgetLayout->addWidget(numRepl, aid++, 1,1,-1);
+    theGpAdvancedWidgetLayout->addWidget(repMsg, aid++, 1,1,5);
 
     repLabelA->setVisible(false);
     repLabelB->setVisible(false);
@@ -352,7 +352,7 @@ SurrogateDoEInputWidget::showNuggetBox(int idx)
     } else if (idx==4) {
         theNuggetVals->hide();
         repMsg ->setText("With the replications, the expected number of simulations is " + numSamples->text() + "+A*(B-1)");
-
+        repMsg -> setStyleSheet({"color: black"});
         repLabelA->setVisible(true);
         repLabelB->setVisible(true);
         numSampToBeRepl->setVisible(true);
@@ -371,13 +371,31 @@ void
 SurrogateDoEInputWidget::updateSimNumber(QString a)
 {
 
-    if  ((numSampToBeRepl->text().toInt() * (numRepl->text().toInt() - 1) )<=0) {
-        repMsg ->setText("With the replications, the expected number of simulations is " + numSamples->text() + "+A*(B-1)");
+
+    if (!(numSampToBeRepl->text()=="") && ((numSampToBeRepl->text().toInt()<2) || (numSampToBeRepl->text().toInt() > numSamples->text().toInt()))) {
+        repMsg -> setText("The number of samples to be replicated (A) should be greater than 1 and smaller than  \n the number of the unique samples (" + numSamples->text() +"), a value greater than 4×#RV is recommended");
+        repMsg -> setStyleSheet({"color: red"});
         return;
+    }
+
+    if (!(numRepl->text()=="") && numRepl->text().toInt()<2) {
+        repMsg -> setText("The number of replications (B) should be greater than 1 and a value greater than 5 is recommended");
+         repMsg -> setStyleSheet({"color: red"});
+         return;
+    }
+
+
+    if ((numSampToBeRepl->text()=="") || (numRepl->text()=="")) {
+        repMsg ->setText("With the replications, the expected number of simulations is " + numSamples->text() + "+A*(B-1)");
+        repMsg -> setStyleSheet({"color: black"});
+        return;
+
     }
 
     numSims = numSamples->text().toInt() + (numSampToBeRepl->text().toInt() * (numRepl->text().toInt() - 1) );
     repMsg ->setText("With the replications, the expected number of simulations is " + QString::number(numSims));
+    repMsg -> setStyleSheet({"color: black"});
+
 }
 
 
@@ -390,7 +408,7 @@ SurrogateDoEInputWidget::showDoEBox(int idx)
         initialDoE->hide();
     } else {
         initialDoE->show();
-        theNuggetSelection->setCurrentIndex(3);
+        //theNuggetSelection->setCurrentIndex(3);
     }
 };
 
@@ -520,8 +538,29 @@ SurrogateDoEInputWidget::outputToJSON(QJsonObject &jsonObj){
         jsonObj["logTransform"]=theLogtCheckBox->isChecked();
         jsonObj["nuggetOpt"]=theNuggetSelection->currentText();
         jsonObj["nuggetString"]=theNuggetVals->text();
-        jsonObj["numSampToBeRepl"]= numSampToBeRepl->text().toInt();
-        jsonObj["numRepl"]= numRepl->text().toInt();
+
+
+
+        if (numSampToBeRepl->text() == "") {
+            jsonObj["numSampToBeRepl"]= -1; // use default
+        } else {
+            if ((numSampToBeRepl->text().toInt()<2) || (numSampToBeRepl->text().toInt() > numSamples->text().toInt())) {
+                errorMessage("Error prossessing inputs - the number of samples to be replicated (A) should be greater than 1 and smaller than the number of the unique samples (" + numSamples->text() +"), a value greater than 4×#RV is recommended");
+                return 0;
+            }
+
+             jsonObj["numSampToBeRepl"]= numSampToBeRepl->text().toInt();
+        }
+
+        if (numRepl->text() == "") {
+            jsonObj["numRepl"]= -1; // use default
+         } else {
+            if (numRepl->text().toInt()<2) {
+                errorMessage("Error prossessing inputs - the number of replications (B) should be greater than 1 and a value greater than 5 is recommended");
+                return 0;
+            }
+            jsonObj["numRepl"]= numRepl->text().toInt();
+        }
 
     } else {
         jsonObj["kernel"]="Radial Basis";
@@ -531,8 +570,8 @@ SurrogateDoEInputWidget::outputToJSON(QJsonObject &jsonObj){
         jsonObj["logTransform"]=false;
         jsonObj["nuggetOpt"]="Optimize";
         jsonObj["nuggetString"]="NA";
-        jsonObj["numSampToBeRepl"]= 0;
-        jsonObj["numRepl"]= 0;
+        jsonObj["numSampToBeRepl"]= -1;
+        jsonObj["numRepl"]= -1;
     }
 
     jsonObj["existingDoE"]=theExistingCheckBox->isChecked();
@@ -605,8 +644,17 @@ SurrogateDoEInputWidget::inputFromJSON(QJsonObject &jsonObject){
                     theNuggetVals->setText(jsonObject["nuggetString"].toString());
                 }
                 else if (index==4){
-                    numSampToBeRepl->setText(QString::number(jsonObject["numSampToBeRepl"].toInt()));
-                    numRepl->setText(QString::number(jsonObject["numRepl"].toInt()));
+
+                    if (jsonObject["numSampToBeRepl"].toInt()==-1)
+                        numSampToBeRepl->setText("");
+                    else
+                        numSampToBeRepl->setText(QString::number(jsonObject["numSampToBeRepl"].toInt()));
+
+                    if (jsonObject["numRepl"].toInt()==-1)
+                        numRepl->setText("");
+                    else
+                        numRepl->setText(QString::number(jsonObject["numRepl"].toInt()));
+
                     updateSimNumber("");
                 }
             } else {

@@ -114,6 +114,7 @@ private:
     QVector<double>theSkewness;
 
     bool isSurrogate;
+    int nmetaSurrogate;
     int nrv;
     int nqoi;
 
