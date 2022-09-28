@@ -64,6 +64,7 @@ public:
     SimCenterAppWidget *getComponent(QString text);
     SimCenterAppWidget *getCurrentSelection(void);
     QString getCurrentSelectionName(void);
+    bool selectComponent(const QString text);
 
 public slots:
     void selectionChangedSlot(const QString &);
