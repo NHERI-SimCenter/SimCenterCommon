@@ -42,6 +42,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "RandomVariable.h"
 #include "GeneralInformationWidget.h"
 #include "RandomVariablesContainer.h"
+#include <LineEditRV.h>
+#include <ReadWriteRVJSON.h>
 
 #include <QMessageBox>
 #include <QTableWidget>
@@ -65,6 +67,8 @@ ConcreteBuildingModel::ConcreteBuildingModel(RandomVariablesContainer *theRandom
 
     // The main layout box
     QGridLayout *mainLayout = new QGridLayout(this);
+
+    RandomVariablesContainer *randomVariables = RandomVariablesContainer::getInstance();
 
     // Columm sections
     QGroupBox* columnSectionsBox = new QGroupBox("Column Sections");
@@ -124,10 +128,17 @@ ConcreteBuildingModel::ConcreteBuildingModel(RandomVariablesContainer *theRandom
     beamSectionsGrid->addWidget(beamDepthLE,1,1);
 
     // Frame geometry
-    QGroupBox* frameGeometryBox = new QGroupBox("Frame Geometry");
+    QGroupBox* frameGeometryBox = new QGroupBox("Building Information");
     QGridLayout *frameGeometryGrid = new QGridLayout(frameGeometryBox);
 
-
+    dampingRatio = new LineEditRV(randomVariables);
+    dampingRatio->setText("0.04");
+    dampingRatio->setMaximumWidth(100);
+    dampingRatio->setMinimumWidth(100);    
+    dampingRatio->setToolTip(tr("damping ratio, .04 = 4% damping"));
+    frameGeometryGrid->addWidget(new QLabel("Damping Ratio"), 0, 0);
+    frameGeometryGrid->addWidget(dampingRatio, 0, 1);        
+    
     QLabel* vecStoryLabel = new QLabel("Vector of story heights (m) = h1,h2,h3,...");
     vecStoryLE = new QLineEdit();
     connect(vecStoryLE,&QLineEdit::editingFinished,this,&ConcreteBuildingModel::onStoryLEChange);
@@ -137,11 +148,11 @@ ConcreteBuildingModel::ConcreteBuildingModel(RandomVariablesContainer *theRandom
 
     connect(vecSpansLE,&QLineEdit::editingFinished,this,&ConcreteBuildingModel::onSpanLEChange);
 
-    frameGeometryGrid->addWidget(vecStoryLabel,0,0,1,1);
-    frameGeometryGrid->addWidget(vecStoryLE,0,1,1,1);
+    frameGeometryGrid->addWidget(vecStoryLabel,1,0,1,1);
+    frameGeometryGrid->addWidget(vecStoryLE,1,1,1,1);
 
-    frameGeometryGrid->addWidget(vecSpansLabel,1,0,1,1);
-    frameGeometryGrid->addWidget(vecSpansLE,1,1,1,1);
+    frameGeometryGrid->addWidget(vecSpansLabel,2,0,1,1);
+    frameGeometryGrid->addWidget(vecSpansLE,2,1,1,1);
 
     // Design params
     QGroupBox* designParamBox = new QGroupBox("Seismic ASCE 7-16 Design Parameters");
@@ -321,10 +332,10 @@ ConcreteBuildingModel::ConcreteBuildingModel(RandomVariablesContainer *theRandom
     regularizationLayout->addWidget(regOpt2Radio);
 
     // Add everything to the main layout
-    mainLayout->addWidget(columnSectionsBox,0,0);
-    mainLayout->addWidget(beamSectionsBox,0,1);
-    mainLayout->addWidget(designParamBox,1,0,1,2);
-    mainLayout->addWidget(frameGeometryBox,2,0,1,2);
+    mainLayout->addWidget(frameGeometryBox,0,0,1,2);
+    mainLayout->addWidget(columnSectionsBox,1,0);
+    mainLayout->addWidget(beamSectionsBox,1,1);
+    mainLayout->addWidget(designParamBox,2,0,1,2);
     mainLayout->addWidget(materialsBox,3,0);
     mainLayout->addWidget(loadingBox,3,1);
     mainLayout->addWidget(plasticHingeBox,4,0);
@@ -377,6 +388,8 @@ bool ConcreteBuildingModel::outputToJSON(QJsonObject &jsonObject)
     // The application type
     jsonObject["type"]="ConcreteBuildingModel";
 
+    writeLineEditRV(jsonObject,"dampingRatio", dampingRatio);
+    
     jsonObject["ExtColWidth"] = extWidthLE->text();
     jsonObject["ExtColDepth"] = extDepthLE->text();
     jsonObject["IntColWidth"] = intWidthLE->text();
@@ -436,6 +449,7 @@ bool ConcreteBuildingModel::outputToJSON(QJsonObject &jsonObject)
 bool ConcreteBuildingModel::inputFromJSON(QJsonObject &jsonObject)
 {
     // The application type
+    readLineEditRV(jsonObject,"dampingRatio", dampingRatio);
     extWidthLE->setText(jsonObject["ExtColWidth"].toString());
     extDepthLE->setText(jsonObject["ExtColDepth"].toString());
     intWidthLE->setText(jsonObject["IntColWidth"].toString());

@@ -85,6 +85,7 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/WORKFLOW/SimCenterSpinBox.cpp \
     $$PWD/WORKFLOW/SimCenterDoubleSpinBox.cpp \
     $$PWD/WORKFLOW/SimCenterLineEdit.cpp \
+    $$PWD/WORKFLOW/WorkflowCLI.cpp \
     $$PWD/WORKFLOW/Utils/ExampleDownloader.cpp \
     $$PWD/WORKFLOW/Utils/NetworkDownloadManager.cpp \
     $$PWD/WORKFLOW/ModelViewItems/CheckableTreeModel.cpp \
@@ -95,6 +96,7 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/WORKFLOW/ModelViewItems/LayerTreeItem.cpp \    
     $$PWD/SIM/OpenSeesBuildingModel.cpp \
     $$PWD/SIM/MDOF_BuildingModel.cpp \
+    $$PWD/SIM/MDOF_LU.cpp \    
     $$PWD/SIM/SteelBuildingModel.cpp \
     $$PWD/SIM/ConcreteBuildingModel.cpp \
     $$PWD/SIM/SIM_Selection.cpp \
@@ -194,6 +196,7 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/WORKFLOW/ModelViewItems/LayerTreeItem.h \    
     $$PWD/SIM/OpenSeesBuildingModel.h \
     $$PWD/SIM/MDOF_BuildingModel.h \
+    $$PWD/SIM/MDOF_LU.h \    
     $$PWD/SIM/ReadWriteRVJSON.h \
     $$PWD/SIM/SteelBuildingModel.h \
     $$PWD/SIM/ConcreteBuildingModel.h \

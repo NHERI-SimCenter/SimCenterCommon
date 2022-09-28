@@ -39,6 +39,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 //#include "InputWidgetUQ.h"
 #include "RandomVariablesContainer.h"
+#include "ContinuousDesignDistribution.h"
 #include "ConstantDistribution.h"
 #include "NormalDistribution.h"
 #include "UniformDistribution.h"
@@ -104,6 +105,8 @@ RandomVariablesContainer::addRVsWithValues(QStringList &varNamesAndValues)
     this->addConstantRVs(varNamesAndValues);
   else if (defaultRVsType == Uniform)
     this->addUniformRVs(varNamesAndValues);
+  else if (defaultRVsType == ContinuousDesign)
+    this->addContinuousDesignRVs(varNamesAndValues);
   else
     this->addNormalRVs(varNamesAndValues);      
 }
@@ -119,6 +122,23 @@ RandomVariablesContainer::addConstantRVs(QStringList &varNamesAndValues)
 
         double dValue = value.toDouble();
         ConstantDistribution *theDistribution = new ConstantDistribution(dValue, 0);
+        RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution, uqEngineName);
+
+        this->addRandomVariable(theRV);
+    }
+}
+
+void
+RandomVariablesContainer::addContinuousDesignRVs(QStringList &varNamesAndValues)
+{
+    int numVar = varNamesAndValues.count();
+    for (int i=0; i<numVar; i+= 2) {
+
+        QString varName = varNamesAndValues.at(i);
+        QString value = varNamesAndValues.at(i+1);
+
+        double dValue = value.toDouble();
+        ContinuousDesignDistribution *theDistribution = new ContinuousDesignDistribution(dValue,0);
         RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution, uqEngineName);
 
         this->addRandomVariable(theRV);
@@ -1044,6 +1064,8 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
   //    5) finally add it to layout
   //
 
+  QString originalClassType = randomVariableClass;
+  QString originalUqEngineName = uqEngineName;
 
   // get randomVariables & add
   int numRandomVariables = 0;
@@ -1059,18 +1081,23 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
               QJsonObject rvObject = rvValue.toObject();
 
               if (rvObject.contains("variableClass")) {
-                  QJsonValue typeRV = rvObject["variableClass"];
+
+                  QString readClassType = rvObject["variableClass"].toString();
+                  //QString readUqEngineName = rvObject["uqEngineName"].toString();
+
+
                   RandomVariable *theRV = 0;
-                  QString classType = typeRV.toString();
-                  theRV = new RandomVariable(classType,uqEngineName);
+
+                  theRV = new RandomVariable(readClassType,uqEngineName);
+//                  if (originalClassType !=readClassType) {
+//                      theRV->uqEngineChanged(originalUqEngineName,originalClassType);
+//                  }
+
+
+
                   connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(variableNameChanged(const QString &)));
 
-                  //connect(theRV,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
-
                   if (rvObject["distribution"]=="User defined vector"){
-                      //int leng = rvObject["length"].toString().toInt();
-                      //int compIdStart = rvObject["name"].toString().lastIndexOf("_");
-                      //QString vecName =  rvObject["name"].toString().left(compIdStart);
                      QString vecName = rvObject["vectorName"].toString();
                       if (UserDefVecNames.contains(vecName)){
                           continue;
@@ -1100,6 +1127,12 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
           }
       }
   }
+
+  // in case the read rv class type (normal, uniform, continuousDesign,NA) is different from the original,
+  // we convert it back to the original -sy
+  randomVariableClass = originalClassType;
+  uqEngineName = originalUqEngineName;
+  this->refreshRandomVariables();
 
   // get correlationMatrix if present and add data if it is int
   if (rvObject.contains("correlationMatrix")) {

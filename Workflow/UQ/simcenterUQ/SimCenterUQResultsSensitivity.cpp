@@ -447,8 +447,12 @@ SimCenterUQResultsSensitivity::getGroupBox(QGroupBox *&groupBox, int nq, bool us
     trainingDataLayout->addWidget(l1, 0,0);
     trainingDataLayout->addWidget(l2, 0,1);
     trainingDataLayout->addWidget(l3, 0,2);
+
+
+
     QFont font;
     font.setBold(true);
+    font.setPixelSize(12);
 
     l1->setMaximumHeight(25);
     l1->setMinimumHeight(25);

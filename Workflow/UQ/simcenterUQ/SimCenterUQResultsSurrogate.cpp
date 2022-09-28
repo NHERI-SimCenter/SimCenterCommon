@@ -157,28 +157,42 @@ int SimCenterUQResultsSurrogate::processResults(QString &filenameResults, QStrin
     QFileInfo filenameErrorInfo(filenameErrorString);
     if (!filenameErrorInfo.exists()) {
         errorMessage("No error file - SimCenterUQ did not run - problem with quoFEM setup or the applications failed with inputs provided");
-        return 0;
+        return -1;
     }
     QFile fileError(filenameErrorString);
-    QString line("");
+//    QString line("");
+//    if (fileError.open(QIODevice::ReadOnly)) {
+//        QTextStream in(&fileError);
+//        while (!in.atEnd()) {
+//            line = in.readLine();
+//        }
+//        fileError.close();
+//    }
+
+//    if (line.length() != 0) {
+//        qDebug() << line.length() << " " << line;
+//        errorMessage(QString(QString("Error Running SimCenterUQ: ") + line));
+//        return 0;
+//    }
+
     if (fileError.open(QIODevice::ReadOnly)) {
         QTextStream in(&fileError);
-        while (!in.atEnd()) {
-            line = in.readLine();
+        QString contents = in.readAll();
+//        while (!in.atEnd()) {
+//            line = in.readLine();
+//        }
+        if (!contents.isEmpty()) {
+            //errorMessage(QString(QString("Error Running SimCenterUQ: ") + line));
+            errorMessage(QString(QString("Error Running SimCenterUQ: ") + contents));
+            return -1;
         }
-        fileError.close();
     }
 
-    if (line.length() != 0) {
-        qDebug() << line.length() << " " << line;
-        errorMessage(QString(QString("Error Running SimCenterUQ: ") + line));
-        return 0;
-    }
 
     QFileInfo filenameTabInfo(filenameTab);
     if (!filenameTabInfo.exists()) {
         errorMessage("No Tab file - surrogate modeling failed - possibly no QoI or a permission issue.");
-        return 0;
+        return -1;
     }
 
     QDir tempFolder(filenameTabInfo.absolutePath());

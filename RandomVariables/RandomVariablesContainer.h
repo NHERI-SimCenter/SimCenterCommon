@@ -57,7 +57,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QCheckBox>
 
 class QDialog;
-enum  RV_Type {Normal, Constant, Uniform};
+enum  RV_Type {Normal, Constant, Uniform, ContinuousDesign};
 
 class RandomVariablesContainer : public SimCenterWidget
 {
@@ -87,6 +87,8 @@ public:
     void addConstantRVs(QStringList &varNamesAndValues);
     void addUniformRVs(QStringList &varNamesAndValues);
     void addNormalRVs(QStringList &varNamesAndValues);
+    void addContinuousDesignRVs(QStringList &varNamesAndValues);
+
     void setCorrelationDisabled(bool on);
 
     void removeRandomVariable(QString &varName);

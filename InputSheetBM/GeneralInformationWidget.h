@@ -113,6 +113,10 @@ private:
     QStringList   tableHeader;
 
     QLineEdit *nameEdit;
+
+    QComboBox *structType;
+    QLineEdit *yearBuilt;
+  
     QLineEdit *storiesEdit;
     QLineEdit *heightEdit;
     QLineEdit *widthEdit;

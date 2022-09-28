@@ -52,6 +52,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QVector>
 #include <QMap>
 
+class LineEditRV;
 class QLineEdit;
 class InputWidgetParameters;
 class RandomVariablesContainer;
@@ -124,6 +125,7 @@ private:
     bool checkRV(const QString& value);
 
     // Building information and properties
+    LineEditRV *dampingRatio;    
     QString buildingGeomFileName;
     QPointer<QLineEdit> numFloorsLE;
     QPointer<QLineEdit> firstStoryHeightLE;

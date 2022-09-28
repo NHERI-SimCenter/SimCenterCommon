@@ -110,6 +110,7 @@ private:
     QVector<double>theKurtosis;
     QVector<double>theSkewness;
 
+    bool dataGood;
     bool isSurrogate;
     int nrv;
     int nqoi;

@@ -45,7 +45,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QVector>
 #include <QGridLayout>
 #include <QComboBox>
-
+class LineEditRV;
 class InputWidgetParameters;
 
 class OpenSeesBuildingModel : public SimCenterAppWidget
@@ -84,6 +84,7 @@ private:
     QLineEdit *responseNodes;
     QLineEdit *ndm;
     QLineEdit *ndf;
+    LineEditRV *dampingRatio;   
     bool includeCentroid;
     QStringList varNamesAndValues;
 };

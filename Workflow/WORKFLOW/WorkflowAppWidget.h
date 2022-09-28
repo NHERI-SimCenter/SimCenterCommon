@@ -77,6 +77,8 @@ signals:
     void sendErrorMessage(QString message);
     void sendFatalMessage(QString message);
 
+    void sendLocalRunComplete(void);
+
 public slots:  
     //virtual void selectionChangedSlot(const QItemSelection &, const QItemSelection &) =0;
 
