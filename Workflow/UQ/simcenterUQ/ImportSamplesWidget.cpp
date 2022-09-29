@@ -144,6 +144,7 @@ ImportSamplesWidget::outputToJSON(QJsonObject &jsonObj){
     jsonObj["outFile"]=yDataPath->text();
     jsonObj["inpFiletype"]=x_extention;
     jsonObj["outFiletype"]=y_extention;
+    jsonObj["samples"]= numSamples->text();
 
     return results;
 }
@@ -172,6 +173,12 @@ ImportSamplesWidget::inputFromJSON(QJsonObject &jsonObject){
 
     if (jsonObject.contains("outFiletype")) {
         y_extention = jsonObject["outFiletype"].toString();
+    } else {
+        results = false;
+    }
+
+    if (jsonObject.contains("samples")) {
+        numSamples ->setText(jsonObject["samples"].toString());
     } else {
         results = false;
     }

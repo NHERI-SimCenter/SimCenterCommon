@@ -654,6 +654,8 @@ SimCenterUQResultsSensitivity::outputToJSON(QJsonObject &jsonObject)
     jsonObject["PCAncomp"]=PCAncomp;
     jsonObject["PCAvarRatio"]=PCAvarRatio;
     jsonObject["performedPCA"]=performedPCA;
+    jsonObject["numAggQoI"]=nAggQoI;
+
 
     //
     // add spreadsheet data
@@ -695,6 +697,7 @@ SimCenterUQResultsSensitivity::inputFromJSON(QJsonObject &jsonObject)
 
     nQoI=jsonObject["numQoI"].toInt();
     ncomb=jsonObject["numCombs"].toInt();
+    nAggQoI=jsonObject["numAggQoI"].toInt();
 
     QJsonArray sobols_vals=jsonObject["sobols"].toArray();
     int n=0;
