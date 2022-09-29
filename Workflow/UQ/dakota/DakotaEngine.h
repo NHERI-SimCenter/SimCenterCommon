@@ -76,7 +76,7 @@ public slots:
 private:
    QComboBox   *theEngineSelectionBox;
    QStackedWidget *theStackedWidget;
-   QCheckBox *parallelCheckBox;
+   QCheckBox *parallelCheckBox, *removeWorkdirCheckBox;
 
    UQ_Engine *theCurrentEngine;
    UQ_Engine *theSamplingEngine;
