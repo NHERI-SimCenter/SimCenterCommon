@@ -113,6 +113,7 @@ private:
     QVector<double>theKurtosis;
     QVector<double>theSkewness;
 
+    QString lastPath = "";
     bool isSurrogate;
     int nmetaSurrogate;
     int nrv;
@@ -120,7 +121,7 @@ private:
 
     int rowCount;
     int colCount;
-    QGraphicsSimpleTextItem    *box;
+    QGraphicsSimpleTextItem *box;
 };
 
 #endif // RESULT_DATA_CHART_H

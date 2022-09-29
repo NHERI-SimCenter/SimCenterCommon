@@ -794,7 +794,7 @@ ResultsDataChart::onSaveRVsClicked()
     int columnCount = nrv+1;
 
     QString fileName = QFileDialog::getSaveFileName(this,
-                                                    tr("Save Data"), "RVs",
+                                                    tr("Save Data"), lastPath+"/RVs",
                                                     tr("Text Documents (*.txt)"));
 
     QFile file(fileName);
@@ -836,6 +836,7 @@ ResultsDataChart::onSaveRVsClicked()
         }
     file.close();
     }
+    lastPath =  QFileInfo(fileName).path();
 
 }
 
@@ -850,7 +851,7 @@ ResultsDataChart::onSaveQoIsClicked()
     }
 
     QString fileName = QFileDialog::getSaveFileName(this,
-                                                    tr("Save Data"), "QoIs",
+                                                    tr("Save Data"), lastPath+"/QoIs",
                                                     tr("Text Documents (*.txt)"));
 
     QFile file(fileName);
@@ -892,7 +893,7 @@ ResultsDataChart::onSaveQoIsClicked()
         }
     file.close();
     }
-
+    lastPath =  QFileInfo(fileName).path();
 }
 
 void
@@ -1681,7 +1682,7 @@ void ResultsDataChart::overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxi
             series->append(itemX->text().toDouble(), itemY->text().toDouble());
         }
         chart->addSeries(series);
-        series->setName("Surrogate prediction and 90% bounds");
+        series->setName("Surrogate 90% CI/PI");
 
 
         chart->setAxisX(axisX, series);
