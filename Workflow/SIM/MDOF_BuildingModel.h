@@ -47,6 +47,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QMap>
 
 //class QVBoxLayout;
+class LineEditRV;
 class QLineEdit;
 class InputWidgetParameters;
 class QTableWidget;
@@ -121,6 +122,7 @@ private:
     void removeRandmVariable(QString &text, int numReferences=1);
 
     QLineEdit *inFloors;
+    LineEditRV *dampingRatio;
     QLineEdit *inWeight;
     QLineEdit *storyHeight;
     QLineEdit *inKx;

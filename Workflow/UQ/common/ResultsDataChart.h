@@ -114,6 +114,7 @@ private:
     QVector<double>theSkewness;
 
     QString lastPath = "";
+    bool dataGood;
     bool isSurrogate;
     int nmetaSurrogate;
     int nrv;
