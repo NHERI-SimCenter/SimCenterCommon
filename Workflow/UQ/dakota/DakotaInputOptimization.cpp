@@ -101,12 +101,12 @@ DakotaInputOptimization::DakotaInputOptimization(QWidget *parent)
     convergenceTol->setValidator(new QDoubleValidator);
     convergenceTol->setToolTip("Stopping criterion based on objective function convergence");
 
-    solutionTarget = new QLineEdit();
-    solutionTarget->setText(QString::number(-1.7e308));
-    layout->addWidget(new QLabel("Solution target"), row, 0, 1, 2);
-    layout->addWidget(solutionTarget, row++, 1, 1, 2);
-    solutionTarget->setValidator(new QDoubleValidator);
-    solutionTarget->setToolTip("Stopping criteria based on objective function value");
+//    solutionTarget = new QLineEdit();
+//    solutionTarget->setText(QString::number(-1.7e308));
+//    layout->addWidget(new QLabel("Solution target"), row, 0, 1, 2);
+//    layout->addWidget(solutionTarget, row++, 1, 1, 2);
+//    solutionTarget->setValidator(new QDoubleValidator);
+//    solutionTarget->setToolTip("Stopping criteria based on objective function value");
 
     layout->setColumnMinimumWidth(0, 130);
 
@@ -160,7 +160,7 @@ DakotaInputOptimization::outputToJSON(QJsonObject &jsonObject)
         uq["thresholdDelta"] = final_step_size_value->text().toDouble() ;
         uq["contractionFactor"] = contraction_factor->text().toDouble();
         uq["maxFunEvals"] = max_function_evals->text().toInt() ;
-        uq["solutionTarget"] = solutionTarget->text().toDouble();
+//        uq["solutionTarget"] = solutionTarget->text().toDouble();
 //        uq["patternMove"] = exploratory_moves->currentText();
     }
 
@@ -203,13 +203,13 @@ DakotaInputOptimization::inputFromJSON(QJsonObject &jsonObject)
         double thresholdDelta = uq["thresholdDelta"].toDouble();
         double contractFac = uq["contractionFactor"].toDouble();
         int maxFuncEvals = uq["maxFunEvals"].toInt();
-        double solTarget = uq["solutionTarget"].toDouble();
+//        double solTarget = uq["solutionTarget"].toDouble();
 
         initial_step_size_value->setText(QString::number(initialDelta));
         final_step_size_value->setText(QString::number(thresholdDelta));
         contraction_factor->setText(QString::number(contractFac));
         max_function_evals->setText(QString::number(maxFuncEvals));
-        solutionTarget->setText(QString::number(solTarget));
+//        solutionTarget->setText(QString::number(solTarget));
 
     }
 

@@ -85,7 +85,7 @@ private:
     QLineEdit   *final_step_size_value;
     QLineEdit   *max_function_evals;
     QLineEdit   *contraction_factor;
-    QLineEdit   *solutionTarget;
+//    QLineEdit   *solutionTarget;
     DakotaOptimizationResults *results;
 
 };
