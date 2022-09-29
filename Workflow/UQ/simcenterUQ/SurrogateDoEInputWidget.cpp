@@ -79,7 +79,7 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     //
 
     createLineEdits(numSamples, tr("150"), tr("Int"), tr("Specify the number of samples"), 150);
-    QLabel *maxRun = new QLabel("Number of Model Runs");
+    QLabel *maxRun = new QLabel("Number of Samples");
     maxRun->setStyleSheet("font-weight: bold");
     layout->addWidget(maxRun, wid, 0);
     layout->addWidget(numSamples, wid++, 1);

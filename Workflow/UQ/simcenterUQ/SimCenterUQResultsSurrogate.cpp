@@ -534,6 +534,8 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
     QJsonObject yConfidenceUb = jsonObj["yPredict_CI_ub"].toObject();
     bool didLogtransform = jsonObj["doLogtransform"].toBool();
     bool isMultiFidelity = jsonObj["doMultiFidelity"].toBool();
+    QJsonArray didStochastic = jsonObj["doStochastic"].toArray();
+
 
 
     int nSamp = jsonObjHF["valSamp"].toInt();
@@ -817,7 +819,7 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
         dummy_series_err->setColor(QColor(0, 114, 178, 50));
         //dummy_series_err->setOpacity(series_CV->opacity());
         chart_CV->addSeries(dummy_series_err);
-        dummy_series_err->setName("Inter-quartile Range");
+        dummy_series_err->setName("90% Prediction Interval");
 
         // set fontsize
         QFont chartFont;
@@ -840,7 +842,9 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
         } else {
             nuggetStr = "nugget variance (log-transformed space): ";
         }
-        if (nugget/statisticsVector[jsonObj["xdim"].toInt()+1+nq][0]<1.e-12) {
+        if (didStochastic[nq].toBool()){
+            chartAndNugget->addWidget(new QLabel("Heteroscedastic nugget variance"));
+        } else if (nugget/statisticsVector[jsonObj["xdim"].toInt()+1+nq][0]<1.e-12) {
             chartAndNugget->addWidget(new QLabel(nuggetStr+"0.000"));
         } else {
             chartAndNugget->addWidget(new QLabel(nuggetStr + QString::number(nugget,'g',4)),1,0);

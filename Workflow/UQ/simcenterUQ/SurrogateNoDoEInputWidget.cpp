@@ -200,6 +200,8 @@ SurrogateNoDoEInputWidget::SurrogateNoDoEInputWidget(QWidget *parent)
     theNuggetSelection->addItem(tr("Optimize"),0);
     theNuggetSelection->addItem(tr("Fixed Values"),1);
     theNuggetSelection->addItem(tr("Fixed Bounds"),2);
+    theNuggetSelection->addItem(tr("Zero"),3);
+    theNuggetSelection->addItem(tr("Heteroscedastic"),4);
     theNuggetSelection->setMaximumWidth(150);
     theNuggetSelection->setCurrentIndex(0);
 
@@ -225,6 +227,8 @@ SurrogateNoDoEInputWidget::SurrogateNoDoEInputWidget(QWidget *parent)
         else
             theNuggetMsg -> setVisible(false);
     });
+
+
     //
     // Finish
     //
@@ -311,7 +315,7 @@ void SurrogateNoDoEInputWidget::setOutputDir(bool tog)
         // FMK theFemWidget->setFEMforGP("GPdata");
         parseInputDataForRV(inpFileDir->text());
         //parseOutputDataForQoI(outFileDir->text());
-        ignore_fem_message->setText("Any information entered on the FEM tab will be ignored");
+        ignore_fem_message->setText("Please select None in the FEM tab");
         parseInputDataForRV(inpFileDir->text());
     } else {
         outFileDir->setDisabled(1);
@@ -555,4 +559,37 @@ SurrogateNoDoEInputWidget::setRV_Defaults(void) {
     QString classType;
     classType=QString("NA");
     theRVs->setDefaults(engineType, classType, Uniform);
+}
+
+
+void
+SurrogateNoDoEInputWidget::createLineEdits(QLineEdit *&a, QString defaultVal, QString type, QString toolTipText, double wid, QString placeholderText)
+{
+    a = new QLineEdit();
+    a->setText(defaultVal);
+    if (type=="Int" ) {
+        a->setValidator(new QIntValidator);
+    } else if (type=="Double") {
+        a->setValidator(new QDoubleValidator);
+    }
+    a->setToolTip(toolTipText);
+    a->setMaximumWidth(wid);
+    a->setMinimumWidth(wid);
+    a->setPlaceholderText((placeholderText));
+}
+
+
+
+void
+SurrogateNoDoEInputWidget::createComboBox(QComboBox *&a, QStringList items, QString toolTipText, double wid, int currentIdx)
+{
+    a = new QComboBox();
+
+    foreach(QString str, items)
+    {
+        a->addItem(str);
+    }
+    a->setToolTip(toolTipText);
+    a->setMaximumWidth(wid);
+    a->setCurrentIndex(currentIdx);
 }

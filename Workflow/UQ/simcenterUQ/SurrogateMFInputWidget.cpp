@@ -292,8 +292,7 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
     //
     // Errors
     //
-
-    ignore_fem_message=new QLabel("Any information entered on the FEM tab will be ignored");
+    ignore_fem_message=new QLabel("Please select None in the FEM tab");
     ignore_fem_message->setStyleSheet({"color: blue"});
     layout->addWidget(ignore_fem_message,2,0,Qt::AlignLeft);
 
@@ -589,7 +588,7 @@ void SurrogateMFInputWidget::setLowSim(bool tog)
         ignore_fem_message->setText("");
     } else if (!theLowSimButton->isChecked() && !theHighSimButton->isChecked()) {
         theSimBox->setVisible(false);
-        ignore_fem_message->setText("Any information entered on the FEM tab will be ignored");
+        ignore_fem_message->setText("Please select None in the FEM tab");
     } else {
         errMSG->setText("");
         theSimBox->setVisible(true);
@@ -629,7 +628,7 @@ void SurrogateMFInputWidget::setHighSim(bool tog) {
     } else if (!theLowSimButton->isChecked() && !theHighSimButton->isChecked()) {
         //FMK theFemWidget->setFEMforGP("GPdata");
         theSimBox->setVisible(false);
-        ignore_fem_message->setText("Any information entered on the FEM tab will be ignored");
+        ignore_fem_message->setText("Please select None in the FEM tab");
 
     } else {
         errMSG->setText("");
