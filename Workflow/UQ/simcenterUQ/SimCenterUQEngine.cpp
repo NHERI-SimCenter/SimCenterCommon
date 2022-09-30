@@ -37,6 +37,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written: fmckenna
+#include <GoogleAnalytics.h>
 
 #include "SimCenterUQEngine.h"
 #include <SimCenterUQResultsSampling.h>
@@ -254,6 +255,9 @@ SimCenterUQEngine::getMethodName() {
 
 bool
 SimCenterUQEngine::copyFiles(QString &fileDir) {
+    QString googleString=QString("UQ-SimCenterUQ-") + this->getMethodName();
+    GoogleAnalytics::ReportAppUsage(googleString);
+
     return theCurrentEngine->copyFiles(fileDir);
 }
 

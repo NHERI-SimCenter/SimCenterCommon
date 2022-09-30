@@ -37,6 +37,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written: fmckenna
+#include <GoogleAnalytics.h>
 
 #include "UCSD_Engine.h"
 #include "UCSD_Results.h"
@@ -206,10 +207,13 @@ UCSD_Engine::getProcessingScript() {
 
 QString
 UCSD_Engine::getMethodName() {
-    return QString("UCSD");
+
+    return theMethodSelection->currentText();
 }
 
 bool
 UCSD_Engine::copyFiles(QString &fileName) {
+    QString googleString=QString("UQ-UCSD-") + this->getMethodName();
+    GoogleAnalytics::ReportAppUsage(googleString);
     return theCurrentMethod->copyFiles(fileName);
 }
