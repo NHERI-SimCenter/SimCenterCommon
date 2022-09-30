@@ -695,6 +695,7 @@ void RandomVariablesContainer::loadRVsFromJson(void)
     QJsonObject rvObject = doc.object();
     if (!RVsFileDir.isEmpty())
         inputFromJSON(rvObject);
+
 }
 
 void RandomVariablesContainer::saveRVsToJson(void)
@@ -744,6 +745,7 @@ RandomVariablesContainer::addRandomVariable(RandomVariable *theRV) {
         theRV->variableName->setReadOnly(true);
 
        // connect(this,SLOT(randomVariableErrorMessage(QString)), theRV, SIGNAL(sendErrorMessage(QString)));
+
         connect(theRV->variableName, SIGNAL(textEdited(const QString &)), this, SLOT(variableNameChanged(const QString &)));
 
         randomVariableNames << theRV->variableName->text();
@@ -777,7 +779,7 @@ void RandomVariablesContainer::addCorrelationMatrix(void) {
 
     int numRandomVariables = theRandomVariables.size();
 
-    if(correlationDialog==NULL && numRandomVariables>0) {
+    if(correlationDialog==0 && numRandomVariables>0) {
 
         correlationDialog = new QDialog(this);
         correlationDialog->setModal(true);
@@ -1134,12 +1136,12 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
   uqEngineName = originalUqEngineName;
   this->refreshRandomVariables();
 
+  correlationDialog = 0; // reset correlationDialog
   // get correlationMatrix if present and add data if it is int
   if (rvObject.contains("correlationMatrix")) {
 
       if (rvObject["correlationMatrix"].isArray()) {
 
-          correlationDialog = NULL; // reset correlationDialog
           this->addCorrelationMatrix();
 
           QJsonArray rvArray = rvObject["correlationMatrix"].toArray();
@@ -1166,10 +1168,11 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
         this->addCorrelationMatrix();
       }
       // hide the dialog so matrix not shown
-      correlationDialog->hide();
   } else {
-
+      this->addCorrelationMatrix();
   }
+  if (correlationDialog !=0)
+    correlationDialog->hide();
   return result;
 }
 
