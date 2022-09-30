@@ -40,6 +40,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "DakotaEngine.h"
 #include <DakotaResultsSampling.h>
+#include <GoogleAnalytics.h>
 
 #include <QStackedWidget>
 #include <QComboBox>
@@ -299,3 +300,10 @@ DakotaEngine::getMethodName() {
     return theCurrentEngine->getMethodName();
 }
 
+bool
+DakotaEngine::copyFiles(QString &fileDir) {
+    QString googleString=QString("UQ-DAKOTA-") + this->getMethodName();
+    GoogleAnalytics::ReportAppUsage(googleString);
+
+    return theCurrentEngine->copyFiles(fileDir);
+}

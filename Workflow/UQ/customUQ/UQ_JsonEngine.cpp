@@ -37,6 +37,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written: Michael Gardner
+#include <GoogleAnalytics.h>
 
 #include "UQ_JsonEngine.h"
 
@@ -141,4 +142,14 @@ UQ_JsonEngine::getProcessingScript() {
 QString
 UQ_JsonEngine::getMethodName() {
   return QString("runCustomUQ");
+}
+
+
+
+bool
+UQ_JsonEngine::copyFiles(QString &fileDir) {
+    QString googleString=QString("UQ-CustomUQ-") + this->getMethodName();
+    GoogleAnalytics::ReportAppUsage(googleString);
+
+    return true;
 }

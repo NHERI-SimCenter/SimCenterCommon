@@ -338,8 +338,8 @@ UQ_EngineSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
 bool
 UQ_EngineSelection::copyFiles(QString &destDir) {
   if (theCurrentEngine != 0) {
-    QString googleString=QString("UQ-") + theEngineSelectionBox->currentText();
-    GoogleAnalytics::ReportAppUsage(googleString);
+    //QString googleString=QString("UQ-") + theEngineSelectionBox->currentText();
+    //GoogleAnalytics::ReportAppUsage(googleString);
     return  theCurrentEngine->copyFiles(destDir);
   }
   

@@ -58,12 +58,12 @@ public:
     bool inputFromJSON(QJsonObject &jsonObject);
     bool outputAppDataToJSON(QJsonObject &jsonObject);
     bool inputAppDataFromJSON(QJsonObject &jsonObject);
-
     void setRV_Defaults(void);
     UQ_Results *getResults(void);
 
     QString getProcessingScript();
     QString getMethodName();
+    bool copyFiles(QString &fileDir);
 
 signals:
     void onUQ_EngineChanged(void);

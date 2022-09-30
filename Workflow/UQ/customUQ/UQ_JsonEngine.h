@@ -67,7 +67,8 @@ public:
   UQ_Results * getResults(void) override;
   
   QString getProcessingScript() override;
-  QString getMethodName() override;
+  QString getMethodName() override;  
+  bool copyFiles(QString &fileDir);
 
 signals:
   void onUQ_EngineChanged();    
