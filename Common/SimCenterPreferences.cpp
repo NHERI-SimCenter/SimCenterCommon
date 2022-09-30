@@ -902,11 +902,11 @@ SimCenterPreferences::getRemoteAppDir(void) {
 	
 	// if not set, use default & set default as application directory
 	if (!remoteBackendDirVariant.isValid()) {
-	  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v3.0.0");
+	  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v4.0.0");
 
 	  QString appName = QCoreApplication::applicationName();
 	  /*	  if (appName == QString("quoFEM"))
-	    remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v3.0.0");      
+	    remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v4.0.0");      
 	  */
 	  settingsApplication.setValue("remoteBackendDir", remoteBackendDirLocation);
 	  return remoteBackendDirLocation;
@@ -1023,7 +1023,7 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
 QString
 SimCenterPreferences::getDefaultRemoteAppDir(void) {
 
-  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v3.0.0");
+  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v4.0.0");
 
   QString appName = QCoreApplication::applicationName();
   return remoteBackendDirLocation;
