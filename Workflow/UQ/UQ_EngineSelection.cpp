@@ -40,6 +40,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Additional edits: Michael Gardner
 
 #include "UQ_EngineSelection.h"
+#include <GoogleAnalytics.h>
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -162,7 +163,7 @@ UQ_EngineSelection::outputToJSON(QJsonObject &jsonObject)
     QJsonObject uq;
     uq["uqEngine"]=theEngineSelectionBox->currentText();
     theCurrentEngine->outputToJSON(uq);
-    jsonObject["UQ_Method"]=uq;
+    jsonObject["UQ"]=uq;
 
     return true;
 }
@@ -170,25 +171,42 @@ UQ_EngineSelection::outputToJSON(QJsonObject &jsonObject)
 
 bool
 UQ_EngineSelection::inputFromJSON(QJsonObject &jsonObject) {
-    if (jsonObject.contains("UQ_Method")) {
-        QJsonObject uqObject = jsonObject["UQ_Method"].toObject();
-        if (uqObject.contains("uqEngine")) {
-            QString engine =uqObject["uqEngine"].toString();
-            int index = theEngineSelectionBox->findText(engine);
-            if (index == -1) {
-                qDebug() << "UQ_EngineSelection::inputFromJson - Unknown Engine : " << engine;
-                return false;
-            }
-            theEngineSelectionBox->setCurrentIndex(index);
-        } else { // old format which just contained info for Dakota
-            theEngineSelectionBox->setCurrentIndex(0);
-        }
-        if (theCurrentEngine != 0) {
-            return theCurrentEngine->inputFromJSON(uqObject);
-        }
-    }
 
+  // look for different keys in file for backward compatability
+  QJsonObject uqObject;
+  if (jsonObject.contains("UQ"))
+    uqObject = jsonObject["UQ"].toObject();
+  else if (jsonObject.contains("UQ_Method"))
+    uqObject = jsonObject["UQ_Method"].toObject();
+  else {
+    errorMessage("UQ_Engine: no UQ key in json");
     return false;
+  }
+
+  QString engine("Dakota");
+  if (uqObject.contains("uqEngine")) {
+    QString engine =uqObject["uqEngine"].toString();
+    int index = theEngineSelectionBox->findText(engine);
+    if (index == -1) {
+      QString errorMsg = QString("UQ_Engine: engine: ") +
+	engine + QString("  unknown");          
+      errorMessage(errorMsg);
+      return false;
+    }
+    theEngineSelectionBox->setCurrentIndex(index);
+  } else { // old format which just contained info for Dakota
+    theEngineSelectionBox->setCurrentIndex(0);
+  }
+  
+  if (theCurrentEngine != 0) {
+    return theCurrentEngine->inputFromJSON(uqObject);
+  }
+  
+  QString errorMsg = QString("UQ_Engine: engine: ") +
+    engine + QString("  selection 0!");    
+  errorMessage(errorMsg);    
+  
+  return false;
 }
 
 void UQ_EngineSelection::engineSelectionChanged(const QString &arg1)
@@ -320,6 +338,8 @@ UQ_EngineSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
 bool
 UQ_EngineSelection::copyFiles(QString &destDir) {
   if (theCurrentEngine != 0) {
+    QString googleString=QString("UQ-") + theEngineSelectionBox->currentText();
+    GoogleAnalytics::ReportAppUsage(googleString);
     return  theCurrentEngine->copyFiles(destDir);
   }
   

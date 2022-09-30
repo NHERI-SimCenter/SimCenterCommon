@@ -22,6 +22,11 @@ void ReportDesignSafeRun()
     Report("DesignSafe", "Simulation");
 }
 
+void ReportAppUsage(QString appName)
+{
+    Report("application", appName);
+}  
+
 void StartSession()
 {
     Report("Start", "Session", SessionControl::Start);
