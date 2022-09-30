@@ -70,9 +70,14 @@ ResultsDataChart::ResultsDataChart(QJsonObject spread, bool isSur, int nRV, QWid
 {
     // From json file
 
+    spreadsheet = new MyTableWidget();
     col1 = 0;
     col2 = 0;
-    spreadsheet = new MyTableWidget();
+
+    nmetaSurrogate =7 ; // Additional columns of surrrogateTab.out file (per qoi)..
+                        // median, 5% quantile, 95% quantile, variance, 5% quantile (with noise), 95% quantile (with noise), variance (with noise)
+
+
     this->readTableFromJson(spread);
     if (rowCount==0) {
         errorMessage("ERROR: reading Dakota Results - no result widget set!");
@@ -101,9 +106,20 @@ ResultsDataChart::ResultsDataChart(QString filenameTab, bool isSur, int nRV, QWi
 {
     // From surrogateTab.out
 
+
+    spreadsheet = new MyTableWidget();
+    nmetaSurrogate =7 ; // Additional columns of surrrogateTab.out file (per qoi)..
+                        // median, 5% quantile, 95% quantile, variance, 5% quantile (with noise), 95% quantile (with noise), variance (with noise)
+
     col1 = 0;
     col2 = 0;
-    spreadsheet = new MyTableWidget();
+
+    QFileInfo fileTabInfo(filenameTab);
+    if (!fileTabInfo.exists()) {
+        errorMessage("No Tab.out file - sensitivity analysis failed - possibly no QoI or a permission issue.");
+        return;
+    }
+
     this->readTableFromTab(filenameTab);
     spreadsheet->setSelectionBehavior(QAbstractItemView::SelectRows);
     
@@ -118,6 +134,44 @@ ResultsDataChart::ResultsDataChart(QString filenameTab, bool isSur, int nRV, QWi
                 spreadsheet->setColumnHidden(i,true);
         }
 	dataGood = true;
+    }
+
+    //chart->setAnimationOptions(QChart::AllAnimations);
+}
+
+
+ResultsDataChart::ResultsDataChart(QString rvFileName, QString qoiFileName, int xdim, int ydim, int nsamp, QStringList listRVs, QStringList listQoIs, QWidget *parent)
+    : SimCenterWidget(parent),isSurrogate(false)
+{
+    // Use this when you want to visualize without writing dakotatab.out
+    // We directly read input.txt and output.txt
+
+    spreadsheet = new MyTableWidget();
+    col1 = 0;
+    col2 = 0;
+    nrv = xdim;
+    nqoi = ydim;
+    colCount = xdim+ ydim;
+    rowCount = nsamp;
+
+    if (colCount*rowCount>1.e7) {
+        // give up displaying
+        infoMessage("Data values are not displayed as data size exceeds 1.e7.");
+        return ;
+    }
+
+    spreadsheet->setColumnCount(colCount);
+    spreadsheet->setRowCount(rowCount);
+
+    this->readTableFromTxt(rvFileName, xdim, listRVs, 0); // starting column 0
+    this->readTableFromTxt(qoiFileName, ydim, listQoIs, xdim); // starting column xdim
+    spreadsheet->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+
+    if (rowCount==0) {
+        errorMessage("ERROR: reading Dakota Results - no result widget set!");
+    } else {
+        this->makeChart();
     }
 
     //chart->setAnimationOptions(QChart::AllAnimations);
@@ -252,7 +306,7 @@ ResultsDataChart::getStatistics() {
     if (!isSurrogate) {
         numCol = colCount;
     } else {
-        numCol = colCount - 4*nqoi; // median, 5% quantile, 95% quantile, variance
+        numCol = colCount - nmetaSurrogate*nqoi; // median, 5% quantile, 95% quantile, variance, 5% quantile (with noise), 95% quantile (with noise), variance (with noise)
     }
 
     for (int col = 0; col<numCol; ++col) { // +1 for first col which is nit an RV
@@ -404,7 +458,7 @@ ResultsDataChart::readTableFromTab(QString filenameTab) {
                 col++;
             } else if ((includesInterface == true && i != 1) || (includesInterface == false)) {
                 QModelIndex index = spreadsheet->model()->index(rowCount, col);
-                spreadsheet->model()->setData(index, data.c_str());
+                spreadsheet->model()->setData(index, std::atof(data.c_str()));
                 col++;
             }
         }
@@ -413,7 +467,7 @@ ResultsDataChart::readTableFromTab(QString filenameTab) {
     tabResults.close();
 
     if (isSurrogate) {
-        nqoi = (colCount-nrv-1)/5;
+        nqoi = (colCount-nrv-1)/(1+nmetaSurrogate);
     }
     //
     // why not enable sorting!
@@ -457,7 +511,7 @@ ResultsDataChart::readTableFromJson(QJsonObject spreadsheetData) {
     spreadsheet->verticalHeader()->setVisible(false);
 
     if (isSurrogate) {
-        nqoi = (colCount-nrv-1)/5;
+        nqoi = (colCount-nrv-1)/(1+nmetaSurrogate);
     }
 
     //
@@ -468,6 +522,115 @@ ResultsDataChart::readTableFromJson(QJsonObject spreadsheetData) {
 
 }
 
+void
+ResultsDataChart::readTableFromTxt(QString filename, int ndim, QStringList listRvs, int startingCol) {
+
+
+        //theHeadings << "Run #";
+        theHeadings << listRvs;
+        spreadsheet->setHorizontalHeaderLabels(theHeadings);
+        spreadsheet->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+        spreadsheet->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+
+        spreadsheet->verticalHeader()->setVisible(false);
+
+        std::ifstream csv(filename.toStdString().c_str());
+
+        const std::string delimiter = ",";
+        const std::string delimiter2 = " ";
+        const std::string delimiter3 = "\t";
+        int i = 0;
+        int j; // jrv
+        bool fileIsCsv = false;
+        bool header_detected = false;
+        //int tenSecInterv = 10;
+        for (std::string line; std::getline(csv, line); ) {
+//            if (startingCol==1) {
+//                QModelIndex index = spreadsheet->model()->index(i, 0);
+//                spreadsheet->model()->setData(index, 0.0);
+//            }
+
+            if (line[0] == '%'){
+                header_detected = true;
+                continue;
+            }
+
+            // split string by delimeter
+            int start = 0U;
+            int end = line.find(delimiter);
+            j = 0;
+                // if comma seperated
+                while (end != std::string::npos) {
+                    fileIsCsv = true;
+                    if (start != end)
+                    {
+                        QModelIndex index = spreadsheet->model()->index(i, j+startingCol);
+                        double data = std::stod(line.substr(start, end - start));
+                        spreadsheet->model()->setData(index, (data));
+                        j++;
+                    }
+                    start = end + delimiter.length();
+                    end = line.find(delimiter, start);
+                }
+
+                // if space seperated
+                if (j == 0) {
+                    end = line.find(delimiter2);
+                    while (end != std::string::npos) {
+                        fileIsCsv = true;
+                        if (start != end)
+                        {
+                            QModelIndex index = spreadsheet->model()->index(i, j+startingCol);
+                            double data = std::stod(line.substr(start, end - start));
+                            spreadsheet->model()->setData(index, data); //col1 goes in x-axis, col2 on y-axis
+                            j++;
+                        }
+                        start = end + delimiter2.length();
+                        end = line.find(delimiter2, start);
+                    }
+                }
+
+                // if tab seperated
+                if (j == 0) {
+                    end = line.find(delimiter3);
+                    while (end != std::string::npos) {
+                        fileIsCsv = true;
+                        if (start != end)
+                        {
+                            QModelIndex index = spreadsheet->model()->index(i, j+startingCol);
+                            double data = std::stod(line.substr(start, end - start));
+                            spreadsheet->model()->setData(index, data);
+                            j++;
+                        }
+                        start = end + delimiter3.length();
+                        end = line.find(delimiter3, start);
+                    }
+                }
+                if (line.substr(start, end - start) != "")
+                {
+                    QModelIndex index = spreadsheet->model()->index(i, j+startingCol);
+                    double data = std::stod(line.substr(start, end - start));
+                    spreadsheet->model()->setData(index, data);
+                    j++;
+                }
+
+            if (j>0) {
+                i++;
+            }
+        }
+
+
+
+    //rowCount = i;
+    //
+    // why not enable sorting!
+    //
+    spreadsheet->setSortingEnabled(true);
+    spreadsheet->sortItems(0);
+}
+
+
+
 QVector<QString>
 ResultsDataChart::getNames() {
 
@@ -476,7 +639,7 @@ ResultsDataChart::getNames() {
     if (!isSurrogate) {
         numNames = colCount;
     } else {
-        numNames = colCount - 4*nqoi;
+        numNames = colCount - nmetaSurrogate*nqoi;
     }
 
     for (int col =0; col<numNames; ++col) { // +1 for first col which is nit an RV
@@ -637,7 +800,7 @@ ResultsDataChart::onSaveRVsClicked()
     int columnCount = nrv+1;
 
     QString fileName = QFileDialog::getSaveFileName(this,
-                                                    tr("Save Data"), "RVs",
+                                                    tr("Save Data"), lastPath+"/RVs",
                                                     tr("Text Documents (*.txt)"));
 
     QFile file(fileName);
@@ -679,6 +842,7 @@ ResultsDataChart::onSaveRVsClicked()
         }
     file.close();
     }
+    lastPath =  QFileInfo(fileName).path();
 
 }
 
@@ -688,9 +852,12 @@ ResultsDataChart::onSaveQoIsClicked()
 
     int rowCount = spreadsheet->rowCount();
     int columnCount = spreadsheet->columnCount();
+    if (isSurrogate) {
+        columnCount = nrv+nqoi+1;
+    }
 
     QString fileName = QFileDialog::getSaveFileName(this,
-                                                    tr("Save Data"), "QoIs",
+                                                    tr("Save Data"), lastPath+"/QoIs",
                                                     tr("Text Documents (*.txt)"));
 
     QFile file(fileName);
@@ -732,7 +899,7 @@ ResultsDataChart::onSaveQoIsClicked()
         }
     file.close();
     }
-
+    lastPath =  QFileInfo(fileName).path();
 }
 
 void
@@ -863,13 +1030,15 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
             //col1=0;
             QTableWidgetItem *itemY = spreadsheet->item(i,col2);
             QTableWidgetItem *itemOld = spreadsheet->item(i,oldCol);
-            itemOld->setData(Qt::BackgroundRole, QColor(Qt::white));
             itemX->setData(Qt::BackgroundRole, QColor(Qt::lightGray));
             itemY->setData(Qt::BackgroundRole, QColor(Qt::lightGray));
+            itemOld->setData(Qt::BackgroundRole, QColor(Qt::white));
 
             series->append(itemX->text().toDouble(), itemY->text().toDouble());
         }
 
+        auto abc = spreadsheet->item(row,col1)->text();
+        auto abcd = spreadsheet->item(row,col2)->text();
         series_selected->append(spreadsheet->item(row,col1)->text().toDouble(), spreadsheet->item(row,col2)->text().toDouble());
 
         chart->addSeries(series);
@@ -1363,27 +1532,35 @@ void ResultsDataChart::overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxi
 
     //QValueAxis *axisX = new QValueAxis();
     //QValueAxis *axisY = new QValueAxis();
-    int col1_mean, col1_lb, col1_ub, col2_mean, col2_lb, col2_ub;
+    int col1_mean, col1_lb, col1_lbm, col1_ub, col1_ubm, col2_mean, col2_lb, col2_lbm,col2_ub, col2_ubm;
 
     // offsets of columns
     if (isCol1Qoi) {
         col1_mean = col1+nqoi*1;
         col1_lb = col1+nqoi*2;
         col1_ub = col1+nqoi*3;
+        col1_lbm = col1+nqoi*5;
+        col1_ubm = col1+nqoi*6;
     } else {
         col1_mean = col1;
         col1_lb = col1;
         col1_ub = col1;
+        col1_lbm = col1;
+        col1_ubm = col1;
     }
 
     if (isCol2Qoi) {
         col2_mean = col2+nqoi*1;
         col2_lb = col2+nqoi*2;
         col2_ub = col2+nqoi*3;
+        col2_lbm = col2+nqoi*5;
+        col2_ubm = col2+nqoi*6;
     } else {
         col2_mean = col2;
         col2_lb = col2;
         col2_ub = col2;
+        col2_lbm = col2;
+        col2_ubm = col2;
     }
 
     bool drawPlots=false;
@@ -1427,10 +1604,10 @@ void ResultsDataChart::overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxi
         double minX, maxX, minY, maxY;
         for (int i=0; i<rowCount; i++) {
 
-            double valueXl = spreadsheet->item(i,col1_lb)->text().toDouble();
-            double valueYl = spreadsheet->item(i,col2_lb)->text().toDouble();
-            double valueXu = spreadsheet->item(i,col1_ub)->text().toDouble();
-            double valueYu = spreadsheet->item(i,col2_ub)->text().toDouble();
+            double valueXl = spreadsheet->item(i,col1_lbm)->text().toDouble(); // bounds based on w_mnoise
+            double valueYl = spreadsheet->item(i,col2_lbm)->text().toDouble();
+            double valueXu = spreadsheet->item(i,col1_ubm)->text().toDouble();
+            double valueYu = spreadsheet->item(i,col2_ubm)->text().toDouble();
             double valueXs = spreadsheet->item(i,col1)->text().toDouble();
             double valueYs = spreadsheet->item(i,col2)->text().toDouble();
 
@@ -1459,12 +1636,32 @@ void ResultsDataChart::overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxi
         axisY->setRange(minY - 0.1*yRange, maxY + 0.1*yRange);
 
         //
-        // draw bounds
+        // draw bounds 1
+        //
+        double eps = 1+1.e-15;
+
+        QPen pen_m;
+        pen_m.setWidth(markerSize/5);
+        for (int i=0; i<rowCount; i++) {
+            QLineSeries *series_err_m = new QLineSeries;
+            series_err_m->append(spreadsheet->item(i,col1_lbm)->text().toDouble(), spreadsheet->item(i,col2_lbm)->text().toDouble());
+            series_err_m->append(eps*spreadsheet->item(i,col1_ubm)->text().toDouble(), eps*spreadsheet->item(i,col2_ubm)->text().toDouble());
+            series_err_m->setPen(pen_m);
+            chart->addSeries(series_err_m);
+            //series_err->setColor(QColor(180,180,180));
+            series_err_m->setColor(QColor(180, 180, 180));
+            //series_err_m->setColor(QColor(255, 127, 14, alpha*2));
+            chart->legend()->markers(series_err_m)[0]->setVisible(false);
+            chart->setAxisX(axisX, series_err_m);
+            chart->setAxisY(axisY, series_err_m);
+        }
+
+        //
+        // draw bounds 2
         //
 
         QPen pen;
-        double eps = 1+1.e-15;
-        pen.setWidth(markerSize/5);
+        pen_m.setWidth(markerSize/5);
         for (int i=0; i<rowCount; i++) {
             QLineSeries *series_err = new QLineSeries;
             series_err->append(spreadsheet->item(i,col1_lb)->text().toDouble(), spreadsheet->item(i,col2_lb)->text().toDouble());
@@ -1472,8 +1669,8 @@ void ResultsDataChart::overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxi
             series_err->setPen(pen);
             chart->addSeries(series_err);
             //series_err->setColor(QColor(180,180,180));
-            series_err->setColor(QColor(180, 180, 180));
-            //series_err->setColor(QColor(255, 127, 14, alpha*2));
+            //series_err->setColor(QColor(2, 2, 22));
+            series_err->setColor(QColor(255, 127, 14, alpha));
             chart->legend()->markers(series_err)[0]->setVisible(false);
             chart->setAxisX(axisX, series_err);
             chart->setAxisY(axisY, series_err);
@@ -1491,7 +1688,7 @@ void ResultsDataChart::overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxi
             series->append(itemX->text().toDouble(), itemY->text().toDouble());
         }
         chart->addSeries(series);
-        series->setName("Surrogate prediction and 90% bounds");
+        series->setName("Surrogate 90% CI/PI");
 
 
         chart->setAxisX(axisX, series);
@@ -1586,7 +1783,7 @@ ResultsDataChart::outputToJSON(QJsonObject &jsonObj){
 
     QJsonObject spreadsheetData;
 
-    if (spreadsheet == NULL)
+    if ((spreadsheet == NULL) || (spreadsheet == 0))
         return true;
 
     int numCol = spreadsheet->columnCount();

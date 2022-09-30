@@ -76,6 +76,13 @@ public:
 
     virtual void setEventType(QString typeEVT);
 
+
+
+    /**
+     *   @brief setRV_Defaults  method invoked to set defaults in RV Container
+     */
+
+    virtual void clear(void);
 };
 
 #endif // UQ_METHOD_H

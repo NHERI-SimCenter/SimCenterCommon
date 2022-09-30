@@ -57,7 +57,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 #include <QStackedWidget>
-#include <MonteCarloInputWidget.h>
+#include <MonteCarloInputSimWidget.h>
+#include <ImportSamplesWidget.h>
+
 #include <LatinHypercubeInputWidget.h>
 
 SimCenterUQInputSensitivity::SimCenterUQInputSensitivity(QWidget *parent)
@@ -71,14 +73,29 @@ SimCenterUQInputSensitivity::SimCenterUQInputSensitivity(QWidget *parent)
 
     QHBoxLayout *methodLayout= new QHBoxLayout;
     QLabel *label1 = new QLabel("Method");
+
     samplingMethod = new QComboBox();
     samplingMethod->addItem(tr("Monte Carlo"));
+    samplingMethod->addItem(tr("Import Data Files"));
     samplingMethod->setMaximumWidth(200);
     samplingMethod->setMinimumWidth(200);
 
+    toolTip = new QPushButton("?");
+   // toolTip->setStyleSheet({ " background-color: white; border-style: solid; border-width:1px; border-radius:50px; border-color: red; max-width:10px;  max-height:10px; min-width:10px; min-height:10px;" });
+    toolTip->setStyleSheet({ " border-style: solid; border-width:0px; border-radius:50px; max-width:10px;  max-height:10px; min-width:10px; min-height:10px;" });
+    QLabel *toolTipString = new QLabel();
+    connect(toolTip, &QPushButton::pressed, this, [=]()  {
+        toolTipString ->setText("Import comma-separated (.csv), tab-separated (.txt), or binary files (.bin). The binary files should be float type and row-major order.");
+    });
+    connect(toolTip, &QPushButton::released, this, [=]()  {
+        toolTipString ->setText("");
+    });
+    toolTip->hide();
     methodLayout->addWidget(label1);
-    methodLayout->addWidget(samplingMethod,2);
-    methodLayout->addStretch(4);
+    methodLayout->addWidget(samplingMethod,1);
+    methodLayout->addWidget(toolTip,2);
+    methodLayout->addWidget(toolTipString,3);
+    methodLayout->addStretch(5);
 
     mLayout->addLayout(methodLayout);
 
@@ -88,51 +105,18 @@ SimCenterUQInputSensitivity::SimCenterUQInputSensitivity(QWidget *parent)
 
     theStackedWidget = new QStackedWidget();
 
-    theMC = new MonteCarloInputWidget();
+    theMC = new MonteCarloInputSimWidget();
     theStackedWidget->addWidget(theMC);
+
+    theSamples = new ImportSamplesWidget();
+    theStackedWidget->addWidget(theSamples);
+
     theCurrentMethod = theMC;
     mLayout->addWidget(theStackedWidget);
 
-    //
-    // Import paired data
-    //
 
-    pairedRVLayout= new QHBoxLayout;
-    pairedRVLayout->setMargin(0);
-    pairedRVLayout->setAlignment(Qt::AlignTop);
 
-    pairedRVLabel = new QLabel();
-    pairedRVLabel->setText(QString("Resample RVs from correlated dataset"));
-    pairedRVLabel->setStyleSheet("font-weight: bold; color: gray");
-    pairedRVCheckBox = new QCheckBox();
-    pairedRVLayout->addWidget(pairedRVCheckBox,0);
-    pairedRVLayout->addWidget(pairedRVLabel,1);
 
-    pairedRVLayoutWrap= new QWidget;
-    QGridLayout *pairedRVLayout2= new QGridLayout(pairedRVLayoutWrap);
-
-    QFrame * lineA = new QFrame;
-    lineA->setFrameShape(QFrame::HLine);
-    lineA->setFrameShadow(QFrame::Sunken);
-    lineA->setMaximumWidth(300);
-    pairedRVLayout2->addWidget(lineA,0,0,1,-1);
-
-    pairedRVLayout2->setMargin(0);
-    QLabel *label2 = new QLabel(QString("RV data groups"));
-    RVdataList = new QLineEdit();
-    RVdataList->setPlaceholderText("e.g. {RV_name1,RV_name2},{RV_name5,RV_name6,RV_name8}");
-    RVdataList->setMaximumWidth(420);
-    RVdataList->setMinimumWidth(420);
-    pairedRVLayout2->addWidget(label2,1,0);
-    pairedRVLayout2->addWidget(RVdataList,1,1);
-
-    //pairedRVLayout2->setRowStretch(2,1);
-    pairedRVLayout2->setColumnStretch(2,1);
-    //pairedRVLayout2->setSpacing(0);
-    pairedRVLayoutWrap ->setVisible(false);
-
-    mLayout->addLayout(pairedRVLayout);
-    mLayout->addWidget(pairedRVLayoutWrap);
 
     //
     // Set sensitivity group
@@ -174,8 +158,8 @@ SimCenterUQInputSensitivity::SimCenterUQInputSensitivity(QWidget *parent)
     performPCA->addItem("Automatic");
     performPCA->addItem("Yes");
     performPCA->addItem("No");
-    performPCA->setMinimumWidth( performPCA->minimumSizeHint().width()*1.2);
-    performPCA->setMaximumWidth( performPCA->minimumSizeHint().width()*1.2);
+    performPCA->setMinimumWidth( performPCA->minimumSizeHint().width()*2);
+    performPCA->setMaximumWidth( performPCA->minimumSizeHint().width()*2);
     PCAautoText = new QLabel("(PCA is performed if the number of QoI is greater than 15)");
     PCAvarRatio = new QLineEdit();
     PCAvarRatio->setVisible(false);
@@ -222,9 +206,9 @@ SimCenterUQInputSensitivity::SimCenterUQInputSensitivity(QWidget *parent)
 
     this->setLayout(mLayout);
 
-    //connect(samplingMethod, SIGNAL(currentTextChanged(QString)), this, SLOT(onTextChanged(QString)));
-    connect(pairedRVCheckBox,SIGNAL(toggled(bool)),this,SLOT(showDataOptions(bool)));
+    connect(samplingMethod, SIGNAL(currentTextChanged(QString)), this, SLOT(onTextChanged(QString)));
     connect(advancedCheckBox,SIGNAL(toggled(bool)),this,SLOT(showAdvancedOptions(bool)));
+
     connect(performPCA, &QComboBox::currentTextChanged, this, [=](QString selec)  {
         if (selec==QString("Yes"))
             PCAvarRatio -> setVisible(true);
@@ -238,17 +222,22 @@ SimCenterUQInputSensitivity::SimCenterUQInputSensitivity(QWidget *parent)
     });
 }
 
-void SimCenterUQInputSensitivity::onMethodChanged(QString text)
+void SimCenterUQInputSensitivity::onTextChanged(QString text)
 {
-  if (text=="LHS") {
-    //theStackedWidget->setCurrentIndex(0);
-    //theCurrentMethod = theLHS;
-  }
-  else if (text=="Monte Carlo") {
-    theStackedWidget->setCurrentIndex(0);
-    theCurrentMethod = theMC;  
-  }
+    if (text=="Monte Carlo") {
+      theStackedWidget->setCurrentIndex(0);
+      theCurrentMethod = theMC;
+      toolTip ->hide();
+    }
+    else if (text=="Import Data Files") {
+      theStackedWidget->setCurrentIndex(1);
+      theCurrentMethod = theSamples;
+      toolTip ->show();
+    }
+    setRV_Defaults();
 }
+
+
 
 SimCenterUQInputSensitivity::~SimCenterUQInputSensitivity()
 {
@@ -262,7 +251,7 @@ SimCenterUQInputSensitivity::getMaxNumParallelTasks(void){
 
 void SimCenterUQInputSensitivity::clear(void)
 {
-    pairedRVCheckBox->setChecked(false);
+    theCurrentMethod->clear();
     advancedCheckBox->setChecked(false);
 }
 
@@ -277,12 +266,6 @@ SimCenterUQInputSensitivity::outputToJSON(QJsonObject &jsonObject)
     theCurrentMethod->outputToJSON(uq);
 
     jsonObject["samplingMethodData"]=uq;
-
-    if (pairedRVCheckBox->isChecked()) {
-        jsonObject["RVdataGroup"] = RVdataList->text();
-    } else {
-        jsonObject["RVdataGroup"] = ""; // empty
-    }
 
     jsonObject["advancedOptions"] = advancedCheckBox->isChecked();
     if (advancedCheckBox->isChecked()) {
@@ -332,6 +315,15 @@ SimCenterUQInputSensitivity::inputFromJSON(QJsonObject &jsonObject)
               return false;
           }
           samplingMethod->setCurrentIndex(index);
+
+          //
+          // For version competibility... This should be removed in the figure 08/12/2022
+          //
+          // ***
+          if (jsonObject.contains("RVdataGroup")) {
+             uq["RVdataGroup"] = jsonObject["RVdataGroup"].toObject();
+          }
+
           result = theCurrentMethod->inputFromJSON(uq);
           if (result == false)
               return result;
@@ -339,14 +331,8 @@ SimCenterUQInputSensitivity::inputFromJSON(QJsonObject &jsonObject)
       }
     }
 
-   if (jsonObject.contains("RVdataGroup")) {
-      RVdataList->setText(jsonObject["RVdataGroup"].toString());
-      if ((RVdataList->text()).isEmpty()) {
-          pairedRVCheckBox->setChecked(false);
-      } else {
-          pairedRVCheckBox->setChecked(true);
-      }
-  }
+
+
 
    if (jsonObject.contains("advancedOptions")) {
       advancedCheckBox->setChecked(jsonObject["advancedOptions"].toBool());
@@ -366,20 +352,6 @@ SimCenterUQInputSensitivity::inputFromJSON(QJsonObject &jsonObject)
   return result;
 }
 
-
-void SimCenterUQInputSensitivity::showDataOptions(bool tog)
-{
-    if (tog) {
-        pairedRVLabel->setStyleSheet("font-weight: bold; color: black");
-        RandomVariablesContainer *theRVs = RandomVariablesContainer::getInstance();
-        RVdataList->setText(theRVs->getRVStringDatasetDiscrete());
-        pairedRVLayoutWrap->setVisible(true);
-    } else {
-        pairedRVLabel->setStyleSheet("font-weight: bold; color: gray");
-        RVdataList->setText("");
-        pairedRVLayoutWrap->setVisible(false);
-    }
-}
 
 void SimCenterUQInputSensitivity::showAdvancedOptions(bool tog)
 {
@@ -408,10 +380,16 @@ SimCenterUQInputSensitivity::getResults(void) {
 void
 SimCenterUQInputSensitivity::setRV_Defaults(void) {
   RandomVariablesContainer *theRVs = RandomVariablesContainer::getInstance();
-  QString classType("Uncertain");
-  QString engineType("SimCenterUQ");  
-
-  theRVs->setDefaults(engineType, classType, Normal);
+  QString engineType("SimCenterUQ");
+    QString classType;
+  if (samplingMethod->currentText()=="Monte Carlo") {
+      classType = "Uncertain";
+      theRVs->setDefaults(engineType, classType, Normal);
+  }
+  else if (samplingMethod->currentText()=="Import Data Files") {
+      classType = "NA";
+      theRVs->setDefaults(engineType, classType, Uniform);
+  }
 }
 
 QString

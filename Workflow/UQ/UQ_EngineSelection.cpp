@@ -63,6 +63,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <UCSD_Engine.h>
 #include <UQpyEngine.h>
 #include <UQ_JsonEngine.h>
+#include <JsonConfiguredUQEngine.h>
 //#include <filterEngine.h>
 #include <sectiontitle.h>
 
@@ -90,13 +91,16 @@ UQ_EngineSelection::UQ_EngineSelection(UQ_EngineType type,
     theEngineSelectionBox->addItem(tr("CustomUQ"));
     
     if (type == All)
+    {
       theEngineSelectionBox->addItem(tr("UCSD-UQ"));
+//      theEngineSelectionBox->addItem(tr("UQpy"));
+    }
 
     theEngineSelectionBox->setItemData(0, "Dakota engine", Qt::ToolTipRole);
     theEngineSelectionBox->setItemData(1, "SimCenterUQ engine", Qt::ToolTipRole);
     theEngineSelectionBox->setItemData(2, "Custom UQ Engine", Qt::ToolTipRole);        
     theEngineSelectionBox->setItemData(3, "UCSD UQ engine", Qt::ToolTipRole);
-    //theEngineSelectionBox->setItemData(1, "uqPY engine", Qt::ToolTipRole);
+//    theEngineSelectionBox->setItemData(4, "uqPY engine", Qt::ToolTipRole);
 
     theSelectionLayout->addWidget(title,1);
     theSelectionLayout->addWidget(theEngineSelectionBox,3);
@@ -117,6 +121,7 @@ UQ_EngineSelection::UQ_EngineSelection(UQ_EngineType type,
     theSimCenterUQEngine = new SimCenterUQEngine(type);
     theCustomEngine = new UQ_JsonEngine(type);
     theUCSD_Engine = new UCSD_Engine(type);
+//    theUQpyEngine = new JsonConfiguredUQEngine(type);
 
     theStackedWidget->addWidget(theDakotaEngine);
     theStackedWidget->addWidget(theSimCenterUQEngine);

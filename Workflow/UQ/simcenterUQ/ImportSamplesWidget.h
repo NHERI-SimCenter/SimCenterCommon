@@ -1,8 +1,11 @@
+#ifndef IMPORT_SAMPLES_WIDGET_H
+#define IMPORT_SAMPLES_WIDGET_H
+
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -26,10 +29,10 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
@@ -37,37 +40,32 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include <UQ_Method.h>
+class QLineEdit;
+class QLabel;
+class QRadioButton;
 
-UQ_Method::UQ_Method(QWidget *parent) 
-: SimCenterWidget(parent)
+class ImportSamplesWidget : public UQ_Method
 {
+    Q_OBJECT
+public:
+    explicit ImportSamplesWidget(QWidget *parent = 0);
+    ~ImportSamplesWidget();
 
-}
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+    void clear(void);
 
-UQ_Method::~UQ_Method()
-{
+    int getNumberTasks(void);
 
-}
+private:
 
-bool
-UQ_Method::copyFiles(QString &destDir)
-{
-    Q_UNUSED(destDir);
-    return true;
-}
+    int countColumn(QString name1, bool is_qoi, QString ext, int maxcount);
+    int parseInputData(QString name1, bool is_qoi, QString ext);
+    QLabel *importDataLabel, *errMSG;
+    QLineEdit *xDataPath, *yDataPath;
+    QString x_extention,y_extention;
+    QLineEdit * numSamples;
+    //QRadioButton *txt, *bin;
+};
 
-void
-UQ_Method::setRV_Defaults(void)
-{
-  
-}
-
-void
-UQ_Method::setEventType(QString typeEVT) {
-
-}
-
-void
-UQ_Method::clear(void) {
-
-}
+#endif // IMPORT_SAMPLES_WIDGET_H
