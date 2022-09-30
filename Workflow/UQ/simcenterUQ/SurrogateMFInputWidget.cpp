@@ -60,7 +60,21 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
 : UQ_Method(parent)
 {
-    auto layout = new QGridLayout();
+
+
+    auto layout2 = new QVBoxLayout();
+    QScrollArea *sa = new QScrollArea;
+    sa->setWidgetResizable(true);
+    sa->setLineWidth(0);
+    sa->setFrameShape(QFrame::NoFrame);
+    QFrame *widget = new QFrame(sa);
+    sa->setWidget(widget);
+    auto layout = new QGridLayout(widget);
+
+    widget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    layout2 -> addWidget(sa);
+    widget -> setLayout(layout);
+
 
     theHighSimButton = new QCheckBox("Simulation model");
     theHighSimButton -> setStyleSheet("font-weight: bold; color: grey");
@@ -278,8 +292,7 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
     //
     // Errors
     //
-
-    ignore_fem_message=new QLabel("Any information entered on the FEM tab will be ignored");
+    ignore_fem_message=new QLabel("Please select None in the FEM tab");
     ignore_fem_message->setStyleSheet({"color: blue"});
     layout->addWidget(ignore_fem_message,2,0,Qt::AlignLeft);
 
@@ -453,7 +466,7 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
 
     layout->setRowStretch(11, 1);
     layout->setColumnStretch(8, 1);
-    this->setLayout(layout);
+    this->setLayout(layout2);
 
     connect(theLowSimButton,SIGNAL(toggled(bool)),this,SLOT(setLowSim(bool)));
     connect(theHighSimButton,SIGNAL(toggled(bool)),this,SLOT(setHighSim(bool)));
@@ -575,7 +588,7 @@ void SurrogateMFInputWidget::setLowSim(bool tog)
         ignore_fem_message->setText("");
     } else if (!theLowSimButton->isChecked() && !theHighSimButton->isChecked()) {
         theSimBox->setVisible(false);
-        ignore_fem_message->setText("Any information entered on the FEM tab will be ignored");
+        ignore_fem_message->setText("Please select None in the FEM tab");
     } else {
         errMSG->setText("");
         theSimBox->setVisible(true);
@@ -615,7 +628,7 @@ void SurrogateMFInputWidget::setHighSim(bool tog) {
     } else if (!theLowSimButton->isChecked() && !theHighSimButton->isChecked()) {
         //FMK theFemWidget->setFEMforGP("GPdata");
         theSimBox->setVisible(false);
-        ignore_fem_message->setText("Any information entered on the FEM tab will be ignored");
+        ignore_fem_message->setText("Please select None in the FEM tab");
 
     } else {
         errMSG->setText("");

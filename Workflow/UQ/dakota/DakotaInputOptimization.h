@@ -1,11 +1,11 @@
-#ifndef SimCenterUQ_INPUT_SAMPLING_H
-#define SimCenterUQ_INPUT_SAMPLING_H
+#ifndef DAKOTAINPUTOPTIMIZATION_H
+#define DAKOTAINPUTOPTIMIZATION_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -29,83 +29,65 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
+// Written: bsaakash
+
 #include <UQ_Engine.h>
 
 #include <QGroupBox>
-#include <QVector>
+//#include <QVector>
 #include <QVBoxLayout>
 #include <QComboBox>
 #include <QPushButton>
-#include <QLabel>
-class SimCenterUQSamplingResults;
-class SimCenterUQResults;
-class QCheckBox;
-class RandomVariablesContainer;
-class QStackedWidget;
+//#include <QtGui>
+//#include <QDialog>
+#include <QCheckBox>
+
+class DakotaOptimizationResults;
+class UQ_Results;
 class UQ_Method;
 
-class SimCenterUQInputSampling : public UQ_Engine
+class DakotaInputOptimization : public UQ_Engine
 {
     Q_OBJECT
 public:
-    explicit SimCenterUQInputSampling(QWidget *parent = 0);
-    ~SimCenterUQInputSampling();
-
-    bool outputToJSON(QJsonObject &jsonObject);
-    bool inputFromJSON(QJsonObject &jsonObject);
-    bool outputAppDataToJSON(QJsonObject &jsonObject);
-    bool inputAppDataFromJSON(QJsonObject &jsonObject);
-
-    UQ_Results *getResults(void);
-    void setRV_Defaults(void);
+    explicit DakotaInputOptimization(QWidget *parent = 0);
+    ~DakotaInputOptimization();
 
     int getMaxNumParallelTasks(void);
-    QString getMethodName();
+    bool outputToJSON(QJsonObject &jsonObject);
+    bool inputFromJSON(QJsonObject &jsonObject);
 
-    QVBoxLayout *mLayout;
+    UQ_Results *getResults(void);
+
+    void setRV_Defaults(void);
+    QString getMethodName();
 
 signals:
 
 public slots:
    void clear(void);
-   void onTextChanged(const QString &arg1);
-   void numModelsChanged(int numModels);
-   //void showDataOptions(bool);
+   void methodChanged(const QString &arg1);
+   void comboboxItemChanged(QString value);
 
 private:
-    QWidget     *methodSpecific;
-    QComboBox   *samplingMethod;
-    QLineEdit   *numSamples;
-    QLineEdit   *randomSeed;
-    //    QPushButton *run;
+    QComboBox   *optimizationMethod;
+    QLineEdit   *maxIterations;
+    QLineEdit   *convergenceTol;
+    QLineEdit   *initial_step_size_value;
+    QLineEdit   *final_step_size_value;
+    QLineEdit   *max_function_evals;
+    QLineEdit   *contraction_factor;
+//    QLineEdit   *solutionTarget;
+    DakotaOptimizationResults *results;
 
-    QComboBox   *uqSelection;
-    QWidget     *uqSpecific;
-
-    RandomVariablesContainer *theRandomVariables;
-    SimCenterUQSamplingResults *results;
-
-    QStackedWidget *theStackedWidget;
-    UQ_Method *theCurrentMethod;
-    UQ_Method *theMC;
-//    UQ_MethodInputWidget *theLHS;
-//    UQ_MethodInputWidget *theIS;
-//    UQ_MethodInputWidget *theGP;
-//    UQ_MethodInputWidget *thePCE;
-//    UQ_MethodInputWidget *theMFMC;
-    QWidget *corrDataLayoutWrap;
-    QCheckBox *importCorrDataCheckBox;
-    QHBoxLayout *checkBoxLayout;
-    QLabel *label2;
-    QLineEdit * varList;
 };
 
-#endif // SimCenterUQ_INPUT_SAMPLING_H
+#endif // DAKOTAINPUTOPTIMIZATION_H

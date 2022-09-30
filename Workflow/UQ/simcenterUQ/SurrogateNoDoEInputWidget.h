@@ -73,6 +73,10 @@ public slots:
     void doAdvancedGP(bool tog);
     void showNuggetBox(int idx);
 private:
+
+    void createLineEdits(QLineEdit *&a, QString defaultVal, QString type, QString toolTipText, double wid, QString placeholderText="");
+    void createComboBox(QComboBox *&a, QStringList items, QString toolTipText, double wid, int curIdx);
+
     QLineEdit *randomSeed;
     QLineEdit *inpFileDir;
     QLineEdit *outFileDir;
@@ -102,6 +106,13 @@ private:
   //    InputWidgetFEM *theFemWidget;
 
     QFrame * lineA;
+
+
+    QLabel * repMsg;
+    int numSims;
+
+    QLabel * repLabelA, *repLabelB;
+    QLineEdit *numSampToBeRepl, *numRepl;
 
     int countColumn(QString name1, bool is_qoi=false);
 };

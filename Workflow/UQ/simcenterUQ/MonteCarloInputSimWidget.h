@@ -1,5 +1,5 @@
-#ifndef DAKOTA_RESULTS_SAMPLING_H
-#define DAKOTA_RESULTS_SAMPLING_H
+#ifndef MONTE_CARLO_INPUT_SIM_WIDGET_H
+#define MONTE_CARLO_INPUT_SIM_WIDGET_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -20,7 +20,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -37,71 +37,40 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna and mhgardner
+// Written: fmckenna
 
-#include <UQ_Results.h>
-#include <QtCharts/QChart>
-#include <QMessageBox>
-#include <QPushButton>
-#include <ResultsDataChart.h>
+#include <UQ_Method.h>
+#include <MonteCarloInputWidget.h>
 
-
-using namespace QtCharts;
-
-class QTextEdit;
-class QTabWidget;
-class MyTableWidget;
-class MainWindow;
-class RandomVariablesContainer;
-
-//class QChart;
-
-class CustomUQ_Results : public UQ_Results
+class QLineEdit;
+class QHBoxLayout;
+class QCheckBox;
+class QLabel;
+class MonteCarloInputSimWidget : public UQ_Method
 {
     Q_OBJECT
 public:
-  explicit CustomUQ_Results(RandomVariablesContainer *, QWidget *parent = 0);
-    ~CustomUQ_Results();
+    explicit MonteCarloInputSimWidget(QWidget *parent = 0);
+    ~MonteCarloInputSimWidget();
 
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
+    void clear(void);
 
-    int processResults(QString &dirName);  
-    QWidget *createResultEDPWidget(QString &name, double mean, double stdDev, double skewness, double kurtosis);
-
-signals:
+    int getNumberTasks(void);
 
 public slots:
-  
-   void clear(void);
-   void onSpreadsheetCellClicked(int, int);
-   void onSaveSpreadsheetClicked();
-
-   // modified by padhye 08/25/2018
+    void showDataOptions(bool);
 
 private:
-   int processResults(QString &filenameResults, QString &filenameTab);
-  
-   RandomVariablesContainer *theRVs;
-   QTabWidget *tabWidget;
 
-   MyTableWidget *spreadsheet;  // MyTableWidget inherits the QTableWidget
-   QChart *chart;
-   QPushButton* save_spreadheet; // save the data from spreadsheet 
-   QLabel *label;
-   QLabel *best_fit_instructions;
+    QWidget *pairedRVLayoutWrap;
+    QHBoxLayout *pairedRVLayout;
+    QCheckBox *pairedRVCheckBox;
+    QLabel *pairedRVLabel;
+    QLineEdit * RVdataList;
+    MonteCarloInputWidget *theMC;
 
-   int col1, col2;
-   bool mLeft;
-   QStringList theHeadings;
-
-   QVector<QString>theNames;
-   QVector<double>theMeans;
-   QVector<double>theStdDevs;
-   QVector<double>theKurtosis;
-   QVector<double>theSkewness;
-   ResultsDataChart *theDataTable;
-   QWidget *createResultEDPWidget(QString &name, QVector<double> statistics);
 };
 
-#endif // DAKOTA_RESULTS_SAMPLING_H
+#endif // MONTE_CARLO_INPUT_SIM_WIDGET_H

@@ -54,26 +54,32 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <fstream>
 #include <QRadioButton>
 #include <QSpinBox>
+#include <QScrollArea>
 
 SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
 : UQ_Method(parent)
 {
-    auto layout = new QGridLayout();
+
+    auto layout2 = new QVBoxLayout();
+    QScrollArea *sa = new QScrollArea;
+    sa->setWidgetResizable(true);
+    sa->setLineWidth(0);
+    sa->setFrameShape(QFrame::NoFrame);
+    QFrame *widget = new QFrame(sa);
+    sa->setWidget(widget);
+    auto layout = new QGridLayout(widget);
+
+    widget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    layout2 -> addWidget(sa);
+    widget -> setLayout(layout);
 
     int wid = 0; // widget id
-
-
     //
     // create layout label and entry for # samples
     //
 
-    numSamples = new QLineEdit();
-    numSamples->setText(tr("150"));
-    numSamples->setValidator(new QIntValidator);
-    numSamples->setToolTip("Specify the number of samples");
-    numSamples->setMaximumWidth(150);
-
-    QLabel *maxRun = new QLabel("Max Number of Model Runs");
+    createLineEdits(numSamples, tr("150"), tr("Int"), tr("Specify the number of samples"), 150);
+    QLabel *maxRun = new QLabel("Number of Samples");
     maxRun->setStyleSheet("font-weight: bold");
     layout->addWidget(maxRun, wid, 0);
     layout->addWidget(numSamples, wid++, 1);
@@ -82,13 +88,7 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     // Max computation time (approximate)
     //
 
-    timeMeasure = new QLineEdit();
-    timeMeasure->setText(tr("60"));
-    timeMeasure->setValidator(new QIntValidator);
-    timeMeasure->setToolTip("Max Computation Time (minutes)");
-    timeMeasure->setMaximumWidth(150);
-    timeMeasure->setMinimumWidth(150);
-
+    createLineEdits(timeMeasure, tr("60"), tr("Int"), tr("Max Computation Time (minutes)"), 150);
     layout->addWidget(new QLabel("Max Computation Time (minutes)    "), wid, 0);
     layout->addWidget(timeMeasure, wid++, 1);
 
@@ -96,12 +96,7 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     // create convergence criteria
     //
 
-    accuracyMeasure = new QLineEdit();
-    accuracyMeasure->setText(tr("0.02"));
-    accuracyMeasure->setValidator(new QDoubleValidator);
-    accuracyMeasure->setToolTip("NRMSE: normalized root mean square error");
-    accuracyMeasure->setMaximumWidth(150);
-
+    createLineEdits(accuracyMeasure, tr("0.02"), tr("Double"), tr("NRMSE: normalized root mean square error"), 150);
     layout->addWidget(new QLabel("Target Accuracy (normalized err) "), wid, 0);
     layout->addWidget(accuracyMeasure, wid++, 1);
 
@@ -111,12 +106,8 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
 
     srand(time(NULL));
     int randomNumber = rand() % 1000 + 1;
-    randomSeed = new QLineEdit();
-    randomSeed->setText(QString::number(randomNumber));
-    randomSeed->setValidator(new QIntValidator);
-    randomSeed->setToolTip("Set the seed");
-    randomSeed->setMaximumWidth(150);
 
+    createLineEdits(randomSeed, QString::number(randomNumber), tr("Int"), tr("Set the seed"), 150);
     layout->addWidget(new QLabel("Random Seed"), wid, 0);
     layout->addWidget(randomSeed, wid++, 1);
 
@@ -133,179 +124,151 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     // Advanced options
     //
 
-    theAdvancedCheckBox = new QCheckBox();
-    theAdvancedTitle=new QLabel("\n     Advanced Options for Gaussian Process Model ");
-    theAdvancedTitle->setStyleSheet("font-weight: bold; color: grey");
-    layout->addWidget(theAdvancedTitle, wid, 0, 1, 3,Qt::AlignBottom);
-    layout->addWidget(theAdvancedCheckBox, wid++, 0, 1, 3, Qt::AlignBottom);
+    theGpAdvancedCheckBox = new QCheckBox("Advanced Options for Gaussian Process Model ");
+    theGpAdvancedCheckBox->setStyleSheet("font-weight: bold; color: grey");
 
-    lineA= new QFrame;
+    theGpAdvancedWidgetGroup = new QWidget();
+    QGridLayout *theGpAdvancedWidgetLayout = new QGridLayout();
+    theGpAdvancedWidgetGroup -> setLayout(theGpAdvancedWidgetLayout);
+    theGpAdvancedWidgetGroup -> setVisible(false);
+    theGpAdvancedWidgetLayout ->setMargin(0);
+    int aid =0;
+
+
+    layout->addWidget(theGpAdvancedCheckBox, wid++, 0, 1, 3, Qt::AlignBottom);
+    layout->addWidget(theGpAdvancedWidgetGroup, wid++, 0, 1, 3);
+
+    QFrame *lineA = new QFrame;
     lineA->setFrameShape(QFrame::HLine);
     lineA->setFrameShadow(QFrame::Sunken);
-    layout->addWidget(lineA, wid++, 0, 1, 3);
-    lineA->setVisible(false);
+
+   // layout->addWidget(theAdvancedTitle, wid, 0, 1, 3,Qt::AlignBottom);
+    theGpAdvancedWidgetLayout->addWidget(lineA, aid++, 0, 1, 3);
+    //lineA->setVisible(false);
 
     //
     // Selection of GP kernel
     //
 
-    theKernelLabel=new QLabel("Kernel Function");
 
-    gpKernel = new QComboBox();
-    gpKernel->addItem(tr("Matern 5/2"));
-    gpKernel->addItem(tr("Matern 3/2"));
-    gpKernel->addItem(tr("Radial Basis"));
-    gpKernel->addItem(tr("Exponential"));
-    gpKernel->setMaximumWidth(150);
-    gpKernel->setCurrentIndex(0);
+    QStringList itemList = {tr("Matern 5/2"), tr("Matern 3/2"),tr("Radial Basis"), tr("Exponential")  };
+    createComboBox(gpKernel, itemList, tr(""), 150,0);
 
-    layout->addWidget(theKernelLabel, wid, 0);
-    layout->addWidget(gpKernel, wid++, 1);
-    theKernelLabel->setVisible(false);
-    gpKernel->setVisible(false);
+    theGpAdvancedWidgetLayout->addWidget(new QLabel("Kernel Function"), aid, 0);
+    theGpAdvancedWidgetLayout->addWidget(gpKernel, aid++, 1);
 
     //
     // Use Linear trending function
     //
 
-    theLinearLabel=new QLabel("Add Linear Trend Function");
-
     theLinearCheckBox = new QCheckBox();
     theLinearCheckBox->setToolTip("Default is no trending function");
 
-    layout->addWidget(theLinearLabel, wid, 0);
-    layout->addWidget(theLinearCheckBox, wid++, 1);
-    theLinearLabel->setVisible(false);
-    theLinearCheckBox->setVisible(false);
+    theGpAdvancedWidgetLayout->addWidget(new QLabel("Add Linear Trend Function"), aid, 0);
+    theGpAdvancedWidgetLayout->addWidget(theLinearCheckBox, aid++, 1);
 
     //
     // Use Log transform
     //
 
-    //theLogtLabel=new QLabel("Responses are always positive");
-    //theLogtLabel2=new QLabel("     (allow log-transform)");
-    theLogtLabel=new QLabel("Log-space Transform of QoI");
-    theLogtLabel2=new QLabel("      (check this box only when all responses are always positive)");
+    theLogtCheckBox = new QCheckBox("(check this box only when all responses are always positive)");
+    theGpAdvancedWidgetLayout->addWidget(new QLabel("Log-space Transform of QoI"), aid, 0);
+    theGpAdvancedWidgetLayout->addWidget(theLogtCheckBox, aid++, 1,1,-1);
 
-    theLogtCheckBox = new QCheckBox();
-    layout->addWidget(theLogtLabel, wid, 0);
-    layout->addWidget(theLogtLabel2, wid, 1,1,-1);
-    layout->addWidget(theLogtCheckBox, wid++, 1);
-    theLogtLabel->setVisible(false);
-    theLogtLabel2->setVisible(false);
-    theLogtCheckBox->setVisible(false);
-
-    //
-    // # of Initial DoE (Space filling)
-    //
-
-//    theInitialLabel=new QLabel("Number of Initial Samples (DoE)");
-
-//    initialDoE = new QLineEdit();
-//    initialDoE->setValidator(new QIntValidator);
-//    initialDoE->setToolTip("Set the number of initial DoE (Space filling)");
-//    initialDoE->setPlaceholderText("(Optional)");
-//    initialDoE->setMaximumWidth(150);
-//    layout->addWidget(theInitialLabel, wid, 0);
-//    layout->addWidget(initialDoE, wid++, 1);
-//    initialDoE->setVisible(false);
-//    theInitialLabel->setVisible(false);
 
     //
     // DoE Options
     //
 
-    theDoELabel=new QLabel("DoE Options");
-    theDoESelection = new QComboBox();
+    QStringList doeList = {tr("Pareto"), tr("IMSEw"),tr("MMSEw"), tr("None") };
+    createComboBox(theDoESelection, doeList, tr(""), 150, 3);
 
-    theDoESelection->addItem(tr("Pareto"),0);
-    theDoESelection->addItem(tr("IMSEw"),1);
-    theDoESelection->addItem(tr("MMSEw"),2);
-    theDoESelection->addItem(tr("None"),3);
-    theDoESelection->setMaximumWidth(150);
-    theDoESelection->setCurrentIndex(3);
-
-    //theDoEMsg= new QLabel("Provide the number of initial samples (DoE)");
-    //theDoEMsg= new QLabel("");
-    initialDoE = new QLineEdit();
-    initialDoE->setToolTip("Provide the number of initial samples");
-    initialDoE->setPlaceholderText("(Optional) Initial DoE #");
-    initialDoE->setMaximumWidth(150);
-    initialDoE->setMinimumWidth(150);
-    initialDoE->setValidator(new QIntValidator);
-
-    layout->addWidget(theDoELabel, wid, 0);
-    layout->addWidget(theDoESelection, wid, 1);
-    //layout->addWidget(theDoEMsg, wid, 2);
-    layout->addWidget(initialDoE, wid++, 2,1,3);
-
-    theDoELabel->setVisible(false);
-    theDoESelection->setVisible(false);
-    //theDoEMsg->setVisible(false);
+    createLineEdits(initialDoE, tr(""), tr("Double"), tr("Provide the number of initial samples"), 150, tr("(Optional) Initial DoE #"));
     initialDoE->setVisible(false);
+    theGpAdvancedWidgetLayout->addWidget(new QLabel("DoE Options"), aid, 0);
+    theGpAdvancedWidgetLayout->addWidget(theDoESelection, aid, 1);
+    //layout->addWidget(theDoEMsg, wid, 2);
+    theGpAdvancedWidgetLayout->addWidget(initialDoE, aid++, 2);
+
     connect(theDoESelection,SIGNAL(currentIndexChanged(int)),this,SLOT(showDoEBox(int)));
 
     //
     // Nugget function
     //
 
+    QStringList nuggetList = {tr("Optimize"), tr("Fixed Values"),tr("Fixed Bounds"), tr("Zero") , tr("Heteroscedastic")};
 
-    theNuggetLabel=new QLabel("Nugget Variances");
-    theNuggetSelection = new QComboBox();
+    createComboBox(theNuggetSelection, nuggetList, tr(""), 150, 0);
+    createLineEdits(theNuggetVals, tr(""), tr("Double"), tr("Provide nugget values"), 300, tr(""));
 
-    theNuggetSelection->addItem(tr("Optimize"),0);
-    theNuggetSelection->addItem(tr("Fixed Values"),1);
-    theNuggetSelection->addItem(tr("Fixed Bounds"),2);
-    theNuggetSelection->addItem(tr("Zero"),3);
+    theNuggetMsg = new QLabel("in the log-transformed space");
 
-    theNuggetSelection->setMaximumWidth(150);
-    theNuggetSelection->setCurrentIndex(0);
-
-    theNuggetVals = new QLineEdit();
-    theNuggetVals->setToolTip("Provide nugget values");
-    //theNuggetVals->setMaximumWidth(150);
-    theNuggetMsg= new QLabel("in the log-transformed space");
-
-    layout->addWidget(theNuggetLabel, wid, 0);
-    layout->addWidget(theNuggetSelection, wid, 1);
-    layout->addWidget(theNuggetMsg, wid++, 2, Qt::AlignLeft);
-    layout->addWidget(theNuggetVals, wid++, 1,1,3);
-
-    theNuggetLabel->setVisible(false);
-    theNuggetSelection->setVisible(false);
+    theGpAdvancedWidgetLayout->addWidget(new QLabel("Nugget Variances"), aid, 0);
+    theGpAdvancedWidgetLayout->addWidget(theNuggetSelection, aid, 1);
+    theGpAdvancedWidgetLayout->addWidget(theNuggetMsg, aid++, 2, Qt::AlignLeft);
+    theGpAdvancedWidgetLayout->addWidget(theNuggetVals, aid++, 1,1,3);
     theNuggetVals->setVisible(false);
     theNuggetMsg->setVisible(false);
 
     connect(theNuggetSelection,SIGNAL(currentIndexChanged(int)),this,SLOT(showNuggetBox(int)));
     connect(theLogtCheckBox, &QCheckBox::toggled, this, [=](bool tog)  {
-        if (tog && (theNuggetSelection->currentIndex()!=0))
+        if (tog && ((theNuggetSelection->currentIndex()!=0)||(theNuggetSelection->currentIndex()!=3)))
             theNuggetMsg -> setVisible(true);
         else
             theNuggetMsg -> setVisible(false);
     });
 
+    createLineEdits(numSampToBeRepl, tr(""), tr("Int"), tr("Number of samples to be replicated"), 300, tr("(Optional) Default: 8×#RVs"));
+    createLineEdits(numRepl, tr(""), tr("Int"), tr("Number of replications"), 300, tr("(Optional) Default: 10"));
+
+    repMsg = new QLabel("");
+    repLabelA = new QLabel("# samples to be replicated (A)");
+    repLabelB = new QLabel("# replication per sample (B)");
+    theGpAdvancedWidgetLayout->addWidget(repLabelA, aid, 0);
+    theGpAdvancedWidgetLayout->addWidget(numSampToBeRepl, aid++, 1,1,-1);
+    theGpAdvancedWidgetLayout->addWidget(repLabelB, aid, 0);
+    theGpAdvancedWidgetLayout->addWidget(numRepl, aid++, 1,1,-1);
+    theGpAdvancedWidgetLayout->addWidget(repMsg, aid++, 1,1,5);
+
+    repLabelA->setVisible(false);
+    repLabelB->setVisible(false);
+    numSampToBeRepl->setVisible(false);
+    numRepl->setVisible(false);
+    repMsg->setVisible(false);
+
+    connect(numSampToBeRepl,SIGNAL(textEdited(QString)),this,SLOT(updateSimNumber(QString)));
+    connect(numRepl,SIGNAL(textEdited(QString)),this,SLOT(updateSimNumber(QString)));
+    connect(numSamples,SIGNAL(textEdited(QString)),this,SLOT(updateSimNumber(QString)));
+
+
 
     //
     // Use Existing Initial DoE
     //
+    theExistingCheckBox = new QCheckBox("Start with Existing Dataset");
+    theExistingCheckBox ->setStyleSheet("font-weight: bold; color: grey");
 
-    theExistingCheckBox = new QCheckBox();
-    theExistingTitle = new QLabel("\n     Start with Existing Dataset");
-    theExistingTitle ->setStyleSheet("font-weight: bold; color: grey");
-    layout->addWidget(theExistingTitle, wid, 0, 1, 2, Qt::AlignBottom);
-    layout->addWidget(theExistingCheckBox, wid++, 0, Qt::AlignBottom);
+    theExistingWidgetGroup = new QWidget();
+    QGridLayout *theExistingWidgetLayout = new QGridLayout();
+    theExistingWidgetGroup -> setLayout(theExistingWidgetLayout);
+    theExistingWidgetGroup -> setVisible(false);
+    theExistingWidgetLayout ->setMargin(0);
+    int eid =0;
 
-    lineB = new QFrame;
+    layout->addWidget(theExistingCheckBox, wid++, 0, 1, 3, Qt::AlignBottom);
+    layout->addWidget(theExistingWidgetGroup, wid++, 0, 1, 4);
+
+    QFrame *lineB = new QFrame;
     lineB->setFrameShape(QFrame::HLine);
     lineB->setFrameShadow(QFrame::Sunken);
-    layout->addWidget(lineB, wid++, 0, 1, 3);
-    lineB->setVisible(false);
+    theExistingWidgetLayout->addWidget(lineB, eid++, 0, 1, 3);
 
     //
     // Input data
     //
 
-    inpFileDir = new QLineEdit();
+    createLineEdits(inpFileDir, tr(""), tr("Str"), tr(""), 200, tr(""));
+
     chooseInpFile = new QPushButton("Choose");
     connect(chooseInpFile, &QPushButton::clicked, this, [=](){
         QString fileName = QFileDialog::getOpenFileName(this, "Open Simulation Model", "", "All files (*.*)");
@@ -315,19 +278,16 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
             setWindowFilePath(fileName);
         }
     });
-    inpFileDir->setMaximumWidth(150);
-    theInputLabel=new QLabel("Training Points (Input RV)");
-    layout->addWidget(theInputLabel,wid,0);
-    layout->addWidget(inpFileDir,wid,1);
-    layout->addWidget(chooseInpFile,wid++,2,Qt::AlignLeft);
-    theInputLabel->setVisible(false);
-    inpFileDir->setVisible(false);
-    chooseInpFile->setVisible(false);
+    theExistingWidgetLayout->addWidget(new QLabel("Training Points (Input RV)"),eid,0);
+    theExistingWidgetLayout->addWidget(inpFileDir,eid,1);
+    theExistingWidgetLayout->addWidget(chooseInpFile,eid++,2,Qt::AlignLeft);
+
     //
     // Output data
     //
 
-    outFileDir = new QLineEdit();
+    createLineEdits(outFileDir, tr(""), tr("Str"), tr(""), 200, tr(""));
+
     chooseOutFile = new QPushButton("Choose");
     connect(chooseOutFile, &QPushButton::clicked, this, [=](){
         QString outputName =QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)");
@@ -337,18 +297,15 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
             this->checkValidityData(outputName);
         }
     });
-    outFileDir->setMaximumWidth(150);
-    theOutputLabel = new QLabel("System Responses (Output QoI)");
-    layout->addWidget(theOutputLabel,wid,0,Qt::AlignTop);
-    layout->addWidget(outFileDir,wid,1,Qt::AlignTop);
-    layout->addWidget(chooseOutFile,wid++,2,Qt::AlignLeft);
-    theOutputLabel->setVisible(false);
-    outFileDir->setVisible(false);
-    chooseOutFile->setVisible(false);
+    theExistingWidgetLayout->addWidget(new QLabel("System Responses (Output QoI)"),eid,0,Qt::AlignTop);
+    theExistingWidgetLayout->addWidget(outFileDir,eid,1,Qt::AlignTop);
+    theExistingWidgetLayout->addWidget(chooseOutFile,eid++,2,Qt::AlignLeft);
+    theExistingWidgetLayout->setRowStretch(eid,3);
 
     errMSG=new QLabel("Unrecognized file format");
     errMSG->setStyleSheet({"color: red"});
     layout->addWidget(errMSG,wid++,1,1,2,Qt::AlignLeft);
+    layout->setSpacing(10);
     errMSG->hide();
 
     //
@@ -357,8 +314,8 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
 
     layout->setRowStretch(wid, 1);
     layout->setColumnStretch(5, 1);
-    this->setLayout(layout);
-    connect(theAdvancedCheckBox,SIGNAL(toggled(bool)),this,SLOT(doAdvancedGP(bool)));
+    this->setLayout(layout2);
+    connect(theGpAdvancedCheckBox,SIGNAL(toggled(bool)),this,SLOT(doAdvancedGP(bool)));
     connect(theExistingCheckBox,SIGNAL(toggled(bool)),this,SLOT(doExistingGP(bool)));
 
 }
@@ -371,7 +328,17 @@ SurrogateDoEInputWidget::~SurrogateDoEInputWidget()
 void
 SurrogateDoEInputWidget::showNuggetBox(int idx)
 {
+    numSims = numSamples->text().toInt();
     theNuggetVals->clear();
+    numSampToBeRepl ->clear();
+
+
+    repLabelA->setVisible(false);
+    repLabelB->setVisible(false);
+    numSampToBeRepl->setVisible(false);
+    numRepl->setVisible(false);
+    repMsg->setVisible(false);
+
     if (idx == 0) {
         theNuggetVals->hide();
     } else if (idx==1){
@@ -380,12 +347,57 @@ SurrogateDoEInputWidget::showNuggetBox(int idx)
     } else if (idx==2) {
         theNuggetVals->show();
         theNuggetVals->setPlaceholderText("[QoI₁ˡᵇ,QoI₁ᵘᵇ], [QoI₂ˡᵇ,QoI₂ᵘᵇ],..");
+    } else if (idx==3) {
+        theNuggetVals->hide();
+    } else if (idx==4) {
+        theNuggetVals->hide();
+        repMsg ->setText("With the replications, the expected number of simulations is " + numSamples->text() + "+A*(B-1)");
+        repMsg -> setStyleSheet({"color: black"});
+        repLabelA->setVisible(true);
+        repLabelB->setVisible(true);
+        numSampToBeRepl->setVisible(true);
+        numRepl->setVisible(true);
+        repMsg->setVisible(true);
+
     }
     if ((theLogtCheckBox->isChecked()) && (idx!=0))
         theNuggetMsg -> setVisible(true);
     else
         theNuggetMsg -> setVisible(false);
 };
+
+
+void
+SurrogateDoEInputWidget::updateSimNumber(QString a)
+{
+
+
+    if (!(numSampToBeRepl->text()=="") && ((numSampToBeRepl->text().toInt()<2) || (numSampToBeRepl->text().toInt() > numSamples->text().toInt()))) {
+        repMsg -> setText("The number of samples to be replicated (A) should be greater than 1 and smaller than  \n the number of the unique samples (" + numSamples->text() +"), a value greater than 4×#RV is recommended");
+        repMsg -> setStyleSheet({"color: red"});
+        return;
+    }
+
+    if (!(numRepl->text()=="") && numRepl->text().toInt()<2) {
+        repMsg -> setText("The number of replications (B) should be greater than 1 and a value greater than 5 is recommended");
+         repMsg -> setStyleSheet({"color: red"});
+         return;
+    }
+
+
+    if ((numSampToBeRepl->text()=="") || (numRepl->text()=="")) {
+        repMsg ->setText("With the replications, the expected number of simulations is " + numSamples->text() + "+A*(B-1)");
+        repMsg -> setStyleSheet({"color: black"});
+        return;
+
+    }
+
+    numSims = numSamples->text().toInt() + (numSampToBeRepl->text().toInt() * (numRepl->text().toInt() - 1) );
+    repMsg ->setText("With the replications, the expected number of simulations is " + QString::number(numSims));
+    repMsg -> setStyleSheet({"color: black"});
+
+}
+
 
 
 void
@@ -396,7 +408,7 @@ SurrogateDoEInputWidget::showDoEBox(int idx)
         initialDoE->hide();
     } else {
         initialDoE->show();
-        theNuggetSelection->setCurrentIndex(3);
+        //theNuggetSelection->setCurrentIndex(3);
     }
 };
 
@@ -404,26 +416,27 @@ SurrogateDoEInputWidget::showDoEBox(int idx)
 void SurrogateDoEInputWidget::doAdvancedGP(bool tog)
 {
 
-    lineA->setVisible(tog);
-    gpKernel-> setVisible(tog);
-    theLinearCheckBox-> setVisible(tog);
-    theLogtCheckBox-> setVisible(tog);
-    //initialDoE-> setVisible(tog);
-    theLinearLabel->setVisible(tog);
-    theLogtLabel->setVisible(tog);
-    theLogtLabel2->setVisible(tog);
-    theKernelLabel->setVisible(tog);
-    //theInitialLabel->setVisible(tog);
-    theNuggetLabel->setVisible(tog);
-    theNuggetSelection->setVisible(tog);
-    theDoELabel->setVisible(tog);
-    theDoESelection->setVisible(tog);
+    theGpAdvancedWidgetGroup ->setVisible(tog);
+
+//    lineA->setVisible(tog);
+//    gpKernel-> setVisible(tog);
+//    theLinearCheckBox-> setVisible(tog);
+//    theLogtCheckBox-> setVisible(tog);
+//    //initialDoE-> setVisible(tog);
+//    theLinearLabel->setVisible(tog);
+//    theLogtLabel->setVisible(tog);
+//    theKernelLabel->setVisible(tog);
+//    //theInitialLabel->setVisible(tog);
+//    theNuggetLabel->setVisible(tog);
+//    theNuggetSelection->setVisible(tog);
+//    theDoELabel->setVisible(tog);
+//    theDoESelection->setVisible(tog);
 
     if (tog) {
-        theAdvancedTitle->setStyleSheet("font-weight: bold; color: black");
+        theGpAdvancedCheckBox->setStyleSheet("font-weight: bold; color: black");
 
     } else {
-        theAdvancedTitle->setStyleSheet("font-weight: bold; color: grey");
+        theGpAdvancedCheckBox->setStyleSheet("font-weight: bold; color: grey");
 
         gpKernel->setCurrentIndex(0);
         theNuggetSelection->setCurrentIndex(0);
@@ -436,20 +449,23 @@ void SurrogateDoEInputWidget::doAdvancedGP(bool tog)
 
 void SurrogateDoEInputWidget::doExistingGP(bool tog)
 {
+    theExistingWidgetGroup->setVisible(tog);
     if (tog) {
-        theExistingTitle->setStyleSheet("font-weight: bold; color: black");
+        theExistingCheckBox->setStyleSheet("font-weight: bold; color: black");
     } else {
-        theExistingTitle->setStyleSheet("font-weight: bold; color: grey");
+        theExistingCheckBox->setStyleSheet("font-weight: bold; color: grey");
         inpFileDir-> setText("");
         outFileDir-> setText("");
     }
-        lineB->setVisible(tog);
-        inpFileDir->setVisible(tog);
-        outFileDir->setVisible(tog);
-        theInputLabel->setVisible(tog);
-        theOutputLabel->setVisible(tog);
-        chooseInpFile->setVisible(tog);
-        chooseOutFile->setVisible(tog);
+    theExistingWidgetGroup->setVisible(tog);
+
+//        lineB->setVisible(tog);
+//        inpFileDir->setVisible(tog);
+//        outFileDir->setVisible(tog);
+//        theInputLabel->setVisible(tog);
+//        theOutputLabel->setVisible(tog);
+//        chooseInpFile->setVisible(tog);
+//        chooseOutFile->setVisible(tog);
 }
 
 void
@@ -512,8 +528,8 @@ SurrogateDoEInputWidget::outputToJSON(QJsonObject &jsonObj){
     jsonObj["accuracyLimit"]=accuracyMeasure->text().toDouble();
     jsonObj["parallelExecution"]=parallelCheckBox->isChecked();
 
-    jsonObj["advancedOpt"]=theAdvancedCheckBox->isChecked();
-    if (theAdvancedCheckBox->isChecked())
+    jsonObj["advancedOpt"]=theGpAdvancedCheckBox->isChecked();
+    if (theGpAdvancedCheckBox->isChecked())
     {
         jsonObj["kernel"]=gpKernel->currentText();
         jsonObj["DoEmethod"]=theDoESelection->currentText();
@@ -523,6 +539,29 @@ SurrogateDoEInputWidget::outputToJSON(QJsonObject &jsonObj){
         jsonObj["nuggetOpt"]=theNuggetSelection->currentText();
         jsonObj["nuggetString"]=theNuggetVals->text();
 
+
+
+        if (numSampToBeRepl->text() == "") {
+            jsonObj["numSampToBeRepl"]= -1; // use default
+        } else {
+            if ((numSampToBeRepl->text().toInt()<2) || (numSampToBeRepl->text().toInt() > numSamples->text().toInt())) {
+                errorMessage("Error prossessing inputs - the number of samples to be replicated (A) should be greater than 1 and smaller than the number of the unique samples (" + numSamples->text() +"), a value greater than 4×#RV is recommended");
+                return 0;
+            }
+
+             jsonObj["numSampToBeRepl"]= numSampToBeRepl->text().toInt();
+        }
+
+        if (numRepl->text() == "") {
+            jsonObj["numRepl"]= -1; // use default
+         } else {
+            if (numRepl->text().toInt()<2) {
+                errorMessage("Error prossessing inputs - the number of replications (B) should be greater than 1 and a value greater than 5 is recommended");
+                return 0;
+            }
+            jsonObj["numRepl"]= numRepl->text().toInt();
+        }
+
     } else {
         jsonObj["kernel"]="Radial Basis";
         jsonObj["DoEmethod"]="None";
@@ -531,6 +570,8 @@ SurrogateDoEInputWidget::outputToJSON(QJsonObject &jsonObj){
         jsonObj["logTransform"]=false;
         jsonObj["nuggetOpt"]="Optimize";
         jsonObj["nuggetString"]="NA";
+        jsonObj["numSampToBeRepl"]= -1;
+        jsonObj["numRepl"]= -1;
     }
 
     jsonObj["existingDoE"]=theExistingCheckBox->isChecked();
@@ -576,7 +617,7 @@ SurrogateDoEInputWidget::inputFromJSON(QJsonObject &jsonObject){
 
     if (jsonObject.contains("advancedOpt")) {
         if (jsonObject["advancedOpt"].toBool()) {
-            theAdvancedCheckBox->setChecked(true);
+            theGpAdvancedCheckBox->setChecked(true);
             QString method =jsonObject["kernel"].toString();
             int index = gpKernel->findText(method);
             if (index == -1) {
@@ -599,14 +640,28 @@ SurrogateDoEInputWidget::inputFromJSON(QJsonObject &jsonObject){
                     return false;
                 }
                 theNuggetSelection->setCurrentIndex(index);
-                if (index!=0){
+                if ((index==1) ||(index==2)){
                     theNuggetVals->setText(jsonObject["nuggetString"].toString());
+                }
+                else if (index==4){
+
+                    if (jsonObject["numSampToBeRepl"].toInt()==-1)
+                        numSampToBeRepl->setText("");
+                    else
+                        numSampToBeRepl->setText(QString::number(jsonObject["numSampToBeRepl"].toInt()));
+
+                    if (jsonObject["numRepl"].toInt()==-1)
+                        numRepl->setText("");
+                    else
+                        numRepl->setText(QString::number(jsonObject["numRepl"].toInt()));
+
+                    updateSimNumber("");
                 }
             } else {
                 theNuggetSelection->setCurrentIndex(index);
             }
         } else {
-            theAdvancedCheckBox->setChecked(false);
+            theGpAdvancedCheckBox->setChecked(false);
             // for compatibility. Change to give an error later
         }
     } else {
@@ -627,10 +682,59 @@ SurrogateDoEInputWidget::inputFromJSON(QJsonObject &jsonObject){
     return result;
 }
 
+
+void
+SurrogateDoEInputWidget::createLineEdits(QLineEdit *&a, QString defaultVal, QString type, QString toolTipText, double wid, QString placeholderText)
+{
+    a = new QLineEdit();
+    a->setText(defaultVal);
+    if (type=="Int" ) {
+        a->setValidator(new QIntValidator);
+    } else if (type=="Double") {
+        a->setValidator(new QDoubleValidator);
+    }
+    a->setToolTip(toolTipText);
+    a->setMaximumWidth(wid);
+    a->setMinimumWidth(wid);
+    a->setPlaceholderText((placeholderText));
+}
+
+
+//void
+//SurrogateDoEInputWidget::addOptionalCheckBox(QLineEdit *&a, QString defaultVal, QString type, QString toolTipText, double wid, QString placeholderText)
+//{
+//    a = new QLineEdit();
+//    a->setText(defaultVal);
+//    if (type=="Int" ) {
+//        a->setValidator(new QIntValidator);
+//    } else if (type=="Double") {
+//        a->setValidator(new QDoubleValidator);
+//    }
+//    a->setToolTip(toolTipText);
+//    a->setMaximumWidth(wid);
+//    a->setMinimumWidth(wid);
+//    a->setPlaceholderText((placeholderText));
+//}
+
+
+void
+SurrogateDoEInputWidget::createComboBox(QComboBox *&a, QStringList items, QString toolTipText, double wid, int currentIdx)
+{
+    a = new QComboBox();
+
+    foreach(QString str, items)
+    {
+        a->addItem(str);
+    }
+    a->setToolTip(toolTipText);
+    a->setMaximumWidth(wid);
+    a->setCurrentIndex(currentIdx);
+}
+
 void
 SurrogateDoEInputWidget::clear(void)
 {
-    theAdvancedCheckBox->setChecked(false);
+    theGpAdvancedCheckBox->setChecked(false);
     theExistingCheckBox->setChecked(false);
 }
 

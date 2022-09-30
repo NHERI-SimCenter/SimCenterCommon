@@ -72,17 +72,17 @@ public:
     QString getMethodName();
 
     QVBoxLayout *mLayout;
-
+    QPushButton *toolTip ;
 
 signals:
 
 public slots:
    void clear(void);
-   void onMethodChanged(QString);
-   void showDataOptions(bool);
+   void onTextChanged(QString);
    void showAdvancedOptions(bool);
 
 private:
+
     QWidget     *methodSpecific;
     QComboBox   *samplingMethod;
     QLineEdit   *numSamples;
@@ -98,15 +98,16 @@ private:
     QStackedWidget *theStackedWidget;
     UQ_Method *theCurrentMethod;
     UQ_Method *theMC;
+    UQ_Method *theSamples;
 //    UQ_Method *theLHS;
 //    UQ_Method *theIS;
 //    UQ_Method *theGP;
 //    UQ_Method *thePCE;
-    QWidget *pairedRVLayoutWrap, *advancedLayoutWrap;
-    QHBoxLayout *pairedRVLayout, *advancedLayout;
-    QCheckBox *pairedRVCheckBox, *advancedCheckBox;
-    QLabel *pairedRVLabel, *advancedLabel, *PCAautoText;
-    QLineEdit * RVdataList, *RVvarList, *PCAvarRatio;
+    QWidget *advancedLayoutWrap;
+    QHBoxLayout *advancedLayout;
+    QCheckBox *advancedCheckBox;
+    QLabel *advancedLabel, *PCAautoText;
+    QLineEdit *RVvarList, *PCAvarRatio;
     QComboBox *performPCA;
 };
 

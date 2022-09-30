@@ -76,7 +76,7 @@ public slots:
 private:
    QComboBox   *theEngineSelectionBox;
    QStackedWidget *theStackedWidget;
-   QCheckBox *parallelCheckBox;
+   QCheckBox *parallelCheckBox, *removeWorkdirCheckBox;
 
    UQ_Engine *theCurrentEngine;
    UQ_Engine *theSamplingEngine;
@@ -84,6 +84,7 @@ private:
    UQ_Engine *theCalibrationEngine;
    UQ_Engine *theBayesianCalibrationEngine;
    UQ_Engine *theSensitivityEngine;
+   UQ_Engine *theOptimizationEngine;
 };
 
 #endif // DAKOTA_ENGINE_H

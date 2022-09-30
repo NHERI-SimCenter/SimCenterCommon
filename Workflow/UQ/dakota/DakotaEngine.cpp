@@ -57,6 +57,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <DakotaInputSensitivity.h>
 #include <DakotaInputCalibration.h>
 #include <DakotaInputBayesianCalibration.h>
+#include <DakotaInputOptimization.h>
 
 
 DakotaEngine::DakotaEngine(UQ_EngineType type, QWidget *parent)
@@ -92,8 +93,11 @@ DakotaEngine::DakotaEngine(UQ_EngineType type, QWidget *parent)
     if (doSensitivity == true)
       theEngineSelectionBox->addItem(tr("Sensitivity Analysis"));
     if (doCalibration == true) {
-      theEngineSelectionBox->addItem(tr("Parameters Estimation"));
-      theEngineSelectionBox->addItem(tr("Inverse Problem"));
+      //theEngineSelectionBox->addItem(tr("Parameters Estimation")); // Deterministic
+      //theEngineSelectionBox->addItem(tr("Inverse Problem")); // Bayesian
+      theEngineSelectionBox->addItem(tr("Deterministic Calibration"));
+      theEngineSelectionBox->addItem(tr("Bayesian Calibration"));
+      theEngineSelectionBox->addItem(tr("Optimization"));
     }
     
     theEngineSelectionBox->setMinimumWidth(600);
@@ -102,13 +106,14 @@ DakotaEngine::DakotaEngine(UQ_EngineType type, QWidget *parent)
     theSelectionLayout->addWidget(theEngineSelectionBox);
     //theSelectionLayout->addStretch();
     //theSelectionLayout->addWidget(new QSpacerItem(20,5));
-    theSelectionLayout->addWidget(new QLabel("        Parallel Execution"));
-    parallelCheckBox = new QCheckBox();
+    parallelCheckBox = new QCheckBox("Parallel Execution  ");
     parallelCheckBox->setChecked(true);
 
-    theSelectionLayout->addWidget(parallelCheckBox);
+    removeWorkdirCheckBox = new QCheckBox("Save Working dirs");
+    removeWorkdirCheckBox->setChecked(true);
 
     theSelectionLayout->addWidget(parallelCheckBox);
+    theSelectionLayout->addWidget(removeWorkdirCheckBox);
     theSelectionLayout->addStretch();
 
 
@@ -129,12 +134,14 @@ DakotaEngine::DakotaEngine(UQ_EngineType type, QWidget *parent)
     theCalibrationEngine = new DakotaInputCalibration();
     theBayesianCalibrationEngine = new DakotaInputBayesianCalibration();
     theSensitivityEngine = new DakotaInputSensitivity();
+    theOptimizationEngine = new DakotaInputOptimization();
 
     theStackedWidget->addWidget(theSamplingEngine);
     theStackedWidget->addWidget(theReliabilityEngine);
     theStackedWidget->addWidget(theSensitivityEngine);    
     theStackedWidget->addWidget(theCalibrationEngine);
     theStackedWidget->addWidget(theBayesianCalibrationEngine);
+    theStackedWidget->addWidget(theOptimizationEngine);
 
     layout->addWidget(theStackedWidget);
     this->setLayout(layout);
@@ -175,7 +182,8 @@ void DakotaEngine::engineSelectionChanged(const QString &arg1)
       
     } else if ((arg1 == QString("Calibration"))
                || (arg1 == QString("Parameters Estimation"))
-               || (arg1 == QString("Parameter Estimation"))) {
+               || (arg1 == QString("Parameter Estimation"))
+               || (arg1 == QString("Deterministic Calibration"))) {
 
       theStackedWidget->setCurrentIndex(3);
       theCurrentEngine = theCalibrationEngine;
@@ -184,6 +192,9 @@ void DakotaEngine::engineSelectionChanged(const QString &arg1)
       theStackedWidget->setCurrentIndex(4);
       theCurrentEngine = theBayesianCalibrationEngine;
       
+    } else if ((arg1 == QString("Optimization"))) {
+               theStackedWidget->setCurrentIndex(5);
+               theCurrentEngine = theOptimizationEngine;
     } else {
       qDebug() << "ERROR .. DakotaEngine selection .. type unknown: " << arg1;
     }
@@ -201,9 +212,16 @@ DakotaEngine::getMaxNumParallelTasks(void) {
 
 bool
 DakotaEngine::outputToJSON(QJsonObject &jsonObject) {
-
-    jsonObject["uqType"] = theEngineSelectionBox->currentText();
+    //TODO4: change this when version number changes from 3 to 4
+    QString uqMethod = theEngineSelectionBox->currentText();
+    if (uqMethod == QString("Bayesian Calibration")) {
+        uqMethod = QString("Inverse Problem");
+    } else if (uqMethod == QString("Deterministic Calibration")) {
+        uqMethod = QString("Parameters Estimation");
+    }
+    jsonObject["uqType"] = uqMethod;
     jsonObject["parallelExecution"]=parallelCheckBox->isChecked();
+    jsonObject["saveWorkDir"]=removeWorkdirCheckBox->isChecked();
 
     return theCurrentEngine->outputToJSON(jsonObject);
 }
@@ -212,7 +230,14 @@ bool
 DakotaEngine::inputFromJSON(QJsonObject &jsonObject) {
     bool result = false;
 
-    QString selection = jsonObject["uqType"].toString();
+    QString uqMethod = jsonObject["uqType"].toString();
+    //TODO4: change this when version number changes from 3 to 4
+    if (uqMethod == QString("Inverse Problem")) {
+        uqMethod = QString("Bayesian Calibration");
+    } else if (uqMethod == QString("Parameters Estimation")) {
+        uqMethod = QString("Deterministic Calibration");
+    }
+
     bool doParallel = true;
     if (jsonObject.contains("parallelExecution"))
         doParallel = jsonObject["parallelExecution"].toBool();
@@ -220,9 +245,9 @@ DakotaEngine::inputFromJSON(QJsonObject &jsonObject) {
     parallelCheckBox->setChecked(doParallel);
 
 
-    int index = theEngineSelectionBox->findText(selection);
+    int index = theEngineSelectionBox->findText(uqMethod);
     theEngineSelectionBox->setCurrentIndex(index);
-    this->engineSelectionChanged(selection);
+    this->engineSelectionChanged(uqMethod);
     if (theCurrentEngine != 0)
         result = theCurrentEngine->inputFromJSON(jsonObject);
     else
