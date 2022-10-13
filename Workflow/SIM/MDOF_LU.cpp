@@ -99,7 +99,7 @@ MDOF_LU::MDOF_LU(QWidget *parent)
                 " \"An open-source framework for regional earthquake loss estimation using the city-scale nonlinear time-history analysis\" "
                 ", Earthquake Spectra, 2020, 36(2): 806-831.");
     auto citation3 = new QLabel("(2) Lu X.Z., Han B., Hori M., Xiong C., and Xu Z.,"
-                                " \"A coarse-grained parallel approach for seismic damage simulations of urban areas based on refined models"
+                                " \"A coarse-grained parallel approach for seismic damage simulations of urban areas based on refined models "
                                 "and GPU/CPU cooperative computing\" , Advances in Engineering Software,"
                                 "2014, 70: 90-103.");
     citation1->setWordWrap(true);
