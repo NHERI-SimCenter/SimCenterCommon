@@ -41,7 +41,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "UQ_EngineSelection.h"
 #include <GoogleAnalytics.h>
-
+#include <NoneWidget.h>
 #include <QJsonObject>
 #include <QJsonArray>
 
@@ -84,7 +84,13 @@ UQ_EngineSelection::initialize(bool includeNone, UQ_EngineType type)
     this->addComponent(QString("CustomUQ"), QString("Custom-UQ"), theCustomEngine);    
     if (type == All)
     {
-      this->addComponent(QString("UCSD-UQ"), QString("UCSD-UQ"), theUCSD_Engine);    }
+      this->addComponent(QString("UCSD-UQ"), QString("UCSD-UQ"), theUCSD_Engine);
+    }
+
+    if (includeNone) {
+      SimCenterAppWidget *noneWidget = new NoneWidget(this);
+      this->addComponent(QString("None"), QString("None"), noneWidget);
+    }
 
     theCurrentEngine=theDakotaEngine;
     thePreviousEngine=theCurrentEngine;
