@@ -87,6 +87,7 @@ private:
   QLineEdit *numMCMCStepsMaximum;
   QLabel *numSamplesError;
   QLabel *numSamplesWarning;
+  QLineEdit *maxRunTime;
 };
 
 #endif // UCSD_TMMC_H

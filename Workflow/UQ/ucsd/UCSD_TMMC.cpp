@@ -66,7 +66,7 @@ UCSD_TMMC::UCSD_TMMC(QWidget *parent)
     numParticles->setValidator(numSamplesValidator);
     numParticles->setToolTip("Specify the number of samples");
 
-    layout->addWidget(new QLabel("Sample size (> 100)"), row, 0);
+    layout->addWidget(new QLabel("Sample Size (> 100)"), row, 0);
     layout->addWidget(numParticles, row, 1);
 
     numSamplesWarning = new QLabel;
@@ -78,7 +78,7 @@ UCSD_TMMC::UCSD_TMMC(QWidget *parent)
     numSamplesError = new QLabel;
     numSamplesError->setText("A sample size of at least 100 is required");
     numSamplesError->setStyleSheet("QLabel { color : red; }");
-    layout->addWidget(numSamplesError, row, 2);
+    layout->addWidget(numSamplesError, row++, 2);
     numSamplesError->setVisible(false);
 
     connect(numParticles, &QLineEdit::textChanged, this, [=] {
@@ -93,6 +93,18 @@ UCSD_TMMC::UCSD_TMMC(QWidget *parent)
         checkSampleSize(numPar);
     });
 
+    // create label and lineedit for max run time
+    maxRunTime = new QLineEdit();
+    maxRunTime->setText(tr("60"));
+    QDoubleValidator *maxRunTimeValidator = new QDoubleValidator;
+    maxRunTime->setValidator(maxRunTimeValidator);
+    maxRunTime->setPlaceholderText(tr("2880"));
+    maxRunTime->setToolTip(tr("This will be used to stop TMCMC algorithm run to facilitate restarts if required"));
+
+//    layout->addWidget(new QLabel("Max. Computation Time (minutes)"), row, 0);
+//    layout->addWidget(maxRunTime, row++, 1);
+
+
     // create label and entry for seed to layout
     srand(time(NULL));
     int randomNumber = rand() % 1000 + 1;
@@ -102,7 +114,7 @@ UCSD_TMMC::UCSD_TMMC(QWidget *parent)
     randomSeed->setValidator(new QIntValidator);
     randomSeed->setToolTip("Specify the random seed value");
 
-    layout->addWidget(new QLabel("Seed"), ++row, 0);
+    layout->addWidget(new QLabel("Seed"), row, 0);
     layout->addWidget(randomSeed, row++, 1);
 
     // create label and lineedit for calibration data file and add to layout
@@ -226,6 +238,7 @@ UCSD_TMMC::outputToJSON(QJsonObject &jsonObj){
 
     jsonObj["numParticles"]=numParticles->text().toInt();
     jsonObj["seed"]=randomSeed->text().toInt();
+//    jsonObj["maxRunTime"]=maxRunTime->text().toDouble();
 
     QString logLike = logLikelihoodScript->text();
     QFileInfo fileInfo(logLike);
@@ -275,6 +288,9 @@ UCSD_TMMC::inputFromJSON(QJsonObject &jsonObject){
     if (!(file.trimmed().isEmpty() && path.trimmed().isEmpty())) {
         logLikelihoodScript->setText(path + "/" + file);
     }
+
+//    double maxTime = jsonObject["maxRunTime"].toDouble();
+//    maxRunTime->setText(QString::number(maxTime));
 
     QString calFile = jsonObject["calDataFile"].toString();
     QString calFilePath = jsonObject["calDataFilePath"].toString();
