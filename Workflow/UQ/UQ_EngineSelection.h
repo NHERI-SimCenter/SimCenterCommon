@@ -76,7 +76,7 @@ class UQ_EngineSelection : public  SimCenterAppSelection
   void setEventType(QString type); // added KZ
   
 private:
-  void initialize(bool inlcudeNoneOption, UQ_EngineType type);
+  void initialize(bool includeNoneOption, UQ_EngineType type);
   UQ_Engine *theCurrentEngine;
   UQ_Engine *thePreviousEngine;  
   UQ_Engine *theDakotaEngine;
