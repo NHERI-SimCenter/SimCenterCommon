@@ -95,7 +95,7 @@ UQ_EngineSelection::initialize(bool includeNone, UQ_EngineType type)
     theCurrentEngine=theDakotaEngine;
     thePreviousEngine=theCurrentEngine;
 
-    connect(this, SIGNAL(seletionChangedSignal(QString)), this,
+    connect(this, SIGNAL(selectionChangedSignal(QString)), this,
             SLOT(engineSelectionChanged(QString)));
 
     connect(theDakotaEngine, SIGNAL(onUQ_EngineChanged()), this, SLOT(enginesEngineSelectionChanged()));
