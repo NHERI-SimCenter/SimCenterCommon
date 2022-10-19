@@ -56,15 +56,54 @@ UCSD_TMMC::UCSD_TMMC(QWidget *parent)
 :UQ_Method(parent)
 {
     auto layout = new QGridLayout();
+    int row = 0;
 
     // create layout label and entry for # samples
     numParticles = new QLineEdit();
     numParticles->setText(tr("500"));
-    numParticles->setValidator(new QIntValidator);
+    QIntValidator *numSamplesValidator = new QIntValidator;
+    numSamplesValidator->setBottom(0);
+    numParticles->setValidator(numSamplesValidator);
     numParticles->setToolTip("Specify the number of samples");
 
-    layout->addWidget(new QLabel("# Samples"), 0, 0);
-    layout->addWidget(numParticles, 0, 1);
+    layout->addWidget(new QLabel("Sample Size (> 100)"), row, 0);
+    layout->addWidget(numParticles, row, 1);
+
+    numSamplesWarning = new QLabel;
+    numSamplesWarning->setText("A sample size of at least 200 is recommended");
+    numSamplesWarning->setStyleSheet("QLabel { color : blue; }");
+    layout->addWidget(numSamplesWarning, row, 2);
+    numSamplesWarning->setVisible(false);
+
+    numSamplesError = new QLabel;
+    numSamplesError->setText("A sample size of at least 100 is required");
+    numSamplesError->setStyleSheet("QLabel { color : red; }");
+    layout->addWidget(numSamplesError, row++, 2);
+    numSamplesError->setVisible(false);
+
+    connect(numParticles, &QLineEdit::textChanged, this, [=] {
+        if (numParticles->text().isEmpty()) {
+            numSamplesError->setVisible(true);
+            numSamplesWarning->setVisible(false);
+        } ;
+    });
+
+    connect(numParticles, &QLineEdit::editingFinished, this, [=]  {
+        int numPar = numParticles->text().toInt();
+        checkSampleSize(numPar);
+    });
+
+    // create label and lineedit for max run time
+    maxRunTime = new QLineEdit();
+    maxRunTime->setText(tr("60"));
+    QDoubleValidator *maxRunTimeValidator = new QDoubleValidator;
+    maxRunTime->setValidator(maxRunTimeValidator);
+    maxRunTime->setPlaceholderText(tr("2880"));
+    maxRunTime->setToolTip(tr("This will be used to stop TMCMC algorithm run to facilitate restarts if required"));
+
+//    layout->addWidget(new QLabel("Max. Computation Time (minutes)"), row, 0);
+//    layout->addWidget(maxRunTime, row++, 1);
+
 
     // create label and entry for seed to layout
     srand(time(NULL));
@@ -75,13 +114,13 @@ UCSD_TMMC::UCSD_TMMC(QWidget *parent)
     randomSeed->setValidator(new QIntValidator);
     randomSeed->setToolTip("Specify the random seed value");
 
-    layout->addWidget(new QLabel("Seed"), 1, 0);
-    layout->addWidget(randomSeed, 1, 1);
+    layout->addWidget(new QLabel("Seed"), row, 0);
+    layout->addWidget(randomSeed, row++, 1);
 
     // create label and lineedit for calibration data file and add to layout
     calDataFileEdit = new QLineEdit();
-    layout->addWidget(new QLabel("Calibration Data File"), 2, 0);
-    layout->addWidget(calDataFileEdit, 2, 1, 1, 2);
+    layout->addWidget(new QLabel("Calibration Data File"), row, 0);
+    layout->addWidget(calDataFileEdit, row, 1, 1, 2);
 
     QPushButton *chooseCalDataFile = new QPushButton("Choose");
     connect(chooseCalDataFile, &QPushButton::clicked, this, [=](){
@@ -91,28 +130,62 @@ UCSD_TMMC::UCSD_TMMC(QWidget *parent)
               numExperiments = getNumExp(fileName);
           }
     });
-    layout->addWidget(chooseCalDataFile, 2, 3);
+    layout->addWidget(chooseCalDataFile, row++, 3);
 
     // create label and lineedit for loglikelihood script and add to layout
     logLikelihoodScript = new QLineEdit();
     logLikelihoodScript->setPlaceholderText("(Optional)");
-    layout->addWidget(new QLabel("Log Likelihood Script"), 3, 0);
-    layout->addWidget(logLikelihoodScript, 3, 1, 1, 2);
+    layout->addWidget(new QLabel("Log Likelihood Script"), row, 0);
+    layout->addWidget(logLikelihoodScript, row, 1, 1, 2);
 
     QPushButton *chooseFile = new QPushButton("Choose");
     connect(chooseFile, &QPushButton::clicked, this, [=](){
         logLikelihoodScript->setText(QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.py)"));
     });
-    layout->addWidget(chooseFile, 3, 3);
+    layout->addWidget(chooseFile, row++, 3);
 
     readCovarianceDataCheckBox = new QCheckBox();
     readCovarianceDataCheckBox->setChecked(false);
 
 
-    layout->setRowStretch(4, 1);
-    layout->setColumnStretch(4, 1);
+    // Adding advanced options
+
+    advancedOptionsCheckBox = new QCheckBox();
+    advancedOptionsCheckBox->setChecked(false);
+    advancedOptionsTitle=new QLabel("Advanced Options for TMCMC algorithm ");
+    advancedOptionsTitle->setStyleSheet("font-weight: bold; color: grey");
+//    layout->addWidget(advancedOptionsCheckBox, row, 0, 1, 3,Qt::AlignBottom);
+//    layout->addWidget(advancedOptionsTitle, row++, 1, 1, 3, Qt::AlignBottom);
+
+    lineA= new QFrame;
+    lineA->setFrameShape(QFrame::HLine);
+    lineA->setFrameShadow(QFrame::Sunken);
+//    layout->addWidget(lineA, row++, 0, 1, 3);
+    lineA->setVisible(false);
+
+    // create layout label and entry for minimum # MCMC steps
+    numMCMCStepsMinimum = new QLineEdit();
+    numMCMCStepsMinimum->setText(tr("2"));
+    numMCMCStepsMinimum->setValidator(new QIntValidator);
+    numMCMCStepsMinimum->setToolTip("Specify the minimum number of steps in the random walk");
+
+//    layout->addWidget(new QLabel("Min. # MCMC Steps"), row, 0);
+//    layout->addWidget(numMCMCStepsMinimum, row++, 1);
+
+    // create layout label and entry for maximum # MCMC steps
+    numMCMCStepsMaximum = new QLineEdit();
+    numMCMCStepsMaximum->setText(tr("5"));
+    numMCMCStepsMaximum->setValidator(new QIntValidator);
+    numMCMCStepsMaximum->setToolTip("Specify the maximum number of steps in the random walk");
+
+//    layout->addWidget(new QLabel("Max. # MCMC Steps"), row, 0);
+//    layout->addWidget(numMCMCStepsMaximum, row++, 1);
+
+    layout->setRowStretch(row++, 2);
     layout->setColumnStretch(2, 1);
     this->setLayout(layout);
+
+    connect(advancedOptionsCheckBox,SIGNAL(toggled(bool)),this,SLOT(advancedOptionsSlotFunction(bool)));
 }
 
 UCSD_TMMC::~UCSD_TMMC()
@@ -120,12 +193,52 @@ UCSD_TMMC::~UCSD_TMMC()
 
 }
 
+bool UCSD_TMMC::checkSampleSize(int sampleSize) {
+    bool sizeOk = true;
+    if (sampleSize < requiredSampleSize) {
+        sizeOk = false;
+        numSamplesError->setVisible(true);
+        numParticles->setText(tr("100"));
+        numSamplesWarning -> setVisible(false);
+    } else if (sampleSize >= recommendedSampleSize) {
+        numSamplesError->setVisible(false);
+        numSamplesWarning -> setVisible(false);
+    }   else {
+        numSamplesError->setVisible(false);
+        numSamplesWarning->setVisible(true);
+    }
+    return sizeOk;
+}
+
+// SLOT function
+void UCSD_TMMC::advancedOptionsSlotFunction(bool tog)
+{
+
+    lineA->setVisible(tog);
+
+    if (tog) {
+        advancedOptionsTitle->setStyleSheet("font-weight: bold; color: black");
+
+    } else {
+        advancedOptionsTitle->setStyleSheet("font-weight: bold; color: grey");
+
+    }
+}
+
 bool
 UCSD_TMMC::outputToJSON(QJsonObject &jsonObj){
 
     bool result = true;
+
+    if (numParticles->text().isEmpty()) {
+        result = checkSampleSize(0);
+    } else {
+        result = checkSampleSize(numParticles->text().toInt());
+    }
+
     jsonObj["numParticles"]=numParticles->text().toInt();
     jsonObj["seed"]=randomSeed->text().toInt();
+//    jsonObj["maxRunTime"]=maxRunTime->text().toDouble();
 
     QString logLike = logLikelihoodScript->text();
     QFileInfo fileInfo(logLike);
@@ -159,6 +272,13 @@ UCSD_TMMC::inputFromJSON(QJsonObject &jsonObject){
 
     int particles=jsonObject["numParticles"].toInt();
     numParticles->setText(QString::number(particles));
+    if (numParticles->text().isEmpty()) {
+        numSamplesError->setVisible(true);
+        numSamplesWarning->setVisible(false);
+    } else {
+        int numPar = numParticles->text().toInt();
+        checkSampleSize(numPar);
+    };
 
     int seed=jsonObject["seed"].toInt();
     randomSeed->setText(QString::number(seed));
@@ -166,21 +286,17 @@ UCSD_TMMC::inputFromJSON(QJsonObject &jsonObject){
     QString file = jsonObject["logLikelihoodFile"].toString();
     QString path = jsonObject["logLikelihoodPath"].toString();
     if (!(file.trimmed().isEmpty() && path.trimmed().isEmpty())) {
-        logLikelihoodScript->setText(path + QDir::separator() + file);
+        logLikelihoodScript->setText(path + "/" + file);
     }
-    //logLikelihoodScript->setText(file + QDir::separator() + path);
+
+//    double maxTime = jsonObject["maxRunTime"].toDouble();
+//    maxRunTime->setText(QString::number(maxTime));
 
     QString calFile = jsonObject["calDataFile"].toString();
     QString calFilePath = jsonObject["calDataFilePath"].toString();
     if (!(calFile.trimmed().isEmpty() && calFilePath.trimmed().isEmpty())) {
-        calDataFileEdit->setText(calFilePath + QDir::separator() + calFile);
+        calDataFileEdit->setText(calFilePath + "/" + calFile);
     }
-
-    bool checkState = false;
-    if (jsonObject.contains("readUserDefinedCovarianceData")) {
-        checkState = jsonObject["readUserDefinedCovarianceData"].toBool();
-    }
-    readCovarianceDataCheckBox->setChecked(checkState);
 
     if (jsonObject.contains("numExperiments")){
         numExperiments = jsonObject["numExperiments"].toInt();
@@ -244,7 +360,7 @@ UCSD_TMMC::copyFiles(QString &fileDir) {
 
         QFileInfo childDir(fileDir);
         QDir dstDir = childDir.dir();
-        QString dst = dstDir.absolutePath()  + QDir::separator() + calFileInfo.fileName();
+        QString dst = dstDir.absolutePath()  + "/" + calFileInfo.fileName();
 
         qDebug() << "FileDir is: " << fileDir;
         qDebug() << "tmp.SimCenter path is: " << dstDir.absolutePath();
@@ -259,8 +375,8 @@ UCSD_TMMC::copyFiles(QString &fileDir) {
 
         qDebug() << "Number of experiments: " << numExp;
 
-        if (readCovarianceDataCheckBox->isChecked())
-        {
+//        if (readCovarianceDataCheckBox->isChecked())
+//        {
 	  /************************ FMK *************************************
             qDebug() << "Looking for user-defined covariance files";
 
@@ -280,7 +396,7 @@ UCSD_TMMC::copyFiles(QString &fileDir) {
 
                     qDebug() << "covFileName: " << covFileName;
 
-                    QString srcFileName = calDir.absolutePath() + QDir::separator() + covFileName;
+                    QString srcFileName = calDir.absolutePath() + "/" + covFileName;
 
                     qDebug() << "srcFileName: " << srcFileName;
 
@@ -289,7 +405,7 @@ UCSD_TMMC::copyFiles(QString &fileDir) {
 
                         qDebug() << "covFile found. Copying to tmp.SimCenter";
 
-                        QString dstFileName = dstDir.absolutePath() + QDir::separator() + covFileName;
+                        QString dstFileName = dstDir.absolutePath() + "/" + covFileName;
 
                         qDebug() << "dstFileName: " << dstFileName;
 
@@ -305,7 +421,7 @@ UCSD_TMMC::copyFiles(QString &fileDir) {
             }
 	    ****************************** FMK ********************************************/
 	  
-        }
+//        }
 
     }
 
@@ -318,7 +434,7 @@ UCSD_TMMC::copyFiles(QString &fileDir) {
 
         QFileInfo childDir(fileDir);
         QDir dstDir = childDir.dir();
-        QString dst = dstDir.absolutePath()  + QDir::separator() + loglikeFileInfo.fileName();
+        QString dst = dstDir.absolutePath()  + "/" + loglikeFileInfo.fileName();
 
         qDebug() << "loglikeFileName is: " << loglikeFileName;
         qDebug() << "Copying " << loglikeFileName << " to " << dst << "\n";

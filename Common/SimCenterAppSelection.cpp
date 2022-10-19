@@ -38,6 +38,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "SimCenterAppSelection.h"
 #include "sectiontitle.h"
+#include <GoogleAnalytics.h>
 
 // Qt headers
 #include <QHeaderView>
@@ -316,10 +317,12 @@ bool SimCenterAppSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
 
 bool SimCenterAppSelection::copyFiles(QString &destDir)
 {
-    if (theCurrentSelection != NULL)
-        return theCurrentSelection->copyFiles(destDir);
-    else
-        return false;
+  if (theCurrentSelection != NULL) {
+    QString textForAnalytics = jsonKeyword + QString("-") + theApplicationNames.at(currentIndex);
+    GoogleAnalytics::ReportAppUsage(textForAnalytics);    
+    return theCurrentSelection->copyFiles(destDir);
+  } else
+    return false;
 }
 
 

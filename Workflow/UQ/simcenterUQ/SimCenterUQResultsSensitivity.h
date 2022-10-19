@@ -86,7 +86,7 @@ private:
    QLabel *label;
    QLabel *best_fit_instructions;
 
-   int ncomb, nQoI;
+   int ncomb, nQoI, nAggQoI;
    QStringList theHeadings;
 
    QVector<QString>theNames;

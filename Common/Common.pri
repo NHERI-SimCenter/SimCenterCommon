@@ -25,6 +25,7 @@ SOURCES += $$PWD/HeaderWidget.cpp \
     $$PWD/SimCenterAppMulti.cpp \    
     $$PWD/SimCenterAppEventSelection.cpp \
     $$PWD/SimCenterPreferences.cpp \
+    $$PWD/NoneWidget.cpp \    
     $$PWD/GoogleAnalytics.cpp
 
 HEADERS += $$PWD/HeaderWidget.h \
@@ -41,6 +42,7 @@ HEADERS += $$PWD/HeaderWidget.h \
     $$PWD/SimCenterAppEventSelection.h \    
     $$PWD/SimCenterAppWidget.h \
     $$PWD/SimCenterPreferences.h \
+    $$PWD/NoneWidget.h \
     $$PWD/GoogleAnalytics.h
 
 FORMS += \

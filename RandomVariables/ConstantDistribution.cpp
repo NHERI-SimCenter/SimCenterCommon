@@ -104,7 +104,7 @@ ConstantDistribution::inputFromJSON(QJsonObject &rvObject){
         QJsonValue theValue = rvObject["value"];
         value->setText(QString::number(theValue.toDouble()));
     } else {
-        this->errorMessage("ERROR: Constat Distribution - no \"value\" entry");
+        this->errorMessage("ERROR: Constant Distribution - no \"value\" entry");
         return false;
     }
     return true;

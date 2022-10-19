@@ -43,6 +43,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class QLineEdit;
 class QGroupBox;
 class QCheckBox;
+class QLabel;
+class QFrame;
 
 class UCSD_TMMC : public UQ_Method
 {
@@ -63,6 +65,12 @@ public:
 
     int numExperiments;
 
+    void advancedOptionsSlotFunction(bool tog);
+
+    int requiredSampleSize = 100;
+    int recommendedSampleSize = 200;
+
+    bool checkSampleSize(int sampleSize);
 
 private:
   QLineEdit *numParticles;
@@ -72,6 +80,14 @@ private:
   QGroupBox *requiredInputsGroupBox;
   QGroupBox *optionalInputsGroupBox;
   QCheckBox *readCovarianceDataCheckBox;
+  QCheckBox *advancedOptionsCheckBox;
+  QLabel *advancedOptionsTitle;
+  QFrame *lineA;
+  QLineEdit *numMCMCStepsMinimum;
+  QLineEdit *numMCMCStepsMaximum;
+  QLabel *numSamplesError;
+  QLabel *numSamplesWarning;
+  QLineEdit *maxRunTime;
 };
 
 #endif // UCSD_TMMC_H

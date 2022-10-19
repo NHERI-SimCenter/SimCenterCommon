@@ -35,13 +35,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written: fmckenna and mhgardner
-// added and modified: padhye
+// added and modified: padhye, bsaakash
 
 #include "CustomUQ_Results.h"
 
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QApplication>
+#include <QJsonDocument>
 
 #include <QFileDialog>
 #include <QTabWidget>
@@ -69,12 +70,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QLabel>
-//#include <InputWidgetFEM.h>
-//#include <InputWidgetUQ.h>
-
-
-//#include <InputWidgetFEM.h>
-//#include <InputWidgetUQ.h>
 #include <QHeaderView>
 
 #include <QtCharts/QChart>
@@ -188,32 +183,20 @@ int CustomUQ_Results::processResults(QString &dirName)
     return this->processResults(filenameOUT, filenameTAB);
 }
 
-int CustomUQ_Results::processResults(QString &filenameResults, QString &filenameTab)
+int CustomUQ_Results::processResults(QString &filenameOUT, QString &filenameTAB)
 {
-    statusMessage(tr("Processing Sampling Results"));
+    statusMessage(tr("Processing Results"));
 
     this->clear();
-    mLeft = true;
-    col1 = 0;
-    col2 = 0;
 
-    //
-    // check it actually ran with n errors
-    //
-
-    QFileInfo fileTabInfo(filenameTab);
-
-    QFileInfo filenameTabInfo(filenameTab);
+    // check if results were written
+    QFileInfo filenameTabInfo(filenameTAB);
     if (!filenameTabInfo.exists()) {
-        errorMessage("No tabularResults.out file - Custom UQ failed to finish running");
+        errorMessage("ERROR: No tabularResults.out file - CustomUQ failed");
         return 0;
     }
 
-    //
-    // create summary, a QWidget for summary data, the EDP name, mean, stdDev, kurtosis info
-    //
-
-    // create a scrollable windows, place summary inside it
+    // create a scrollable window, place summary inside it
     QScrollArea *sa = new QScrollArea;
     sa->setWidgetResizable(true);
     sa->setLineWidth(0);
@@ -221,182 +204,296 @@ int CustomUQ_Results::processResults(QString &filenameResults, QString &filename
 
     QWidget *summary = new QWidget();
     QVBoxLayout *summaryLayout = new QVBoxLayout();
-//    summaryLayout->setContentsMargins(0,0,0,0); // adding back
+    summaryLayout->setContentsMargins(0,0,0,0); // adding back
     summary->setLayout(summaryLayout);
 
     sa->setWidget(summary);
 
-    //
-    // create spreadsheet,  a QTableWidget showing RV and results for each run
-    //
-
-    spreadsheet = new MyTableWidget();
-
-    // open file containing tab data
-    std::ifstream tabResults(filenameTab.toStdString().c_str());
-    if (!tabResults.is_open()) {
-        qDebug() << "Could not open file";
-        return -1;
-    }
-
-    //
-    // read first line and set headings (ignoring second column for now)
-    //
-
-    std::string inputLine;
-    std::getline(tabResults, inputLine);
-    std::istringstream iss(inputLine);
-    int colCount = 0;
-
-    theHeadings << "Run #";
-
-    bool includesInterface = false;
-    do {
-        std::string subs;
-        iss >> subs;
-        if (colCount > 0) {
-            if (subs != " ") {
-                if (subs != "interface")
-                    theHeadings << subs.c_str();
-                else
-                    includesInterface = true;
-            }
-        }
-        colCount++;
-    } while (iss);
-
-    if (includesInterface == true)
-        colCount = colCount-2;
-    else
-        colCount = colCount -1;
-
-    spreadsheet->setColumnCount(colCount);
-    spreadsheet->setHorizontalHeaderLabels(theHeadings);
-    spreadsheet->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    spreadsheet->verticalHeader()->setVisible(false);
-    // now until end of file, read lines and place data into spreadsheet
-
-    int rowCount = 0;
-    while (std::getline(tabResults, inputLine)) {
-        std::istringstream is(inputLine);
-        int col=0;
-
-        spreadsheet->insertRow(rowCount);
-        for (int i=0; i<colCount+2; i++) {
-            std::string data;
-            is >> data;
-            if ((includesInterface == true && i != 1) || (includesInterface == false)) {
-                QModelIndex index = spreadsheet->model()->index(rowCount, col);
-                spreadsheet->model()->setData(index, data.c_str());
-                col++;
-            }
-        }
-        rowCount++;
-    }
-    tabResults.close();
-
-    //
-    // determine summary statistics for each edp
-    //
-
-
-    for (int col = theRVs->getNumRandomVariables()+1; col<colCount; ++col) { // +1 for first col which is nit an RV
-        // compute the mean
-        double sum_value=0;
-        for(int row=0;row<rowCount;++row) {
-            QTableWidgetItem *item_index = spreadsheet->item(row,col);
-            double value_item = item_index->text().toDouble();
-            sum_value=sum_value+value_item;
-        }
-
-        double mean_value=sum_value/rowCount;
-
-        double sd_value=0;
-        double kurtosis_value=0;
-        double skewness_value = 0;
-        for(int row=0; row<rowCount;++row) {
-            QTableWidgetItem *item_index = spreadsheet->item(row,col);
-            double value_item = item_index->text().toDouble();
-            double tmp = value_item - mean_value;
-            double tmp2 = tmp*tmp;
-            sd_value += tmp2;
-            skewness_value += tmp*tmp2;
-            kurtosis_value += tmp2*tmp2;
-        }
-
-
-        double n = rowCount;
-        double tmpV = sd_value/n;
-
-        if (rowCount > 1)
-            sd_value = sd_value/(n-1);
-        sd_value=sqrt(sd_value);
-
-        // biased Kurtosis
-        kurtosis_value = kurtosis_value/(n*tmpV*tmpV);
-        // unbiased kurtosis value as calculated by Matlab
-        if (n > 3)
-            kurtosis_value = (n-1)/((n-2)*(n-3))*((n+1)*kurtosis_value - 3*(n-1)) + 3;
-
-        tmpV = sqrt(tmpV);
-        // biased skewness
-        skewness_value = skewness_value/(n*tmpV*tmpV*tmpV);
-        // unbiased skewness like Matlab
-        if (n > 3)
-            skewness_value *= sqrt(n*(n-1))/(n-2);
-
-        QString variableName = theHeadings.at(col);
-        QWidget *theWidget = this->createResultEDPWidget(variableName, mean_value, sd_value, skewness_value, kurtosis_value);
+    theDataTable = new ResultsDataChart(filenameTAB);
+    QVector<QVector<double>> statisticsVector = theDataTable->getStatistics();
+    QVector<QString> NamesVector = theDataTable->getNames();
+    for (int col = 1; col<NamesVector.size(); ++col) { // +
+        QWidget *theWidget = this->createResultEDPWidget(NamesVector[col], statisticsVector[col]);
         summaryLayout->addWidget(theWidget);
     }
-
     summaryLayout->addStretch();
 
-    // this is where we are connecting edit triggers
-    spreadsheet->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
-    connect(spreadsheet,SIGNAL(cellPressed(int,int)),this,SLOT(onSpreadsheetCellClicked(int,int)));
-
     //
-    // create a chart, setting data points from first and last col of spreadsheet
+    // add summary, detailed info and spreadsheet with chart to the tabbed widget
     //
-    chart = new QChart();
-    chart->setAnimationOptions(QChart::AllAnimations);
-
-    // by default the constructor is called and it plots the graph of the last column on Y-axis w.r.t first column on the
-    // X-axis
-    this->onSpreadsheetCellClicked(0,colCount-1);
-
-    // to control the properties, how your graph looks you must click and study the onSpreadsheetCellClicked
-
-    QChartView *chartView = new QChartView(chart);
-    chartView->setRenderHint(QPainter::Antialiasing);
-    chartView->chart()->legend()->hide();
-
-    QWidget *widget = new QWidget();
-    QGridLayout *layout = new QGridLayout(widget);
-    QPushButton* save_spreadsheet = new QPushButton();
-    save_spreadsheet->setText("Save Data");
-    save_spreadsheet->setToolTip(tr("Save data into file in a CSV format"));
-    save_spreadsheet->resize(30,30);
-    connect(save_spreadsheet,SIGNAL(clicked()),this,SLOT(onSaveSpreadsheetClicked()));
-
-    layout->addWidget(chartView, 0,0,1,1);
-    layout->addWidget(save_spreadsheet,1,0,Qt::AlignLeft);
-    layout->addWidget(spreadsheet,2,0,1,1);
-
-    //
-    // add summary, detained info and spreadsheet with chart to the tabed widget
-    //
-
     tabWidget->addTab(sa,tr("Summary"));
-    tabWidget->addTab(widget, tr("Data Values"));
+    tabWidget->addTab(theDataTable, tr("Data Values"));
     tabWidget->adjustSize();
 
     statusMessage(tr(""));
-    
+
     return 0;
 }
+
+extern QWidget *addLabeledLineEdit(QString theLabelName, QLineEdit **theLineEdit);
+
+QWidget *
+CustomUQ_Results::createResultEDPWidget(QString &name, QVector<double> statistics) {
+
+    double mean = statistics[0];
+    double stdDev = statistics[1];
+    double skewness = statistics[2];
+    double kurtosis = statistics[3];
+
+    QWidget *edp = new QWidget;
+    QHBoxLayout *edpLayout = new QHBoxLayout();
+
+    edp->setLayout(edpLayout);
+
+    QLineEdit *nameLineEdit;
+    QWidget *nameWidget = addLabeledLineEdit(QString("Name"), &nameLineEdit);
+    nameLineEdit->setText(name);
+    nameLineEdit->setDisabled(true);
+    theNames.append(name);
+    edpLayout->addWidget(nameWidget);
+
+    QLineEdit *meanLineEdit;
+    QWidget *meanWidget = addLabeledLineEdit(QString("Mean"), &meanLineEdit);
+    meanLineEdit->setText(QString::number(mean));
+    meanLineEdit->setDisabled(true);
+    theMeans.append(mean);
+    edpLayout->addWidget(meanWidget);
+
+    QLineEdit *stdDevLineEdit;
+    QWidget *stdDevWidget = addLabeledLineEdit(QString("StdDev"), &stdDevLineEdit);
+    stdDevLineEdit->setText(QString::number(stdDev));
+    stdDevLineEdit->setDisabled(true);
+    theStdDevs.append(stdDev);
+    edpLayout->addWidget(stdDevWidget);
+
+    QLineEdit *skewnessLineEdit;
+    QWidget *skewnessWidget = addLabeledLineEdit(QString("Skewness"), &skewnessLineEdit);
+    skewnessLineEdit->setText(QString::number(skewness));
+    skewnessLineEdit->setDisabled(true);
+    theSkewness.append(skewness);
+    edpLayout->addWidget(skewnessWidget);
+
+    QLineEdit *kurtosisLineEdit;
+    QWidget *kurtosisWidget = addLabeledLineEdit(QString("Kurtosis"), &kurtosisLineEdit);
+    kurtosisLineEdit->setText(QString::number(kurtosis));
+    kurtosisLineEdit->setDisabled(true);
+    theKurtosis.append(kurtosis);
+    edpLayout->addWidget(kurtosisWidget);
+
+    edpLayout->addStretch();
+
+    return edp;
+}
+
+//int CustomUQ_Results::processResults(QString &filenameResults, QString &filenameTab)
+//{
+//    statusMessage(tr("Processing Sampling Results"));
+
+//    this->clear();
+//    mLeft = true;
+//    col1 = 0;
+//    col2 = 0;
+
+//    //
+//    // check it actually ran with n errors
+//    //
+
+//    QFileInfo fileTabInfo(filenameTab);
+
+//    QFileInfo filenameTabInfo(filenameTab);
+//    if (!filenameTabInfo.exists()) {
+//        errorMessage("No tabularResults.out file - Custom UQ failed to finish running");
+//        return 0;
+//    }
+
+//    //
+//    // create summary, a QWidget for summary data, the EDP name, mean, stdDev, kurtosis info
+//    //
+
+//    // create a scrollable windows, place summary inside it
+//    QScrollArea *sa = new QScrollArea;
+//    sa->setWidgetResizable(true);
+//    sa->setLineWidth(0);
+//    sa->setFrameShape(QFrame::NoFrame);
+
+//    QWidget *summary = new QWidget();
+//    QVBoxLayout *summaryLayout = new QVBoxLayout();
+////    summaryLayout->setContentsMargins(0,0,0,0); // adding back
+//    summary->setLayout(summaryLayout);
+
+//    sa->setWidget(summary);
+
+//    //
+//    // create spreadsheet,  a QTableWidget showing RV and results for each run
+//    //
+
+//    spreadsheet = new MyTableWidget();
+
+//    // open file containing tab data
+//    std::ifstream tabResults(filenameTab.toStdString().c_str());
+//    if (!tabResults.is_open()) {
+//        qDebug() << "Could not open file";
+//        return -1;
+//    }
+
+//    //
+//    // read first line and set headings (ignoring second column for now)
+//    //
+
+//    std::string inputLine;
+//    std::getline(tabResults, inputLine);
+//    std::istringstream iss(inputLine);
+//    int colCount = 0;
+
+//    theHeadings << "Run #";
+
+//    bool includesInterface = false;
+//    do {
+//        std::string subs;
+//        iss >> subs;
+//        if (colCount > 0) {
+//            if (subs != " ") {
+//                if (subs != "interface")
+//                    theHeadings << subs.c_str();
+//                else
+//                    includesInterface = true;
+//            }
+//        }
+//        colCount++;
+//    } while (iss);
+
+//    if (includesInterface == true)
+//        colCount = colCount-2;
+//    else
+//        colCount = colCount -1;
+
+//    spreadsheet->setColumnCount(colCount);
+//    spreadsheet->setHorizontalHeaderLabels(theHeadings);
+//    spreadsheet->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+//    spreadsheet->verticalHeader()->setVisible(false);
+//    // now until end of file, read lines and place data into spreadsheet
+
+//    int rowCount = 0;
+//    while (std::getline(tabResults, inputLine)) {
+//        std::istringstream is(inputLine);
+//        int col=0;
+
+//        spreadsheet->insertRow(rowCount);
+//        for (int i=0; i<colCount+2; i++) {
+//            std::string data;
+//            is >> data;
+//            if ((includesInterface == true && i != 1) || (includesInterface == false)) {
+//                QModelIndex index = spreadsheet->model()->index(rowCount, col);
+//                spreadsheet->model()->setData(index, data.c_str());
+//                col++;
+//            }
+//        }
+//        rowCount++;
+//    }
+//    tabResults.close();
+
+//    //
+//    // determine summary statistics for each edp
+//    //
+
+
+//    for (int col = theRVs->getNumRandomVariables()+1; col<colCount; ++col) { // +1 for first col which is nit an RV
+//        // compute the mean
+//        double sum_value=0;
+//        for(int row=0;row<rowCount;++row) {
+//            QTableWidgetItem *item_index = spreadsheet->item(row,col);
+//            double value_item = item_index->text().toDouble();
+//            sum_value=sum_value+value_item;
+//        }
+
+//        double mean_value=sum_value/rowCount;
+
+//        double sd_value=0;
+//        double kurtosis_value=0;
+//        double skewness_value = 0;
+//        for(int row=0; row<rowCount;++row) {
+//            QTableWidgetItem *item_index = spreadsheet->item(row,col);
+//            double value_item = item_index->text().toDouble();
+//            double tmp = value_item - mean_value;
+//            double tmp2 = tmp*tmp;
+//            sd_value += tmp2;
+//            skewness_value += tmp*tmp2;
+//            kurtosis_value += tmp2*tmp2;
+//        }
+
+
+//        double n = rowCount;
+//        double tmpV = sd_value/n;
+
+//        if (rowCount > 1)
+//            sd_value = sd_value/(n-1);
+//        sd_value=sqrt(sd_value);
+
+//        // biased Kurtosis
+//        kurtosis_value = kurtosis_value/(n*tmpV*tmpV);
+//        // unbiased kurtosis value as calculated by Matlab
+//        if (n > 3)
+//            kurtosis_value = (n-1)/((n-2)*(n-3))*((n+1)*kurtosis_value - 3*(n-1)) + 3;
+
+//        tmpV = sqrt(tmpV);
+//        // biased skewness
+//        skewness_value = skewness_value/(n*tmpV*tmpV*tmpV);
+//        // unbiased skewness like Matlab
+//        if (n > 3)
+//            skewness_value *= sqrt(n*(n-1))/(n-2);
+
+//        QString variableName = theHeadings.at(col);
+//        QWidget *theWidget = this->createResultEDPWidget(variableName, mean_value, sd_value, skewness_value, kurtosis_value);
+//        summaryLayout->addWidget(theWidget);
+//    }
+
+//    summaryLayout->addStretch();
+
+//    // this is where we are connecting edit triggers
+//    spreadsheet->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+//    connect(spreadsheet,SIGNAL(cellPressed(int,int)),this,SLOT(onSpreadsheetCellClicked(int,int)));
+
+//    //
+//    // create a chart, setting data points from first and last col of spreadsheet
+//    //
+//    chart = new QChart();
+//    chart->setAnimationOptions(QChart::AllAnimations);
+
+//    // by default the constructor is called and it plots the graph of the last column on Y-axis w.r.t first column on the
+//    // X-axis
+//    this->onSpreadsheetCellClicked(0,colCount-1);
+
+//    // to control the properties, how your graph looks you must click and study the onSpreadsheetCellClicked
+
+//    QChartView *chartView = new QChartView(chart);
+//    chartView->setRenderHint(QPainter::Antialiasing);
+//    chartView->chart()->legend()->hide();
+
+//    QWidget *widget = new QWidget();
+//    QGridLayout *layout = new QGridLayout(widget);
+//    QPushButton* save_spreadsheet = new QPushButton();
+//    save_spreadsheet->setText("Save Data");
+//    save_spreadsheet->setToolTip(tr("Save data into file in a CSV format"));
+//    save_spreadsheet->resize(30,30);
+//    connect(save_spreadsheet,SIGNAL(clicked()),this,SLOT(onSaveSpreadsheetClicked()));
+
+//    layout->addWidget(chartView, 0,0,1,1);
+//    layout->addWidget(save_spreadsheet,1,0,Qt::AlignLeft);
+//    layout->addWidget(spreadsheet,2,0,1,1);
+
+//    //
+//    // add summary, detained info and spreadsheet with chart to the tabed widget
+//    //
+
+//    tabWidget->addTab(sa,tr("Summary"));
+//    tabWidget->addTab(widget, tr("Data Values"));
+//    tabWidget->adjustSize();
+
+//    statusMessage(tr(""));
+    
+//    return 0;
+//}
 
 
 void

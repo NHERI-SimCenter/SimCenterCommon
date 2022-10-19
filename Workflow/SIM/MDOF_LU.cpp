@@ -99,7 +99,7 @@ MDOF_LU::MDOF_LU(QWidget *parent)
                 " \"An open-source framework for regional earthquake loss estimation using the city-scale nonlinear time-history analysis\" "
                 ", Earthquake Spectra, 2020, 36(2): 806-831.");
     auto citation3 = new QLabel("(2) Lu X.Z., Han B., Hori M., Xiong C., and Xu Z.,"
-                                " \"A coarse-grained parallel approach for seismic damage simulations of urban areas based on refined models"
+                                " \"A coarse-grained parallel approach for seismic damage simulations of urban areas based on refined models "
                                 "and GPU/CPU cooperative computing\" , Advances in Engineering Software,"
                                 "2014, 70: 90-103.");
     citation1->setWordWrap(true);
@@ -143,7 +143,21 @@ bool MDOF_LU::outputToJSON(QJsonObject &dataObj)
     QFileInfo theFile(hazusDataFile->text());
     if (theFile.exists()) {
         dataObj["hazusData"]=theFile.fileName();
-        dataObj["pathToHazusFile"]=theFile.path();
+
+	auto SCPrefs = SimCenterPreferences::getInstance();
+
+	QString filePath = SCPrefs->getAppDir() + QDir::separator()
+	  + "applications" + QDir::separator() + "createSAM"
+	  + QDir::separator() + "MDOF-LU" + QDir::separator()
+	  + "data";
+
+	errorMessage(filePath);
+	errorMessage(theFile.path());
+	
+	// do not put in default path
+	if (theFile.path() != filePath)
+	  dataObj["pathToHazusFile"]=theFile.path();
+	
     } else {
         dataObj["hazusData"]=QString("None");
         dataObj["pathToHazusFile"]=QString("");
@@ -156,7 +170,6 @@ bool MDOF_LU::outputToJSON(QJsonObject &dataObj)
 
 bool MDOF_LU::inputFromJSON(QJsonObject &appData)
 {
-
   QFileInfo fileInfo;
   QString fileName;
   QString pathToFile;
@@ -178,7 +191,7 @@ bool MDOF_LU::inputFromJSON(QJsonObject &appData)
   //  1 is user created input the full path can be specified
   //  2 if user specified, it can be relative to current dir
   //  3 if use specified it can be in input_Data
-  //  4 if R2D created the path is seperate
+  //  4 if default
   //
   
   if (fileInfo.exists(fileName)) {
@@ -191,8 +204,15 @@ bool MDOF_LU::inputFromJSON(QJsonObject &appData)
     
     if (appData.contains("pathToHazusFile"))
       pathToFile = appData["pathToHazusFile"].toString();
-    else
-      pathToFile = QDir::currentPath();
+    else {
+      auto SCPrefs = SimCenterPreferences::getInstance();      
+      pathToFile = SCPrefs->getAppDir() + QDir::separator()
+            + "applications" + QDir::separator() + "createSAM"
+            + QDir::separator() + "MDOF-LU" + QDir::separator()
+            + "data";
+    }
+      
+    // pathToFile = QDir::currentPath();
     
     QString hazusFile = pathToFile + QDir::separator() + fileName;
     
@@ -200,6 +220,7 @@ bool MDOF_LU::inputFromJSON(QJsonObject &appData)
       
       // option 2 or 4
       hazusDataFile->setText(hazusFile);
+
       return true;
       
     } else {
@@ -235,7 +256,6 @@ bool MDOF_LU::outputAppDataToJSON(QJsonObject &jsonObject) {
 
 
 bool MDOF_LU::inputAppDataFromJSON(QJsonObject &jsonObject) {
-
     return true;
 }
 

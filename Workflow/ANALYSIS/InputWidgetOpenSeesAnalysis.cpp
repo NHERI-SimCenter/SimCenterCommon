@@ -94,7 +94,6 @@ InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(QWidget *parent)
     theAlgorithm->setToolTip(tr("Nonlinear Solution Algorithm"));
     theAlgorithm->addItem("Linear");
     theAlgorithm->addItem("Newton");
-    theAlgorithm->addItem("Newmark");
     theAlgorithm->setEditable(false);
     theAlgorithm->setCurrentText("Newton");
     layout->addWidget(theAlgorithm, row, 1);
@@ -174,8 +173,8 @@ InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(QWidget *parent)
     firstMode->setText("1");
     firstMode->setToolTip(tr("First Mode to to determine damping ratio, if 0 stiffness proportional damping"));
     secondMode = new QLineEdit();
-    secondMode->setText("0");
-    secondMode->setToolTip(tr("Second Mode to to determine damping ratio, if 0 mass proportional damping"));
+    secondMode->setText("-1");
+    secondMode->setToolTip(tr("Second Mode to to determine damping ratio, if 0 mass proportional damping, if -1 then 2*numStories-1 is used in the resulting script"));
     firstMode->setValidator(new QIntValidator);
     secondMode->setValidator(new QIntValidator);
 
@@ -209,8 +208,8 @@ InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(QWidget *parent)
     labelNumModes->setText(QString("# Modes: "));
     layoutModal->addWidget(labelNumModes, 1, 0);
     numModesModal = new QLineEdit();
-    numModesModal->setText("1");
-    numModesModal->setToolTip(tr("number of modes to include"));
+    numModesModal->setText("-1");
+    numModesModal->setToolTip(tr("number of modes to include, if -1 2*numStories-1 is used"));
     numModesModal->setValidator(new QIntValidator);
 
     QLabel *labelMDRT = new QLabel(QString("Stiffness Proportional Damping Ratio: "));

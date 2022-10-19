@@ -58,12 +58,12 @@ public:
     bool inputFromJSON(QJsonObject &jsonObject);
     bool outputAppDataToJSON(QJsonObject &jsonObject);
     bool inputAppDataFromJSON(QJsonObject &jsonObject);
-
     void setRV_Defaults(void);
     UQ_Results *getResults(void);
 
     QString getProcessingScript();
     QString getMethodName();
+    bool copyFiles(QString &fileDir);
 
 signals:
     void onUQ_EngineChanged(void);
@@ -76,7 +76,7 @@ public slots:
 private:
    QComboBox   *theEngineSelectionBox;
    QStackedWidget *theStackedWidget;
-   QCheckBox *parallelCheckBox;
+   QCheckBox *parallelCheckBox, *removeWorkdirCheckBox;
 
    UQ_Engine *theCurrentEngine;
    UQ_Engine *theSamplingEngine;
@@ -84,6 +84,7 @@ private:
    UQ_Engine *theCalibrationEngine;
    UQ_Engine *theBayesianCalibrationEngine;
    UQ_Engine *theSensitivityEngine;
+   UQ_Engine *theOptimizationEngine;
 };
 
 #endif // DAKOTA_ENGINE_H

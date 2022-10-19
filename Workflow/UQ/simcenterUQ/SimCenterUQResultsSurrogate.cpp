@@ -159,38 +159,53 @@ int SimCenterUQResultsSurrogate::processResults(QString &filenameResults, QStrin
         errorMessage("No error file - SimCenterUQ did not run - problem with quoFEM setup or the applications failed with inputs provided");
         return -1;
     }
+
     QFile fileError(filenameErrorString);
-//    QString line("");
-//    if (fileError.open(QIODevice::ReadOnly)) {
-//        QTextStream in(&fileError);
-//        while (!in.atEnd()) {
-//            line = in.readLine();
-//        }
-//        fileError.close();
-//    }
-
-//    if (line.length() != 0) {
-//        qDebug() << line.length() << " " << line;
-//        errorMessage(QString(QString("Error Running SimCenterUQ: ") + line));
-//        return 0;
-//    }
-
     if (fileError.open(QIODevice::ReadOnly)) {
         QTextStream in(&fileError);
-        QString contents = in.readAll();
-//        while (!in.atEnd()) {
-//            line = in.readLine();
-//        }
-        if (!contents.isEmpty()) {
+        // QString contents = in.readAll(); -- not reading newline char
+
+
+        bool errorWritten = false;
+        QString errmsgs;
+
+        for (QString line = in.readLine();
+             !line.isNull();
+             line = in.readLine()) {
+             errmsgs +=  line + "<br>";
+             errorWritten = true;
+        };
+        if (errorWritten) {
             //errorMessage(QString(QString("Error Running SimCenterUQ: ") + line));
-            errorMessage(QString(QString("Error Running SimCenterUQ: ") + contents));
+            errorMessage(errmsgs);
             return -1;
         }
+
     }
 
 
     QFileInfo filenameTabInfo(filenameTab);
     if (!filenameTabInfo.exists()) {
+        // lets check simcenterUQ
+        QString filenameLogString = fileTabInfo.absolutePath() + QDir::separator() + QString("logFileSimUQ.txt");
+        QFile fileLog(filenameLogString);
+        if (fileLog.open(QIODevice::ReadOnly)) {
+            QTextStream in(&fileLog);
+            bool errorWritten = false;
+            QString errmsgs;
+            for (QString line = in.readLine(); !line.isNull(); line = in.readLine()) {
+                if (line.toLower().contains(QString("error"))) {
+                    errmsgs +=  line + "<br>";
+                    errorWritten = true;
+                }
+            };
+            if (errorWritten) {
+                errorMessage(errmsgs);
+                errorMessage("No Tab file - Read logFileSimUQ.txt at the working directory for details");
+                return -1;
+            }
+
+        }
         errorMessage("No Tab file - surrogate modeling failed - possibly no QoI or a permission issue.");
         return -1;
     }
@@ -519,6 +534,8 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
     QJsonObject yConfidenceUb = jsonObj["yPredict_CI_ub"].toObject();
     bool didLogtransform = jsonObj["doLogtransform"].toBool();
     bool isMultiFidelity = jsonObj["doMultiFidelity"].toBool();
+    QJsonArray didStochastic = jsonObj["doStochastic"].toArray();
+
 
 
     int nSamp = jsonObjHF["valSamp"].toInt();
@@ -727,6 +744,7 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
         axisX->setRange(miny, maxy);
         axisY->setRange(miny, maxy);
 
+        /*
         // draw nugget scale
         QLineSeries *series_nugget_ub = new QLineSeries;
         QLineSeries *series_nugget_lb = new QLineSeries;
@@ -741,8 +759,8 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
             nuggetstd = inteval*1.e-2;
         }
         for (int i=0; i<nd+1; i++) {
-            series_nugget_ub->append(miny+i*(maxy-miny)/nd, miny+i*(maxy-miny)/nd + nuggetstd);
-            series_nugget_lb->append(miny+i*(maxy-miny)/nd, miny+i*(maxy-miny)/nd - nuggetstd);
+            series_nugget_ub->append(miny+i*(maxy-miny)/nd, miny+i*(maxy-miny)/nd + 2*nuggetstd);
+            series_nugget_lb->append(miny+i*(maxy-miny)/nd, miny+i*(maxy-miny)/nd - 2*nuggetstd);
             if (didLogtransform) {
                 double log_mean = std::log(miny+i*(maxy-miny)/nd);
                 double log_var = nuggetvar;
@@ -756,7 +774,7 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
         }
 
         QAreaSeries *series_nugget = new QAreaSeries(series_nugget_ub,series_nugget_lb);
-        series_nugget->setName("± Nugget Std.");
+        series_nugget->setName("± 2 Nugget Std.");
 
         chart_CV->addSeries(series_nugget);
         series_nugget->setColor(QColor(180,180,180,alpha/2));
@@ -767,7 +785,7 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
             chart_CV->legend()->markers(series_nugget)[0]->setVisible(false);
         }
         series_nugget->setBorderColor(QColor(255,255,255,0));
-
+        */
         // draw bounds first
 
         QPen pen;
@@ -801,7 +819,7 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
         dummy_series_err->setColor(QColor(0, 114, 178, 50));
         //dummy_series_err->setOpacity(series_CV->opacity());
         chart_CV->addSeries(dummy_series_err);
-        dummy_series_err->setName("Inter-quartile Range");
+        dummy_series_err->setName("90% Prediction Interval");
 
         // set fontsize
         QFont chartFont;
@@ -824,7 +842,9 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
         } else {
             nuggetStr = "nugget variance (log-transformed space): ";
         }
-        if (nugget/statisticsVector[jsonObj["xdim"].toInt()+1+nq][0]<1.e-12) {
+        if (didStochastic[nq].toBool()){
+            chartAndNugget->addWidget(new QLabel("Heteroscedastic nugget variance"));
+        } else if (nugget/statisticsVector[jsonObj["xdim"].toInt()+1+nq][0]<1.e-12) {
             chartAndNugget->addWidget(new QLabel(nuggetStr+"0.000"));
         } else {
             chartAndNugget->addWidget(new QLabel(nuggetStr + QString::number(nugget,'g',4)),1,0);
