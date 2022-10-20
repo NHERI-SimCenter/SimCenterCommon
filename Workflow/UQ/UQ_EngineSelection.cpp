@@ -98,10 +98,10 @@ UQ_EngineSelection::initialize(bool includeNone, UQ_EngineType type)
     connect(this, SIGNAL(selectionChangedSignal(QString)), this,
             SLOT(engineSelectionChanged(QString)));
 
-    connect(theDakotaEngine, SIGNAL(onUQ_EngineChanged()), this, SLOT(enginesEngineSelectionChanged()));
-    connect(theSimCenterUQEngine, SIGNAL(onUQ_EngineChanged()), this, SLOT(enginesEngineSelectionChanged()));
-    connect(theCustomEngine, SIGNAL(onUQ_EngineChanged()), this, SLOT(enginesEngineSelectionChanged()));
-    connect(theUCSD_Engine, SIGNAL(onUQ_EngineChanged()), this, SLOT(enginesEngineSelectionChanged()));
+    connect(theDakotaEngine, SIGNAL(onUQ_EngineChanged()), this, SLOT(engineSelectionChanged()));
+    connect(theSimCenterUQEngine, SIGNAL(onUQ_EngineChanged()), this, SLOT(engineSelectionChanged()));
+    connect(theCustomEngine, SIGNAL(onUQ_EngineChanged()), this, SLOT(engineSelectionChanged()));
+    connect(theUCSD_Engine, SIGNAL(onUQ_EngineChanged()), this, SLOT(engineSelectionChanged()));
 
     // connect queryEVT
     connect(theSimCenterUQEngine, SIGNAL(queryEVT()), this, SLOT(relayQueryEVT()));
