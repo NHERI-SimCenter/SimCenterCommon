@@ -54,11 +54,14 @@ public:
     explicit Application(QWidget *parent = nullptr);
 
    virtual void setNumTasks(int numTasks);
-   virtual bool setupDoneRunApplication(QString &tmpDirectory, QString &inputFile);
+   virtual bool setupDoneRunApplication(QString &tmpDirectory, QString &inputFile); 
+   virtual bool setupDoneRunPreprocessing(QString &tmpDirectory, QString &inputFile);
+
    virtual void displayed(void);
 
 signals:
-    void setupForRun(QString &, QString &);
+    void setupForRun(QString&, QString&);
+    void setupForPreprocessing(QString&, QString&);
 
 private:
     void submitJob(void);
