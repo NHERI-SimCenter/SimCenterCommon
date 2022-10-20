@@ -13,6 +13,7 @@ include($$PWD/ZipUtils/ZipUtils.pri)
 
 SOURCES += $$PWD/HeaderWidget.cpp \
     $$PWD/Utils/RelativePathResolver.cpp \
+    $$PWD/Utils/FileOperations.cpp \
     $$PWD/Utils/dialogabout.cpp \
     $$PWD/Utils/PythonProgressDialog.cpp \
     $$PWD/sectiontitle.cpp \
@@ -29,6 +30,7 @@ SOURCES += $$PWD/HeaderWidget.cpp \
 
 HEADERS += $$PWD/HeaderWidget.h \
     $$PWD/Utils/RelativePathResolver.h \
+    $$PWD/Utils/FileOperations.h \
     $$PWD/Utils/dialogabout.h \
     $$PWD/Utils/PythonProgressDialog.h \
     $$PWD/sectiontitle.h \

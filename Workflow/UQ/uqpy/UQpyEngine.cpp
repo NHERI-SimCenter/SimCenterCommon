@@ -1,5 +1,4 @@
-﻿#ifndef SimCenterAppSelection_H
-#define SimCenterAppSelection_H
+// Written: fmckenna
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -37,64 +36,85 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written by: fmk
+// Written: fmckenna
 
-#include "SimCenterAppWidget.h"
+#include "UQpyEngine.h"
+#include <QDebug>
+#include <RandomVariablesContainer.h>
+#include <UQ_Results.h>
+#include <GoogleAnalytics.h>
 
-class QStackedWidget;
-class QComboBox;
+#include <QStackedWidget>
+#include <QComboBox>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QCheckBox>
+#include <QSpacerItem>
 
-class SimCenterAppSelection : public  SimCenterAppWidget
+#include <QDebug>
+
+#include <UQpySubsetSimulation.h>
+
+
+UQpyEngine::UQpyEngine(QWidget *parent)
+    : UQ_Engine(parent)
 {
-    Q_OBJECT
+  /*************************  at some point need to redo so no new
+    QString classType("Uncertain");
+    theRandomVariables =  new RandomVariablesContainer(classType);
+    theResults = new UQ_Results();
+  ***************************************************************/
+}
 
-public:
-    explicit SimCenterAppSelection(QString label, QString jsonkeyword, QWidget *parent);
-    explicit SimCenterAppSelection(QString label, QString jsonKeyword, QString oldKeyword, QString typeOfAsset = QString(), QWidget *parent = nullptr);
-    ~SimCenterAppSelection();
+UQpyEngine::~UQpyEngine()
+{
 
-    bool outputAppDataToJSON(QJsonObject &jsonObject);
-    bool inputAppDataFromJSON(QJsonObject &jsonObject);
-    bool outputToJSON(QJsonObject &rvObject);
-    bool inputFromJSON(QJsonObject &rvObject);
-    bool copyFiles(QString &destName);
+}
 
-    void clear(void);
-    bool addComponent(QString comboBoxText, QString appNameText, SimCenterAppWidget *);
-    SimCenterAppWidget *getComponent(QString text);
-    SimCenterAppWidget *getCurrentSelection(void);
-    QString getCurrentSelectionName(void);
-    bool selectComponent(const QString text);
+int
+UQpyEngine::getMaxNumParallelTasks(void) {
+    return 1;
+}
 
-public slots:
-    void selectionChangedSlot(const QString &);
-    void setCurrentlyViewable(bool);
-    void setSelectionsActive(bool);
-
-signals:
-    void selectionChangedSignal(const QString &);
-
-protected:
+bool
+UQpyEngine::outputToJSON( QJsonObject &rvObject) {
+    return true;
+}
 
 
-private:
-    virtual bool displayComponent(QString text);
-    void initializeWidget(QString label);
+bool
+UQpyEngine::inputFromJSON(QJsonObject &rvObject) {
+    return true;
+}
 
-    QStackedWidget* theStackedWidget;
-    QComboBox* theSelectionCombo;
 
-    int currentIndex;
-    SimCenterAppWidget *theCurrentSelection;
+RandomVariablesContainer *
+UQpyEngine::getParameters() {
+  QString classType("Uncertain");
+  return RandomVariablesContainer::getInstance();
+}
 
-    QList<QString> theComboNames;
-    QList<QString> theApplicationNames;
-    QList<SimCenterAppWidget *> theComponents;
-    QString jsonKeyword; // application type that appears in json
-    QString jsonKeywordOld; // application type that appears in older json for reading
-    QString assetType;
+UQ_Results *UQpyEngine::getResults(void) {
+  UQ_Results *theRes = new UQ_Results();
+  return theRes;
+}
 
-    bool viewableStatus;
-};
+void
+UQpyEngine::clear(void) {
+    return;
+}
 
-#endif // SimCenterAppSelection_H
+
+QString
+UQpyEngine::getProcessingScript() {
+    return QString("parseUQpy.py");
+}
+
+QString
+UQpyEngine::getMethodName() {
+  return QString("UQpy");
+}
+
+

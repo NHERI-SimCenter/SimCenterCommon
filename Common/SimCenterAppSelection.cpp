@@ -365,6 +365,22 @@ SimCenterAppSelection::getComponent(QString text)
 
 
 bool
+SimCenterAppSelection::selectComponent(const QString text)
+{
+    auto idx = theComboNames.indexOf(text);
+
+    if (idx != -1)
+    {
+        theSelectionCombo->setCurrentIndex(idx);
+
+        return true;
+    }
+    else
+        return false;
+}
+
+
+bool
 SimCenterAppSelection::displayComponent(QString text)
 {
     //

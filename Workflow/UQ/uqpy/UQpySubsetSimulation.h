@@ -1,5 +1,5 @@
-#ifndef APPLICATION_H
-#define APPLICATION_H
+#ifndef UQPYSUBSETSIMULATION_H
+#define UQPYSUBSETSIMULATION_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -37,34 +37,59 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
+#include <UQ_Engine.h>
 
-// Written: fmckenna
+#include <QGroupBox>
+#include <QVector>
+#include <QVBoxLayout>
+#include <QComboBox>
+#include <QPushButton>
 
-// Purpose: a widget for submitting uqFEM jobs to HPC resource (specifically DesignSafe at moment)
-//  - the widget aasks for additional info needed and provide a submit button to submit the jb when clicked.
 
-#include <SimCenterWidget.h>
+class UQ_EngineMethod;
+class QCheckBox;
+class UQpyResultsSubsetSim;
+class QStackedWidget;
 
-class QLineEdit;
 
-class Application : public SimCenterWidget
+class UQpySubsetSimulation : public UQ_Engine
 {
     Q_OBJECT
 public:
-    explicit Application(QWidget *parent = nullptr);
+  explicit UQpySubsetSimulation(QWidget *parent = 0);
+~UQpySubsetSimulation();
 
-   virtual void setNumTasks(int numTasks);
-   virtual bool setupDoneRunApplication(QString &tmpDirectory, QString &inputFile); 
-   virtual bool setupDoneRunPreprocessing(QString &tmpDirectory, QString &inputFile);
+    bool outputToJSON(QJsonObject &jsonObject);
+    bool inputFromJSON(QJsonObject &jsonObject);
+    bool outputAppDataToJSON(QJsonObject &jsonObject);
+    bool inputAppDataFromJSON(QJsonObject &jsonObject);
 
-   virtual void displayed(void);
+    UQ_Results *getResults(void);
+    void setRV_Defaults(void);
+
+      int getMaxNumParallelTasks(void);
+
+      QString getMethodName();
 
 signals:
-    void setupForRun(QString&, QString&);
-    void setupForPreprocessing(QString&, QString&);
+
+public slots:
+   void clear(void);
+   void onTextChanged(const QString &arg1);
+   void numModelsChanged(int numModels);
 
 private:
-    void submitJob(void);
+    QVBoxLayout *layout;
+    QVBoxLayout *mLayout;
+    QComboBox   *reliabilityMethod;
+    QLineEdit   *numSamples;
+    QLineEdit   *randomSeed;
+
+    UQpyResultsSubsetSim *results;
+
+    QStackedWidget *theStackedWidget;
+    UQ_Method *theSubsetSim;
+
 };
 
-#endif // APPLICATION_H
+#endif // UQPYSUBSETSIMULATION_H
