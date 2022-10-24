@@ -13,8 +13,8 @@
 #include <Qt3DRender/QViewport>
 #include <Qt3DRender/QFrameGraphNode>
 #include <Qt3DRender/QRenderAspect>
-#include <Qt3DRender/QBuffer>
-#include <Qt3DRender/QAttribute>
+//#include <Qt3DRender/QBuffer>
+//#include <Qt3DRender/QAttribute>
 #include <Qt3DRender/QEffect>
 #include <Qt3DRender/QTechnique>
 #include <Qt3DRender/QPointSize>
@@ -160,19 +160,19 @@ GraphicView2D::drawPoint(int tag, float x1, float y1, int numPixels, float r, fl
     *positions++ = y1;
     *positions++ = 0;
 
-    auto *coordsBuffer = new Qt3DRender::QBuffer();
+    auto *coordsBuffer = new Qt3DCore::QBuffer();
     coordsBuffer->setData(coordsBytes);
 
-    auto pointVerticesAttribute = new Qt3DRender::QAttribute(
+    auto pointVerticesAttribute = new Qt3DCore::QAttribute(
 		coordsBuffer,
-                Qt3DRender::QAttribute::defaultPositionAttributeName(),
-                Qt3DRender::QAttribute::Float,
+                Qt3DCore::QAttribute::defaultPositionAttributeName(),
+                Qt3DCore::QAttribute::Float,
                 3,
                 1,
                 0,
                 3 * sizeof (float));
 
-    auto pointGeometry = new Qt3DRender::QGeometry();
+    auto pointGeometry = new Qt3DCore::QGeometry();
     pointGeometry->addAttribute(pointVerticesAttribute);
 
     auto pointRenderer = new Qt3DRender::QGeometryRenderer();
@@ -256,7 +256,7 @@ GraphicView2D::drawLine(int tag, float x1, float y1, float x2, float y2, float t
         maxY = y2;
     }
 
-    auto *geometry = new Qt3DRender::QGeometry();
+    auto *geometry = new Qt3DCore::QGeometry();
 
     // position vertices (start and end)
     QByteArray bufferBytes;
@@ -269,14 +269,14 @@ GraphicView2D::drawLine(int tag, float x1, float y1, float x2, float y2, float t
     *positions++ = y2;
     *positions++ = 0;
 
-    auto *buf = new Qt3DRender::QBuffer(geometry);
+    auto *buf = new Qt3DCore::QBuffer(geometry);
     buf->setData(bufferBytes);
 
-    auto *positionAttribute = new Qt3DRender::QAttribute(geometry);
-    positionAttribute->setName(Qt3DRender::QAttribute::defaultPositionAttributeName());
-    positionAttribute->setVertexBaseType(Qt3DRender::QAttribute::Float);
+    auto *positionAttribute = new Qt3DCore::QAttribute(geometry);
+    positionAttribute->setName(Qt3DCore::QAttribute::defaultPositionAttributeName());
+    positionAttribute->setVertexBaseType(Qt3DCore::QAttribute::Float);
     positionAttribute->setVertexSize(3);
-    positionAttribute->setAttributeType(Qt3DRender::QAttribute::VertexAttribute);
+    positionAttribute->setAttributeType(Qt3DCore::QAttribute::VertexAttribute);
     positionAttribute->setBuffer(buf);
     positionAttribute->setByteStride(3 * sizeof(float));
     positionAttribute->setCount(2);
@@ -289,12 +289,12 @@ GraphicView2D::drawLine(int tag, float x1, float y1, float x2, float y2, float t
     *indices++ = 0;
     *indices++ = 1;
 
-    auto *indexBuffer = new Qt3DRender::QBuffer(geometry);
+    auto *indexBuffer = new Qt3DCore::QBuffer(geometry);
     indexBuffer->setData(indexBytes);
 
-    auto *indexAttribute = new Qt3DRender::QAttribute(geometry);
-    indexAttribute->setVertexBaseType(Qt3DRender::QAttribute::UnsignedInt);
-    indexAttribute->setAttributeType(Qt3DRender::QAttribute::IndexAttribute);
+    auto *indexAttribute = new Qt3DCore::QAttribute(geometry);
+    indexAttribute->setVertexBaseType(Qt3DCore::QAttribute::UnsignedInt);
+    indexAttribute->setAttributeType(Qt3DCore::QAttribute::IndexAttribute);
     indexAttribute->setBuffer(indexBuffer);
     indexAttribute->setCount(2);
     geometry->addAttribute(indexAttribute); // We add the indices linking the points in the geometry
