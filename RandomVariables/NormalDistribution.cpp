@@ -163,6 +163,7 @@ NormalDistribution::outputToJSON(QJsonObject &rvObject){
         rvObject["dataDir"]=QString(dataDir->text());
         return true;
     }
+    return false; // should never get here!
 }
 
 bool

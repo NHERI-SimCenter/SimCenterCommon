@@ -536,8 +536,8 @@ void RandomVariable::uqEngineChanged(QString newUqEngineName, QString newClass) 
 
         auto idx = mainLayout->indexOf(theDistribution);
         if (idx>=0){
-           RandomVariableDistribution *theD = theDistribution;
-            //mainLayout->removeWidget(theDistribution);
+            // RandomVariableDistribution *theD = theDistribution;
+            // mainLayout->removeWidget(theDistribution);
             mainLayout->removeItem(mainLayout->itemAt(idx));
             delete theDistribution;
             theDistribution = NULL;

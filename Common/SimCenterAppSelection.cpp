@@ -118,8 +118,8 @@ SimCenterAppSelection::initializeWidget(QString label) {
 
     this->setLayout(layout);
 
-    connect(theSelectionCombo, SIGNAL(currentTextChanged(const QString &)),
-            this, SLOT(selectionChangedSlot(const QString &)));
+    connect(theSelectionCombo, SIGNAL(currentTextChanged(QString)),
+            this, SLOT(selectionChangedSlot(QString)));
 }
 
 

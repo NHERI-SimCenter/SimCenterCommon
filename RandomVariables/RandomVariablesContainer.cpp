@@ -1177,10 +1177,7 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
 }
 
 
-void
-RandomVariablesContainer::errorMessage(QString message){
-    this->errorMessage(message);
-}
+
 
 void
 RandomVariablesContainer::setCorrelationDisabled(bool on) {

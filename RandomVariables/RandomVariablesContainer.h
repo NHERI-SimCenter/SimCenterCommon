@@ -108,7 +108,6 @@ public:
     QString getAllRVString(void);
 
 public slots:
-   void errorMessage(QString message);
    void addRandomVariable(void);
    void variableNameChanged(const QString &newValue);
    void removeRandomVariable(void);

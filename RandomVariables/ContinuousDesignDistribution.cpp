@@ -126,6 +126,7 @@ ContinuousDesignDistribution::inputFromJSON(QJsonObject &rvObject){
 }
 bool
 ContinuousDesignDistribution::copyFiles(QString fileDir) {
+  Q_UNUSED(fileDir);
     return true;//do nothing
 }
 

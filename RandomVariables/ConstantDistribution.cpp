@@ -112,6 +112,7 @@ ConstantDistribution::inputFromJSON(QJsonObject &rvObject){
 
 bool
 ConstantDistribution::copyFiles(QString fileDir) {
+    Q_UNUSED(fileDir);
     //do nothing
     return true;
 }
