@@ -186,6 +186,7 @@ int SimCenterUQResultsSampling::processResults(QString &dirName)
 
 int SimCenterUQResultsSampling::processResults(QString &filenameResults, QString &filenameTab)
 {
+    Q_UNUSED(filenameResults);
     statusMessage(tr("Processing Sampling Results"));
 
     this->clear();

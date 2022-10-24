@@ -203,6 +203,10 @@ ImportSamplesWidget::getNumberTasks()
 
 int
 ImportSamplesWidget::countColumn(QString name1, bool is_qoi, QString ext, int maxcount){
+
+  Q_UNUSED(ext);
+  Q_UNUSED(maxcount);
+  
     // get number of columns
 //    std::ifstream inFile(name1.toStdString());
 //    // read lines of input searching for pset using regular expression
@@ -266,7 +270,6 @@ ImportSamplesWidget::countColumn(QString name1, bool is_qoi, QString ext, int ma
     int numberOfColumns = 0;
     int numberOfRows = 0;
 
-    double readEnd;
     std::ifstream csv(name1.toStdString());
 
     const std::string delimiter = ",";

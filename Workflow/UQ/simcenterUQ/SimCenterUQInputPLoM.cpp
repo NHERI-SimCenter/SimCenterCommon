@@ -114,8 +114,8 @@ SimCenterUQInputPLoM::SimCenterUQInputPLoM(QWidget *parent)
 
     this->setLayout(layout);
 
-    connect(inpMethod, SIGNAL(currentTextChanged(QString &)), this, SLOT(onIndexChanged(QString &)));
-    connect(theSimu, SIGNAL(queryEVT(void)), this, SLOT(relayQueryEVT(void)));
+    connect(inpMethod, SIGNAL(currentTextChanged(QString)), this, SLOT(onIndexChanged(QString)));
+    connect(theSimu, SIGNAL(queryEVT()), this, SLOT(relayQueryEVT()));
 }
 
 void SimCenterUQInputPLoM::onIndexChanged(const QString &text)
@@ -260,6 +260,8 @@ SimCenterUQInputPLoM::inputAppDataFromJSON(QJsonObject &jsonObject)
 
 
 int SimCenterUQInputPLoM::processResults(QString &filenameResults, QString &filenameTab) {
+    Q_UNUSED(filenameResults);
+    Q_UNUSED(filenameTab);
 
     return 0;
 }

@@ -40,6 +40,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 BayesPlots::BayesPlots(QVector<QString> edpNames, QVector<int> edpLengths, QWidget *parent) : QWidget(parent)
 {
+    Q_UNUSED(edpNames);
+    Q_UNUSED(edpLengths);
 //    yMinValue = 0;
 //    yMaxValue = 0;
 //    xMinValue = 0;

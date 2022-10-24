@@ -132,7 +132,7 @@ SimCenterUQEngine::SimCenterUQEngine(UQ_EngineType type, QWidget *parent)
 //    this->setLayout(layout);
 //    theCurrentEngine = theSensitivityEngine;
 
-    connect(theMethodSelectionBox, SIGNAL(currentTextChanged(QString&)), this,
+    connect(theMethodSelectionBox, SIGNAL(currentTextChanged(QString)), this,
           SLOT(methodSelectionChanged(QString)));
 
     //connect(theSamplingEngine, SIGNAL(onNumModelsChanged(int)), this, SLOT(numModelsChanged(int)));
@@ -147,8 +147,8 @@ SimCenterUQEngine::~SimCenterUQEngine()
 
 void SimCenterUQEngine::methodSelectionChanged(const QString &arg1)
 {
-    QString thePreviousName = theCurrentEngine->getMethodName();
-    UQ_Engine *theOldEngine = theCurrentEngine;
+    // QString thePreviousName = theCurrentEngine->getMethodName();
+    // UQ_Engine *theOldEngine = theCurrentEngine;
     
     // theEdpWidget->showAdvancedSensitivity(false);
 

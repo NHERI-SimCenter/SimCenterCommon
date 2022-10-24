@@ -525,7 +525,7 @@ ResultsDataChart::readTableFromJson(QJsonObject spreadsheetData) {
 void
 ResultsDataChart::readTableFromTxt(QString filename, int ndim, QStringList listRvs, int startingCol) {
 
-
+    Q_UNUSED(ndim);
         //theHeadings << "Run #";
         theHeadings << listRvs;
         spreadsheet->setHorizontalHeaderLabels(theHeadings);
@@ -541,10 +541,13 @@ ResultsDataChart::readTableFromTxt(QString filename, int ndim, QStringList listR
         const std::string delimiter3 = "\t";
         int i = 0;
         int j; // jrv
-        bool fileIsCsv = false;
-        bool header_detected = false;
+
         //int tenSecInterv = 10;
         for (std::string line; std::getline(csv, line); ) {
+
+            bool fileIsCsv = false;
+            bool header_detected = false;
+
 //            if (startingCol==1) {
 //                QModelIndex index = spreadsheet->model()->index(i, 0);
 //                spreadsheet->model()->setData(index, 0.0);
@@ -1076,7 +1079,7 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
             double value2 = itemY->text().toDouble();
 
 
-            if ((i == 0)) {
+            if (i == 0) {
                 minX=value1;
                 maxX=value1;
                 minY=value2;

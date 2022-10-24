@@ -145,7 +145,7 @@ int DakotaResultsReliability::processResults(QString &dirName)
 
 int DakotaResultsReliability::processResults(QString &filenameResults, QString &filenameTab)
 {
-
+    Q_UNUSED(filenameTab);
   statusMessage(tr("Processing Reliability Results"));
 
 

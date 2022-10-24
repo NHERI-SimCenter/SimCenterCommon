@@ -325,6 +325,10 @@ SimCenterUQResultsSurrogate::onSaveModelClicked()
 
 
     bool directoryCopied = copyPath(workflowDir1, workflowDir2, true);
+    if (directoryCopied ==  false) {
+      QString err = QString("SimCenterUQResultsSurrogate::onSaveModelClicked - copyPath failed from : ") + workflowDir1 + QString(" to ") + workflowDir2;
+      errorMessage(err);
+    }
 
     lastPath =  QFileInfo(fileName).path();
 }

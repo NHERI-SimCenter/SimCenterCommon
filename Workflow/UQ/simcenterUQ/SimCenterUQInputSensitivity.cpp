@@ -369,6 +369,8 @@ void SimCenterUQInputSensitivity::showAdvancedOptions(bool tog)
 
 
 int SimCenterUQInputSensitivity::processResults(QString &filenameResults, QString &filenameTab) {
+     Q_UNUSED(filenameResults);
+    Q_UNUSED(filenameTab);
     return 0;
 }
 

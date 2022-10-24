@@ -120,6 +120,7 @@ DakotaInputOptimization::DakotaInputOptimization(QWidget *parent)
 void
 DakotaInputOptimization::comboboxItemChanged(QString value)
 {
+    Q_UNUSED(value);
     return;
 }
 
@@ -226,7 +227,7 @@ DakotaInputOptimization::inputFromJSON(QJsonObject &jsonObject)
 void
 DakotaInputOptimization::methodChanged(const QString &arg1)
 {
-
+    Q_UNUSED(arg1);
 }
 
 UQ_Results *

@@ -71,6 +71,7 @@ UQpyEngine::outputToJSON( QJsonObject &rvObject) {
 
 bool
 UQpyEngine::inputFromJSON(QJsonObject &rvObject) {
+    Q_UNUSED(rvObject);
     return true;
 }
 

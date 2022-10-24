@@ -54,7 +54,7 @@ GlobalReliabilityWidget::GlobalReliabilityWidget(QWidget *parent)
      QGridLayout *layout = new QGridLayout();
 
     // create layout label and entry for # samples
-    QHBoxLayout *methodLayout= new QHBoxLayout;
+    //QHBoxLayout *methodLayout= new QHBoxLayout;
     QLabel *label2 = new QLabel();
     label2->setText(QString("GP Approximation"));
     gpApproximation = new QComboBox();

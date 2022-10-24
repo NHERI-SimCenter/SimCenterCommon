@@ -64,13 +64,13 @@ public:
     int getNumExp(QString &calFileName);
 
     int numExperiments;
-
-    void advancedOptionsSlotFunction(bool tog);
-
     int requiredSampleSize = 100;
     int recommendedSampleSize = 200;
 
     bool checkSampleSize(int sampleSize);
+
+public slots:
+     void advancedOptionsSlotFunction(bool tog);
 
 private:
   QLineEdit *numParticles;

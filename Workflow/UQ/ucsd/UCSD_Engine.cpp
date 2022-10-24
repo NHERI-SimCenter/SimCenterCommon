@@ -58,6 +58,7 @@ UCSD_Engine::UCSD_Engine(UQ_EngineType type, QWidget *parent)
 : UQ_Engine(parent), theCurrentMethod(0)
 {
 
+    Q_UNUSED(type);
     QString classType("Uncertain");
     QVBoxLayout *layout = new QVBoxLayout();
 

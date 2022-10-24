@@ -185,6 +185,8 @@ int CustomUQ_Results::processResults(QString &dirName)
 
 int CustomUQ_Results::processResults(QString &filenameOUT, QString &filenameTAB)
 {
+    Q_UNUSED(filenameOUT);
+
     statusMessage(tr("Processing Results"));
 
     this->clear();
@@ -538,6 +540,7 @@ CustomUQ_Results::onSaveSpreadsheetClicked()
 
 void CustomUQ_Results::onSpreadsheetCellClicked(int row, int col)
 {
+    Q_UNUSED(row);
     mLeft = spreadsheet->wasLeftKeyPressed();
 
     chart->removeAllSeries();

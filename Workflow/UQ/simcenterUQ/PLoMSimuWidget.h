@@ -75,6 +75,7 @@ public:
     // KZ set event type
     void setEventType(QString type);
     void SetComboBoxItemEnabled(QComboBox * comboBox, int index, bool enabled);
+
 public slots:
     void setOutputDir(bool tog);
     void setConstraints(bool tog);
@@ -82,8 +83,10 @@ public slots:
     void setDiffMaps(bool tog);
     void onTextChanged(const QString &arg1);
     void onEventTypeChanged(QString typeEVT);
+
 signals:
     void eventTypeChanged(QString typeEVT);
+
 private:
     QLineEdit *ratioNewSamples;
     QLineEdit *epsilonPCA;

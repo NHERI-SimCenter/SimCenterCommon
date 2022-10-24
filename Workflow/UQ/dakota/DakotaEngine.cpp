@@ -147,10 +147,13 @@ DakotaEngine::DakotaEngine(UQ_EngineType type, QWidget *parent)
     this->setLayout(layout);
     theCurrentEngine=theSamplingEngine;
 
-    connect(theEngineSelectionBox, SIGNAL(currentTextChanged(QString&)), this,
-          SLOT(engineSelectionChanged(QString&)));
+    connect(theEngineSelectionBox, SIGNAL(currentTextChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
 
-    connect(theSamplingEngine, SIGNAL(onNumModelsChanged(int)), this, SLOT(numModelsChanged(int)));
+
+    //connect(theEngineSelectionBox, &QComboBox::currentTextChanged, this,
+    //      SLOT(engineSelectionChanged(QString&)));
+
+    // connect(theSamplingEngine, SIGNAL(onNumModelsChanged(int)), this, SLOT(numModelsChanged(int)));
 
     theCurrentEngine = theSamplingEngine;
 }
