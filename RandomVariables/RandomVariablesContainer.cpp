@@ -83,7 +83,7 @@ RandomVariablesContainer::RandomVariablesContainer(QWidget *parent)
     
     verticalLayout = new QVBoxLayout();
     this->setLayout(verticalLayout);
-    verticalLayout->setMargin(0);
+    // verticalLayout->setMargin(0);
     this->makeRV();
     x_button_clicked_before = false;
 }
@@ -473,7 +473,7 @@ RandomVariablesContainer::makeRV(void)
 
      //verticalLayout->addStretch();
 
-     verticalLayout->setMargin(0);
+     // verticalLayout->setMargin(0);
 
 }
 

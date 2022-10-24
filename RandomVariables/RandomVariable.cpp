@@ -83,7 +83,7 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
 
     mainLayout = new QGridLayout(this);
     mainLayout->setSpacing(0);
-    mainLayout->setMargin(0);
+    // mainLayout->setMargin(0);
     mainLayout->setHorizontalSpacing(10);
 
     //

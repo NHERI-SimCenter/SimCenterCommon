@@ -57,7 +57,7 @@ UniformDistribution::UniformDistribution(QString inpType, QWidget *parent) :Rand
     // set some defaults, and set layout for widget to be the horizontal layout
     mainLayout->setHorizontalSpacing(10);
     mainLayout->setVerticalSpacing(0);
-    mainLayout->setMargin(0);
+    // mainLayout->setMargin(0);
 
     showPlotButton = NULL; // new QPushButton("Show PDF");
 

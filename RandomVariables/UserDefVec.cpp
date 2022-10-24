@@ -55,7 +55,7 @@ UserDefVec::UserDefVec(QWidget *parent) :RandomVariableDistribution(parent)
     // set some defaults, and set layout for widget to be the horizontal layout
     mainLayout->setHorizontalSpacing(10);
     mainLayout->setVerticalSpacing(0);
-    mainLayout->setMargin(0);
+    // mainLayout->setMargin(0);
     scriptDir = this->createTextEntry(tr("Script File"), mainLayout,0);
     scriptDir->setMinimumWidth(200);
     scriptDir->setMaximumWidth(200);
