@@ -118,8 +118,8 @@ SimCenterAppSelection::initializeWidget(QString label) {
 
     this->setLayout(layout);
 
-    connect(theSelectionCombo, SIGNAL(currentIndexChanged(QString)),
-            this, SLOT(selectionChangedSlot(QString)));
+    connect(theSelectionCombo, SIGNAL(currentTextChanged(const QString &)),
+            this, SLOT(selectionChangedSlot(const QString &)));
 }
 
 
@@ -422,7 +422,12 @@ SimCenterAppSelection::selectionChangedSlot(const QString &selectedText)
 void
 SimCenterAppSelection::setCurrentlyViewable(bool status) {
     viewableStatus = status;
-    theCurrentSelection->setCurrentlyViewable(viewableStatus);
+    if (theCurrentSelection != 0)
+        theCurrentSelection->setCurrentlyViewable(viewableStatus);
+    else {
+      QString message = QString("SimCenterAppSelection: ") + jsonKeyword +  QString(" no current selection! ");
+      errorMessage(message);
+    }
 }
 
 SimCenterAppWidget *
