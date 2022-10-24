@@ -123,7 +123,7 @@ SimCenterUQInputSensitivity::SimCenterUQInputSensitivity(QWidget *parent)
     //
 
     advancedLayout= new QHBoxLayout;
-    advancedLayout->setMargin(0);
+    //advancedLayout->setMargin(0);
     advancedLayout->setAlignment(Qt::AlignTop);
 
     advancedLabel = new QLabel(QString("Advanced option for global sensitivity analysis"));
@@ -141,7 +141,7 @@ SimCenterUQInputSensitivity::SimCenterUQInputSensitivity(QWidget *parent)
     lineB->setMaximumWidth(300);
     advancedLayout2->addWidget(lineB,0,0,1,-1);
 
-    advancedLayout2->setMargin(0);
+    //advancedLayout2->setMargin(0);
     QLabel *label3 = new QLabel(QString("Get group Sobol indicies"));
     RVvarList = new QLineEdit();
     RVvarList->setPlaceholderText("(optional) e.g. {RV_name1},{RV_name1,RV_name2,RV_name6}");
@@ -152,7 +152,7 @@ SimCenterUQInputSensitivity::SimCenterUQInputSensitivity(QWidget *parent)
     //advancedLayout2->setRowStretch(3,1);
     //advancedLayout2->setColumnStretch(2,1);
 
-    advancedLayout2->setMargin(0);
+    //advancedLayout2->setMargin(0);
     QLabel *label4 = new QLabel(QString("Perform PCA with QoI"));
     performPCA = new QComboBox();
     performPCA->addItem("Automatic");

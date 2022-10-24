@@ -40,7 +40,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include <QtCharts/QChart>
-using namespace QtCharts;
+//using namespace QtCharts;
 
 #include "MyTableWidget.h"
 #include "RandomVariablesContainer.h"

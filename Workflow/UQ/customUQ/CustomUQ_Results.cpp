@@ -77,7 +77,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QVXYModelMapper>
-using namespace QtCharts;
+//using namespace QtCharts;
 #include <math.h>
 #include <QValueAxis>
 
@@ -518,7 +518,7 @@ CustomUQ_Results::onSaveSpreadsheetClicked()
 	  else
             stream <<theHeadings.at(j)<<", ";
         }
-        stream <<endl;
+        stream <<Qt::endl;
         for (int i=0; i<rowCount; i++)
         {
             for (int j=0; j<columnCount; j++)
@@ -530,7 +530,7 @@ CustomUQ_Results::onSaveSpreadsheetClicked()
 		else
 		  stream << value << ", ";		  
             }
-            stream<<endl;
+            stream<<Qt::endl;
         }
 	file.close();
     }

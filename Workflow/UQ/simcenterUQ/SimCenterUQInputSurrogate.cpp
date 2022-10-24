@@ -116,7 +116,7 @@ SimCenterUQInputSurrogate::SimCenterUQInputSurrogate(QWidget *parent)
 
     this->setLayout(layout);
 
-    connect(inpMethod, SIGNAL(currentIndexChanged(QString)), this, SLOT(onIndexChanged(QString)));
+    connect(inpMethod, SIGNAL(currentTextChanged(QString)), this, SLOT(onIndexChanged(QString)));
 }
 
 void SimCenterUQInputSurrogate::onIndexChanged(const QString &text)

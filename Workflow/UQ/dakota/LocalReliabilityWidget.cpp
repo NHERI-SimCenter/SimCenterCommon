@@ -61,7 +61,7 @@ LocalReliabilityWidget::LocalReliabilityWidget(QWidget *parent)
   method->addItem("Mean Value (MVFOSM)");
   //method->addItem("Most Probable Point");
   method->addItem("Design Point (Most Probable Point)");
-  connect(method, SIGNAL(currentIndexChanged(QString)), this, SLOT(onMethodSelectionChanged(QString)));
+  connect(method, SIGNAL(currentTextChanged(QString&)), this, SLOT(onMethodSelectionChanged(QString&)));
   layout->addWidget(method, 0, 2);
 
   QLabel *label3 = new QLabel();
@@ -133,7 +133,7 @@ LocalReliabilityWidget::~LocalReliabilityWidget()
 
 }
 
-void LocalReliabilityWidget::onMethodSelectionChanged(const QString &method)
+void LocalReliabilityWidget::onMethodSelectionChanged(QString &method)
 {
     if (method == QString("Mean Value")) {
         for(int i = 1; i < 3; i++) {

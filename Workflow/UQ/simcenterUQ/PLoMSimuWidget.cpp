@@ -93,7 +93,7 @@ PLoMSimuWidget::PLoMSimuWidget(QWidget *parent)
     typeLayout->addStretch();
     layout->addWidget(typeGroupBox,wid++);
     layout->setSpacing(0);
-    layout->setMargin(0);
+    //    layout->setMargin(0);
     // sampling method
     samplingMethodGroup = new QWidget(this);
     QHBoxLayout *methodLayout= new QHBoxLayout;
@@ -131,7 +131,8 @@ PLoMSimuWidget::PLoMSimuWidget(QWidget *parent)
     //samplingStackedWidget->addWidget(theMFMC);
     // set current widget to index 0
     theCurrentMethod = theLHS;
-    layout->addWidget(samplingStackedWidget,wid++,0);
+    //    layout->addWidget(samplingStackedWidget,wid++,0);
+    layout->addWidget(samplingStackedWidget, 1, Qt::AlignLeft);
     connect(samplingMethod, SIGNAL(currentTextChanged(QString)), this, SLOT(onTextChanged(QString)));
 
     // input data widget
@@ -172,7 +173,8 @@ PLoMSimuWidget::PLoMSimuWidget(QWidget *parent)
     m_stackedWidgets->addWidget(rawDataGroup);
     m_typeButtonsGroup->button(0)->setChecked(true);
     m_stackedWidgets->setCurrentIndex(0);
-    connect(m_typeButtonsGroup, QOverload<int>::of(&QButtonGroup::buttonReleased), [this](int id)
+
+    connect(m_typeButtonsGroup, &QButtonGroup::idReleased, this, [this](int id)
     {
         if(id == 0) {
             m_typeButtonsGroup->button(0)->setChecked(true);

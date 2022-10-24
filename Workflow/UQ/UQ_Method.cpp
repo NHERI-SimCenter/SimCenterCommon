@@ -64,6 +64,7 @@ UQ_Method::setRV_Defaults(void)
 
 void
 UQ_Method::setEventType(QString typeEVT) {
+    Q_UNUSED(typeEVT);
 
 }
 

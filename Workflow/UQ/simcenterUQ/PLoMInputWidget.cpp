@@ -142,7 +142,7 @@ PLoMInputWidget::PLoMInputWidget(QWidget *parent)
     m_stackedWidgets->addWidget(preTrainGroup);
     m_typeButtonsGroup->button(0)->setChecked(true);
     m_stackedWidgets->setCurrentIndex(0);
-    connect(m_typeButtonsGroup, QOverload<int>::of(&QButtonGroup::buttonReleased), [this](int id)
+    connect(m_typeButtonsGroup, &QButtonGroup::idReleased, [this](int id)
     {
         if(id == 0) {
             m_typeButtonsGroup->button(0)->setChecked(true);

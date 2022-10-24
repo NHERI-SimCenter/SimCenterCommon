@@ -67,7 +67,7 @@ UQ_Engine::getMethodName() {
 
 void
 UQ_Engine::setEventType(QString type) {
-
+    Q_UNUSED(type);
 }
 
 

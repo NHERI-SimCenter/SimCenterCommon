@@ -98,7 +98,7 @@ UCSD_Engine::UCSD_Engine(UQ_EngineType type, QWidget *parent)
     theCurrentMethod=theTMMC;
 
     connect(theMethodSelection,
-	    SIGNAL(currentIndexChanged(QString)),
+	    SIGNAL(currentTextChanged(QString)),
 	    this,
         SLOT(methodChanged(QString)));
 }

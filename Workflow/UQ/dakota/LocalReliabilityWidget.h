@@ -59,7 +59,7 @@ public:
     int getNumberTasks(void);
 
 public slots:
-    void onMethodSelectionChanged(const QString &method);
+    void onMethodSelectionChanged(QString &method);
 
 private:
     QGridLayout *layout;

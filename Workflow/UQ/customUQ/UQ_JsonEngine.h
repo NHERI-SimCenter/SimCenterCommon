@@ -58,17 +58,17 @@ public:
   virtual ~UQ_JsonEngine();
 
   int getMaxNumParallelTasks(void) override;
-  bool outputToJSON(QJsonObject &jsonObject);
-  bool inputFromJSON(QJsonObject &jsonObject);
-  bool outputAppDataToJSON(QJsonObject &jsonObject);
-  bool inputAppDataFromJSON(QJsonObject &jsonObject);
+  bool outputToJSON(QJsonObject &jsonObject) override;
+  bool inputFromJSON(QJsonObject &jsonObject) override;
+  bool outputAppDataToJSON(QJsonObject &jsonObject) override;
+  bool inputAppDataFromJSON(QJsonObject &jsonObject) override;
 
   void setRV_Defaults(void) override;
   UQ_Results * getResults(void) override;
   
   QString getProcessingScript() override;
   QString getMethodName() override;  
-  bool copyFiles(QString &fileDir);
+  bool copyFiles(QString &fileDir) override;
 
 signals:
   void onUQ_EngineChanged();    

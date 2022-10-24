@@ -132,7 +132,7 @@ SimCenterUQEngine::SimCenterUQEngine(UQ_EngineType type, QWidget *parent)
 //    this->setLayout(layout);
 //    theCurrentEngine = theSensitivityEngine;
 
-    connect(theMethodSelectionBox, SIGNAL(currentIndexChanged(QString)), this,
+    connect(theMethodSelectionBox, SIGNAL(currentTextChanged(QString&)), this,
           SLOT(methodSelectionChanged(QString)));
 
     //connect(theSamplingEngine, SIGNAL(onNumModelsChanged(int)), this, SLOT(numModelsChanged(int)));

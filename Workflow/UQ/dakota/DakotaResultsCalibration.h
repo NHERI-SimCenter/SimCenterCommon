@@ -42,7 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <UQ_Results.h>
 #include <QtCharts/QChart>
 
-using namespace QtCharts;
+//using namespace QtCharts;
 
 class QTextEdit;
 class QTabWidget;

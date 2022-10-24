@@ -48,7 +48,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <ResultsDataChart.h>
 
 
-using namespace QtCharts;
+//using namespace QtCharts;
 
 class QTextEdit;
 class QTabWidget;

@@ -67,7 +67,6 @@ DakotaEngine::DakotaEngine(UQ_EngineType type, QWidget *parent)
 
     QVBoxLayout *layout = new QVBoxLayout();
 
-    bool doForward = true;
     bool doSensitivity = true;
     bool doReliability = true;
     bool doCalibration = true;        
@@ -148,8 +147,8 @@ DakotaEngine::DakotaEngine(UQ_EngineType type, QWidget *parent)
     this->setLayout(layout);
     theCurrentEngine=theSamplingEngine;
 
-    connect(theEngineSelectionBox, SIGNAL(currentIndexChanged(QString)), this,
-          SLOT(engineSelectionChanged(QString)));
+    connect(theEngineSelectionBox, SIGNAL(currentTextChanged(QString&)), this,
+          SLOT(engineSelectionChanged(QString&)));
 
     connect(theSamplingEngine, SIGNAL(onNumModelsChanged(int)), this, SLOT(numModelsChanged(int)));
 
@@ -164,7 +163,7 @@ DakotaEngine::~DakotaEngine()
 
 void DakotaEngine::engineSelectionChanged(const QString &arg1)
 {
-    UQ_Engine *theOldEngine = theCurrentEngine;
+    // UQ_Engine *theOldEngine = theCurrentEngine;
 
     if ((arg1 == QString("Sampling")) || (arg1 == QString("Forward Propagation"))) {
       

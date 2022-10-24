@@ -45,7 +45,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QPushButton>
 
 
-using namespace QtCharts;
+//using namespace QtCharts;
 
 class QTextEdit;
 class QTabWidget;
