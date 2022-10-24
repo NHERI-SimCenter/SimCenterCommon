@@ -13,8 +13,12 @@
 #include <Qt3DRender/QViewport>
 #include <Qt3DRender/QFrameGraphNode>
 #include <Qt3DRender/QRenderAspect>
-//#include <Qt3DRender/QBuffer>
-//#include <Qt3DRender/QAttribute>
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#include <Qt3DRender/QBuffer>
+#include <Qt3DRender/QAttribute>
+#endif
+
 #include <Qt3DRender/QEffect>
 #include <Qt3DRender/QTechnique>
 #include <Qt3DRender/QPointSize>
@@ -160,10 +164,31 @@ GraphicView2D::drawPoint(int tag, float x1, float y1, int numPixels, float r, fl
     *positions++ = y1;
     *positions++ = 0;
 
-    auto *coordsBuffer = new Qt3DCore::QBuffer();
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+     auto *coordsBuffer = new Qt3DRender::QBuffer();    
+#else
+     auto *coordsBuffer = new Qt3DCore::QBuffer();    
+#endif
+
+    
     coordsBuffer->setData(coordsBytes);
 
-    auto pointVerticesAttribute = new Qt3DCore::QAttribute(
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    
+     auto pointVerticesAttribute = new Qt3DRender::QAttribute(
+		coordsBuffer,
+                Qt3DRender::QAttribute::defaultPositionAttributeName(),
+                Qt3DRender::QAttribute::Float,
+                3,
+                1,
+                0,
+                3 * sizeof (float));
+     
+     auto pointGeometry = new Qt3DRender::QGeometry();
+
+#else
+     
+     auto pointVerticesAttribute = new Qt3DCore::QAttribute(
 		coordsBuffer,
                 Qt3DCore::QAttribute::defaultPositionAttributeName(),
                 Qt3DCore::QAttribute::Float,
@@ -172,10 +197,14 @@ GraphicView2D::drawPoint(int tag, float x1, float y1, int numPixels, float r, fl
                 0,
                 3 * sizeof (float));
 
-    auto pointGeometry = new Qt3DCore::QGeometry();
-    pointGeometry->addAttribute(pointVerticesAttribute);
+     auto pointGeometry = new Qt3DCore::QGeometry();
 
-    auto pointRenderer = new Qt3DRender::QGeometryRenderer();
+#endif
+     
+     pointGeometry->addAttribute(pointVerticesAttribute);
+     auto pointRenderer = new Qt3DRender::QGeometryRenderer();         
+
+
     pointRenderer->setGeometry(pointGeometry);
     pointRenderer->setFirstVertex(0);
     pointRenderer->setVertexCount(1);
@@ -255,8 +284,11 @@ GraphicView2D::drawLine(int tag, float x1, float y1, float x2, float y2, float t
         resetCamera = true;
         maxY = y2;
     }
-
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    auto *geometry = new Qt3DRender::QGeometry();
+#else 
     auto *geometry = new Qt3DCore::QGeometry();
+#endif
 
     // position vertices (start and end)
     QByteArray bufferBytes;
@@ -268,15 +300,28 @@ GraphicView2D::drawLine(int tag, float x1, float y1, float x2, float y2, float t
     *positions++ = x2;
     *positions++ = y2;
     *positions++ = 0;
+    
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    
+    auto *buf = new Qt3DRender::QBuffer(geometry);
+    buf->setData(bufferBytes);    
+    auto *positionAttribute = new Qt3DRender::QAttribute(geometry);
+    positionAttribute->setName(Qt3DRender::QAttribute::defaultPositionAttributeName());
+    positionAttribute->setVertexBaseType(Qt3DRender::QAttribute::Float);
+    positionAttribute->setVertexSize(3);
+    positionAttribute->setAttributeType(Qt3DRender::QAttribute::VertexAttribute);    
+#else
 
     auto *buf = new Qt3DCore::QBuffer(geometry);
-    buf->setData(bufferBytes);
-
+    buf->setData(bufferBytes);    
     auto *positionAttribute = new Qt3DCore::QAttribute(geometry);
     positionAttribute->setName(Qt3DCore::QAttribute::defaultPositionAttributeName());
     positionAttribute->setVertexBaseType(Qt3DCore::QAttribute::Float);
     positionAttribute->setVertexSize(3);
-    positionAttribute->setAttributeType(Qt3DCore::QAttribute::VertexAttribute);
+    positionAttribute->setAttributeType(Qt3DCore::QAttribute::VertexAttribute);    
+
+#endif
+
     positionAttribute->setBuffer(buf);
     positionAttribute->setByteStride(3 * sizeof(float));
     positionAttribute->setCount(2);
@@ -289,12 +334,20 @@ GraphicView2D::drawLine(int tag, float x1, float y1, float x2, float y2, float t
     *indices++ = 0;
     *indices++ = 1;
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    auto *indexBuffer = new Qt3DRender::QBuffer(geometry);
+    indexBuffer->setData(indexBytes);
+    auto *indexAttribute = new Qt3DRender::QAttribute(geometry);
+    indexAttribute->setVertexBaseType(Qt3DRender::QAttribute::UnsignedInt);
+    indexAttribute->setAttributeType(Qt3DRender::QAttribute::IndexAttribute);    
+#else
     auto *indexBuffer = new Qt3DCore::QBuffer(geometry);
     indexBuffer->setData(indexBytes);
-
     auto *indexAttribute = new Qt3DCore::QAttribute(geometry);
     indexAttribute->setVertexBaseType(Qt3DCore::QAttribute::UnsignedInt);
-    indexAttribute->setAttributeType(Qt3DCore::QAttribute::IndexAttribute);
+    indexAttribute->setAttributeType(Qt3DCore::QAttribute::IndexAttribute);    
+#endif
+
     indexAttribute->setBuffer(indexBuffer);
     indexAttribute->setCount(2);
     geometry->addAttribute(indexAttribute); // We add the indices linking the points in the geometry
