@@ -33,11 +33,11 @@ INCLUDEPATH += $$PWD/EDP
 SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/UQ/UQ_Results.cpp \
     $$PWD/UQ/UQ_Engine.cpp \
-    $$PWD/UQ/uqpy/UQpyEngine.cpp \
     $$PWD/UQ/UQ_Method.cpp \
     $$PWD/UQ/simcenterUQ/PLoMSimuWidget.cpp \
     $$PWD/UQ/customUQ/CustomUQ_Results.cpp \
-    $$PWD/UQ/customUQ/UQ_JsonEngine.cpp \  \
+    $$PWD/UQ/customUQ/UQ_JsonEngine.cpp \
+    $$PWD/UQ/uqpy/UQpyEngine.cpp\
     $$PWD/UQ/uqpy/UQpyResultsSubsetSim.cpp \
     $$PWD/UQ/uqpy/UQpySubsetSimulation.cpp \
     $$PWD/UQ/common/ResultsDataChart.cpp \

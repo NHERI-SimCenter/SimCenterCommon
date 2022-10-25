@@ -52,6 +52,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <UQpyEngine.h>
 #include <UQ_JsonEngine.h>
 #include <JsonConfiguredUQEngine.h>
+#include <UQpyEngine.h>
 
 UQ_EngineSelection::UQ_EngineSelection(bool includeNone,
 				       QString assetType,
@@ -78,6 +79,7 @@ UQ_EngineSelection::initialize(bool includeNone, UQ_EngineType type)
     theSimCenterUQEngine = new SimCenterUQEngine(type);
     theCustomEngine = new UQ_JsonEngine(type);
     theUCSD_Engine = new UCSD_Engine(type);
+    theUQpyEngine = new UQpyEngine(type);
 
     this->addComponent(QString("Dakota"), QString("Dakota-UQ"), theDakotaEngine);
     this->addComponent(QString("SimCenterUQ"), QString("SimCenter-UQ"), theSimCenterUQEngine);
@@ -85,6 +87,7 @@ UQ_EngineSelection::initialize(bool includeNone, UQ_EngineType type)
     if (type == All)
     {
       this->addComponent(QString("UCSD-UQ"), QString("UCSD-UQ"), theUCSD_Engine);
+      this->addComponent(QString("UQpy"), QString("UQpy"), theUQpyEngine);
     }
 
     if (includeNone) {
@@ -102,6 +105,7 @@ UQ_EngineSelection::initialize(bool includeNone, UQ_EngineType type)
     connect(theSimCenterUQEngine, SIGNAL(onUQ_EngineChanged()), this, SLOT(engineSelectionChanged()));
     connect(theCustomEngine, SIGNAL(onUQ_EngineChanged()), this, SLOT(engineSelectionChanged()));
     connect(theUCSD_Engine, SIGNAL(onUQ_EngineChanged()), this, SLOT(engineSelectionChanged()));
+    connect(theUQpyEngine, SIGNAL(onUQ_EngineChanged()), this, SLOT(engineSelectionChanged()));
 
     // connect queryEVT
     connect(theSimCenterUQEngine, SIGNAL(queryEVT()), this, SLOT(relayQueryEVT()));

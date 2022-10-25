@@ -1,6 +1,4 @@
 // Written: fmckenna
-// Written: Dimitris
-// Written: Aakash
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -38,6 +36,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
+// Written: fmckenna
+// Modified: Dimitris, Aakash
+
 #include "UQpySubsetSimulation.h"
 #include <UQpyResultsSubsetSim.h>
 #include <RandomVariablesContainer.h>
@@ -62,7 +63,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //#include <SubsetSimulationWidget.h>
 
 UQpySubsetSimulation::UQpySubsetSimulation(QWidget *parent)
-: UQ_Engine(parent)
+: UQ_Method(parent)
 {
     layout = new QVBoxLayout();
     mLayout = new QVBoxLayout();
@@ -100,4 +101,40 @@ UQpySubsetSimulation::UQpySubsetSimulation(QWidget *parent)
 
     this->setLayout(layout);
 
+}
+
+UQpySubsetSimulation::~UQpySubsetSimulation() {
+
+}
+
+bool
+UQpySubsetSimulation::outputToJSON(QJsonObject &jsonObject) {
+    return true;
+}
+
+bool
+UQpySubsetSimulation::inputFromJSON(QJsonObject &jsonObject){
+    return true;
+}
+
+bool
+UQpySubsetSimulation::outputAppDataToJSON(QJsonObject &jsonObject) {
+    return true;
+}
+
+bool
+UQpySubsetSimulation::inputAppDataFromJSON(QJsonObject &jsonObject) {
+    return true;
+}
+
+
+void
+UQpySubsetSimulation::setRV_Defaults(void) {
+
+}
+
+
+int
+UQpySubsetSimulation::getMaxNumParallelTasks(void) {
+    return 1;
 }

@@ -58,7 +58,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <UQpySubsetSimulation.h>
 
 
-UQpyEngine::UQpyEngine(QWidget *parent)
+UQpyEngine::UQpyEngine(UQ_EngineType type, QWidget *parent)
     : UQ_Engine(parent)
 {
   /*************************  at some point need to redo so no new
@@ -104,6 +104,15 @@ UQ_Results *UQpyEngine::getResults(void) {
 void
 UQpyEngine::clear(void) {
     return;
+}
+
+void
+UQpyEngine::setRV_Defaults(void) {
+  RandomVariablesContainer *theRVs = RandomVariablesContainer::getInstance();
+  QString classType = "Uncertain";
+  QString engineType = "UQpy";
+
+  theRVs->setDefaults(engineType, classType, Normal);
 }
 
 

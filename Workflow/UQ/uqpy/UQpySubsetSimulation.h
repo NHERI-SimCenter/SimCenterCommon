@@ -37,7 +37,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-#include <UQ_Engine.h>
+#include <UQ_Method.h>
+#include <UQ_Results.h>
 
 #include <QGroupBox>
 #include <QVector>
@@ -52,31 +53,29 @@ class UQpyResultsSubsetSim;
 class QStackedWidget;
 
 
-class UQpySubsetSimulation : public UQ_Engine
+class UQpySubsetSimulation : public UQ_Method
 {
     Q_OBJECT
 public:
-  explicit UQpySubsetSimulation(QWidget *parent = 0);
-~UQpySubsetSimulation();
+    explicit UQpySubsetSimulation(QWidget *parent = 0);
+    ~UQpySubsetSimulation();
 
     bool outputToJSON(QJsonObject &jsonObject);
     bool inputFromJSON(QJsonObject &jsonObject);
     bool outputAppDataToJSON(QJsonObject &jsonObject);
     bool inputAppDataFromJSON(QJsonObject &jsonObject);
+    void setRV_Defaults(void);
+    int getMaxNumParallelTasks(void);
 
     UQ_Results *getResults(void);
-    void setRV_Defaults(void);
-
-      int getMaxNumParallelTasks(void);
-
-      QString getMethodName();
+    QString getMethodName();
 
 signals:
 
 public slots:
-   void clear(void);
-   void onTextChanged(const QString &arg1);
-   void numModelsChanged(int numModels);
+//   void clear(void);
+//   void onTextChanged(const QString &arg1);
+//   void numModelsChanged(int numModels);
 
 private:
     QVBoxLayout *layout;
