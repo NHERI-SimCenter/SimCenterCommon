@@ -59,7 +59,7 @@ MonteCarloInputSimWidget::MonteCarloInputSimWidget(QWidget *parent)
     //
 
     pairedRVLayout= new QHBoxLayout;
-    pairedRVLayout->setMargin(0);
+    //pairedRVLayout->setMargin(0);
     pairedRVLayout->setAlignment(Qt::AlignTop);
 
     pairedRVLabel = new QLabel();
@@ -78,7 +78,7 @@ MonteCarloInputSimWidget::MonteCarloInputSimWidget(QWidget *parent)
     lineA->setMaximumWidth(300);
     pairedRVLayout2->addWidget(lineA,0,0,1,-1);
 
-    pairedRVLayout2->setMargin(0);
+    //pairedRVLayout2->setMargin(0);
     QLabel *label2 = new QLabel(QString("RV data groups"));
     RVdataList = new QLineEdit();
     RVdataList->setPlaceholderText("e.g. {RV_name1,RV_name2},{RV_name5,RV_name6,RV_name8}");

@@ -86,7 +86,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QVXYModelMapper>
 #include <QtCharts/QLegendMarker>
-using namespace QtCharts;
+//using namespace QtCharts;
 #include <math.h>
 #include <QValueAxis>
 #include <QLogValueAxis>
@@ -339,6 +339,10 @@ SimCenterUQResultsPLoM::onSaveModelClicked()
     QString workflowDir1 = workingDir+QString("templatedir");
     QString workflowDir2 = path+QString("/templatedir_SIM");
     bool directoryCopied = copyPath(workflowDir1, workflowDir2, true);
+    if (directoryCopied == false) {
+        QString err = QString("SimCenterUQResultsPLoM::onSaveModelClicked() - files not copied");
+        errorMessage(err);
+    }
 
     lastPath =  QFileInfo(fileName).path();
 
@@ -962,7 +966,7 @@ void SimCenterUQResultsPLoM::summarySurrogate(QScrollArea *&sa)
         QScatterSeries *series_KDE = new QScatterSeries;
         QLineSeries *l_KDE = new QLineSeries;
         QLineSeries *l_cutoff_kde = new QLineSeries;
-        int alpha_kde = 200;
+        //int alpha_kde = 200;
         series_KDE->setMarkerSize(10.0);
         series_KDE->setColor(QColor(0, 114, 178, alpha));
         series_KDE->setBorderColor(QColor(255,255,255,0));

@@ -131,7 +131,7 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     QGridLayout *theGpAdvancedWidgetLayout = new QGridLayout();
     theGpAdvancedWidgetGroup -> setLayout(theGpAdvancedWidgetLayout);
     theGpAdvancedWidgetGroup -> setVisible(false);
-    theGpAdvancedWidgetLayout ->setMargin(0);
+    //theGpAdvancedWidgetLayout ->setMargin(0);
     int aid =0;
 
 
@@ -252,7 +252,7 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     QGridLayout *theExistingWidgetLayout = new QGridLayout();
     theExistingWidgetGroup -> setLayout(theExistingWidgetLayout);
     theExistingWidgetGroup -> setVisible(false);
-    theExistingWidgetLayout ->setMargin(0);
+    //theExistingWidgetLayout ->setMargin(0);
     int eid =0;
 
     layout->addWidget(theExistingCheckBox, wid++, 0, 1, 3, Qt::AlignBottom);

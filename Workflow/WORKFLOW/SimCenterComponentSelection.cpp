@@ -55,7 +55,7 @@ SimCenterComponentSelection::SimCenterComponentSelection(QWidget *parent)
 
   QHBoxLayout *horizontalLayout = new QHBoxLayout();
 
-  horizontalLayout->setMargin(0);
+  //horizontalLayout->setMargin(0);
   horizontalLayout->setContentsMargins(0,5,0,5);
   horizontalLayout->setSpacing(0);
 

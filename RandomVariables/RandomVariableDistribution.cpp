@@ -76,7 +76,7 @@ RandomVariableDistribution::createTextEntry(QString text,
     entryLayout->addWidget(res);
 
     entryLayout->setSpacing(0);
-    entryLayout->setMargin(0);
+    //    entryLayout->setMargin(0);
 
     theLayout->addLayout(entryLayout);
 

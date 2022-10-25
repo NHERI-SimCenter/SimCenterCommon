@@ -104,7 +104,7 @@ EDP_Selection::EDP_Selection(QWidget *parent)
     this->setLayout(layout);
     theCurrentEDP=theStandardEDPs;
 
-    connect(edpSelection, SIGNAL(currentIndexChanged(QString)), this,
+    connect(edpSelection, SIGNAL(currentTextChanged(QString)), this,
             SLOT(edpSelectionChanged(QString)));
 }
 

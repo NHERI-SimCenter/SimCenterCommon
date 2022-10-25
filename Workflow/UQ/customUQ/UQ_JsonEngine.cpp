@@ -60,6 +60,7 @@ UQ_JsonEngine::UQ_JsonEngine(UQ_EngineType type, QWidget *parent)
 : UQ_Engine(parent)
 {
 
+  Q_UNUSED(type);
     QVBoxLayout *layout = new QVBoxLayout();
     QHBoxLayout *applicationLayout = new QHBoxLayout();
     
@@ -148,6 +149,8 @@ UQ_JsonEngine::getMethodName() {
 
 bool
 UQ_JsonEngine::copyFiles(QString &fileDir) {
+  
+    Q_UNUSED(fileDir);
     QString googleString=QString("UQ-CustomUQ-") + this->getMethodName();
     GoogleAnalytics::ReportAppUsage(googleString);
 

@@ -62,7 +62,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QSplitter>
 #include <QMimeData>
 #include <QClipboard>
-using namespace QtCharts;
+//using namespace QtCharts;
 
 
 ResultsDataChart::ResultsDataChart(QJsonObject spread, bool isSur, int nRV, QWidget *parent)
@@ -525,7 +525,7 @@ ResultsDataChart::readTableFromJson(QJsonObject spreadsheetData) {
 void
 ResultsDataChart::readTableFromTxt(QString filename, int ndim, QStringList listRvs, int startingCol) {
 
-
+    Q_UNUSED(ndim);
         //theHeadings << "Run #";
         theHeadings << listRvs;
         spreadsheet->setHorizontalHeaderLabels(theHeadings);
@@ -541,10 +541,13 @@ ResultsDataChart::readTableFromTxt(QString filename, int ndim, QStringList listR
         const std::string delimiter3 = "\t";
         int i = 0;
         int j; // jrv
-        bool fileIsCsv = false;
-        bool header_detected = false;
+
         //int tenSecInterv = 10;
         for (std::string line; std::getline(csv, line); ) {
+
+            bool fileIsCsv = false;
+            bool header_detected = false;
+
 //            if (startingCol==1) {
 //                QModelIndex index = spreadsheet->model()->index(i, 0);
 //                spreadsheet->model()->setData(index, 0.0);
@@ -677,7 +680,7 @@ ResultsDataChart::onSaveSpreadsheetClicked()
       else
             stream <<theHeadings.at(j)<<", ";
         }
-        stream <<endl;
+        stream <<Qt::endl;
         for (int i=0; i<rowCount; i++)
         {
             for (int j=0; j<columnCount; j++)
@@ -700,7 +703,7 @@ ResultsDataChart::onSaveSpreadsheetClicked()
           stream << value << ", ";
             }
             }
-            stream<<endl;
+            stream<<Qt::endl;
         }
     file.close();
     }
@@ -784,7 +787,7 @@ ResultsDataChart::onSaveEachColumnsClicked()
            {
                QTableWidgetItem *item_value = spreadsheet->item(i,j);
                double value = item_value->text().toDouble();
-               stream << value <<endl;
+               stream << value <<Qt::endl;
            }
         file.close();
        }
@@ -815,7 +818,7 @@ ResultsDataChart::onSaveRVsClicked()
           else
                 stream <<theHeadings.at(j)<<" ";
         }
-        stream <<endl;
+        stream <<Qt::endl;
         for (int i=0; i<rowCount; i++)
         {
             for (int j=1; j<columnCount; j++)
@@ -838,7 +841,7 @@ ResultsDataChart::onSaveRVsClicked()
           stream << value << " ";
             }
             }
-            stream<<endl;
+            stream<<Qt::endl;
         }
     file.close();
     }
@@ -872,7 +875,7 @@ ResultsDataChart::onSaveQoIsClicked()
       else
             stream <<theHeadings.at(j)<<" ";
         }
-        stream <<endl;
+        stream <<Qt::endl;
         for (int i=0; i<rowCount; i++)
         {
             for (int j=nrv+1; j<columnCount; j++)
@@ -895,7 +898,7 @@ ResultsDataChart::onSaveQoIsClicked()
           stream << value << " ";
             }
             }
-            stream<<endl;
+            stream<<Qt::endl;
         }
     file.close();
     }
@@ -923,7 +926,7 @@ ResultsDataChart::onSaveSurrogateClicked()
       else
             stream <<theHeadings.at(j)<<", ";
         }
-        stream <<endl;
+        stream <<Qt::endl;
         for (int i=0; i<rowCount; i++)
         {
             for (int j=0; j<columnCount; j++)
@@ -935,7 +938,7 @@ ResultsDataChart::onSaveSurrogateClicked()
         else
           stream << value << ", ";
             }
-            stream<<endl;
+            stream<<Qt::endl;
         }
     file.close();
     }
@@ -1076,7 +1079,7 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
             double value2 = itemY->text().toDouble();
 
 
-            if ((i == 0)) {
+            if (i == 0) {
                 minX=value1;
                 maxX=value1;
                 minY=value2;
@@ -1486,7 +1489,7 @@ void ResultsDataChart::keyPressEvent(QKeyEvent * event)
         QItemSelectionModel * model = spreadsheet->selectionModel();
         QModelIndexList list = model->selectedIndexes();
 
-        qSort(list);
+        // FMK qSqrt(list);
 
         if(list.size() < 1)
             return;

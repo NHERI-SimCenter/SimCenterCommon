@@ -430,7 +430,7 @@ MDOF_BuildingModel::on_inFloors_editingFinished()
     int numStoriesText = textFloors.toInt();
 
     if (numStoriesText <= 0) {
-        inFloors->setText(QString(numStories));
+        inFloors->setText(QString::number(numStories));
         return;
     }
 
@@ -1452,7 +1452,7 @@ MDOF_BuildingModel::inputFromJSON(QJsonObject &jsonObject)
     }
 
     if (numStories <= 0) {
-        inFloors->setText(QString(numStoriesOld));
+        inFloors->setText(QString::number(numStoriesOld));
         return true;
     }
 

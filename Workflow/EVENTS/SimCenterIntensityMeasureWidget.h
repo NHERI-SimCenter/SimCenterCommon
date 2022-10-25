@@ -45,7 +45,7 @@ class QGridLayout;
 class QVBoxLayout;
 class QHBoxLayout;
 class QRadioButton;
-class QRegExpValidator;
+class QRegularExpressionValidator;
 class QLineEdit;
 
 #include <QGroupBox>
@@ -64,7 +64,7 @@ public:
     SimCenterUnitsCombo *myUnit;
     QGroupBox *myPeriods;
     QLineEdit *periodLine;
-    QRegExpValidator *LEValidator;
+    QRegularExpressionValidator *LEValidator;
 public slots:
     void handleIMChanged(const QString& newIM);
     QString checkPeriodsValid(const QString& input) const;

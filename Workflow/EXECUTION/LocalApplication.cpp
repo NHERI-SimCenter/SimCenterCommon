@@ -53,7 +53,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QProcess>
 #include <QStringList>
 #include <QString>
-#include <QStringRef>
+//#include <QStringRef>
 #include <QSettings>
 #include <SimCenterPreferences.h>
 #include <AgaveCurl.h>

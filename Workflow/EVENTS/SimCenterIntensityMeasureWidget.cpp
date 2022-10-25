@@ -54,6 +54,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <sectiontitle.h>
 #include <QLineEdit>
 #include <QDebug>
+#include <QRegularExpression>
+#include <QRegularExpressionValidator>
 
 SimCenterIntensityMeasureWidget::SimCenterIntensityMeasureWidget(QWidget* parent)
     : SimCenterWidget(parent)
@@ -114,11 +116,11 @@ SimCenterIM::SimCenterIM(SimCenterIntensityMeasureCombo *theIM, SimCenterUnitsCo
     QHBoxLayout *periodLayout = new QHBoxLayout;
     QLabel *periodLabel = new QLabel(tr("Periods:"));
     periodLine = new QLineEdit("0.5,1.0,2.0");
-    QRegExp regExpAllow("^([1-9][0-9]*|[1-9]*\\.[0-9]*|0\\.[0-9]*)*(([ ]*,[ ]*){0,1}([[1-9]*\\.[0-9]*|[1-9][0-9]*|0\\.[0-9]*))*");
-    LEValidator = new QRegExpValidator(regExpAllow,this);
+    QRegularExpression regExpAllow("^([1-9][0-9]*|[1-9]*\\.[0-9]*|0\\.[0-9]*)*(([ ]*,[ ]*){0,1}([[1-9]*\\.[0-9]*|[1-9][0-9]*|0\\.[0-9]*))*");
+    LEValidator = new QRegularExpressionValidator(regExpAllow,this);
     periodLayout->addWidget(periodLabel);
     periodLayout->addWidget(periodLine);
-    periodLayout->setMargin(0);
+    //periodLayout->setMargin(0);
     myPeriods = new QGroupBox();
     myPeriods->setLayout(periodLayout);
     myPeriods->setVisible(false);
@@ -126,7 +128,7 @@ SimCenterIM::SimCenterIM(SimCenterIntensityMeasureCombo *theIM, SimCenterUnitsCo
     imUnitLayout->addStretch();
     this->setLayout(imUnitLayout);
 
-    connect(myIM, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(handleIMChanged(const QString&)));
+    connect(myIM, SIGNAL(currentTextChanged(const QString&)), this, SLOT(handleIMChanged(const QString&)));
 }
 
 
@@ -154,7 +156,8 @@ QString SimCenterIM::checkPeriodsValid(const QString& input) const
     int pos = 0;
     if(LEValidator->validate(const_cast<QString&>(input), pos) != 1)
     {
-        validInput = QStringRef(&input, 0, pos-1).toString();
+        validInput = input.left(pos-1);
+        //FMK validInput = QStringRef(&input, 0, pos-1).toString();
         qDebug()<<"pos"<<pos<<" : "<<validInput;
         periodLine->setText(validInput);
     }

@@ -195,6 +195,7 @@ DakotaInputCalibration::outputToJSON(QJsonObject &jsonObject)
 void
 DakotaInputCalibration::comboboxItemChanged(QString value)
 {
+    Q_UNUSED(value);
     return;
 }
 
@@ -253,7 +254,7 @@ DakotaInputCalibration::inputFromJSON(QJsonObject &jsonObject)
 void 
 DakotaInputCalibration::methodChanged(const QString &arg1)
 {
-
+    Q_UNUSED(arg1);
 }
 
 UQ_Results *

@@ -81,7 +81,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QVXYModelMapper>
-using namespace QtCharts;
+//using namespace QtCharts;
 #include <math.h>
 #include <QValueAxis>
 
@@ -453,7 +453,7 @@ void SimCenterUQResultsSensitivity::gsaGraph(QScrollArea *&sa)
     }
     summaryLayout->setContentsMargins(0,0,0,0); // adding back
     summaryLayout->setSpacing(10);
-    summaryLayout->setMargin(10);
+    //summaryLayout->setMargin(10);
 
     QString elapsCutoff = QString::number(elaps.toDouble(), 'f', 1);
     QLabel *elapsLabel = new QLabel(QString("Elapsed time:")+elapsCutoff+QString("s"));
@@ -602,7 +602,7 @@ SimCenterUQResultsSensitivity::getGroupBox(QGroupBox *&groupBox, int nq, bool us
     chartSobol->legend()->setAlignment(Qt::AlignRight);
     trainingDataLayout->addWidget(chartView, 0,3,ncomb+1,1);
     trainingDataLayout->setSpacing(5);
-    trainingDataLayout->setMargin(10);
+    //trainingDataLayout->setMargin(10);
     trainingDataLayout->setColumnStretch(0 | 1 | 2, 1);
 
 }
@@ -729,7 +729,11 @@ SimCenterUQResultsSensitivity::inputFromJSON(QJsonObject &jsonObject)
     }
 
     if (jsonObject.contains("performedPCA")) { //
-        performedPCA=jsonObject["performedPCA"].toBool();
+        bool pPCA = jsonObject["performedPCA"].toBool();
+        if (pPCA == true)
+            performedPCA="yes";
+        else
+            performedPCA = "no";
     } else {
         performedPCA="no";
     }

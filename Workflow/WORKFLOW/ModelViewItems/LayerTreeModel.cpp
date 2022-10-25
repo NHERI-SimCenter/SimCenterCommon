@@ -43,6 +43,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QMimeData>
 #include <QStringList>
+#include <QIODevice>
 
 LayerTreeModel::LayerTreeModel(QObject *parent) : QAbstractItemModel(parent)
 {    

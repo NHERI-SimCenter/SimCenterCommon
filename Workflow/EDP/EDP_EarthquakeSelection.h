@@ -55,7 +55,7 @@ class EDP_EarthquakeSelection : public  SimCenterAppWidget
   bool inputAppDataFromJSON(QJsonObject &jsonObject) override;
   bool copyFiles(QString &destName) override;
 
-  void clear(void);
+  void clear(void) override;
 
  signals:
 

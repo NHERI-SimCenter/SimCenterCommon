@@ -240,7 +240,7 @@ InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(QWidget *parent)
     // connect(dampingRatio,SIGNAL(editingFinished()), this, SLOT(dampingEditingFinished()));
     //connect(theTolerance,SIGNAL(editingFinished()), this, SLOT(toleranceEditingFinished()));
     connect(chooseFile, SIGNAL(clicked(bool)), this, SLOT(chooseFileName()));
-    connect(theSelectionBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(changedDampingMethod(QString)));
+    connect(theSelectionBox, SIGNAL(currentTextChanged(QString)), this, SLOT(changedDampingMethod(QString)));
 
     QWidget *dummy = new QWidget();
     layout->addWidget(dummy,8,0);

@@ -149,7 +149,7 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
 
     theHighSimOptions = new QWidget();
     QGridLayout *theHighSimGrid = new QGridLayout(theHighSimOptions);
-    theHighSimGrid->setMargin(0);
+    //theHighSimGrid->setMargin(0);
 
     theHFlayout->addWidget(theHighSimButton,id_hf,1);
     theHFlayout->addWidget(theHighSimOptions,id_hf++,2,3,-1);
@@ -249,7 +249,7 @@ SurrogateMFInputWidget::SurrogateMFInputWidget(QWidget *parent)
 
     theLowSimOptions = new QWidget();
     QGridLayout *theLowSimGrid = new QGridLayout(theLowSimOptions);
-    theLowSimGrid->setMargin(0);
+    //theLowSimGrid->setMargin(0);
 
     theLFlayout->addWidget(theLowSimButton,id,1);
     theLFlayout->addWidget(theLowSimOptions,id++,2,3,-1);

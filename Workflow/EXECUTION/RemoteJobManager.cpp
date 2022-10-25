@@ -55,11 +55,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QHeaderView>
 #include <QRect>
 #include <QApplication>
-#include <QDesktopWidget>
+//#include <QDesktopWidget>
 #include <QScreen>
 #include <SimCenterPreferences.h>
 #include <QSettings>
 #include <QLabel>
+#include <QRegularExpression>
 
 #include <QMenu>
 #include <QDir>
@@ -355,7 +356,7 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 	  // download data to temp files & then process them as normal
 	  //
 	  
-	  archiveDir = archiveDir + QString("/") + inputDir.remove(QRegExp(".*\\/")); // regex to remove up till last /
+      archiveDir = archiveDir + QString("/") + inputDir.remove(QRegularExpression(".*\\/")); // regex to remove up till last /
 
          QString inputJSON = archiveDir + QString("/templatedir.zip");
          QString resultsZIP = archiveDir + QString("/results.zip");
@@ -377,7 +378,7 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
             // download data to temp files & then process them as normal
             //
 
-            archiveDir = archiveDir + QString("/") + inputDir.remove(QRegExp(".*\\/")); // regex to remove up till last /
+            archiveDir = archiveDir + QString("/") + inputDir.remove(QRegularExpression(".*\\/")); // regex to remove up till last /
 
             QString rName1 = archiveDir + QString("/inputRWHALE.json");
             QString rName2 = archiveDir + QString("/input_data.zip");

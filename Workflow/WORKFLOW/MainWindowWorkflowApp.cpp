@@ -24,7 +24,7 @@
 
 //#include <InputWidgetEE_UQ.h>
 #include <WorkflowAppWidget.h>
-#include <QDesktopWidget>
+//#include <QDesktopWidget>
 #include <QFileDialog>
 #include <QGuiApplication>
 #include <QHBoxLayout>
@@ -768,7 +768,9 @@ void MainWindowWorkflowApp::about()
     // adjust size of application window to the available display
     //
 
-    QRect rec = QApplication::desktop()->screenGeometry(this);
+    QScreen *screen = QGuiApplication::primaryScreen();
+    QRect  rec = screen->geometry();
+
     int height = 0.50*rec.height();
     int width  = 0.50*rec.width();
     dlg->resize(width, height);

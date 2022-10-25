@@ -164,7 +164,11 @@ JsonConfiguredWidget::generateWidgetLayout(const QJsonArray &inputArray,
   auto generatedWidget = new QWidget();
   QVBoxLayout * layout = new QVBoxLayout();  
 
-  for (auto const& value : inputArray) {
+  for (int i = 0; i < inputArray.size(); i++){
+          QJsonValue value = inputArray.at(i);
+          QString type = value["type"].toString();
+     //for (auto const& value : inputArray) {
+     // QString type = value["type"].toString();
     switch (getEnumIndex(value["type"].toString())) {
     case JsonWidget::Type::ComboBox: {
       auto comboBox = generateComboBox(value);

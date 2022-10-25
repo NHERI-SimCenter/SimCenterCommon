@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QTimer>
+#include <QRecursiveMutex>
 
 PythonProgressDialog *PythonProgressDialog::theInstance = 0;
 
@@ -71,7 +72,7 @@ PythonProgressDialog::PythonProgressDialog(QWidget* parent) : QDialog(parent)
 //    connect(closeButton,&QPushButton::pressed, this, &PythonProgressDialog::handleCloseButtonPress);
 //    connect(clearButton,&QPushButton::pressed, this, &PythonProgressDialog::handleClearButtonPress);
 
-    mutex = new QMutex(QMutex::Recursive);
+    mutex = new QRecursiveMutex();
 }
 
 

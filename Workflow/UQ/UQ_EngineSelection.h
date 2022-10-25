@@ -70,7 +70,7 @@ class UQ_EngineSelection : public  SimCenterAppSelection
 
  public slots:
 
-  void engineSelectionChanged(QString);
+  void engineSelectionChanged(const QString &);
 
   void relayQueryEVT(void); // added KZ
   void setEventType(QString type); // added KZ

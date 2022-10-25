@@ -167,7 +167,7 @@ UserDefinedEDP::UserDefinedEDP(QWidget *parent)
     //layout->addStretch(1.0);
 
     layout->setSpacing(0);
-    layout->setMargin(0);
+    //layout->setMargin(0);
 
     this->setLayout(layout);
     /*

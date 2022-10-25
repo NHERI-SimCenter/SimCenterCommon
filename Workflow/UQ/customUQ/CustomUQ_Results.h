@@ -45,8 +45,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QPushButton>
 #include <ResultsDataChart.h>
 
-
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 using namespace QtCharts;
+#endif
 
 class QTextEdit;
 class QTabWidget;

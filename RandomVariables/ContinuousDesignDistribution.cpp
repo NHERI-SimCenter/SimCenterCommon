@@ -53,7 +53,7 @@ ContinuousDesignDistribution::ContinuousDesignDistribution(QWidget *parent) :Ran
     // set some defaults, and set layout for widget to be the horizontal layout
     mainLayout->setHorizontalSpacing(10);
     mainLayout->setVerticalSpacing(0);
-    mainLayout->setMargin(0);
+    // mainLayout->setMargin(0);
 
     min = this->createTextEntry(tr("Lower Bound"), mainLayout, 0);
     max = this->createTextEntry(tr("Upper Bound"), mainLayout, 1);
@@ -126,6 +126,7 @@ ContinuousDesignDistribution::inputFromJSON(QJsonObject &rvObject){
 }
 bool
 ContinuousDesignDistribution::copyFiles(QString fileDir) {
+  Q_UNUSED(fileDir);
     return true;//do nothing
 }
 
