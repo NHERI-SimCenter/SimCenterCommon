@@ -45,6 +45,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <RandomVariablesContainer.h>
 #include <ConcreteBuildingModel.h>
 #include <MDOF_LU.h>
+#include <CustomPy.h>
 
 #include <QApplication>
 
@@ -66,7 +67,7 @@ SIM_Selection::SIM_Selection(bool includeC,
     SimCenterAppWidget *autosda = new SteelBuildingModel(theRVs);
     SimCenterAppWidget *concrete = new ConcreteBuildingModel(theRVs);    
     this->addComponent(QString("Steel Building Model"), QString("SteelBuildingModel"), autosda);
-    this->addComponent(QString("Concrete Building Model"), QString("ConcreteBuildingModel"), concrete);          
+    this->addComponent(QString("Concrete Building Model"), QString("ConcreteBuildingModel"), concrete);
   }
 
   SimCenterAppWidget *mdof_lu = new MDOF_LU();
@@ -76,6 +77,10 @@ SIM_Selection::SIM_Selection(bool includeC,
     SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Modeling"), QString("MultiModel-SIM"),this, this);
     this->addComponent(QString("Multi Model"), QString("MultiModel-SIM"), multi);
   }    
+
+  // KZ: adding CustomPy
+  SimCenterAppWidget *custom_py = new CustomPy();
+  this->addComponent(QString("CustomPy"), QString("CustomPyInput"), custom_py);
 }
 
 SIM_Selection::~SIM_Selection()
