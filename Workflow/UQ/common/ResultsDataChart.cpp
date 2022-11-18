@@ -458,7 +458,16 @@ ResultsDataChart::readTableFromTab(QString filenameTab) {
                 col++;
             } else if ((includesInterface == true && i != 1) || (includesInterface == false)) {
                 QModelIndex index = spreadsheet->model()->index(rowCount, col);
-                spreadsheet->model()->setData(index, std::atof(data.c_str()));
+                //spreadsheet->model()->setData(index, std::atof(data.c_str()));
+                //To display string variables..
+                QString str =data.c_str();
+                bool isNumeric ;
+                int dummy = str.toDouble(&isNumeric);
+                if (isNumeric){ // this is numeric
+                    spreadsheet->model()->setData(index, std::atof(data.c_str())); // for correct sorting
+                } else { // this is string probably..
+                    spreadsheet->model()->setData(index, data.c_str());
+                }
                 col++;
             }
         }
