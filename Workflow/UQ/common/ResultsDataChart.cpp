@@ -416,6 +416,7 @@ ResultsDataChart::readTableFromTab(QString filenameTab) {
 
 
     bool includesInterface = false;
+    int MultipleEventColumn = -1; // KZ: column index of MultipleEvent
     do {
         std::string subs;
         iss >> subs;
@@ -426,6 +427,9 @@ ResultsDataChart::readTableFromTab(QString filenameTab) {
                 else
                     includesInterface = true;
             }
+            // KZ: for MultipleEvent (saving index to write string instead of float later)
+            if (subs == "MultipleEvent")
+                MultipleEventColumn = colCount;
         }
         colCount++;
     } while (iss);
@@ -455,6 +459,10 @@ ResultsDataChart::readTableFromTab(QString filenameTab) {
             if (i == 0) {
                 QModelIndex index = spreadsheet->model()->index(rowCount, col);
                 spreadsheet->model()->setData(index, int(std::stof(data)));
+                col++;
+            } else if (i == MultipleEventColumn) {
+                QModelIndex index = spreadsheet->model()->index(rowCount, col);
+                spreadsheet->model()->setData(index, data.c_str());
                 col++;
             } else if ((includesInterface == true && i != 1) || (includesInterface == false)) {
                 QModelIndex index = spreadsheet->model()->index(rowCount, col);
