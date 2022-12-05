@@ -43,8 +43,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class UQ_Results;
 class RandomVariablesContainer;
+class UQ_Method;
 
-enum UQ_EngineType {All, ForwardOnly, ForwardReliabilitySensivity};
+enum UQ_EngineType {All, ForwardOnly, ForwardReliabilitySensitivity};
 
 class UQ_Engine : public SimCenterAppWidget
 {
@@ -54,12 +55,16 @@ public:
     virtual ~UQ_Engine();
 
     virtual int getMaxNumParallelTasks(void) =0;
-    virtual int processResults(QString &filenameResults, QString &filenameTab) =0;
-    virtual RandomVariablesContainer *getParameters() =0;
+    virtual void setRV_Defaults(void) =0;
+  
     virtual UQ_Results *getResults(void) = 0;
     virtual QString getProcessingScript();
+    virtual QString getMethodName();
+    // virtual void setMethod(QString &methodName);
+    virtual void setEventType(QString type);
 
 signals:
+    void onNumModelsChanged(int numModels);
 
 public slots:
 

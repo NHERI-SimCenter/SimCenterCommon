@@ -2,8 +2,9 @@
 #define PYTHONPROGRESSDIALOG_H
 
 #include <QDialog>
-#include <QMutex>
 
+
+class QRecursiveMutex;
 class QPlainTextEdit;
 class QProgressBar;
 
@@ -52,7 +53,7 @@ private:
 
     QProgressBar* progressBar;
 
-    QMutex* mutex;
+    QRecursiveMutex* mutex;
 
     QString getTimestamp(void);
 

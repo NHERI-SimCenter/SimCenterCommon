@@ -39,55 +39,52 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterAppWidget.h>
-#include <UQ_Engine.h>
+#include <SimCenterAppSelection.h>
+#include "UQ_Engine.h"
+class InputWidgetEDP;
 
-class QComboBox;
-class QStackedWidget;
-class RandomVariablesContainer;
-class UQ_Results;
-class UQ_Engine;
-class RandomVariablesContainer;
-
-
-class UQ_EngineSelection : public  SimCenterAppWidget
+class UQ_EngineSelection : public  SimCenterAppSelection
 {
   Q_OBJECT
 
-    public:
+  public:
 
-  explicit UQ_EngineSelection(RandomVariablesContainer *, UQ_EngineType = ForwardReliabilitySensivity, QWidget *parent = 0);
-  ~UQ_EngineSelection();
-
-  RandomVariablesContainer  *getParameters();
+  UQ_EngineSelection(UQ_EngineType = All,
+		     QWidget *parent = 0);
+  
+  UQ_EngineSelection(bool includeNone,
+		     QString assetType,
+		     UQ_EngineType = All,
+		     QWidget *parent = 0);    
+  
   UQ_Results  *getResults();
-  UQ_Engine  *getCurrentEngine();
-
   int getNumParallelTasks(void);
-  
-  bool outputAppDataToJSON(QJsonObject &jsonObject);
-  bool inputAppDataFromJSON(QJsonObject &jsonObject);
-
-  bool outputToJSON(QJsonObject &rvObject);
-  bool inputFromJSON(QJsonObject &rvObject);
-  bool copyFiles(QString &destName);
-  
-  void clear(void);
+  UQ_Engine *getCurrentEngine();
+  void setRV_Defaults();
   
  signals:
-  void onUQ_EngineChanged(void);
+
+  void onUQ_EngineChanged(bool);
+  void onNumModelsChanged(int);
+  void queryEVT(void); // added KZ
 
  public slots:
-  void engineSelectionChanged(const QString &arg1);
-  void enginesEngineSelectionChanged(void);
+
+  void engineSelectionChanged(const QString &);
+
+  void relayQueryEVT(void); // added KZ
+  void setEventType(QString type); // added KZ
   
 private:
-   QComboBox   *theEngineSelectionBox;
-   QStackedWidget *theStackedWidget;
-
-   UQ_Engine *theCurrentEngine;
-   UQ_Engine *theDakotaEngine;
-   UQ_Engine *theUQpyEngine;
+  void initialize(bool includeNoneOption, UQ_EngineType type);
+  UQ_Engine *theCurrentEngine;
+  UQ_Engine *thePreviousEngine;  
+  UQ_Engine *theDakotaEngine;
+  UQ_Engine *theSimCenterUQEngine;
+  UQ_Engine *theUQpyEngine;
+  UQ_Engine *theUCSD_Engine;
+  UQ_Engine *thefilterEngine;
+  UQ_Engine *theCustomEngine;
 };
 
-#endif // WIND_SELECTION_H
+#endif 

@@ -254,7 +254,7 @@ void ExistingSimCenterEvents::loadEventsFromDir(void) {
 
                 QString fileName = lineList.at(0);
                 QString factor = lineList.at(1);
-                factor.remove(QRegExp("[\\n\\t\\r]"));
+                factor.remove(QRegularExpression("[\\n\\t\\r]"));
 
                 QFileInfo checkName(directory.filePath(fileName));
                 if (checkName.exists() && checkName.isFile()) {

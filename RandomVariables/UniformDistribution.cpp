@@ -57,28 +57,24 @@ UniformDistribution::UniformDistribution(QString inpType, QWidget *parent) :Rand
     // set some defaults, and set layout for widget to be the horizontal layout
     mainLayout->setHorizontalSpacing(10);
     mainLayout->setVerticalSpacing(0);
-    mainLayout->setMargin(0);
+    // mainLayout->setMargin(0);
 
-    QPushButton *showPlotButton = NULL; // new QPushButton("Show PDF");
+    showPlotButton = NULL; // new QPushButton("Show PDF");
 
     this->inpty=inpType;
 
     if (inpty==QString("Parameters"))
     {
         a = this->createTextEntry(tr("Min."), mainLayout, 0);
-        a->setValidator(new QDoubleValidator);
-        b  = this->createTextEntry(tr("Max."), mainLayout, 1);
-        b->setValidator(new QDoubleValidator);
+         b  = this->createTextEntry(tr("Max."), mainLayout, 1);
         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
     } else if (inpty==QString("Moments")) {
 
         mean = this->createTextEntry(tr("Mean"), mainLayout, 0);
-        mean->setValidator(new QDoubleValidator);        
-        standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout, 1);
-        standardDev->setValidator(new QDoubleValidator);
-        showPlotButton = new QPushButton("Show PDF");
+         standardDev = this->createTextEntry(tr("Standard Dev"), mainLayout, 1);
+         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,2);
 
     } else if (inpty==QString("Dataset")) {
@@ -120,36 +116,37 @@ UniformDistribution::UniformDistribution(QString inpType, QWidget *parent) :Rand
 }
 
 
-UniformDistribution::UniformDistribution(double initValue, QWidget *parent)  :RandomVariableDistribution(parent)
+
+
+UniformDistribution::UniformDistribution(double initValue, QWidget *parent)  :UniformDistribution(QString("Parameters"), parent)
 {
-    //
-    // create the main layout and add the input entries
-    //
-    QGridLayout *mainLayout = new QGridLayout(this);
+//    //
+//    // create the main layout and add the input entries
+//    //
+//    //mainWidget = new QWidget(this);
+//    QGridLayout *mainLayout = new QGridLayout(this);
 
-    // set some defaults, and set layout for widget to be the horizontal layout
-    mainLayout->setHorizontalSpacing(10);
-    mainLayout->setVerticalSpacing(0);
-    mainLayout->setMargin(0);
+//    // set some defaults, and set layout for widget to be the horizontal layout
+//    mainLayout->setHorizontalSpacing(10);
+//    mainLayout->setVerticalSpacing(0);
+//    mainLayout->setMargin(0);
 
-    QPushButton *showPlotButton = new QPushButton("Show PDF");
+//    QPushButton *showPlotButton = new QPushButton("Show PDF");
 
-    // Parameters
-    this->inpty = "Parameters";
-    a = this->createTextEntry(tr("Min."), mainLayout, 0);
-    a->setValidator(new QDoubleValidator);
-    b  = this->createTextEntry(tr("Max."), mainLayout, 1);
-    b->setValidator(new QDoubleValidator);
-    mainLayout->addWidget(showPlotButton, 1,2);
-    mainLayout->setColumnStretch(3,1);
+//    // Parameters
+//    this->inpty = "Parameters";
+//    a = this->createTextEntry(tr("Min."), mainLayout, 0);
+//    b  = this->createTextEntry(tr("Max."), mainLayout, 1);
+//    mainLayout->addWidget(showPlotButton, 1,2);
+//    mainLayout->setColumnStretch(3,1);
 
-    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
+//    thePlot = new SimCenterGraphPlot(QString("x"),QString("Probability Density Function"),500, 500);
 
-    connect(a,SIGNAL(textChanged(QString)), this, SLOT(updateDistributionPlot()));
-    connect(b,SIGNAL(textChanged(QString)), this, SLOT(updateDistributionPlot()));
-    connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
+//    connect(a,SIGNAL(textChanged(QString)), this, SLOT(updateDistributionPlot()));
+//    connect(b,SIGNAL(textChanged(QString)), this, SLOT(updateDistributionPlot()));
+//    connect(showPlotButton, &QPushButton::clicked, this, [=](){ thePlot->hide(); thePlot->show();});
 
-    mainLayout->setColumnStretch(3,1);
+//    mainLayout->setColumnStretch(3,1);
 
     // set initial or Disabled
     if (isnan(initValue)){
@@ -274,16 +271,19 @@ UniformDistribution::inputFromJSON(QJsonObject &rvObject){
     return true;
 }
 
-void
+bool
 UniformDistribution::copyFiles(QString fileDir) {
     if (inpty==QString("Dataset")) {
         QFile::copy(dataDir->text(), fileDir);
+        return QFile::copy(dataDir->text(), fileDir);
+    } else {
+        return true;
     }
 }
 
 QString 
 UniformDistribution::getAbbreviatedName(void) {
-  return QString("Normal");
+  return QString("Uniform");
 }
 
 void
@@ -300,8 +300,6 @@ UniformDistribution::updateDistributionPlot() {
         aa = me - sqrt(12)*st/2;
         bb = me + sqrt(12)*st/2;
     }
-
-
     if (bb > aa) {
 
         QVector<double> x(103);
@@ -316,6 +314,12 @@ UniformDistribution::updateDistributionPlot() {
             y[i+1] =1.0/(bb-aa);
         }
         thePlot->clear();
-        thePlot->addLine(x,y);
+        thePlot->drawPDF(x,y);
+    } else {
+        thePlot->clear();
     }
 }
+
+//void UniformDistribution::setVisible(bool tog) {
+//    mainWidget->setVisible(tog);
+//}

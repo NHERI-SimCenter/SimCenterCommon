@@ -45,16 +45,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QVector>
 #include <QGridLayout>
 #include <QComboBox>
-
+class LineEditRV;
 class InputWidgetParameters;
-class RandomVariablesContainer;
 
 class OpenSeesBuildingModel : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
-    explicit OpenSeesBuildingModel(RandomVariablesContainer *theRandomVariableIW, 
-				   bool includeCentroid = false,
+    explicit OpenSeesBuildingModel(bool includeCentroid = false,
 				   QWidget *parent = 0);
     ~OpenSeesBuildingModel();
 
@@ -86,8 +84,8 @@ private:
     QLineEdit *responseNodes;
     QLineEdit *ndm;
     QLineEdit *ndf;
+    LineEditRV *dampingRatio;   
     bool includeCentroid;
-    RandomVariablesContainer *theRandomVariablesContainer;
     QStringList varNamesAndValues;
 };
 

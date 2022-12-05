@@ -1,14 +1,14 @@
 #ifndef PCEINPUTWIDGET_H
 #define PCEINPUTWIDGET_H
 
-#include <UQ_MethodInputWidget.h>
+#include <UQ_Method.h>
 #include <QLineEdit>
 #include <QComboBox>
 
 class QGridLayout;
 class QLabel;
 
-class PCEInputWidget : public UQ_MethodInputWidget
+class PCEInputWidget : public UQ_Method
 {
     Q_OBJECT
 public:

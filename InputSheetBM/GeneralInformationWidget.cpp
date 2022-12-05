@@ -71,6 +71,29 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent)
     widthEdit = new QLineEdit();
     depthEdit = new QLineEdit();
     planAreaEdit = new QLineEdit();
+
+    yearBuilt = new QLineEdit();
+    yearBuilt->setText("1990");
+    
+    yearBuilt->setValidator(new QIntValidator);      
+    structType = new QComboBox(this);
+    structType->addItem("RM1");
+    structType->addItem("RM2");
+    structType->addItem("URM");
+    structType->addItem("C1");
+    structType->addItem("C2");
+    structType->addItem("C3");
+    structType->addItem("S1");
+    structType->addItem("S2");
+    structType->addItem("S3");
+    structType->addItem("S4");
+    structType->addItem("S5");        
+    structType->addItem("W1");
+    structType->addItem("W2");
+    structType->addItem("PC1");
+    structType->addItem("PC2");
+    structType->addItem("MH");        
+    
     heightEdit->setValidator(new QDoubleValidator);  
     widthEdit->setValidator(new QDoubleValidator);  
     depthEdit->setValidator(new QDoubleValidator);  
@@ -124,8 +147,9 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent)
     // Properties
     QGroupBox* propertiesGroupBox = new QGroupBox("Properties", this);
     QFormLayout *propertiesFormLayout = new QFormLayout(propertiesGroupBox);
-
+   propertiesFormLayout->addRow(tr("Year Built"), yearBuilt);
    propertiesFormLayout->addRow(tr("# Stories"), storiesEdit);
+   propertiesFormLayout->addRow(tr("Struct. Type"), structType);       
    propertiesFormLayout->addRow(tr("Height"), heightEdit);
    propertiesFormLayout->addRow(tr("Width"), widthEdit);
    propertiesFormLayout->addRow(tr("Depth"), depthEdit);
@@ -219,6 +243,9 @@ GeneralInformationWidget::outputToJSON(QJsonObject &jsonObj){
     jsonObj["NumberOfStories"] = storiesEdit->text().toInt();
     jsonObj["width"] = widthEdit->text().toDouble();
     jsonObj["depth"] = depthEdit->text().toDouble();
+    jsonObj["StructureType"] = structType->currentText();
+    jsonObj["YearBuilt"] = yearBuilt->text().toInt();    
+    
 
     // if the plan area is provided:
     double planAreaValue = planAreaEdit->text().toDouble();

@@ -48,13 +48,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class EDP;
 class InputWidgetParameters;
-class RandomVariablesContainer;
 
 class UserDefinedEDP : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
-    explicit UserDefinedEDP(RandomVariablesContainer *theRandomVariableIW, QWidget *parent = 0);
+    explicit UserDefinedEDP(QWidget *parent = 0);
     ~UserDefinedEDP();
 
     bool outputToJSON(QJsonObject &jsonObject) override;
@@ -70,7 +69,7 @@ public:
 signals:
 
 public slots:
-   void clear(void);
+   void clear(void) override;
    void chooseProcessingScript(void);
    void chooseAdditionalInput(void);
 
@@ -89,8 +88,6 @@ private:
     QVector<EDP *>theEDPs;
     QVBoxLayout *edpLayout;
     QFrame *edp;
-
-    RandomVariablesContainer *theRandomVariablesContainer;
 };
 
 #endif // USER_DEFINED_EDP_H

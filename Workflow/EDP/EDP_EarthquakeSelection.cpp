@@ -55,8 +55,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <StandardEarthquakeEDP.h>
 #include <UserDefinedEDP.h>
 
-EDP_EarthquakeSelection::EDP_EarthquakeSelection(RandomVariablesContainer *theRandomVariableIW, QWidget *parent)
-: SimCenterAppWidget(parent), theCurrentEDP(0), theRandomVariablesContainer(theRandomVariableIW)
+EDP_EarthquakeSelection::EDP_EarthquakeSelection(QWidget *parent)
+: SimCenterAppWidget(parent), theCurrentEDP(0)
 {
   QVBoxLayout *layout = new QVBoxLayout();
 
@@ -92,19 +92,19 @@ EDP_EarthquakeSelection::EDP_EarthquakeSelection(RandomVariablesContainer *theRa
   // create the individual widgets add to stacked widget
   //
 
-  theStandardEarthquakeEDPs = new StandardEarthquakeEDP(theRandomVariablesContainer);
+  theStandardEarthquakeEDPs = new StandardEarthquakeEDP();
   theStackedWidget->addWidget(theStandardEarthquakeEDPs);
 
-  theUserDefinedEDPs = new UserDefinedEDP(theRandomVariablesContainer);
+  theUserDefinedEDPs = new UserDefinedEDP();
   theStackedWidget->addWidget(theUserDefinedEDPs);
 
   layout->addWidget(theStackedWidget);
   this->setLayout(layout);
   theCurrentEDP=theStandardEarthquakeEDPs;
-  layout->setMargin(0);
+  //layout->setMargin(0);
 
-  connect(edpSelection, SIGNAL(currentIndexChanged(QString)), this,
-	  SLOT(edpSelectionChanged(QString)));
+  connect(edpSelection, SIGNAL(currentTextChanged(QString&)), this,
+	  SLOT(edpSelectionChanged(QString&)));
 }
 
 EDP_EarthquakeSelection::~EDP_EarthquakeSelection()

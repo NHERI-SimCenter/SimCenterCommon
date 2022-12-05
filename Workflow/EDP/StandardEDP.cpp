@@ -41,8 +41,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 //#include <InputWidgetParameters.h>
 
-StandardEDP::StandardEDP(RandomVariablesContainer *theRandomVariableIW, QWidget *parent)
-    : SimCenterAppWidget(parent), theRandomVariablesContainer(theRandomVariableIW)
+StandardEDP::StandardEDP(QWidget *parent)
+    : SimCenterAppWidget(parent)
 {
 
 }

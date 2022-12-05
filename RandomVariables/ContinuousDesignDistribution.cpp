@@ -53,13 +53,21 @@ ContinuousDesignDistribution::ContinuousDesignDistribution(QWidget *parent) :Ran
     // set some defaults, and set layout for widget to be the horizontal layout
     mainLayout->setHorizontalSpacing(10);
     mainLayout->setVerticalSpacing(0);
-    mainLayout->setMargin(0);
+    // mainLayout->setMargin(0);
 
     min = this->createTextEntry(tr("Lower Bound"), mainLayout, 0);
     max = this->createTextEntry(tr("Upper Bound"), mainLayout, 1);
     initialPoint = this->createTextEntry(tr("Initial Point"), mainLayout, 2);
 
     mainLayout->setColumnStretch(3,1);
+}
+
+ContinuousDesignDistribution::ContinuousDesignDistribution(double initValue, QWidget *parent) :ContinuousDesignDistribution(parent)
+{
+    //
+    // create the main layout and add the input entries
+    //
+    initialPoint->setText(QString::number(initValue));
 }
 
 ContinuousDesignDistribution::~ContinuousDesignDistribution()
@@ -116,12 +124,13 @@ ContinuousDesignDistribution::inputFromJSON(QJsonObject &rvObject){
 
     return true;
 }
-void
+bool
 ContinuousDesignDistribution::copyFiles(QString fileDir) {
-    //do nothing
+  Q_UNUSED(fileDir);
+    return true;//do nothing
 }
 
 QString 
 ContinuousDesignDistribution::getAbbreviatedName(void) {
-  return QString("Continuous");
+  return QString("ContinuousDesign");
 }

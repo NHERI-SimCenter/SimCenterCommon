@@ -54,7 +54,7 @@ InputWidgetBIM::InputWidgetBIM(GeneralInformationWidget *GI, SIM_Selection *SIM,
 
     layout->addWidget(theTab);
     layout->addStretch();
-    layout->setMargin(0);
+    //layout->setMargin(0);
 
     this->setLayout(layout);
 }

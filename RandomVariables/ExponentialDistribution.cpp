@@ -57,7 +57,7 @@ ExponentialDistribution::ExponentialDistribution(QString inpType, QWidget *paren
     // set some defaults, and set layout for widget to be the horizontal layout
     mainLayout->setHorizontalSpacing(10);
     mainLayout->setVerticalSpacing(0);
-    mainLayout->setMargin(0);
+    // mainLayout->setMargin(0);
 
     QPushButton *showPlotButton = NULL; //new QPushButton("Show PDF");
 
@@ -66,15 +66,13 @@ ExponentialDistribution::ExponentialDistribution(QString inpType, QWidget *paren
     if (inpty==QString("Parameters"))
     {
         lambda = this->createTextEntry(tr("lambda"), mainLayout, 0);
-        lambda->setValidator(new QDoubleValidator);
-        showPlotButton = new QPushButton("Show PDF");
+         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,1);
 
     } else if (inpty==QString("Moments")) {
 
         mean = this->createTextEntry(tr("Mean"), mainLayout, 0);
-        mean->setValidator(new QDoubleValidator);
-        showPlotButton = new QPushButton("Show PDF");
+         showPlotButton = new QPushButton("Show PDF");
         mainLayout->addWidget(showPlotButton, 1,1);
 
     } else if (inpty==QString("Dataset")) {
@@ -190,10 +188,13 @@ ExponentialDistribution::inputFromJSON(QJsonObject &rvObject){
     return true;
 }
 
-void
+bool
 ExponentialDistribution::copyFiles(QString fileDir) {
     if (inpty==QString("Dataset")) {
-        QFile::copy(dataDir->text(), fileDir);
+        return QFile::copy(dataDir->text(), fileDir);
+
+    } else {
+        return true;
     }
 }
 
@@ -226,7 +227,8 @@ ExponentialDistribution::updateDistributionPlot() {
                 y[i] = lam*exp(-lam*xi);
             }
             thePlot->clear();
-            thePlot->addLine(x,y);
+            thePlot->drawPDF(x,y);
+        } else {
+            thePlot->clear();
         }
-
 }

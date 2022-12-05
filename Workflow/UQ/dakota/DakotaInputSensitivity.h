@@ -48,28 +48,28 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class DakotaSensitivityResults;
 class DakotaResults;
 class QCheckBox;
-class RandomVariablesContainer;
 class QStackedWidget;
-class UQ_MethodInputWidget;
+class UQ_Method;
 
 class DakotaInputSensitivity : public UQ_Engine
 {
     Q_OBJECT
 public:
-  explicit DakotaInputSensitivity(RandomVariablesContainer *, QWidget *parent = 0);
+    explicit DakotaInputSensitivity(QWidget *parent = 0);
     ~DakotaInputSensitivity();
 
-    bool outputToJSON(QJsonObject &rvObject);
-    bool inputFromJSON(QJsonObject &rvObject);
+    bool outputToJSON(QJsonObject &jsonObject);
+    bool inputFromJSON(QJsonObject &jsonObject);
 
     int processResults(QString &filenameResults, QString &filenameTab);
 
     UQ_Results *getResults(void);
-    RandomVariablesContainer  *getParameters();
+  void setRV_Defaults(void);
 
     int getMaxNumParallelTasks(void);
 
     QVBoxLayout *mLayout;
+    QString getMethodName();
 
 signals:
 
@@ -88,16 +88,15 @@ private:
     QComboBox   *uqSelection;
     QWidget     *uqSpecific;
 
-    RandomVariablesContainer *theRandomVariables;
     DakotaSensitivityResults *results;
 
     QStackedWidget *theStackedWidget;
-    UQ_MethodInputWidget *theCurrentMethod;
-    UQ_MethodInputWidget *theMC;
-    UQ_MethodInputWidget *theLHS;
-    UQ_MethodInputWidget *theIS;
-    UQ_MethodInputWidget *theGP;
-    UQ_MethodInputWidget *thePCE;
+    UQ_Method *theCurrentMethod;
+    UQ_Method *theMC;
+    UQ_Method *theLHS;
+    UQ_Method *theIS;
+    UQ_Method *theGP;
+    UQ_Method *thePCE;
 };
 
 #endif // DAKOTA_INPUT_SENSITIVITY_H

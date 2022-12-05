@@ -48,6 +48,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QPushButton>
 #include <sectiontitle.h>
 #include <QFileInfo>
+#include <LineEditRV.h>
+#include <ReadWriteRVJSON.h>
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -59,10 +61,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 //#include <InputWidgetParameters.h>
 
-OpenSeesBuildingModel::OpenSeesBuildingModel(RandomVariablesContainer *theRandomVariableIW, 
-					     bool includeC,
+OpenSeesBuildingModel::OpenSeesBuildingModel(bool includeC,
 					     QWidget *parent)
-  : SimCenterAppWidget(parent), responseNodes(0), theRandomVariablesContainer(theRandomVariableIW)
+  : SimCenterAppWidget(parent), responseNodes(0)
 {
   includeCentroid = includeC;
   centroidNodes = NULL;
@@ -115,12 +116,25 @@ OpenSeesBuildingModel::OpenSeesBuildingModel(RandomVariablesContainer *theRandom
     layout->addWidget(label4,rowCount,0);
     layout->addWidget(ndf,rowCount++,1);
 
+    RandomVariablesContainer *randomVariables = RandomVariablesContainer::getInstance();    
+    dampingRatio = new LineEditRV(randomVariables);
+    dampingRatio->setToolTip(tr("damping ratio, .02 = 2% damping"));
+    dampingRatio->setText("0.02");    
+    dampingRatio->setMaximumWidth(100);
+    dampingRatio->setMinimumWidth(100);        
+    layout->addWidget(new QLabel("Damping Ratio"), rowCount, 0);
+    layout->addWidget(dampingRatio, rowCount++, 1);    
+    
     ndf->setValidator(new QIntValidator());
     ndm->setValidator(new QIntValidator());
+    ndm->setMaximumWidth(100);
+    ndm->setMinimumWidth(100);
+    ndf->setMaximumWidth(100);
+    ndf->setMinimumWidth(100);            
 
     QWidget *dummyR = new QWidget();
-    layout->addWidget(dummyR,4,0);
-    layout->setRowStretch(5,1);
+    layout->addWidget(dummyR,5,0);
+    layout->setRowStretch(6,1);
     //layout->setColumnStretch(3,1);
 
     this->setLayout(layout);
@@ -134,7 +148,7 @@ OpenSeesBuildingModel::~OpenSeesBuildingModel()
     for (int i=0; i<varNamesAndValues.size()-1; i+=2) {
         names.append(varNamesAndValues.at(i));
     }
-
+    RandomVariablesContainer *theRandomVariablesContainer=RandomVariablesContainer::getInstance();
     theRandomVariablesContainer->removeRandomVariables(names);
 }
 
@@ -181,7 +195,7 @@ OpenSeesBuildingModel::outputToJSON(QJsonObject &jsonObject)
         } else
             numStories++;
     }
-
+    writeLineEditRV(jsonObject,"dampingRatio", dampingRatio);
     jsonObject["centroidNodes"]=nodeTags;
     jsonObject["responseNodes"]=responseNodeTags;
     jsonObject["ndm"]=ndm->text().toInt();
@@ -223,8 +237,8 @@ OpenSeesBuildingModel::inputFromJSON(QJsonObject &jsonObject)
                 QLabel *label2a = new QLabel();
                 label2a->setText("Centroid Nodes:");
                 centroidNodes = new QLineEdit;
-                layout->addWidget(label2a,4,0);
-                layout->addWidget(centroidNodes,4,1);
+                layout->addWidget(label2a,5,0);
+                layout->addWidget(centroidNodes,5,1);
             }
             centroidNodes->setText(stringNodes);
         }
@@ -261,7 +275,7 @@ OpenSeesBuildingModel::inputFromJSON(QJsonObject &jsonObject)
             varNamesAndValues.append(zero);
         }
     }
-
+    readLineEditRV(jsonObject,"dampingRatio", dampingRatio);
     int theNDM = jsonObject["ndm"].toInt();
     int theNDF = 1;
     if (theNDM == 2)
@@ -347,7 +361,7 @@ OpenSeesBuildingModel::setFilename1(QString name1){
     for (int i=0; i<varNamesAndValues.size()-1; i+=2) {
         names.append(varNamesAndValues.at(i));
     }
-
+    RandomVariablesContainer *theRandomVariablesContainer=RandomVariablesContainer::getInstance();
     theRandomVariablesContainer->removeRandomVariables(names);
 
     // set file name & ebtry in qLine edit
@@ -402,7 +416,7 @@ QString OpenSeesBuildingModel::getMainInput() {
      QString thePath = fileInfo.path();
 
      SimCenterAppWidget::copyPath(thePath, dirName, false);
-
+    RandomVariablesContainer *theRandomVariablesContainer=RandomVariablesContainer::getInstance();
      QStringList varNames = theRandomVariablesContainer->getRandomVariableNames();
 
      // now create special copy of original main script that handles the RV

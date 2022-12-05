@@ -51,6 +51,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class InputWidgetParameters;
 class RandomVariablesContainer;
 
+class LineEditRV;
 class QButtonGroup;
 class QLineEdit;
 class QRadioButton;
@@ -91,6 +92,7 @@ private:
     // Removes a random variable
     void removeRandomVariable(QString &text, int numReferences=1);
 
+    LineEditRV *dampingRatio;
     QLineEdit* extWidthLE = nullptr;
     QLineEdit* extDepthLE = nullptr;
     QLineEdit* intWidthLE = nullptr;

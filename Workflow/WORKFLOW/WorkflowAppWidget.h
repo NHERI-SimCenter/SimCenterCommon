@@ -77,13 +77,17 @@ signals:
     void sendErrorMessage(QString message);
     void sendFatalMessage(QString message);
 
+    void sendLocalRunComplete(void);
+
 public slots:  
     //virtual void selectionChangedSlot(const QItemSelection &, const QItemSelection &) =0;
 
     virtual void setUpForApplicationRun(QString &, QString &) =0;
-    virtual void processResults(QString dakotaOut, QString dakotaTab, QString inputFile) =0;
+    // virtual void processResults(QString dakotaOut, QString dakotaTab, QString inputFile) =0;
+    virtual void processResults(QString &resultsDir) =0;  
 
-    virtual int loadFile(QString filename) = 0;
+    virtual int loadFile(QString &filename) = 0;
+  
     virtual void statusMessage(QString message);
     virtual void errorMessage(QString message);
     virtual void fatalMessage(QString message);

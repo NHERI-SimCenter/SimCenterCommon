@@ -59,7 +59,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <string>
 #include <sstream>
 #include <iostream>
-
+#include <LineEditRV.h>
 //using namespace std;
 
 #include <QGridLayout>
@@ -201,8 +201,8 @@ createTextEntry(QString text,
     return res;
 }
 
-MDOF_BuildingModel::MDOF_BuildingModel(RandomVariablesContainer *theRandomVariableIW, QWidget *parent)
-  : SimCenterAppWidget(parent), theRandomVariablesContainer(theRandomVariableIW), 
+MDOF_BuildingModel::MDOF_BuildingModel(QWidget *parent)
+  : SimCenterAppWidget(parent),
     numStories(0),
     floorHeights(0), storyHeights(0),
     fMinSelected(-1),fMaxSelected(-1), 
@@ -233,7 +233,18 @@ MDOF_BuildingModel::MDOF_BuildingModel(RandomVariablesContainer *theRandomVariab
     QGroupBox* mainProperties = new QGroupBox("Building Information");
     QGridLayout *mainPropertiesLayout = new QGridLayout();
     inFloors = createTextEntry(tr("Number Stories"), tr("number of stories in building"),mainPropertiesLayout, 0, 0, 100, 100);
-    inWeight = createTextEntry(tr("Floor Weights"), tr("total building weight, each floor will have a weight given by weight/ number of floors"), mainPropertiesLayout, 1, 0, 100, 100);
+
+    RandomVariablesContainer *randomVariables = RandomVariablesContainer::getInstance();
+    dampingRatio = new LineEditRV(randomVariables);
+    dampingRatio->setToolTip(tr("damping ratio, .02 = 2% damping"));
+    dampingRatio->setText("0.02");
+    dampingRatio->setMaximumWidth(100);
+    dampingRatio->setMinimumWidth(100);
+    
+    mainPropertiesLayout->addWidget(new QLabel("Damping Ratio"), 0, 3);
+    mainPropertiesLayout->addWidget(dampingRatio, 0, 4);
+				    
+    inWeight = createTextEntry(tr("Floor Weights"),tr("total building weight, each floor will have a weight given by weight/ number of floors"),mainPropertiesLayout, 1, 0, 100, 100);
     storyHeight = createTextEntry(tr("Story Heights"), tr("story heights, building height equals number of fstories * story heighyt"),mainPropertiesLayout, 1, 3, 100, 100);
     inKx = createTextEntry(tr("Story Stiffness X dirn"), tr("story stiffnesses, that force required to push the floor above unit distance, assuming all other stories have infinite stiffness"),mainPropertiesLayout, 2, 0, 100, 100);
     inKy = createTextEntry(tr("Story Stiffness Y dirn"), tr("story stiffnesses, that force required to push the floor above unit distance, assuming all other stories have infinite stiffness"),mainPropertiesLayout, 2, 3, 100, 100);
@@ -260,6 +271,7 @@ MDOF_BuildingModel::MDOF_BuildingModel(RandomVariablesContainer *theRandomVariab
     //inKy->setValidator(new QDoubleValidator);
     //inK_theta->setValidator(new QDoubleValidator);
 
+    dampingRatio->setText(QString::number(0.02));    
     inFloors->setText(QString::number(1));
     inWeight->setText(floorW);
     storyHeight->setText(storyH);
@@ -418,7 +430,7 @@ MDOF_BuildingModel::on_inFloors_editingFinished()
     int numStoriesText = textFloors.toInt();
 
     if (numStoriesText <= 0) {
-        inFloors->setText(QString(numStories));
+        inFloors->setText(QString::number(numStories));
         return;
     }
 
@@ -446,6 +458,7 @@ MDOF_BuildingModel::on_inFloors_editingFinished()
         QStringList rvs;
         for (i = randomVariables.begin(); i != randomVariables.end(); ++i)
             rvs << i.key();
+	RandomVariablesContainer *theRandomVariablesContainer = RandomVariablesContainer::getInstance();
         theRandomVariablesContainer->removeRandomVariables(rvs);
 
         randomVariables.clear();
@@ -603,8 +616,6 @@ MDOF_BuildingModel::on_storyHeight_editingFinished()
 {
     QString text =  storyHeight->text();
 
-    qDebug() << "MDOF::on_storyHeight" << text;
-
     if (text.isNull()) {
         storyHeight->setText(storyH);
         return;
@@ -620,8 +631,6 @@ MDOF_BuildingModel::on_storyHeight_editingFinished()
 
     updatingPropertiesTable = true;
     buildingH = numStories * storyHeight;
-
-    qDebug() << "MDOF::on_storyHeight" << text << " " << buildingH << " " << storyHeight;
 
     for (int i=0; i<numStories; i++) {
         QTableWidgetItem *item = theSpreadsheet->item(i,1);
@@ -994,8 +1003,6 @@ void MDOF_BuildingModel::on_inStoryHeight_editingFinished()
     if (updatingPropertiesTable == true)
         return;
 
-    qDebug() << "onInStoryHEightChanged";
-
     QString text =  inStoryHeight->text();
     if (text.isNull())
         return;
@@ -1030,7 +1037,6 @@ void MDOF_BuildingModel::on_inStoryHeight_editingFinished()
     floorHeights = newFloorHeights;
 
     buildingH = newFloorHeights[numStories];
-    qDebug() << "MDOF: newHeight" << floorHeights[numStories];
     emit numStoriesOrHeightChanged(numStories, buildingH);
 }
 
@@ -1382,7 +1388,7 @@ MDOF_BuildingModel::outputToJSON(QJsonObject &jsonObject)
 
     int numStories = inFloors->text().toInt();
     jsonObject["numStories"]= numStories;
-
+    writeLineEditRV(jsonObject,"dampingRatio", dampingRatio);
     writeLineEditRV(jsonObject,"weight", inWeight);
     writeLineEditRV(jsonObject,"height", storyHeight);
     writeLineEditRV(jsonObject,"Kx", inKx);
@@ -1446,7 +1452,7 @@ MDOF_BuildingModel::inputFromJSON(QJsonObject &jsonObject)
     }
 
     if (numStories <= 0) {
-        inFloors->setText(QString(numStoriesOld));
+        inFloors->setText(QString::number(numStoriesOld));
         return true;
     }
 
@@ -1468,6 +1474,7 @@ MDOF_BuildingModel::inputFromJSON(QJsonObject &jsonObject)
         storyHeights = new double[numStories];
     }
 
+   readLineEditRV(jsonObject,"dampingRatio", dampingRatio);    
    readLineEditRV(jsonObject,"weight", inWeight);
    readLineEditRV(jsonObject,"height", inStoryHeight);
    readLineEditRV(jsonObject,"Kx", inKx);
@@ -1779,6 +1786,7 @@ MDOF_BuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
      } else {
          randomVariables[text] = numReferences;
          RandomVariable *theRV = new RandomVariable(QString("Uncertain"), text, "Dakota");
+	RandomVariablesContainer *theRandomVariablesContainer = RandomVariablesContainer::getInstance();	 
          theRandomVariablesContainer->addRandomVariable(theRV);
      }
  }
@@ -1790,6 +1798,7 @@ MDOF_BuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
 
          if (randomVariables[text] < 1) {
              QStringList rvsToRemove; rvsToRemove << text;
+	     RandomVariablesContainer *theRandomVariablesContainer = RandomVariablesContainer::getInstance();	     
              theRandomVariablesContainer->removeRandomVariables(rvsToRemove);
 
              randomVariables.remove(text);

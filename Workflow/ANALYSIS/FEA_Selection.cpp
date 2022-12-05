@@ -39,73 +39,20 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include "FEA_Selection.h"
-
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-
-#include <QStackedWidget>
-#include <QComboBox>
-
-
-#include <QPushButton>
-#include <QJsonObject>
-#include <QJsonArray>
-
-#include <QLabel>
-#include <QLineEdit>
-#include <QDebug>
-#include <QFileDialog>
-#include <QPushButton>
-#include <sectiontitle.h>
-
 #include <InputWidgetOpenSeesAnalysis.h>
+#include <SimCenterAppMulti.h>
 
-FEA_Selection::FEA_Selection(RandomVariablesContainer *theRVs, QWidget *parent)
-    : SimCenterAppWidget(parent), theCurrentSelection(0)
+FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
+  : SimCenterAppSelection(QString("FE Application"), QString("Simulation"), parent)
 {
-    QVBoxLayout *layout = new QVBoxLayout();
 
-    //
-    // the selection part
-    //
+  SimCenterAppWidget *opensees= new InputWidgetOpenSeesAnalysis();
+  this->addComponent(QString("OpenSees"), QString("OpenSees-Simulation"), opensees);
+  if (inclMulti == true) {
+    SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Simulation"), QString("MultiModel-FEA"),this, this);
+    this->addComponent(QString("Multi Model"), QString("MultiModel-FEA"), multi);
+  }  
 
-    QHBoxLayout *theSelectionLayout = new QHBoxLayout();
-    //    QLabel *label = new QLabel();
-    SectionTitle *label = new SectionTitle();
-    label->setText(QString("FE Application"));
-    label->setMinimumWidth(200);
-
-    theSelectionBox = new QComboBox();
-    theSelectionBox->addItem(tr("OpenSees"));
-
-    theSelectionLayout->addWidget(label);
-    QSpacerItem *spacer = new QSpacerItem(50,10);
-    theSelectionLayout->addItem(spacer);
-    theSelectionLayout->addWidget(theSelectionBox,1);
-    theSelectionLayout->addStretch(1);
-    layout->addLayout(theSelectionLayout);
-
-    //
-    // create the stacked widget
-    //
-
-    theStackedWidget = new QStackedWidget();
-
-    //
-    // create the individual widgets add to stacked widget
-    //
-
-    theOpenSeesApplication = new InputWidgetOpenSeesAnalysis(theRVs);
-    theStackedWidget->addWidget(theOpenSeesApplication);
-
-    layout->addWidget(theStackedWidget);
-    this->setLayout(layout);
-    theCurrentSelection=theOpenSeesApplication;
-
-    connect(theSelectionBox, SIGNAL(currentIndexChanged(QString)), this,
-            SLOT(engineSelectionChanged(QString)));
-
-    layout->setMargin(0);
 }
 
 FEA_Selection::~FEA_Selection()
@@ -114,127 +61,9 @@ FEA_Selection::~FEA_Selection()
 }
 
 
-bool
-FEA_Selection::outputToJSON(QJsonObject &jsonObject)
+SimCenterAppWidget *
+FEA_Selection::getClone()
 {
-    QJsonObject fem;
-    theCurrentSelection->outputToJSON(fem);
-    jsonObject["Simulation"]=fem;
-
-    return true;
+  FEA_Selection *newSelection = new FEA_Selection(false);
+  return newSelection;
 }
-
-
-bool
-FEA_Selection::inputFromJSON(QJsonObject &jsonObject) {
-
-    if (jsonObject.contains("Simulation")) {
-        QJsonObject femObject = jsonObject["Simulation"].toObject();
-
-        if (theCurrentSelection != 0) {
-            return theCurrentSelection->inputFromJSON(femObject);
-        }
-    }
-
-    return false;
-}
-
-void FEA_Selection::selectionChanged(const QString &arg1)
-{
-    //
-    // switch stacked widgets depending on text
-    // note type output in json and name in pull down are not the same and hence the ||
-    //
-
-    if (arg1 == "OpenSees") {
-        theStackedWidget->setCurrentIndex(0);
-        theCurrentSelection = theOpenSeesApplication;
-        emit onSelectionChanged();
-    }
-
-    else {
-        qDebug() << "ERROR .. FEA_Selection selection .. type unknown: " << arg1;
-    }
-}
-
-
-void
-FEA_Selection::selectionChanged(void){
-    emit onSelectionChanged();
-}
-
-bool
-FEA_Selection::outputAppDataToJSON(QJsonObject &jsonObject)
-{
-    QJsonObject appsUQ;
-    theCurrentSelection->outputAppDataToJSON(appsUQ);
-    jsonObject["Simulation"]=appsUQ;
-
-    return true;
-}
-
-
-bool
-FEA_Selection::inputAppDataFromJSON(QJsonObject &jsonObject)
-{
-    // get name from "Application" key
-
-    if (jsonObject.contains("Simulation")) {
-        QJsonObject theObject = jsonObject["Simulation"].toObject();
-
-        QString type;
-
-        if (theObject.contains("Application")) {
-            QJsonValue theName = theObject["Application"];
-            type = theName.toString();
-
-            // based on application name value set engine type
-            int index = 0;
-            if ((type == QString("OpenSees")) ||
-                (type == QString("OpenSees-Simulation"))) {
-                index = 0;
-            } else {
-                errorMessage("FEA_Selection - no valid type found");
-                return false;
-            }
-
-            theSelectionBox->setCurrentIndex(index);
-
-            // invoke inputAppDataFromJSON on new type
-            if (theCurrentSelection != 0) {
-                return theCurrentSelection->inputAppDataFromJSON(theObject);
-            }
-        } else {
-            errorMessage("FEA_Selection - no Application key found");
-            return false;
-        }
-
-    } else {
-        errorMessage("FEA_Selection: failed to find FEA application");
-        return false;
-    }
-
-
-    return false;
-}
-
-bool
-FEA_Selection::copyFiles(QString &destDir) {
-
-  if (theCurrentSelection != 0) {
-    return  theCurrentSelection->copyFiles(destDir);
-  }
-  
-  return false;
-}
-
-
-void
-FEA_Selection::clear(void) {
-  if (theCurrentSelection != 0) {
-    theCurrentSelection->clear();
-  }
-}
-
-
-

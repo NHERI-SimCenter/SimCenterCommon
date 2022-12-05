@@ -43,6 +43,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class QLineEdit;
 class QLabel;
 class SimCenterGraphPlot;
+class QPushButton;
 
 class UniformDistribution : public RandomVariableDistribution
 {
@@ -55,7 +56,7 @@ public:
 
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
-    void copyFiles(QString fileDir);
+    bool copyFiles(QString fileDir);
 
     QString getAbbreviatedName(void);
 
@@ -70,6 +71,7 @@ private:
     QLineEdit *dataDir;
     QString inpty ;
     SimCenterGraphPlot *thePlot;
+    QPushButton *showPlotButton;
 };
 
 #endif // UNIFORMDISTRIBUTION_H

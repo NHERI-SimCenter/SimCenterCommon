@@ -43,15 +43,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class QComboBox;
 class QStackedWidget;
-class UQ_Results;
-class RandomVariablesContainer;
 class QCheckBox;
+class UQ_Results;
 
 class DakotaEngine : public UQ_Engine
 {
     Q_OBJECT
 public:
-  explicit DakotaEngine(RandomVariablesContainer *, UQ_EngineType type, QWidget *parent = 0);
+  explicit DakotaEngine(UQ_EngineType type, QWidget *parent = 0);
     virtual ~DakotaEngine();
 
     int getMaxNumParallelTasks(void);
@@ -59,30 +58,33 @@ public:
     bool inputFromJSON(QJsonObject &jsonObject);
     bool outputAppDataToJSON(QJsonObject &jsonObject);
     bool inputAppDataFromJSON(QJsonObject &jsonObject);
-
-    int processResults(QString &filenameResults, QString &filenameTab);
-    RandomVariablesContainer *getParameters();
+    void setRV_Defaults(void);
     UQ_Results *getResults(void);
 
-     QString getProcessingScript();
+    QString getProcessingScript();
+    QString getMethodName();
+    bool copyFiles(QString &fileDir);
 
 signals:
     void onUQ_EngineChanged(void);
+    void onNumModelsChanged(int newNum);
 
 public slots:
     void engineSelectionChanged(const QString &arg1);
+    void numModelsChanged(int newNum);
 
 private:
    QComboBox   *theEngineSelectionBox;
    QStackedWidget *theStackedWidget;
-   QCheckBox *parallelCheckBox;
-  
+   QCheckBox *parallelCheckBox, *removeWorkdirCheckBox;
+
    UQ_Engine *theCurrentEngine;
    UQ_Engine *theSamplingEngine;
    UQ_Engine *theReliabilityEngine;
    UQ_Engine *theCalibrationEngine;
    UQ_Engine *theBayesianCalibrationEngine;
    UQ_Engine *theSensitivityEngine;
+   UQ_Engine *theOptimizationEngine;
 };
 
 #endif // DAKOTA_ENGINE_H

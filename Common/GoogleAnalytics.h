@@ -10,6 +10,7 @@ void Report(QString eventAction, QString category = "Action", SessionControl ses
 void ReportStart();
 void ReportLocalRun();
 void ReportDesignSafeRun();
+void ReportAppUsage(QString appName);  
 void StartSession();
 void EndSession();
 QUuid GetCommonClientId();

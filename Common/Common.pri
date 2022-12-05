@@ -13,6 +13,7 @@ include($$PWD/ZipUtils/ZipUtils.pri)
 
 SOURCES += $$PWD/HeaderWidget.cpp \
     $$PWD/Utils/RelativePathResolver.cpp \
+    $$PWD/Utils/FileOperations.cpp \
     $$PWD/Utils/dialogabout.cpp \
     $$PWD/Utils/PythonProgressDialog.cpp \
     $$PWD/sectiontitle.cpp \
@@ -21,12 +22,15 @@ SOURCES += $$PWD/HeaderWidget.cpp \
     $$PWD/SimCenterAppWidget.cpp\
     $$PWD/NoArgSimCenterApp.cpp\
     $$PWD/SimCenterAppSelection.cpp \
+    $$PWD/SimCenterAppMulti.cpp \    
     $$PWD/SimCenterAppEventSelection.cpp \
     $$PWD/SimCenterPreferences.cpp \
+    $$PWD/NoneWidget.cpp \    
     $$PWD/GoogleAnalytics.cpp
 
 HEADERS += $$PWD/HeaderWidget.h \
     $$PWD/Utils/RelativePathResolver.h \
+    $$PWD/Utils/FileOperations.h \
     $$PWD/Utils/dialogabout.h \
     $$PWD/Utils/PythonProgressDialog.h \
     $$PWD/sectiontitle.h \
@@ -34,9 +38,11 @@ HEADERS += $$PWD/HeaderWidget.h \
     $$PWD/SimCenterWidget.h \
     $$PWD/NoArgSimCenterApp.h \
     $$PWD/SimCenterAppSelection.h \
+    $$PWD/SimCenterAppMulti.h \    
     $$PWD/SimCenterAppEventSelection.h \    
     $$PWD/SimCenterAppWidget.h \
     $$PWD/SimCenterPreferences.h \
+    $$PWD/NoneWidget.h \
     $$PWD/GoogleAnalytics.h
 
 FORMS += \

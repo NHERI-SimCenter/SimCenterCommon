@@ -24,7 +24,7 @@
 
 //#include <InputWidgetEE_UQ.h>
 #include <WorkflowAppWidget.h>
-#include <QDesktopWidget>
+//#include <QDesktopWidget>
 #include <QFileDialog>
 #include <QGuiApplication>
 #include <QHBoxLayout>
@@ -90,7 +90,9 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     // SG change
     int height = this->height()<int(rec.height())?int(rec.height()):this->height();
     int width  = this->width()<int(rec.width())?int(rec.width()):this->width();
-
+    height = abs(0.85*height);
+    width = abs(0.85*width);    
+    
     // if (width>1280) width=1280;
     this->resize(width, height);
 
@@ -274,7 +276,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     //    featureRequestURL = QString("https://docs.google.com/forms/d/e/1FAIpQLScTLkSwDjPNzH8wx8KxkyhoIT7AI9KZ16Wg9TuW1GOhSYFOag/viewform");
     versionText = QString("");
     citeText = QString("");
-    aboutText = QString(tr("This is a SimCenter Workflow Applicatios"));
+    aboutText = QString(tr("This is a SimCenter Workflow Application"));
 
     aboutTitle = "About this SimCenter Application"; // this is the title displayed in the on About dialog
     aboutSource = ":/Resources/docs/textAbout.html";  // this is an HTML file stored under resources
@@ -463,9 +465,9 @@ bool MainWindowWorkflowApp::saveFile(const QString &fileName)
 }
 
 
-int MainWindowWorkflowApp::loadFile(const QString &fileName)
+void MainWindowWorkflowApp::loadFile(QString &fileName)
 {
-    return inputWidget->loadFile(fileName);
+    inputWidget->loadFile(fileName);
 }
 
 
@@ -479,9 +481,9 @@ void MainWindowWorkflowApp::updateExamplesMenu(void)
     exampleMenu->addAction("Manage Examples", this, &MainWindowWorkflowApp::showExampleDownloader);
     exampleMenu->addSeparator();
 
-    auto pathExamplesFolder = QCoreApplication::applicationDirPath() + QDir::separator() + "Examples";
+    auto pathExamplesFolder = QCoreApplication::applicationDirPath() + "/" + "Examples";
 
-    auto pathToExamplesJson = pathExamplesFolder + QDir::separator() + "Examples.json";
+    auto pathToExamplesJson = pathExamplesFolder + "/" + "Examples.json";
   
     QFile jsonFile(pathToExamplesJson);
     if (jsonFile.exists())
@@ -500,7 +502,7 @@ void MainWindowWorkflowApp::updateExamplesMenu(void)
             QString downloadUrl = exampleObj["downloadUrl"].toString();
             QString description = exampleObj["description"].toString();
 
-            QFile inputFile(pathExamplesFolder + QDir::separator() + inputFileName);
+            QFile inputFile(pathExamplesFolder + "/" + inputFileName);
 
             if(inputFile.exists() && !inputFileName.isEmpty())
             {
@@ -766,7 +768,9 @@ void MainWindowWorkflowApp::about()
     // adjust size of application window to the available display
     //
 
-    QRect rec = QApplication::desktop()->screenGeometry(this);
+    QScreen *screen = QGuiApplication::primaryScreen();
+    QRect  rec = screen->geometry();
+
     int height = 0.50*rec.height();
     int width  = 0.50*rec.width();
     dlg->resize(width, height);
@@ -860,7 +864,7 @@ MainWindowWorkflowApp::loadExamples()
     if(senderObj == nullptr)
         return;
 
-    auto pathToExample = QCoreApplication::applicationDirPath() + QDir::separator() + "Examples" + QDir::separator();
+    auto pathToExample = QCoreApplication::applicationDirPath() + "/" + "Examples" + "/";
     pathToExample += senderObj->property("inputFile").toString();
 
     if(pathToExample.isNull())
@@ -885,11 +889,11 @@ MainWindowWorkflowApp::loadExamples()
     statusWidget->showProgressBar();
     QApplication::processEvents();
 
-    emit sendStatusMessage("Loading Example file. Wait till Done Loading appears before progressing.");
+    emit sendStatusMessage("Loading Example file. Wait till Done Loading Example appears before progressing.");
     this->loadFile(pathToExample);
     
-    // statusWidget->hideProgressBar();
-    emit sendStatusMessage("Done Loading.");    
+     statusWidget->hideProgressBar();
+    emit sendStatusMessage("Done Loading Example.");    
 
     // Automatically hide after n seconds
     // progressDialog->hideAfterElapsedTime(4);

@@ -41,6 +41,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QTreeView>
 #include <QTreeView>
 #include <QStandardItemModel>
+#include <QHeaderView>
 #include <QItemSelectionModel>
 #include <CustomizedItemModel.h>
 #include <QModelIndex>
@@ -49,12 +50,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SimCenterAppWidget.h>
 
 SimCenterComponentSelection::SimCenterComponentSelection(QWidget *parent)
-    :QWidget(parent)
+    :SimCenterAppWidget(parent)
 {
 
   QHBoxLayout *horizontalLayout = new QHBoxLayout();
 
-  horizontalLayout->setMargin(0);
+  //horizontalLayout->setMargin(0);
   horizontalLayout->setContentsMargins(0,5,0,5);
   horizontalLayout->setSpacing(0);
 
@@ -186,6 +187,19 @@ SimCenterComponentSelection::swapComponent(QString text, QWidget *theWidget)
     return theRes;
 }
 
+
+QString
+SimCenterComponentSelection::selectedComponentText(void)
+{
+    auto currIndex = theStackedWidget->currentIndex();
+
+    if (currIndex < 0 || currIndex > textIndices.size() -1)
+        return QString();
+
+    return textIndices.at(currIndex);
+}
+
+
 bool
 SimCenterComponentSelection::displayComponent(QString text)
 {
@@ -196,6 +210,23 @@ SimCenterComponentSelection::displayComponent(QString text)
     int index = textIndices.indexOf(text);
 
     if (index != -1) {
+
+        QModelIndex index1 = modelIndices.at(index);
+        treeView->setCurrentIndex(index1);
+        return true;
+    }
+
+    return false;
+}
+
+bool
+SimCenterComponentSelection::displayComponent(int index)
+{
+    //
+    // find index of text in list and display corresponding widget if index found
+    //
+
+    if (index >= 0 && index <= modelIndices.size()-1) {
 
         QModelIndex index1 = modelIndices.at(index);
         treeView->setCurrentIndex(index1);

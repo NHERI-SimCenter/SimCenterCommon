@@ -39,45 +39,20 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterAppWidget.h>
+#include <SimCenterAppSelection.h>
 
-class QComboBox;
-class QStackedWidget;
-class RandomVariablesContainer;
-class UQ_Results;
-class UQ_Engine;
-class RandomVariablesContainer;
-
-class FEA_Selection : public  SimCenterAppWidget
+class FEA_Selection : public  SimCenterAppSelection
 {
   Q_OBJECT
 
-    public:
-
-  explicit FEA_Selection(RandomVariablesContainer *, QWidget *parent = 0);
+public:
+  explicit FEA_Selection(bool doMulti = true, QWidget *parent = 0);
   ~FEA_Selection();
 
-  bool outputAppDataToJSON(QJsonObject &jsonObject);
-  bool inputAppDataFromJSON(QJsonObject &jsonObject);
-  bool outputToJSON(QJsonObject &rvObject);
-  bool inputFromJSON(QJsonObject &rvObject);
-  bool copyFiles(QString &destName);
-  
-  void clear(void);
-  
- signals:
-  void onSelectionChanged(void);
-
- public slots:
-  void selectionChanged(const QString &arg1);
-  void selectionChanged(void);
+  SimCenterAppWidget *getClone();
   
 private:
-   QComboBox   *theSelectionBox;
-   QStackedWidget *theStackedWidget;
 
-   SimCenterAppWidget *theCurrentSelection;
-   SimCenterAppWidget *theOpenSeesApplication;
 };
 
 #endif // FEA_SELECTION_H

@@ -40,6 +40,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "DakotaEngine.h"
 #include <DakotaResultsSampling.h>
+#include <GoogleAnalytics.h>
 
 #include <QStackedWidget>
 #include <QComboBox>
@@ -48,46 +49,74 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QCheckBox>
+#include <QSpacerItem>
 
 #include <QDebug>
 
 #include <DakotaInputSampling.h>
 #include <DakotaInputReliability.h>
 #include <DakotaInputSensitivity.h>
-//#include <DakotaInputCalibration.h>
-//#include <DakotaInputBayesianCalibration.h>
+#include <DakotaInputCalibration.h>
+#include <DakotaInputBayesianCalibration.h>
+#include <DakotaInputOptimization.h>
 
-DakotaEngine::DakotaEngine(RandomVariablesContainer *theRVs, UQ_EngineType type, QWidget *parent)
+
+DakotaEngine::DakotaEngine(UQ_EngineType type, QWidget *parent)
 : UQ_Engine(parent), theCurrentEngine(0)
 {
 
     QVBoxLayout *layout = new QVBoxLayout();
 
+    bool doSensitivity = true;
+    bool doReliability = true;
+    bool doCalibration = true;        
+
+    if (type == ForwardOnly) {
+      doSensitivity = false;
+      doReliability = false;
+      doCalibration = false;              
+    } else if (type == ForwardReliabilitySensitivity) {
+      doCalibration = false;
+    }
+    
     //
     // the selection part
     //
 
     QHBoxLayout *theSelectionLayout = new QHBoxLayout();
     QLabel *label = new QLabel();
-    label->setText(QString("Dakota Method Catagory"));
+    label->setText(QString("Dakota Method Category"));
     theEngineSelectionBox = new QComboBox();
     theEngineSelectionBox->addItem(tr("Forward Propagation"));
-    if (type == ForwardReliabilitySensivity) {
-        theEngineSelectionBox->addItem(tr("Sensitivity Analysis"));
-        theEngineSelectionBox->addItem(tr("Reliability Analysis"));
+    if (doReliability == true)
+      theEngineSelectionBox->addItem(tr("Reliability Analysis"));
+    if (doSensitivity == true)
+      theEngineSelectionBox->addItem(tr("Sensitivity Analysis"));
+    if (doCalibration == true) {
+      //theEngineSelectionBox->addItem(tr("Parameters Estimation")); // Deterministic
+      //theEngineSelectionBox->addItem(tr("Inverse Problem")); // Bayesian
+      theEngineSelectionBox->addItem(tr("Deterministic Calibration"));
+      theEngineSelectionBox->addItem(tr("Bayesian Calibration"));
+      theEngineSelectionBox->addItem(tr("Optimization"));
     }
-    theEngineSelectionBox->setMinimumWidth(400);
+    
+    theEngineSelectionBox->setMinimumWidth(600);
 
     theSelectionLayout->addWidget(label);
     theSelectionLayout->addWidget(theEngineSelectionBox);
-    //    theSelectionLayout->addStretch();
-    
-    theSelectionLayout->addWidget(new QLabel("        Parallel Execution"));
-    parallelCheckBox = new QCheckBox();
+    //theSelectionLayout->addStretch();
+    //theSelectionLayout->addWidget(new QSpacerItem(20,5));
+    parallelCheckBox = new QCheckBox("Parallel Execution  ");
     parallelCheckBox->setChecked(true);
+
+    removeWorkdirCheckBox = new QCheckBox("Save Working dirs");
+    removeWorkdirCheckBox->setChecked(true);
+
     theSelectionLayout->addWidget(parallelCheckBox);
+    theSelectionLayout->addWidget(removeWorkdirCheckBox);
     theSelectionLayout->addStretch();
-    
+
+
     layout->addLayout(theSelectionLayout);
 
     //
@@ -100,20 +129,31 @@ DakotaEngine::DakotaEngine(RandomVariablesContainer *theRVs, UQ_EngineType type,
     // create the individual widgets add to stacked widget
     //
 
-    theSamplingEngine = new DakotaInputSampling(theRVs);
-    theReliabilityEngine = new DakotaInputReliability(theRVs);
-    theSensitivityEngine = new DakotaInputSensitivity(theRVs);
+    theSamplingEngine = new DakotaInputSampling();
+    theReliabilityEngine = new DakotaInputReliability();
+    theCalibrationEngine = new DakotaInputCalibration();
+    theBayesianCalibrationEngine = new DakotaInputBayesianCalibration();
+    theSensitivityEngine = new DakotaInputSensitivity();
+    theOptimizationEngine = new DakotaInputOptimization();
 
     theStackedWidget->addWidget(theSamplingEngine);
-    theStackedWidget->addWidget(theSensitivityEngine);
     theStackedWidget->addWidget(theReliabilityEngine);
+    theStackedWidget->addWidget(theSensitivityEngine);    
+    theStackedWidget->addWidget(theCalibrationEngine);
+    theStackedWidget->addWidget(theBayesianCalibrationEngine);
+    theStackedWidget->addWidget(theOptimizationEngine);
 
     layout->addWidget(theStackedWidget);
     this->setLayout(layout);
     theCurrentEngine=theSamplingEngine;
 
-    connect(theEngineSelectionBox, SIGNAL(currentIndexChanged(QString)), this,
-          SLOT(engineSelectionChanged(QString)));
+    connect(theEngineSelectionBox, SIGNAL(currentTextChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
+
+
+    //connect(theEngineSelectionBox, &QComboBox::currentTextChanged, this,
+    //      SLOT(engineSelectionChanged(QString&)));
+
+    // connect(theSamplingEngine, SIGNAL(onNumModelsChanged(int)), this, SLOT(numModelsChanged(int)));
 
     theCurrentEngine = theSamplingEngine;
 }
@@ -126,24 +166,45 @@ DakotaEngine::~DakotaEngine()
 
 void DakotaEngine::engineSelectionChanged(const QString &arg1)
 {
-    UQ_Engine *theOldEngine = theCurrentEngine;
+    // UQ_Engine *theOldEngine = theCurrentEngine;
 
     if ((arg1 == QString("Sampling")) || (arg1 == QString("Forward Propagation"))) {
+      
       theStackedWidget->setCurrentIndex(0);
-      theCurrentEngine = theSamplingEngine;   
+      theCurrentEngine = theSamplingEngine;
+      
     } else if ((arg1 == QString("Reliability")) || (arg1 == QString("Reliability Analysis"))) {
-      theStackedWidget->setCurrentIndex(2);
-      theCurrentEngine = theReliabilityEngine;
-    } else if ((arg1 == QString("Sensitivity")) || (arg1 == QString("Sensitivity Analysis"))) {
+      
       theStackedWidget->setCurrentIndex(1);
+      theCurrentEngine = theReliabilityEngine;
+      
+    } else if ((arg1 == QString("Sensitivity")) || (arg1 == QString("Sensitivity Analysis"))) {
+      
+      theStackedWidget->setCurrentIndex(2);
       theCurrentEngine = theSensitivityEngine;
+      
+    } else if ((arg1 == QString("Calibration"))
+               || (arg1 == QString("Parameters Estimation"))
+               || (arg1 == QString("Parameter Estimation"))
+               || (arg1 == QString("Deterministic Calibration"))) {
+
+      theStackedWidget->setCurrentIndex(3);
+      theCurrentEngine = theCalibrationEngine;
+      
+    } else if ((arg1 == QString("Bayesian Calibration")) || (arg1 == QString("Inverse Problem"))) {
+      theStackedWidget->setCurrentIndex(4);
+      theCurrentEngine = theBayesianCalibrationEngine;
+      
+    } else if ((arg1 == QString("Optimization"))) {
+               theStackedWidget->setCurrentIndex(5);
+               theCurrentEngine = theOptimizationEngine;
     } else {
       qDebug() << "ERROR .. DakotaEngine selection .. type unknown: " << arg1;
     }
 
     // emit signal if engine changed
-    if (theCurrentEngine != theOldEngine)
-        emit onUQ_EngineChanged();
+    //if (theCurrentEngine != theOldEngine)
+    emit onUQ_EngineChanged();
 }
 
 
@@ -154,10 +215,17 @@ DakotaEngine::getMaxNumParallelTasks(void) {
 
 bool
 DakotaEngine::outputToJSON(QJsonObject &jsonObject) {
-
-    jsonObject["uqType"] = theEngineSelectionBox->currentText();
+    //TODO4: change this when version number changes from 3 to 4
+    QString uqMethod = theEngineSelectionBox->currentText();
+    if (uqMethod == QString("Bayesian Calibration")) {
+        uqMethod = QString("Inverse Problem");
+    } else if (uqMethod == QString("Deterministic Calibration")) {
+        uqMethod = QString("Parameters Estimation");
+    }
+    jsonObject["uqType"] = uqMethod;
     jsonObject["parallelExecution"]=parallelCheckBox->isChecked();
-    
+    jsonObject["saveWorkDir"]=removeWorkdirCheckBox->isChecked();
+
     return theCurrentEngine->outputToJSON(jsonObject);
 }
 
@@ -165,25 +233,24 @@ bool
 DakotaEngine::inputFromJSON(QJsonObject &jsonObject) {
     bool result = false;
 
-    if (jsonObject.contains("uqType")) {
-        QString selection = jsonObject["uqType"].toString();
-
-        int index = theEngineSelectionBox->findText(selection);
-        theEngineSelectionBox->setCurrentIndex(index);
-        this->engineSelectionChanged(selection);
-
-    } else {// for backward compatability .. forward was default
-        theEngineSelectionBox->setCurrentIndex(0);
-        this->engineSelectionChanged(tr("Sampling"));
+    QString uqMethod = jsonObject["uqType"].toString();
+    //TODO4: change this when version number changes from 3 to 4
+    if (uqMethod == QString("Inverse Problem")) {
+        uqMethod = QString("Bayesian Calibration");
+    } else if (uqMethod == QString("Parameters Estimation")) {
+        uqMethod = QString("Deterministic Calibration");
     }
-
 
     bool doParallel = true;
     if (jsonObject.contains("parallelExecution"))
         doParallel = jsonObject["parallelExecution"].toBool();
 
     parallelCheckBox->setChecked(doParallel);
-    
+
+
+    int index = theEngineSelectionBox->findText(uqMethod);
+    theEngineSelectionBox->setCurrentIndex(index);
+    this->engineSelectionChanged(uqMethod);
     if (theCurrentEngine != 0)
         result = theCurrentEngine->inputFromJSON(jsonObject);
     else
@@ -192,10 +259,11 @@ DakotaEngine::inputFromJSON(QJsonObject &jsonObject) {
     return result;
 }
 
+
 bool
 DakotaEngine::outputAppDataToJSON(QJsonObject &jsonObject)
 {
-    jsonObject["Application"] = "Dakota-UQ1";
+    jsonObject["Application"] = "Dakota-UQ";
     QJsonObject dataObj;
     jsonObject["ApplicationData"] = dataObj;
 
@@ -209,14 +277,9 @@ DakotaEngine::inputAppDataFromJSON(QJsonObject &jsonObject)
     return true;
 }
 
-int
-DakotaEngine::processResults(QString &filenameResults, QString &filenameTab) {
-    return theCurrentEngine->processResults(filenameResults, filenameTab);
-}
-
-RandomVariablesContainer *
-DakotaEngine::getParameters() {
-    return theCurrentEngine->getParameters();
+void
+DakotaEngine::setRV_Defaults() {
+    return theCurrentEngine->setRV_Defaults();
 }
 
 UQ_Results *
@@ -227,4 +290,22 @@ DakotaEngine::getResults(void) {
 QString
 DakotaEngine::getProcessingScript() {
     return QString("parseDAKOTA.py");
+}
+
+void
+DakotaEngine::numModelsChanged(int newNum) {
+    emit onNumModelsChanged(newNum);
+}
+
+QString
+DakotaEngine::getMethodName() {
+    return theCurrentEngine->getMethodName();
+}
+
+bool
+DakotaEngine::copyFiles(QString &fileDir) {
+    QString googleString=QString("UQ-DAKOTA-") + this->getMethodName();
+    GoogleAnalytics::ReportAppUsage(googleString);
+
+    return theCurrentEngine->copyFiles(fileDir);
 }

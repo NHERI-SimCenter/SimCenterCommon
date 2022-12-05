@@ -56,8 +56,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 
-InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(RandomVariablesContainer *theRandomVariableIW, QWidget *parent)
-    : SimCenterAppWidget(parent), theRandomVariablesContainer(theRandomVariableIW)
+InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(QWidget *parent)
+    : SimCenterAppWidget(parent)
 {   
     //
     // create layout for all qLineEdits
@@ -94,7 +94,6 @@ InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(RandomVariablesContaine
     theAlgorithm->setToolTip(tr("Nonlinear Solution Algorithm"));
     theAlgorithm->addItem("Linear");
     theAlgorithm->addItem("Newton");
-    theAlgorithm->addItem("Newmark");
     theAlgorithm->setEditable(false);
     theAlgorithm->setCurrentText("Newton");
     layout->addWidget(theAlgorithm, row, 1);
@@ -144,14 +143,17 @@ InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(RandomVariablesContaine
     //theRayleighWidget->setLineWidth(1);
     QGridLayout *layoutRayleigh = new QGridLayout();
 
+    /*
     QLabel *labelRD = new QLabel();
     labelRD->setText(QString("Damping Ratio: "));
     layoutRayleigh->addWidget(labelRD, 0, 0);
+
     dampingRatio = new QLineEdit();
     dampingRatio->setText("0.02");
     dampingRatio->setToolTip(tr("Damp ratio, 0.02 = 2% damping"));
     layoutRayleigh->addWidget(dampingRatio, 0, 1);
-
+    */
+    
     QLabel *labelRM1 = new QLabel();
     labelRM1->setText(QString("Mode 1: "));
     layoutRayleigh->addWidget(labelRM1, 2, 0);
@@ -171,8 +173,8 @@ InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(RandomVariablesContaine
     firstMode->setText("1");
     firstMode->setToolTip(tr("First Mode to to determine damping ratio, if 0 stiffness proportional damping"));
     secondMode = new QLineEdit();
-    secondMode->setText("0");
-    secondMode->setToolTip(tr("Second Mode to to determine damping ratio, if 0 mass proportional damping"));
+    secondMode->setText("-1");
+    secondMode->setToolTip(tr("Second Mode to to determine damping ratio, if 0 mass proportional damping, if -1 then 2*numStories-1 is used in the resulting script"));
     firstMode->setValidator(new QIntValidator);
     secondMode->setValidator(new QIntValidator);
 
@@ -191,20 +193,23 @@ InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(RandomVariablesContaine
     //theModalWidget->setLineWidth(1);
     QGridLayout *layoutModal = new QGridLayout();
 
+    /*
     QLabel *labelMDR = new QLabel();
     labelMDR->setText(QString("Damping Ratio: "));
     layoutModal->addWidget(labelMDR, 0, 0);
+
     dampingRatioModal = new QLineEdit();
     dampingRatioModal->setText("0.02");
     dampingRatioModal->setToolTip(tr("Damp ratio, 0.02 = 2% damping"));
     layoutModal->addWidget(dampingRatioModal, 0, 1);
-
+    */
+    
     QLabel *labelNumModes = new QLabel();
     labelNumModes->setText(QString("# Modes: "));
     layoutModal->addWidget(labelNumModes, 1, 0);
     numModesModal = new QLineEdit();
-    numModesModal->setText("1");
-    numModesModal->setToolTip(tr("number of modes to include"));
+    numModesModal->setText("-1");
+    numModesModal->setToolTip(tr("number of modes to include, if -1 2*numStories-1 is used"));
     numModesModal->setValidator(new QIntValidator);
 
     QLabel *labelMDRT = new QLabel(QString("Stiffness Proportional Damping Ratio: "));
@@ -232,10 +237,10 @@ InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(RandomVariablesContaine
     layout->addWidget(chooseFile, row, 2);
     row++;
 
-    connect(dampingRatio,SIGNAL(editingFinished()), this, SLOT(dampingEditingFinished()));
+    // connect(dampingRatio,SIGNAL(editingFinished()), this, SLOT(dampingEditingFinished()));
     //connect(theTolerance,SIGNAL(editingFinished()), this, SLOT(toleranceEditingFinished()));
     connect(chooseFile, SIGNAL(clicked(bool)), this, SLOT(chooseFileName()));
-    connect(theSelectionBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(changedDampingMethod(QString)));
+    connect(theSelectionBox, SIGNAL(currentTextChanged(QString)), this, SLOT(changedDampingMethod(QString)));
 
     QWidget *dummy = new QWidget();
     layout->addWidget(dummy,8,0);
@@ -247,6 +252,8 @@ InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(RandomVariablesContaine
     this->setLayout(layout);
 
 
+    theRandomVariablesContainer = RandomVariablesContainer::getInstance();
+    
    //this->setMinimumWidth(200);
    // this->setMaximumWidth(400);
 }
@@ -270,10 +277,11 @@ void InputWidgetOpenSeesAnalysis::clear(void) {
     theAlgorithm->setCurrentText("Newmark");
     theConvergenceTest->setText("NormUnbalance 1.0e-2 10");
 
-    dampingRatio->setText("0.02");
+    //    dampingRatio->setText("0.02");
+    // dampingRatioModal->setText("0.02");
+    
     firstMode->setText("1");
     secondMode->setText("0");
-    dampingRatioModal->setText("0.02");
     numModesModal->setText("1");
     theSelectionBox->setCurrentIndex(0);
     dampingRatioModalTangent->setText("0.0");
@@ -302,7 +310,7 @@ InputWidgetOpenSeesAnalysis::outputToJSON(QJsonObject &jsonObject)
 
     bool ok;
 
-
+    /*
     QString dampText = dampingRatio->text();
     double dampDouble = dampText.QString::toDouble(&ok);
     if (ok == true)
@@ -316,9 +324,7 @@ InputWidgetOpenSeesAnalysis::outputToJSON(QJsonObject &jsonObject)
         jsonObject["dampingRatioModal"]=dampModalDouble;
     else
         jsonObject["dampingRatioModal"]= QString("RV.") + dampModalText;
-
-
-
+    */
 
     if (!file->text().isEmpty() && !file->text().isNull()) {
         QFileInfo fileInfo(file->text());
@@ -349,7 +355,7 @@ InputWidgetOpenSeesAnalysis::inputFromJSON(QJsonObject &jsonObject)
         return false;
     }
 
-
+    /*
     if (jsonObject.contains("dampingRatio")) {
         QJsonValue theValue = jsonObject["dampingRatio"];
         if (theValue.isString()) {
@@ -374,7 +380,8 @@ InputWidgetOpenSeesAnalysis::inputFromJSON(QJsonObject &jsonObject)
     } else {
            dampingRatioModal->setText("0.02");// old code, use defaults
     }
-
+    */
+    
     if (jsonObject.contains("dampingModel")) {
         QJsonValue theValue = jsonObject["dampingModel"];
         if (theValue.isString())

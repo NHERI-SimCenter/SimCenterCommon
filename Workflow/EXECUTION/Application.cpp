@@ -72,11 +72,24 @@ Application::setupDoneRunApplication(QString &tmpDir, QString &inputFile) {
     return true;
 }
 
+
+bool
+Application::setupDoneRunPreprocessing(QString &tmpDirectory, QString &inputFile)
+{
+    Q_UNUSED(tmpDirectory);
+    Q_UNUSED(inputFile);
+
+    qDebug() << "Appliation::setupDoneRunPreprocessing";
+    return true;
+}
+
+
 void
 Application::setNumTasks(int numTasks) {
   Q_UNUSED(numTasks);
   return;
 }
+
 
 void
 Application::displayed(void) {

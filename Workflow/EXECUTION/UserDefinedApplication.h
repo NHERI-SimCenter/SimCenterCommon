@@ -60,7 +60,7 @@ public:
 signals:
 
 public slots:
-   void clear(void);
+   void clear(void) override;
    void chooseFileName(void);
 
 private:

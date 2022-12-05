@@ -44,6 +44,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "OpenSeesParser.h"
 #include "RandomVariablesContainer.h"
 #include "InputWidgetOpenSeesAnalysis.h"
+#include <LineEditRV.h>
+#include <ReadWriteRVJSON.h>
 
 #include <QHeaderView>
 #include <QMessageBox>
@@ -89,7 +91,20 @@ SteelBuildingModel::SteelBuildingModel(RandomVariablesContainer *theRandomVariab
     // Building information
     QGroupBox* buildingPropertiesBox = new QGroupBox("Building Information");
     QGridLayout *buildingPropertiesGrid = new QGridLayout();
-    numFloorsLE = createTextEntry(tr("Number Stories"), tr("number of stories in the building"),buildingPropertiesGrid, 0, 0, 100, 100);
+    
+    RandomVariablesContainer *randomVariables = RandomVariablesContainer::getInstance();
+
+    dampingRatio = new LineEditRV(randomVariables);
+    dampingRatio->setText("0.02");
+    dampingRatio->setMaximumWidth(100);
+    dampingRatio->setMinimumWidth(100);    
+    dampingRatio->setToolTip(tr("damping ratio, .02 = 2% damping"));
+
+    numFloorsLE = createTextEntry(tr("Number Stories"), tr("number of stories in the building"),buildingPropertiesGrid, 0, 0, 100, 100);    
+    buildingPropertiesGrid->addWidget(new QLabel("Damping Ratio"), 0, 3);
+    buildingPropertiesGrid->addWidget(dampingRatio, 0, 4);    
+
+    
     firstStoryHeightLE = createTextEntry(tr("First Story Height"), tr("This is the height of the first story, which may be different than the rest"),buildingPropertiesGrid, 1, 3, 100, 100);
     typStoryHeightLE = createTextEntry(tr("Typical Story Height"),tr("The typical height of the stories in the building"), buildingPropertiesGrid, 1, 0, 100, 100);
     numBayXLE = createTextEntry(tr("Number of bays in X direction"), tr("Number of bays in the X direction"),buildingPropertiesGrid, 2, 0, 100, 100);
@@ -313,12 +328,11 @@ bool SteelBuildingModel::checkRV(const QString& value)
 
 bool SteelBuildingModel::outputToJSON(QJsonObject &jsonObject)
 {
-    this->saveDataToFolder();
-
     jsonObject["type"]="SteelBuildingModel";
 
     jsonObject["numStories"]= numFloorsLE->text().toInt();
-
+    writeLineEditRV(jsonObject,"dampingRatio", dampingRatio);
+    
     // writeLineEditRV(jsonObject,"Kx", numBayXLE);
 
     //    QJsonArray theArray;
@@ -368,9 +382,9 @@ bool SteelBuildingModel::outputToJSON(QJsonObject &jsonObject)
 
 bool SteelBuildingModel::inputFromJSON(QJsonObject &jsonObject)
 {
-
     QJsonValue pathDataFolderObj = jsonObject["pathDataFolder"];
-
+   readLineEditRV(jsonObject,"dampingRatio", dampingRatio);
+   
     if (!pathDataFolderObj.isNull())
     {
         pathToDataFiles = pathDataFolderObj.toString();
@@ -439,19 +453,17 @@ bool SteelBuildingModel::copyFiles(QString &dirName) {
     QString name;
 
     if (!fullPath.exists()){
-        // files not yet saved .. mkdir and use saveDataToFolder method to write files
         name = "autosda_files";
-        pathToDataFiles = dirName + QDir::separator() + name;
-        dir.mkpath(pathToDataFiles);
-        this->saveDataToFolder();
+	pathToDataFiles = dirName + QDir::separator() + name;	
+	dir.mkdir(name);    	
     } else {
         //mkdir and copy
         name = fullPath.fileName();
         dir.mkdir(name);
-        copyPath(pathToDataFiles, dirName + QDir::separator() + name, true);
+	pathToDataFiles = dirName + QDir::separator() + name;
     }
 
-
+    this->saveDataToFolder();
 
     return true;
 }

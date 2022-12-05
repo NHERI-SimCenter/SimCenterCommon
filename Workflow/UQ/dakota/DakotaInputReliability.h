@@ -47,29 +47,29 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class DakotaSamplingResults;
 class UQ_Results;
+class UQ_Method;
 class QCheckBox;
-class RandomVariablesContainer;
 class QStackedWidget;
-class UQ_MethodInputWidget;
 
 class DakotaInputReliability : public UQ_Engine
 {
     Q_OBJECT
 public:
-  explicit DakotaInputReliability(RandomVariablesContainer *, QWidget *parent = 0);
+    explicit DakotaInputReliability(QWidget *parent = 0);
     ~DakotaInputReliability();
 
-    bool outputToJSON(QJsonObject &rvObject);
-    bool inputFromJSON(QJsonObject &rvObject);
+    bool outputToJSON(QJsonObject &jsonObject);
+    bool inputFromJSON(QJsonObject &jsonObject);
 
     int processResults(QString &filenameResults, QString &filenameTab);
 
     UQ_Results *getResults(void);
-    RandomVariablesContainer  *getParameters();
+  void setRV_Defaults(void);
 
     int getMaxNumParallelTasks(void);
 
     QVBoxLayout *mLayout;
+    QString getMethodName();
 
 signals:
 
@@ -80,14 +80,13 @@ public slots:
 private:
     QVBoxLayout *layout;
     QComboBox   *reliabilityMethod;
-  \
-    RandomVariablesContainer *theRandomVariables;
     DakotaSamplingResults *results;
 
     QStackedWidget *theStackedWidget;
-    UQ_MethodInputWidget *theCurrentMethod;
-    UQ_MethodInputWidget *theLocal;
-    UQ_MethodInputWidget *theGlobal;
+    UQ_Method *theCurrentMethod;
+    UQ_Method *theLocal;
+    UQ_Method *theGlobal;
+    UQ_Method *theIS;
 };
 
 #endif // DAKOTA_INPUT_RELIABILITY_H

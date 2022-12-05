@@ -38,6 +38,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <SimCenterAppWidget.h>
 
+#include <QJsonObject>
 #include <QDir>
 #include <QDebug>
 
@@ -91,7 +92,15 @@ SimCenterAppWidget::clear(void)
 bool
 SimCenterAppWidget::copyPath(QString sourceDir, QString destinationDir, bool overWriteDirectory)
 {
-    QDir sourceDirectory(sourceDir);
+  // don't copy self!
+  if (sourceDir == destinationDir)
+    return true;
+
+  // don't copy entire quoFEM - sy
+  if (sourceDir==QString("."))
+    return true;
+
+   QDir sourceDirectory(sourceDir);
 
     if (! sourceDirectory.exists()) {
         qDebug() << "Source Directory: " << sourceDir << " Does not exist";
@@ -104,15 +113,13 @@ SimCenterAppWidget::copyPath(QString sourceDir, QString destinationDir, bool ove
         destinationDirectory.removeRecursively();
     }
 
-    sourceDirectory.mkpath(destinationDir);
-
     foreach (QString directoryName, sourceDirectory.entryList(QDir::Dirs | \
                                                               QDir::NoDotAndDotDot))
     {
         if (directoryName != QString("tmp.SimCenter")) {
-        QString destinationPath = destinationDir + "/" + directoryName;
-        sourceDirectory.mkpath(destinationPath);
-        copyPath(sourceDir + "/" + directoryName, destinationPath, overWriteDirectory);
+	  QString destinationPath = destinationDir + "/" + directoryName;
+	  sourceDirectory.mkpath(destinationPath);
+	  copyPath(sourceDir + "/" + directoryName, destinationPath, overWriteDirectory);
         }
     }
 
@@ -135,25 +142,50 @@ SimCenterAppWidget::copyPath(QString sourceDir, QString destinationDir, bool ove
 bool
 SimCenterAppWidget::copyFile(QString filename, QString destinationDir)
 {
-    QFile fileToCopy(filename);
-    if (!fileToCopy.exists()) {
+    QFileInfo originalFileInfo(filename);
+    if (!originalFileInfo.exists()) {
       QString msg = QString("WARNING file to copy: ") + filename + QString(" does not exist!");
       qDebug() << msg;
       return false;
     }
 
-    QFileInfo fileInfo(filename);
-    QString theFile = fileInfo.fileName();
-    QString thePath = fileInfo.path();
-
+    QString theFile = originalFileInfo.fileName();
+    QString thePath = originalFileInfo.path();
     QString pathNewFile = QString(destinationDir + QDir::separator() + theFile);
-    QFile fileToCopyTo(pathNewFile);
-    if (fileToCopyTo.exists()) {
+
+    QFile originalFile(filename);    
+    QFile newFile(pathNewFile);
+    QFileInfo newFileInfo(pathNewFile);
+    
+    //
+    // don't overwrite same file with itself
+    //
+    
+    if (originalFileInfo.absoluteFilePath() == newFileInfo.absoluteFilePath())
+      return true;
+
+    //
+    // don't overwrite file
+    //
+    
+    if (newFileInfo.exists()) {
       QString msg = QString("WARNING file with same name as: ") + filename + QString(" exists in ") + destinationDir + QString(" file not copied");
       qDebug() << msg;
       return true;
     }
 
-    return fileToCopy.copy(pathNewFile);
+    return originalFile.copy(pathNewFile);
 }
 
+bool
+SimCenterAppWidget::outputCitation(QJsonObject &jsonObject)
+{
+    Q_UNUSED(jsonObject);
+  return true;
+}
+
+SimCenterAppWidget *
+SimCenterAppWidget::getClone()
+{
+  return NULL;
+}

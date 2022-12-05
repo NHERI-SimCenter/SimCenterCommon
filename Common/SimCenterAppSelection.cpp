@@ -38,6 +38,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "SimCenterAppSelection.h"
 #include "sectiontitle.h"
+#include <GoogleAnalytics.h>
 
 // Qt headers
 #include <QHeaderView>
@@ -65,60 +66,60 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 SimCenterAppSelection::SimCenterAppSelection(QString label, QString appName, QWidget *parent)
     :SimCenterAppWidget(parent), currentIndex(-1), theCurrentSelection(NULL), jsonKeyword(appName), viewableStatus(false)
 {
-  this->initializeWidget(label);
+    this->initializeWidget(label);
 }
 
 
 
-SimCenterAppSelection::SimCenterAppSelection(QString label, QString appName, QString oldAppName, QWidget *parent)
-  :SimCenterAppWidget(parent), currentIndex(-1), theCurrentSelection(NULL), jsonKeyword(appName), jsonKeywordOld(oldAppName), viewableStatus(false)
+SimCenterAppSelection::SimCenterAppSelection(QString label, QString appName, QString oldAppName, QString typeOfAsset, QWidget *parent)
+    :SimCenterAppWidget(parent), currentIndex(-1), theCurrentSelection(NULL), jsonKeyword(appName), jsonKeywordOld(oldAppName), assetType(typeOfAsset), viewableStatus(false)
 {
-  this->initializeWidget(label);
+    this->initializeWidget(label);
 }
 
 void
 SimCenterAppSelection::initializeWidget(QString label) {
-  
-  QVBoxLayout *layout = new QVBoxLayout;
-  QHBoxLayout *topLayout = new QHBoxLayout;
-  
-  topLayout->setSpacing(0);
-  layout->setSpacing(0);
-  topLayout->setContentsMargins(0,0,0,0);
-  layout->setContentsMargins(0,0,0,0);
-  
-  SectionTitle *selectionText = new SectionTitle();
-  selectionText->setMinimumWidth(250);  
-  selectionText->setText(label);
-  
-  theSelectionCombo = new QComboBox();
-  theSelectionCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
-  topLayout->addWidget(selectionText);
-  topLayout->addWidget(theSelectionCombo, 1);
-  topLayout->addStretch(1);
+
+    QVBoxLayout *layout = new QVBoxLayout;
+    QHBoxLayout *topLayout = new QHBoxLayout;
+
+    topLayout->setSpacing(0);
+    layout->setSpacing(0);
+    topLayout->setContentsMargins(0,0,0,0);
+    layout->setContentsMargins(0,0,0,0);
+
+    SectionTitle *selectionText = new SectionTitle();
+    selectionText->setMinimumWidth(250);
+    selectionText->setText(label);
+
+    theSelectionCombo = new QComboBox();
+    theSelectionCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    topLayout->addWidget(selectionText);
+    topLayout->addWidget(theSelectionCombo, 1);
+    topLayout->addStretch(1);
 #ifdef _WIN32
-  theSelectionCombo->setMaximumHeight(25);
+    theSelectionCombo->setMaximumHeight(25);
 #endif
 
-  QScrollArea *sa = new QScrollArea;
-  sa->setWidgetResizable(true);
-  sa->setLineWidth(0);
-  sa->setFrameShape(QFrame::NoFrame);  
-  
-  theStackedWidget = new QStackedWidget();
+    QScrollArea *sa = new QScrollArea;
+    sa->setWidgetResizable(true);
+    sa->setLineWidth(0);
+    sa->setFrameShape(QFrame::NoFrame);
 
-  sa->setWidget(theStackedWidget);
-       
-  layout->addLayout(topLayout);
-  layout->addWidget(sa);
-  
-  //  layout->addWidget(theStackedWidget);
-//  layout->addStretch();
+    theStackedWidget = new QStackedWidget();
 
-  this->setLayout(layout);  
+    sa->setWidget(theStackedWidget);
 
-  connect(theSelectionCombo, SIGNAL(currentIndexChanged(QString)),
-	  this, SLOT(selectionChangedSlot(QString)));
+    layout->addLayout(topLayout);
+    layout->addWidget(sa);
+
+    //  layout->addWidget(theStackedWidget);
+    //  layout->addStretch();
+
+    this->setLayout(layout);
+
+    connect(theSelectionCombo, SIGNAL(currentTextChanged(QString)),
+            this, SLOT(selectionChangedSlot(QString)));
 }
 
 
@@ -131,18 +132,18 @@ SimCenterAppSelection::~SimCenterAppSelection()
 
 bool SimCenterAppSelection::outputToJSON(QJsonObject &jsonObject)
 {
-  if (theSelectionCombo->isEnabled() == false) {
-    return true; // disabled
-  }
-  
+    if (theSelectionCombo->isEnabled() == false) {
+        return true; // disabled
+    }
+
     QJsonObject data;
     if (theCurrentSelection != NULL) {
-      if (theCurrentSelection->outputToJSON(data) == false) {
-	return false;
-      } else {
-	jsonObject[jsonKeyword] = data;
-	return true;
-      }
+        if (theCurrentSelection->outputToJSON(data) == false) {
+            return false;
+        } else {
+            jsonObject[jsonKeyword] = data;
+            return true;
+        }
     }
 
     return false;
@@ -151,32 +152,32 @@ bool SimCenterAppSelection::outputToJSON(QJsonObject &jsonObject)
 
 bool SimCenterAppSelection::inputFromJSON(QJsonObject &jsonObject)
 {
-  if (theSelectionCombo->isEnabled() == false) {
-    return true; // disabled
-  }
-  
-  QString key;
-  if (jsonObject.contains(jsonKeyword))
-    key = jsonKeyword;
-  else if (jsonObject.contains(jsonKeywordOld))
-    key = jsonKeywordOld;
-  else {
-    return true; // Stevan has this condition for some reason
-  }
-      
-  QJsonObject theApplicationObject = jsonObject[key].toObject();
-  
-  if (theCurrentSelection != NULL)
-    return theCurrentSelection->inputFromJSON(theApplicationObject);
+    if (theSelectionCombo->isEnabled() == false) {
+        return true; // disabled
+    }
 
-  //
-  // if get here an error
-  //
-  
-  QString message = QString("AppSelection: " ) + jsonKeyword + QString(" no app found");
-  errorMessage(message);
-  return false;
-  
+    QString key;
+    if (jsonObject.contains(jsonKeyword))
+        key = jsonKeyword;
+    else if (jsonObject.contains(jsonKeywordOld))
+        key = jsonKeywordOld;
+    else {
+        return true; // Stevan has this condition for some reason
+    }
+
+    QJsonObject theApplicationObject = jsonObject[key].toObject();
+
+    if (theCurrentSelection != NULL)
+        return theCurrentSelection->inputFromJSON(theApplicationObject);
+
+    //
+    // if get here an error
+    //
+
+    QString message = QString("AppSelection: " ) + jsonKeyword + QString(" no app found");
+    errorMessage(message);
+    return false;
+
 }
 
 
@@ -184,19 +185,30 @@ bool SimCenterAppSelection::outputAppDataToJSON(QJsonObject &jsonObject)
 {
     QJsonObject data;
     if (theCurrentSelection != NULL) {
-      if (theSelectionCombo->isEnabled()) {
-        if (theCurrentSelection->outputAppDataToJSON(data) == false) {
-	  return false;
+        if (theSelectionCombo->isEnabled()) {
+            if (theCurrentSelection->outputAppDataToJSON(data) == false) {
+                return false;
+            } else {
+                if(!data.isEmpty())
+                {
+                    if(assetType.isEmpty())
+                        jsonObject[jsonKeyword] = data;
+                    else
+                    {
+                        auto assetObj = jsonObject[jsonKeyword].toObject();
+
+                        assetObj.insert(assetType, data);
+
+                        jsonObject.insert(jsonKeyword,assetObj);
+                    }
+                }
+                return true;
+            }
         } else {
-	  if(!data.isEmpty())	  
-	    jsonObject[jsonKeyword] = data;
-	  return true;
+            data["Application"] = "None";
+            jsonObject[jsonKeyword] = data;
+            return true;
         }
-      } else {
-	data["Application"] = "None";
-	jsonObject[jsonKeyword] = data;
-	return true;	
-      }
     }
 
     return false;
@@ -207,58 +219,94 @@ bool SimCenterAppSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
 {
     // qDebug() << __PRETTY_FUNCTION__<< " " << jsonKeyword;
 
-  if (theSelectionCombo->isEnabled() == false) {
-    return true; // disabled
-  }
-  
-  QString key;
-  bool found = false;
-  if (jsonObject.contains(jsonKeyword)) {
-    key = jsonKeyword;
-    found = true;
-  } else if (jsonObject.contains(jsonKeywordOld)) {
-    key = jsonKeywordOld;
-    found = true;
-  } else {
-    qDebug() << jsonKeyword << " " << jsonKeywordOld << " " << jsonObject;
-  }
+    if (theSelectionCombo->isEnabled() == false) {
+        return true; // disabled
+    }
 
-  if (found) {
-    
+    QString key;
+    bool found = false;
+    if (jsonObject.contains(jsonKeyword)) {
+        key = jsonKeyword;
+        found = true;
+    } else if (jsonObject.contains(jsonKeywordOld)) {
+        key = jsonKeywordOld;
+        found = true;
+    }
+    else {
+        qDebug() << jsonKeyword << " " << jsonKeywordOld << " " << jsonObject;
+    }
+
+    if (found) {
+
         QJsonObject theApplicationObject = jsonObject[key].toObject();
+
         if (theApplicationObject.contains("Application")) {
             QJsonValue theName = theApplicationObject["Application"];
             QString appName = theName.toString();
 
-	    // qDebug() << __PRETTY_FUNCTION__<< " " << jsonKeyword << " " << appName;
-	    
-	    int index = theApplicationNames.indexOf(appName);
-	    
-	    if (index != -1) {
-	      theSelectionCombo->setCurrentIndex(index);
-	      theCurrentSelection=theComponents.at(index);
-	      return theCurrentSelection->inputAppDataFromJSON(theApplicationObject);
-	    } else {
-	      QString message = jsonKeyword +  QString(" found unknown application: ") + appName;
-	      this->errorMessage(message);
-	    }
+            // qDebug() << __PRETTY_FUNCTION__<< " " << jsonKeyword << " " << appName;
+
+            int index = theApplicationNames.indexOf(appName);
+
+            if (index != -1) {
+                theSelectionCombo->setCurrentIndex(index);
+                theCurrentSelection=theComponents.at(index);
+                return theCurrentSelection->inputAppDataFromJSON(theApplicationObject);
+            } else {
+                QString message = jsonKeyword +  QString(" found unknown application: ") + appName;
+                this->errorMessage(message);
+            }
         } else {
-            QString message = QString("SimCenterAppSelection could not find Application field in JSON");
-            this->errorMessage(message);
+
+            // To accomodate multiple assets
+            if(theApplicationObject.contains(assetType))
+            {
+                auto theAssetObject = theApplicationObject[assetType].toObject();
+
+                if(!theAssetObject.contains("Application"))
+                {
+                    QString message = assetType +  QString(" needs to contain an application field");
+                    this->errorMessage(message);
+                    return false;
+                }
+
+                QJsonValue theName = theAssetObject["Application"];
+                QString appName = theName.toString();
+
+                // qDebug() << __PRETTY_FUNCTION__<< " " << jsonKeyword << " " << appName;
+
+                int index = theApplicationNames.indexOf(appName);
+
+                if (index != -1) {
+                    theSelectionCombo->setCurrentIndex(index);
+                    theCurrentSelection=theComponents.at(index);
+                    return theCurrentSelection->inputAppDataFromJSON(theAssetObject);
+                } else {
+                    QString message = jsonKeyword +  QString(" found unknown application: ") + appName;
+                    this->errorMessage(message);
+                }
+            }
+            else{
+                QString message = QString("SimCenterAppSelection could not find Application field in JSON");
+                this->errorMessage(message);
+            }
         }
     } else {
 
         // Check if 'None' is an option
-        int index = theApplicationNames.indexOf("None");
-        if (index != -1) {
+        if (theApplicationNames.indexOf("None") != -1) {
+
+            int index = theApplicationNames.indexOf("None");
             theSelectionCombo->setCurrentIndex(index);
             theCurrentSelection=theComponents.at(index);
             return true;
         }
         else
         {
+            // Application is not found in the input file, do not input json, return
             QString message = QString("Applications does not contain a field: ") + jsonKeyword;
             this->errorMessage(message);
+            return false;
         }
     }
 
@@ -269,10 +317,12 @@ bool SimCenterAppSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
 
 bool SimCenterAppSelection::copyFiles(QString &destDir)
 {
-    if (theCurrentSelection != NULL)
-        return theCurrentSelection->copyFiles(destDir);
-    else
-        return false;
+  if (theCurrentSelection != NULL) {
+    QString textForAnalytics = jsonKeyword + QString("-") + theApplicationNames.at(currentIndex);
+    GoogleAnalytics::ReportAppUsage(textForAnalytics);    
+    return theCurrentSelection->copyFiles(destDir);
+  } else
+    return false;
 }
 
 
@@ -297,7 +347,7 @@ SimCenterAppSelection::addComponent(QString text, QString appName, SimCenterAppW
 
         return true;
     } else {
-        QString message = jsonKeyword +  QString(" found unknown application: ") + appName;
+        QString message = jsonKeyword +  QString(" application already exists: ") + text + " (" + appName + ")";
         this->errorMessage(message);
     }
 
@@ -311,6 +361,22 @@ SimCenterAppSelection::getComponent(QString text)
         return theComponents.at(theComboNames.indexOf(text));
     else
         return NULL;
+}
+
+
+bool
+SimCenterAppSelection::selectComponent(const QString text)
+{
+    auto idx = theComboNames.indexOf(text);
+
+    if (idx != -1)
+    {
+        theSelectionCombo->setCurrentIndex(idx);
+
+        return true;
+    }
+    else
+        return false;
 }
 
 
@@ -356,21 +422,39 @@ SimCenterAppSelection::selectionChangedSlot(const QString &selectedText)
 void
 SimCenterAppSelection::setCurrentlyViewable(bool status) {
     viewableStatus = status;
-    theCurrentSelection->setCurrentlyViewable(viewableStatus);
+    if (theCurrentSelection != 0)
+        theCurrentSelection->setCurrentlyViewable(viewableStatus);
+    else {
+      QString message = QString("SimCenterAppSelection: ") + jsonKeyword +  QString(" no current selection! ");
+      errorMessage(message);
+    }
 }
 
 SimCenterAppWidget *
 SimCenterAppSelection::getCurrentSelection(void) {
-  return theCurrentSelection;
+    return theCurrentSelection;
 }
+
+
+QString
+SimCenterAppSelection::getCurrentSelectionName(void)
+{
+    auto idx = theComponents.indexOf(theCurrentSelection);
+
+    if(idx == -1)
+        return QString();
+
+    return theApplicationNames.at(idx);
+}
+
 
 void
 SimCenterAppSelection::setSelectionsActive(bool visibility) {
-  if (visibility == false) {
-    theStackedWidget->setVisible(false);
-    theSelectionCombo->setEnabled(false);    
-  } else {
-    theStackedWidget->setVisible(true);
-    theSelectionCombo->setEnabled(true);
-  }    
+    if (visibility == false) {
+        theStackedWidget->setVisible(false);
+        theSelectionCombo->setEnabled(false);
+    } else {
+        theStackedWidget->setVisible(true);
+        theSelectionCombo->setEnabled(true);
+    }
 }

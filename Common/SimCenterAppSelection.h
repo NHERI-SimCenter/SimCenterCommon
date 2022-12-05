@@ -49,8 +49,8 @@ class SimCenterAppSelection : public  SimCenterAppWidget
     Q_OBJECT
 
 public:
-  explicit SimCenterAppSelection(QString label, QString jsonkeyword, QWidget *parent);
-  explicit SimCenterAppSelection(QString label, QString jsonKeyword, QString oldKeyword, QWidget *parent);  
+    explicit SimCenterAppSelection(QString label, QString jsonkeyword, QWidget *parent);
+    explicit SimCenterAppSelection(QString label, QString jsonKeyword, QString oldKeyword, QString typeOfAsset = QString(), QWidget *parent = nullptr);
     ~SimCenterAppSelection();
 
     bool outputAppDataToJSON(QJsonObject &jsonObject);
@@ -63,35 +63,38 @@ public:
     bool addComponent(QString comboBoxText, QString appNameText, SimCenterAppWidget *);
     SimCenterAppWidget *getComponent(QString text);
     SimCenterAppWidget *getCurrentSelection(void);
+    QString getCurrentSelectionName(void);
+    bool selectComponent(const QString text);
 
 public slots:
-   void selectionChangedSlot(const QString &);
-   void setCurrentlyViewable(bool);
-   void setSelectionsActive(bool);
+    void selectionChangedSlot(const QString &);
+    void setCurrentlyViewable(bool);
+    void setSelectionsActive(bool);
 
 signals:
-   void selectionChangedSignal(const QString &);
+    void selectionChangedSignal(const QString &);
 
 protected:
 
-  
+
 private:
-  virtual bool displayComponent(QString text);
-  void initializeWidget(QString label);
+    virtual bool displayComponent(QString text);
+    void initializeWidget(QString label);
 
-  QStackedWidget* theStackedWidget;
-  QComboBox* theSelectionCombo;
-  
-  int currentIndex;
-  SimCenterAppWidget *theCurrentSelection;
+    QStackedWidget* theStackedWidget;
+    QComboBox* theSelectionCombo;
 
-  QList<QString> theComboNames;
-  QList<QString> theApplicationNames;  
-  QList<SimCenterAppWidget *> theComponents;
-  QString jsonKeyword; // application type that appears in json
-  QString jsonKeywordOld; // application type that appears in older json for reading
+    int currentIndex;
+    SimCenterAppWidget *theCurrentSelection;
 
-  bool viewableStatus;
+    QList<QString> theComboNames;
+    QList<QString> theApplicationNames;
+    QList<SimCenterAppWidget *> theComponents;
+    QString jsonKeyword; // application type that appears in json
+    QString jsonKeywordOld; // application type that appears in older json for reading
+    QString assetType;
+
+    bool viewableStatus;
 };
 
 #endif // SimCenterAppSelection_H

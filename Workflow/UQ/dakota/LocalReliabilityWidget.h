@@ -38,14 +38,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 
-#include <UQ_MethodInputWidget.h>
+#include <UQ_Method.h>
 #include <QComboBox>
 
 class QLineEdit;
 class QCheckBox;
 class QGridLayout;
 
-class LocalReliabilityWidget : public UQ_MethodInputWidget
+class LocalReliabilityWidget : public UQ_Method
 {
     Q_OBJECT
 public:

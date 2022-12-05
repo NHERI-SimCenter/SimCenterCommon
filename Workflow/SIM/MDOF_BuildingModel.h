@@ -47,9 +47,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QMap>
 
 //class QVBoxLayout;
+class LineEditRV;
 class QLineEdit;
 class InputWidgetParameters;
-class RandomVariablesContainer;
 class QTableWidget;
 class GraphicView2D;
 class GlWidget2D;
@@ -58,7 +58,7 @@ class MDOF_BuildingModel : public SimCenterAppWidget, public Controller2D
 {
     Q_OBJECT
 public:
-    explicit MDOF_BuildingModel(RandomVariablesContainer *theRandomVariableIW, QWidget *parent = 0);
+    explicit MDOF_BuildingModel(QWidget *parent = 0);
     ~MDOF_BuildingModel();
 
     bool outputToJSON(QJsonObject &rvObject);
@@ -122,6 +122,7 @@ private:
     void removeRandmVariable(QString &text, int numReferences=1);
 
     QLineEdit *inFloors;
+    LineEditRV *dampingRatio;
     QLineEdit *inWeight;
     QLineEdit *storyHeight;
     QLineEdit *inKx;
@@ -158,7 +159,6 @@ private:
     //SpreadsheetWidget *theSpreadsheet;
     QTableWidget *theSpreadsheet;
 
-    RandomVariablesContainer *theRandomVariablesContainer;
     QStringList varNamesAndValues;
 
     QMap<QString, int>randomVariables;
