@@ -61,6 +61,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SurrogateDoEInputWidget.h>
 #include <SurrogateNoDoEInputWidget.h>
 #include <SurrogateMFInputWidget.h>
+#include <SimCenterIntensityMeasureWidget.h>
 
 SimCenterUQInputSurrogate::SimCenterUQInputSurrogate(QWidget *parent)
   : UQ_Engine(parent),uqSpecific(0)
@@ -290,4 +291,8 @@ SimCenterUQInputSurrogate::getMethodName(void){
     //    return QString("surrogateData");
     //}
     return QString("surrogate");
+}
+
+void SimCenterUQInputSurrogate::setEventType(QString type) {
+    theDoE->setEventType(type);
 }

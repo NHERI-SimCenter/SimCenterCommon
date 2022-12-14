@@ -55,6 +55,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QRadioButton>
 #include <QSpinBox>
 #include <QScrollArea>
+#include <QStackedWidget>
 
 SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
 : UQ_Method(parent)
@@ -144,6 +145,7 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
 
    // layout->addWidget(theAdvancedTitle, wid, 0, 1, 3,Qt::AlignBottom);
     theGpAdvancedWidgetLayout->addWidget(lineA, aid++, 0, 1, 3);
+    theGpAdvancedWidgetLayout->setMargin(0);
     //lineA->setVisible(false);
 
     //
@@ -262,6 +264,7 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     lineB->setFrameShape(QFrame::HLine);
     lineB->setFrameShadow(QFrame::Sunken);
     theExistingWidgetLayout->addWidget(lineB, eid++, 0, 1, 3);
+    theExistingWidgetLayout->setMargin(0);
 
     //
     // Input data
@@ -309,6 +312,54 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     errMSG->hide();
 
     //
+    // Advanced options for EEUQ
+    //
+
+    theGpAdvancedCheckBoxEE = new QCheckBox("Advanced Options for EE-UQ ");
+    theGpAdvancedCheckBoxEE->setStyleSheet("font-weight: bold; color: grey");
+
+    theGpAdvancedWidgetGroupEE = new QWidget();
+    QGridLayout *theGpAdvancedWidgetLayoutEE= new QGridLayout();
+    theGpAdvancedWidgetGroupEE -> setLayout(theGpAdvancedWidgetLayoutEE);
+    theGpAdvancedWidgetGroupEE -> setVisible(false);
+    int eeid =0;
+
+    layout->addWidget(theGpAdvancedCheckBoxEE, wid++, 0, 1, 3, Qt::AlignBottom);
+    layout->addWidget(theGpAdvancedWidgetGroupEE, wid++, 0, 1, -1);
+
+    QFrame *lineC = new QFrame;
+    lineC->setFrameShape(QFrame::HLine);
+    lineC->setFrameShadow(QFrame::Sunken);
+    theGpAdvancedWidgetLayoutEE->addWidget(lineC, eeid++, 0, 1, 3);
+    theGpAdvancedWidgetLayoutEE->setMargin(0);
+
+    //
+    // Selection of im
+    //
+
+    QStringList imChoices = {tr("None"), tr("Ground Motion Intensity")};
+    createComboBox(imChoicesComboBox, imChoices, tr(""), 300,0);
+
+    theGpAdvancedWidgetLayoutEE->addWidget(new QLabel("Input postprocess"), eeid, 0);
+    theGpAdvancedWidgetLayoutEE->addWidget(imChoicesComboBox, eeid++, 1);
+
+    QWidget *emptyVariableWidget = new QWidget();
+    theSCIMWidget = new SimCenterIntensityMeasureWidget();
+    im_stackedWidgets = new QStackedWidget(this);
+    im_stackedWidgets->addWidget(emptyVariableWidget);
+    im_stackedWidgets->addWidget(theSCIMWidget);
+    im_stackedWidgets->setCurrentIndex(0);
+
+    connect(imChoicesComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int id)
+    {
+        im_stackedWidgets->setCurrentIndex(id);
+    });
+    theGpAdvancedWidgetLayoutEE->addWidget(imChoicesComboBox,eeid++,0,1,9);
+    theGpAdvancedWidgetLayoutEE->addWidget(im_stackedWidgets,eeid++,0,1,9);
+    //
+
+
+    //
     // Finish
     //
 
@@ -316,7 +367,9 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     layout->setColumnStretch(5, 1);
     this->setLayout(layout2);
     connect(theGpAdvancedCheckBox,SIGNAL(toggled(bool)),this,SLOT(doAdvancedGP(bool)));
+    connect(theGpAdvancedCheckBoxEE,SIGNAL(toggled(bool)),this,SLOT(doAdvancedEE(bool)));
     connect(theExistingCheckBox,SIGNAL(toggled(bool)),this,SLOT(doExistingGP(bool)));
+    connect(this, SIGNAL(eventTypeChanged(QString)), this, SLOT(onEventTypeChanged(QString)));
 
 }
 
@@ -418,19 +471,6 @@ void SurrogateDoEInputWidget::doAdvancedGP(bool tog)
 
     theGpAdvancedWidgetGroup ->setVisible(tog);
 
-//    lineA->setVisible(tog);
-//    gpKernel-> setVisible(tog);
-//    theLinearCheckBox-> setVisible(tog);
-//    theLogtCheckBox-> setVisible(tog);
-//    //initialDoE-> setVisible(tog);
-//    theLinearLabel->setVisible(tog);
-//    theLogtLabel->setVisible(tog);
-//    theKernelLabel->setVisible(tog);
-//    //theInitialLabel->setVisible(tog);
-//    theNuggetLabel->setVisible(tog);
-//    theNuggetSelection->setVisible(tog);
-//    theDoELabel->setVisible(tog);
-//    theDoESelection->setVisible(tog);
 
     if (tog) {
         theGpAdvancedCheckBox->setStyleSheet("font-weight: bold; color: black");
@@ -443,9 +483,23 @@ void SurrogateDoEInputWidget::doAdvancedGP(bool tog)
         theDoESelection->setCurrentIndex(3);
         theLinearCheckBox->setChecked(false);
         theLogtCheckBox->setChecked(false);
-        //initialDoE-> setText("");
     }
 }
+// SLOT function
+void SurrogateDoEInputWidget::doAdvancedEE(bool tog)
+{
+
+    theGpAdvancedWidgetGroupEE ->setVisible(tog);
+
+
+    if (tog) {
+        theGpAdvancedCheckBoxEE->setStyleSheet("font-weight: bold; color: black");
+
+    } else {
+        theGpAdvancedCheckBoxEE->setStyleSheet("font-weight: bold; color: grey");
+    }
+}
+
 
 void SurrogateDoEInputWidget::doExistingGP(bool tog)
 {
@@ -539,8 +593,6 @@ SurrogateDoEInputWidget::outputToJSON(QJsonObject &jsonObj){
         jsonObj["nuggetOpt"]=theNuggetSelection->currentText();
         jsonObj["nuggetString"]=theNuggetVals->text();
 
-
-
         if (numSampToBeRepl->text() == "") {
             jsonObj["numSampToBeRepl"]= -1; // use default
         } else {
@@ -583,6 +635,13 @@ SurrogateDoEInputWidget::outputToJSON(QJsonObject &jsonObj){
         jsonObj["inpFile"]="NA";
         jsonObj["outFile"]="NA";
     }
+
+    if (im_stackedWidgets->currentIndex()==1) {
+        QJsonObject imJson;
+        result = theSCIMWidget->outputToJSON(imJson);
+        jsonObj["IntensityMeasure"] = imJson;
+    }
+
     return result;    
 }
 
@@ -679,6 +738,16 @@ SurrogateDoEInputWidget::inputFromJSON(QJsonObject &jsonObject){
     } else {
         result = false;
     }
+
+    if (jsonObject.contains("IntensityMeasure")) {
+        theGpAdvancedCheckBox->setVisible(true);
+        theGpAdvancedCheckBox->setChecked(true);
+        im_stackedWidgets->setCurrentIndex(1);
+        imChoicesComboBox->setCurrentIndex(1);
+        qDebug() << "Start loading intensity measure";
+        result = theSCIMWidget->inputFromJSON(jsonObject);
+    }
+
     return result;
 }
 
@@ -700,21 +769,6 @@ SurrogateDoEInputWidget::createLineEdits(QLineEdit *&a, QString defaultVal, QStr
 }
 
 
-//void
-//SurrogateDoEInputWidget::addOptionalCheckBox(QLineEdit *&a, QString defaultVal, QString type, QString toolTipText, double wid, QString placeholderText)
-//{
-//    a = new QLineEdit();
-//    a->setText(defaultVal);
-//    if (type=="Int" ) {
-//        a->setValidator(new QIntValidator);
-//    } else if (type=="Double") {
-//        a->setValidator(new QDoubleValidator);
-//    }
-//    a->setToolTip(toolTipText);
-//    a->setMaximumWidth(wid);
-//    a->setMinimumWidth(wid);
-//    a->setPlaceholderText((placeholderText));
-//}
 
 
 void
@@ -762,4 +816,21 @@ SurrogateDoEInputWidget::setRV_Defaults(void) {
   QString engineType("SimCenterUQ");
 
   theRVs->setDefaults(engineType, classType, Uniform);
+}
+
+void
+SurrogateDoEInputWidget::setEventType(QString type) {
+    typeEVT = type;
+    emit eventTypeChanged(typeEVT);
+}
+
+void
+SurrogateDoEInputWidget::onEventTypeChanged(QString typeEVT) {
+    if (typeEVT.compare("EQ") ==0 ) {
+        // an earthquake event type
+        theGpAdvancedCheckBoxEE->setVisible(true);
+    } else {
+        // not an earthquake event, inactivate ground motion intensity widget
+        theGpAdvancedCheckBoxEE->setVisible(false);
+    }
 }

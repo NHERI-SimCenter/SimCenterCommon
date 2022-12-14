@@ -94,9 +94,10 @@ SimCenterUQEngine::SimCenterUQEngine(UQ_EngineType type, QWidget *parent)
     if (doSensitivity == true)
       theMethodSelectionBox->addItem(tr("Sensitivity Analysis"));
     
-    if (doCalibration == true)
-      theMethodSelectionBox->addItem(tr("Train GP Surrogate Model"));
-    
+    if (doCalibration == true) {}
+      //theMethodSelectionBox->addItem(tr("Train GP Surrogate Model")); // SY - folloiwng PLoM
+
+    theMethodSelectionBox->addItem(tr("Train GP Surrogate Model")); // SY - folloiwng PLoM
     theMethodSelectionBox->addItem(tr("PLoM Model")); // PLoM, KZ
     theMethodSelectionBox->setMinimumWidth(600);
 
@@ -149,29 +150,24 @@ void SimCenterUQEngine::methodSelectionChanged(const QString &arg1)
 {
     // QString thePreviousName = theCurrentEngine->getMethodName();
     // UQ_Engine *theOldEngine = theCurrentEngine;
-    
+
     // theEdpWidget->showAdvancedSensitivity(false);
 
+    typeEVT = "None";
+    this->setEventType(typeEVT);
+    emit queryEVT();
     if (arg1 == QString("Forward Propagation")) {
         theStackedWidget->setCurrentIndex(0);
         theCurrentEngine = theSamplingEngine;
     } else if ((arg1 == QString("Sensitivity")) || (arg1 == QString("Sensitivity Analysis"))) {
        theStackedWidget->setCurrentIndex(1);
        theCurrentEngine = theSensitivityEngine;
-       // FMK theEdpWidget->showAdvancedSensitivity(true);
-       //theFemWidget->setFemGP(false);
     } else if ((arg1 == QString("Surrogate")) || (arg1 == QString("Train GP Surrogate Model"))) {
        theStackedWidget->setCurrentIndex(2);
        theCurrentEngine = theSurrogateEngine;
-       // reset other parts
-       // FMK theFemWidget->setFEMforGP("GPmodel");   // set it to be GP-FEM
     } else if (arg1 == QString("PLoM Model")) {
         theStackedWidget->setCurrentIndex(3);
         theCurrentEngine = thePLoMEngine;
-        // emit a signal to query EVT
-        typeEVT = "None";
-        this->setEventType(typeEVT);
-        emit queryEVT();
     } else {
       qDebug() << "ERROR .. SimCenterUQEngine selection .. type unknown: " << arg1;
     }
@@ -264,4 +260,5 @@ SimCenterUQEngine::copyFiles(QString &fileDir) {
 void
 SimCenterUQEngine::setEventType(QString type) {
     thePLoMEngine->setEventType(type);
+    theSurrogateEngine->setEventType(type);
 }

@@ -77,6 +77,8 @@ public slots:
    void clear(void);
    void onIndexChanged(const QString &arg1);
    void numModelsChanged(int numModels);
+   // KZ set event type
+   void setEventType(QString type);
 
 private:
     QVBoxLayout *layout;
