@@ -58,6 +58,8 @@ public:
 
     QModelIndex index(int row, int col = 0, const QModelIndex &parent = QModelIndex()) const override;
 
+    TreeItem* item(int row, int col = 0, const QModelIndex &parent = QModelIndex());
+
     QModelIndex parent(const QModelIndex &index) const override;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
