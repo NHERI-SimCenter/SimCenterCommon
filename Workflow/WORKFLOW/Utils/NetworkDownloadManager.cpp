@@ -219,7 +219,8 @@ void NetworkDownloadManager::sslErrors(const QList<QSslError> &sslErrors)
 #if QT_CONFIG(ssl)
     for (const QSslError &error : sslErrors)
     {
-        QString err = QString(fprintf(stderr, "SSL error: %s\n", qPrintable(error.errorString())));
+        QString err = QString("SSL error: ") + error.errorString();
+        //QString err = QString(fprintf(stderr, "SSL error: %s\n", qPrintable(error.errorString())));
         errorMessage(err);
     }
 #else

@@ -65,7 +65,7 @@ QWidget *addLabeledLineEdit(QString theLabelName, QLineEdit **theLineEdit){
     theLayout->addWidget(theLabel);
     theLayout->addWidget(theEdit);
     theLayout->setSpacing(0);
-    theLayout->setMargin(0);
+    //theLayout->setMargin(0);
 
     QWidget *theWidget = new QWidget();
     theWidget->setLayout(theLayout);
@@ -96,7 +96,7 @@ EDP::EDP(QString *name, QWidget *parent)
     mainLayout->addStretch();
 
     mainLayout->setSpacing(5);
-    mainLayout->setMargin(5);
+    //mainLayout->setMargin(5);
 
     this->setLayout(mainLayout);
 

@@ -53,7 +53,7 @@ ConstantDistribution::ConstantDistribution(QWidget *parent) :RandomVariableDistr
     // set some defaults, and set layout for widget to be the horizontal layout
     mainLayout->setHorizontalSpacing(10);
     mainLayout->setVerticalSpacing(0);
-    mainLayout->setMargin(0);
+    // mainLayout->setMargin(0);
 
     value = this->createTextEntry(tr("Constant Value"), mainLayout, 0);
 
@@ -112,6 +112,7 @@ ConstantDistribution::inputFromJSON(QJsonObject &rvObject){
 
 bool
 ConstantDistribution::copyFiles(QString fileDir) {
+    Q_UNUSED(fileDir);
     //do nothing
     return true;
 }

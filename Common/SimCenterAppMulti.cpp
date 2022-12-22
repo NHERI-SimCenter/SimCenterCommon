@@ -190,7 +190,7 @@ bool SimCenterAppMulti::outputAppDataToJSON(QJsonObject &jsonObject)
     dataObj.insert(QString("beliefs"), beliefArray);
     jsonObject["ApplicationData"] = dataObj;
 
-    return true;
+    return true; // FMK may need to keep instead of using result
 }
 
 
@@ -243,6 +243,7 @@ bool SimCenterAppMulti::copyFiles(QString &destDir)
 
 bool SimCenterAppMulti::outputCitation(QJsonObject &jsonObj)
 {
+    Q_UNUSED(jsonObj);
         return true;
 }
 

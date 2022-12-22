@@ -60,7 +60,7 @@ DiscreteDistribution::DiscreteDistribution(QString inpType, QWidget *parent) :Ra
 
     mainLayout->setHorizontalSpacing(10);
     mainLayout->setVerticalSpacing(0);
-    mainLayout->setMargin(0);
+    // mainLayout->setMargin(0);
 
 
     //QPushButton *showPlotButton = new QPushButton("Show PDF");

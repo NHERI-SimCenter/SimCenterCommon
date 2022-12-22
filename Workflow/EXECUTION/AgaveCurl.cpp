@@ -680,15 +680,18 @@ AgaveCurl::uploadFile(const QString &local, const QString &remote) {
                  CURLFORM_COPYCONTENTS, remoteName.toStdString().c_str(),
                  CURLFORM_END);
 
+    slist1 = curl_slist_append(slist1, "Expect: ");
+ 
     QString url = tenantURL + QString("files/v2/media/") + remotePath;
     curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
     curl_easy_setopt(hnd, CURLOPT_HTTPPOST, post1);
     curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "POST");
 
     if (this->invokeCurl() == false) {
+        emit errorMessage("AgaveCurl:: invokeCurl failed!");      
         return false;
     }
-
+    
     //
     // process the results
     //
@@ -705,6 +708,8 @@ AgaveCurl::uploadFile(const QString &local, const QString &remote) {
     val=file.readAll();
     file.close();
 
+    emit errorMessage(val);
+    
     // read into json object
    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
    QJsonObject theObj = doc.object();
@@ -723,7 +728,7 @@ AgaveCurl::uploadFile(const QString &local, const QString &remote) {
            emit errorMessage(message);
            return false;
        } else if (status == "success") {
-           emit statusMessage("Successfully uploaded diretory");
+           emit statusMessage("Successfully uploaded file");
            return true;
        }
 

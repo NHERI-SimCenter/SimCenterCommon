@@ -75,14 +75,14 @@ InputWidgetExistingEvent::InputWidgetExistingEvent(RandomVariablesContainer *the
     fileName1Layout->addStretch();
 
     fileName1Layout->setSpacing(10);
-    fileName1Layout->setMargin(0);
+    //fileName1Layout->setMargin(0);
 
     layout->addLayout(fileName1Layout);
     layout->setSpacing(10);
-    layout->setMargin(0);
+    //layout->setMargin(0);
     layout->addStretch();
 
-    layout->setMargin(0);
+    //layout->setMargin(0);
     layout->addStretch();
 
     this->setLayout(layout);

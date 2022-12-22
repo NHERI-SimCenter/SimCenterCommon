@@ -102,8 +102,8 @@ BIM_Selection::BIM_Selection(RandomVariablesContainer *theRVs, QWidget *parent)
     this->setLayout(layout);
     theCurrentSelection=theOpenSeesApplication;
 
-    connect(theSelectionBox, SIGNAL(currentIndexChanged(QString)), this,
-            SLOT(engineSelectionChanged(QString)));
+    //    connect(theSelectionBox, SIGNAL(currentTextChanged(QString&)), this,
+    //        SLOT(engineSelectionChanged(QString&)));
 }
 
 BIM_Selection::~BIM_Selection()

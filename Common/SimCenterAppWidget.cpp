@@ -38,6 +38,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <SimCenterAppWidget.h>
 
+#include <QJsonObject>
 #include <QDir>
 #include <QDebug>
 
@@ -179,6 +180,7 @@ SimCenterAppWidget::copyFile(QString filename, QString destinationDir)
 bool
 SimCenterAppWidget::outputCitation(QJsonObject &jsonObject)
 {
+    Q_UNUSED(jsonObject);
   return true;
 }
 

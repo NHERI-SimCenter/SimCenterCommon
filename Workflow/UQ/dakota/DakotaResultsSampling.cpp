@@ -77,7 +77,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QVXYModelMapper>
-using namespace QtCharts;
+//using namespace QtCharts;
 #include <math.h>
 #include <QValueAxis>
 
@@ -186,6 +186,7 @@ int DakotaResultsSampling::processResults(QString &dirName)
 
 int DakotaResultsSampling::processResults(QString &filenameResults, QString &filenameTab)
 {
+    Q_UNUSED(filenameResults);
     statusMessage(tr("Analysis done"));
 
     this->clear();

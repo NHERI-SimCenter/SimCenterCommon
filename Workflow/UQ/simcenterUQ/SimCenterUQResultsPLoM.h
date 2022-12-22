@@ -47,7 +47,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 #include "ResultsDataChart.h"
 
-using namespace QtCharts;
+//using namespace QtCharts;
 
 class QTextEdit;
 class QTabWidget;

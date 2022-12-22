@@ -83,7 +83,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QVXYModelMapper>
 #include <QtCharts/QLegendMarker>
-using namespace QtCharts;
+//using namespace QtCharts;
 #include <math.h>
 #include <QValueAxis>
 
@@ -325,6 +325,10 @@ SimCenterUQResultsSurrogate::onSaveModelClicked()
 
 
     bool directoryCopied = copyPath(workflowDir1, workflowDir2, true);
+    if (directoryCopied ==  false) {
+      QString err = QString("SimCenterUQResultsSurrogate::onSaveModelClicked - copyPath failed from : ") + workflowDir1 + QString(" to ") + workflowDir2;
+      errorMessage(err);
+    }
 
     lastPath =  QFileInfo(fileName).path();
 }

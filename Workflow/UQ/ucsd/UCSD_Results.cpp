@@ -79,7 +79,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QVXYModelMapper>
-using namespace QtCharts;
+//using namespace QtCharts;
 #include <math.h>
 #include <QValueAxis>
 

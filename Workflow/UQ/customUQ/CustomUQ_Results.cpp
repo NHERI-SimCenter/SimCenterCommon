@@ -77,7 +77,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QVXYModelMapper>
-using namespace QtCharts;
+//using namespace QtCharts;
 #include <math.h>
 #include <QValueAxis>
 
@@ -185,6 +185,8 @@ int CustomUQ_Results::processResults(QString &dirName)
 
 int CustomUQ_Results::processResults(QString &filenameOUT, QString &filenameTAB)
 {
+    Q_UNUSED(filenameOUT);
+
     statusMessage(tr("Processing Results"));
 
     this->clear();
@@ -518,7 +520,7 @@ CustomUQ_Results::onSaveSpreadsheetClicked()
 	  else
             stream <<theHeadings.at(j)<<", ";
         }
-        stream <<endl;
+        stream <<Qt::endl;
         for (int i=0; i<rowCount; i++)
         {
             for (int j=0; j<columnCount; j++)
@@ -530,7 +532,7 @@ CustomUQ_Results::onSaveSpreadsheetClicked()
 		else
 		  stream << value << ", ";		  
             }
-            stream<<endl;
+            stream<<Qt::endl;
         }
 	file.close();
     }
@@ -538,6 +540,7 @@ CustomUQ_Results::onSaveSpreadsheetClicked()
 
 void CustomUQ_Results::onSpreadsheetCellClicked(int row, int col)
 {
+    Q_UNUSED(row);
     mLeft = spreadsheet->wasLeftKeyPressed();
 
     chart->removeAllSeries();

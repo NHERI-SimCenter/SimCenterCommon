@@ -80,7 +80,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QVXYModelMapper>
-using namespace QtCharts;
+//using namespace QtCharts;
 #include <math.h>
 #include <QValueAxis>
 
@@ -411,9 +411,9 @@ void DakotaResultsSensitivity::gsaChart(QScrollArea *&sa) {
             trainingDataLayout->addWidget(e1, nrv+1,0);
             trainingDataLayout->addWidget(e2, nrv+1,1);
             trainingDataLayout->addWidget(e3, nrv+1,2);
-            trainingDataLayout->setColumnStretch(1,.5);
-            trainingDataLayout->setColumnStretch(2,.5);
-            trainingDataLayout->setColumnStretch(3,1);
+            trainingDataLayout->setColumnStretch(1,1);
+            trainingDataLayout->setColumnStretch(2,1);
+            trainingDataLayout->setColumnStretch(3,2);
 
             *set0 << sobols_main[ne][nrv];
             *set1 << sobols_tot[ne][nrv];
@@ -455,7 +455,7 @@ void DakotaResultsSensitivity::gsaChart(QScrollArea *&sa) {
         chartSobol->legend()->setAlignment(Qt::AlignRight);
         trainingDataLayout->addWidget(chartView, 0,3,-1,-1);
         trainingDataLayout->setSpacing(5);
-        trainingDataLayout->setMargin(10);
+        //trainingDataLayout->setMargin(10);
         trainingDataLayout->setColumnStretch(0 | 1 | 2, 1);
     }
 
@@ -488,13 +488,13 @@ DakotaResultsSensitivity::onSaveButtonClicked(void) {
 
              for (int ne=0; ne< numEDP; ne++) {
 
-                 stream << "* " << edpname_list[ne] << endl;
-                 stream << "randomVariable   Main   Total" << endl;
+                 stream << "* " << edpname_list[ne] << Qt::endl;
+                 stream << "randomVariable   Main   Total" << Qt::endl;
                  for (int nrv=0; nrv< numRV; nrv++) {
                      stream << rvname_list[nrv] << "   " << QString::number(sobols_main[ne][nrv],'f', 3) << "   " ;
-                     stream << QString::number(sobols_tot[ne][nrv],'f', 3) << endl;
+                     stream << QString::number(sobols_tot[ne][nrv],'f', 3) << Qt::endl;
                  }
-            stream << endl;
+            stream << Qt::endl;
              }
         file.close();
         }
@@ -610,7 +610,6 @@ DakotaResultsSensitivity::inputFromJSON(QJsonObject &jsonObject)
     QJsonArray sobols_tot_vals=jsonObject["sobols_tot"].toArray();
     QJsonArray sobols_main_vals=jsonObject["sobols_main"].toArray();
 
-    int n=0;
     for (int nq=0; nq<numEDP; nq++){
         QVector<double> sobols_tot_vec, sobols_main_vec;
         for (int nc=0; nc<numRV; nc++){

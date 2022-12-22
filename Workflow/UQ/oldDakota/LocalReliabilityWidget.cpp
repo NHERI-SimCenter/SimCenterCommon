@@ -58,7 +58,7 @@ LocalReliabilityWidget::LocalReliabilityWidget(QWidget *parent)
   method = new QComboBox();
   method->addItem("Mean Value");
   method->addItem("Most Probable Point");
-  connect(method, SIGNAL(currentIndexChanged(QString)), this, SLOT(onMethodSelectionChanged(QString)));
+  connect(method, SIGNAL(currentTextChanged(QString&)), this, SLOT(onMethodSelectionChanged(QString&)));
   layout->addWidget(method, 0, 2);
 
   QLabel *label3 = new QLabel();

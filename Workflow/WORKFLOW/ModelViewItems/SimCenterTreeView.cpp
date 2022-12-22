@@ -153,7 +153,7 @@ void SimCenterTreeView::runAction()
     QObject *senderObject = sender();
     QString syntax = senderObject->objectName();
     syntax.remove('&');
-    QStringList tempList = syntax.split(' ', QString::SkipEmptyParts);
+    QStringList tempList = syntax.split(' ', Qt::SkipEmptyParts);
     syntax.clear();
 
     for (int i = 0; i < tempList.count(); ++i)

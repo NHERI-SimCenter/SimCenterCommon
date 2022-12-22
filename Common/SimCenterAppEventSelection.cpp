@@ -91,7 +91,7 @@ SimCenterAppEventSelection::SimCenterAppEventSelection(QString label, QString ap
 
     this->setLayout(layout);
 
-    connect(theSelectionCombo, SIGNAL(currentIndexChanged(QString)), this, SLOT(selectionChangedSlot(QString)));
+    connect(theSelectionCombo, SIGNAL(currentTextChanged(QString)), this, SLOT(selectionChangedSlot(QString)));
 }
 
 
@@ -274,6 +274,7 @@ SimCenterAppEventSelection::currentEventTypeChanged(QString &eventType) {
 
 void
 SimCenterAppEventSelection::newHazard(QString &eventType){
+    Q_UNUSED(eventType);
 
 }
 

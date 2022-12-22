@@ -40,7 +40,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include <QtCharts/QChart>
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 using namespace QtCharts;
+#endif
 
 #include "MyTableWidget.h"
 #include "RandomVariablesContainer.h"
