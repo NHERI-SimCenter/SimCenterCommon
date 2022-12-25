@@ -598,7 +598,7 @@ SurrogateDoEInputWidget::outputToJSON(QJsonObject &jsonObj){
         } else {
             if ((numSampToBeRepl->text().toInt()<2) || (numSampToBeRepl->text().toInt() > numSamples->text().toInt())) {
                 errorMessage("Error prossessing inputs - the number of samples to be replicated (A) should be greater than 1 and smaller than the number of the unique samples (" + numSamples->text() +"), a value greater than 4×#RV is recommended");
-                return 0;
+                //return 0;
             }
 
              jsonObj["numSampToBeRepl"]= numSampToBeRepl->text().toInt();
@@ -609,7 +609,7 @@ SurrogateDoEInputWidget::outputToJSON(QJsonObject &jsonObj){
          } else {
             if (numRepl->text().toInt()<2) {
                 errorMessage("Error prossessing inputs - the number of replications (B) should be greater than 1 and a value greater than 5 is recommended");
-                return 0;
+                //return 0;
             }
             jsonObj["numRepl"]= numRepl->text().toInt();
         }

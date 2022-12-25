@@ -60,6 +60,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 SimCenterIntensityMeasureWidget::SimCenterIntensityMeasureWidget(QWidget* parent)
     : SimCenterWidget(parent)
 {
+
     vLayout = new QVBoxLayout();
     QHBoxLayout *hLayout = new QHBoxLayout();
 
@@ -87,6 +88,7 @@ SimCenterIntensityMeasureWidget::SimCenterIntensityMeasureWidget(QWidget* parent
     imLayout = new QVBoxLayout(this);
     imBox->setLayout(imLayout);
     imLayout->addStretch();
+    imLayout->setSpacing(0);
     QScrollArea *sa = new QScrollArea;
     sa->setWidgetResizable(true);
     sa->setLineWidth(0);
@@ -109,26 +111,24 @@ SimCenterIM::SimCenterIM(SimCenterIntensityMeasureCombo *theIM, SimCenterUnitsCo
     : SimCenterWidget(parent), myIM(theIM), myUnit(theUnit)
 {
     button = new QRadioButton();
-    imUnitLayout = new QHBoxLayout();
-    imUnitLayout->addWidget(button);
-    imUnitLayout->addWidget(myIM);
-    imUnitLayout->addWidget(myUnit);
-    QHBoxLayout *periodLayout = new QHBoxLayout;
-    QLabel *periodLabel = new QLabel(tr("Periods:"));
-    periodLine = new QLineEdit("0.5,1.0,2.0");
+    imUnitLayout = new QGridLayout();
+    imUnitLayout->addWidget(button,1,0,1,1);
+    imUnitLayout->addWidget(new QLabel("IM"),0,1);
+    imUnitLayout->addWidget(myIM,1,1);
+    imUnitLayout->addWidget(new QLabel("Unit"),0,2);
+    imUnitLayout->addWidget(myUnit,1,2);
+
+    periodLine = new QLineEdit("");
     QRegularExpression regExpAllow("^([1-9][0-9]*|[1-9]*\\.[0-9]*|0\\.[0-9]*)*(([ ]*,[ ]*){0,1}([[1-9]*\\.[0-9]*|[1-9][0-9]*|0\\.[0-9]*))*");
     LEValidator = new QRegularExpressionValidator(regExpAllow,this);
-    periodLayout->addWidget(periodLabel);
-    periodLayout->addWidget(periodLine);
-    //periodLayout->setMargin(0);
-    myPeriods = new QGroupBox();
-    myPeriods->setLayout(periodLayout);
-    myPeriods->setVisible(false);
-    imUnitLayout->addWidget(myPeriods);
-    imUnitLayout->addStretch();
-    this->setLayout(imUnitLayout);
 
+    imUnitLayout->addWidget(new QLabel(tr("Periods")),0,3);
+    imUnitLayout->addWidget(periodLine,1,3);
+    imUnitLayout->setColumnStretch(7,1);
+    imUnitLayout->setMargin(5);
+    this->setLayout(imUnitLayout);
     connect(myIM, SIGNAL(currentTextChanged(const QString&)), this, SLOT(handleIMChanged(const QString&)));
+    nCol = 4;
 }
 
 
@@ -138,12 +138,98 @@ SimCenterIM::~SimCenterIM()
 }
 
 
+
+void SimCenterIM::setCurrentIMtoPSA(void)
+{
+    myIM->setCurrentIM(SimCenterEQ::IntensityMeasure::Type::PSA); // default is PSA
+}
+
+void SimCenterIM::setLabelVisible(bool tog)
+{
+    for (int i =1; i<nCol; i++) {
+        QLayoutItem *child = imUnitLayout->itemAtPosition(0,i);
+        QLabel *Label = dynamic_cast<QLabel*>(child->widget());
+        Label ->setVisible(tog);
+    }
+}
+
+void SimCenterIM::addGridField(void)
+{
+    minVal = new QLineEdit("");
+    maxVal = new QLineEdit("");
+    numBins = new QLineEdit("5");
+    imUnitLayout->addWidget(new QLabel("Max"),0,4);
+    imUnitLayout->addWidget(minVal,1,4);
+    imUnitLayout->addWidget(new QLabel("Min"),0,5);
+    imUnitLayout->addWidget(maxVal,1,5);
+    imUnitLayout->addWidget(new QLabel("# bins"),0,6);
+    imUnitLayout->addWidget(numBins,1,6);
+    nCol += 3;
+    //
+    // ToDO: Discuss the right range with Kuanshi and Adam!!!
+    //
+
+    connect(myIM, &QComboBox::currentTextChanged, [this](QString newIM)
+    {
+        if (newIM.contains("Acceleration")) {
+            minVal->setText("0.1");
+            maxVal->setText("5.0");
+        } else if (newIM.contains("Velocity")) {
+            //minVal->setText("2.5");
+            //maxVal->setText("100");
+        } else if (newIM.contains("Displacement")) {
+            //minVal->setText("2.5");
+            //maxVal->setText("100");
+        } else if (newIM.contains("Duration")) {
+            minVal->setText("2.5");
+            maxVal->setText("100");
+        } else if (newIM.contains("SaRatio")) {
+            minVal->setText("1.0");
+            maxVal->setText("3.0");
+        } else if (newIM.contains("Arias")) {
+            //minVal->setText("2.5");
+            //maxVal->setText("100");
+        }
+    });
+
+
+}
+
 void SimCenterIM::handleIMChanged(const QString& newIM)
 {
-    if ((newIM.contains("Spectral")) || (newIM.contains("SaRatio")))
-        myPeriods->setVisible(true);
-    else
-        myPeriods->setVisible(false);
+    if ((newIM.contains("Spectral")) || (newIM.contains("SaRatio"))){
+        periodLine->setDisabled(false);
+        periodLine->setStyleSheet("background-color: white;"
+                        "color: black;");
+
+        if (newIM.contains("Spectral")) {
+            periodLine->setText("0.5");
+        } else {
+            periodLine->setText("0.1,1.0,1.5");
+        }
+    }else{
+        periodLine->setDisabled(true);
+        periodLine->setStyleSheet("background-color: lightgray;"
+                        "color: lightgray;");
+        periodLine->setText("");
+    }
+
+    // Set default units
+
+    if (newIM.contains("Acceleration")) {
+        myUnit->setCurrentUnit(SimCenter::Unit::Type::g);
+    } else if (newIM.contains("Velocity")) {
+        myUnit->setCurrentUnit(SimCenter::Unit::Type::mps);
+    } else if (newIM.contains("Displacement")) {
+        myUnit->setCurrentUnit(SimCenter::Unit::Type::m);
+    } else if (newIM.contains("Duration")) {
+        myUnit->setCurrentUnit(SimCenter::Unit::Type::sec);
+    } else if (newIM.contains("SaRatio")) {
+        myUnit->setCurrentUnit(SimCenter::Unit::Type::scalar);
+    } else if (newIM.contains("Arias")) {
+        myUnit->setCurrentUnit(SimCenter::Unit::Type::mps);
+    }
+
 }
 
 
@@ -316,7 +402,21 @@ void SimCenterIntensityMeasureWidget::addIMItem()
     SimCenterIntensityMeasureCombo *imCombo = new SimCenterIntensityMeasureCombo(SimCenterEQ::IntensityMeasure::ALL,imName);
     SimCenterUnitsCombo *unitCombo = new SimCenterUnitsCombo(SimCenter::Unit::ALL,unitName);
     SimCenterIM *imUnitCombo = new SimCenterIM(imCombo, unitCombo);
+
+    if (addGrid) {
+         imUnitCombo->addGridField();
+    }
+
+    if (i==0) {
+        imUnitCombo->setLabelVisible(true);
+    } else {
+        imUnitCombo->setLabelVisible(false);
+    }
+
     imLayout->insertWidget(i, imUnitCombo);
+
+    imUnitCombo->setCurrentIMtoPSA(); // Default Sa
+
 }
 
 
@@ -330,6 +430,18 @@ void SimCenterIntensityMeasureWidget::removeIMItem()
             imLayout->removeWidget(curWidget);
             curWidget->setParent(0);
             delete curWidget;
+        }
+    }
+
+    auto numIM_new = this->getNumberOfIM();
+
+    for (int i = 0; i < numIM_new; i++) {
+        QLayoutItem *curItem = imLayout->itemAt(i);
+        auto curWidget = dynamic_cast<SimCenterIM*>(curItem->widget());
+        if (i==0) {
+            curWidget->setLabelVisible(true);
+        } else {
+            curWidget->setLabelVisible(false);
         }
     }
 }
@@ -376,6 +488,11 @@ int SimCenterIntensityMeasureWidget::getNumberOfIM(void)
     return imLayout->count()-1;
 }
 
+
+void SimCenterIntensityMeasureWidget::addGridField(void)
+{
+   addGrid = true;
+}
 
 int SimCenterIntensityMeasureWidget::setIM(const QString& parameterName, const QString& im)
 {

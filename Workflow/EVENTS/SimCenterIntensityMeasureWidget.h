@@ -59,16 +59,23 @@ public:
     ~SimCenterIM();
 
     QRadioButton *button;
-    QHBoxLayout *imUnitLayout;
+    QGridLayout *imUnitLayout;
     SimCenterIntensityMeasureCombo *myIM;
     SimCenterUnitsCombo *myUnit;
-    QGroupBox *myPeriods;
+    QWidget *myPeriods;
     QLineEdit *periodLine;
     QRegularExpressionValidator *LEValidator;
+
+    void setLabelVisible(bool tog);
+    void addGridField(void);  // additionally for GM selection -sy
+    void setCurrentIMtoPSA(void);
+    QLineEdit *minVal, *maxVal, *numBins;  // additionally for GM selection
+
 public slots:
     void handleIMChanged(const QString& newIM);
     QString checkPeriodsValid(const QString& input) const;
 private:
+    int nCol;
 };
 
 class SimCenterIntensityMeasureWidget : public SimCenterWidget
@@ -87,11 +94,14 @@ public:
 
     int getNumberOfIM(void);
 
+    void addGridField(void);  // additionally for GM selection
+
     int setIM(const QString& parameterName, const QString& im);
 
     int setUnit(const QString& parameterName, const QString& unit);
 
     QList<QString> getParameterNames();
+    bool addGrid = false;
 
 public slots:
     void addIMItem();
