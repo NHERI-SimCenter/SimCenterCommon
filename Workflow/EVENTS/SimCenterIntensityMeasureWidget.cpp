@@ -182,10 +182,10 @@ void SimCenterIM::addGridField(void)
             //maxVal->setText("100");
         } else if (newIM.contains("Duration")) {
             minVal->setText("2.5");
-            maxVal->setText("100");
+            maxVal->setText("50");
         } else if (newIM.contains("SaRatio")) {
-            minVal->setText("1.0");
-            maxVal->setText("3.0");
+            minVal->setText("0.5");
+            maxVal->setText("1.5");
         } else if (newIM.contains("Arias")) {
             //minVal->setText("2.5");
             //maxVal->setText("100");
@@ -307,29 +307,39 @@ bool SimCenterIntensityMeasureWidget::outputToJSON(QJsonObject &jsonObject)
             curObj["Unit"] = unit;
         }
         // period if
-        if ((im.startsWith("PS")) || (im.compare("SaRatio")==0))
+        //if ((im.startsWith("PS")) || (im.compare("SaRatio")==0))
+        //{
+        auto periodsString = curIMUnit->periodLine->text();
+        if (periodsString.isEmpty())
         {
-            auto periodsString = curIMUnit->periodLine->text();
-            if (periodsString.isEmpty())
-            {
+            if ((im.startsWith("PS")) || (im.compare("SaRatio")==0)) {
                 PythonProgressDialog::getInstance()->appendErrorMessage("Error periods not defined for "+im);
                 return false;
             }
-            auto parsedPeriods = curIMUnit->checkPeriodsValid(periodsString);
-            parsedPeriods.remove(" ");
-            QJsonArray periodArray;
-            auto periodList = parsedPeriods.split(",");
-            if ((im.compare("SaRatio")==0) && (periodList.size() != 3))
-            {
-                PythonProgressDialog::getInstance()->appendErrorMessage("Error three periods for SaRatio Ta, T1, and Tb");
-                return false;
-            }
-            for (int i=0; i<periodList.size(); i++)
-                periodArray.append(periodList.at(i).toDouble());
-            curObj["Periods"] = periodArray;
         }
+        auto parsedPeriods = curIMUnit->checkPeriodsValid(periodsString);
+        parsedPeriods.remove(" ");
+        QJsonArray periodArray;
+        auto periodList = parsedPeriods.split(",");
+        if ((im.compare("SaRatio")==0) && (periodList.size() != 3))
+        {
+            PythonProgressDialog::getInstance()->appendErrorMessage("Error three periods for SaRatio Ta, T1, and Tb");
+            return false;
+        }
+        for (int i=0; i<periodList.size(); i++)
+            periodArray.append(periodList.at(i).toDouble());
+        curObj["Periods"] = periodArray;
+        //}
+        if (curIMUnit->nCol>4)
+        {
+            curObj["upperBound"] =curIMUnit->maxVal->text();
+            curObj["lowerBound"] =curIMUnit->minVal->text();
+            curObj["numBins"] =curIMUnit->numBins->text();
+        }
+
         jsonObject.insert(im, curObj);
     }
+
     return true;
 }
 

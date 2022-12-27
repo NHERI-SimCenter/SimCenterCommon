@@ -70,12 +70,12 @@ public:
     void addGridField(void);  // additionally for GM selection -sy
     void setCurrentIMtoPSA(void);
     QLineEdit *minVal, *maxVal, *numBins;  // additionally for GM selection
+    int nCol;
 
 public slots:
     void handleIMChanged(const QString& newIM);
     QString checkPeriodsValid(const QString& input) const;
 private:
-    int nCol;
 };
 
 class SimCenterIntensityMeasureWidget : public SimCenterWidget
