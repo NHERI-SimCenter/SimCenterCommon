@@ -112,9 +112,13 @@ void PythonProgressDialog::appendText(const QString text)
 
     auto cleanText = cleanUpText(text);
 
+#ifdef OpenSRA
+    progressTextEdit->appendHtml(QString(""));
+#else
     auto msgStr = this->getTimestamp();
 
     progressTextEdit->appendHtml(msgStr);
+#endif
 
     progressTextEdit->moveCursor(QTextCursor::End);
     progressTextEdit->insertPlainText(cleanText);
