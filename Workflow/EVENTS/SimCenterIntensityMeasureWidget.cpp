@@ -166,29 +166,42 @@ void SimCenterIM::addGridField(void)
     imUnitLayout->addWidget(numBins,1,6);
     nCol += 3;
     //
-    // ToDO: Discuss the right range with Kuanshi and Adam!!!
-    //
-
+    // ToDO: Discuss the right range with Kuanshi and Adam and Frank!!!
+    // ToDO: is spectral velocity = Sa/omega, spectral displacement = Sa/omega2 ?  <- in this case, they can select only one of these
+    // ToDO: should we allow more than one unit???
+    // ToDo: is the unit if arias intensity correct?
     connect(myIM, &QComboBox::currentTextChanged, [this](QString newIM)
     {
-        if (newIM.contains("Acceleration")) {
+        if (newIM.contains("Acceleration")&& newIM.contains("Spectral")) {
             minVal->setText("0.1");
             maxVal->setText("5.0");
-        } else if (newIM.contains("Velocity")) {
+        } else if (newIM.contains("Velocity")&& newIM.contains("Spectral")) {
             //minVal->setText("2.5");
             //maxVal->setText("100");
-        } else if (newIM.contains("Displacement")) {
+        } else if (newIM.contains("Displacement"&& newIM.contains("Spectral"))) {
             //minVal->setText("2.5");
             //maxVal->setText("100");
-        } else if (newIM.contains("Duration")) {
+        }else if (newIM.contains("Acceleration") && newIM.contains("Ground")) {
+            minVal->setText("0.001");
+            maxVal->setText("0.4");
+        } else if (newIM.contains("Velocity")&& newIM.contains("Ground")) {
+            minVal->setText("0.25");
+            maxVal->setText("14");
+        } else if (newIM.contains("Displacement")&& newIM.contains("Ground")) {
+            minVal->setText("0.03");
+            maxVal->setText("7");
+        } else if (newIM.contains("Duration") && newIM.contains("75")) {
             minVal->setText("2.5");
-            maxVal->setText("50");
+            maxVal->setText("40");
+        } else if (newIM.contains("Duration") && newIM.contains("95")) {
+            minVal->setText("2.5");
+            maxVal->setText("80");
         } else if (newIM.contains("SaRatio")) {
             minVal->setText("0.5");
             maxVal->setText("1.5");
         } else if (newIM.contains("Arias")) {
-            //minVal->setText("2.5");
-            //maxVal->setText("100");
+            minVal->setText("10");
+            maxVal->setText("10000");
         }
     });
 
