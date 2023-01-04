@@ -147,7 +147,7 @@ int SimCenterUQResultsSurrogate::processResults(QString &filenameResults, QStrin
 
     QFileInfo filenameErrorInfo(filenameErrorString);
     if (!filenameErrorInfo.exists()) {
-        errorMessage("No error file - SimCenterUQ did not run - problem with quoFEM setup or the applications failed with inputs provided");
+        errorMessage("No error file - SimCenterUQ did not run - problem with the application setup or the applications failed with inputs provided");
         return -1;
     }
 
