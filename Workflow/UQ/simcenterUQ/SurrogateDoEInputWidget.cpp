@@ -315,7 +315,7 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     // Advanced options for EEUQ
     //
 
-    theGpAdvancedCheckBoxEE = new QCheckBox("Advanced Options for EE-UQ ");
+    theGpAdvancedCheckBoxEE = new QCheckBox("Advanced Options (Earthquake specific)");
     theGpAdvancedCheckBoxEE->setStyleSheet("font-weight: bold; color: grey");
 
     theGpAdvancedWidgetGroupEE = new QWidget();

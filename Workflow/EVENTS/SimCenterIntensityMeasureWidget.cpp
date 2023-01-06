@@ -158,11 +158,11 @@ void SimCenterIM::addGridField(void)
     minVal = new QLineEdit("");
     maxVal = new QLineEdit("");
     numBins = new QLineEdit("5");
-    imUnitLayout->addWidget(new QLabel("Max"),0,4);
+    imUnitLayout->addWidget(new QLabel("Min."),0,4);
     imUnitLayout->addWidget(minVal,1,4);
-    imUnitLayout->addWidget(new QLabel("Min"),0,5);
+    imUnitLayout->addWidget(new QLabel("Max."),0,5);
     imUnitLayout->addWidget(maxVal,1,5);
-    imUnitLayout->addWidget(new QLabel("# bins"),0,6);
+    imUnitLayout->addWidget(new QLabel("#Bins"),0,6);
     imUnitLayout->addWidget(numBins,1,6);
     nCol += 3;
     //
@@ -205,8 +205,12 @@ void SimCenterIM::addGridField(void)
         }
     });
 
-
+    connect(numBins, &QLineEdit::textChanged, [this]()
+    {
+        emit numBinsChanged();
+    });
 }
+
 
 void SimCenterIM::handleIMChanged(const QString& newIM)
 {
@@ -437,9 +441,29 @@ void SimCenterIntensityMeasureWidget::addIMItem()
     }
 
     imLayout->insertWidget(i, imUnitCombo);
-
     imUnitCombo->setCurrentIMtoPSA(); // Default Sa
 
+    connect(imUnitCombo, SIGNAL(numBinsChanged()), this, SLOT(getNumBins()));
+
+    this->getNumBins();
+}
+
+
+void SimCenterIntensityMeasureWidget::getNumBins()
+{
+    auto numIM = this->getNumberOfIM();
+    int numBin = 1;
+    for (int i = 0; i < numIM; i++) {
+        QLayoutItem *curItem = imLayout->itemAt(i);
+        auto curWidget = dynamic_cast<SimCenterIM*>(curItem->widget());
+        numBin = numBin * curWidget->numBins->text().toDouble();
+    }
+
+    if (numIM == 0) {
+        numBin = 0;
+    }
+
+    emit numBinsChanged(numBin);
 }
 
 
@@ -467,6 +491,9 @@ void SimCenterIntensityMeasureWidget::removeIMItem()
             curWidget->setLabelVisible(false);
         }
     }
+
+
+    this->getNumBins();
 }
 
 

@@ -75,6 +75,8 @@ public:
 public slots:
     void handleIMChanged(const QString& newIM);
     QString checkPeriodsValid(const QString& input) const;
+signals:
+    void numBinsChanged(void);
 private:
 };
 
@@ -101,11 +103,16 @@ public:
     int setUnit(const QString& parameterName, const QString& unit);
 
     QList<QString> getParameterNames();
+
     bool addGrid = false;
 
 public slots:
     void addIMItem();
     void removeIMItem();
+    void getNumBins(void);
+
+signals:
+    void numBinsChanged(int);
 
 private:
     QVBoxLayout *vLayout;
@@ -115,5 +122,10 @@ private:
     SimCenterIntensityMeasureCombo* imFindChild(const QString& name);
 
     SimCenterUnitsCombo* unitFindChild(const QString& name);
+
+    int sumGridField(void);
+
+
+
 };
 #endif // SIMCENTERINTENSITYMEASUREWIDGET_H

@@ -35,7 +35,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written: fmckenna
-// added: bsaakash
+// added: bsaakash, sangri
 #include <QApplication>
 #include <math.h>
 
@@ -268,13 +268,7 @@ ResultsDataChart::makeChart() {
     }
 
 
-    //layout->addWidget(chartView, 0,0,1,-1);
-    //layout->addWidget(save_spreadsheet,1,0,Qt::AlignLeft);
-    //layout->addWidget(save_columns,1,1,Qt::AlignLeft);
-    //layout->addWidget(spreadsheet,2,0,1,-1);
-    //layout->setColumnStretch(4,1);
     layout->addWidget(chartView);
-    //layout->addWidget(save_spreadsheet);
     layout->addWidget(spreadsheet);
     //
     // add summary, detained info and spreadsheet with chart to the tabed widget
@@ -1617,8 +1611,8 @@ void ResultsDataChart::overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxi
         series->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
         //series->setColor(QColor(0, 114, 178, alpha)); //Blue
         //series->setColor(QColor(255, 127, 14, alpha*2));// Orange
-        series->setColor(QColor(180, 180, 180, alpha));// Orange
-        series->setBorderColor(QColor(180, 180, 180, alpha));// Orange
+        series->setColor(QColor(180, 180, 180, alpha));// grey
+        series->setBorderColor(QColor(180, 180, 180, alpha));// grey
 
         // find min/max
         double minX, maxX, minY, maxY;
