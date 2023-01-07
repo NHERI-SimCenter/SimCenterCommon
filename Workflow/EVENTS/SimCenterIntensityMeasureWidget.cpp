@@ -35,7 +35,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written by: Kuanshi Zhong, Stevan Gavrilovic, Frank McKenna
-
+// Modified by: Sang-ri Yi (Added grid IM components)
 
 #include "SimCenterIntensityMeasureWidget.h"
 #include "SimCenterIntensityMeasureCombo.h"
@@ -445,7 +445,9 @@ void SimCenterIntensityMeasureWidget::addIMItem()
 
     connect(imUnitCombo, SIGNAL(numBinsChanged()), this, SLOT(getNumBins()));
 
-    this->getNumBins();
+    if (addGrid) {
+        this->getNumBins();
+    }
 }
 
 
@@ -492,8 +494,9 @@ void SimCenterIntensityMeasureWidget::removeIMItem()
         }
     }
 
-
-    this->getNumBins();
+    if (addGrid) {
+       this->getNumBins();
+    }
 }
 
 
