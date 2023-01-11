@@ -168,13 +168,15 @@ bool SimCenterAppMulti::inputFromJSON(QJsonObject &jsonObject)
 bool SimCenterAppMulti::outputAppDataToJSON(QJsonObject &jsonObject)
 {
     bool result = true;
-    jsonObject["Application"] = appName;
+    jsonObject["Application"] = "MultiModel";
+
     QJsonObject dataObj;
 
     dataObj["modelToRun"]=QString("RV.")+appName;
 
     QJsonArray modelArray;
     QJsonArray beliefArray;
+    QString applicationType;
     int numModel = theModels.size();
     for (int i=0; i<numModel; i++) {
         QJsonObject modelData;
@@ -185,10 +187,12 @@ bool SimCenterAppMulti::outputAppDataToJSON(QJsonObject &jsonObject)
         if (res == false)
             result = false;
         modelArray.append(modelData);
+        applicationType = modelData.keys().at(0);
     }
     dataObj.insert(QString("models"),modelArray);
     dataObj.insert(QString("beliefs"), beliefArray);
-    jsonObject["ApplicationData"] = dataObj;
+    jsonObject["ApplicationData"] = applicationType;
+    jsonObject[applicationType] = dataObj;
 
     return true; // FMK may need to keep instead of using result
 }
@@ -200,15 +204,14 @@ bool SimCenterAppMulti::inputAppDataFromJSON(QJsonObject &jsonObject)
     this->clear();
 
     if (jsonObject.contains("ApplicationData")) {
-        QJsonObject dataObject = jsonObject["ApplicationData"].toObject();
+        QString appKey = jsonObject["ApplicationData"].toString();
+        QJsonObject dataObject = jsonObject[appKey].toObject();
 
         if (dataObject.contains("models") && dataObject.contains("beliefs")) {
             QJsonArray modelObjects = dataObject["models"].toArray();
             QJsonArray beliefObjects = dataObject["beliefs"].toArray();
 
             int length = modelObjects.count();
-            QString msg = QString("REading ") + QString::number(length);
-            errorMessage(msg);
             for (int i=0; i<length; i++) {
                 this->addTab();
                 QJsonObject modelObject = modelObjects.at(i).toObject();
