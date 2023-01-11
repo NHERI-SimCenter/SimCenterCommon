@@ -200,7 +200,7 @@ void SimCenterIM::addGridField(void)
             minVal->setText("0.5");
             maxVal->setText("1.5");
         } else if (newIM.contains("Arias")) {
-            minVal->setText("10");
+            minVal->setText("1");
             maxVal->setText("10000");
         }
     });
@@ -355,7 +355,13 @@ bool SimCenterIntensityMeasureWidget::outputToJSON(QJsonObject &jsonObject)
         }
 
         jsonObject.insert(im, curObj);
+
+        if (jsonObject.size()!=i+1) {
+            PythonProgressDialog::getInstance()->appendErrorMessage("Error: " + im + " cannot be used twice");
+            return false;
+        }
     }
+
 
     return true;
 }
