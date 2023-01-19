@@ -51,6 +51,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLabel>
 #include <QPushButton>
 #include <QLineEdit>
+#include <QDoubleValidator>
 
 SimCenterAppMulti::SimCenterAppMulti(QString label,
                                      QString appNam,
@@ -102,6 +103,10 @@ SimCenterAppMulti::addTab() {
     newBelief->setText(QString::number(1.0));
     newLayout->addWidget(new QLabel("Belief:"), 0,0);
     newLayout->addWidget(newBelief, 0,1);
+
+    QDoubleValidator *beliefValidator = new QDoubleValidator;
+    beliefValidator->setBottom(0.0);
+    newBelief->setValidator(beliefValidator);
 
     if (theNewSelection != 0) {
         newLayout->addWidget(theNewSelection,1,0,1,4);
@@ -296,7 +301,6 @@ SimCenterAppMulti::getTotalBelief() {
         QLineEdit *theBelief = theBeliefs.at(i);
         total += theBelief->text().toDouble();
     }
-    qDebug()  << "Total belief: " << total;
     return total;
 }
 
@@ -305,6 +309,6 @@ SimCenterAppMulti::updateTotalBelief(void) {
     int numModels = theModels.size();
     for (int i=0; i<numModels; i++) {
         QLabel *theTotalBelief = theTotalBeliefs.at(i);
-        theTotalBelief->setText(QString("Out of ") + QString::number(getTotalBelief()));
+        theTotalBelief->setText(QString("Out of ") + QString::number(getTotalBelief(), 'g', 15));
     }
 }
