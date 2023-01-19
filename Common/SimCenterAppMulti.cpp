@@ -107,15 +107,26 @@ SimCenterAppMulti::addTab() {
         newLayout->addWidget(theNewSelection,1,0,1,4);
     }
 
+    QLabel *newTotalBelief = new QLabel;
+    newTotalBelief->setText(QString("Out of ") + QString::number(getTotalBelief()));
+    newLayout->addWidget(newTotalBelief, 0, 2);
 
     theBeliefs.append(newBelief);
     theModels.append(theNewSelection);
+    theTotalBeliefs.append(newTotalBelief);
+
+    updateTotalBelief();
 
     QString label = tabLabel + QString("-") + QString::number(theBeliefs.count());
     theTabs->addTab(newWidget,label);
 
 
     newLayout->setColumnStretch(3,1);
+
+
+    connect(newBelief, &QLineEdit::textChanged, this, [=](){
+        this->updateTotalBelief();
+      });
 
     return 0;
 }
@@ -253,6 +264,7 @@ void SimCenterAppMulti::clear(void)
     theTabs->clear();
     theModels.clear();
     theBeliefs.clear();
+    theTotalBeliefs.clear();
 }
 
 int
@@ -265,11 +277,34 @@ SimCenterAppMulti::removeCurrentTab() {
     delete theWidgetToBeRemoved;
     theBeliefs.removeAt(index);
     theModels.removeAt(index);
+    theTotalBeliefs.removeAt(index);
 
     for (int i=index; i<theBeliefs.count(); i++) {
         QString label = tabLabel + QString("-") + QString::number(i+1);
         theTabs->setTabText(i,label);
     }
 
+    updateTotalBelief();
+
     return 0;
+}
+
+double
+SimCenterAppMulti::getTotalBelief() {
+    double total = 0.0;
+    for (int i=0; i<theBeliefs.count(); i++) {
+        QLineEdit *theBelief = theBeliefs.at(i);
+        total += theBelief->text().toDouble();
+    }
+    qDebug()  << "Total belief: " << total;
+    return total;
+}
+
+void
+SimCenterAppMulti::updateTotalBelief(void) {
+    int numModels = theModels.size();
+    for (int i=0; i<numModels; i++) {
+        QLabel *theTotalBelief = theTotalBeliefs.at(i);
+        theTotalBelief->setText(QString("Out of ") + QString::number(getTotalBelief()));
+    }
 }
