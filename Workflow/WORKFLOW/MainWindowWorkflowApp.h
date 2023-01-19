@@ -17,7 +17,7 @@ class QDockWidget;
 class QLabel;
 class SimCenterPreferences;
 class ExampleDownloader;
-class PythonProgressDialog;
+class ProgramOutputDialog;
 
 class MainWindowWorkflowApp : public QMainWindow
 {
@@ -126,7 +126,7 @@ public:
 
     SimCenterPreferences *thePreferences;
     ExampleDownloader* theExampleDownloader;
-    PythonProgressDialog* statusWidget;
+    ProgramOutputDialog* statusWidget;
 
     friend class R2DUnitTests;
 

@@ -41,7 +41,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "NetworkDownloadManager.h"
 #include "CheckableTreeModel.h"
 #include "LayerTreeItem.h"
-#include "Utils/PythonProgressDialog.h"
+#include "Utils/ProgramOutputDialog.h"
 #include "MainWindowWorkflowApp.h"
 
 #include <QDebug>
@@ -52,7 +52,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 ExampleDownloader::ExampleDownloader(MainWindowWorkflowApp *parent) : QDialog(nullptr)
 {
-    statusDialog = PythonProgressDialog::getInstance();
+    statusDialog = ProgramOutputDialog::getInstance();
     workflowApp = parent;
 
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
