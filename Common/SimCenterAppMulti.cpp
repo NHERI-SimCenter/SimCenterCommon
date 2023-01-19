@@ -309,6 +309,12 @@ SimCenterAppMulti::updateTotalBelief(void) {
     int numModels = theModels.size();
     for (int i=0; i<numModels; i++) {
         QLabel *theTotalBelief = theTotalBeliefs.at(i);
-        theTotalBelief->setText(QString("Out of ") + QString::number(getTotalBelief(), 'g', 15));
+        theTotalBelief->setTextFormat(Qt::RichText);
+        theTotalBelief->setText(QString("Out of ")
+                                + QString::number(getTotalBelief(), 'g', 15)
+                                + QString(" (i. e. , <b> ")
+                                + QString::number(theBeliefs.at(i)->text().toDouble()
+                                                  /getTotalBelief()*100, 'g', 6)
+                                + QString("%</b>)"));
     }
 }
