@@ -125,43 +125,71 @@ bool SimCenterAppMulti::outputToJSON(QJsonObject &jsonObject)
    jsonObject["modelToRun"]=QString("RV.")+appName;
 
    QJsonArray modelArray;
-   QJsonArray beliefArray;
-   int numFEM = theModels.size();
-   for (int i=0; i<numFEM; i++) {
+   int numModels = theModels.size();
+   for (int i=0; i<numModels; i++) {
+       QJsonObject data;
        QJsonObject modelData;
-       SimCenterAppWidget *theWidget = theModels.at(i);
+       QJsonObject appData;
+
        QLineEdit *theBelief = theBeliefs.at(i);
-       beliefArray.append(QJsonValue(theBelief->text().toDouble()));
+       data.insert(QString("belief"), QJsonValue(theBelief->text().toDouble()));
+
+       SimCenterAppWidget *theWidget = theModels.at(i);
        theWidget->outputToJSON(modelData);
-       modelArray.append(modelData);
+       // get the first item in the modelData
+       QJsonObject::const_iterator iter = modelData.constBegin();
+       // replace its key with "data" and write to json file
+       QJsonValue val = iter.value();
+       data.insert(QString("data"), val);
+
+       theWidget->outputAppDataToJSON(appData);
+       // get the first item in the appData
+       QJsonObject::const_iterator it = appData.constBegin();
+       QJsonObject sourceObjAppData = it.value().toObject();
+       // loop over the items in the first item of appData
+       QJsonObject::iterator iterAppData = sourceObjAppData.begin();
+       while (iterAppData != sourceObjAppData.end()) {
+           data.insert(iterAppData.key(), iterAppData.value());
+           ++iterAppData;
+       }
+       modelArray.append(data);
    }
    jsonObject.insert(QString("models"),modelArray);
-   jsonObject.insert(QString("beliefs"), beliefArray);
    return true;
 }
 
 
 bool SimCenterAppMulti::inputFromJSON(QJsonObject &jsonObject)
 {
-
     if (jsonObject.contains("models")) {
         QJsonArray modelObjects = jsonObject["models"].toArray();
         int length = modelObjects.count();
-        if (length == theModels.count()) {
-            for (int i=0; i<length; i++) {
-                QJsonObject modelObj = modelObjects.at(i).toObject();
-                theModels.at(i)->inputFromJSON(modelObj);
-            }
-            return true;
-        } else {
-            errorMessage("SimCenterAppMulti - inputFromJson, input arrays and existing tabs do not match!");
-            return false;
+
+        for (int i=0; i<length; i++) {
+            this->addTab();
+
+            QJsonObject appDataObj;
+            appDataObj.insert(QString("Application"), modelObjects.at(i)["Application"]);
+            appDataObj.insert(QString("ApplicationData"), modelObjects.at(i)["ApplicationData"]);
+            QJsonObject appObj;
+            appObj[tabLabel] = appDataObj;
+            theModels.at(i)->inputAppDataFromJSON(appObj);
+
+            QJsonObject modelDataObj = modelObjects.at(i)["data"].toObject();
+
+            QJsonObject modelObj;
+            modelObj[tabLabel] = modelDataObj;
+            theModels.at(i)->inputFromJSON(modelObj);
+
+            double belief = modelObjects.at(i)["belief"].toDouble();
+            theBeliefs.at(i)->setText(QString::number(belief));
+
         }
+        return true;
+    } else {
         errorMessage("SimCenterAppMulti - inputFromJson, no models section");
         return false;
     }
-    // won't get here, but to stop compiler warning
-    return true;
 }
 
 
@@ -169,30 +197,16 @@ bool SimCenterAppMulti::outputAppDataToJSON(QJsonObject &jsonObject)
 {
     bool result = true;
     jsonObject["Application"] = "MultiModel";
-
-    QJsonObject dataObj;
-
-    dataObj["modelToRun"]=QString("RV.")+appName;
-
-    QJsonArray modelArray;
-    QJsonArray beliefArray;
+    QJsonObject appTypeObj;
     QString applicationType;
-    int numModel = theModels.size();
-    for (int i=0; i<numModel; i++) {
-        QJsonObject modelData;
-        SimCenterAppWidget *theWidget = theModels.at(i);
-        QLineEdit *theBelief = theBeliefs.at(i);
-        beliefArray.append(QJsonValue(theBelief->text().toDouble()));
-        bool res = theWidget->outputAppDataToJSON(modelData);
-        if (res == false)
-            result = false;
-        modelArray.append(modelData);
-        applicationType = modelData.keys().at(0);
-    }
-    dataObj.insert(QString("models"),modelArray);
-    dataObj.insert(QString("beliefs"), beliefArray);
-    jsonObject["ApplicationData"] = applicationType;
-    jsonObject[applicationType] = dataObj;
+    QJsonObject modelData;
+    SimCenterAppWidget *theWidget = theModels.at(0);
+    bool res = theWidget->outputAppDataToJSON(modelData);
+    if (res == false)
+        result = false;
+    applicationType = modelData.keys().at(0);
+    appTypeObj.insert(QString("appKey"),applicationType);
+    jsonObject.insert(QString("ApplicationData"), appTypeObj);
 
     return true; // FMK may need to keep instead of using result
 }
@@ -204,30 +218,13 @@ bool SimCenterAppMulti::inputAppDataFromJSON(QJsonObject &jsonObject)
     this->clear();
 
     if (jsonObject.contains("ApplicationData")) {
-        QString appKey = jsonObject["ApplicationData"].toString();
-        QJsonObject dataObject = jsonObject[appKey].toObject();
+        QString appKey = jsonObject["ApplicationData"].toObject()["appKey"].toString();
+        return true;
 
-        if (dataObject.contains("models") && dataObject.contains("beliefs")) {
-            QJsonArray modelObjects = dataObject["models"].toArray();
-            QJsonArray beliefObjects = dataObject["beliefs"].toArray();
-
-            int length = modelObjects.count();
-            for (int i=0; i<length; i++) {
-                this->addTab();
-                QJsonObject modelObject = modelObjects.at(i).toObject();
-                double val = beliefObjects.at(i).toDouble();
-                theBeliefs.at(i)->setText(QString::number(val));
-                theModels.at(i)->inputAppDataFromJSON(modelObject);
-            }
-            return true;
-        } else {
-            errorMessage("SimCenterAppMulti - could not read models or beliefs sections");
-            return false;
-        }
-
+    } else {
+        errorMessage("SimCenterAppMulti - could not read ApplicationData section");
+        return false;
     }
-    errorMessage("SimCenterAppMulti - could not read ApplicationData section");
-    return false;
 }
 
 
@@ -276,4 +273,3 @@ SimCenterAppMulti::removeCurrentTab() {
 
     return 0;
 }
-
