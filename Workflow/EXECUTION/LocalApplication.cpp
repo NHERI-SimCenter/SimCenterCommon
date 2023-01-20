@@ -100,7 +100,7 @@ LocalApplication::inputFromJSON(QJsonObject &dataObject) {
 void
 LocalApplication::onRunButtonPressed(void)
 {
-    sendStatusMessage("Setting up temporary directory.");
+    this->statusMessage("Setting up temporary directory.");
 
     QApplication::processEvents();
 
@@ -111,7 +111,7 @@ LocalApplication::onRunButtonPressed(void)
             QString errorMessage = QString("Could not create Working Dir: ") + workingDir
                     + QString(". Change the Local Jobs Directory location in preferences.");
 
-            emit sendErrorMessage(errorMessage);;
+            this->errorMessage(errorMessage);
 
             return;
         }
@@ -122,13 +122,13 @@ LocalApplication::onRunButtonPressed(void)
     QDir dirApp(appDir);
     if (!dirApp.exists()) {
         QString errorMessage = QString("The application directory, ") + appDir +QString(" specified does not exist!. Check Local Application Directory in Preferences");
-        emit sendErrorMessage(errorMessage);;
+        this->errorMessage(errorMessage);;
         return;
     }
 
     QString templateDir("templatedir");
 
-    emit sendStatusMessage("Gathering files to local workdir.");
+    this->statusMessage("Gathering files to local workdir.");
     emit setupForRun(workingDir, templateDir);
 }
 
@@ -164,7 +164,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     QFileInfo check_script(pySCRIPT);
     // check if file exists and if yes: Is it really a file and no directory?
     if (!check_script.exists() || !check_script.isFile()) {
-        emit sendErrorMessage(QString("NO SCRIPT FILE: ") + pySCRIPT);
+        this->errorMessage(QString("NO SCRIPT FILE: ") + pySCRIPT);
         emit runComplete();
         return false;
     }
@@ -172,7 +172,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     QString registryFile = scriptDir.absoluteFilePath("WorkflowApplications.json");
     QFileInfo check_registry(registryFile);
     if (!check_registry.exists() || !check_registry.isFile()) {
-        emit sendErrorMessage(QString("NO REGISTRY FILE: ") + registryFile);
+        this->errorMessage(QString("NO REGISTRY FILE: ") + registryFile);
         emit runComplete();
         return false;
     }
@@ -206,7 +206,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
         exportPath += pythonPath;
         pathEnv = pythonPath + ';' + pathEnv;
     } else {
-        emit sendErrorMessage("NO VALID PYTHON - Read the Manual & Check your Preferences");
+        this->errorMessage("NO VALID PYTHON - Read the Manual & Check your Preferences");
         emit runComplete();
         return false;
     }
@@ -406,7 +406,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     {
         qDebug() << "Failed to start the workflow!!! exit code returned: " << proc->exitCode();
         qDebug() << proc->errorString().split('\n');
-        emit sendStatusMessage("Failed to start the workflow!!!");
+        this->statusMessage("Failed to start the workflow!!!");
         failed = true;
     }
 
@@ -414,7 +414,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     {
         qDebug() << "Failed to finish running the workflow!!! exit code returned: " << proc->exitCode();
         qDebug() << proc->errorString();
-        emit sendStatusMessage("Failed to finish running the workflow!!!");
+        this->statusMessage("Failed to finish running the workflow!!!");
         failed = true;
     }
 
@@ -423,7 +423,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     {
         qDebug() << "Failed to run the workflow!!! exit code returned: " << proc->exitCode();
         qDebug() << proc->errorString();
-        emit sendStatusMessage("Failed to run the workflow!!!");
+        this->statusMessage("Failed to run the workflow!!!");
         failed = true;
     }
 
@@ -449,7 +449,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     } else if (homeDir.exists(".zshrc")) {
         sourceBash = QString("source $HOME/.zshrc; ");
     } else
-        emit sendErrorMessage( "No .bash_profile, .bashrc, .zprofile or .zshrc file found. This may not find Dakota or OpenSees");
+        this->errorMessage( "No .bash_profile, .bashrc, .zprofile or .zshrc file found. This may not find Dakota or OpenSees");
 
     // note the above not working under linux because bash_profile not being called so no env variables!!
     QString command;
@@ -482,7 +482,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     {
         qDebug() << "Failed to finish running the workflow!!! exit code returned: " << proc->exitCode();
         qDebug() << proc->errorString();
-        emit sendStatusMessage("Failed to finish running the workflow!!!");
+        this->statusMessage("Failed to finish running the workflow!!!");
         failed = true;
     }
 
@@ -491,7 +491,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     {
         qDebug() << "Failed to run the workflow!!! exit code returned: " << proc->exitCode();
         qDebug() << proc->errorString();
-        emit sendStatusMessage("Failed to run the workflow!!!");
+        this->statusMessage("Failed to run the workflow!!!");
         failed = true;
     }
 
@@ -519,8 +519,8 @@ void LocalApplication::handleProcessFinished(int exitCode, QProcess::ExitStatus 
     {
         QString errText("Error, the process running the Python script crashed");
 
-        emit sendErrorMessage(errText);
-        emit sendStatusMessage("Analysis complete with errors");
+        this->errorMessage(errText);
+        this->statusMessage("Analysis complete with errors");
         emit runComplete();
 
         return;
@@ -530,8 +530,8 @@ void LocalApplication::handleProcessFinished(int exitCode, QProcess::ExitStatus 
     {
         QString errText("An error occurred in the Python script, the exit code is " + QString::number(exitCode));
 
-        emit sendErrorMessage(errText);
-        emit sendStatusMessage("Analysis complete with errors");
+        this->errorMessage(errText);
+        this->statusMessage("Analysis complete with errors");
         emit runComplete();
 
         return;
@@ -564,7 +564,7 @@ void LocalApplication::handleProcessFinished(int exitCode, QProcess::ExitStatus 
         emit processResults(dirOut);	
     }
 
-    emit sendStatusMessage("Analysis complete");
+    this->statusMessage("Analysis complete");
     emit runComplete();
 }
 
@@ -572,7 +572,7 @@ void LocalApplication::handleProcessFinished(int exitCode, QProcess::ExitStatus 
 void LocalApplication::handleProcessStarted(void)
 {
     QString msg = "Starting the analysis. This may take awhile!";
-    emit sendStatusMessage(msg);
+    this->statusMessage(msg);
     QApplication::processEvents();
 }
 
@@ -581,6 +581,6 @@ void LocalApplication::handleProcessTextOutput(void)
 {
     QByteArray output =  proc->readAllStandardOutput();
     QString outputStr = QString(output);
-    emit sendStatusMessage(outputStr);
+    this->statusMessage(outputStr);
     QApplication::processEvents();
 }
