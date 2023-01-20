@@ -48,12 +48,14 @@ class UQpyEngine : public UQ_Engine
 {
     Q_OBJECT
 public:
-    explicit UQpyEngine(QWidget *parent = 0);
-    virtual ~UQpyEngine();
+    explicit UQpyEngine(UQ_EngineType type, QWidget *parent = 0);
+    ~UQpyEngine();
 
     int getMaxNumParallelTasks(void);
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
+
+    void setRV_Defaults(void);
 
     RandomVariablesContainer *getParameters();
     UQ_Results *getResults(void);
