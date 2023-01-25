@@ -2,19 +2,19 @@
 #include "MainWindowWorkflowApp.h"
 #include <QWidget>
 #include <RemoteService.h>
-#include <Utils/PythonProgressDialog.h>
+#include <Utils/ProgramOutputDialog.h>
 
 #include <QMenuBar>
 #include <QDebug>
 
-PythonProgressDialog *WorkflowAppWidget::progressDialog = nullptr;
+ProgramOutputDialog *WorkflowAppWidget::progressDialog = nullptr;
 
 WorkflowAppWidget::WorkflowAppWidget(RemoteService *theService, QWidget *parent)
     :QWidget(parent), theRemoteService(theService)
 {
     this->setContentsMargins(0,0,0,0);
 
-    progressDialog = PythonProgressDialog::getInstance(this);
+    progressDialog = ProgramOutputDialog::getInstance(this);
 }
 
 
@@ -58,7 +58,7 @@ MainWindowWorkflowApp *WorkflowAppWidget::getTheMainWindow() const
 }
 
 
-PythonProgressDialog *WorkflowAppWidget::getProgressDialog()
+ProgramOutputDialog *WorkflowAppWidget::getProgressDialog()
 {
     return progressDialog;
 }

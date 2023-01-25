@@ -37,12 +37,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include <SimCenterWidget.h>
-#include <Utils/PythonProgressDialog.h>
+#include <Utils/ProgramOutputDialog.h>
 
 SimCenterWidget::SimCenterWidget(QWidget *parent)
     :QWidget(parent)
 {
-    progressDialog = PythonProgressDialog::getInstance(this);
+    progressDialog = ProgramOutputDialog::getInstance(this);
 }
 
 SimCenterWidget::~SimCenterWidget()
@@ -92,7 +92,7 @@ SimCenterWidget::infoMessage(const QString& message)
     progressDialog->appendInfoMessage(message);
 }
 
-PythonProgressDialog*
+ProgramOutputDialog*
 SimCenterWidget::getProgressDialog() const
 {
     return progressDialog;

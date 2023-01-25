@@ -1,29 +1,31 @@
-#include "PythonProgressDialog.h"
+#include "ProgramOutputDialog.h"
 
 #include <QDebug>
 #include <QTime>
+#include <QLabel>
 #include <QPlainTextEdit>
 #include <QProgressBar>
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QTimer>
 #include <QRecursiveMutex>
+#include <QElapsedTimer>
 
-PythonProgressDialog *PythonProgressDialog::theInstance = 0;
+ProgramOutputDialog *ProgramOutputDialog::theInstance = 0;
 
-PythonProgressDialog *
-PythonProgressDialog::getInstance(QWidget *parent) {
+ProgramOutputDialog *
+ProgramOutputDialog::getInstance(QWidget *parent) {
     if (theInstance == 0)
-        theInstance = new PythonProgressDialog(parent);
+        theInstance = new ProgramOutputDialog(parent);
     return theInstance;
 }
 
-PythonProgressDialog::~PythonProgressDialog()
+ProgramOutputDialog::~ProgramOutputDialog()
 {
 
 }
 
-PythonProgressDialog::PythonProgressDialog(QWidget* parent) : QDialog(parent)
+ProgramOutputDialog::ProgramOutputDialog(QWidget* parent) : QDialog(parent)
 {
     this->setWindowModality(Qt::NonModal);
     this->setWindowTitle("Program Output");
@@ -39,9 +41,8 @@ PythonProgressDialog::PythonProgressDialog(QWidget* parent) : QDialog(parent)
     progressTextEdit->setReadOnly(true);
 
     progressBar = new QProgressBar(this);
-    progressBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Maximum);
+    progressBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
     progressBar->setRange(0,0);
-    progressBar->hide();
 
     // give it some dimension
 //    int nWidth = 800;
@@ -55,33 +56,40 @@ PythonProgressDialog::PythonProgressDialog(QWidget* parent) : QDialog(parent)
 
 
     progressLayout->addWidget(progressTextEdit);
-    progressLayout->addWidget(progressBar);
 
-//    auto buttonsLayout = new QHBoxLayout();
 
-//    QPushButton* clearButton = new QPushButton("Clear",this);
-//    buttonsLayout->addWidget(clearButton,1);
+    auto progressBarLayout = new QHBoxLayout();
+    progressBarLayout->addWidget(progressBar);
 
-//    buttonsLayout->addStretch(1);
+    timerText = new QLabel("0  ");
+    timerLabel = new QLabel("Elapsed Time [s]: ");
 
-//    QPushButton* closeButton = new QPushButton("Close",this);
-//    buttonsLayout->addWidget(closeButton,2);
+    progressBarLayout->addWidget(timerLabel);
+    progressBarLayout->addWidget(timerText);
 
-//    progressLayout->addLayout(buttonsLayout);
+    progressLayout->addLayout(progressBarLayout);
 
-//    connect(closeButton,&QPushButton::pressed, this, &PythonProgressDialog::handleCloseButtonPress);
-//    connect(clearButton,&QPushButton::pressed, this, &PythonProgressDialog::handleClearButtonPress);
+    timer = new QTimer(this);
+
+    connect(timer, SIGNAL(timeout()), this, SLOT(updateTimerLabel()));
+    timer->setInterval(2000);
+
+    elapsedTimer = new QElapsedTimer();
 
     mutex = new QRecursiveMutex();
+
+    timerText->hide();
+    timerLabel->hide();
+    progressBar->hide();
 }
 
 
-void PythonProgressDialog::clear(void)
+void ProgramOutputDialog::clear(void)
 {    
     mutex->lock();
 
     if (theInstance == 0)
-        theInstance = new PythonProgressDialog(0);
+        theInstance = new ProgramOutputDialog(0);
 
     progressTextEdit->clear();
     progressBar->setRange(0,0);
@@ -91,21 +99,21 @@ void PythonProgressDialog::clear(void)
 }
 
 
-void PythonProgressDialog::setVisibility(bool visible)
+void ProgramOutputDialog::setVisibility(bool visible)
 {
     if (theInstance == 0)
-        theInstance = new PythonProgressDialog(0);
+        theInstance = new ProgramOutputDialog(0);
 
     emit showDialog(visible);
 }
 
 
-void PythonProgressDialog::appendText(const QString text)
+void ProgramOutputDialog::appendText(const QString text)
 {
     mutex->lock();
 
     if (theInstance == 0)
-        theInstance = new PythonProgressDialog(0);
+        theInstance = new ProgramOutputDialog(0);
 
     if(!this->isVisible() && text != "")
         this->setVisibility(true);
@@ -130,12 +138,12 @@ void PythonProgressDialog::appendText(const QString text)
 }
 
 
-void PythonProgressDialog::appendErrorMessage(const QString text)
+void ProgramOutputDialog::appendErrorMessage(const QString text)
 {
     mutex->lock();
 
     if (theInstance == 0)
-        theInstance = new PythonProgressDialog(0);
+        theInstance = new ProgramOutputDialog(0);
     
     if(!this->isVisible() && text != "")
         this->setVisibility(true);
@@ -153,12 +161,12 @@ void PythonProgressDialog::appendErrorMessage(const QString text)
 }
 
 
-void PythonProgressDialog::appendInfoMessage(const QString text)
+void ProgramOutputDialog::appendInfoMessage(const QString text)
 {
     mutex->lock();
 
     if (theInstance == 0)
-        theInstance = new PythonProgressDialog(0);
+        theInstance = new ProgramOutputDialog(0);
     
     if(!this->isVisible() && text != "")
         this->setVisibility(true);
@@ -176,29 +184,41 @@ void PythonProgressDialog::appendInfoMessage(const QString text)
 }
 
 
+void ProgramOutputDialog::ProgramOutputDialog::updateTimerLabel()
+{
+    mutex->lock();
 
-void PythonProgressDialog::handleCloseButtonPress()
+    auto elTime = static_cast<int>(elapsedTimer->elapsed()/1000.0);
+
+    timerText->setText(QString::number(elTime,'f',0)+"  ");
+
+    mutex->unlock();
+}
+
+
+
+void ProgramOutputDialog::handleCloseButtonPress()
 {
     if (theInstance == 0)
-        theInstance = new PythonProgressDialog(0);
+        theInstance = new ProgramOutputDialog(0);
     
     this->setVisibility(false);
 }
 
 
-void PythonProgressDialog::handleClearButtonPress()
+void ProgramOutputDialog::handleClearButtonPress()
 {
     if (theInstance == 0)
-        theInstance = new PythonProgressDialog(0);
+        theInstance = new ProgramOutputDialog(0);
     
     this->clear();
 }
 
 
-QString PythonProgressDialog::cleanUpText(const QString text)
+QString ProgramOutputDialog::cleanUpText(const QString text)
 {
     if (theInstance == 0)
-        theInstance = new PythonProgressDialog(0);
+        theInstance = new ProgramOutputDialog(0);
 
     // Split the text up if there are any newline
     auto cleanText = text;
@@ -208,35 +228,49 @@ QString PythonProgressDialog::cleanUpText(const QString text)
     return cleanText;
 }
 
-QProgressBar *PythonProgressDialog::getProgressBar() const
+QProgressBar *ProgramOutputDialog::getProgressBar() const
 {
     return progressBar;
 }
 
 
-void PythonProgressDialog::showProgressBar(void)
+void ProgramOutputDialog::showProgressBar(void)
 {
     if (theInstance == 0)
-        theInstance = new PythonProgressDialog(0);
+        theInstance = new ProgramOutputDialog(0);
 
     progressBar->show();
+
+    timer->start();
+    elapsedTimer->restart();
+
+    timerText->show();
+    timerLabel->show();
 }
 
 
-void PythonProgressDialog::hideProgressBar(void)
+void ProgramOutputDialog::hideProgressBar(void)
 {
     if (theInstance == 0)
-        theInstance = new PythonProgressDialog(0);
+        theInstance = new ProgramOutputDialog(0);
+
+    timer->stop();
 
     progressBar->hide();
+
+    timerText->setText("0  ");
+
+    timerText->hide();
+    timerLabel->hide();
 }
 
-void PythonProgressDialog::setProgressBarValue(const int val)
+
+void ProgramOutputDialog::setProgressBarValue(const int val)
 {
     mutex->lock();
 
     if (theInstance == 0)
-        theInstance = new PythonProgressDialog(0);
+        theInstance = new ProgramOutputDialog(0);
 
     progressBar->setValue(val);
 
@@ -244,12 +278,12 @@ void PythonProgressDialog::setProgressBarValue(const int val)
 }
 
 
-void PythonProgressDialog::setProgressBarRange(const int start,const int end)
+void ProgramOutputDialog::setProgressBarRange(const int start,const int end)
 {
     mutex->lock();
 
     if (theInstance == 0)
-        theInstance = new PythonProgressDialog(0);
+        theInstance = new ProgramOutputDialog(0);
 
     progressBar->setRange(start,end);
 
@@ -257,12 +291,12 @@ void PythonProgressDialog::setProgressBarRange(const int start,const int end)
 }
 
 
-void PythonProgressDialog::hideAfterElapsedTime(int sec)
+void ProgramOutputDialog::hideAfterElapsedTime(int sec)
 {
     mutex->lock();
 
     if (theInstance == 0)
-        theInstance = new PythonProgressDialog(0);
+        theInstance = new ProgramOutputDialog(0);
 
     if(sec <= 0)
     {
@@ -285,7 +319,7 @@ void PythonProgressDialog::hideAfterElapsedTime(int sec)
 }
 
 
-QString PythonProgressDialog::getTimestamp()
+QString ProgramOutputDialog::getTimestamp()
 {
     QTime time = QTime::currentTime();
     QString formattedTime = time.toString("hh:mm:ss");

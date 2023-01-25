@@ -67,10 +67,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 LocalApplication::LocalApplication(QString workflowScriptName, QWidget *parent)
     : Application(parent)
 {
-    proc = new QProcess(this);
-    connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &LocalApplication::handleProcessFinished);
-    connect(proc, &QProcess::readyReadStandardOutput, this, &LocalApplication::handleProcessTextOutput);
-    connect(proc, &QProcess::started, this, &LocalApplication::handleProcessStarted);
+    theMainProcessHandler = std::make_unique<PythonProcessHandler>();
+    connect(theMainProcessHandler.get(),&PythonProcessHandler::processFinished, this, &LocalApplication::handleProcessFinished);
 
     this->workflowScript = workflowScriptName;
 }
@@ -184,7 +182,6 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     //
     // now invoke dakota, done via a python script in tool app dircetory
     //
-    proc->setProcessChannelMode(QProcess::SeparateChannels);
     auto procEnv = QProcessEnvironment::systemEnvironment();
     QString pathEnv = procEnv.value("PATH");
     QString pythonPathEnv = procEnv.value("PYTHONPATH");
@@ -367,7 +364,8 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
     procEnv.insert("PATH", pathEnv);
     procEnv.insert("PYTHONPATH", pythonPathEnv);
-    proc->setProcessEnvironment(procEnv);
+
+    theMainProcessHandler->setProcessEnv(procEnv);
 
     // qDebug() << "PATH: " << pathEnv;
     // qDebug() << "PYTHON_PATH" << pythonPathEnv;
@@ -399,39 +397,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
     proc->start(python,args);
 
-    bool failed = false;
-    if (!proc->waitForStarted(-1))
-    {
-        qDebug() << "Failed to start the workflow!!! exit code returned: " << proc->exitCode();
-        qDebug() << proc->errorString().split('\n');
-        emit sendStatusMessage("Failed to start the workflow!!!");
-        failed = true;
-    }
-
-    if(!proc->waitForFinished(-1))
-    {
-        qDebug() << "Failed to finish running the workflow!!! exit code returned: " << proc->exitCode();
-        qDebug() << proc->errorString();
-        emit sendStatusMessage("Failed to finish running the workflow!!!");
-        failed = true;
-    }
-
-
-    if(0 != proc->exitCode())
-    {
-        qDebug() << "Failed to run the workflow!!! exit code returned: " << proc->exitCode();
-        qDebug() << proc->errorString();
-        emit sendStatusMessage("Failed to run the workflow!!!");
-        failed = true;
-    }
-
-    if(failed)
-    {
-        qDebug().noquote() << proc->readAllStandardOutput();
-        qDebug().noquote() << proc->readAllStandardError();
-        emit runComplete();
-        return false;
-    }
+    theMainProcessHandler->startProcess(python,args,"backend", nullptr);
 
 #else
 
@@ -472,35 +438,9 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     }
     qDebug() << "PYTHON COMMAND" << command;
 
-    proc->start("bash", QStringList() << "-c" <<  command);
-    proc->waitForStarted();
+    QStringList cmdList = {"-c",command};
+    theMainProcessHandler->startProcess("bash", cmdList, "backend", nullptr);
 
-    bool failed = false;
-    if(!proc->waitForFinished(-1))
-    {
-        qDebug() << "Failed to finish running the workflow!!! exit code returned: " << proc->exitCode();
-        qDebug() << proc->errorString();
-        emit sendStatusMessage("Failed to finish running the workflow!!!");
-        failed = true;
-    }
-
-
-    if(0 != proc->exitCode())
-    {
-        qDebug() << "Failed to run the workflow!!! exit code returned: " << proc->exitCode();
-        qDebug() << proc->errorString();
-        emit sendStatusMessage("Failed to run the workflow!!!");
-        failed = true;
-    }
-
-    if(failed)
-    {
-        qDebug().noquote() << proc->readAllStandardOutput();
-        qDebug().noquote() << proc->readAllStandardError();
-        emit runComplete();
-        return false;
-    }    
-    
 #endif
 
     return 0;
@@ -511,18 +451,8 @@ LocalApplication::displayed(void){
     this->onRunButtonPressed();
 }
 
-void LocalApplication::handleProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
+void LocalApplication::handleProcessFinished(int exitCode)
 {
-    if(exitStatus == QProcess::ExitStatus::CrashExit)
-    {
-        QString errText("Error, the process running the Python script crashed");
-
-        emit sendErrorMessage(errText);
-        emit sendStatusMessage("Analysis complete with errors");
-        emit runComplete();
-
-        return;
-    }
 
     if(exitCode != 0)
     {
@@ -567,18 +497,3 @@ void LocalApplication::handleProcessFinished(int exitCode, QProcess::ExitStatus 
 }
 
 
-void LocalApplication::handleProcessStarted(void)
-{
-    QString msg = "Starting the analysis. This may take awhile!";
-    emit sendStatusMessage(msg);
-    QApplication::processEvents();
-}
-
-
-void LocalApplication::handleProcessTextOutput(void)
-{
-    QByteArray output =  proc->readAllStandardOutput();
-    QString outputStr = QString(output);
-    emit sendStatusMessage(outputStr);
-    QApplication::processEvents();
-}
