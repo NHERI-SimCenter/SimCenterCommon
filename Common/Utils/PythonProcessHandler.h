@@ -1,5 +1,5 @@
-#ifndef ExampleDownloader_H
-#define ExampleDownloader_H
+#ifndef PYTHONPROCESSHANDLER_H
+#define PYTHONPROCESSHANDLER_H
 /* *****************************************************************************
 Copyright (c) 2016-2021, The Regents of the University of California (Regents).
 All rights reserved.
@@ -19,7 +19,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -36,60 +36,64 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written by: Stevan Gavrilovic
+// Written by: Dr. Stevan Gavrilovic, UC Berkeley
 
-#include <QDialog>
-#include <map>
+// This class runs a python script from a C++ program and outputs the results to the SimCenter dialog
 
-class TreeItem;
-class SimCenterTreeView;
-class NetworkDownloadManager;
-class ProgramOutputDialog;
-class MainWindowWorkflowApp;
+#include "SimCenterWidget.h"
 
-struct R2DExample{
+#include <QProcess>
 
-public:
-    QString url;
-    QString name;
-    QString description;
-    QString inputFile;
-    QString uid;
-};
 
-class ExampleDownloader : public QDialog
+class QProcess;
+class QPushButton;
+
+class PythonProcessHandler : public SimCenterWidget
 {
+
     Q_OBJECT
 
 public:
-    explicit ExampleDownloader(MainWindowWorkflowApp *parent);
-    ~ExampleDownloader();
+    PythonProcessHandler();
 
-    void addExampleToDownload(const QString url, const QString name, const QString description, const QString inputFile);
+    void startProcess(const QString& pythonPath, const QStringList& args, QString name, QPushButton* button);
 
-    void updateTree(void);
+    void setProcessEnv(QProcessEnvironment& env);
+
+signals:
+
+    void emitErrorMsg(QString);
+    void emitStatusMsg(QString);
+    void emitInfoMsg(QString);
+
+    void emitStartProcessMainThread(QString,QStringList);
+
+    void processFinished(int res);
 
 private slots:
 
-    void updateExamples(void);
-    void removeExample(const QString& name);
+    // Handle the status/error messages from the multiple threads (progress dialog must be called from the main thread)
+    void handleErrorMsg(const QString msg);
+    void handleStatusMsg(const QString msg);
+    void handleInfoMsg(const QString msg);
 
-    void handleDownloadFinished(bool val);
+    void handleProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
+
+    // Brings up the dialog and tells the user that the process has started
+    void handleProcessStarted(void);
+
+    // Displays the text output of the process in the dialog
+    void handleProcessTextOutput(void);
+
+    // Displays the error output of the process in the dialog
+    void handleProcessErrorOutput(void);
 
 private:
 
-    SimCenterTreeView* exampleTreeView;
+    QProcess* process = nullptr;
+    QString processName;
+    QPushButton* startButton = nullptr;
 
-    std::unique_ptr<NetworkDownloadManager> downloadManager;
-
-    std::map<QString, R2DExample> exampleContainer;  
-
-    bool checkIfExampleExists(const QString& name);
-
-    bool deleteExampleFolder(const QString& name);
-
-    ProgramOutputDialog* statusDialog;
-    MainWindowWorkflowApp* workflowApp;
 };
 
-#endif // ExampleDownloader_H
+#endif // PYTHONPROCESSHANDLER_H

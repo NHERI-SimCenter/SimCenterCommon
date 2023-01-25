@@ -46,7 +46,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SimCenterWidget.h>
 #include <Application.h>
 
-#include <QProcess>
+#include "Utils/PythonProcessHandler.h"
 
 class QLabel;
 
@@ -71,18 +71,12 @@ public slots:
    void onRunButtonPressed(void);
 
    // Handles the results when the process is finished
-   void handleProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
-
-   // Gives a message to the user that the process has started
-   void handleProcessStarted(void);
-
-   // Displays the text output of the process in the dialog
-   void handleProcessTextOutput(void);
+   void handleProcessFinished(int exitCode);
 
 private:
     void submitJob(void);
     QString workflowScript;
-    QProcess *proc;
+    std::unique_ptr<PythonProcessHandler> theMainProcessHandler = nullptr;
     QString tempDirectory;
     QString inputFilePath;
 

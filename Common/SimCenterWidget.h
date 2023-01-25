@@ -53,7 +53,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QWidget>
 
 class QJsonObject;
-class PythonProgressDialog;
+class ProgramOutputDialog;
 
 class SimCenterWidget : public QWidget
 {
@@ -78,9 +78,9 @@ public:
     /**
      *   @brief getter function to provide the status dialog
      *   @param void
-     *   @return PythonProgressDialog* - a pointer to the status dialog object
+     *   @return ProgramOutputDialog* - a pointer to the status dialog object
      */
-    PythonProgressDialog *getProgressDialog() const;
+    ProgramOutputDialog *getProgressDialog() const;
 
 signals:
 
@@ -118,7 +118,7 @@ public slots:
 
 private:
 
-    PythonProgressDialog* progressDialog;
+    ProgramOutputDialog* progressDialog;
 };
 
 #endif // SIMCENTER_WIDGET_H

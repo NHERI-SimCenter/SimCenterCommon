@@ -8,6 +8,7 @@
 INCLUDEPATH += $$PWD
 INCLUDEPATH += "../SimCenterCommon/Common"
 INCLUDEPATH += "../Common"
+INCLUDEPATH += "../Utils"
 
 include($$PWD/ZipUtils/ZipUtils.pri)
 
@@ -15,7 +16,8 @@ SOURCES += $$PWD/HeaderWidget.cpp \
     $$PWD/Utils/RelativePathResolver.cpp \
     $$PWD/Utils/FileOperations.cpp \
     $$PWD/Utils/dialogabout.cpp \
-    $$PWD/Utils/PythonProgressDialog.cpp \
+    $$PWD/Utils/ProgramOutputDialog.cpp \
+    $$PWD/Utils/PythonProcessHandler.cpp \
     $$PWD/sectiontitle.cpp \
     $$PWD/FooterWidget.cpp \
     $$PWD/SimCenterWidget.cpp \
@@ -33,7 +35,8 @@ HEADERS += $$PWD/HeaderWidget.h \
     $$PWD/Utils/RelativePathResolver.h \
     $$PWD/Utils/FileOperations.h \
     $$PWD/Utils/dialogabout.h \
-    $$PWD/Utils/PythonProgressDialog.h \
+    $$PWD/Utils/ProgramOutputDialog.h \
+    $$PWD/Utils/PythonProcessHandler.h \
     $$PWD/sectiontitle.h \
     $$PWD/FooterWidget.h \
     $$PWD/SimCenterWidget.h \
