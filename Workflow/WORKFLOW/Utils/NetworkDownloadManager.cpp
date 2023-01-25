@@ -38,7 +38,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "NetworkDownloadManager.h"
 #include "ZipUtils.h"
-#include "Utils/PythonProgressDialog.h"
+#include "Utils/ProgramOutputDialog.h"
 
 #include <QJsonDocument>
 #include <QApplication>

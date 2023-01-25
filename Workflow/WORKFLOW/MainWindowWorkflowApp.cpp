@@ -8,7 +8,7 @@
 #include "MainWindowWorkflowApp.h"
 #include "RemoteService.h"
 #include "SimCenterPreferences.h"
-#include "Utils/PythonProgressDialog.h"
+#include "Utils/ProgramOutputDialog.h"
 #include "Utils/RelativePathResolver.h"
 #include "Utils/dialogabout.h"
 #include "WorkflowAppWidget.h"
@@ -53,7 +53,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     centralWidget->setContentsMargins(0,0,0,0);
 
     exampleMenu = nullptr;
-    statusWidget = PythonProgressDialog::getInstance(this);
+    statusWidget = ProgramOutputDialog::getInstance(this);
 
     statusDockWidget = new QDockWidget(tr("Program Output"), this);
     statusDockWidget->setContentsMargins(0,0,0,0);
@@ -64,7 +64,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
 
     resizeDocks({statusDockWidget}, {30}, Qt::Vertical);
 
-    connect(statusWidget,&PythonProgressDialog::showDialog,statusDockWidget,&QDockWidget::setVisible);
+    connect(statusWidget,&ProgramOutputDialog::showDialog,statusDockWidget,&QDockWidget::setVisible);
 
     //
     // resize to primary screen
@@ -580,7 +580,7 @@ void MainWindowWorkflowApp::createActions() {
     // Set the path to the input file
     editMenu->addAction("&Clear Inputs", this, &MainWindowWorkflowApp::clear);
     editMenu->addSeparator();
-    editMenu->addAction("&Clear Status Dialog", statusWidget, &PythonProgressDialog::clear);
+    editMenu->addAction("&Clear Status Dialog", statusWidget, &ProgramOutputDialog::clear);
 
     // Add the view menu to the menu bar, make sure it comes before help
 

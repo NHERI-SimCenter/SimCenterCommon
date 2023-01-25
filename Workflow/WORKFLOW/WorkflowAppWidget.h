@@ -43,7 +43,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class MainWindowWorkflowApp;
 class RemoteService;
-class PythonProgressDialog;
+class ProgramOutputDialog;
 
 class WorkflowAppWidget : public QWidget
 {
@@ -66,7 +66,7 @@ public:
     
     MainWindowWorkflowApp *getTheMainWindow() const;
 
-    static PythonProgressDialog *getProgressDialog();
+    static ProgramOutputDialog *getProgressDialog();
 
 signals:
     void setUpForApplicationRunDone(QString &tmpDirectory, QString &inputFile,
@@ -97,7 +97,7 @@ protected:
     MainWindowWorkflowApp *theMainWindow;
     RemoteService *theRemoteService;
 
-    static PythonProgressDialog *progressDialog;
+    static ProgramOutputDialog *progressDialog;
 };
 
 #endif // WORKFLOW_APP_WIDGET_H
