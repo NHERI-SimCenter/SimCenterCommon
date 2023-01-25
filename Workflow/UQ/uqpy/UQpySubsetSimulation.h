@@ -1,10 +1,11 @@
-// Written: fmckenna
+#ifndef UQPYSUBSETSIMULATION_H
+#define UQPYSUBSETSIMULATION_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -28,79 +29,66 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
-
-#include "UQpyEngine.h"
-#include <QDebug>
-#include <RandomVariablesContainer.h>
+#include <UQ_Method.h>
 #include <UQ_Results.h>
 
-UQpyEngine::UQpyEngine(QWidget *parent)
-    : UQ_Engine(parent)
+#include <QGroupBox>
+#include <QVector>
+#include <QVBoxLayout>
+#include <QComboBox>
+#include <QPushButton>
+
+
+class UQ_EngineMethod;
+class QCheckBox;
+class UQpyResultsSubsetSim;
+class QStackedWidget;
+
+
+class UQpySubsetSimulation : public UQ_Method
 {
-  /*************************  at some point need to redo so no new
-    QString classType("Uncertain");
-    theRandomVariables =  new RandomVariablesContainer(classType);
-    theResults = new UQ_Results();
-  ***************************************************************/
-}
+    Q_OBJECT
+public:
+    explicit UQpySubsetSimulation(QWidget *parent = 0);
+    ~UQpySubsetSimulation();
 
-UQpyEngine::~UQpyEngine()
-{
+    bool outputToJSON(QJsonObject &jsonObject);
+    bool inputFromJSON(QJsonObject &jsonObject);
+    bool outputAppDataToJSON(QJsonObject &jsonObject);
+    bool inputAppDataFromJSON(QJsonObject &jsonObject);
+    void setRV_Defaults(void);
+    int getMaxNumParallelTasks(void);
 
-}
+    UQ_Results *getResults(void);
+    QString getMethodName();
 
-int
-UQpyEngine::getMaxNumParallelTasks(void) {
-    return 1;
-}
+signals:
 
-bool
-UQpyEngine::outputToJSON( QJsonObject &rvObject) {
-    return true;
-}
+public slots:
+//   void clear(void);
+//   void onTextChanged(const QString &arg1);
+//   void numModelsChanged(int numModels);
 
+private:
+    QVBoxLayout *layout;
+    QVBoxLayout *mLayout;
+    QComboBox   *reliabilityMethod;
+    QLineEdit   *numSamples;
+    QLineEdit   *randomSeed;
 
-bool
-UQpyEngine::inputFromJSON(QJsonObject &rvObject) {
-    Q_UNUSED(rvObject);
-    return true;
-}
+    UQpyResultsSubsetSim *results;
 
+    QStackedWidget *theStackedWidget;
+    UQ_Method *theSubsetSim;
 
-RandomVariablesContainer *
-UQpyEngine::getParameters() {
-  QString classType("Uncertain");
-  return RandomVariablesContainer::getInstance();
-}
+};
 
-UQ_Results *UQpyEngine::getResults(void) {
-  UQ_Results *theRes = new UQ_Results();
-  return theRes;
-}
-
-void
-UQpyEngine::clear(void) {
-    return;
-}
-
-
-QString
-UQpyEngine::getProcessingScript() {
-    return QString("parseUQpy.py");
-}
-
-QString
-UQpyEngine::getMethodName() {
-  return QString("UQpy");
-}
-
-
+#endif // UQPYSUBSETSIMULATION_H
