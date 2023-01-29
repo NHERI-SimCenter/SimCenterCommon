@@ -1,3 +1,5 @@
+// Written: fmckenna
+
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -17,7 +19,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -36,64 +38,93 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterWidget.h>
-#include <Utils/ProgramOutputDialog.h>
+#include "UQpyEngine.h"
+#include <QDebug>
+#include <RandomVariablesContainer.h>
+#include <UQ_Results.h>
+#include <GoogleAnalytics.h>
 
-SimCenterWidget::SimCenterWidget(QWidget *parent)
-    :QWidget(parent)
+#include <QStackedWidget>
+#include <QComboBox>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QCheckBox>
+#include <QSpacerItem>
+
+#include <QDebug>
+
+#include <UQpySubsetSimulation.h>
+
+
+UQpyEngine::UQpyEngine(UQ_EngineType type, QWidget *parent)
+    : UQ_Engine(parent)
 {
-    progressDialog = ProgramOutputDialog::getInstance(this);
+  /*************************  at some point need to redo so no new
+    QString classType("Uncertain");
+    theRandomVariables =  new RandomVariablesContainer(classType);
+    theResults = new UQ_Results();
+  ***************************************************************/
 }
 
-SimCenterWidget::~SimCenterWidget()
+UQpyEngine::~UQpyEngine()
 {
 
+}
+
+int
+UQpyEngine::getMaxNumParallelTasks(void) {
+    return 1;
+}
+
+bool
+UQpyEngine::outputToJSON( QJsonObject &rvObject) {
+    return true;
 }
 
 
 bool
-SimCenterWidget::outputToJSON(QJsonObject &jsonObject)
-{
-    Q_UNUSED(jsonObject);
+UQpyEngine::inputFromJSON(QJsonObject &rvObject) {
+    Q_UNUSED(rvObject);
     return true;
 }
 
-bool
-SimCenterWidget::inputFromJSON(QJsonObject &jsonObject)
-{
-    Q_UNUSED(jsonObject);
-    return true;
+
+RandomVariablesContainer *
+UQpyEngine::getParameters() {
+  QString classType("Uncertain");
+  return RandomVariablesContainer::getInstance();
+}
+
+UQ_Results *UQpyEngine::getResults(void) {
+  UQ_Results *theRes = new UQ_Results();
+  return theRes;
 }
 
 void
-SimCenterWidget::statusMessage(const QString& message)
-{
-    if(message.isEmpty())
-        return;
-
-    progressDialog->appendText(message);
+UQpyEngine::clear(void) {
+    return;
 }
 
 void
-SimCenterWidget::errorMessage(const QString& message)
-{
-    if(message.isEmpty())
-        return;
+UQpyEngine::setRV_Defaults(void) {
+  RandomVariablesContainer *theRVs = RandomVariablesContainer::getInstance();
+  QString classType = "Uncertain";
+  QString engineType = "UQpy";
 
-    progressDialog->appendErrorMessage(message);
+  theRVs->setDefaults(engineType, classType, Normal);
 }
 
-void
-SimCenterWidget::infoMessage(const QString& message)
-{
-    if(message.isEmpty())
-        return;
 
-    progressDialog->appendInfoMessage(message);
+QString
+UQpyEngine::getProcessingScript() {
+    return QString("parseUQpy.py");
 }
 
-ProgramOutputDialog*
-SimCenterWidget::getProgressDialog() const
-{
-    return progressDialog;
+QString
+UQpyEngine::getMethodName() {
+  return QString("UQpy");
 }
+
+

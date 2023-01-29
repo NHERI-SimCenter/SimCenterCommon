@@ -130,6 +130,23 @@ QModelIndex CheckableTreeModel::index(int row, int column, const QModelIndex &pa
 }
 
 
+TreeItem* CheckableTreeModel::item(int row, int col, const QModelIndex &parent)
+{
+    if (!hasIndex(row, col, parent))
+        return nullptr;
+
+    TreeItem *parentItem;
+
+    if (!parent.isValid())
+        parentItem = rootItem;
+    else
+        parentItem = static_cast<TreeItem*>(parent.internalPointer());
+
+    TreeItem *childItem = parentItem->child(row);
+
+    return childItem;
+}
+
 QModelIndex CheckableTreeModel::parent(const QModelIndex &index) const
 {
     if (!index.isValid())

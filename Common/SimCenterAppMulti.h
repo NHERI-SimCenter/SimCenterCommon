@@ -47,7 +47,7 @@ class QComboBox;
 class QTabWidget;
 class SimCenterAppSelection;
 class QLineEdit;
-
+class QLabel;
 
 class SimCenterAppMulti : public  SimCenterAppWidget
 {
@@ -72,6 +72,7 @@ public:
 public slots:
   int addTab(void);
   int removeCurrentTab(void);
+  void updateTotalBelief(void);
 
 signals:
 
@@ -86,6 +87,9 @@ private:
 
   QString appName; // application name that appears in json
   QString tabLabel; 
+
+  double getTotalBelief();
+  QList<QLabel *>theTotalBeliefs;
 };
 
 #endif // SimCenterAppMulti_H
