@@ -101,6 +101,7 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/WORKFLOW/ModelViewItems/LayerTreeModel.cpp \
     $$PWD/WORKFLOW/ModelViewItems/LayerTreeItem.cpp \    
     $$PWD/SIM/OpenSeesBuildingModel.cpp \
+    $$PWD/SIM/surrogateGP.cpp \
     $$PWD/SIM/MDOF_BuildingModel.cpp \
     $$PWD/SIM/MDOF_LU.cpp \    
     $$PWD/SIM/SteelBuildingModel.cpp \
@@ -207,6 +208,7 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/WORKFLOW/ModelViewItems/LayerTreeModel.h \
     $$PWD/WORKFLOW/ModelViewItems/LayerTreeItem.h \    
     $$PWD/SIM/OpenSeesBuildingModel.h \
+    $$PWD/SIM/surrogateGP.h \
     $$PWD/SIM/MDOF_BuildingModel.h \
     $$PWD/SIM/MDOF_LU.h \    
     $$PWD/SIM/ReadWriteRVJSON.h \

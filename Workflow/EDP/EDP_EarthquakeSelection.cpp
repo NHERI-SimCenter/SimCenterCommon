@@ -72,6 +72,7 @@ EDP_EarthquakeSelection::EDP_EarthquakeSelection(QWidget *parent)
   edpSelection = new QComboBox();
   edpSelection->addItem(tr("Standard Earthquake"));
   edpSelection->addItem(tr("User Defined"));
+  edpSelection->addItem(tr("Auto"));
   edpSelection->setObjectName("EDPSelectionComboBox");
 
   edpSelection->setItemData(1, "A Seismic event using Seismic Hazard Analysis and Record Selection/Scaling", Qt::ToolTipRole);
@@ -148,6 +149,11 @@ void EDP_EarthquakeSelection::edpSelectionChanged(const QString &arg1)
   else if(arg1 == "User Defined") {
     theStackedWidget->setCurrentIndex(1);
     theCurrentEDP = theUserDefinedEDPs;
+  }
+
+  else if(arg1 == "Auto") {
+    theStackedWidget->setCurrentIndex(2);
+    theCurrentEDP = theStandardEarthquakeEDPs;
   }
 
   else {

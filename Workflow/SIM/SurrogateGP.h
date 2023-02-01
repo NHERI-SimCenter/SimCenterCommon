@@ -1,4 +1,5 @@
-// Written: fmckenna
+#ifndef SURROGATE_GP_MODEL_H
+#define SURROGATE_GP_MODEL_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -36,44 +37,56 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: fmckenna, sangri
 
-#include "FEA_Selection.h"
-#include <InputWidgetOpenSeesAnalysis.h>
-#include <SimCenterAppMulti.h>
-#include <CustomPySimulation.h>
-#include <QCoreApplication.h>
+#include <SimCenterAppWidget.h>
 
-FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
-  : SimCenterAppSelection(QString("FE Application"), QString("Simulation"), parent)
+#include <QGroupBox>
+#include <QVector>
+#include <QGridLayout>
+#include <QComboBox>
+#include <QRadioButton>
+#include <QLabel>
+
+class InputWidgetParameters;
+class RandomVariablesContainer;
+
+class surrogateGP : public SimCenterAppWidget
 {
+    Q_OBJECT
+public:
+    explicit surrogateGP(QWidget *parent = 0);
+    ~surrogateGP();
 
-  SimCenterAppWidget *opensees= new InputWidgetOpenSeesAnalysis();
-  this->addComponent(QString("OpenSees"), QString("OpenSees-Simulation"), opensees);
-  if (inclMulti == true) {
-    SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Simulation"), QString("MultiModel-FEA"),this, this);
-    this->addComponent(QString("Multi Model"), QString("MultiModel-FEA"), multi);
-  }  
+    bool outputToJSON(QJsonObject &rvObject) override;
+    bool inputFromJSON(QJsonObject &rvObject) override;
+    bool outputAppDataToJSON(QJsonObject &rvObject) override;
+    bool inputAppDataFromJSON(QJsonObject &rvObject) override;
+    bool copyFiles(QString &dirName) override;
+    void setMainScript(QString filnema1);
 
-  SimCenterAppWidget *custom_py_simulation= new CustomPySimulation();
-  this->addComponent(QString("CustomPy-Simulation"), QString("CustomPy-Simulation"), custom_py_simulation);
+signals:
 
-  QString appName = QCoreApplication::applicationName();
-  if (appName == "EE-UQ") {
-     this->addComponent(QString("None"), QString("None"), new SimCenterAppWidget());
-  }
+public slots:
+   void clear(void) override;
+   void updateMessage(QString);
+   void showGpOptions(QString);
 
-}
+private:
+  void specialCopyMainScript(QString fileName, QStringList varNamesAndValues);
+  double interpolateForGP(QVector<double> X, QVector<double> Y, double Xval);
 
-FEA_Selection::~FEA_Selection()
-{
+  QLineEdit *inputScript;
+  QLineEdit *postprocessScript;
+  QStringList varNamesAndValues;
+  QWidget *femWidget;
+  QGroupBox *groupBox;
+  QRadioButton *option1Button, *option2Button, *option3Button;
+  QLineEdit *thresVal;
+  bool isData;
+  QVector<double> percVals, thrsVals;
+  QComboBox * gpOutputComboBox;
+  QLabel *labelProgName, *labelProgDir1, *labelProgDir2, *labelThresMsg , *qoiNames;
+};
 
-}
-
-
-SimCenterAppWidget *
-FEA_Selection::getClone()
-{
-  FEA_Selection *newSelection = new FEA_Selection(false);
-  return newSelection;
-}
+#endif // SURROGATE_GP_MODEL_H
