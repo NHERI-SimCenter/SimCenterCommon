@@ -1,5 +1,3 @@
-// Written: fmckenna
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -19,7 +17,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -38,42 +36,59 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include "FEA_Selection.h"
-#include <InputWidgetOpenSeesAnalysis.h>
-#include <SimCenterAppMulti.h>
-#include <CustomPySimulation.h>
-#include <QCoreApplication.h>
+#include <SimCenterDirWatcher.h>
+#include <QFileSystemWatcher>
+#include <QDebug>
+#include <QString>
 
-FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
-  : SimCenterAppSelection(QString("FE Application"), QString("Simulation"), parent)
+SimCenterDirWatcher::SimCenterDirWatcher()
+  :currentCount(0), maxCount(0)
 {
+  theDirWatcher = new QFileSystemWatcher();
+  connect(theDirWatcher, SIGNAL(directoryChanged(QString)),
+      this, SLOT(changed(QString)));
+}
+  
+SimCenterDirWatcher::~SimCenterDirWatcher()
+{
+  delete theDirWatcher;
+}
 
-  SimCenterAppWidget *opensees= new InputWidgetOpenSeesAnalysis();
-  this->addComponent(QString("OpenSees"), QString("OpenSees-Simulation"), opensees);
-  if (inclMulti == true) {
-    SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Simulation"), QString("MultiModel-FEA"),this, this);
-    this->addComponent(QString("Multi Model"), QString("MultiModel"), multi);
-  }  
+void
+SimCenterDirWatcher::setCount(int count)
+{
+  maxCount = count;
+}
 
-  SimCenterAppWidget *custom_py_simulation= new CustomPySimulation();
-  this->addComponent(QString("CustomPy-Simulation"), QString("CustomPy-Simulation"), custom_py_simulation);
+void
+SimCenterDirWatcher::resetCount(void) {
+  currentCount = 0;
+}
 
-  QString appName = QCoreApplication::applicationName();
-  if (appName == "EE-UQ") {
-     this->addComponent(QString("None"), QString("None"), new SimCenterAppWidget());
+bool
+SimCenterDirWatcher::setDirToMonitor(QString dir)
+{
+   qDebug() << "\n\nsetDirToMonitor: " << dir << "\n\n";
+  if (!currentDir.isEmpty())
+    theDirWatcher->removePath(currentDir);
+
+  if (theDirWatcher->addPath(dir) != true) {
+    QString errorMessage = QString("SimCenterDirWatcher - could not addPath: ") + dir;
+    qDebug() << errorMessage;
   }
+  currentDir = dir;
+  currentCount = 0;
+  return true;
+};
 
-}
-
-FEA_Selection::~FEA_Selection()
+void
+SimCenterDirWatcher::changed(const QString &dir)
 {
+  currentCount++;
+  if (currentCount == maxCount) // don't worry about going over
+    emit countReached();
+  else
+    emit dirChanged();
 
-}
-
-
-SimCenterAppWidget *
-FEA_Selection::getClone()
-{
-  FEA_Selection *newSelection = new FEA_Selection(false);
-  return newSelection;
-}
+  qDebug() << "\n\nSimCenterDirWatcher::changed " << dir << " " << currentCount << "\n\n";
+};

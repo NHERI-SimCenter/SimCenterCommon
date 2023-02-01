@@ -40,7 +40,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "SimCenterIntensityMeasureWidget.h"
 #include "SimCenterIntensityMeasureCombo.h"
 #include "SimCenterUnitsCombo.h"
-#include "Utils/PythonProgressDialog.h"
+#include "Utils/ProgramOutputDialog.h"
 
 #include <QGridLayout>
 #include <QLabel>
@@ -307,7 +307,7 @@ bool SimCenterIntensityMeasureWidget::outputToJSON(QJsonObject &jsonObject)
             // Return false if unit undefined
             if(im.compare("UNDEFINED") == 0)
             {
-                PythonProgressDialog::getInstance()->appendErrorMessage("Warning IM undefined! Please set IM");
+                ProgramOutputDialog::getInstance()->appendErrorMessage("Warning IM undefined! Please set IM");
                 return false;
             } else {
 
@@ -327,7 +327,7 @@ bool SimCenterIntensityMeasureWidget::outputToJSON(QJsonObject &jsonObject)
             // Return false if unit undefined
             if(unit.compare("UNDEFINED") == 0)
             {
-                PythonProgressDialog::getInstance()->appendErrorMessage("Warning unit undefined! Please set unit");
+                ProgramOutputDialog::getInstance()->appendErrorMessage("Warning unit undefined! Please set unit");
                 return false;
             }
             curObj["Unit"] = unit;

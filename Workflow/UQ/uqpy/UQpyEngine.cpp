@@ -38,42 +38,93 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include "FEA_Selection.h"
-#include <InputWidgetOpenSeesAnalysis.h>
-#include <SimCenterAppMulti.h>
-#include <CustomPySimulation.h>
-#include <QCoreApplication.h>
+#include "UQpyEngine.h"
+#include <QDebug>
+#include <RandomVariablesContainer.h>
+#include <UQ_Results.h>
+#include <GoogleAnalytics.h>
 
-FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
-  : SimCenterAppSelection(QString("FE Application"), QString("Simulation"), parent)
+#include <QStackedWidget>
+#include <QComboBox>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QCheckBox>
+#include <QSpacerItem>
+
+#include <QDebug>
+
+#include <UQpySubsetSimulation.h>
+
+
+UQpyEngine::UQpyEngine(UQ_EngineType type, QWidget *parent)
+    : UQ_Engine(parent)
 {
+  /*************************  at some point need to redo so no new
+    QString classType("Uncertain");
+    theRandomVariables =  new RandomVariablesContainer(classType);
+    theResults = new UQ_Results();
+  ***************************************************************/
+}
 
-  SimCenterAppWidget *opensees= new InputWidgetOpenSeesAnalysis();
-  this->addComponent(QString("OpenSees"), QString("OpenSees-Simulation"), opensees);
-  if (inclMulti == true) {
-    SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Simulation"), QString("MultiModel-FEA"),this, this);
-    this->addComponent(QString("Multi Model"), QString("MultiModel"), multi);
-  }  
-
-  SimCenterAppWidget *custom_py_simulation= new CustomPySimulation();
-  this->addComponent(QString("CustomPy-Simulation"), QString("CustomPy-Simulation"), custom_py_simulation);
-
-  QString appName = QCoreApplication::applicationName();
-  if (appName == "EE-UQ") {
-     this->addComponent(QString("None"), QString("None"), new SimCenterAppWidget());
-  }
+UQpyEngine::~UQpyEngine()
+{
 
 }
 
-FEA_Selection::~FEA_Selection()
-{
+int
+UQpyEngine::getMaxNumParallelTasks(void) {
+    return 1;
+}
 
+bool
+UQpyEngine::outputToJSON( QJsonObject &rvObject) {
+    return true;
 }
 
 
-SimCenterAppWidget *
-FEA_Selection::getClone()
-{
-  FEA_Selection *newSelection = new FEA_Selection(false);
-  return newSelection;
+bool
+UQpyEngine::inputFromJSON(QJsonObject &rvObject) {
+    Q_UNUSED(rvObject);
+    return true;
 }
+
+
+RandomVariablesContainer *
+UQpyEngine::getParameters() {
+  QString classType("Uncertain");
+  return RandomVariablesContainer::getInstance();
+}
+
+UQ_Results *UQpyEngine::getResults(void) {
+  UQ_Results *theRes = new UQ_Results();
+  return theRes;
+}
+
+void
+UQpyEngine::clear(void) {
+    return;
+}
+
+void
+UQpyEngine::setRV_Defaults(void) {
+  RandomVariablesContainer *theRVs = RandomVariablesContainer::getInstance();
+  QString classType = "Uncertain";
+  QString engineType = "UQpy";
+
+  theRVs->setDefaults(engineType, classType, Normal);
+}
+
+
+QString
+UQpyEngine::getProcessingScript() {
+    return QString("parseUQpy.py");
+}
+
+QString
+UQpyEngine::getMethodName() {
+  return QString("UQpy");
+}
+
+

@@ -82,7 +82,7 @@ SIM_Selection::SIM_Selection(bool includeC,
     
   if (doMulti == true) {
     SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Modeling"), QString("MultiModel-SIM"),this, this);
-    this->addComponent(QString("Multi Model"), QString("MultiModel-SIM"), multi);
+    this->addComponent(QString("Multi Model"), QString("MultiModel"), multi);
   }    
 
   // KZ: adding CustomPy

@@ -1,4 +1,5 @@
-// Written: fmckenna
+#ifndef SIMCENTER_DIR_WATCHER_H
+#define SIMCENTER_DIR_WATCHER_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -19,7 +20,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -36,44 +37,65 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+/**
+ *  @author  fmckenna
+ *  @date    09/2022
+ *  @version 1.0
+ *
+ *  @section DESCRIPTION
+ *
+ * The purpose of this class is to define interface for SimCenter widgets that are associated with an application
+ * in the Workflow applications. They introduce methods for wrating the application specific data, e.g. AppName, data
+ * that are used in workflow applicaions.
+ */
 
-#include "FEA_Selection.h"
-#include <InputWidgetOpenSeesAnalysis.h>
-#include <SimCenterAppMulti.h>
-#include <CustomPySimulation.h>
-#include <QCoreApplication.h>
+#include <QObject>
+#include <QString>
 
-FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
-  : SimCenterAppSelection(QString("FE Application"), QString("Simulation"), parent)
+class SimCenterDirWatcher : public QObject
 {
+    Q_OBJECT
+  
+public:
+  
+  SimCenterDirWatcher();
+  virtual ~SimCenterDirWatcher();
 
-  SimCenterAppWidget *opensees= new InputWidgetOpenSeesAnalysis();
-  this->addComponent(QString("OpenSees"), QString("OpenSees-Simulation"), opensees);
-  if (inclMulti == true) {
-    SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Simulation"), QString("MultiModel-FEA"),this, this);
-    this->addComponent(QString("Multi Model"), QString("MultiModel"), multi);
-  }  
+  /**
+   *   @brief setCount
+   *   @param count - number of entries before signal sent
+   *   @return void
+   */
+  virtual void setCount(int count);
 
-  SimCenterAppWidget *custom_py_simulation= new CustomPySimulation();
-  this->addComponent(QString("CustomPy-Simulation"), QString("CustomPy-Simulation"), custom_py_simulation);
+  /**
+   *   @brief resetCount
+   *   @param resets the current count to 0
+   *   @return void
+   */  
+  virtual void resetCount(void);
 
-  QString appName = QCoreApplication::applicationName();
-  if (appName == "EE-UQ") {
-     this->addComponent(QString("None"), QString("None"), new SimCenterAppWidget());
-  }
+  /**
+   *   @brief setDirMonitor
+   *   @param dir - the dir to monitor
+   *   @return bool - returns false if fail to set dir
+   */    
+  virtual bool setDirToMonitor(QString dir);
 
-}
+  
+  signals:
+  void countReached(void);
+  void dirChanged(void);			 
+		      
+public slots:
+  void changed(const QString &dir);  
+    
+private:
+  int currentCount;
+  int maxCount;
+  QString currentDir;
+  
+  class QFileSystemWatcher *theDirWatcher;
+};
 
-FEA_Selection::~FEA_Selection()
-{
-
-}
-
-
-SimCenterAppWidget *
-FEA_Selection::getClone()
-{
-  FEA_Selection *newSelection = new FEA_Selection(false);
-  return newSelection;
-}
+#endif // SIMCENTER_DIR_WATCHER_H

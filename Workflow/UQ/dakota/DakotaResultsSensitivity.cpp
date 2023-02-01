@@ -202,7 +202,7 @@ int DakotaResultsSensitivity::processResults(QString &filenameResults, QString &
     if (fileError.open(QIODevice::ReadOnly)) {
         QTextStream in(&fileError);
         while (!in.atEnd()) {
-            line = in.readLine();
+            line += in.readLine();
         }
         fileError.close();
     }
