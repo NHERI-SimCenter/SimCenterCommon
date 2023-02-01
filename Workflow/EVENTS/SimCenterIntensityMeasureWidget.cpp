@@ -115,8 +115,10 @@ SimCenterIM::SimCenterIM(SimCenterIntensityMeasureCombo *theIM, SimCenterUnitsCo
     imUnitLayout->addWidget(button,1,0,1,1);
     imUnitLayout->addWidget(new QLabel("IM"),0,1);
     imUnitLayout->addWidget(myIM,1,1);
-    imUnitLayout->addWidget(new QLabel("Unit"),0,2);
+    myUnitLabel = new QLabel("Unit");
+    imUnitLayout->addWidget(myUnitLabel,0,2);
     imUnitLayout->addWidget(myUnit,1,2);
+
 
     periodLine = new QLineEdit("");
     QRegularExpression regExpAllow("^([1-9][0-9]*|[1-9]*\\.[0-9]*|0\\.[0-9]*)*(([ ]*,[ ]*){0,1}([[1-9]*\\.[0-9]*|[1-9][0-9]*|0\\.[0-9]*))*");
@@ -151,6 +153,9 @@ void SimCenterIM::setLabelVisible(bool tog)
         QLabel *Label = dynamic_cast<QLabel*>(child->widget());
         Label ->setVisible(tog);
     }
+
+    myUnitLabel->setVisible(false); // Hide the unit label.
+    myUnit->setVisible(false); // Hide the unit combobox.
 }
 
 void SimCenterIM::addGridField(void)
@@ -236,17 +241,16 @@ void SimCenterIM::handleIMChanged(const QString& newIM)
     if (newIM.contains("Acceleration")) {
         myUnit->setCurrentUnit(SimCenter::Unit::Type::g);
     } else if (newIM.contains("Velocity")) {
-        myUnit->setCurrentUnit(SimCenter::Unit::Type::mps);
+        myUnit->setCurrentUnit(SimCenter::Unit::Type::inchps);
     } else if (newIM.contains("Displacement")) {
-        myUnit->setCurrentUnit(SimCenter::Unit::Type::m);
+        myUnit->setCurrentUnit(SimCenter::Unit::Type::inch);
     } else if (newIM.contains("Duration")) {
         myUnit->setCurrentUnit(SimCenter::Unit::Type::sec);
     } else if (newIM.contains("SaRatio")) {
         myUnit->setCurrentUnit(SimCenter::Unit::Type::scalar);
     } else if (newIM.contains("Arias")) {
-        myUnit->setCurrentUnit(SimCenter::Unit::Type::mps);
+        myUnit->setCurrentUnit(SimCenter::Unit::Type::inchps);
     }
-
 }
 
 
@@ -305,6 +309,11 @@ bool SimCenterIntensityMeasureWidget::outputToJSON(QJsonObject &jsonObject)
             {
                 PythonProgressDialog::getInstance()->appendErrorMessage("Warning IM undefined! Please set IM");
                 return false;
+            } else {
+
+                int pos = im.lastIndexOf(QChar('(')); // let us remove units in the json file
+                im = im.left(pos-1);
+                qDebug() << im;
             }
         }
         // unit
@@ -329,7 +338,7 @@ bool SimCenterIntensityMeasureWidget::outputToJSON(QJsonObject &jsonObject)
         auto periodsString = curIMUnit->periodLine->text();
         if (periodsString.isEmpty())
         {
-            if ((im.startsWith("PS")) || (im.compare("SaRatio")==0)) {
+            if ((im.startsWith("PS")) || (im.startsWith("SaRatio"))) {
                 PythonProgressDialog::getInstance()->appendErrorMessage("Error periods not defined for "+im);
                 return false;
             }
@@ -338,7 +347,7 @@ bool SimCenterIntensityMeasureWidget::outputToJSON(QJsonObject &jsonObject)
         parsedPeriods.remove(" ");
         QJsonArray periodArray;
         auto periodList = parsedPeriods.split(",");
-        if ((im.compare("SaRatio")==0) && (periodList.size() != 3))
+        if ((im.startsWith("SaRatio")) && (periodList.size() != 3))
         {
             PythonProgressDialog::getInstance()->appendErrorMessage("Error three periods for SaRatio Ta, T1, and Tb");
             return false;

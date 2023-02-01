@@ -60,7 +60,7 @@ public:
         TIME = 0x400,
         sec, min, hr, day,
         VELOCITY = 0x500,
-        cmps, mps, kph , fps, mph, kts,
+        cmps, mps, kph , fps, mph, kts, inchps,
         ACCEL = 0x600,
         cmps2, mps2, inchps2, ftps2, g, lng, pctg,
         DIMEMSIONLESS = 0x700,

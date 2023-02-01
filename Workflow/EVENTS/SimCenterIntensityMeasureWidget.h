@@ -49,6 +49,7 @@ class QRegularExpressionValidator;
 class QLineEdit;
 
 #include <QGroupBox>
+#include <QLabel>
 //#include "JsonSerializable.h"
 
 class SimCenterIM : public SimCenterWidget
@@ -65,6 +66,7 @@ public:
     QWidget *myPeriods;
     QLineEdit *periodLine;
     QRegularExpressionValidator *LEValidator;
+    QLabel *myUnitLabel; // this will be hidden - sy
 
     void setLabelVisible(bool tog);
     void addGridField(void);  // additionally for GM selection -sy

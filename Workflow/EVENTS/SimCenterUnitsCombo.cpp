@@ -170,6 +170,7 @@ void SimCenterUnitsCombo::populateComboText(const SimCenter::Unit::Type unitType
         this->addItem("Feet per second", SimCenter::Unit::Type::fps);
         this->addItem("Miles per hour", SimCenter::Unit::Type::mph);
         this->addItem("Knots", SimCenter::Unit::Type::kts);
+        this->addItem("Inches per second", SimCenter::Unit::Type::inchps);
 
         break;
     case SimCenter::Unit::Type::ACCEL :
@@ -232,6 +233,7 @@ void SimCenterUnitsCombo::populateComboText(const SimCenter::Unit::Type unitType
         this->addChildItem("Feet per second", SimCenter::Unit::Type::fps);
         this->addChildItem("Miles per hour", SimCenter::Unit::Type::mph);
         this->addChildItem("Knots", SimCenter::Unit::Type::kts);
+        this->addChildItem("Inches per second", SimCenter::Unit::Type::inchps); // added by sy.
 
         this->insertSeparator(this->count());
         this->addParentItem("Acceleration");
