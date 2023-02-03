@@ -397,7 +397,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     qDebug() << python;
     qDebug() << args;
 
-    proc->start(python,args);
+    //proc->start(python,args);
 
 
     theMainProcessHandler->startProcess(python,args,"backend", nullptr);

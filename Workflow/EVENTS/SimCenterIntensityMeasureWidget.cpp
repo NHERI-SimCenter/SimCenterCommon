@@ -339,7 +339,7 @@ bool SimCenterIntensityMeasureWidget::outputToJSON(QJsonObject &jsonObject)
         if (periodsString.isEmpty())
         {
             if ((im.startsWith("PS")) || (im.startsWith("SaRatio"))) {
-                PythonProgressDialog::getInstance()->appendErrorMessage("Error periods not defined for "+im);
+                ProgramOutputDialog::getInstance()->appendErrorMessage("Error periods not defined for "+im);
                 return false;
             }
         }
@@ -349,7 +349,7 @@ bool SimCenterIntensityMeasureWidget::outputToJSON(QJsonObject &jsonObject)
         auto periodList = parsedPeriods.split(",");
         if ((im.startsWith("SaRatio")) && (periodList.size() != 3))
         {
-            PythonProgressDialog::getInstance()->appendErrorMessage("Error three periods for SaRatio Ta, T1, and Tb");
+            ProgramOutputDialog::getInstance()->appendErrorMessage("Error three periods for SaRatio Ta, T1, and Tb");
             return false;
         }
         for (int i=0; i<periodList.size(); i++)
@@ -366,7 +366,7 @@ bool SimCenterIntensityMeasureWidget::outputToJSON(QJsonObject &jsonObject)
         jsonObject.insert(im, curObj);
 
         if (jsonObject.size()!=i+1) {
-            PythonProgressDialog::getInstance()->appendErrorMessage("Error: " + im + " cannot be used twice");
+            ProgramOutputDialog::getInstance()->appendErrorMessage("Error: " + im + " cannot be used twice");
             return false;
         }
     }
