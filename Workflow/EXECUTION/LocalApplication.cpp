@@ -139,6 +139,8 @@ LocalApplication::onRunButtonPressed(void)
 bool
 LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile)
 {
+    this->statusMessage("Setup Done. Starting backend application ...");
+  
     tempDirectory = tmpDirectory;
     inputFilePath = inputFile;
 
