@@ -64,7 +64,7 @@ class UQ_EngineSelection : public  SimCenterAppSelection
   
  signals:
 
-  void onUQ_EngineChanged(bool);
+  void onUQ_EngineChanged(QString);
   void onNumModelsChanged(int);
   void queryEVT(void); // added KZ
 

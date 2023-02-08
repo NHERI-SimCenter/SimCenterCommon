@@ -35,7 +35,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written by: Kuanshi Zhong, Stevan Gavrilovic, Frank McKenna
-
+// Modified by: Sang-ri Yi (Added grid IM components)
 
 #include "SimCenterIntensityMeasureWidget.h"
 #include "SimCenterIntensityMeasureCombo.h"
@@ -60,6 +60,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 SimCenterIntensityMeasureWidget::SimCenterIntensityMeasureWidget(QWidget* parent)
     : SimCenterWidget(parent)
 {
+
     vLayout = new QVBoxLayout();
     QHBoxLayout *hLayout = new QHBoxLayout();
 
@@ -87,6 +88,7 @@ SimCenterIntensityMeasureWidget::SimCenterIntensityMeasureWidget(QWidget* parent
     imLayout = new QVBoxLayout(this);
     imBox->setLayout(imLayout);
     imLayout->addStretch();
+    imLayout->setSpacing(0);
     QScrollArea *sa = new QScrollArea;
     sa->setWidgetResizable(true);
     sa->setLineWidth(0);
@@ -109,26 +111,26 @@ SimCenterIM::SimCenterIM(SimCenterIntensityMeasureCombo *theIM, SimCenterUnitsCo
     : SimCenterWidget(parent), myIM(theIM), myUnit(theUnit)
 {
     button = new QRadioButton();
-    imUnitLayout = new QHBoxLayout();
-    imUnitLayout->addWidget(button);
-    imUnitLayout->addWidget(myIM);
-    imUnitLayout->addWidget(myUnit);
-    QHBoxLayout *periodLayout = new QHBoxLayout;
-    QLabel *periodLabel = new QLabel(tr("Periods:"));
-    periodLine = new QLineEdit("0.5,1.0,2.0");
+    imUnitLayout = new QGridLayout();
+    imUnitLayout->addWidget(button,1,0,1,1);
+    imUnitLayout->addWidget(new QLabel("IM"),0,1);
+    imUnitLayout->addWidget(myIM,1,1);
+    myUnitLabel = new QLabel("Unit");
+    imUnitLayout->addWidget(myUnitLabel,0,2);
+    imUnitLayout->addWidget(myUnit,1,2);
+
+
+    periodLine = new QLineEdit("");
     QRegularExpression regExpAllow("^([1-9][0-9]*|[1-9]*\\.[0-9]*|0\\.[0-9]*)*(([ ]*,[ ]*){0,1}([[1-9]*\\.[0-9]*|[1-9][0-9]*|0\\.[0-9]*))*");
     LEValidator = new QRegularExpressionValidator(regExpAllow,this);
-    periodLayout->addWidget(periodLabel);
-    periodLayout->addWidget(periodLine);
-    //periodLayout->setMargin(0);
-    myPeriods = new QGroupBox();
-    myPeriods->setLayout(periodLayout);
-    myPeriods->setVisible(false);
-    imUnitLayout->addWidget(myPeriods);
-    imUnitLayout->addStretch();
-    this->setLayout(imUnitLayout);
 
+    imUnitLayout->addWidget(new QLabel(tr("Periods")),0,3);
+    imUnitLayout->addWidget(periodLine,1,3);
+    imUnitLayout->setColumnStretch(7,1);
+    imUnitLayout->setMargin(5);
+    this->setLayout(imUnitLayout);
     connect(myIM, SIGNAL(currentTextChanged(const QString&)), this, SLOT(handleIMChanged(const QString&)));
+    nCol = 4;
 }
 
 
@@ -138,12 +140,117 @@ SimCenterIM::~SimCenterIM()
 }
 
 
+
+void SimCenterIM::setCurrentIMtoPSA(void)
+{
+    myIM->setCurrentIM(SimCenterEQ::IntensityMeasure::Type::PSA); // default is PSA
+}
+
+void SimCenterIM::setLabelVisible(bool tog)
+{
+    for (int i =1; i<nCol; i++) {
+        QLayoutItem *child = imUnitLayout->itemAtPosition(0,i);
+        QLabel *Label = dynamic_cast<QLabel*>(child->widget());
+        Label ->setVisible(tog);
+    }
+
+    myUnitLabel->setVisible(false); // Hide the unit label.
+    myUnit->setVisible(false); // Hide the unit combobox.
+}
+
+void SimCenterIM::addGridField(void)
+{
+    minVal = new QLineEdit("");
+    maxVal = new QLineEdit("");
+    numBins = new QLineEdit("5");
+    imUnitLayout->addWidget(new QLabel("Min."),0,4);
+    imUnitLayout->addWidget(minVal,1,4);
+    imUnitLayout->addWidget(new QLabel("Max."),0,5);
+    imUnitLayout->addWidget(maxVal,1,5);
+    imUnitLayout->addWidget(new QLabel("#Bins"),0,6);
+    imUnitLayout->addWidget(numBins,1,6);
+    nCol += 3;
+    //
+    // ToDO: Discuss the right range with Kuanshi and Adam and Frank!!!
+    // ToDO: is spectral velocity = Sa/omega, spectral displacement = Sa/omega2 ?  <- in this case, they can select only one of these
+    // ToDO: should we allow more than one unit???
+    // ToDo: is the unit if arias intensity correct?
+    connect(myIM, &QComboBox::currentTextChanged, [this](QString newIM)
+    {
+        if (newIM.contains("Acceleration")&& newIM.contains("Spectral")) {
+            minVal->setText("0.1");
+            maxVal->setText("5.0");
+        } else if (newIM.contains("Velocity")&& newIM.contains("Spectral")) {
+            //minVal->setText("2.5");
+            //maxVal->setText("100");
+        } else if (newIM.contains("Displacement"&& newIM.contains("Spectral"))) {
+            //minVal->setText("2.5");
+            //maxVal->setText("100");
+        }else if (newIM.contains("Acceleration") && newIM.contains("Ground")) {
+            minVal->setText("0.001");
+            maxVal->setText("0.4");
+        } else if (newIM.contains("Velocity")&& newIM.contains("Ground")) {
+            minVal->setText("0.25");
+            maxVal->setText("14");
+        } else if (newIM.contains("Displacement")&& newIM.contains("Ground")) {
+            minVal->setText("0.03");
+            maxVal->setText("7");
+        } else if (newIM.contains("Duration") && newIM.contains("75")) {
+            minVal->setText("2.5");
+            maxVal->setText("40");
+        } else if (newIM.contains("Duration") && newIM.contains("95")) {
+            minVal->setText("2.5");
+            maxVal->setText("80");
+        } else if (newIM.contains("SaRatio")) {
+            minVal->setText("0.5");
+            maxVal->setText("1.5");
+        } else if (newIM.contains("Arias")) {
+            minVal->setText("1");
+            maxVal->setText("10000");
+        }
+    });
+
+    connect(numBins, &QLineEdit::textChanged, [this]()
+    {
+        emit numBinsChanged();
+    });
+}
+
+
 void SimCenterIM::handleIMChanged(const QString& newIM)
 {
-    if ((newIM.contains("Spectral")) || (newIM.contains("SaRatio")))
-        myPeriods->setVisible(true);
-    else
-        myPeriods->setVisible(false);
+    if ((newIM.contains("Spectral")) || (newIM.contains("SaRatio"))){
+        periodLine->setDisabled(false);
+        periodLine->setStyleSheet("background-color: white;"
+                        "color: black;");
+
+        if (newIM.contains("Spectral")) {
+            periodLine->setText("0.5");
+        } else {
+            periodLine->setText("0.1,1.0,1.5");
+        }
+    }else{
+        periodLine->setDisabled(true);
+        periodLine->setStyleSheet("background-color: lightgray;"
+                        "color: lightgray;");
+        periodLine->setText("");
+    }
+
+    // Set default units
+
+    if (newIM.contains("Acceleration")) {
+        myUnit->setCurrentUnit(SimCenter::Unit::Type::g);
+    } else if (newIM.contains("Velocity")) {
+        myUnit->setCurrentUnit(SimCenter::Unit::Type::inchps);
+    } else if (newIM.contains("Displacement")) {
+        myUnit->setCurrentUnit(SimCenter::Unit::Type::inch);
+    } else if (newIM.contains("Duration")) {
+        myUnit->setCurrentUnit(SimCenter::Unit::Type::sec);
+    } else if (newIM.contains("SaRatio")) {
+        myUnit->setCurrentUnit(SimCenter::Unit::Type::scalar);
+    } else if (newIM.contains("Arias")) {
+        myUnit->setCurrentUnit(SimCenter::Unit::Type::inchps);
+    }
 }
 
 
@@ -202,6 +309,11 @@ bool SimCenterIntensityMeasureWidget::outputToJSON(QJsonObject &jsonObject)
             {
                 ProgramOutputDialog::getInstance()->appendErrorMessage("Warning IM undefined! Please set IM");
                 return false;
+            } else {
+
+                int pos = im.lastIndexOf(QChar('(')); // let us remove units in the json file
+                im = im.left(pos-1);
+                qDebug() << im;
             }
         }
         // unit
@@ -221,29 +333,45 @@ bool SimCenterIntensityMeasureWidget::outputToJSON(QJsonObject &jsonObject)
             curObj["Unit"] = unit;
         }
         // period if
-        if ((im.startsWith("PS")) || (im.compare("SaRatio")==0))
+        //if ((im.startsWith("PS")) || (im.compare("SaRatio")==0))
+        //{
+        auto periodsString = curIMUnit->periodLine->text();
+        if (periodsString.isEmpty())
         {
-            auto periodsString = curIMUnit->periodLine->text();
-            if (periodsString.isEmpty())
-            {
+            if ((im.startsWith("PS")) || (im.startsWith("SaRatio"))) {
                 ProgramOutputDialog::getInstance()->appendErrorMessage("Error periods not defined for "+im);
                 return false;
             }
-            auto parsedPeriods = curIMUnit->checkPeriodsValid(periodsString);
-            parsedPeriods.remove(" ");
-            QJsonArray periodArray;
-            auto periodList = parsedPeriods.split(",");
-            if ((im.compare("SaRatio")==0) && (periodList.size() != 3))
-            {
-                ProgramOutputDialog::getInstance()->appendErrorMessage("Error three periods for SaRatio Ta, T1, and Tb");
-                return false;
-            }
-            for (int i=0; i<periodList.size(); i++)
-                periodArray.append(periodList.at(i).toDouble());
-            curObj["Periods"] = periodArray;
         }
+        auto parsedPeriods = curIMUnit->checkPeriodsValid(periodsString);
+        parsedPeriods.remove(" ");
+        QJsonArray periodArray;
+        auto periodList = parsedPeriods.split(",");
+        if ((im.startsWith("SaRatio")) && (periodList.size() != 3))
+        {
+            ProgramOutputDialog::getInstance()->appendErrorMessage("Error three periods for SaRatio Ta, T1, and Tb");
+            return false;
+        }
+        for (int i=0; i<periodList.size(); i++)
+            periodArray.append(periodList.at(i).toDouble());
+        curObj["Periods"] = periodArray;
+        //}
+        if (curIMUnit->nCol>4)
+        {
+            curObj["upperBound"] =curIMUnit->maxVal->text();
+            curObj["lowerBound"] =curIMUnit->minVal->text();
+            curObj["numBins"] =curIMUnit->numBins->text();
+        }
+
         jsonObject.insert(im, curObj);
+
+        if (jsonObject.size()!=i+1) {
+            ProgramOutputDialog::getInstance()->appendErrorMessage("Error: " + im + " cannot be used twice");
+            return false;
+        }
     }
+
+
     return true;
 }
 
@@ -316,7 +444,43 @@ void SimCenterIntensityMeasureWidget::addIMItem()
     SimCenterIntensityMeasureCombo *imCombo = new SimCenterIntensityMeasureCombo(SimCenterEQ::IntensityMeasure::ALL,imName);
     SimCenterUnitsCombo *unitCombo = new SimCenterUnitsCombo(SimCenter::Unit::ALL,unitName);
     SimCenterIM *imUnitCombo = new SimCenterIM(imCombo, unitCombo);
+
+    if (addGrid) {
+         imUnitCombo->addGridField();
+    }
+
+    if (i==0) {
+        imUnitCombo->setLabelVisible(true);
+    } else {
+        imUnitCombo->setLabelVisible(false);
+    }
+
     imLayout->insertWidget(i, imUnitCombo);
+    imUnitCombo->setCurrentIMtoPSA(); // Default Sa
+
+    connect(imUnitCombo, SIGNAL(numBinsChanged()), this, SLOT(getNumBins()));
+
+    if (addGrid) {
+        this->getNumBins();
+    }
+}
+
+
+void SimCenterIntensityMeasureWidget::getNumBins()
+{
+    auto numIM = this->getNumberOfIM();
+    int numBin = 1;
+    for (int i = 0; i < numIM; i++) {
+        QLayoutItem *curItem = imLayout->itemAt(i);
+        auto curWidget = dynamic_cast<SimCenterIM*>(curItem->widget());
+        numBin = numBin * curWidget->numBins->text().toDouble();
+    }
+
+    if (numIM == 0) {
+        numBin = 0;
+    }
+
+    emit numBinsChanged(numBin);
 }
 
 
@@ -331,6 +495,22 @@ void SimCenterIntensityMeasureWidget::removeIMItem()
             curWidget->setParent(0);
             delete curWidget;
         }
+    }
+
+    auto numIM_new = this->getNumberOfIM();
+
+    for (int i = 0; i < numIM_new; i++) {
+        QLayoutItem *curItem = imLayout->itemAt(i);
+        auto curWidget = dynamic_cast<SimCenterIM*>(curItem->widget());
+        if (i==0) {
+            curWidget->setLabelVisible(true);
+        } else {
+            curWidget->setLabelVisible(false);
+        }
+    }
+
+    if (addGrid) {
+       this->getNumBins();
     }
 }
 
@@ -376,6 +556,11 @@ int SimCenterIntensityMeasureWidget::getNumberOfIM(void)
     return imLayout->count()-1;
 }
 
+
+void SimCenterIntensityMeasureWidget::addGridField(void)
+{
+   addGrid = true;
+}
 
 int SimCenterIntensityMeasureWidget::setIM(const QString& parameterName, const QString& im)
 {

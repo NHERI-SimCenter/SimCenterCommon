@@ -66,7 +66,7 @@ public:
     bool copyFiles(QString &fileDir);
 
 signals:
-    void onUQ_EngineChanged(void);
+    void onUQ_EngineChanged(QString);
     void onNumModelsChanged(int newNum);
 
 public slots:

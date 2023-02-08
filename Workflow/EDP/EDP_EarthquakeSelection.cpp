@@ -105,7 +105,6 @@ EDP_EarthquakeSelection::EDP_EarthquakeSelection(QWidget *parent)
 
   connect(edpSelection, SIGNAL(currentIndexChanged(int)), this,
 	  SLOT(edpSelectionChanged(int)));
-
 }
 
 EDP_EarthquakeSelection::~EDP_EarthquakeSelection()

@@ -1,5 +1,5 @@
-#ifndef SimCenterUQ_INPUT_SURROGATE_H
-#define SimCenterUQ_INPUT_SURROGATE_H
+#ifndef MODULAR_PYTHON_H
+#define MODULAR_PYTHON_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -20,7 +20,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -37,67 +37,51 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-#include <UQ_Engine.h>
+/**
+ *  @author  sangri
+ *  @date    2/2023
+ *  @version 1.0
+ *
+ *  @section DESCRIPTION
+ *
+ *  running Python
+ */
 
-#include <QGroupBox>
-#include <QVector>
-#include <QVBoxLayout>
-#include <QComboBox>
-#include <QPushButton>
+#include <QWidget>
+#include <QProcess>
+#include "Utils/PythonProcessHandler.h"
+#include <Application.h>
 
-class SimCenterUQSurrogateResults;
-class SimCenterUQResults;
-class QCheckBox;
-class RandomVariablesContainer;
-class QStackedWidget;
+class QJsonObject;
+class ProgramOutputDialog;
 
-class SimCenterUQInputSurrogate : public UQ_Engine
+class ModularPython  : public Application
 {
     Q_OBJECT
 public:
-    explicit SimCenterUQInputSurrogate(QWidget *parent = 0);
-    ~SimCenterUQInputSurrogate();
+    explicit ModularPython(QString pythonWorkDir, QWidget *parent = nullptr);
+    virtual ~ModularPython();
+    void run();
 
-    bool outputToJSON(QJsonObject &jsonObject);
-    bool inputFromJSON(QJsonObject &jsonObject);
-    bool outputAppDataToJSON(QJsonObject &jsonObject);
-    bool inputAppDataFromJSON(QJsonObject &jsonObject);
-
-    UQ_Results *getResults(void);
-    void setRV_Defaults(void);
-
-    int getMaxNumParallelTasks(void);
-    QString getMethodName();
-    bool copyFiles(QString &fileDir);
-    QVBoxLayout *mLayout;
+    QString pythonExe;
+    QStringList pythonArgs;
+    QString pythonScriptPath;
+    QString pythonWorkDir;
+    void run(QString pythonScriptPath, QStringList pythonArgs);
 
 signals:
+    void processResults(QString &resultsDir);
+    void runComplete();
+    void sendErrorMessage(QString);
+    void sendStatusMessage(QString);
 
 public slots:
-   void clear(void);
-   void onIndexChanged(const QString &arg1);
-   void numModelsChanged(int numModels);
-   // KZ set event type
-   void setEventType(QString type);
+   void handleProcessFinished(int exitCode);
 
 private:
-    QVBoxLayout *layout;
-    QWidget     *methodSpecific;
-    QComboBox   *inpMethod;
-    QLineEdit   *numSamples;
-    QLineEdit   *randomSeed;
-
-    QComboBox   *uqSelection;
-    QWidget     *uqSpecific;
-
-    RandomVariablesContainer *theRandomVariables;
-    SimCenterUQSurrogateResults *results;
-
-    QStackedWidget *theStackedWidget;
-    UQ_Method *theInpCurrentMethod;
-    UQ_Method *theDoE;
-    UQ_Method *theData;
-    UQ_Method *theMultiFidelity;
+    std::unique_ptr<PythonProcessHandler> theProcessHandler = nullptr;
+    QString python;
+    QString exportPath;
 };
 
-#endif // SimCenterUQ_INPUT_SURROGATE_H
+#endif // MODULAR_PYTHON_H

@@ -155,6 +155,15 @@ void PythonProcessHandler::setProcessEnv(QProcessEnvironment& env)
     process->setProcessEnvironment(env);
 }
 
+void PythonProcessHandler::setWorkingDir(QString WorkingDir)
+{
+    process->setWorkingDirectory(WorkingDir);
+}
+
+void PythonProcessHandler::waitForFinished(int sec)
+{
+    process->waitForFinished(sec); // Blocks until the process has finished
+}
 
 void PythonProcessHandler::handleErrorMsg(const QString msg)
 {

@@ -40,6 +40,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include <UQ_Method.h>
+#include "SimCenterIntensityMeasureWidget.h"
 class QLineEdit;
 class QComboBox;
 class QCheckBox;
@@ -47,6 +48,7 @@ class QLabel;
 class QPushButton;
 class QFrame;
 class QRadioButton;
+class QStackedWidget;
 
 class SurrogateDoEInputWidget : public UQ_Method
 {
@@ -62,6 +64,9 @@ public:
 
     int getNumberTasks(void);
     void setRV_Defaults(void);
+    // KZ set event type
+    void setEventType(QString type);
+    void SetComboBoxItemEnabled(QComboBox * comboBox, int index, bool enabled);
 
 
 private:
@@ -72,6 +77,7 @@ private:
 
     QWidget *theGpAdvancedWidgetGroup;
     QWidget *theExistingWidgetGroup;
+    QWidget *theGpAdvancedWidgetGroupEE;
     QLineEdit *randomSeed;
     QLineEdit *numSamples;
     QLineEdit *accuracyMeasure;
@@ -79,9 +85,11 @@ private:
     QLineEdit *numSampToBeRepl, *numRepl;
     QCheckBox *parallelCheckBox;
     QComboBox *gpKernel;
+    QComboBox *imChoicesComboBox;
     QCheckBox *theLinearCheckBox;
     QCheckBox *theGpAdvancedCheckBox;
     QCheckBox *theExistingCheckBox;
+    QCheckBox *theGpAdvancedCheckBoxEE;
     QCheckBox *theLogtCheckBox;
 
     QLabel * theAdvancedTitle;
@@ -105,13 +113,22 @@ private:
     QLabel * repMsg;
     int numSims;
 
+    SimCenterIntensityMeasureWidget * theSCIMWidget;
+    QStackedWidget *im_stackedWidgets;
+    QString typeEVT;
+
 private slots:
     void doAdvancedGP(bool tog);
+    void doAdvancedEE(bool tog);
     void doExistingGP(bool tog);
     void checkValidityData(QString name1);
     void showNuggetBox(int idx);
     void showDoEBox(int idx);
     void updateSimNumber(QString tte);
+    void onEventTypeChanged(QString typeEVT);
+
+signals:
+    void eventTypeChanged(QString typeEVT);
 
 };
 

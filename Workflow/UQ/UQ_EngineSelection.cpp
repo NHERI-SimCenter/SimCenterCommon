@@ -101,10 +101,10 @@ UQ_EngineSelection::initialize(bool includeNone, UQ_EngineType type)
     connect(this, SIGNAL(selectionChangedSignal(QString)), this,
             SLOT(engineSelectionChanged(QString)));
 
-    connect(theDakotaEngine, SIGNAL(onUQ_EngineChanged()), this, SLOT(enginesEngineSelectionChanged(QString)));
-    connect(theSimCenterUQEngine, SIGNAL(onUQ_EngineChanged()), this, SLOT(enginesEngineSelectionChanged(QString)));
-    connect(theCustomEngine, SIGNAL(onUQ_EngineChanged()), this, SLOT(enginesEngineSelectionChanged(QString)));
-    connect(theUCSD_Engine, SIGNAL(onUQ_EngineChanged()), this, SLOT(enginesEngineSelectionChanged(QString)));
+    connect(theDakotaEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
+    connect(theSimCenterUQEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
+    connect(theCustomEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
+    connect(theUCSD_Engine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
 
     // connect queryEVT
     connect(theSimCenterUQEngine, SIGNAL(queryEVT()), this, SLOT(relayQueryEVT()));
@@ -114,18 +114,18 @@ void UQ_EngineSelection::engineSelectionChanged(const QString &arg1)
 {
     if (arg1 == "Dakota" || arg1 == "Dakota-UQ") {
         theCurrentEngine = theDakotaEngine;
-        emit onUQ_EngineChanged(true);
+        //emit onUQ_EngineChanged(true);
     } else if (arg1 == "SimCenterUQ" || arg1 == "SimCenterUQ-UQ") {
         theCurrentEngine = theSimCenterUQEngine;
-        emit onUQ_EngineChanged(true);
+        //emit onUQ_EngineChanged(true);
     } else if (arg1 == "CustomUQ") {
       theCurrentEngine = theCustomEngine;
-      emit onUQ_EngineChanged(false);
+      //emit onUQ_EngineChanged(false);
       
     } else if (arg1 == "UCSD-UQ") {
 
       theCurrentEngine = theUCSD_Engine;
-      emit onUQ_EngineChanged(true);
+      //emit onUQ_EngineChanged(true);
 
     } else {
       qDebug() << "ERROR .. UQ_EngineSelection selection .. type unknown: " << arg1;

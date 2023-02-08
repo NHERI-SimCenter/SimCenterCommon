@@ -46,6 +46,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <ConcreteBuildingModel.h>
 #include <MDOF_LU.h>
 #include <CustomPy.h>
+#include <surrogateGP.h>
+
 
 #include <QApplication>
 
@@ -69,6 +71,12 @@ SIM_Selection::SIM_Selection(bool includeC,
     this->addComponent(QString("Steel Building Model"), QString("SteelBuildingModel"), autosda);
     this->addComponent(QString("Concrete Building Model"), QString("ConcreteBuildingModel"), concrete);
   }
+
+//  if (appName == "EE-UQ") {
+//    SimCenterAppWidget *sur = new surrogateGP(theRVs);
+//    this->addComponent(QString("Surrogate (GP)"), QString("Surrogate (GP)"), sur);
+//  }
+
 
   SimCenterAppWidget *mdof_lu = new MDOF_LU();
   this->addComponent(QString("MDOF-LU"), QString("MDOF-LU"), mdof_lu);

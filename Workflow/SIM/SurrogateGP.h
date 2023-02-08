@@ -1,5 +1,5 @@
-#ifndef SimCenterUQ_INPUT_SURROGATE_H
-#define SimCenterUQ_INPUT_SURROGATE_H
+#ifndef SURROGATE_GP_MODEL_H
+#define SURROGATE_GP_MODEL_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -37,67 +37,56 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-#include <UQ_Engine.h>
+// Written: fmckenna, sangri
+
+#include <SimCenterAppWidget.h>
 
 #include <QGroupBox>
 #include <QVector>
-#include <QVBoxLayout>
+#include <QGridLayout>
 #include <QComboBox>
-#include <QPushButton>
+#include <QRadioButton>
+#include <QLabel>
 
-class SimCenterUQSurrogateResults;
-class SimCenterUQResults;
-class QCheckBox;
+class InputWidgetParameters;
 class RandomVariablesContainer;
-class QStackedWidget;
 
-class SimCenterUQInputSurrogate : public UQ_Engine
+class surrogateGP : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
-    explicit SimCenterUQInputSurrogate(QWidget *parent = 0);
-    ~SimCenterUQInputSurrogate();
+    explicit surrogateGP(QWidget *parent = 0);
+    ~surrogateGP();
 
-    bool outputToJSON(QJsonObject &jsonObject);
-    bool inputFromJSON(QJsonObject &jsonObject);
-    bool outputAppDataToJSON(QJsonObject &jsonObject);
-    bool inputAppDataFromJSON(QJsonObject &jsonObject);
-
-    UQ_Results *getResults(void);
-    void setRV_Defaults(void);
-
-    int getMaxNumParallelTasks(void);
-    QString getMethodName();
-    bool copyFiles(QString &fileDir);
-    QVBoxLayout *mLayout;
+    bool outputToJSON(QJsonObject &rvObject) override;
+    bool inputFromJSON(QJsonObject &rvObject) override;
+    bool outputAppDataToJSON(QJsonObject &rvObject) override;
+    bool inputAppDataFromJSON(QJsonObject &rvObject) override;
+    bool copyFiles(QString &dirName) override;
+    void setMainScript(QString filnema1);
 
 signals:
 
 public slots:
-   void clear(void);
-   void onIndexChanged(const QString &arg1);
-   void numModelsChanged(int numModels);
-   // KZ set event type
-   void setEventType(QString type);
+   void clear(void) override;
+   void updateMessage(QString);
+   void showGpOptions(QString);
 
 private:
-    QVBoxLayout *layout;
-    QWidget     *methodSpecific;
-    QComboBox   *inpMethod;
-    QLineEdit   *numSamples;
-    QLineEdit   *randomSeed;
+  void specialCopyMainScript(QString fileName, QStringList varNamesAndValues);
+  double interpolateForGP(QVector<double> X, QVector<double> Y, double Xval);
 
-    QComboBox   *uqSelection;
-    QWidget     *uqSpecific;
-
-    RandomVariablesContainer *theRandomVariables;
-    SimCenterUQSurrogateResults *results;
-
-    QStackedWidget *theStackedWidget;
-    UQ_Method *theInpCurrentMethod;
-    UQ_Method *theDoE;
-    UQ_Method *theData;
-    UQ_Method *theMultiFidelity;
+  QLineEdit *inputScript;
+  QLineEdit *postprocessScript;
+  QStringList varNamesAndValues;
+  QWidget *femWidget;
+  QGroupBox *groupBox;
+  QRadioButton *option1Button, *option2Button, *option3Button;
+  QLineEdit *thresVal;
+  bool isData;
+  QVector<double> percVals, thrsVals;
+  QComboBox * gpOutputComboBox;
+  QLabel *labelProgName, *labelProgDir1, *labelProgDir2, *labelThresMsg , *qoiNames;
 };
 
-#endif // SimCenterUQ_INPUT_SURROGATE_H
+#endif // SURROGATE_GP_MODEL_H
