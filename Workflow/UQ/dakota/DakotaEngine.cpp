@@ -204,7 +204,7 @@ void DakotaEngine::engineSelectionChanged(const QString &arg1)
 
     // emit signal if engine changed
     //if (theCurrentEngine != theOldEngine)
-    emit onUQ_EngineChanged();
+    emit onUQ_EngineChanged("Dakota");
 }
 
 

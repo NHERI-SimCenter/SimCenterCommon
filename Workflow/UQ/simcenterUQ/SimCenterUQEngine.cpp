@@ -174,7 +174,7 @@ void SimCenterUQEngine::methodSelectionChanged(const QString &arg1)
 
     // emit signal if engine changed
     //if (theCurrentEngine != theOldEngine)
-    emit onUQ_EngineChanged();
+    emit onUQ_EngineChanged("SimCenterUQ");
 }
 
 int
