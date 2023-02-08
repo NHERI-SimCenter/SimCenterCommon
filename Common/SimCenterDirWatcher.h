@@ -1,10 +1,11 @@
-#ifndef ExampleDownloader_H
-#define ExampleDownloader_H
+#ifndef SIMCENTER_DIR_WATCHER_H
+#define SIMCENTER_DIR_WATCHER_H
+
 /* *****************************************************************************
-Copyright (c) 2016-2021, The Regents of the University of California (Regents).
+Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without
+Redistribution and use in source and binary forms, with or without 
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -28,68 +29,73 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written by: Stevan Gavrilovic
+/**
+ *  @author  fmckenna
+ *  @date    09/2022
+ *  @version 1.0
+ *
+ *  @section DESCRIPTION
+ *
+ * The purpose of this class is to define interface for SimCenter widgets that are associated with an application
+ * in the Workflow applications. They introduce methods for wrating the application specific data, e.g. AppName, data
+ * that are used in workflow applicaions.
+ */
 
-#include <QDialog>
-#include <map>
+#include <QObject>
+#include <QString>
 
-class TreeItem;
-class SimCenterTreeView;
-class NetworkDownloadManager;
-class ProgramOutputDialog;
-class MainWindowWorkflowApp;
-
-struct R2DExample{
-
-public:
-    QString url;
-    QString name;
-    QString description;
-    QString inputFile;
-    QString uid;
-};
-
-class ExampleDownloader : public QDialog
+class SimCenterDirWatcher : public QObject
 {
     Q_OBJECT
-
+  
 public:
-    explicit ExampleDownloader(MainWindowWorkflowApp *parent);
-    ~ExampleDownloader();
+  
+  SimCenterDirWatcher();
+  virtual ~SimCenterDirWatcher();
 
-    void addExampleToDownload(const QString url, const QString name, const QString description, const QString inputFile);
+  /**
+   *   @brief setCount
+   *   @param count - number of entries before signal sent
+   *   @return void
+   */
+  virtual void setCount(int count);
 
-    void updateTree(void);
+  /**
+   *   @brief resetCount
+   *   @param resets the current count to 0
+   *   @return void
+   */  
+  virtual void resetCount(void);
 
-private slots:
+  /**
+   *   @brief setDirMonitor
+   *   @param dir - the dir to monitor
+   *   @return bool - returns false if fail to set dir
+   */    
+  virtual bool setDirToMonitor(QString dir);
 
-    void updateExamples(void);
-    void removeExample(const QString& name);
-
-    void handleDownloadFinished(bool val);
-
+  
+  signals:
+  void countReached(void);
+  void dirChanged(void);			 
+		      
+public slots:
+  void changed(const QString &dir);  
+    
 private:
-
-    SimCenterTreeView* exampleTreeView;
-
-    std::unique_ptr<NetworkDownloadManager> downloadManager;
-
-    std::map<QString, R2DExample> exampleContainer;  
-
-    bool checkIfExampleExists(const QString& name);
-
-    bool deleteExampleFolder(const QString& name);
-
-    ProgramOutputDialog* statusDialog;
-    MainWindowWorkflowApp* workflowApp;
+  int currentCount;
+  int maxCount;
+  QString currentDir;
+  
+  class QFileSystemWatcher *theDirWatcher;
 };
 
-#endif // ExampleDownloader_H
+#endif // SIMCENTER_DIR_WATCHER_H

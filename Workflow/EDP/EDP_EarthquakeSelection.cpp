@@ -103,8 +103,9 @@ EDP_EarthquakeSelection::EDP_EarthquakeSelection(QWidget *parent)
   theCurrentEDP=theStandardEarthquakeEDPs;
   //layout->setMargin(0);
 
-  connect(edpSelection, SIGNAL(currentTextChanged(QString)), this,
-      SLOT(edpSelectionChanged(QString)));
+  connect(edpSelection, SIGNAL(currentIndexChanged(int)), this,
+	  SLOT(edpSelectionChanged(int)));
+
 }
 
 EDP_EarthquakeSelection::~EDP_EarthquakeSelection()
@@ -133,26 +134,31 @@ EDP_EarthquakeSelection::inputFromJSON(QJsonObject &jsonObject) {
   return false;
 }
 
-void EDP_EarthquakeSelection::edpSelectionChanged(const QString &arg1)
+void EDP_EarthquakeSelection::edpSelectionChanged(int slot)
 {
   //
   // switch stacked widgets depending on text
   // note type output in json and name in pull down are not the same and hence the ||
   //
 
-  if (arg1 == "Standard Earthquake") {
-    theStackedWidget->setCurrentIndex(0);
-    theCurrentEDP = theStandardEarthquakeEDPs;
-  }
+    //
+    // switch stacked widgets depending on text
+    // note type output in json and name in pull down are not the same and hence the ||
+    //
 
-  else if(arg1 == "User Defined") {
-    theStackedWidget->setCurrentIndex(1);
-    theCurrentEDP = theUserDefinedEDPs;
-  }
+    if (slot == 0) {
+        theStackedWidget->setCurrentIndex(0);
+        theCurrentEDP = theStandardEarthquakeEDPs;
+    }
 
-  else {
-    qDebug() << "ERROR .. EDP_EarthquakeSelection selection .. type unknown: " << arg1;
-  }
+    else if (slot == 1) {
+        theStackedWidget->setCurrentIndex(1);
+        theCurrentEDP = theUserDefinedEDPs;
+    }
+
+    else {
+        qDebug() << "ERROR .. EDP_Selection selection .. unknown slot used: " << slot;
+    }
 }
 
 bool

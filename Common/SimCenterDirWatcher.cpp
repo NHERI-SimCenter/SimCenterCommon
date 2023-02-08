@@ -1,10 +1,8 @@
-#ifndef ExampleDownloader_H
-#define ExampleDownloader_H
 /* *****************************************************************************
-Copyright (c) 2016-2021, The Regents of the University of California (Regents).
+Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without
+Redistribution and use in source and binary forms, with or without 
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -28,68 +26,69 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written by: Stevan Gavrilovic
+// Written: fmckenna
 
-#include <QDialog>
-#include <map>
+#include <SimCenterDirWatcher.h>
+#include <QFileSystemWatcher>
+#include <QDebug>
+#include <QString>
 
-class TreeItem;
-class SimCenterTreeView;
-class NetworkDownloadManager;
-class ProgramOutputDialog;
-class MainWindowWorkflowApp;
-
-struct R2DExample{
-
-public:
-    QString url;
-    QString name;
-    QString description;
-    QString inputFile;
-    QString uid;
-};
-
-class ExampleDownloader : public QDialog
+SimCenterDirWatcher::SimCenterDirWatcher()
+  :currentCount(0), maxCount(0)
 {
-    Q_OBJECT
+  theDirWatcher = new QFileSystemWatcher();
+  connect(theDirWatcher, SIGNAL(directoryChanged(QString)),
+      this, SLOT(changed(QString)));
+}
+  
+SimCenterDirWatcher::~SimCenterDirWatcher()
+{
+  delete theDirWatcher;
+}
 
-public:
-    explicit ExampleDownloader(MainWindowWorkflowApp *parent);
-    ~ExampleDownloader();
+void
+SimCenterDirWatcher::setCount(int count)
+{
+  maxCount = count;
+}
 
-    void addExampleToDownload(const QString url, const QString name, const QString description, const QString inputFile);
+void
+SimCenterDirWatcher::resetCount(void) {
+  currentCount = 0;
+}
 
-    void updateTree(void);
+bool
+SimCenterDirWatcher::setDirToMonitor(QString dir)
+{
+   qDebug() << "\n\nsetDirToMonitor: " << dir << "\n\n";
+  if (!currentDir.isEmpty())
+    theDirWatcher->removePath(currentDir);
 
-private slots:
-
-    void updateExamples(void);
-    void removeExample(const QString& name);
-
-    void handleDownloadFinished(bool val);
-
-private:
-
-    SimCenterTreeView* exampleTreeView;
-
-    std::unique_ptr<NetworkDownloadManager> downloadManager;
-
-    std::map<QString, R2DExample> exampleContainer;  
-
-    bool checkIfExampleExists(const QString& name);
-
-    bool deleteExampleFolder(const QString& name);
-
-    ProgramOutputDialog* statusDialog;
-    MainWindowWorkflowApp* workflowApp;
+  if (theDirWatcher->addPath(dir) != true) {
+    QString errorMessage = QString("SimCenterDirWatcher - could not addPath: ") + dir;
+    qDebug() << errorMessage;
+  }
+  currentDir = dir;
+  currentCount = 0;
+  return true;
 };
 
-#endif // ExampleDownloader_H
+void
+SimCenterDirWatcher::changed(const QString &dir)
+{
+  currentCount++;
+  if (currentCount == maxCount) // don't worry about going over
+    emit countReached();
+  else
+    emit dirChanged();
+
+  qDebug() << "\n\nSimCenterDirWatcher::changed " << dir << " " << currentCount << "\n\n";
+};

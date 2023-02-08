@@ -1,5 +1,4 @@
-#ifndef LOCAL_APPLICATION_H
-#define LOCAL_APPLICATION_H
+// Written: fmckenna
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -37,49 +36,105 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-
 // Written: fmckenna
+// Modified: Dimitris, Aakash
 
-// Purpose: a widget for submitting uqFEM jobs to HPC resource (specifically DesignSafe at moment)
-//  - the widget aasks for additional info needed and provide a submit button to submit the jb when clicked.
+#include "UQpySubsetSimulation.h"
+#include <UQpyResultsSubsetSim.h>
+#include <RandomVariablesContainer.h>
 
-#include <SimCenterWidget.h>
-#include <Application.h>
+#include <QPushButton>
+#include <QScrollArea>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QLabel>
+#include <QLineEdit>
+#include <QDebug>
+#include <QFileDialog>
+#include <QPushButton>
+#include <sectiontitle.h>
 
-#include "Utils/PythonProcessHandler.h"
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <time.h>
 
-class QLabel;
+#include <QStackedWidget>
+//#include <SubsetSimulationWidget.h>
 
-class LocalApplication : public Application
+UQpySubsetSimulation::UQpySubsetSimulation(QWidget *parent)
+: UQ_Method(parent)
 {
-    Q_OBJECT
-public:
-    explicit LocalApplication(QString workflowScriptName, QWidget *parent = nullptr);
-    bool outputToJSON(QJsonObject &rvObject);
-    bool inputFromJSON(QJsonObject &rvObject);
-    bool setupDoneRunApplication(QString &tmpDirectory, QString &inputFile);
-    void displayed(void);
+    layout = new QVBoxLayout();
+    mLayout = new QVBoxLayout();
 
-signals:
-    void processResults(QString &resultsDir);
-    void runComplete();
 
-    void sendErrorMessage(QString);
-    void sendStatusMessage(QString);
+    //
+    // create layout for selection box for method type to layout
+    //
 
-public slots:
-   void onRunButtonPressed(void);
+    QHBoxLayout *methodLayout= new QHBoxLayout;
+    QLabel *label1 = new QLabel();
+    label1->setText(QString("Method"));
+    reliabilityMethod = new QComboBox();
+    reliabilityMethod->setMaximumWidth(200);
+    reliabilityMethod->setMinimumWidth(200);
+    reliabilityMethod->addItem(tr("Subset Simulation"));
 
-   // Handles the results when the process is finished
-   void handleProcessFinished(int exitCode);
+    methodLayout->addWidget(label1);
+    methodLayout->addWidget(reliabilityMethod);
+    methodLayout->addStretch(1);
 
-private:
-    void submitJob(void);
-    QString workflowScript;
-    std::unique_ptr<PythonProcessHandler> theMainProcessHandler = nullptr;
-    QString tempDirectory;
-    QString inputFilePath;
+    mLayout->addLayout(methodLayout);
 
-};
+    //
+    // qstacked widget to hold all widgets
+    //
 
-#endif // LOCAL_APPLICATION_H
+    theStackedWidget = new QStackedWidget();
+
+    //theSubsetSim = new SubsetSimulationWidget();
+    //theStackedWidget->addWidget(theSubsetSim);
+
+    mLayout->addWidget(theStackedWidget);
+    layout->addLayout(mLayout);
+
+    this->setLayout(layout);
+
+}
+
+UQpySubsetSimulation::~UQpySubsetSimulation() {
+
+}
+
+bool
+UQpySubsetSimulation::outputToJSON(QJsonObject &jsonObject) {
+    return true;
+}
+
+bool
+UQpySubsetSimulation::inputFromJSON(QJsonObject &jsonObject){
+    return true;
+}
+
+bool
+UQpySubsetSimulation::outputAppDataToJSON(QJsonObject &jsonObject) {
+    return true;
+}
+
+bool
+UQpySubsetSimulation::inputAppDataFromJSON(QJsonObject &jsonObject) {
+    return true;
+}
+
+
+void
+UQpySubsetSimulation::setRV_Defaults(void) {
+
+}
+
+
+int
+UQpySubsetSimulation::getMaxNumParallelTasks(void) {
+    return 1;
+}

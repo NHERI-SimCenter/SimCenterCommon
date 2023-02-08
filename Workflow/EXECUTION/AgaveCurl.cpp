@@ -1196,7 +1196,6 @@ AgaveCurl::getJobStatus(const QString &jobID){
                     emit statusMessage(message);
                     return result;
                 }
-
             }
     }
 
@@ -1333,6 +1332,18 @@ AgaveCurl::invokeCurl(void) {
     slist2 = NULL;
   }
 
+  /* ************************************************
+  // spit out to error the return data     
+  QFile file(uniqueFileName1);
+  if (!file.open(QFile::ReadOnly | QFile::Text)) {
+    emit errorMessage("ERROR: COULD NOT OPEN RESULT");
+  }
+  QString val;
+  val=file.readAll();
+  file.close();
+  errorMessage(val);
+  *************************************************** */
+  
   // check for success
   if (ret == CURLE_OK)
     return true;
@@ -1340,7 +1351,7 @@ AgaveCurl::invokeCurl(void) {
   // if failure, go get message, emit signal and return false;
   const char *str = curl_easy_strerror(ret);
   QString errorString(str);
-  emit errorMessage(QString("ERROR: " ) + QString(errorString));
+  emit errorMessage(QString("AgaveCurl ERROR: " ) + QString(errorString));
 
   return false;
 }

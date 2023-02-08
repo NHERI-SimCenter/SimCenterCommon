@@ -1,5 +1,5 @@
-#ifndef PYTHONPROGRESSDIALOG_H
-#define PYTHONPROGRESSDIALOG_H
+#ifndef ProgramOutputDialog_H
+#define ProgramOutputDialog_H
 
 #include <QDialog>
 
@@ -7,18 +7,21 @@
 class QRecursiveMutex;
 class QPlainTextEdit;
 class QProgressBar;
+class QLabel;
+class QTimer;
+class QElapsedTimer;
 
-class PythonProgressDialog : public QDialog
+class ProgramOutputDialog : public QDialog
 {
     Q_OBJECT
 
 private:
-    explicit PythonProgressDialog(QWidget* parent =0);
-    ~PythonProgressDialog();
-    static PythonProgressDialog *theInstance;  
+    explicit ProgramOutputDialog(QWidget* parent =0);
+    ~ProgramOutputDialog();
+    static ProgramOutputDialog *theInstance;
   
 public:
-    static PythonProgressDialog *getInstance(QWidget *parent = 0);  
+    static ProgramOutputDialog *getInstance(QWidget *parent = 0);
 
     void appendText(const QString text);
 
@@ -41,22 +44,29 @@ public slots:
     void handleCloseButtonPress();
     void handleClearButtonPress();
     void clear(void);
+    void updateTimerLabel();
 
 signals:
     void showDialog(bool);
 
 private:
 
-    QPlainTextEdit* progressTextEdit;
+    QPlainTextEdit* progressTextEdit = nullptr;
 
     QString cleanUpText(const QString text);
 
-    QProgressBar* progressBar;
+    QProgressBar* progressBar = nullptr;
 
-    QRecursiveMutex* mutex;
+    QRecursiveMutex* mutex = nullptr;
 
     QString getTimestamp(void);
 
+    QLabel* timerText = nullptr;
+    QLabel* timerLabel = nullptr;
+
+    QTimer* timer = nullptr;
+    QElapsedTimer* elapsedTimer = nullptr;
+
 };
 
-#endif // PYTHONPROGRESSDIALOG_H
+#endif // ProgramOutputDialog_H

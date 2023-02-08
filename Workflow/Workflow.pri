@@ -8,6 +8,7 @@
 #message($$PWD)
 
 INCLUDEPATH += $$PWD/UQ
+INCLUDEPATH += $$PWD/UQ/uqpy
 INCLUDEPATH += $$PWD/UQ/common
 INCLUDEPATH += $$PWD/UQ/dakota
 INCLUDEPATH += $$PWD/UQ/simcenterUQ
@@ -36,9 +37,11 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/UQ/UQ_Engine.cpp \
     $$PWD/UQ/UQ_Method.cpp \
     $$PWD/UQ/simcenterUQ/PLoMSimuWidget.cpp \
-    $$PWD/UQ/UQpyEngine.cpp \
     $$PWD/UQ/customUQ/CustomUQ_Results.cpp \
-    $$PWD/UQ/customUQ/UQ_JsonEngine.cpp \ 
+    $$PWD/UQ/customUQ/UQ_JsonEngine.cpp \
+    $$PWD/UQ/uqpy/UQpyEngine.cpp\
+    $$PWD/UQ/uqpy/UQpyResultsSubsetSim.cpp \
+    $$PWD/UQ/uqpy/UQpySubsetSimulation.cpp \
     $$PWD/UQ/common/ResultsDataChart.cpp \
     $$PWD/UQ/dakota/DakotaEngine.cpp \
     $$PWD/UQ/dakota/DakotaInputSampling.cpp \
@@ -142,7 +145,7 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/UQ/UQ_Results.h \
     $$PWD/UQ/UQ_Engine.h \
     $$PWD/UQ/UQ_Method.h \
-    $$PWD/UQ/UQpyEngine.h \
+    $$PWD/UQ/uqpy/UQpyEngine.h \
     $$PWD/UQ/customUQ/CustomUQ_Results.h \
     $$PWD/UQ/customUQ/UQ_JsonEngine.h \
     $$PWD/UQ/common/ResultsDataChart.h \
@@ -187,6 +190,8 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/UQ/simcenterUQ/SimCenterUQResultsPLoM.h \
     $$PWD/UQ/simcenterUQ/ImportSamplesWidget.h \
     $$PWD/UQ/simcenterUQ/MonteCarloInputSimWidget.h \
+    $$PWD/UQ/uqpy/UQpyResultsSubsetSim.h \
+    $$PWD/UQ/uqpy/UQpySubsetSimulation.h \
     $$PWD/WORKFLOW/MainWindowWorkflowApp.h \
     $$PWD/WORKFLOW/WorkflowAppWidget.h \
     $$PWD/WORKFLOW/SimCenterComponentSelection.h \

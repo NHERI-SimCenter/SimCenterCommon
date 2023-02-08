@@ -83,6 +83,7 @@ RandomVariablesContainer::RandomVariablesContainer(QWidget *parent)
     
     verticalLayout = new QVBoxLayout();
     this->setLayout(verticalLayout);
+    
     // verticalLayout->setMargin(0);
     this->makeRV();
     x_button_clicked_before = false;
@@ -373,19 +374,18 @@ RandomVariablesContainer::~RandomVariablesContainer()
 void
 RandomVariablesContainer::makeRV(void)
 {
+
     // title & add button
     QHBoxLayout *titleLayout = new QHBoxLayout();
     //titleLayout->setMargin(10);
 
     SectionTitle *title=new SectionTitle();
     title->setText(tr("Input Random Variables"));
-    title->setMinimumWidth(250);
-    QSpacerItem *spacer1 = new QSpacerItem(50,10);
-    QSpacerItem *spacer2 = new QSpacerItem(20,10);
-    QSpacerItem *spacer3 = new QSpacerItem(20,10);
-    QSpacerItem *spacer4 = new QSpacerItem(50,10);
-    QSpacerItem *spacer5 = new QSpacerItem(20,10);
-
+    //QSpacerItem *spacer1 = new QSpacerItem(50,10);
+    //QSpacerItem *spacer2 = new QSpacerItem(20,10);
+    //QSpacerItem *spacer3 = new QSpacerItem(20,10);
+    //QSpacerItem *spacer4 = new QSpacerItem(50,10);
+    //QSpacerItem *spacer5 = new QSpacerItem(20,10);
 
     QPushButton *addRV = new QPushButton();
     addRV->setMinimumWidth(75);
@@ -433,24 +433,29 @@ RandomVariablesContainer::makeRV(void)
     ******************************************************************************** */
 
     titleLayout->addWidget(title);
-    titleLayout->addItem(spacer1);
+    //  titleLayout->addItem(spacer1);
     titleLayout->addWidget(addRV);
-    titleLayout->addItem(spacer2);
+    // titleLayout->addItem(spacer2);
     titleLayout->addWidget(removeRV);
-    titleLayout->addItem(spacer3);
+    // titleLayout->addItem(spacer3);
 
     //titleLayout->addWidget(addCorrelation,0,Qt::AlignTop);
     QString appName = QApplication::applicationName();
     //if (appName == "quoFEM") {
         titleLayout->addWidget(addCorrelation);
-        titleLayout->addItem(spacer4);
+        // titleLayout->addItem(spacer4);
     //}
 
+    titleLayout->addStretch(1);	
     titleLayout->addWidget(RVsToJson);
-    titleLayout->addItem(spacer5);
+    // titleLayout->addItem(spacer5);
     titleLayout->addWidget(RVsFromJson);
-    titleLayout->addStretch();
+    titleLayout->addStretch(2);
 
+    //this->addRandomVariable();
+    //saTitle->setLayout(titleLayout);
+    //verticalLayout->addWidget(saTitle);
+    
     verticalLayout->addLayout(titleLayout);
 
     QScrollArea *sa = new QScrollArea;
@@ -466,9 +471,9 @@ RandomVariablesContainer::makeRV(void)
     rv->setLayout(rvLayout);
 
    // this->addRandomVariable();
-     sa->setWidget(rv);
-     verticalLayout->addWidget(sa);
-     //verticalLayout->setSpacing(0);
+    sa->setWidget(rv);
+    verticalLayout->addWidget(sa);
+    //verticalLayout->setSpacing(0);
 
 
      //verticalLayout->addStretch();
