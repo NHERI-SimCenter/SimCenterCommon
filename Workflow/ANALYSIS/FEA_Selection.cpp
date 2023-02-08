@@ -44,6 +44,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <CustomPySimulation.h>
 #include <QCoreApplication.h>
 
+
 FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
   : SimCenterAppSelection(QString("FE Application"), QString("Simulation"), parent)
 {
@@ -57,11 +58,6 @@ FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
 
   SimCenterAppWidget *custom_py_simulation= new CustomPySimulation();
   this->addComponent(QString("CustomPy-Simulation"), QString("CustomPy-Simulation"), custom_py_simulation);
-
-//  QString appName = QCoreApplication::applicationName();
-//  if (appName == "EE-UQ") {
-//     this->addComponent(QString("None"), QString("None"), new SimCenterAppWidget());
-//  }
 
 }
 
