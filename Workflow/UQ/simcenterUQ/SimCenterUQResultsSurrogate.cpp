@@ -542,6 +542,7 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
     QJsonObject yPredi = jsonObj["yPredict"].toObject();
     QJsonObject yConfidenceLb = jsonObj["yPredict_PI_lb"].toObject();
     QJsonObject yConfidenceUb = jsonObj["yPredict_PI_ub"].toObject();
+
     bool didLogtransform = jsonObj["doLogtransform"].toBool();
     bool isMultiFidelity = jsonObj["doMultiFidelity"].toBool();
     QJsonArray didStochastic = jsonObj["doStochastic"].toArray();
@@ -624,13 +625,14 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
     QVector<bool> nugget_idx(nQoI);
     int numnugget_vars = 0;
     for (int nq=0; nq<nQoI; nq++){
-        double nugget = valNugget[QoInames[nq]].toDouble();
-        if (nugget/statisticsVector[jsonObj["xdim"].toInt()+1+nq][0]<1.e-12) {
-            nugget_idx[nq] = false;
-        } else {
-            nugget_idx[nq] = true;
-            numnugget_vars++;
-        }
+//        double nugget = valNugget[QoInames[nq]].toDouble();
+//        if (nugget/statisticsVector[jsonObj["xdim"].toInt()+1+nq][0]<1.e-12) {
+//            nugget_idx[nq] = false;
+//        } else {
+//            nugget_idx[nq] = true;
+//            numnugget_vars++;
+//        }
+        nugget_idx[nq] = false;
     }
 
     if (numnugget_vars < nQoI) { // there are some nugget = 0 variables
@@ -845,49 +847,52 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
             axisY->setTitleText(QString("Training sample"));
         }
 
-        QPen pen;
-        pen.setWidth(series_CV->markerSize()/10);
-        for (int i=0; i<nCVsamps; i++) {
-            QLineSeries *series_err = new QLineSeries;
-            series_err->append(yPr[i].toDouble(), yLb[i].toDouble());
-            series_err->append(yPr[i].toDouble()*(1+1.e-10), yUb[i].toDouble());
-            series_err->setPen(pen);
-            chart_CV->addSeries(series_err);
-            //series_nugget->setColor(QColor(180,180,180,150));
+            // draw values
 
-            series_err->setColor(QColor(0, 114, 178, alpha/2));
-            chart_CV->setAxisX(axisX, series_err);//cos share the X-axis of the sin curve
-            chart_CV->setAxisY(axisY, series_err);
-            chart_CV->legend()->markers(series_err)[0]->setVisible(false);
-        }
+            chart_CV->addSeries(series_CV);
+            chart_CV->addSeries(series_EX);
+            series_CV->setName("Predicted mean");
+            series_EX->setName("Samples");
+            chart_CV->setAxisX(axisX, series_CV);
+            chart_CV->setAxisY(axisY, series_CV);
+            chart_CV->setAxisX(axisX, series_EX);
+            chart_CV->setAxisY(axisY, series_EX);
 
-        // draw values
+            // legend of quantiles
 
-        chart_CV->addSeries(series_CV);
-        chart_CV->addSeries(series_EX);
-        series_CV->setName("Predicted mean");
-        series_EX->setName("Samples");
-        chart_CV->setAxisX(axisX, series_CV);
-        chart_CV->setAxisY(axisY, series_CV);
-        chart_CV->setAxisX(axisX, series_EX);
-        chart_CV->setAxisY(axisY, series_EX);
 
-        // legend of quantiles
 
-        QLineSeries *dummy_series_err = new QLineSeries;
-        dummy_series_err->setColor(QColor(0, 114, 178, 50));
-        chart_CV->addSeries(dummy_series_err);
-        dummy_series_err->setName("50% Prediction Interval");
+            if (yLb.size()>0) {
+                QPen pen;
+                pen.setWidth(series_CV->markerSize()/10);
+                for (int i=0; i<yLb.size(); i++) {
+                    QLineSeries *series_err = new QLineSeries;
+                    series_err->append(yPr[i].toDouble(), yLb[i].toDouble());
+                    series_err->append(yPr[i].toDouble()*(1+1.e-10), yUb[i].toDouble());
+                    series_err->setPen(pen);
+                    chart_CV->addSeries(series_err);
+                    //series_nugget->setColor(QColor(180,180,180,150));
 
-        // set fontsize
-        QFont chartFont;
-        chartFont.setPixelSize(12);
-        chart_CV->setFont(chartFont);
-        axisX->setLabelsFont(chartFont);
-        axisY->setLabelsFont(chartFont);
-        axisX->setTitleFont(chartFont);
-        axisY->setTitleFont(chartFont);
-        chart_CV->legend()->setFont(chartFont);
+                    series_err->setColor(QColor(0, 114, 178, alpha/2));
+                    chart_CV->setAxisX(axisX, series_err);//cos share the X-axis of the sin curve
+                    chart_CV->setAxisY(axisY, series_err);
+                    chart_CV->legend()->markers(series_err)[0]->setVisible(false);
+                }
+                QLineSeries *dummy_series_err = new QLineSeries;
+                dummy_series_err->setColor(QColor(0, 114, 178, 50));
+                chart_CV->addSeries(dummy_series_err);
+                dummy_series_err->setName("50% Prediction Interval");
+            }
+
+            // set fontsize
+            QFont chartFont;
+            chartFont.setPixelSize(12);
+            chart_CV->setFont(chartFont);
+            axisX->setLabelsFont(chartFont);
+            axisY->setLabelsFont(chartFont);
+            axisX->setTitleFont(chartFont);
+            axisY->setTitleFont(chartFont);
+            chart_CV->legend()->setFont(chartFont);
 
         // to get mean value
 
