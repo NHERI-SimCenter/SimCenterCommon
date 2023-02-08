@@ -48,7 +48,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 #include <QVBoxLayout>
 #include <QLabel>
-
+#include <QAbstractItemView>
 #include <QDebug>
 
 #include <SimCenterUQInputSampling.h>
@@ -98,11 +98,13 @@ SimCenterUQEngine::SimCenterUQEngine(UQ_EngineType type, QWidget *parent)
       theMethodSelectionBox->addItem(tr("Train GP Surrogate Model"));
     
     theMethodSelectionBox->addItem(tr("PLoM Model")); // PLoM, KZ
-    theMethodSelectionBox->setMinimumWidth(600);
-
+    //     theMethodSelectionBox->setMinimumWidth(600);
+    int width = theMethodSelectionBox->minimumSizeHint().width();
+    theMethodSelectionBox->view()->setMinimumWidth(width);
+    
     theSelectionLayout->addWidget(label);
-    theSelectionLayout->addWidget(theMethodSelectionBox);
-    theSelectionLayout->addStretch();
+    theSelectionLayout->addWidget(theMethodSelectionBox,1);
+    theSelectionLayout->addStretch(2);
     layout->addLayout(theSelectionLayout);
 
     //
