@@ -245,8 +245,6 @@ DakotaEngine::inputFromJSON(QJsonObject &jsonObject) {
         uqMethod = QString("Deterministic Calibration");
     } 
 
-    emit errorMessage(uqMethod);
-    
     bool doParallel = true;
     if (jsonObject.contains("parallelExecution"))
         doParallel = jsonObject["parallelExecution"].toBool();
@@ -255,14 +253,13 @@ DakotaEngine::inputFromJSON(QJsonObject &jsonObject) {
 
 
     int index = theEngineSelectionBox->findText(uqMethod);
-    emit errorMessage(QString::number(index));
     
     theEngineSelectionBox->setCurrentIndex(index);
     
     this->engineSelectionChanged(uqMethod);
     if (theCurrentEngine != 0)
         result = theCurrentEngine->inputFromJSON(jsonObject);
-    else
+    else 
         result = false; // don't emit error as one should have been generated
 
     return result;
