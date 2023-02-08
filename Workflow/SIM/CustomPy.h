@@ -1,4 +1,5 @@
-// Written: fmckenna
+#ifndef CUSTOM_PY_H
+#define CUSTOM_PY_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -36,38 +37,56 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: fmckenna, kuanshi
 
-#include "FEA_Selection.h"
-#include <InputWidgetOpenSeesAnalysis.h>
-#include <SimCenterAppMulti.h>
-#include <CustomPySimulation.h>
+#include <SimCenterAppWidget.h>
 
-FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
-  : SimCenterAppSelection(QString("FE Application"), QString("Simulation"), parent)
+#include <QGroupBox>
+#include <QVector>
+#include <QGridLayout>
+#include <QComboBox>
+class LineEditRV;
+class InputWidgetParameters;
+
+class CustomPy : public SimCenterAppWidget
 {
+    Q_OBJECT
+public:
+    explicit CustomPy(bool includeCentroid = false,
+				   QWidget *parent = 0);
+    ~CustomPy();
 
-  SimCenterAppWidget *opensees= new InputWidgetOpenSeesAnalysis();
-  this->addComponent(QString("OpenSees"), QString("OpenSees-Simulation"), opensees);
-  if (inclMulti == true) {
-    SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Simulation"), QString("MultiModel-FEA"),this, this);
-    this->addComponent(QString("Multi Model"), QString("MultiModel"), multi);
-  }  
+    bool outputToJSON(QJsonObject &rvObject) override;
+    bool inputFromJSON(QJsonObject &rvObject) override;
+    bool outputAppDataToJSON(QJsonObject &rvObject) override;
+    bool inputAppDataFromJSON(QJsonObject &rvObject) override;
+    bool copyFiles(QString &dirName) override;
 
-  SimCenterAppWidget *custom_py_simulation= new CustomPySimulation();
-  this->addComponent(QString("CustomPy-Simulation"), QString("CustomPy-Simulation"), custom_py_simulation);
+    QString getMainInput();
 
-}
+     // copy main file to new filename ONLY if varNamesAndValues not empy
+    void specialCopyMainInput(QString fileName, QStringList varNamesAndValues);
+    void setFilename1(QString filnema1);
 
-FEA_Selection::~FEA_Selection()
-{
+signals:
 
-}
+public slots:
+   void clear(void) override;
+   void chooseFileName1(void);
 
+private:
 
-SimCenterAppWidget *
-FEA_Selection::getClone()
-{
-  FEA_Selection *newSelection = new FEA_Selection(false);
-  return newSelection;
-}
+    QGridLayout *layout;
+
+    QString fileName1;
+    QLineEdit *file1;
+    QLineEdit *centroidNodes;
+    QLineEdit *responseNodes;
+    QLineEdit *ndm;
+    QLineEdit *ndf;
+    LineEditRV *dampingRatio;   
+    bool includeCentroid;
+    QStringList varNamesAndValues;
+};
+
+#endif // CUSTOM_PY_H

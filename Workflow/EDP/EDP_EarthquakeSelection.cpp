@@ -102,9 +102,10 @@ EDP_EarthquakeSelection::EDP_EarthquakeSelection(QWidget *parent)
   this->setLayout(layout);
   theCurrentEDP=theStandardEarthquakeEDPs;
   //layout->setMargin(0);
+
   connect(edpSelection, SIGNAL(currentIndexChanged(int)), this,
 	  SLOT(edpSelectionChanged(int)));
-    
+
 }
 
 EDP_EarthquakeSelection::~EDP_EarthquakeSelection()
@@ -153,7 +154,6 @@ void EDP_EarthquakeSelection::edpSelectionChanged(int slot)
     else if (slot == 1) {
         theStackedWidget->setCurrentIndex(1);
         theCurrentEDP = theUserDefinedEDPs;
-	qDebug() << "EDP_Selection::Changed tp User Defined";
     }
 
     else {

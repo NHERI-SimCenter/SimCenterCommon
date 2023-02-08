@@ -31,6 +31,8 @@ INCLUDEPATH += $$PWD/EDP
 #INCLUDEPATH += "../QUO_Methods"
 
 SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
+    $$PWD/ANALYSIS/CustomPySimulation.cpp \
+    $$PWD/SIM/CustomPy.cpp \
     $$PWD/UQ/UQ_Results.cpp \
     $$PWD/UQ/UQ_Engine.cpp \
     $$PWD/UQ/UQ_Method.cpp \
@@ -138,6 +140,8 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/EDP/EDP.cpp
 
 HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
+    $$PWD/ANALYSIS/CustomPySimulation.h \
+    $$PWD/SIM/CustomPy.h \
     $$PWD/UQ/UQ_Results.h \
     $$PWD/UQ/UQ_Engine.h \
     $$PWD/UQ/UQ_Method.h \
