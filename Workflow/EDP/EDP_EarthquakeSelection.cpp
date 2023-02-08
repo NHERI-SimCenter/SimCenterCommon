@@ -72,7 +72,6 @@ EDP_EarthquakeSelection::EDP_EarthquakeSelection(QWidget *parent)
   edpSelection = new QComboBox();
   edpSelection->addItem(tr("Standard Earthquake"));
   edpSelection->addItem(tr("User Defined"));
-  edpSelection->addItem(tr("Auto"));
   edpSelection->setObjectName("EDPSelectionComboBox");
 
   edpSelection->setItemData(1, "A Seismic event using Seismic Hazard Analysis and Record Selection/Scaling", Qt::ToolTipRole);
@@ -104,8 +103,8 @@ EDP_EarthquakeSelection::EDP_EarthquakeSelection(QWidget *parent)
   theCurrentEDP=theStandardEarthquakeEDPs;
   //layout->setMargin(0);
 
-  connect(edpSelection, SIGNAL(currentTextChanged(QString)), this,
-      SLOT(edpSelectionChanged(QString)));
+  connect(edpSelection, SIGNAL(currentIndexChanged(int)), this,
+	  SLOT(edpSelectionChanged(int)));
 }
 
 EDP_EarthquakeSelection::~EDP_EarthquakeSelection()
@@ -134,31 +133,32 @@ EDP_EarthquakeSelection::inputFromJSON(QJsonObject &jsonObject) {
   return false;
 }
 
-void EDP_EarthquakeSelection::edpSelectionChanged(const QString &arg1)
+void EDP_EarthquakeSelection::edpSelectionChanged(int slot)
 {
   //
   // switch stacked widgets depending on text
   // note type output in json and name in pull down are not the same and hence the ||
   //
 
-  if (arg1 == "Standard Earthquake") {
-    theStackedWidget->setCurrentIndex(0);
-    theCurrentEDP = theStandardEarthquakeEDPs;
-  }
+    //
+    // switch stacked widgets depending on text
+    // note type output in json and name in pull down are not the same and hence the ||
+    //
 
-  else if(arg1 == "User Defined") {
-    theStackedWidget->setCurrentIndex(1);
-    theCurrentEDP = theUserDefinedEDPs;
-  }
+    if (slot == 0) {
+        theStackedWidget->setCurrentIndex(0);
+        theCurrentEDP = theStandardEarthquakeEDPs;
+    }
 
-  else if(arg1 == "Auto") {
-    theStackedWidget->setCurrentIndex(2);
-    theCurrentEDP = theStandardEarthquakeEDPs;
-  }
+    else if (slot == 1) {
+        theStackedWidget->setCurrentIndex(1);
+        theCurrentEDP = theUserDefinedEDPs;
+	qDebug() << "EDP_Selection::Changed tp User Defined";
+    }
 
-  else {
-    qDebug() << "ERROR .. EDP_EarthquakeSelection selection .. type unknown: " << arg1;
-  }
+    else {
+        qDebug() << "ERROR .. EDP_Selection selection .. unknown slot used: " << slot;
+    }
 }
 
 bool

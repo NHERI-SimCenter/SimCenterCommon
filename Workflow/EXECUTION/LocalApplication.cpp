@@ -327,7 +327,6 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
     QString dakotaExe = preferences->getDakota();
 
-    qDebug() << "DAKOTA: " << dakotaExe;
 
     QFileInfo dakotaFile(dakotaExe);
     if (dakotaFile.exists()) {
@@ -396,9 +395,6 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
     qDebug() << python;
     qDebug() << args;
-
-    //proc->start(python,args);
-
 
     theMainProcessHandler->startProcess(python,args,"backend", nullptr);
 

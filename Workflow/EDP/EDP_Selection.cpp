@@ -104,8 +104,8 @@ EDP_Selection::EDP_Selection(QWidget *parent)
     this->setLayout(layout);
     theCurrentEDP=theStandardEDPs;
 
-    connect(edpSelection, SIGNAL(currentTextChanged(QString)), this,
-            SLOT(edpSelectionChanged(QString)));
+    connect(edpSelection, SIGNAL(currentIndexChanged(int)), this,
+            SLOT(edpSelectionChanged(int)));
 }
 
 EDP_Selection::~EDP_Selection()
@@ -132,25 +132,26 @@ EDP_Selection::inputFromJSON(QJsonObject &jsonObject) {
     return false;
 }
 
-void EDP_Selection::edpSelectionChanged(const QString &arg1)
+void EDP_Selection::edpSelectionChanged(int slot)
 {
     //
     // switch stacked widgets depending on text
     // note type output in json and name in pull down are not the same and hence the ||
     //
 
-    if (arg1 == "Standard") {
+    if (slot == 0) {
         theStackedWidget->setCurrentIndex(0);
         theCurrentEDP = theStandardEDPs;
     }
 
-    else if(arg1 == "User Defined") {
+    else if (slot == 1) {
         theStackedWidget->setCurrentIndex(1);
         theCurrentEDP = theUserDefinedEDPs;
+	qDebug() << "EDP_Selection::Changed tp User Defined";
     }
 
     else {
-        qDebug() << "ERROR .. EDP_Selection selection .. type unknown: " << arg1;
+        qDebug() << "ERROR .. EDP_Selection selection .. unknown slot used: " << slot;
     }
 }
 

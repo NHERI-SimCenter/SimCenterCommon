@@ -60,7 +60,7 @@ class EDP_EarthquakeSelection : public  SimCenterAppWidget
  signals:
 
   public slots:
-  void edpSelectionChanged(const QString &arg1);
+   void edpSelectionChanged(int slotID);  
 
  private:
   QComboBox   *edpSelection;
