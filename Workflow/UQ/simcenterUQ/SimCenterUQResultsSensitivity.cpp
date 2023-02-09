@@ -204,7 +204,7 @@ int SimCenterUQResultsSensitivity::processResults(QString &filenameResults, QStr
 
     QFileInfo filenameErrorInfo(filenameErrorString);
     if (!filenameErrorInfo.exists()) {
-        errorMessage("No error file - SimCenterUQ did not run - problem with quoFEM setup or the applications failed with inputs provided");
+        errorMessage("No error file - SimCenterUQ did not run - problem with the application setup or the applications failed with inputs provided");
         return 0;
     }
     QFile fileError(filenameErrorString);
@@ -246,7 +246,7 @@ int SimCenterUQResultsSensitivity::processResults(QString &filenameResults, QStr
     // open file containing data
     std::ifstream fileResults(filenameResults.toStdString().c_str());
     if (!fileResults.is_open()) {
-        errorMessage("No error file - SimCenterUQ did not run - problem with quoFEM setup or the applications failed with inputs provided");
+        errorMessage("No error file - SimCenterUQ did not run - problem with the application setup or the applications failed with inputs provided");
         return 0;
     }
 

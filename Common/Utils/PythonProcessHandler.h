@@ -59,7 +59,8 @@ public:
     void startProcess(const QString& pythonPath, const QStringList& args, QString name, QPushButton* button);
 
     void setProcessEnv(QProcessEnvironment& env);
-
+    void setWorkingDir(QString WorkingDir);
+    void waitForFinished(int sec);
 signals:
 
     void emitErrorMsg(QString);

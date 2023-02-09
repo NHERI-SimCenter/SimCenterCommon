@@ -141,6 +141,8 @@ LocalApplication::onRunButtonPressed(void)
 bool
 LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile)
 {
+    this->statusMessage("Setup Done. Starting backend application ...");
+  
     tempDirectory = tmpDirectory;
     inputFilePath = inputFile;
 
@@ -327,7 +329,6 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
     QString dakotaExe = preferences->getDakota();
 
-    qDebug() << "DAKOTA: " << dakotaExe;
 
     QFileInfo dakotaFile(dakotaExe);
     if (dakotaFile.exists()) {
@@ -396,9 +397,6 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
     qDebug() << python;
     qDebug() << args;
-
-    proc->start(python,args);
-
 
     theMainProcessHandler->startProcess(python,args,"backend", nullptr);
 

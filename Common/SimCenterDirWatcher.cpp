@@ -1,6 +1,3 @@
-#ifndef SimCenterUQ_INPUT_SURROGATE_H
-#define SimCenterUQ_INPUT_SURROGATE_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -20,7 +17,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -37,67 +34,61 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-#include <UQ_Engine.h>
+// Written: fmckenna
 
-#include <QGroupBox>
-#include <QVector>
-#include <QVBoxLayout>
-#include <QComboBox>
-#include <QPushButton>
+#include <SimCenterDirWatcher.h>
+#include <QFileSystemWatcher>
+#include <QDebug>
+#include <QString>
 
-class SimCenterUQSurrogateResults;
-class SimCenterUQResults;
-class QCheckBox;
-class RandomVariablesContainer;
-class QStackedWidget;
-
-class SimCenterUQInputSurrogate : public UQ_Engine
+SimCenterDirWatcher::SimCenterDirWatcher()
+  :currentCount(0), maxCount(0)
 {
-    Q_OBJECT
-public:
-    explicit SimCenterUQInputSurrogate(QWidget *parent = 0);
-    ~SimCenterUQInputSurrogate();
+  theDirWatcher = new QFileSystemWatcher();
+  connect(theDirWatcher, SIGNAL(directoryChanged(QString)),
+      this, SLOT(changed(QString)));
+}
+  
+SimCenterDirWatcher::~SimCenterDirWatcher()
+{
+  delete theDirWatcher;
+}
 
-    bool outputToJSON(QJsonObject &jsonObject);
-    bool inputFromJSON(QJsonObject &jsonObject);
-    bool outputAppDataToJSON(QJsonObject &jsonObject);
-    bool inputAppDataFromJSON(QJsonObject &jsonObject);
+void
+SimCenterDirWatcher::setCount(int count)
+{
+  maxCount = count;
+}
 
-    UQ_Results *getResults(void);
-    void setRV_Defaults(void);
+void
+SimCenterDirWatcher::resetCount(void) {
+  currentCount = 0;
+}
 
-    int getMaxNumParallelTasks(void);
-    QString getMethodName();
-    bool copyFiles(QString &fileDir);
-    QVBoxLayout *mLayout;
+bool
+SimCenterDirWatcher::setDirToMonitor(QString dir)
+{
+   qDebug() << "\n\nsetDirToMonitor: " << dir << "\n\n";
+  if (!currentDir.isEmpty())
+    theDirWatcher->removePath(currentDir);
 
-signals:
-
-public slots:
-   void clear(void);
-   void onIndexChanged(const QString &arg1);
-   void numModelsChanged(int numModels);
-   // KZ set event type
-   void setEventType(QString type);
-
-private:
-    QVBoxLayout *layout;
-    QWidget     *methodSpecific;
-    QComboBox   *inpMethod;
-    QLineEdit   *numSamples;
-    QLineEdit   *randomSeed;
-
-    QComboBox   *uqSelection;
-    QWidget     *uqSpecific;
-
-    RandomVariablesContainer *theRandomVariables;
-    SimCenterUQSurrogateResults *results;
-
-    QStackedWidget *theStackedWidget;
-    UQ_Method *theInpCurrentMethod;
-    UQ_Method *theDoE;
-    UQ_Method *theData;
-    UQ_Method *theMultiFidelity;
+  if (theDirWatcher->addPath(dir) != true) {
+    QString errorMessage = QString("SimCenterDirWatcher - could not addPath: ") + dir;
+    qDebug() << errorMessage;
+  }
+  currentDir = dir;
+  currentCount = 0;
+  return true;
 };
 
-#endif // SimCenterUQ_INPUT_SURROGATE_H
+void
+SimCenterDirWatcher::changed(const QString &dir)
+{
+  currentCount++;
+  if (currentCount == maxCount) // don't worry about going over
+    emit countReached();
+  else
+    emit dirChanged();
+
+  qDebug() << "\n\nSimCenterDirWatcher::changed " << dir << " " << currentCount << "\n\n";
+};

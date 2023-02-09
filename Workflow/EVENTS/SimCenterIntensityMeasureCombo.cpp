@@ -49,7 +49,11 @@ SimCenterIntensityMeasureCombo::SimCenterIntensityMeasureCombo(SimCenterEQ::Inte
 {
     this->setObjectName(comboName);
     this->populateComboText(imType);
-    this->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Minimum);
+    //this->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Minimum);
+    // get the minimum width that fits the largest item.
+    int width = this->minimumSizeHint().width();
+    // set the ComboBoxe to that width.
+    this->setMinimumWidth(width*1.5);
 }
 
 
@@ -121,24 +125,24 @@ void SimCenterIntensityMeasureCombo::populateComboText(const SimCenterEQ::Intens
     case SimCenterEQ::IntensityMeasure::Type::PEAK :
 
         this->addItem("Undefined", SimCenterEQ::IntensityMeasure::Type::UNDEFINED);
-        this->addItem("Peak Ground Acceleration", SimCenterEQ::IntensityMeasure::Type::PGA);
-        this->addItem("Peak Ground Velocity", SimCenterEQ::IntensityMeasure::Type::PGV);
-        this->addItem("Peak Ground Displacement", SimCenterEQ::IntensityMeasure::Type::PGD);
+        this->addItem("Peak Ground Acceleration (g)", SimCenterEQ::IntensityMeasure::Type::PGA);
+        this->addItem("Peak Ground Velocity (in/sec)", SimCenterEQ::IntensityMeasure::Type::PGV);
+        this->addItem("Peak Ground Displacement (in)", SimCenterEQ::IntensityMeasure::Type::PGD);
         break;
 
     case SimCenterEQ::IntensityMeasure::Type::SPECTRUM :
         this->addItem("Undefined", SimCenterEQ::IntensityMeasure::Type::UNDEFINED);
-        this->addItem("Pseudo Spectral Acceleration", SimCenterEQ::IntensityMeasure::Type::PSA);
-        this->addItem("Pseudo Spectral Velocity", SimCenterEQ::IntensityMeasure::Type::PSV);
-        this->addItem("Spectral Displacement", SimCenterEQ::IntensityMeasure::Type::PSD);
+        this->addItem("Pseudo Spectral Acceleration (g)", SimCenterEQ::IntensityMeasure::Type::PSA);
+        this->addItem("Pseudo Spectral Velocity (in/sec)", SimCenterEQ::IntensityMeasure::Type::PSV);
+        this->addItem("Spectral Displacement (in)", SimCenterEQ::IntensityMeasure::Type::PSD);
         this->addItem("SaRatio", SimCenterEQ::IntensityMeasure::Type::SaRatio);
         break;
 
     case SimCenterEQ::IntensityMeasure::Type::CUMULATIVE :
         this->addItem("Undefined", SimCenterEQ::IntensityMeasure::Type::UNDEFINED);
-        this->addItem("Arias Intensity", SimCenterEQ::IntensityMeasure::Type::Ia);
-        this->addItem("5-75% Signficiant Duration", SimCenterEQ::IntensityMeasure::Type::DS575);
-        this->addItem("5-95% Signficiant Duration", SimCenterEQ::IntensityMeasure::Type::DS595);
+        this->addItem("Arias Intensity (in/sec)", SimCenterEQ::IntensityMeasure::Type::Ia);
+        this->addItem("5-75% Signficiant Duration (sec)", SimCenterEQ::IntensityMeasure::Type::DS575);
+        this->addItem("5-95% Signficiant Duration (sec)", SimCenterEQ::IntensityMeasure::Type::DS595);
         break;
 
     default :
@@ -146,22 +150,22 @@ void SimCenterIntensityMeasureCombo::populateComboText(const SimCenterEQ::Intens
 
         this->insertSeparator(this->count());
         this->addParentItem("Peak");
-        this->addChildItem("Peak Ground Acceleration", SimCenterEQ::IntensityMeasure::Type::PGA);
-        this->addChildItem("Peak Ground Velocity", SimCenterEQ::IntensityMeasure::Type::PGV);
-        this->addChildItem("Peak Ground Displacement", SimCenterEQ::IntensityMeasure::Type::PGD);
+        this->addChildItem("Peak Ground Acceleration (g)", SimCenterEQ::IntensityMeasure::Type::PGA);
+        this->addChildItem("Peak Ground Velocity (in/sec)", SimCenterEQ::IntensityMeasure::Type::PGV);
+        this->addChildItem("Peak Ground Displacement (in)", SimCenterEQ::IntensityMeasure::Type::PGD);
 
         this->insertSeparator(this->count());
         this->addParentItem("Spectrum");
-        this->addChildItem("Pseudo Spectral Acceleration", SimCenterEQ::IntensityMeasure::Type::PSA);
-        this->addChildItem("Pseudo Spectral Velocity", SimCenterEQ::IntensityMeasure::Type::PSV);
-        this->addChildItem("Spectral Displacement", SimCenterEQ::IntensityMeasure::Type::PSD);
+        this->addChildItem("Pseudo Spectral Acceleration (g)", SimCenterEQ::IntensityMeasure::Type::PSA);
+        this->addChildItem("Pseudo Spectral Velocity (in/sec)", SimCenterEQ::IntensityMeasure::Type::PSV);
+        this->addChildItem("Spectral Displacement (in)", SimCenterEQ::IntensityMeasure::Type::PSD);
         this->addChildItem("SaRatio", SimCenterEQ::IntensityMeasure::Type::SaRatio);
 
         this->insertSeparator(this->count());
         this->addParentItem("Cumulative");
-        this->addChildItem("Arias Intensity", SimCenterEQ::IntensityMeasure::Type::Ia);
-        this->addChildItem("5-75% Signficiant Duration", SimCenterEQ::IntensityMeasure::Type::DS575);
-        this->addChildItem("5-95% Signficiant Duration", SimCenterEQ::IntensityMeasure::Type::DS595);
+        this->addChildItem("Arias Intensity (in/sec)", SimCenterEQ::IntensityMeasure::Type::Ia);
+        this->addChildItem("5-75% Signficiant Duration (sec)", SimCenterEQ::IntensityMeasure::Type::DS575);
+        this->addChildItem("5-95% Signficiant Duration (sec)", SimCenterEQ::IntensityMeasure::Type::DS595);
 
         this->setCurrentIndex(0);
     }

@@ -41,6 +41,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "FEA_Selection.h"
 #include <InputWidgetOpenSeesAnalysis.h>
 #include <SimCenterAppMulti.h>
+#include <CustomPySimulation.h>
+#include <QCoreApplication.h>
+
 
 FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
   : SimCenterAppSelection(QString("FE Application"), QString("Simulation"), parent)
@@ -52,6 +55,9 @@ FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
     SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Simulation"), QString("MultiModel-FEA"),this, this);
     this->addComponent(QString("Multi Model"), QString("MultiModel"), multi);
   }  
+
+  SimCenterAppWidget *custom_py_simulation= new CustomPySimulation();
+  this->addComponent(QString("CustomPy-Simulation"), QString("CustomPy-Simulation"), custom_py_simulation);
 
 }
 
