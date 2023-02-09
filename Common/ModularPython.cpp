@@ -50,6 +50,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QProcess>
 #include <QDebug>
 #include <QStandardPaths>
+#include <QDir>
 
 ModularPython::ModularPython(QString workDir, QWidget *parent): Application(parent) {
 
@@ -149,7 +150,7 @@ void ModularPython::run(QString pythonScriptPath, QStringList pythonArgs){
 
 
     QStringList cmdList = {"-c",command};
-    theMainProcessHandler->startProcess("bash", cmdList, processName, nullptr);
+    theProcessHandler->startProcess("bash", cmdList, processName, nullptr);
 
 #endif
 
