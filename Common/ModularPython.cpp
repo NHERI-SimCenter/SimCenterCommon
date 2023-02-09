@@ -43,6 +43,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "LocalApplication.h"
 #include <QFile>
+#include <QDir>
 #include <QPixmap>
 #include <QLabel>
 #include <QGridLayout>
@@ -149,7 +150,7 @@ void ModularPython::run(QString pythonScriptPath, QStringList pythonArgs){
 
 
     QStringList cmdList = {"-c",command};
-    theMainProcessHandler->startProcess("bash", cmdList, processName, nullptr);
+    theProcessHandler->startProcess("bash", cmdList, processName, nullptr);
 
 #endif
 
