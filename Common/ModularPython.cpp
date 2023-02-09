@@ -43,6 +43,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "LocalApplication.h"
 #include <QFile>
+#include <QDir>
 #include <QPixmap>
 #include <QLabel>
 #include <QGridLayout>
