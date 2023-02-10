@@ -40,6 +40,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written by: fmk
 
 #include "SimCenterAppWidget.h"
+#include <QList>
 
 class QStackedWidget;
 class QComboBox;
@@ -51,6 +52,7 @@ class SimCenterAppSelection : public  SimCenterAppWidget
 public:
     explicit SimCenterAppSelection(QString label, QString jsonkeyword, QWidget *parent);
     explicit SimCenterAppSelection(QString label, QString jsonKeyword, QString oldKeyword, QString typeOfAsset = QString(), QWidget *parent = nullptr);
+  explicit SimCenterAppSelection(QString label, QString jsonKeyword, QList<QString>extraKeys, QString typeOfAsset = QString(), QWidget *parent = nullptr);  
     ~SimCenterAppSelection();
 
     bool outputAppDataToJSON(QJsonObject &jsonObject);
@@ -90,6 +92,8 @@ private:
     QList<QString> theComboNames;
     QList<QString> theApplicationNames;
     QList<SimCenterAppWidget *> theComponents;
+    QList<QString> extraKeys;  // needed ascertainasset types have multiple assets and workflow as yet does not handle this
+  
     QString jsonKeyword; // application type that appears in json
     QString jsonKeywordOld; // application type that appears in older json for reading
     QString assetType;
