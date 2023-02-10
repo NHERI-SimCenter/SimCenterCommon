@@ -213,6 +213,7 @@ SimCenterComponentSelection::displayComponent(QString text)
 
         QModelIndex index1 = modelIndices.at(index);
         treeView->setCurrentIndex(index1);
+        theStackedWidget->setCurrentIndex(index);
         return true;
     }
 
@@ -230,6 +231,7 @@ SimCenterComponentSelection::displayComponent(int index)
 
         QModelIndex index1 = modelIndices.at(index);
         treeView->setCurrentIndex(index1);
+        theStackedWidget->setCurrentIndex(index);
         return true;
     }
 

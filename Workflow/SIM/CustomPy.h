@@ -1,5 +1,5 @@
-#ifndef SimCenterUQ_INPUT_SURROGATE_H
-#define SimCenterUQ_INPUT_SURROGATE_H
+#ifndef CUSTOM_PY_H
+#define CUSTOM_PY_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -37,67 +37,56 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-#include <UQ_Engine.h>
+// Written: fmckenna, kuanshi
+
+#include <SimCenterAppWidget.h>
 
 #include <QGroupBox>
 #include <QVector>
-#include <QVBoxLayout>
+#include <QGridLayout>
 #include <QComboBox>
-#include <QPushButton>
+class LineEditRV;
+class InputWidgetParameters;
 
-class SimCenterUQSurrogateResults;
-class SimCenterUQResults;
-class QCheckBox;
-class RandomVariablesContainer;
-class QStackedWidget;
-
-class SimCenterUQInputSurrogate : public UQ_Engine
+class CustomPy : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
-    explicit SimCenterUQInputSurrogate(QWidget *parent = 0);
-    ~SimCenterUQInputSurrogate();
+    explicit CustomPy(bool includeCentroid = false,
+				   QWidget *parent = 0);
+    ~CustomPy();
 
-    bool outputToJSON(QJsonObject &jsonObject);
-    bool inputFromJSON(QJsonObject &jsonObject);
-    bool outputAppDataToJSON(QJsonObject &jsonObject);
-    bool inputAppDataFromJSON(QJsonObject &jsonObject);
+    bool outputToJSON(QJsonObject &rvObject) override;
+    bool inputFromJSON(QJsonObject &rvObject) override;
+    bool outputAppDataToJSON(QJsonObject &rvObject) override;
+    bool inputAppDataFromJSON(QJsonObject &rvObject) override;
+    bool copyFiles(QString &dirName) override;
 
-    UQ_Results *getResults(void);
-    void setRV_Defaults(void);
+    QString getMainInput();
 
-    int getMaxNumParallelTasks(void);
-    QString getMethodName();
-    bool copyFiles(QString &fileDir);
-    QVBoxLayout *mLayout;
+     // copy main file to new filename ONLY if varNamesAndValues not empy
+    void specialCopyMainInput(QString fileName, QStringList varNamesAndValues);
+    void setFilename1(QString filnema1);
 
 signals:
 
 public slots:
-   void clear(void);
-   void onIndexChanged(const QString &arg1);
-   void numModelsChanged(int numModels);
-   // KZ set event type
-   void setEventType(QString type);
+   void clear(void) override;
+   void chooseFileName1(void);
 
 private:
-    QVBoxLayout *layout;
-    QWidget     *methodSpecific;
-    QComboBox   *inpMethod;
-    QLineEdit   *numSamples;
-    QLineEdit   *randomSeed;
 
-    QComboBox   *uqSelection;
-    QWidget     *uqSpecific;
+    QGridLayout *layout;
 
-    RandomVariablesContainer *theRandomVariables;
-    SimCenterUQSurrogateResults *results;
-
-    QStackedWidget *theStackedWidget;
-    UQ_Method *theInpCurrentMethod;
-    UQ_Method *theDoE;
-    UQ_Method *theData;
-    UQ_Method *theMultiFidelity;
+    QString fileName1;
+    QLineEdit *file1;
+    QLineEdit *centroidNodes;
+    QLineEdit *responseNodes;
+    QLineEdit *ndm;
+    QLineEdit *ndf;
+    LineEditRV *dampingRatio;   
+    bool includeCentroid;
+    QStringList varNamesAndValues;
 };
 
-#endif // SimCenterUQ_INPUT_SURROGATE_H
+#endif // CUSTOM_PY_H

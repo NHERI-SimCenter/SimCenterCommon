@@ -411,9 +411,9 @@ void DakotaResultsSensitivity::gsaChart(QScrollArea *&sa) {
             trainingDataLayout->addWidget(e1, nrv+1,0);
             trainingDataLayout->addWidget(e2, nrv+1,1);
             trainingDataLayout->addWidget(e3, nrv+1,2);
-            trainingDataLayout->setColumnStretch(1,1);
-            trainingDataLayout->setColumnStretch(2,1);
-            trainingDataLayout->setColumnStretch(3,2);
+            //trainingDataLayout->setColumnStretch(1,1);
+            //trainingDataLayout->setColumnStretch(2,1);
+            //trainingDataLayout->setColumnStretch(3,2);
 
             *set0 << sobols_main[ne][nrv];
             *set1 << sobols_tot[ne][nrv];

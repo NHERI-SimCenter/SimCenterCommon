@@ -110,6 +110,7 @@ LocalApplication::onRunButtonPressed(void)
                     + QString(". Change the Local Jobs Directory location in preferences.");
 
             this->errorMessage(errorMessage);
+            emit runComplete();
 
             return;
         }
@@ -120,7 +121,8 @@ LocalApplication::onRunButtonPressed(void)
     QDir dirApp(appDir);
     if (!dirApp.exists()) {
         QString errorMessage = QString("The application directory, ") + appDir +QString(" specified does not exist!. Check Local Application Directory in Preferences");
-        this->errorMessage(errorMessage);;
+        this->errorMessage(errorMessage);
+        emit runComplete();
         return;
     }
 
@@ -327,7 +329,6 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
     QString dakotaExe = preferences->getDakota();
 
-    qDebug() << "DAKOTA: " << dakotaExe;
 
     QFileInfo dakotaFile(dakotaExe);
     if (dakotaFile.exists()) {
@@ -396,9 +397,6 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
     qDebug() << python;
     qDebug() << args;
-
-    proc->start(python,args);
-
 
     theMainProcessHandler->startProcess(python,args,"backend", nullptr);
 

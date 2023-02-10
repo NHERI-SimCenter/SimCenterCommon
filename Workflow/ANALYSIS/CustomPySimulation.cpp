@@ -1,5 +1,3 @@
-#ifndef SIMCENTERUNITSCOMBO_H
-#define SIMCENTERUNITSCOMBO_H
 /* *****************************************************************************
 Copyright (c) 2016-2021, The Regents of the University of California (Regents).
 All rights reserved.
@@ -36,72 +34,73 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written by: Stevan Gavrilovic, Frank McKenna
+// Written by: kuanshi
 
-//#include "JsonSerializable.h"
+#include "CustomPySimulation.h"
 
 #include <QComboBox>
+#include <QGridLayout>
+#include <QGroupBox>
+#include <QJsonObject>
+#include <QStackedWidget>
 
-namespace SimCenter {
-
-class Unit :  QObject{
-
-    Q_OBJECT
-
-public:
-    enum Type {
-        UNDEFINED = 0x000,
-        LENGTH = 0x100,
-        mm, cm, m, km, inch, ft, mi,
-        FORCE = 0x200,
-        N, kN, lb, kips,
-        PRESSURE = 0x300,
-        Pa, MPa, GPa, bar, atm,
-        TIME = 0x400,
-        sec, min, hr, day,
-        VELOCITY = 0x500,
-        cmps, mps, kph , fps, mph, kts, inchps,
-        ACCEL = 0x600,
-        cmps2, mps2, inchps2, ftps2, g, lng, pctg,
-        DIMEMSIONLESS = 0x700,
-        scalar,
-        ALL = 0x800,
-    };
-
-    Q_ENUM(Type)
-
-    Type type;
-
-};
+CustomPySimulation::CustomPySimulation(QWidget *parent)
+  : SimCenterAppWidget(parent)
+{
 
 }
 
-// The combo name should be the key for the json file
-class SimCenterUnitsCombo : public QComboBox
+
+CustomPySimulation::~CustomPySimulation()
 {
-    Q_OBJECT
 
-public:
-    SimCenterUnitsCombo(SimCenter::Unit::Type unitType, QString comboName, QWidget* parent = nullptr);
+}
 
-    void addParentItem(const QString& text);
-    void addChildItem(const QString& text, const QVariant& data);
 
-    QString getCurrentUnitString(void);
-    bool setCurrentUnitString(const QString& unit);
+bool CustomPySimulation::outputToJSON(QJsonObject &jsonObj)
+{
+    jsonObj["Application"] = "CustomPy-Simulation";
+    return true;
+}
 
-    bool setCurrentUnit(SimCenter::Unit::Type unitType);
+bool
+CustomPySimulation::inputFromJSON(QJsonObject &jsonObject)
+{
+    return true;
+}
 
-    QString getName() const;
 
-private:
-    void populateComboText(const SimCenter::Unit::Type unitType);
+bool
+CustomPySimulation::outputAppDataToJSON(QJsonObject &jsonObject) {
 
-    template<typename UnitEnum> QString unitEnumToString(UnitEnum enumValue);
-    template<typename UnitEnum> UnitEnum unitStringToEnum(QString unitString);
+    //
+    // per API, need to add name of application to be called in AppLication
+    // and all data to be used in ApplicationDate
+    //
 
-    SimCenter::Unit::Type type;
-    QString name;
-};
+    jsonObject["Application"] = "CustomPy-Simulation";
+    QJsonObject dataObj;
+    jsonObject["ApplicationData"] = dataObj;
 
-#endif // SIMCENTERUNITSCOMBO_H
+    return true;
+}
+
+bool
+CustomPySimulation::inputAppDataFromJSON(QJsonObject &jsonObject) {
+
+    //
+    // from ApplicationData
+    //
+
+    if (jsonObject.contains("ApplicationData")) {
+        QJsonObject dataObject = jsonObject["ApplicationData"].toObject();
+
+    } else {
+        return false;
+    }
+    return true;
+}
+
+
+
+

@@ -49,6 +49,7 @@ class QRegularExpressionValidator;
 class QLineEdit;
 
 #include <QGroupBox>
+#include <QLabel>
 //#include "JsonSerializable.h"
 
 class SimCenterIM : public SimCenterWidget
@@ -59,15 +60,25 @@ public:
     ~SimCenterIM();
 
     QRadioButton *button;
-    QHBoxLayout *imUnitLayout;
+    QGridLayout *imUnitLayout;
     SimCenterIntensityMeasureCombo *myIM;
     SimCenterUnitsCombo *myUnit;
-    QGroupBox *myPeriods;
+    QWidget *myPeriods;
     QLineEdit *periodLine;
     QRegularExpressionValidator *LEValidator;
+    QLabel *myUnitLabel; // this will be hidden - sy
+
+    void setLabelVisible(bool tog);
+    void addGridField(void);  // additionally for GM selection -sy
+    void setCurrentIMtoPSA(void);
+    QLineEdit *minVal, *maxVal, *numBins;  // additionally for GM selection
+    int nCol;
+
 public slots:
     void handleIMChanged(const QString& newIM);
     QString checkPeriodsValid(const QString& input) const;
+signals:
+    void numBinsChanged(void);
 private:
 };
 
@@ -87,15 +98,23 @@ public:
 
     int getNumberOfIM(void);
 
+    void addGridField(void);  // additionally for GM selection
+
     int setIM(const QString& parameterName, const QString& im);
 
     int setUnit(const QString& parameterName, const QString& unit);
 
     QList<QString> getParameterNames();
 
+    bool addGrid = false;
+
 public slots:
     void addIMItem();
     void removeIMItem();
+    void getNumBins(void);
+
+signals:
+    void numBinsChanged(int);
 
 private:
     QVBoxLayout *vLayout;
@@ -105,5 +124,10 @@ private:
     SimCenterIntensityMeasureCombo* imFindChild(const QString& name);
 
     SimCenterUnitsCombo* unitFindChild(const QString& name);
+
+    int sumGridField(void);
+
+
+
 };
 #endif // SIMCENTERINTENSITYMEASUREWIDGET_H

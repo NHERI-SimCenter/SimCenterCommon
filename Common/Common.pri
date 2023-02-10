@@ -21,6 +21,7 @@ SOURCES += $$PWD/HeaderWidget.cpp \
     $$PWD/sectiontitle.cpp \
     $$PWD/FooterWidget.cpp \
     $$PWD/SimCenterWidget.cpp \
+    $$PWD/ModularPython.cpp \
     $$PWD/SimCenterAppWidget.cpp\
     $$PWD/NoArgSimCenterApp.cpp\
     $$PWD/SimCenterAppSelection.cpp \
@@ -40,6 +41,7 @@ HEADERS += $$PWD/HeaderWidget.h \
     $$PWD/sectiontitle.h \
     $$PWD/FooterWidget.h \
     $$PWD/SimCenterWidget.h \
+    $$PWD/ModularPython.h \
     $$PWD/NoArgSimCenterApp.h \
     $$PWD/SimCenterAppSelection.h \
     $$PWD/SimCenterAppMulti.h \    
