@@ -59,6 +59,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <DakotaInputCalibration.h>
 #include <DakotaInputBayesianCalibration.h>
 #include <DakotaInputOptimization.h>
+#include <QAbstractItemView>
 
 
 DakotaEngine::DakotaEngine(UQ_EngineType type, QWidget *parent)
@@ -100,10 +101,14 @@ DakotaEngine::DakotaEngine(UQ_EngineType type, QWidget *parent)
       theEngineSelectionBox->addItem(tr("Optimization"));
     }
     
-    theEngineSelectionBox->setMinimumWidth(600);
+    //theEngineSelectionBox->setMinimumWidth(600);
+    int width = theEngineSelectionBox->minimumSizeHint().width();
+    theEngineSelectionBox->view()->setMinimumWidth(width);
 
     theSelectionLayout->addWidget(label);
-    theSelectionLayout->addWidget(theEngineSelectionBox);
+    theSelectionLayout->addWidget(theEngineSelectionBox, 1);
+
+
     //theSelectionLayout->addStretch();
     //theSelectionLayout->addWidget(new QSpacerItem(20,5));
     parallelCheckBox = new QCheckBox("Parallel Execution  ");
@@ -111,10 +116,9 @@ DakotaEngine::DakotaEngine(UQ_EngineType type, QWidget *parent)
 
     removeWorkdirCheckBox = new QCheckBox("Save Working dirs");
     removeWorkdirCheckBox->setChecked(true);
-
     theSelectionLayout->addWidget(parallelCheckBox);
     theSelectionLayout->addWidget(removeWorkdirCheckBox);
-    theSelectionLayout->addStretch();
+    theSelectionLayout->addStretch(2);
 
 
     layout->addLayout(theSelectionLayout);
@@ -167,7 +171,7 @@ DakotaEngine::~DakotaEngine()
 void DakotaEngine::engineSelectionChanged(const QString &arg1)
 {
     // UQ_Engine *theOldEngine = theCurrentEngine;
-
+  
     if ((arg1 == QString("Sampling")) || (arg1 == QString("Forward Propagation"))) {
       
       theStackedWidget->setCurrentIndex(0);
@@ -234,12 +238,12 @@ DakotaEngine::inputFromJSON(QJsonObject &jsonObject) {
     bool result = false;
 
     QString uqMethod = jsonObject["uqType"].toString();
-    //TODO4: change this when version number changes from 3 to 4
+    
     if (uqMethod == QString("Inverse Problem")) {
         uqMethod = QString("Bayesian Calibration");
     } else if (uqMethod == QString("Parameters Estimation")) {
         uqMethod = QString("Deterministic Calibration");
-    }
+    } 
 
     bool doParallel = true;
     if (jsonObject.contains("parallelExecution"))
@@ -249,11 +253,13 @@ DakotaEngine::inputFromJSON(QJsonObject &jsonObject) {
 
 
     int index = theEngineSelectionBox->findText(uqMethod);
+    
     theEngineSelectionBox->setCurrentIndex(index);
+    
     this->engineSelectionChanged(uqMethod);
     if (theCurrentEngine != 0)
         result = theCurrentEngine->inputFromJSON(jsonObject);
-    else
+    else 
         result = false; // don't emit error as one should have been generated
 
     return result;

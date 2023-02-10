@@ -158,7 +158,6 @@ void EDP_EarthquakeSelection::edpSelectionChanged(int slot)
     else if (slot == 1) {
         theStackedWidget->setCurrentIndex(1);
         theCurrentEDP = theUserDefinedEDPs;
-	qDebug() << "EDP_Selection::Changed tp User Defined";
     }
     else if (slot == 2) {
         theStackedWidget->setCurrentIndex(1);
