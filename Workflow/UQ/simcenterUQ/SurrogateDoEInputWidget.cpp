@@ -479,10 +479,10 @@ void SurrogateDoEInputWidget::doAdvancedGP(bool tog)
         theGpAdvancedCheckBox->setStyleSheet("font-weight: bold; color: grey");
 
         gpKernel->setCurrentIndex(0);
-        theNuggetSelection->setCurrentIndex(0);
+        //theNuggetSelection->setCurrentIndex(0);
         theDoESelection->setCurrentIndex(3);
         theLinearCheckBox->setChecked(false);
-        theLogtCheckBox->setChecked(false);
+        //theLogtCheckBox->setChecked(false);
     }
 }
 // SLOT function
@@ -619,11 +619,18 @@ SurrogateDoEInputWidget::outputToJSON(QJsonObject &jsonObj){
         jsonObj["DoEmethod"]="None";
         jsonObj["initialDoE"]=-1;
         jsonObj["linear"]=false;
-        jsonObj["logTransform"]=false;
-        jsonObj["nuggetOpt"]="Optimize";
+        if (typeEVT.compare("EQ") ==0) {
+            jsonObj["logTransform"]=true;
+            jsonObj["numSampToBeRepl"]= 1;
+            jsonObj["numRepl"]= 1;
+            jsonObj["nuggetOpt"]="Heteroscedastic";
+        } else {
+            jsonObj["logTransform"]=false;
+            jsonObj["numSampToBeRepl"]= -1;
+            jsonObj["numRepl"]= -1;
+            jsonObj["nuggetOpt"]="Optimize";
+        }
         jsonObj["nuggetString"]="NA";
-        jsonObj["numSampToBeRepl"]= -1;
-        jsonObj["numRepl"]= -1;
     }
 
     jsonObj["existingDoE"]=theExistingCheckBox->isChecked();
@@ -829,8 +836,13 @@ SurrogateDoEInputWidget::onEventTypeChanged(QString typeEVT) {
     if (typeEVT.compare("EQ") ==0 ) {
         // an earthquake event type
         theGpAdvancedCheckBoxEE->setVisible(true);
+        theLogtCheckBox->setChecked(true);
+        theNuggetSelection->setCurrentIndex(4);
+        numSampToBeRepl->setText("1");
+        numRepl->setText("1");
     } else {
         // not an earthquake event, inactivate ground motion intensity widget
         theGpAdvancedCheckBoxEE->setVisible(false);
+        theLogtCheckBox->setChecked(false);
     }
 }

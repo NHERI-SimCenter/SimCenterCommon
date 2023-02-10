@@ -250,7 +250,8 @@ surrogateGP::outputAppDataToJSON(QJsonObject &jsonObject) {
     // and all data to be used in ApplicationDate
     //
 
-    jsonObject["Application"] = "SurrogateGP";
+    jsonObject["type"]="SurrogateGPBuildingModel";
+    jsonObject["Application"] = "SurrogateGPBuildingModel";
     QJsonObject dataObj;
 
     QString fileName = inputScript->text();

@@ -95,9 +95,8 @@ SimCenterUQEngine::SimCenterUQEngine(UQ_EngineType type, QWidget *parent)
       theMethodSelectionBox->addItem(tr("Sensitivity Analysis"));
     
     if (doCalibration == true) {}
-      //theMethodSelectionBox->addItem(tr("Train GP Surrogate Model")); // SY - folloiwng PLoM
 
-   // theMethodSelectionBox->addItem(tr("Train GP Surrogate Model")); // SY - folloiwng PLoM
+    theMethodSelectionBox->addItem(tr("Train GP Surrogate Model")); // SY - folloiwng PLoM
     theMethodSelectionBox->addItem(tr("PLoM Model")); // PLoM, KZ
     theMethodSelectionBox->setMinimumWidth(600);
 

@@ -625,14 +625,14 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
     QVector<bool> nugget_idx(nQoI);
     int numnugget_vars = 0;
     for (int nq=0; nq<nQoI; nq++){
-//        double nugget = valNugget[QoInames[nq]].toDouble();
-//        if (nugget/statisticsVector[jsonObj["xdim"].toInt()+1+nq][0]<1.e-12) {
-//            nugget_idx[nq] = false;
-//        } else {
-//            nugget_idx[nq] = true;
-//            numnugget_vars++;
-//        }
-        nugget_idx[nq] = false;
+        double nugget = valNugget[QoInames[nq]].toDouble();
+        if (nugget/statisticsVector[jsonObj["xdim"].toInt()+1+nq][0]<1.e-12) {
+            nugget_idx[nq] = false;
+        } else {
+            nugget_idx[nq] = true;
+            numnugget_vars++;
+        }
+//        nugget_idx[nq] = false;
     }
 
     if (numnugget_vars < nQoI) { // there are some nugget = 0 variables
