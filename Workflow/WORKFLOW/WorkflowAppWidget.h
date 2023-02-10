@@ -86,7 +86,7 @@ public slots:
     // virtual void processResults(QString dakotaOut, QString dakotaTab, QString inputFile) =0;
     virtual void processResults(QString &resultsDir) =0;  
 
-    virtual int loadFile(const QString &filename) = 0;
+    virtual int loadFile(QString &filename) = 0;
   
     virtual void statusMessage(QString message);
     virtual void errorMessage(QString message);
