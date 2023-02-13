@@ -52,6 +52,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QComboBox>
 #include <QStackedWidget>
 #include <QScrollArea>
+#include <QList>
 
 // A class acting for secondary level RDT menu items
 // whose display is dependent on the selection in GI
@@ -75,6 +76,16 @@ SimCenterAppSelection::SimCenterAppSelection(QString label, QString appName, QSt
     :SimCenterAppWidget(parent), currentIndex(-1), theCurrentSelection(NULL), jsonKeyword(appName), jsonKeywordOld(oldAppName), assetType(typeOfAsset), viewableStatus(false)
 {
     this->initializeWidget(label);
+}
+
+SimCenterAppSelection::SimCenterAppSelection(QString label, QString appName, QList<QString> xKeys, QString typeOfAsset, QWidget *parent)
+    :SimCenterAppWidget(parent), currentIndex(-1), theCurrentSelection(NULL), jsonKeyword(appName), assetType(typeOfAsset), viewableStatus(false)
+{
+    for (int i=0; i<xKeys.length(); i++) {
+        QString copy(xKeys.at(i));
+        extraKeys.append(copy);
+    }
+  this->initializeWidget(label);
 }
 
 void
@@ -132,6 +143,7 @@ SimCenterAppSelection::~SimCenterAppSelection()
 
 bool SimCenterAppSelection::outputToJSON(QJsonObject &jsonObject)
 {
+
     if (theSelectionCombo->isEnabled() == false) {
         return true; // disabled
     }
@@ -142,6 +154,9 @@ bool SimCenterAppSelection::outputToJSON(QJsonObject &jsonObject)
             return false;
         } else {
             jsonObject[jsonKeyword] = data;
+            for (int i=0; i<extraKeys.length(); i++) {
+                jsonObject[extraKeys.at(i)] = data;
+            }
             return true;
         }
     }
@@ -191,10 +206,11 @@ bool SimCenterAppSelection::outputAppDataToJSON(QJsonObject &jsonObject)
             } else {
                 if(!data.isEmpty())
                 {
-                    if(assetType.isEmpty())
+                    if(assetType.isEmpty()) {
                         jsonObject[jsonKeyword] = data;
-                    else
-                    {
+                    for (int i=0; i<extraKeys.length(); i++)
+                        jsonObject[extraKeys.at(i)] = data;
+                    } else {
                         auto assetObj = jsonObject[jsonKeyword].toObject();
 
                         assetObj.insert(assetType, data);
