@@ -62,6 +62,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QSplitter>
 #include <QMimeData>
 #include <QClipboard>
+#include <QJsonDocument>
 //using namespace QtCharts;
 
 
@@ -84,18 +85,16 @@ ResultsDataChart::ResultsDataChart(QJsonObject spread, bool isSur, int nRV, QWid
 	dataGood = false;
     } else {
         this->makeChart();
-
         if (isSur) {
 	  for (int i=nrv+nqoi+1; i<colCount; i++)
 	    spreadsheet->setColumnHidden(i,true);
+        }	
+        if  ((spreadsheet->rowCount()) > 1.e5) {
+          chart->setAnimationOptions(QChart::AllAnimations);
+        } else {
+          chart->setAnimationOptions(QChart::NoAnimation);
         }
-	
-	if  ((spreadsheet->rowCount()) > 1.e5) {
-	  chart->setAnimationOptions(QChart::AllAnimations);
-	} else {
-	  chart->setAnimationOptions(QChart::NoAnimation);
-	}
-	dataGood = true;
+        dataGood = true;
     }
 
 
@@ -105,6 +104,8 @@ ResultsDataChart::ResultsDataChart(QString filenameTab, bool isSur, int nRV, QWi
     : SimCenterWidget(parent),isSurrogate(isSur), nrv(nRV)
 {
     // From surrogateTab.out
+
+
 
 
     spreadsheet = new MyTableWidget();
@@ -120,6 +121,18 @@ ResultsDataChart::ResultsDataChart(QString filenameTab, bool isSur, int nRV, QWi
         return;
     }
 
+    if (isSur && nrv==0) {
+        QFileInfo surrogateLogInfo(fileTabInfo.absolutePath()+QDir::separator() +"surrogateLog.log");
+        if (surrogateLogInfo.exists()) {
+            QFile surrogateLog(fileTabInfo.absolutePath()+QDir::separator() +"surrogateLog.log");
+            if (surrogateLog.open(QIODevice::ReadOnly)) {
+                QString line = surrogateLog.readLine();
+                QStringList strList = line.split(" ");
+                nrv = strList[1].toInt(); // num RV
+            }
+        }
+    }
+
     this->readTableFromTab(filenameTab);
     spreadsheet->setSelectionBehavior(QAbstractItemView::SelectRows);
     
@@ -133,7 +146,7 @@ ResultsDataChart::ResultsDataChart(QString filenameTab, bool isSur, int nRV, QWi
             for (int i=nrv+nqoi+1; i<colCount; i++)
                 spreadsheet->setColumnHidden(i,true);
         }
-	dataGood = true;
+        dataGood = true;
     }
 
     //chart->setAnimationOptions(QChart::AllAnimations);
@@ -194,7 +207,16 @@ ResultsDataChart::makeChart() {
 
     // by default the constructor is called and it plots the graph of the last column on Y-axis w.r.t first column on the
     // X-axis
-    this->onSpreadsheetCellClicked(0,colCount-1);
+
+
+    int numCol;
+    if (!isSurrogate) {
+        numCol = colCount;
+    } else {
+        numCol = colCount - nmetaSurrogate*nqoi; // median, 5% quantile, 95% quantile, variance, 5% quantile (with noise), 95% quantile (with noise), variance (with noise)
+    }
+    this->onSpreadsheetCellClicked(0,numCol-1);
+    //this->onSpreadsheetCellClicked(0,1);
 
     // to control the properties, how your graph looks you must click and study the onSpreadsheetCellClicked
 

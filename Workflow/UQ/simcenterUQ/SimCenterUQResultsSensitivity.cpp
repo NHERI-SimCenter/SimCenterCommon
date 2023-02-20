@@ -353,7 +353,7 @@ int SimCenterUQResultsSensitivity::processResults(QString &filenameResults, QStr
     //
 
     if (!usedData) {
-            theDataTable = new ResultsDataChart(filenameTab, isSurrogate, ncomb);
+            theDataTable = new ResultsDataChart(filenameTab, isSurrogate, 0);
     } else {
         QStringList QoIlist; // w
         for (int i=nAggQoI;i<(nAggQoI+nQoI); i++){

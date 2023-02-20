@@ -339,7 +339,7 @@ Node_2_Disp Sobol' indices:
 
 
     //theDataTable = new ResultsDataChart(filenameTab);
-     theDataTable = new ResultsDataChart(filenameTab, isSurrogate, theRVs->getNumRandomVariables());
+     theDataTable = new ResultsDataChart(filenameTab, isSurrogate, 0);
 
 
     //

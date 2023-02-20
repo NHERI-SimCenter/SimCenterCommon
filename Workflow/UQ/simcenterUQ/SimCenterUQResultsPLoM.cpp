@@ -294,7 +294,7 @@ int SimCenterUQResultsPLoM::processResults(QString &filenameResults, QString &fi
     qDebug() << isSurrogate;
     qDebug() << theRVs->getNumRandomVariables();
     //theDataTable = new ResultsDataChart(filenameTab);
-    theDataTable = new ResultsDataChart(filenameTab, isSurrogate, theRVs->getNumRandomVariables());
+    theDataTable = new ResultsDataChart(filenameTab, isSurrogate, 0);
 
     qDebug() << "ResultDataChart created.";
 

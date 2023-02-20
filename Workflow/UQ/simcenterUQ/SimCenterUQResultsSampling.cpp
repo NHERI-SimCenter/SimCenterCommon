@@ -275,7 +275,7 @@ int SimCenterUQResultsSampling::processResults(QString &filenameResults, QString
     // create spreadsheet,  a QTableWidget showing RV and results for each run
     //
 
-    theDataTable = new ResultsDataChart(filenameTab, isSurrogate, theRVs->getNumRandomVariables());
+    theDataTable = new ResultsDataChart(filenameTab, isSurrogate, 0);
 
     //
     // determine summary statistics for each edp

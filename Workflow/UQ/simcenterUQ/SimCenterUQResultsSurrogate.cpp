@@ -201,10 +201,17 @@ int SimCenterUQResultsSurrogate::processResults(QString &filenameResults, QStrin
         return -1;
     }
 
-    QDir tempFolder(filenameTabInfo.absolutePath());
-    QFileInfo surrogateTabInfo(tempFolder.filePath("surrogateTab.out"));
+    //
+    // For surrogate results
+    //
+
+    QDir tempoFolder(filenameTabInfo.absolutePath()); //
+    //QDir templFolder(filenameTabInfo.absolutePath()+QDir::separator() +"templatedir");
+    QFileInfo surrogateTabInfo(tempoFolder.filePath("surrogateTab.out"));
+    //QFileInfo scInputInfo(templFolder.filePath("scInput.json"));
+    //if (surrogateTabInfo.exists() && scInputInfo.exists()) {
     if (surrogateTabInfo.exists()) {
-        filenameTab = tempFolder.filePath("surrogateTab.out");
+        filenameTab = tempoFolder.filePath("surrogateTab.out");
         isSurrogate = true;
     } else {
         isSurrogate = false;
