@@ -33,7 +33,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  // Written: fmckenna
 
 #include "EDP_EarthquakeSelection.h"
-#include "NoneWidget.h"
+#include "SurrogateEDP.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -73,7 +73,7 @@ EDP_EarthquakeSelection::EDP_EarthquakeSelection(QWidget *parent)
   edpSelection = new QComboBox();
   edpSelection->addItem(tr("Standard Earthquake"));
   edpSelection->addItem(tr("User Defined"));
-  edpSelection->addItem(tr("Auto"));
+  edpSelection->addItem(tr("Auto (only for surrogate)"));
   edpSelection->setObjectName("EDPSelectionComboBox");
 
   edpSelection->setItemData(1, "A Seismic event using Seismic Hazard Analysis and Record Selection/Scaling", Qt::ToolTipRole);
@@ -100,8 +100,8 @@ EDP_EarthquakeSelection::EDP_EarthquakeSelection(QWidget *parent)
   theUserDefinedEDPs = new UserDefinedEDP();
   theStackedWidget->addWidget(theUserDefinedEDPs);
 
-  theAutoEDPs = new NoneWidget(); // TODO: replace with information widget
-  theStackedWidget->addWidget(theAutoEDPs);
+  theSurrogateEDPs = new SurrogateEDP(); // TODO: replace with information widget
+  theStackedWidget->addWidget(theSurrogateEDPs);
 
   layout->addWidget(theStackedWidget);
   this->setLayout(layout);
@@ -160,8 +160,8 @@ void EDP_EarthquakeSelection::edpSelectionChanged(int slot)
         theCurrentEDP = theUserDefinedEDPs;
     }
     else if (slot == 2) {
-        theStackedWidget->setCurrentIndex(1);
-        theCurrentEDP = theAutoEDPs;
+        theStackedWidget->setCurrentIndex(2);
+        theCurrentEDP = theSurrogateEDPs;
     qDebug() << "EDP_Selection::Changed tp Auto Defined";
     }
 
@@ -201,7 +201,7 @@ EDP_EarthquakeSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
   } else if ((type == QString("UserDefinedEDP")) ||
 	     (type == QString("User Defined EDPs"))) {
     index = 1;
-  } else if (type == QString("Auto")){
+  } else if (type == QString("Auto (only for surrogate)")){
     index = 2;
   } else {
     errorMessage("EDP_EarthquakeSelection - no valid type found");

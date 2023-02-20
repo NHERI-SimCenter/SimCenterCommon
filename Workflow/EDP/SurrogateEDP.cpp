@@ -1,5 +1,3 @@
-// Written: fmckenna
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -36,47 +34,75 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: fmckenna, sangri
 
-#include "FEA_Selection.h"
-#include <InputWidgetOpenSeesAnalysis.h>
-#include <SimCenterAppMulti.h>
-#include <CustomPySimulation.h>
-#include <SurrogateSimulation.h>
-#include <QCoreApplication.h>
+#include "SurrogateEDP.h"
+#include <RandomVariablesContainer.h>
 
+//#include <InputWidgetParameters.h>
 
-FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
-  : SimCenterAppSelection(QString("FE Application"), QString("Simulation"), parent)
+SurrogateEDP::SurrogateEDP(QWidget *parent)
+    : SimCenterAppWidget(parent)
 {
-
-  SimCenterAppWidget *opensees= new InputWidgetOpenSeesAnalysis();
-  this->addComponent(QString("OpenSees"), QString("OpenSees-Simulation"), opensees);
-  if (inclMulti == true) {
-    SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Simulation"), QString("MultiModel-FEA"),this, this);
-    this->addComponent(QString("Multi Model"), QString("MultiModel"), multi);
-  }  
-
-  SimCenterAppWidget *custom_py_simulation= new CustomPySimulation();
-  this->addComponent(QString("CustomPy-Simulation"), QString("CustomPy-Simulation"), custom_py_simulation);
-
-  QString appName = QCoreApplication::applicationName();
-  if (appName == "EE-UQ") {
-     SimCenterAppWidget *surrogate = new SurrogateSimulation();
-      this->addComponent(QString("None (only for surrogate)"), QString("SurrogateSimulation"), surrogate);
-  }
 
 }
 
-FEA_Selection::~FEA_Selection()
+SurrogateEDP::~SurrogateEDP()
 {
 
 }
 
 
-SimCenterAppWidget *
-FEA_Selection::getClone()
+void
+SurrogateEDP::clear(void)
 {
-  FEA_Selection *newSelection = new FEA_Selection(false);
-  return newSelection;
+
 }
+
+
+
+bool
+SurrogateEDP::outputToJSON(QJsonObject &jsonObject)
+{
+    // just need to send the class type here.. type needed in object in case user screws up
+    jsonObject["type"]="SurrogateEDP";
+
+    return true;
+}
+
+
+bool
+SurrogateEDP::inputFromJSON(QJsonObject &jsonObject)
+{
+    Q_UNUSED(jsonObject);
+    return true;
+}
+
+
+bool
+SurrogateEDP::outputAppDataToJSON(QJsonObject &jsonObject) {
+
+    //
+    // per API, need to add name of application to be called in AppLication
+    // and all data to be used in ApplicationDate
+    //
+
+    jsonObject["Application"] = "SurrogateEDP";
+    QJsonObject dataObj;
+    jsonObject["ApplicationData"] = dataObj;
+
+    return true;
+}
+bool
+SurrogateEDP::inputAppDataFromJSON(QJsonObject &jsonObject) {
+    Q_UNUSED(jsonObject);
+    return true;
+}
+
+
+bool
+SurrogateEDP::copyFiles(QString &dirName) {
+    Q_UNUSED(dirName);
+    return true;
+}
+

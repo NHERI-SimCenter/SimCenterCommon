@@ -1,4 +1,5 @@
-// Written: fmckenna
+#ifndef SURROGATE_EDP_H
+#define SURROGATE_EDP_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -36,47 +37,38 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: fmckenna, sangri
 
-#include "FEA_Selection.h"
-#include <InputWidgetOpenSeesAnalysis.h>
-#include <SimCenterAppMulti.h>
-#include <CustomPySimulation.h>
-#include <SurrogateSimulation.h>
-#include <QCoreApplication.h>
+#include <SimCenterAppWidget.h>
 
+#include <QGroupBox>
+#include <QVector>
+#include <QGridLayout>
+#include <QComboBox>
 
-FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
-  : SimCenterAppSelection(QString("FE Application"), QString("Simulation"), parent)
+class InputWidgetParameters;
+
+class SurrogateEDP : public SimCenterAppWidget
 {
+    Q_OBJECT
+public:
+    explicit SurrogateEDP(QWidget *parent = 0);
+    ~SurrogateEDP();
 
-  SimCenterAppWidget *opensees= new InputWidgetOpenSeesAnalysis();
-  this->addComponent(QString("OpenSees"), QString("OpenSees-Simulation"), opensees);
-  if (inclMulti == true) {
-    SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Simulation"), QString("MultiModel-FEA"),this, this);
-    this->addComponent(QString("Multi Model"), QString("MultiModel"), multi);
-  }  
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+    bool outputAppDataToJSON(QJsonObject &rvObject);
+    bool inputAppDataFromJSON(QJsonObject &rvObject);
+    bool copyFiles(QString &dirName);
 
-  SimCenterAppWidget *custom_py_simulation= new CustomPySimulation();
-  this->addComponent(QString("CustomPy-Simulation"), QString("CustomPy-Simulation"), custom_py_simulation);
+    void clear(void);
 
-  QString appName = QCoreApplication::applicationName();
-  if (appName == "EE-UQ") {
-     SimCenterAppWidget *surrogate = new SurrogateSimulation();
-      this->addComponent(QString("None (only for surrogate)"), QString("SurrogateSimulation"), surrogate);
-  }
+signals:
 
-}
+public slots:
 
-FEA_Selection::~FEA_Selection()
-{
+private:
 
-}
+};
 
-
-SimCenterAppWidget *
-FEA_Selection::getClone()
-{
-  FEA_Selection *newSelection = new FEA_Selection(false);
-  return newSelection;
-}
+#endif // SURROGATE_EDP_H

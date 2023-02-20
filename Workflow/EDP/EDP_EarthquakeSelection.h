@@ -69,7 +69,7 @@ class EDP_EarthquakeSelection : public  SimCenterAppWidget
 
   SimCenterAppWidget *theStandardEarthquakeEDPs;
   SimCenterAppWidget *theUserDefinedEDPs;
-  SimCenterAppWidget *theAutoEDPs;
+  SimCenterAppWidget *theSurrogateEDPs;
 
 };
 
