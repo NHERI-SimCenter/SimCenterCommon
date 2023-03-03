@@ -100,8 +100,15 @@ EDP_EarthquakeSelection::EDP_EarthquakeSelection(QWidget *parent)
   theUserDefinedEDPs = new UserDefinedEDP();
   theStackedWidget->addWidget(theUserDefinedEDPs);
 
-  theSurrogateEDPs = new SurrogateEDP(); // TODO: replace with information widget
+
+  SurrogateEDP * theSurrogateEDPs_tmp = SurrogateEDP::getInstance();
+  theSurrogateEDPs = theSurrogateEDPs_tmp;
+
+  connect(theSurrogateEDPs_tmp, &SurrogateEDP::surrogateSelected, [=](){
+     edpSelection->setCurrentIndex(2);
+  });
   theStackedWidget->addWidget(theSurrogateEDPs);
+
 
   layout->addWidget(theStackedWidget);
   this->setLayout(layout);

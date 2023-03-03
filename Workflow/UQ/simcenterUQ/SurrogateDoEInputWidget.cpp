@@ -340,8 +340,12 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     QStringList imChoices = {tr("None"), tr("Ground Motion Intensity")};
     createComboBox(imChoicesComboBox, imChoices, tr(""), 300,0);
 
-    theGpAdvancedWidgetLayoutEE->addWidget(new QLabel("Input postprocess"), eeid, 0);
-    theGpAdvancedWidgetLayoutEE->addWidget(imChoicesComboBox, eeid++, 1);
+    theGpAdvancedWidgetLayoutEE->addWidget(new QLabel("Input postprocess"), eeid++, 0);
+    theGpAdvancedWidgetLayoutEE->addWidget(imChoicesComboBox,eeid++,0,1,9);
+    useGeoMeanIM = new QCheckBox("Use geometric mean when 2 or more ground motion components are given");
+    useGeoMeanIM -> setChecked(true);
+    useGeoMeanIM -> setVisible(false);
+    theGpAdvancedWidgetLayoutEE->addWidget(useGeoMeanIM, eeid++, 0);
 
     QWidget *emptyVariableWidget = new QWidget();
     theSCIMWidget = new SimCenterIntensityMeasureWidget();
@@ -353,8 +357,13 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     connect(imChoicesComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int id)
     {
         im_stackedWidgets->setCurrentIndex(id);
+
+        if (imChoicesComboBox->currentText()==QString("Ground Motion Intensity")){
+            useGeoMeanIM ->setVisible(true);
+        } else {
+            useGeoMeanIM ->setVisible(false);
+        }
     });
-    theGpAdvancedWidgetLayoutEE->addWidget(imChoicesComboBox,eeid++,0,1,9);
     theGpAdvancedWidgetLayoutEE->addWidget(im_stackedWidgets,eeid++,0,1,9);
     //
 
@@ -647,6 +656,7 @@ SurrogateDoEInputWidget::outputToJSON(QJsonObject &jsonObj){
         QJsonObject imJson;
         result = theSCIMWidget->outputToJSON(imJson);
         jsonObj["IntensityMeasure"] = imJson;
+        jsonObj["useGeoMean"] = useGeoMeanIM->isChecked();
     }
 
     return result;    

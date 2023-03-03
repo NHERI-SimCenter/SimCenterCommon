@@ -38,13 +38,55 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "SurrogateEDP.h"
 #include <RandomVariablesContainer.h>
-
+#include <QMessageBox>
 //#include <InputWidgetParameters.h>
+
+SurrogateEDP *SurrogateEDP::theInstance = 0;
+
+
+SurrogateEDP *
+SurrogateEDP::getInstance() {
+    if (theInstance == 0)
+        theInstance = new SurrogateEDP();
+    return theInstance;
+}
+
 
 SurrogateEDP::SurrogateEDP(QWidget *parent)
     : SimCenterAppWidget(parent)
 {
+    verticalLayout = new QVBoxLayout();
+    this->setLayout(verticalLayout);
 
+
+    QPushButton *resetEDP = new QPushButton();
+    resetEDP->setMinimumWidth(75);
+    resetEDP->setMaximumWidth(75);
+    resetEDP->setText(tr("Reset"));
+    connect(resetEDP,SIGNAL(clicked()),this,SLOT(resetEDP()));
+    resetEDP->hide();
+    // sy - for release
+
+    verticalLayout->addWidget(resetEDP);
+    // title & add button
+
+    QScrollArea *sa = new QScrollArea;
+    sa->setWidgetResizable(true);
+    sa->setLineWidth(0);
+    sa->setFrameShape(QFrame::NoFrame);
+
+    edp = new QFrame();
+    edp->setFrameShape(QFrame::NoFrame);
+    edp->setLineWidth(0);
+
+    edpLayout = new QVBoxLayout;
+
+    //setLayout(layout);
+    edp->setLayout(edpLayout);
+    sa->setWidget(edp);
+    verticalLayout->addWidget(sa);
+
+    x_button_clicked_before=false;
 }
 
 SurrogateEDP::~SurrogateEDP()
@@ -60,6 +102,66 @@ SurrogateEDP::clear(void)
 }
 
 
+void
+SurrogateEDP::addEDPs(QStringList EDPnames)
+{
+    for (int i = edpLayout->count()-1; i >=0; --i) {
+        QLayout *layout = edpLayout->itemAt(i)->layout();
+        if (layout != nullptr) {
+            if (layout->count()>0) {
+                if (QPushButton *removeButton = qobject_cast<QPushButton *>(layout->itemAt(0)->widget())) {
+                    emit removeButton->clicked(); // remove all
+                }
+            }
+        }
+    }
+    while (QLayoutItem* item = edpLayout->takeAt(0)) {
+        delete item->widget();
+        delete item;
+    }
+
+    fullEDPnames = EDPnames;
+    for (int i=0; i<EDPnames.length(); i++) {
+        QHBoxLayout * newEDP = new QHBoxLayout();
+        QPushButton * removeButton = new QPushButton("×");
+        QLabel * tmpName = new QLabel(EDPnames.at(i));
+
+        newEDP->addWidget(removeButton);
+        newEDP->addWidget(tmpName);
+
+        const QSize BUTTON_SIZE = QSize(15, 15);
+        removeButton->setFixedSize(BUTTON_SIZE);
+        removeButton->setStyleSheet("QPushButton { font-size:15px;  font-weight: bold;padding: 0px 0px 2px 0px; }");
+        removeButton->hide();
+        // sy - for release
+
+        edpLayout->addLayout(newEDP);
+        connect(removeButton, &QPushButton::clicked, this, [=](){
+            if (x_button_clicked_before == false) {
+                x_button_clicked_before = true;
+                QMessageBox::StandardButton reply;
+                reply = QMessageBox::information(this,
+                                              "Remove EDP",
+                                              "Are you sure you want to remove this EDP?",
+                                               QMessageBox::Yes|QMessageBox::No);
+
+                if (reply == QMessageBox::No)
+                    return;
+            }
+        });
+        connect(removeButton, &QPushButton::clicked, removeButton, &QPushButton::deleteLater);
+        connect(removeButton, &QPushButton::clicked, tmpName, &QLabel::deleteLater);
+
+    }
+    edpLayout->addStretch();
+    emit surrogateSelected();
+}
+
+void
+SurrogateEDP::resetEDP()
+{
+    this->addEDPs(fullEDPnames);
+}
 
 bool
 SurrogateEDP::outputToJSON(QJsonObject &jsonObject)
@@ -88,8 +190,24 @@ SurrogateEDP::outputAppDataToJSON(QJsonObject &jsonObject) {
     //
 
     jsonObject["Application"] = "SurrogateEDP";
-    QJsonObject dataObj;
-    jsonObject["ApplicationData"] = dataObj;
+    QJsonArray edpList;
+    for (int i = 0; i < edpLayout->count(); ++i) {
+        QLayout *layout = edpLayout->itemAt(i)->layout();
+        if (layout != nullptr) {
+            if (layout->count()>1) {
+                if (QLabel *label = qobject_cast<QLabel *>(layout->itemAt(1)->widget())) {
+                    QJsonObject edpObj;
+                    edpObj["length"]=1;
+                    edpObj["type"]="scalar";
+                    edpObj["name"]= label->text();
+                    edpList.append(edpObj);
+                }
+            }
+        }
+    }
+    QJsonObject edpObj;
+    edpObj["EDP"] = edpList;
+    jsonObject["ApplicationData"] = edpObj;
 
     return true;
 }

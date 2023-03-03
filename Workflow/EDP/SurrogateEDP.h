@@ -51,9 +51,20 @@ class InputWidgetParameters;
 class SurrogateEDP : public SimCenterAppWidget
 {
     Q_OBJECT
-public:
+private:
+    static SurrogateEDP *theInstance;
     explicit SurrogateEDP(QWidget *parent = 0);
     ~SurrogateEDP();
+
+    QVBoxLayout *verticalLayout;
+    QVBoxLayout *edpLayout;
+    QFrame *edp;
+    bool x_button_clicked_before;
+    QStringList fullEDPnames;
+
+public:
+    static SurrogateEDP *getInstance();
+    void addEDPs(QStringList EDPs);
 
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
@@ -64,10 +75,12 @@ public:
     void clear(void);
 
 signals:
-
+    void surrogateSelected();
 public slots:
+    void resetEDP(void);
 
-private:
+
+
 
 };
 

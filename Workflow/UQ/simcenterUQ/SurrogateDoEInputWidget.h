@@ -115,6 +115,7 @@ private:
 
     SimCenterIntensityMeasureWidget * theSCIMWidget;
     QStackedWidget *im_stackedWidgets;
+    QCheckBox *useGeoMeanIM ;
     QString typeEVT;
 
 private slots:

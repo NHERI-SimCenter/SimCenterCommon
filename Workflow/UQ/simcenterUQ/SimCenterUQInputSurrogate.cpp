@@ -118,6 +118,7 @@ SimCenterUQInputSurrogate::SimCenterUQInputSurrogate(QWidget *parent)
     this->setLayout(layout);
 
     connect(inpMethod, SIGNAL(currentTextChanged(QString)), this, SLOT(onIndexChanged(QString)));
+    connect(this, SIGNAL(eventTypeChanged(QString)), this, SLOT(onEventTypeChanged(QString)));
 }
 
 void SimCenterUQInputSurrogate::onIndexChanged(const QString &text)
@@ -294,5 +295,18 @@ SimCenterUQInputSurrogate::getMethodName(void){
 }
 
 void SimCenterUQInputSurrogate::setEventType(QString type) {
-    theDoE->setEventType(type);
+    typeEVT = type;
+    emit eventTypeChanged(typeEVT);
+    theDoE->setEventType(typeEVT);
+}
+
+
+void
+SimCenterUQInputSurrogate::onEventTypeChanged(QString typeEVT) {
+    if (typeEVT.compare("EQ") ==0 ) {
+        // an earthquake event type
+        inpMethod->removeItem(1) ; //remove option "Import from data"
+    } else {
+        // not an earthquake event, inactivate ground motion intensity widget
+    }
 }

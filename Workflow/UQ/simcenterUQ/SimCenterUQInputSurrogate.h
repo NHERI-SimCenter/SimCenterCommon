@@ -72,13 +72,16 @@ public:
     QVBoxLayout *mLayout;
 
 signals:
-
+   void eventTypeChanged(QString);
 public slots:
    void clear(void);
    void onIndexChanged(const QString &arg1);
    void numModelsChanged(int numModels);
    // KZ set event type
    void setEventType(QString type);
+
+private slots:
+   void onEventTypeChanged(QString typeEVT);
 
 private:
     QVBoxLayout *layout;
@@ -98,6 +101,8 @@ private:
     UQ_Method *theDoE;
     UQ_Method *theData;
     UQ_Method *theMultiFidelity;
+
+    QString typeEVT;
 };
 
 #endif // SimCenterUQ_INPUT_SURROGATE_H
