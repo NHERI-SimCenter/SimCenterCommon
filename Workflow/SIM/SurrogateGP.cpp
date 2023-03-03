@@ -38,7 +38,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 
-#include "surrogateGP.h"
+#include "SurrogateGP.h"
 #include <QPushButton>
 #include <QScrollArea>
 #include <QJsonArray>

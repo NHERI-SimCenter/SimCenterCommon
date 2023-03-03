@@ -46,7 +46,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <ConcreteBuildingModel.h>
 #include <MDOF_LU.h>
 #include <CustomPy.h>
-#include <surrogateGP.h>
+#include <SurrogateGP.h>
 
 
 #include <QApplication>
