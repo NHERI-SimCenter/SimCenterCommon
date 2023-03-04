@@ -52,7 +52,7 @@ FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
   SimCenterAppWidget *opensees= new InputWidgetOpenSeesAnalysis();
   this->addComponent(QString("OpenSees"), QString("OpenSees-Simulation"), opensees);
   if (inclMulti == true) {
-    SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Simulation"), QString("MultiModel-FEA"),this, this);
+    SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Simulation"), QString("MultiModel-Simulation"),this, this);
     this->addComponent(QString("Multi Model"), QString("MultiModel"), multi);
   }  
 
