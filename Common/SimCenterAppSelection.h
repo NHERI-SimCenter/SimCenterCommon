@@ -68,6 +68,10 @@ public:
     QString getCurrentSelectionName(void);
     bool selectComponent(const QString text);
 
+    void removeItem(QString itemName);
+    QString getComponentName(int index);
+    int count();
+
 public slots:
     void selectionChangedSlot(const QString &);
     void setCurrentlyViewable(bool);

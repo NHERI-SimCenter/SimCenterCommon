@@ -249,6 +249,17 @@ QString
 SimCenterUQEngine::getMethodName() {
     return theCurrentEngine->getMethodName();
 }
+bool
+SimCenterUQEngine::fixMethod(QString Methodname) {
+    int res = theMethodSelectionBox->findText(Methodname);
+    if (res == -1) {
+        return false;
+    } else {
+        theMethodSelectionBox->setCurrentIndex(res);
+        theMethodSelectionBox->hide();
+        return true;
+    }
+}
 
 bool
 SimCenterUQEngine::copyFiles(QString &fileDir) {

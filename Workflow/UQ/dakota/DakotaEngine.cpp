@@ -245,6 +245,8 @@ DakotaEngine::inputFromJSON(QJsonObject &jsonObject) {
         uqMethod = QString("Deterministic Calibration");
     } 
 
+    //emit onUQ_methodUpdated(uqMethod);
+
     bool doParallel = true;
     if (jsonObject.contains("parallelExecution"))
         doParallel = jsonObject["parallelExecution"].toBool();
@@ -308,6 +310,17 @@ DakotaEngine::getMethodName() {
     return theCurrentEngine->getMethodName();
 }
 
+bool
+DakotaEngine::fixMethod(QString Methodname) {
+    int res = theEngineSelectionBox->findText(Methodname);
+    if (res == -1) {
+        return false;
+    } else {
+        theEngineSelectionBox->setCurrentIndex(res);
+        theEngineSelectionBox->hide();
+        return true;
+    }
+}
 bool
 DakotaEngine::copyFiles(QString &fileDir) {
     QString googleString=QString("UQ-DAKOTA-") + this->getMethodName();

@@ -71,12 +71,13 @@ class UQ_EngineSelection : public  SimCenterAppSelection
  public slots:
 
   void engineSelectionChanged(const QString &);
-
+  void updateEngine(const QString);
   void relayQueryEVT(void); // added KZ
   void setEventType(QString type); // added KZ
   
 private:
-  void initialize(bool includeNoneOption, UQ_EngineType type);
+  void initialize();
+  void createComboBox();
   UQ_Engine *theCurrentEngine;
   UQ_Engine *thePreviousEngine;  
   UQ_Engine *theDakotaEngine;
@@ -85,6 +86,8 @@ private:
   UQ_Engine *theUCSD_Engine;
   UQ_Engine *thefilterEngine;
   UQ_Engine *theCustomEngine;
+  bool includeNoneOption;
+  UQ_EngineType typeOption;
 };
 
 #endif 

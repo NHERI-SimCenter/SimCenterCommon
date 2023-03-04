@@ -78,6 +78,7 @@ public:
 
     bool copyFiles(QString &fileName);
 
+    bool fixMethod(QString Methodname);
 signals:
     void onUQ_EngineChanged(QString);
     void onMethodChanged(void);

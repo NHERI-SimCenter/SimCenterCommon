@@ -65,6 +65,11 @@ UQ_Engine::getMethodName() {
     return QString("UNKNOWN");
 }
 
+bool
+UQ_Engine::fixMethod(QString) {
+    return false;
+}
+
 void
 UQ_Engine::setEventType(QString type) {
     Q_UNUSED(type);

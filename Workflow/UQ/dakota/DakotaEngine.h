@@ -64,9 +64,10 @@ public:
     QString getProcessingScript();
     QString getMethodName();
     bool copyFiles(QString &fileDir);
-
+    bool fixMethod(QString Methodname);
 signals:
     void onUQ_EngineChanged(QString);
+    void onUQ_methodUpdated(QString);
     void onNumModelsChanged(int newNum);
 
 public slots:

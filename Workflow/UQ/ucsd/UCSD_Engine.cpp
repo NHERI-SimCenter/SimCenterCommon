@@ -213,6 +213,18 @@ UCSD_Engine::getMethodName() {
 }
 
 bool
+UCSD_Engine::fixMethod(QString Methodname) {
+    int res = theMethodSelection->findText(Methodname);
+    if (res == -1) {
+        return false;
+    } else {
+        theMethodSelection->setCurrentIndex(res);
+        theMethodSelection->hide();
+        return true;
+    }
+}
+
+bool
 UCSD_Engine::copyFiles(QString &fileName) {
     QString googleString=QString("UQ-UCSD-") + this->getMethodName();
     GoogleAnalytics::ReportAppUsage(googleString);

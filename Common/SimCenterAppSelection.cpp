@@ -347,6 +347,9 @@ void SimCenterAppSelection::clear(void)
     foreach (auto&& comp, theComponents) {
         comp->clear();
     }
+    theComboNames.clear();
+    theApplicationNames.clear();
+    theSelectionCombo->clear();
 }
 
 
@@ -463,6 +466,19 @@ SimCenterAppSelection::getCurrentSelectionName(void)
     return theApplicationNames.at(idx);
 }
 
+
+void SimCenterAppSelection::removeItem(QString itemName) {
+    theSelectionCombo->removeItem(theSelectionCombo->findText(itemName));
+};
+
+
+QString SimCenterAppSelection::getComponentName(int index) {
+    return theComboNames[index];
+}
+
+int SimCenterAppSelection::count() {
+    return theSelectionCombo->count();
+}
 
 void
 SimCenterAppSelection::setSelectionsActive(bool visibility) {

@@ -59,7 +59,7 @@ public:
     bool inputFromJSON(QJsonObject &jsonObject);
     bool outputAppDataToJSON(QJsonObject &jsonObject);
     bool inputAppDataFromJSON(QJsonObject &jsonObject);
-
+    bool fixMethod(QString Methodname);
     void setRV_Defaults(void);
     UQ_Results *getResults(void);
 

@@ -146,6 +146,15 @@ UQ_JsonEngine::getMethodName() {
 }
 
 
+bool
+UQ_JsonEngine::fixMethod(QString Methodname) {
+
+    if (Methodname==QString("CustomUQ")) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 bool
 UQ_JsonEngine::copyFiles(QString &fileDir) {

@@ -60,6 +60,7 @@ public:
     virtual UQ_Results *getResults(void) = 0;
     virtual QString getProcessingScript();
     virtual QString getMethodName();
+    virtual bool fixMethod(QString);
     // virtual void setMethod(QString &methodName);
     virtual void setEventType(QString type);
 
