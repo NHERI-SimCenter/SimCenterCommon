@@ -201,6 +201,8 @@ createTextEntry(QString text,
     return res;
 }
 
+int MDOF_BuildingModel::numModels = 0;
+
 MDOF_BuildingModel::MDOF_BuildingModel(QWidget *parent)
   : SimCenterAppWidget(parent),
     numStories(0),
@@ -367,29 +369,27 @@ MDOF_BuildingModel::MDOF_BuildingModel(QWidget *parent)
 
     inputLayout->addStretch();
     theView = 0;
+    
+    layout->addLayout(inputLayout);
+    
+    if (numModels == 0) {
 
+      numModels = numModels+1;
+      
 #ifdef _GRAPHICS_Qt3D
-   theView = new GraphicView2D();
+      theView = new GraphicView2D();
 #else
-    theView = new GlWidget2D();
-    theView->setController(this);
+      theView = new GlWidget2D();
+      theView->setController(this);
 #endif
 
 
-    //theView = new GlWidget2D();
-    //theView->setController(this);
+      theView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+      graphicLayout->addWidget(theView);
 
-
-   //  theView->setMinimumHeight(250);
-   //  theView->setMinimumWidth(250);
-
-    theView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    graphicLayout->addWidget(theView);
-
-
-    layout->addLayout(inputLayout);
-    layout->addLayout(graphicLayout);
-
+      layout->addLayout(graphicLayout);
+    }
+    
     layout->addStretch();
     this->setLayout(layout);
 
@@ -403,11 +403,6 @@ MDOF_BuildingModel::MDOF_BuildingModel(QWidget *parent)
     buildingW = w;
     buildingD = d;
 
-    /*    connect(this,SIGNAL(numFloorsChanged(int)), theGI, SLOT(setNumFloors(int)));
-    connect(this,SIGNAL(heightChanged(double)), theGI, SLOT(setHeight(double)));
-    connect(theGI,SIGNAL(numFloorsChanged(int)), this, SLOT(setNumFloors(int)));
-    connect(theGI,SIGNAL(buildingHeightChanged(double)), this, SLOT(setHeight(double)));
-    */
     connect(this,SIGNAL(numStoriesOrHeightChanged(int, double)), theGI, SLOT(setNumStoriesAndHeight(int, double)));
     connect(theGI,SIGNAL(numStoriesOrHeightChanged(int, double)), this, SLOT(setNumStoriesAndHeight(int, double)));
     connect(theGI,SIGNAL(buildingDimensionsChanged(double,double,double)),this,SLOT(setBuildingDimensions(double,double,double)));
@@ -1315,7 +1310,7 @@ void MDOF_BuildingModel::on_theSpreadsheet_cellClicked(int row, int column)
 
     this->draw();
     if (theView != 0)
-    theView->update();
+      theView->update();
 }
 
 
