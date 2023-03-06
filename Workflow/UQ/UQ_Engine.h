@@ -66,6 +66,7 @@ public:
 
 signals:
     void onNumModelsChanged(int numModels);
+    void onUQ_MethodUpdated(QString);
 
 public slots:
 

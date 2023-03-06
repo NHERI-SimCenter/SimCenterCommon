@@ -73,6 +73,7 @@ public:
 
 signals:
     void onUQ_EngineChanged(QString);
+    void onUQ_MethodUpdated(QString);
     void onNumModelsChanged(int newNum);
     void queryEVT(void);
 

@@ -110,6 +110,8 @@ UQ_EngineSelection::initialize()
     connect(theCustomEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
     connect(theUCSD_Engine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
 
+    connect(theDakotaEngine, SIGNAL(onUQ_MethodUpdated(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
+
     // connect queryEVT
     connect(theSimCenterUQEngine, SIGNAL(queryEVT()), this, SLOT(relayQueryEVT()));
 
@@ -119,7 +121,7 @@ UQ_EngineSelection::initialize()
 void UQ_EngineSelection::createComboBox() {
 
 
-    this->clear(); // remove combobox items
+    this->clearSelections(); // remove combobox items
 
     this->addComponent(QString("Dakota"), QString("Dakota-UQ"), theDakotaEngine);
     this->addComponent(QString("SimCenterUQ"), QString("SimCenter-UQ"), theSimCenterUQEngine);

@@ -101,6 +101,7 @@ UQ_JsonEngine::outputToJSON(QJsonObject &rvObject) {
 
 bool
 UQ_JsonEngine::inputFromJSON(QJsonObject &rvObject) {
+  emit onUQ_MethodUpdated("CustomUQ");
   return theJsonConfigureWidget->inputFromJSON(rvObject);
 }
 

@@ -347,11 +347,17 @@ void SimCenterAppSelection::clear(void)
     foreach (auto&& comp, theComponents) {
         comp->clear();
     }
+}
+
+void SimCenterAppSelection::clearSelections(void)
+{
+    foreach (auto&& comp, theComponents) {
+        comp->clear();
+    }
     theComboNames.clear();
     theApplicationNames.clear();
     theSelectionCombo->clear();
 }
-
 
 bool
 SimCenterAppSelection::addComponent(QString text, QString appName, SimCenterAppWidget *theComponent)

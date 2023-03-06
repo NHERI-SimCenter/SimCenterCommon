@@ -62,6 +62,7 @@ public:
     bool copyFiles(QString &destName);
 
     void clear(void);
+    void clearSelections();
     bool addComponent(QString comboBoxText, QString appNameText, SimCenterAppWidget *);
     SimCenterAppWidget *getComponent(QString text);
     SimCenterAppWidget *getCurrentSelection(void);

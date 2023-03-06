@@ -245,7 +245,7 @@ DakotaEngine::inputFromJSON(QJsonObject &jsonObject) {
         uqMethod = QString("Deterministic Calibration");
     } 
 
-    //emit onUQ_methodUpdated(uqMethod);
+    emit onUQ_MethodUpdated(uqMethod);
 
     bool doParallel = true;
     if (jsonObject.contains("parallelExecution"))

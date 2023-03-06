@@ -196,6 +196,8 @@ SimCenterUQEngine::inputFromJSON(QJsonObject &jsonObject) {
 
     QString selection = jsonObject["uqType"].toString();
 
+    emit onUQ_MethodUpdated(selection);
+
     int index = theMethodSelectionBox->findText(selection);
     theMethodSelectionBox->setCurrentIndex(index);
     this->methodSelectionChanged(selection);

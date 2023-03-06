@@ -81,6 +81,7 @@ public:
     bool fixMethod(QString Methodname);
 signals:
     void onUQ_EngineChanged(QString);
+    void onUQ_MethodUpdated(QString);
     void onMethodChanged(void);
 
 public slots:

@@ -152,6 +152,8 @@ UCSD_Engine::inputFromJSON(QJsonObject &jsonObject) {
 
     QString selection = jsonObject["uqType"].toString();
 
+    emit onUQ_MethodUpdated(selection);
+
     int index = theMethodSelection->findText(selection);
     theMethodSelection->setCurrentIndex(index);
     this->methodChanged(selection);
