@@ -185,11 +185,12 @@ private:
     int fMinSelected, fMaxSelected, sMinSelected,sMaxSelected,floorSelected, storySelected;
 
 #ifdef _GRAPHICS_Qt3D
-    GraphicView2D *theView;
+  GraphicView2D *theView;
 #else
-     GlWidget2D *theView;
+  GlWidget2D *theView;
 #endif
-
+  static int numModels;
+  
 };
 
 #endif // MDOF_BUILDING_MODEL_H
