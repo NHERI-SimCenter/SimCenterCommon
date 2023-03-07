@@ -74,7 +74,7 @@ SIM_Selection::SIM_Selection(bool includeC,
 
   if (appName == "EE-UQ") {
     SimCenterAppWidget *sur = new surrogateGP(theRVs);
-    this->addComponent(QString("Surrogate (GP)"), QString("Surrogate (GP)"), sur);
+    this->addComponent(QString("Surrogate (GP)"), QString("SurrogateGPBuildingModel"), sur);
   }
 
 
