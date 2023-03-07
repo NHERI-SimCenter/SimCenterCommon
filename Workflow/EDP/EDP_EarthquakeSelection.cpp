@@ -73,7 +73,7 @@ EDP_EarthquakeSelection::EDP_EarthquakeSelection(QWidget *parent)
   edpSelection = new QComboBox();
   edpSelection->addItem(tr("Standard Earthquake"));
   edpSelection->addItem(tr("User Defined"));
-  edpSelection->addItem(tr("Auto (only for surrogate)"));
+  edpSelection->addItem(tr("None (only for surrogate)"));
   edpSelection->setObjectName("EDPSelectionComboBox");
 
   edpSelection->setItemData(1, "A Seismic event using Seismic Hazard Analysis and Record Selection/Scaling", Qt::ToolTipRole);
@@ -208,7 +208,8 @@ EDP_EarthquakeSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
   } else if ((type == QString("UserDefinedEDP")) ||
 	     (type == QString("User Defined EDPs"))) {
     index = 1;
-  } else if (type == QString("Auto (only for surrogate)")){
+  } else if ((type == QString("None (only for surrogate)")) ||
+             (type == QString("SurrogateSimulation"))) {
     index = 2;
   } else {
     errorMessage("EDP_EarthquakeSelection - no valid type found");
