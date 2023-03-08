@@ -708,8 +708,8 @@ AgaveCurl::uploadFile(const QString &local, const QString &remote) {
     val=file.readAll();
     file.close();
 
-    emit errorMessage(val);
-    
+    // emit errorMessage(val);
+
     // read into json object
    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
    QJsonObject theObj = doc.object();
