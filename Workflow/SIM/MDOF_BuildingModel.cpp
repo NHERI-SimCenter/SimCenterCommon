@@ -225,7 +225,6 @@ MDOF_BuildingModel::MDOF_BuildingModel(QWidget *parent)
     QHBoxLayout *layout = new QHBoxLayout();
 
     QVBoxLayout *inputLayout = new QVBoxLayout();
-    QVBoxLayout *graphicLayout = new QVBoxLayout();
 
     //
     // create to hold major model inputs
@@ -369,10 +368,9 @@ MDOF_BuildingModel::MDOF_BuildingModel(QWidget *parent)
 
     inputLayout->addStretch();
     theView = 0;
-    
     layout->addLayout(inputLayout);
     
-    if (numModels == 0) {
+    if (numModels == -1) {
 
       numModels = numModels+1;
       
@@ -383,10 +381,10 @@ MDOF_BuildingModel::MDOF_BuildingModel(QWidget *parent)
       theView->setController(this);
 #endif
 
-
       theView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+      
+      QVBoxLayout *graphicLayout = new QVBoxLayout();
       graphicLayout->addWidget(theView);
-
       layout->addLayout(graphicLayout);
     }
     
@@ -394,7 +392,6 @@ MDOF_BuildingModel::MDOF_BuildingModel(QWidget *parent)
     this->setLayout(layout);
 
     this->on_inFloors_editingFinished();
-
 
     // add signal and slot connections with GI
     GeneralInformationWidget *theGI = GeneralInformationWidget::getInstance();
@@ -1308,9 +1305,10 @@ void MDOF_BuildingModel::on_theSpreadsheet_cellClicked(int row, int column)
     sMinSelected = -1;
     sMaxSelected = -1;
 
-    this->draw();
-    if (theView != 0)
+    if (theView != 0) {
+      this->draw();
       theView->update();
+    }
 }
 
 
