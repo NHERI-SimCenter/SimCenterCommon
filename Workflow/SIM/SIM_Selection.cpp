@@ -82,7 +82,7 @@ SIM_Selection::SIM_Selection(bool includeC,
   this->addComponent(QString("MDOF-LU"), QString("MDOF-LU"), mdof_lu);
     
   if (doMulti == true) {
-    SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Modeling"), QString("MultiModel-SIM"),this, this);
+    SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Modeling"), QString("MultiModel-Modeling"),this, this);
     this->addComponent(QString("Multi Model"), QString("MultiModel"), multi);
   }    
 
