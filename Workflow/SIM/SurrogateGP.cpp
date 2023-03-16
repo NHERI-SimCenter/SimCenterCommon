@@ -626,8 +626,9 @@ surrogateGP::copyFiles(QString &dirName) {
 
      QString theTmpDir = tempDir->text();
      qDebug() << theTmpDir;
+     bool res = true;
      if (theTmpDir!="") {
-         SimCenterAppWidget::copyPath(theTmpDir, dirName + QDir::separator() + "templatedir_SIM", true);
+        res = SimCenterAppWidget::copyPath(theTmpDir, dirName + QDir::separator() + "templatedir_SIM", true);
      }
 
 //     RandomVariablesContainer *theRVs=RandomVariablesContainer::getInstance();
@@ -636,7 +637,11 @@ surrogateGP::copyFiles(QString &dirName) {
 //     // now create special copy of original main script that handles the RV
 //     QString copiedFile = dirName + QDir::separator() + theFile;
 
-     return true;
+     if (res==false) {
+         QString msg = QString("Failed copy folder : " ) + theTmpDir;
+         this->errorMessage(msg);
+     }
+     return res;
 }
 
 double
