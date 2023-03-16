@@ -337,7 +337,7 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     // Selection of im
     //
 
-    QStringList imChoices = {tr("None"), tr("Ground Motion Intensity")};
+    QStringList imChoices = {tr("Ground Motion Intensity"), tr("None")};
     createComboBox(imChoicesComboBox, imChoices, tr(""), 300,0);
 
     theGpAdvancedWidgetLayoutEE->addWidget(new QLabel("Input postprocess"), eeid++, 0);
@@ -350,15 +350,16 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     QWidget *emptyVariableWidget = new QWidget();
     theSCIMWidget = new SimCenterIntensityMeasureWidget();
     im_stackedWidgets = new QStackedWidget(this);
-    im_stackedWidgets->addWidget(emptyVariableWidget);
     im_stackedWidgets->addWidget(theSCIMWidget);
+    im_stackedWidgets->addWidget(emptyVariableWidget);
     im_stackedWidgets->setCurrentIndex(0);
 
     connect(imChoicesComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int id)
     {
         im_stackedWidgets->setCurrentIndex(id);
 
-        if (imChoicesComboBox->currentText()==QString("Ground Motion Intensity")){
+        if (id==0){
+            // "Ground Motion Intensity"
             useGeoMeanIM ->setVisible(true);
         } else {
             useGeoMeanIM ->setVisible(false);
@@ -413,14 +414,15 @@ SurrogateDoEInputWidget::showNuggetBox(int idx)
         theNuggetVals->hide();
     } else if (idx==4) {
         theNuggetVals->hide();
-        repMsg ->setText("With the replications, the expected number of simulations is " + numSamples->text() + "+A*(B-1)");
-        repMsg -> setStyleSheet({"color: black"});
-        repLabelA->setVisible(true);
-        repLabelB->setVisible(true);
-        numSampToBeRepl->setVisible(true);
-        numRepl->setVisible(true);
-        repMsg->setVisible(true);
-
+        if (typeEVT.compare("EQ") !=0 ) {
+            repMsg ->setText("With the replications, the expected number of simulations is " + numSamples->text() + "+A*(B-1)");
+            repMsg -> setStyleSheet({"color: black"});
+            repLabelA->setVisible(true);
+            repLabelB->setVisible(true);
+            numSampToBeRepl->setVisible(true);
+            numRepl->setVisible(true);
+            repMsg->setVisible(true);
+        }
     }
     if ((theLogtCheckBox->isChecked()) && (idx!=0))
         theNuggetMsg -> setVisible(true);
@@ -606,8 +608,9 @@ SurrogateDoEInputWidget::outputToJSON(QJsonObject &jsonObj){
             jsonObj["numSampToBeRepl"]= -1; // use default
         } else {
             if ((numSampToBeRepl->text().toInt()<2) || (numSampToBeRepl->text().toInt() > numSamples->text().toInt())) {
-                errorMessage("Error prossessing inputs - the number of samples to be replicated (A) should be greater than 1 and smaller than the number of the unique samples (" + numSamples->text() +"), a value greater than 4×#RV is recommended");
+                //errorMessage("Error prossessing inputs - the number of samples to be replicated (A) should be greater than 1 and smaller than the number of the unique samples (" + numSamples->text() +"), a value greater than 4×#RV is recommended");
                 //return 0;
+                // sy- not anymore march 2023
             }
 
              jsonObj["numSampToBeRepl"]= numSampToBeRepl->text().toInt();
@@ -617,8 +620,9 @@ SurrogateDoEInputWidget::outputToJSON(QJsonObject &jsonObj){
             jsonObj["numRepl"]= -1; // use default
          } else {
             if (numRepl->text().toInt()<2) {
-                errorMessage("Error prossessing inputs - the number of replications (B) should be greater than 1 and a value greater than 5 is recommended");
+                //errorMessage("Error prossessing inputs - the number of replications (B) should be greater than 1 and a value greater than 5 is recommended");
                 //return 0;
+                // sy- not anymore march 2023
             }
             jsonObj["numRepl"]= numRepl->text().toInt();
         }
@@ -652,7 +656,7 @@ SurrogateDoEInputWidget::outputToJSON(QJsonObject &jsonObj){
         jsonObj["outFile"]="NA";
     }
 
-    if (im_stackedWidgets->currentIndex()==1) {
+    if (im_stackedWidgets->currentIndex()==0) {
         QJsonObject imJson;
         result = theSCIMWidget->outputToJSON(imJson);
         jsonObj["IntensityMeasure"] = imJson;
@@ -759,8 +763,8 @@ SurrogateDoEInputWidget::inputFromJSON(QJsonObject &jsonObject){
     if (jsonObject.contains("IntensityMeasure")) {
         theGpAdvancedCheckBox->setVisible(true);
         theGpAdvancedCheckBox->setChecked(true);
-        im_stackedWidgets->setCurrentIndex(1);
-        imChoicesComboBox->setCurrentIndex(1);
+        im_stackedWidgets->setCurrentIndex(0);
+        imChoicesComboBox->setCurrentIndex(0);
         qDebug() << "Start loading intensity measure";
         result = theSCIMWidget->inputFromJSON(jsonObject);
     }
