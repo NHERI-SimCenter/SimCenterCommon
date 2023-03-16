@@ -126,6 +126,7 @@ private:
     int rowCount;
     int colCount;
     QGraphicsSimpleTextItem *box;
+    QGraphicsSimpleTextItem *corrText;
 };
 
 #endif // RESULT_DATA_CHART_H

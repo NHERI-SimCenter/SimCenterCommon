@@ -54,6 +54,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QValueAxis>
 #include <QtCharts/QChart>
 #include <QtCharts/QChartView>
+#include <QGraphicsSimpleTextItem>
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QVXYModelMapper>
@@ -203,6 +204,16 @@ ResultsDataChart::makeChart() {
     // create a chart, setting data points from first and last col of spreadsheet
     //
     chart = new QChart();
+
+    //
+    // Correlation box
+    //
+    corrText = new QGraphicsSimpleTextItem("", chart);
+    connect(chart,&QChart::plotAreaChanged,this,[=] (QRectF plotArea){
+        QPointF textPos(plotArea.bottomRight().x() - corrText->boundingRect().width()*1.1,
+                            plotArea.bottomRight().y() - corrText->boundingRect().height());
+        corrText->setPos(textPos);
+    });
     //chart->setAnimationOptions(QChart::AllAnimations);
 
     // by default the constructor is called and it plots the graph of the last column on Y-axis w.r.t first column on the
@@ -994,6 +1005,8 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
     mLeft = spreadsheet->wasLeftKeyPressed();
 
     chart->removeAllSeries();
+    corrText->setText("");
+
 
     QAbstractAxis *oldAxisX=chart->axisX();
     if (oldAxisX != 0)
@@ -1061,6 +1074,10 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
         series_selected->setColor(QColor(114, 0, 10, 250));
         series->setBorderColor(QColor(255,255,255,0));
 
+        //This is to calculate the correlation coefficient
+        double sum_X = 0., sum_Y = 0., sum_XY = 0.;
+        double squareSum_X = 0., squareSum_Y = 0.;
+
         for (int i=0; i<rowCount; i++) {
             QTableWidgetItem *itemX = spreadsheet->item(i,col1);    //col1 goes in x-axis, col2 on y-axis
             //col1=0;
@@ -1070,11 +1087,25 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
             itemY->setData(Qt::BackgroundRole, QColor(Qt::lightGray));
             itemOld->setData(Qt::BackgroundRole, QColor(Qt::white));
 
-            series->append(itemX->text().toDouble(), itemY->text().toDouble());
+            double x = itemX->text().toDouble();
+            double y = itemY->text().toDouble();
+
+            series->append(x, y);
+
+            // below is to calculate the correlation coefficient
+            sum_X = sum_X + x;
+            // sum of elements of array Y.
+            sum_Y = sum_Y + y;
+            // sum of X[i] * Y[i].
+            sum_XY = sum_XY + x * y;
+            // sum of square of array elements.
+            squareSum_X = squareSum_X + x * x;
+            squareSum_Y = squareSum_Y + y * y;
         }
 
-        auto abc = spreadsheet->item(row,col1)->text();
-        auto abcd = spreadsheet->item(row,col2)->text();
+        double corr = ((double)rowCount * sum_XY - sum_X * sum_Y)/ sqrt(((double)rowCount * squareSum_X - sum_X * sum_X) * ((double)rowCount * squareSum_Y - sum_Y * sum_Y));
+
+
         series_selected->append(spreadsheet->item(row,col1)->text().toDouble(), spreadsheet->item(row,col2)->text().toDouble());
 
         chart->addSeries(series);
@@ -1165,6 +1196,9 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
             chart->setAxisX(axisX, series_selected);
             chart->setAxisY(axisY, series_selected);
         }
+
+
+        corrText->setText("corr coef. = " + QString::number(corr,'f',2));
 
     } else {
 
