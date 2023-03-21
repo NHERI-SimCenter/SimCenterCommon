@@ -484,8 +484,9 @@ void SteelBuildingModel::addRandomVariable(QString &text, int numReferences)
     else
     {
         randomVariables[text] = numReferences;
-        RandomVariable *theRV = new RandomVariable(QString("Uncertain"), text, "Dakota");
-        theRandomVariablesContainer->addRandomVariable(theRV);
+        //RandomVariable *theRV = new RandomVariable(QString("Uncertain"), text, "Dakota");
+        //theRandomVariablesContainer->addRandomVariable(theRV);
+        theRandomVariablesContainer->addRandomVariable(text);
     }
 }
 
