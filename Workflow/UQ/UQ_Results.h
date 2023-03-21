@@ -64,6 +64,8 @@ public slots:
 protected:
     UQ_Results *resultWidget;
     QVBoxLayout *layout;
+    void extractErrorMsg(QString workDir, QString errFileName, QString uqEngineName, QString &errMsg);
+
 };
 
 #endif // UQ_RESULTS

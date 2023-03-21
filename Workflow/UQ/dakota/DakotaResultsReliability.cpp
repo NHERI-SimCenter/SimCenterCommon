@@ -183,16 +183,12 @@ int DakotaResultsReliability::processResults(QString &filenameResults, QString &
   */
   if ((line.length() != 0)) {
 
-
-
           if (line.contains("-- Expected 1 function value(s) but found ", Qt::CaseInsensitive)) {
               if (line.at(42)=='0') {
-                  // Multiple output by user
                   qDebug() << line.length() << " " << line;
                   errorMessage(QString("Dakota Error: No results.out. Check dakota.err file"));
                   return 0;
               } else {
-                  // Multiple output by user
                   qDebug() << line.length() << " " << line;
                   errorMessage(QString("Dakota Error: Current reliability option supports only single output. Please try with Mean Value option or with a single output. "));
                   return 0;
@@ -212,12 +208,19 @@ int DakotaResultsReliability::processResults(QString &filenameResults, QString &
 
   }
 
-  QFileInfo filenameResultsInfo(filenameResults);
-  if (!filenameResultsInfo.exists()) {
-      errorMessage("No dakota.out file - dakota failed .. possibly no QoI");
+  QString errMsg("");
+  this->extractErrorMsg( fileResultsInfo.absolutePath(),"dakota.err", "Dakota", errMsg);
+
+  if (errMsg.length() != 0) {
+      errorMessage(errMsg);
       return 0;
   }
 
+//  QFileInfo filenameResultsInfo(filenameResults);
+//  if (!filenameResultsInfo.exists()) {
+//      errorMessage("No dakota.out file - dakota failed .. possibly no QoI");
+//      return 0;
+//  }
 
   // 
   // read data from file filename

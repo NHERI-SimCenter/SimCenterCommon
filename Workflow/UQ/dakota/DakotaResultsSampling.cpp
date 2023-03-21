@@ -196,49 +196,63 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
     //
 
     QFileInfo fileTabInfo(filenameTab);
-    QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
 
     QString errMsg("");
+    this->extractErrorMsg( fileTabInfo.absolutePath(),"dakota.err", "Dakota", errMsg);
 
-    QFileInfo filenameErrorInfo(filenameErrorString);
-    if (!filenameErrorInfo.exists()) {
-        errorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applications failed with inputs provided");
-        return 0;
-    }
-    QFile fileError(filenameErrorString);
-    QString line("");
-    if (fileError.open(QIODevice::ReadOnly)) {
-       QTextStream in(&fileError);
-       while (!in.atEnd()) {
-          line += in.readLine();
-       }
-       fileError.close();
-    }
-    if (line.length()!= 0)
-        errMsg = QString(QString("Error Running Dakota: ") + line);
-
-
-    // Overwrite with surrogate if sur.err is found
-    if (errMsg.length()!=0) {
-        QString filenameSurErrString = fileTabInfo.absolutePath() + QDir::separator() + QString("surrogate.err");
-        QFileInfo surrogateErrorInfo(filenameSurErrString);
-        if (surrogateErrorInfo.exists()) {
-            QFile surrogateError(filenameSurErrString);
-            if (surrogateError.open(QIODevice::ReadOnly)) {
-               QTextStream in(&surrogateError);
-               line = in.readLine();
-               surrogateError.close();
-            }
-            if (line.length()!= 0)
-                errMsg = QString(QString("Error Running Surrogate Simulation: ") + line);
-        }
-}
     if (errMsg.length() != 0) {
-        qDebug() << line.length() << " " << errMsg;
         errorMessage(errMsg);
         return 0;
     }
 
+//    // First check dakota.err
+//    QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
+//    QFileInfo filenameErrorInfo(filenameErrorString);
+//    if (!filenameErrorInfo.exists()) {
+//        errorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applications failed with inputs provided");
+//        return 0;
+//    }
+//    QFile fileError(filenameErrorString);
+//    QString line("");
+//    if (fileError.open(QIODevice::ReadOnly)) {
+//       QTextStream in(&fileError);
+//       while (!in.atEnd()) {
+//          line += in.readLine();
+//       }
+//       fileError.close();
+//    }
+//    if (line.length()!= 0)
+//        errMsg = QString(QString("Error Running Dakota: ") + line);
+
+//    // Overwrite with surrogate if sur.err is found
+//    if (errMsg.length()!=0) {
+//        QString filenameSurErrString = fileTabInfo.absolutePath() + QDir::separator() + QString("surrogate.err");
+//        QFileInfo surrogateErrorInfo(filenameSurErrString);
+//        if (surrogateErrorInfo.exists()) {
+//            QFile surrogateError(filenameSurErrString);
+//            if (surrogateError.open(QIODevice::ReadOnly)) {
+//               QTextStream in(&surrogateError);
+//               line = in.readLine();
+//               surrogateError.close();
+//            }
+//            if (line.length()!= 0)
+//                errMsg = QString(QString("Error Running Surrogate Simulation: ") + line);
+//        }
+//    }
+
+//    // Overwrite with workflow if workflow.err is found and not empty
+//    QString filenameWorkErrString = fileTabInfo.absolutePath() + QDir::separator() + QString("workflow.err");
+//    QFileInfo workflowErrorInfo(filenameWorkErrString);
+//    if (workflowErrorInfo.exists()) {
+//        QFile workflowError(filenameWorkErrString);
+//        if (workflowError.open(QIODevice::ReadOnly)) {
+//           QTextStream in(&workflowError);
+//           line = in.readLine();
+//           workflowError.close();
+//        }
+//        if (line.length()!= 0)
+//            errMsg = QString(QString("Error in Creating Workflow: ") + line);
+//    }
     QFileInfo filenameTabInfo(filenameTab);
     if (!filenameTabInfo.exists()) {
         errorMessage("No dakotaTab.out file - dakota failed .. possibly no QoI");

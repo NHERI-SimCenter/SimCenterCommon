@@ -207,30 +207,40 @@ int SimCenterUQResultsPLoM::processResults(QString &filenameResults, QString &fi
     //
 
     QFileInfo fileTabInfo(filenameTab);
-    QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
-    workingDir=fileTabInfo.absolutePath()+ QDir::separator();
-    qDebug() << "filenameErrorString: " << filenameErrorString;
 
-    QFileInfo filenameErrorInfo(filenameErrorString);
-    if (!filenameErrorInfo.exists()) {
-        errorMessage("No error file - SimCenterUQ did not run - problem with the application setup or the applications failed with inputs provided");
+
+    QString errMsg("");
+    this->extractErrorMsg( fileTabInfo.absolutePath(),"dakota.err", "SimCenterUQ", errMsg);
+
+    if (errMsg.length() != 0) {
+        errorMessage(errMsg);
         return 0;
     }
-    QFile fileError(filenameErrorString);
-    QString line("");
-    if (fileError.open(QIODevice::ReadOnly)) {
-        QTextStream in(&fileError);
-        while (!in.atEnd()) {
-            line = in.readLine();
-        }
-        fileError.close();
-    }
 
-    if (line.length() != 0) {
-        qDebug() << line.length() << " " << line;
-        errorMessage(QString(QString("Error Running SimCenterUQ: ") + line));
-        return 0;
-    }
+//    QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
+//    workingDir=fileTabInfo.absolutePath()+ QDir::separator();
+//    qDebug() << "filenameErrorString: " << filenameErrorString;
+
+//    QFileInfo filenameErrorInfo(filenameErrorString);
+//    if (!filenameErrorInfo.exists()) {
+//        errorMessage("No error file - SimCenterUQ did not run - problem with the application setup or the applications failed with inputs provided");
+//        return 0;
+//    }
+//    QFile fileError(filenameErrorString);
+//    QString line("");
+//    if (fileError.open(QIODevice::ReadOnly)) {
+//        QTextStream in(&fileError);
+//        while (!in.atEnd()) {
+//            line = in.readLine();
+//        }
+//        fileError.close();
+//    }
+
+//    if (line.length() != 0) {
+//        qDebug() << line.length() << " " << line;
+//        errorMessage(QString(QString("Error Running SimCenterUQ: ") + line));
+//        return 0;
+//    }
 
     QFileInfo filenameTabInfo(filenameTab);
     if (!filenameTabInfo.exists()) {

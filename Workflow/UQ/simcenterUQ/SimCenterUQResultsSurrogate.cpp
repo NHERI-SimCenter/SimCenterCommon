@@ -142,42 +142,44 @@ int SimCenterUQResultsSurrogate::processResults(QString &filenameResults, QStrin
     //
 
     QFileInfo fileTabInfo(filenameTab);
-    QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
+
+    QString errMsg("");
+    this->extractErrorMsg( fileTabInfo.absolutePath(),"dakota.err", "SimCenterUQ", errMsg);
+    if (errMsg.length() != 0) {
+        errorMessage(errMsg);
+        return 0;
+    }
     workingDir=fileTabInfo.absolutePath()+ QDir::separator();
 
-    QFileInfo filenameErrorInfo(filenameErrorString);
-    if (!filenameErrorInfo.exists()) {
-        errorMessage("No error file - SimCenterUQ did not run - problem with the application setup or the applications failed with inputs provided");
-        return -1;
-    }
+//    QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
 
-    QFile fileError(filenameErrorString);
-    if (fileError.open(QIODevice::ReadOnly)) {
-        QTextStream in(&fileError);
-        // QString contents = in.readAll(); -- not reading newline char
+//    QFileInfo filenameErrorInfo(filenameErrorString);
+//    if (!filenameErrorInfo.exists()) {
+//        errorMessage("No error file - SimCenterUQ did not run - problem with the application setup or the applications failed with inputs provided");
+//        return -1;
+//    }
 
-
-        bool errorWritten = false;
-        QString errmsgs;
-
-        for (QString line = in.readLine();
-             !line.isNull();
-             line = in.readLine()) {
-             errmsgs +=  line + "<br>";
-             errorWritten = true;
-        };
-        if (errorWritten) {
-            //errorMessage(QString(QString("Error Running SimCenterUQ: ") + line));
-            errorMessage(errmsgs);
-            return -1;
-        }
-
-    }
+//    QFile fileError(filenameErrorString);
+//    if (fileError.open(QIODevice::ReadOnly)) {
+//        QTextStream in(&fileError);
+//        // QString contents = in.readAll(); -- not reading newline char
+//        bool errorWritten = false;
+//        QString errmsgs;
+//        for (QString line = in.readLine();
+//             !line.isNull();
+//             line = in.readLine()) {
+//             errmsgs +=  line + "<br>";
+//             errorWritten = true;
+//        };
+//        if (errorWritten) {
+//            errorMessage(errmsgs);
+//            return -1;
+//        }
+//    }
 
 
     QFileInfo filenameTabInfo(filenameTab);
     if (!filenameTabInfo.exists()) {
-        // lets check simcenterUQ
         QString filenameLogString = fileTabInfo.absolutePath() + QDir::separator() + QString("logFileSimUQ.txt");
         QFile fileLog(filenameLogString);
         if (fileLog.open(QIODevice::ReadOnly)) {
@@ -194,9 +196,7 @@ int SimCenterUQResultsSurrogate::processResults(QString &filenameResults, QStrin
                 errorMessage(errmsgs);
                 errorMessage("No Tab file - Read logFileSimUQ.txt at the working directory for details");
                 return -1;
-            }
-
-        }
+            }        }
         errorMessage("No Tab file - surrogate modeling failed - possibly no QoI or a permission issue.");
         return -1;
     }

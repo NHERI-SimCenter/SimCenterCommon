@@ -200,27 +200,36 @@ int SimCenterUQResultsSensitivity::processResults(QString &filenameResults, QStr
     //
 
     QFileInfo fileResInfo(filenameResults);
-    QString filenameErrorString = fileResInfo.absolutePath() + QDir::separator() + QString("dakota.err");
 
-    QFileInfo filenameErrorInfo(filenameErrorString);
-    if (!filenameErrorInfo.exists()) {
-        errorMessage("No error file - SimCenterUQ did not run - problem with the application setup or the applications failed with inputs provided");
+
+    QString errMsg("");
+    this->extractErrorMsg( fileResInfo.absolutePath(),"dakota.err", "SimCenterUQ", errMsg);
+    if (errMsg.length() != 0) {
+        errorMessage(errMsg);
         return 0;
     }
-    QFile fileError(filenameErrorString);
-    QString line("");
-    if (fileError.open(QIODevice::ReadOnly)) {
-        QTextStream in(&fileError);
-        QString contents = in.readAll();
-//        while (!in.atEnd()) {
-//            line = in.readLine();
+
+//    QString filenameErrorString = fileResInfo.absolutePath() + QDir::separator() + QString("dakota.err");
+
+//    QFileInfo filenameErrorInfo(filenameErrorString);
+//    if (!filenameErrorInfo.exists()) {
+//        errorMessage("No error file - SimCenterUQ did not run - problem with the application setup or the applications failed with inputs provided");
+//        return 0;
+//    }
+//    QFile fileError(filenameErrorString);
+//    QString line("");
+//    if (fileError.open(QIODevice::ReadOnly)) {
+//        QTextStream in(&fileError);
+//        QString contents = in.readAll();
+////        while (!in.atEnd()) {
+////            line = in.readLine();
+////        }
+//        if (!contents.isEmpty()) {
+//            //errorMessage(QString(QString("Error Running SimCenterUQ: ") + line));
+//            errorMessage(QString(QString("Error Running SimCenterUQ: ") + contents));
+//            return 0;
 //        }
-        if (!contents.isEmpty()) {
-            //errorMessage(QString(QString("Error Running SimCenterUQ: ") + line));
-            errorMessage(QString(QString("Error Running SimCenterUQ: ") + contents));
-            return 0;
-        }
-    }
+//    }
 
 
     // If surrogate model is used, display additional info.
