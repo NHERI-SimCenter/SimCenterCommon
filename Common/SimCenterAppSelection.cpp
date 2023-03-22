@@ -99,7 +99,7 @@ SimCenterAppSelection::initializeWidget(QString label) {
     topLayout->setContentsMargins(0,0,0,0);
     layout->setContentsMargins(0,0,0,0);
 
-    SectionTitle *selectionText = new SectionTitle();
+    selectionText = new SectionTitle();
     selectionText->setMinimumWidth(250);
     selectionText->setText(label);
 
@@ -422,6 +422,16 @@ SimCenterAppSelection::displayComponent(QString text)
 
     return false;
 }
+
+void
+SimCenterAppSelection::hideHeader()
+{
+//    selectionText->toPlainText();
+//    selectionText->setMinimumWidth(0);
+    selectionText->hide();
+    theSelectionCombo->hide();
+}
+
 
 void
 SimCenterAppSelection::selectionChangedSlot(const QString &selectedText)

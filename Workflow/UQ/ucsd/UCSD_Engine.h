@@ -42,6 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <UQ_Engine.h>
 
 class QComboBox;
+class QLabel;
 class QStackedWidget;
 class UQ_Results;
 
@@ -88,6 +89,7 @@ public slots:
     void methodChanged(const QString &arg1);
 
 private:
+   QLabel *label;
    QComboBox   *theMethodSelection;
    QStackedWidget *theStackedWidget;
    UQ_Method *theCurrentMethod;

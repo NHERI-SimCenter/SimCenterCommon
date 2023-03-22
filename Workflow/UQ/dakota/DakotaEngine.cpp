@@ -85,7 +85,7 @@ DakotaEngine::DakotaEngine(UQ_EngineType type, QWidget *parent)
     //
 
     QHBoxLayout *theSelectionLayout = new QHBoxLayout();
-    QLabel *label = new QLabel();
+    label = new QLabel();
     label->setText(QString("Dakota Method Category"));
     theEngineSelectionBox = new QComboBox();
     theEngineSelectionBox->addItem(tr("Forward Propagation"));
@@ -318,6 +318,7 @@ DakotaEngine::fixMethod(QString Methodname) {
     } else {
         theEngineSelectionBox->setCurrentIndex(res);
         theEngineSelectionBox->hide();
+        label->hide();
         return true;
     }
 }

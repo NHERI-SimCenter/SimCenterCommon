@@ -42,6 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <UQ_Engine.h>
 
 class QComboBox;
+class QLabel;
 class QStackedWidget;
 class UQ_Results;
 class UQ_Method;
@@ -82,6 +83,7 @@ public slots:
     void numModelsChanged(int newNum);
 
 private:
+    QLabel *label ;
    QComboBox   *theMethodSelectionBox;
    QStackedWidget *theStackedWidget;
 

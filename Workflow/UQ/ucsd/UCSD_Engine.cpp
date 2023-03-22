@@ -67,7 +67,7 @@ UCSD_Engine::UCSD_Engine(UQ_EngineType type, QWidget *parent)
     //
 
     QHBoxLayout *theSelectionLayout = new QHBoxLayout();
-    QLabel *label = new QLabel();
+    label = new QLabel();
     label->setText(QString("Method"));
     theMethodSelection = new QComboBox();
     theMethodSelection->addItem(tr("Transitional Markov chain Monte Carlo"));
@@ -152,7 +152,7 @@ UCSD_Engine::inputFromJSON(QJsonObject &jsonObject) {
 
     QString selection = jsonObject["uqType"].toString();
 
-    emit onUQ_MethodUpdated(selection);
+    emit onUQ_MethodUpdated("Bayesian Calibration");
 
     int index = theMethodSelection->findText(selection);
     theMethodSelection->setCurrentIndex(index);
@@ -216,12 +216,13 @@ UCSD_Engine::getMethodName() {
 
 bool
 UCSD_Engine::fixMethod(QString Methodname) {
-    int res = theMethodSelection->findText(Methodname);
+    int res = theMethodSelection->findText("Bayesian Calibration");
     if (res == -1) {
         return false;
     } else {
         theMethodSelection->setCurrentIndex(res);
         theMethodSelection->hide();
+        label->hide();
         return true;
     }
 }

@@ -86,7 +86,7 @@ SimCenterUQEngine::SimCenterUQEngine(UQ_EngineType type, QWidget *parent)
     //
 
     QHBoxLayout *theSelectionLayout = new QHBoxLayout();
-    QLabel *label = new QLabel();
+    label = new QLabel();
     label->setText(QString("SimCenterUQ Method Category"));
     theMethodSelectionBox = new QComboBox();
     theMethodSelectionBox->addItem(tr("Forward Propagation"));
@@ -196,7 +196,10 @@ SimCenterUQEngine::inputFromJSON(QJsonObject &jsonObject) {
 
     QString selection = jsonObject["uqType"].toString();
 
-    emit onUQ_MethodUpdated(selection);
+    if ((selection==QString("Train GP Surrogate Model")) || (selection==QString("PLoM Model")))
+        emit onUQ_MethodUpdated(QString("Surrogate Modeling"));
+    else
+        emit onUQ_MethodUpdated(selection);
 
     int index = theMethodSelectionBox->findText(selection);
     theMethodSelectionBox->setCurrentIndex(index);
@@ -253,13 +256,35 @@ SimCenterUQEngine::getMethodName() {
 }
 bool
 SimCenterUQEngine::fixMethod(QString Methodname) {
-    int res = theMethodSelectionBox->findText(Methodname);
-    if (res == -1) {
-        return false;
-    } else {
-        theMethodSelectionBox->setCurrentIndex(res);
-        theMethodSelectionBox->hide();
+
+
+
+    if (Methodname == "Surrogate Modeling") {
+        QStringList Methodnames = {QString("Train GP Surrogate Model"),QString("PLoM Model")};
+        for (int idx=theMethodSelectionBox->count()-1; idx>-1; idx--) {
+            if (!Methodnames.contains(theMethodSelectionBox->itemText(idx)))
+                theMethodSelectionBox->setItemData(idx, QSize(0,0), Qt::SizeHintRole);
+            else
+                theMethodSelectionBox->setCurrentIndex(idx);
+        }
+        theMethodSelectionBox->show();
+        label->show();
         return true;
+
+    } else {
+        for (int idx=0; idx<theMethodSelectionBox->count(); idx++) {
+            theMethodSelectionBox->setItemData(idx, QSize(1,10), Qt::SizeHintRole);
+        }
+
+        int res = theMethodSelectionBox->findText(Methodname);
+        if (res == -1) {
+            return false;
+        } else {
+            theMethodSelectionBox->setCurrentIndex(res);
+            theMethodSelectionBox->hide();
+            label->hide();
+            return true;
+        }
     }
 }
 

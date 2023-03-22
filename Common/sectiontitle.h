@@ -73,6 +73,7 @@ public:
     void setTitle(QString);
     void setText(QString s) {this->setTitle(s);};
     void addWidget(QWidget *theWidget);
+    void toPlainText(void);
 
 signals:
 
