@@ -332,7 +332,7 @@ int UCSD_Results::processResults(QString &filenameTab, QString &filenameTabPrior
     //
 
     tabWidget->addTab(sa,tr("Summary"));
-    tabWidget->addTab(logFileText, tr("Diagnostics"));
+    tabWidget->addTab(logFileText, tr("Log"));
 //    tabWidget->addTab(theDataTablePrior, tr("Prior"));
     tabWidget->addTab(theDataTable, tr("Data Values"));
 //    tabWidget->addTab(theDataTable, tr("Posterior"));
