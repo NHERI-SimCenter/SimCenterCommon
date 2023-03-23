@@ -205,17 +205,17 @@ int SimCenterUQResultsSurrogate::processResults(QString &filenameResults, QStrin
     // For surrogate results
     //
 
-    QDir tempoFolder(filenameTabInfo.absolutePath()); //
-    //QDir templFolder(filenameTabInfo.absolutePath()+QDir::separator() +"templatedir");
-    QFileInfo surrogateTabInfo(tempoFolder.filePath("surrogateTab.out"));
-    //QFileInfo scInputInfo(templFolder.filePath("scInput.json"));
-    //if (surrogateTabInfo.exists() && scInputInfo.exists()) {
-    if (surrogateTabInfo.exists()) {
-        filenameTab = tempoFolder.filePath("surrogateTab.out");
-        isSurrogate = true;
-    } else {
-        isSurrogate = false;
-    }
+//    QDir tempoFolder(filenameTabInfo.absolutePath()); //
+//    //QDir templFolder(filenameTabInfo.absolutePath()+QDir::separator() +"templatedir");
+//    QFileInfo surrogateTabInfo(tempoFolder.filePath("surrogateTab.out"));
+//    //QFileInfo scInputInfo(templFolder.filePath("scInput.json"));
+//    //if (surrogateTabInfo.exists() && scInputInfo.exists()) {
+//    if (surrogateTabInfo.exists()) {
+//        filenameTab = tempoFolder.filePath("surrogateTab.out");
+//        isSurrogate = true;
+//    } else {
+//        isSurrogate = false;
+//    }
 
 
     // create a scrollable windows, place summary inside it
@@ -269,7 +269,7 @@ int SimCenterUQResultsSurrogate::processResults(QString &filenameResults, QStrin
       
     
     //theDataTable = new ResultsDataChart(filenameTab);
-    theDataTable = new ResultsDataChart(filenameTab, isSurrogate, numRandomVar);
+    theDataTable = new ResultsDataChart(filenameTab,  theRVs->getNumRandomVariables());
 
     //
     // create spreadsheet,  a QTableWidget showing RV and results for each run
@@ -375,7 +375,7 @@ SimCenterUQResultsSurrogate::outputToJSON(QJsonObject &jsonObject)
     bool result = true;
 
     jsonObject["resultType"]=QString(tr("SimCenterUQResultsSurrogate"));
-    jsonObject["isSurrogate"]=isSurrogate;
+    //jsonObject["isSurrogate"]=isSurrogate;
 
     //
     // add summary data
@@ -421,26 +421,26 @@ SimCenterUQResultsSurrogate::inputFromJSON(QJsonObject &jsonObject)
 
     //isSurrogate=jsonObject["isSurrogate"].toBool();
 
-    if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
-        isSurrogate=jsonObject["isSurrogate"].toBool();
-    } else {
-        isSurrogate=false;
-    }
+//    if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
+//        isSurrogate=jsonObject["isSurrogate"].toBool();
+//    } else {
+//        isSurrogate=false;
+//    }
 
 
-    int numRandomVar;
-    if (jsonObj.contains("xdim")) { // no saving of analysis data
-        QJsonValue theValue = jsonObj["xdim"];
-        if (theValue.isDouble())
-          numRandomVar = theValue.toInt();
-        else
-          numRandomVar = theRVs->getNumRandomVariables(); // better than nothing
-    } else {
-        numRandomVar = theRVs->getNumRandomVariables(); // better than nothing
-    }
+//    int numRandomVar;
+//    if (jsonObj.contains("xdim")) { // no saving of analysis data
+//        QJsonValue theValue = jsonObj["xdim"];
+//        if (theValue.isDouble())
+//          numRandomVar = theValue.toInt();
+//        else
+//          numRandomVar = theRVs->getNumRandomVariables(); // better than nothing
+//    } else {
+//        numRandomVar = theRVs->getNumRandomVariables(); // better than nothing
+//    }
 
 
-    theDataTable = new ResultsDataChart(spreadsheetValue.toObject(), isSurrogate, numRandomVar);
+    theDataTable = new ResultsDataChart(spreadsheetValue.toObject());
 
     QScrollArea *sa = new QScrollArea;
     summarySurrogate(*&sa);
@@ -633,7 +633,7 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
     int numnugget_vars = 0;
     for (int nq=0; nq<nQoI; nq++){
         double nugget = valNugget[QoInames[nq]].toDouble();
-        if (nugget/statisticsVector[jsonObj["xdim"].toInt()+1+nq][0]<1.e-12) {
+        if (nugget/statisticsVector[jsonObj["xdim"].toInt()+1+nq][0]<1.e-5) {
             nugget_idx[nq] = false;
         } else {
             nugget_idx[nq] = true;

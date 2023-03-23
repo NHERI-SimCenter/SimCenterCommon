@@ -101,6 +101,7 @@ UQ_JsonEngine::outputToJSON(QJsonObject &rvObject) {
 
 bool
 UQ_JsonEngine::inputFromJSON(QJsonObject &rvObject) {
+  emit onUQ_MethodUpdated("CustomUQ");
   return theJsonConfigureWidget->inputFromJSON(rvObject);
 }
 
@@ -146,6 +147,15 @@ UQ_JsonEngine::getMethodName() {
 }
 
 
+bool
+UQ_JsonEngine::fixMethod(QString Methodname) {
+
+    if (Methodname==QString("CustomUQ")) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 bool
 UQ_JsonEngine::copyFiles(QString &fileDir) {

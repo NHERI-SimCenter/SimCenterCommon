@@ -40,6 +40,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written by: fmk
 
 #include "SimCenterAppWidget.h"
+#include <QList>
+#include "SectionTitle.h"
 
 class QStackedWidget;
 class QComboBox;
@@ -51,6 +53,7 @@ class SimCenterAppSelection : public  SimCenterAppWidget
 public:
     explicit SimCenterAppSelection(QString label, QString jsonkeyword, QWidget *parent);
     explicit SimCenterAppSelection(QString label, QString jsonKeyword, QString oldKeyword, QString typeOfAsset = QString(), QWidget *parent = nullptr);
+  explicit SimCenterAppSelection(QString label, QString jsonKeyword, QList<QString>extraKeys, QString typeOfAsset = QString(), QWidget *parent = nullptr);  
     ~SimCenterAppSelection();
 
     bool outputAppDataToJSON(QJsonObject &jsonObject);
@@ -60,11 +63,17 @@ public:
     bool copyFiles(QString &destName);
 
     void clear(void);
+    void clearSelections();
     bool addComponent(QString comboBoxText, QString appNameText, SimCenterAppWidget *);
     SimCenterAppWidget *getComponent(QString text);
     SimCenterAppWidget *getCurrentSelection(void);
     QString getCurrentSelectionName(void);
     bool selectComponent(const QString text);
+
+    void removeItem(QString itemName);
+    QString getComponentName(int index);
+    int count();
+    void hideHeader();
 
 public slots:
     void selectionChangedSlot(const QString &);
@@ -81,6 +90,7 @@ private:
     virtual bool displayComponent(QString text);
     void initializeWidget(QString label);
 
+
     QStackedWidget* theStackedWidget;
     QComboBox* theSelectionCombo;
 
@@ -90,11 +100,15 @@ private:
     QList<QString> theComboNames;
     QList<QString> theApplicationNames;
     QList<SimCenterAppWidget *> theComponents;
+    QList<QString> extraKeys;  // needed ascertainasset types have multiple assets and workflow as yet does not handle this
+  
     QString jsonKeyword; // application type that appears in json
     QString jsonKeywordOld; // application type that appears in older json for reading
     QString assetType;
 
     bool viewableStatus;
+
+    SectionTitle *selectionText;
 };
 
 #endif // SimCenterAppSelection_H

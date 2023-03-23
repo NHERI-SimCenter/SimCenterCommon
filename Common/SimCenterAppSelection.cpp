@@ -52,6 +52,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QComboBox>
 #include <QStackedWidget>
 #include <QScrollArea>
+#include <QList>
 
 // A class acting for secondary level RDT menu items
 // whose display is dependent on the selection in GI
@@ -77,6 +78,16 @@ SimCenterAppSelection::SimCenterAppSelection(QString label, QString appName, QSt
     this->initializeWidget(label);
 }
 
+SimCenterAppSelection::SimCenterAppSelection(QString label, QString appName, QList<QString> xKeys, QString typeOfAsset, QWidget *parent)
+    :SimCenterAppWidget(parent), currentIndex(-1), theCurrentSelection(NULL), jsonKeyword(appName), assetType(typeOfAsset), viewableStatus(false)
+{
+    for (int i=0; i<xKeys.length(); i++) {
+        QString copy(xKeys.at(i));
+        extraKeys.append(copy);
+    }
+  this->initializeWidget(label);
+}
+
 void
 SimCenterAppSelection::initializeWidget(QString label) {
 
@@ -88,7 +99,7 @@ SimCenterAppSelection::initializeWidget(QString label) {
     topLayout->setContentsMargins(0,0,0,0);
     layout->setContentsMargins(0,0,0,0);
 
-    SectionTitle *selectionText = new SectionTitle();
+    selectionText = new SectionTitle();
     selectionText->setMinimumWidth(250);
     selectionText->setText(label);
 
@@ -132,6 +143,7 @@ SimCenterAppSelection::~SimCenterAppSelection()
 
 bool SimCenterAppSelection::outputToJSON(QJsonObject &jsonObject)
 {
+
     if (theSelectionCombo->isEnabled() == false) {
         return true; // disabled
     }
@@ -142,6 +154,9 @@ bool SimCenterAppSelection::outputToJSON(QJsonObject &jsonObject)
             return false;
         } else {
             jsonObject[jsonKeyword] = data;
+            for (int i=0; i<extraKeys.length(); i++) {
+                jsonObject[extraKeys.at(i)] = data;
+            }
             return true;
         }
     }
@@ -191,10 +206,11 @@ bool SimCenterAppSelection::outputAppDataToJSON(QJsonObject &jsonObject)
             } else {
                 if(!data.isEmpty())
                 {
-                    if(assetType.isEmpty())
+                    if(assetType.isEmpty()) {
                         jsonObject[jsonKeyword] = data;
-                    else
-                    {
+                    for (int i=0; i<extraKeys.length(); i++)
+                        jsonObject[extraKeys.at(i)] = data;
+                    } else {
                         auto assetObj = jsonObject[jsonKeyword].toObject();
 
                         assetObj.insert(assetType, data);
@@ -333,6 +349,15 @@ void SimCenterAppSelection::clear(void)
     }
 }
 
+void SimCenterAppSelection::clearSelections(void)
+{
+    foreach (auto&& comp, theComponents) {
+        comp->clear();
+    }
+    theComboNames.clear();
+    theApplicationNames.clear();
+    theSelectionCombo->clear();
+}
 
 bool
 SimCenterAppSelection::addComponent(QString text, QString appName, SimCenterAppWidget *theComponent)
@@ -399,6 +424,16 @@ SimCenterAppSelection::displayComponent(QString text)
 }
 
 void
+SimCenterAppSelection::hideHeader()
+{
+//    selectionText->toPlainText();
+//    selectionText->setMinimumWidth(0);
+    selectionText->hide();
+    theSelectionCombo->hide();
+}
+
+
+void
 SimCenterAppSelection::selectionChangedSlot(const QString &selectedText)
 {
     //
@@ -447,6 +482,19 @@ SimCenterAppSelection::getCurrentSelectionName(void)
     return theApplicationNames.at(idx);
 }
 
+
+void SimCenterAppSelection::removeItem(QString itemName) {
+    theSelectionCombo->removeItem(theSelectionCombo->findText(itemName));
+};
+
+
+QString SimCenterAppSelection::getComponentName(int index) {
+    return theComboNames[index];
+}
+
+int SimCenterAppSelection::count() {
+    return theSelectionCombo->count();
+}
 
 void
 SimCenterAppSelection::setSelectionsActive(bool visibility) {

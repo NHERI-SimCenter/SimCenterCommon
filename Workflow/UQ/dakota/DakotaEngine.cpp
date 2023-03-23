@@ -85,7 +85,7 @@ DakotaEngine::DakotaEngine(UQ_EngineType type, QWidget *parent)
     //
 
     QHBoxLayout *theSelectionLayout = new QHBoxLayout();
-    QLabel *label = new QLabel();
+    label = new QLabel();
     label->setText(QString("Dakota Method Category"));
     theEngineSelectionBox = new QComboBox();
     theEngineSelectionBox->addItem(tr("Forward Propagation"));
@@ -245,6 +245,8 @@ DakotaEngine::inputFromJSON(QJsonObject &jsonObject) {
         uqMethod = QString("Deterministic Calibration");
     } 
 
+    emit onUQ_MethodUpdated(uqMethod);
+
     bool doParallel = true;
     if (jsonObject.contains("parallelExecution"))
         doParallel = jsonObject["parallelExecution"].toBool();
@@ -308,6 +310,18 @@ DakotaEngine::getMethodName() {
     return theCurrentEngine->getMethodName();
 }
 
+bool
+DakotaEngine::fixMethod(QString Methodname) {
+    int res = theEngineSelectionBox->findText(Methodname);
+    if (res == -1) {
+        return false;
+    } else {
+        theEngineSelectionBox->setCurrentIndex(res);
+        theEngineSelectionBox->hide();
+        label->hide();
+        return true;
+    }
+}
 bool
 DakotaEngine::copyFiles(QString &fileDir) {
     QString googleString=QString("UQ-DAKOTA-") + this->getMethodName();

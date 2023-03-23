@@ -233,14 +233,14 @@ int SimCenterUQResultsSensitivity::processResults(QString &filenameResults, QStr
 
 
     // If surrogate model is used, display additional info.
-    QDir tempFolder(fileResInfo.absolutePath());
-    QFileInfo surrogateTabInfo(tempFolder.filePath("surrogateTab.out"));
-    if (surrogateTabInfo.exists()) {
-        filenameTab = tempFolder.filePath("surrogateTab.out");
-        isSurrogate = true;
-    } else {
-        isSurrogate = false;
-    }
+//    QDir tempFolder(fileResInfo.absolutePath());
+//    QFileInfo surrogateTabInfo(tempFolder.filePath("surrogateTab.out"));
+//    if (surrogateTabInfo.exists()) {
+//        filenameTab = tempFolder.filePath("surrogateTab.out");
+//        isSurrogate = true;
+//    } else {
+//        isSurrogate = false;
+//    }
 
     //
     // create summary, a QWidget for summary data, the EDP name, mean, stdDev, kurtosis info
@@ -362,7 +362,7 @@ int SimCenterUQResultsSensitivity::processResults(QString &filenameResults, QStr
     //
 
     if (!usedData) {
-            theDataTable = new ResultsDataChart(filenameTab, isSurrogate, 0);
+            theDataTable = new ResultsDataChart(filenameTab,  theRVs->getNumRandomVariables());
     } else {
         QStringList QoIlist; // w
         for (int i=nAggQoI;i<(nAggQoI+nQoI); i++){
@@ -627,7 +627,7 @@ SimCenterUQResultsSensitivity::outputToJSON(QJsonObject &jsonObject)
         return result; // no data
 
     jsonObject["resultType"]=QString(tr("SimCenterUQResultsSensitivity"));
-    jsonObject["isSurrogate"]=isSurrogate;
+    //jsonObject["isSurrogate"]=isSurrogate;
     //
     // add summary data
     //
@@ -762,13 +762,13 @@ SimCenterUQResultsSensitivity::inputFromJSON(QJsonObject &jsonObject)
     QScrollArea *sa = new QScrollArea;
     gsaGraph(*&sa);
 
-    if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
-        isSurrogate=jsonObject["isSurrogate"].toBool();
-    } else {
-        isSurrogate=false;
-    }
+//    if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
+//        isSurrogate=jsonObject["isSurrogate"].toBool();
+//    } else {
+//        isSurrogate=false;
+//    }
 
-    theDataTable = new ResultsDataChart(spreadsheetValue.toObject(), isSurrogate, theRVs->getNumRandomVariables());
+    theDataTable = new ResultsDataChart(spreadsheetValue.toObject());
 
 
     //
