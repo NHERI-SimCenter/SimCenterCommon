@@ -69,7 +69,7 @@ DakotaResultsOptimization::outputToJSON(QJsonObject &jsonObject)
       return true;
 
     jsonObject["resultType"]=QString(tr("DakotaResultsOptimization"));
-    jsonObject["isSurrogate"]=isSurrogate;
+    //jsonObject["isSurrogate"]=isSurrogate;
 
     //
     // add summary data
@@ -159,13 +159,13 @@ DakotaResultsOptimization::inputFromJSON(QJsonObject &jsonObject)
         return true;
     }
 
-    if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
-        isSurrogate=jsonObject["isSurrogate"].toBool();
-    } else {
-        isSurrogate=false;
-    }
+//    if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
+//        isSurrogate=jsonObject["isSurrogate"].toBool();
+//    } else {
+//        isSurrogate=false;
+//    }
 
-    theDataTable = new ResultsDataChart(spreadsheetValue.toObject(), isSurrogate, theRVs->getNumRandomVariables());
+    theDataTable = new ResultsDataChart(spreadsheetValue.toObject());
 
     tabWidget->addTab(sa,tr("Summary"));
     tabWidget->addTab(dakotaText,tr("General"));
@@ -369,23 +369,23 @@ int DakotaResultsOptimization::processResults(QString &filenameResults, QString 
 //    }
 
     // If surrogate model is used, display additional info.
-    QDir tempFolder(filenameTabInfo.absolutePath());
-    QFileInfo surrogateTabInfo(tempFolder.filePath("surrogateTab.out"));
-    if (surrogateTabInfo.exists()) {
-        filenameTab = tempFolder.filePath("surrogateTab.out");
-        isSurrogate = true;
-    } else {
-        isSurrogate = false;
-    }
+//    QDir tempFolder(filenameTabInfo.absolutePath());
+//    QFileInfo surrogateTabInfo(tempFolder.filePath("surrogateTab.out"));
+//    if (surrogateTabInfo.exists()) {
+//        filenameTab = tempFolder.filePath("surrogateTab.out");
+//        isSurrogate = true;
+//    } else {
+//        isSurrogate = false;
+//    }
 
 
 
-    //
-    // create spreadsheet,  a QTableWidget showing RV and results for each run
-    //
+//    //
+//    // create spreadsheet,  a QTableWidget showing RV and results for each run
+//    //
 
-    theDataTable = new ResultsDataChart(filenameTab, isSurrogate, theRVs->getNumRandomVariables());
-
+//    theDataTable = new ResultsDataChart(filenameTab, isSurrogate, theRVs->getNumRandomVariables());
+    theDataTable = new ResultsDataChart(filenameTab, theRVs->getNumRandomVariables());
 
     tabWidget->addTab(sa,tr("Summary"));
     tabWidget->addTab(dakotaText, tr("General"));

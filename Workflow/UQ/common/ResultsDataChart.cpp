@@ -66,8 +66,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //using namespace QtCharts;
 
 
-ResultsDataChart::ResultsDataChart(QJsonObject spread, bool isSur, int nRV, QWidget *parent)
-    : SimCenterWidget(parent),isSurrogate(isSur), nrv(nRV)
+ResultsDataChart::ResultsDataChart(QJsonObject spread, QWidget *parent)
+    : SimCenterWidget(parent)
 {
     // From json file
 
@@ -78,16 +78,28 @@ ResultsDataChart::ResultsDataChart(QJsonObject spread, bool isSur, int nRV, QWid
     nmetaSurrogate =7 ; // Additional columns of surrrogateTab.out file (per qoi)..
                         // median, 5% quantile, 95% quantile, variance, 5% quantile (with noise), 95% quantile (with noise), variance (with noise)
 
+    if (spread.contains("isSurrogate"))
+    {
+        isSurrogate = spread["isSurrogate"].toBool();
+    } else {
+        isSurrogate = false;
+    }
+    if (spread.contains("nrv"))
+    {
+        nrv = spread["nrv"].toInt();
+    } else {
+        nrv = 0;
+    }
 
     this->readTableFromJson(spread);
     if (rowCount==0) {
         errorMessage("ERROR: reading Dakota Results - no result widget set!");
-	dataGood = false;
+        dataGood = false;
     } else {
         this->makeChart();
-        if (isSur) {
-	  for (int i=nrv+nqoi+1; i<colCount; i++)
-	    spreadsheet->setColumnHidden(i,true);
+        if (isSurrogate) {
+              for (int i=nrv+nqoi+1; i<colCount; i++)
+                spreadsheet->setColumnHidden(i,true);
         }	
         if  ((spreadsheet->rowCount()) > 1.e5) {
           chart->setAnimationOptions(QChart::AllAnimations);
@@ -100,58 +112,84 @@ ResultsDataChart::ResultsDataChart(QJsonObject spread, bool isSur, int nRV, QWid
 
 }
 
-ResultsDataChart::ResultsDataChart(QString filenameTab, bool isSur, int nRV, QWidget *parent)
-    : SimCenterWidget(parent),isSurrogate(isSur), nrv(nRV)
+//ResultsDataChart::ResultsDataChart(QString filenameTab, bool isSur, int nRV, QWidget *parent)
+//    : SimCenterWidget(parent),isSurrogate(isSur), nrv(nRV)
+//{
+//    // From DakotaTab.out surrogateTab.out
+
+//    spreadsheet = new MyTableWidget();
+//    nmetaSurrogate =7 ; // Additional columns of surrrogateTab.out file (per qoi)..
+//                        // median, 5% quantile, 95% quantile, variance, 5% quantile (with noise), 95% quantile (with noise), variance (with noise)
+
+
+//    QFileInfo fileTabInfo(filenameTab);
+//    if (!fileTabInfo.exists()) {
+//        errorMessage("No Tab.out file - analysis failed - possibly no QoI or a permission issue.");
+//        return;
+//    }
+
+//    this->readTableFromTab(filenameTab);
+//    spreadsheet->setSelectionBehavior(QAbstractItemView::SelectRows);
+    
+//    if (rowCount==0) {
+//        errorMessage("ERROR: reading Results - no result widget set!");
+//        dataGood = false;
+//    } else {
+//        this->makeChart();
+
+//        if (isSur) {
+//            for (int i=nrv+nqoi+1; i<colCount; i++)
+//                spreadsheet->setColumnHidden(i,true);
+//        }
+//        dataGood = true;
+//    }
+
+//    //chart->setAnimationOptions(QChart::AllAnimations);
+//}
+
+ResultsDataChart::ResultsDataChart(QString filenameTab, int nRV, QWidget *parent)
+    : SimCenterWidget(parent), nrv(nRV)
 {
-    // From surrogateTab.out
-
-
-
 
     spreadsheet = new MyTableWidget();
     nmetaSurrogate =7 ; // Additional columns of surrrogateTab.out file (per qoi)..
                         // median, 5% quantile, 95% quantile, variance, 5% quantile (with noise), 95% quantile (with noise), variance (with noise)
-
     col1 = 0;
     col2 = 0;
 
+    //
+    // Before we start, check if it is a surrogate model
+    //
+
+    this->checkIfSurrogate(filenameTab,isSurrogate,nrv); // filenameTab,isSurrogate,nrv are updated
+
+    //
+    //
+    //
+
     QFileInfo fileTabInfo(filenameTab);
     if (!fileTabInfo.exists()) {
-        errorMessage("No Tab.out file - sensitivity analysis failed - possibly no QoI or a permission issue.");
+        errorMessage("No Tab.out file - analysis failed - possibly no QoI or a permission issue.");
         return;
-    }
-
-    if (isSur && nrv==0) {
-        QFileInfo surrogateLogInfo(fileTabInfo.absolutePath()+QDir::separator() +"surrogateLog.log");
-        if (surrogateLogInfo.exists()) {
-            QFile surrogateLog(fileTabInfo.absolutePath()+QDir::separator() +"surrogateLog.log");
-            if (surrogateLog.open(QIODevice::ReadOnly)) {
-                QString line = surrogateLog.readLine();
-                QStringList strList = line.split(" ");
-                nrv = strList[1].toInt(); // num RV
-            }
-        }
     }
 
     this->readTableFromTab(filenameTab);
     spreadsheet->setSelectionBehavior(QAbstractItemView::SelectRows);
-    
+
     if (rowCount==0) {
-        errorMessage("ERROR: reading Dakota Results - no result widget set!");
-	dataGood = false;
+        errorMessage("ERROR: reading Results - no result widget set!");
+        dataGood = false;
     } else {
         this->makeChart();
 
-        if (isSur) {
+        if (isSurrogate) {
             for (int i=nrv+nqoi+1; i<colCount; i++)
                 spreadsheet->setColumnHidden(i,true);
         }
         dataGood = true;
     }
 
-    //chart->setAnimationOptions(QChart::AllAnimations);
 }
-
 
 ResultsDataChart::ResultsDataChart(QString rvFileName, QString qoiFileName, int xdim, int ydim, int nsamp, QStringList listRVs, QStringList listQoIs, QWidget *parent)
     : SimCenterWidget(parent),isSurrogate(false)
@@ -308,6 +346,75 @@ ResultsDataChart::makeChart() {
     this->setLayout(layout_tmp);
 
     onSpreadsheetCellClicked(0,1);
+}
+
+void ResultsDataChart::checkIfSurrogate(QString &filenameTab, bool &isSur, int &nRV)
+{
+    QFileInfo filenameTabInfo(filenameTab);
+    QDir tempFolder(filenameTabInfo.absolutePath());
+
+    QString surTabPath = tempFolder.filePath("surrogateTab.out");
+    QString surTabHeaderPath = tempFolder.filePath("surrogateTabHeader.out");
+    QString surLog = tempFolder.filePath("surrogateLog.log");
+
+    QFileInfo surTabInfo(surTabPath);
+    QFileInfo surTabHeaderInfo(surTabHeaderPath);
+    QFileInfo surLogInfo(surLog);
+
+
+    if (surTabInfo.exists()) {
+            isSur=true;
+            //replace dakotaTab.out with surrogateTab.out
+            filenameTab = surTabPath;
+    } else {
+            isSur=false;
+    }
+
+    if (isSur) {
+
+        if(surTabHeaderInfo.exists()) {
+            //
+            // mearge header and values
+            //
+
+            std::ifstream tabResults(surTabPath.toStdString().c_str());
+            std::ifstream tabHeader(surTabHeaderPath.toStdString().c_str());
+
+            std::vector<std::string> lines;
+            if (tabResults.is_open() && tabHeader.is_open()) {
+                std::string line;
+                while (std::getline(tabHeader, line)) {
+                    lines.push_back(line);
+                }
+                while (std::getline(tabResults, line)) {
+                    lines.push_back(line);
+                }
+                tabResults.close();
+                tabHeader.close();
+            } else {
+                errorMessage("ERROR: tab header file not found!");
+            }
+
+            std::ofstream tabResultsNew(surTabPath.toStdString().c_str());
+            if (tabResultsNew.is_open()) {
+                for (const std::string& line : lines) {
+                tabResultsNew << line << std::endl;
+                }
+            }
+            tabResultsNew.close();
+        }
+        //
+        // get nrv
+        //
+
+        QFile surrogateLog(surLog);
+        if (surrogateLog.open(QIODevice::ReadOnly)) {
+            QString line = surrogateLog.readLine();
+            QStringList strList = line.split(" ");
+            nRV = strList[1].toInt(); // num RV
+        }
+
+    }
 }
 
 QVector<QVector<double>>
@@ -1847,6 +1954,8 @@ ResultsDataChart::outputToJSON(QJsonObject &jsonObj){
     QApplication::restoreOverrideCursor();
     spreadsheetData["data"]=dataArray;
 
+    spreadsheetData["isSurrogate"] = isSurrogate;
+    spreadsheetData["nrv"] = nrv;
     jsonObj["spreadsheet"] = spreadsheetData;
 
     return true;

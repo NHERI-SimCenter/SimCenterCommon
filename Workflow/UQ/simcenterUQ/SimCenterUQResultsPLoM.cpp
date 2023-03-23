@@ -238,14 +238,14 @@ int SimCenterUQResultsPLoM::processResults(QString &filenameResults, QString &fi
         return 0;
     }
 
-    QDir tempFolder(filenameTabInfo.absolutePath());
-    QFileInfo surrogateTabInfo(tempFolder.filePath("surrogateTab.out"));
-    if (surrogateTabInfo.exists()) {
-        filenameTab = tempFolder.filePath("surrogateTab.out");
-        isSurrogate = true;
-    } else {
-        isSurrogate = false;
-    }
+//    QDir tempFolder(filenameTabInfo.absolutePath());
+//    QFileInfo surrogateTabInfo(tempFolder.filePath("surrogateTab.out"));
+//    if (surrogateTabInfo.exists()) {
+//        filenameTab = tempFolder.filePath("surrogateTab.out");
+//        isSurrogate = true;
+//    } else {
+//        isSurrogate = false;
+//    }
 
 
     // create a scrollable windows, place summary inside it
@@ -291,10 +291,10 @@ int SimCenterUQResultsPLoM::processResults(QString &filenameResults, QString &fi
 
     qDebug() << "creating ResultDataChart.";
     qDebug() << filenameTab;
-    qDebug() << isSurrogate;
+    //qDebug() << isSurrogate;
     qDebug() << theRVs->getNumRandomVariables();
     //theDataTable = new ResultsDataChart(filenameTab);
-    theDataTable = new ResultsDataChart(filenameTab, isSurrogate, 0);
+    theDataTable = new ResultsDataChart(filenameTab,  theRVs->getNumRandomVariables());
 
     qDebug() << "ResultDataChart created.";
 
@@ -398,7 +398,7 @@ SimCenterUQResultsPLoM::outputToJSON(QJsonObject &jsonObject)
     bool result = true;
 
     jsonObject["resultType"]=QString(tr("SimCenterUQResultsPLoM"));
-    jsonObject["isSurrogate"]=isSurrogate;
+    //jsonObject["isSurrogate"]=isSurrogate;
 
     //
     // add summary data
@@ -444,13 +444,13 @@ SimCenterUQResultsPLoM::inputFromJSON(QJsonObject &jsonObject)
 
     //isSurrogate=jsonObject["isSurrogate"].toBool();
 
-    if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
-        isSurrogate=jsonObject["isSurrogate"].toBool();
-    } else {
-        isSurrogate=false;
-    }
+//    if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
+//        isSurrogate=jsonObject["isSurrogate"].toBool();
+//    } else {
+//        isSurrogate=false;
+//    }
 
-    theDataTable = new ResultsDataChart(spreadsheetValue.toObject(), isSurrogate, theRVs->getNumRandomVariables());
+    theDataTable = new ResultsDataChart(spreadsheetValue.toObject());
 
     QScrollArea *sa = new QScrollArea;
     summarySurrogate(*&sa);

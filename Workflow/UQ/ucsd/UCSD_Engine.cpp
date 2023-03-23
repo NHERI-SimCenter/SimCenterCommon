@@ -216,10 +216,10 @@ UCSD_Engine::getMethodName() {
 
 bool
 UCSD_Engine::fixMethod(QString Methodname) {
-    int res = theMethodSelection->findText("Bayesian Calibration");
-    if (res == -1) {
+     if (Methodname!="Bayesian Calibration" ) {
         return false;
     } else {
+        int res = theMethodSelection->findText("Transitional Markov chain Monte Carlo");
         theMethodSelection->setCurrentIndex(res);
         theMethodSelection->hide();
         label->hide();

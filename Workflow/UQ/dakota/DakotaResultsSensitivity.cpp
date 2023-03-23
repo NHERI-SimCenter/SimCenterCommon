@@ -220,14 +220,14 @@ int DakotaResultsSensitivity::processResults(QString &filenameResults, QString &
     }
 
     // If surrogate model is used, display additional info.
-    QDir tempFolder(filenameTabInfo.absolutePath());
-    QFileInfo surrogateTabInfo(tempFolder.filePath("surrogateTab.out"));
-    if (surrogateTabInfo.exists()) {
-        filenameTab = tempFolder.filePath("surrogateTab.out");
-        isSurrogate = true;
-    } else {
-        isSurrogate = false;
-    }
+//    QDir tempFolder(filenameTabInfo.absolutePath());
+//    QFileInfo surrogateTabInfo(tempFolder.filePath("surrogateTab.out"));
+//    if (surrogateTabInfo.exists()) {
+//        filenameTab = tempFolder.filePath("surrogateTab.out");
+//        isSurrogate = true;
+//    } else {
+//        isSurrogate = false;
+//    }
 
     //
     // create summary, a QWidget for summary data, the EDP name, mean, stdDev, kurtosis info
@@ -339,7 +339,8 @@ Node_2_Disp Sobol' indices:
 
 
     //theDataTable = new ResultsDataChart(filenameTab);
-     theDataTable = new ResultsDataChart(filenameTab, isSurrogate, 0);
+    // theDataTable = new ResultsDataChart(filenameTab, isSurrogate, 0);
+    theDataTable = new ResultsDataChart(filenameTab, theRVs->getNumRandomVariables());
 
 
     //
@@ -509,7 +510,7 @@ DakotaResultsSensitivity::outputToJSON(QJsonObject &jsonObject)
     bool result = true;
 
     jsonObject["resultType"]=QString(tr("DakotaResultsSensitivity"));
-    jsonObject["isSurrogate"]=isSurrogate;
+    //jsonObject["isSurrogate"]=isSurrogate;
 
     if (theDataTable == NULL)
         return true;
@@ -636,13 +637,13 @@ DakotaResultsSensitivity::inputFromJSON(QJsonObject &jsonObject)
 
     //theDataTable = new ResultsDataChart(spreadsheetValue.toObject());
 
-    if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
-        isSurrogate=jsonObject["isSurrogate"].toBool();
-    } else {
-        isSurrogate=false;
-    }
+//    if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
+//        isSurrogate=jsonObject["isSurrogate"].toBool();
+//    } else {
+//        isSurrogate=false;
+//    }
 
-    theDataTable = new ResultsDataChart(spreadsheetValue.toObject(), isSurrogate, theRVs->getNumRandomVariables());
+    theDataTable = new ResultsDataChart(spreadsheetValue.toObject());
 
     tabWidget->addTab(sa,tr("Summary"));
     tabWidget->addTab(theDataTable, tr("Data Values"));

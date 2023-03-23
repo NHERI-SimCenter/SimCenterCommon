@@ -273,7 +273,7 @@ SimCenterUQEngine::fixMethod(QString Methodname) {
 
     } else {
         for (int idx=0; idx<theMethodSelectionBox->count(); idx++) {
-            theMethodSelectionBox->setItemData(idx, QSize(1,10), Qt::SizeHintRole);
+            //theMethodSelectionBox->setItemData(idx, QSize(1,10), Qt::SizeHintRole);
         }
 
         int res = theMethodSelectionBox->findText(Methodname);
