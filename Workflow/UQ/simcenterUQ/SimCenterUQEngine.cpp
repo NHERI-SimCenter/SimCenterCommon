@@ -97,7 +97,7 @@ SimCenterUQEngine::SimCenterUQEngine(UQ_EngineType type, QWidget *parent)
     if (doCalibration == true) {}
       //theMethodSelectionBox->addItem(tr("Train GP Surrogate Model")); // SY - folloiwng PLoM
 
-   // theMethodSelectionBox->addItem(tr("Train GP Surrogate Model")); // SY - folloiwng PLoM
+    theMethodSelectionBox->addItem(tr("Train GP Surrogate Model")); // SY - folloiwng PLoM
     theMethodSelectionBox->addItem(tr("PLoM Model")); // PLoM, KZ
     //     theMethodSelectionBox->setMinimumWidth(600);
     int width = theMethodSelectionBox->minimumSizeHint().width();
