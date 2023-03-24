@@ -296,7 +296,7 @@ SimCenterUQResultsSurrogate::onSaveModelClicked()
 
     QString fileName = QFileDialog::getSaveFileName(this,
                                                    tr("Save Data"), lastPath+"/SimGpModel",
-                                                   tr("Pickle File (*.pkl)"));
+                                                   tr("Json File (*.json)"));
     QString fileName2 = fileName;
 
     fileName2.replace(".pkl",".json");
@@ -317,8 +317,8 @@ SimCenterUQResultsSurrogate::onSaveModelClicked()
     QDir dir(workflowDir2);
     dir.removeRecursively();
 
-    QFile::copy(pkldir, fileName);
     QFile::copy(jsondir, fileName2);
+    QFile::copy(pkldir, fileName);
     //QFile::copy(workingDir+QString("templatedir"), path+"templatedir_SIM");
 
 
