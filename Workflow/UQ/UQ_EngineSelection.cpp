@@ -85,14 +85,28 @@ UQ_EngineSelection::initialize()
     selectionText->setText("UQ Method");
 
     QComboBox *theMethodCombo = new QComboBox();
-    theMethodCombo->addItem("Forward Propagation");
-    theMethodCombo->addItem("Reliability Analysis");
-    theMethodCombo->addItem("Sensitivity Analysis");
-    theMethodCombo->addItem("Deterministic Calibration");
-    theMethodCombo->addItem("Bayesian Calibration");
-    theMethodCombo->addItem("Optimization");
-    theMethodCombo->addItem("Surrogate Modeling");
-    theMethodCombo->addItem("CustomUQ");
+
+
+
+    if (typeOption == ForwardOnly) {
+        theMethodCombo->addItem("Forward Propagation");
+    } else if (typeOption == ForwardReliabilitySensitivity) {
+        theMethodCombo->addItem("Forward Propagation");
+        theMethodCombo->addItem("Reliability Analysis");
+        theMethodCombo->addItem("Sensitivity Analysis");
+    } else  if (typeOption == All) {
+
+        theMethodCombo->addItem("Forward Propagation");
+        theMethodCombo->addItem("Reliability Analysis");
+        theMethodCombo->addItem("Sensitivity Analysis");
+        theMethodCombo->addItem("Deterministic Calibration");
+        theMethodCombo->addItem("Bayesian Calibration");
+        theMethodCombo->addItem("Optimization");
+        theMethodCombo->addItem("Surrogate Modeling");
+        theMethodCombo->addItem("CustomUQ");
+    }
+
+
     theMethodCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
     connect(theMethodCombo, SIGNAL(currentTextChanged(QString)), this, SLOT(updateEngine(QString)));
 

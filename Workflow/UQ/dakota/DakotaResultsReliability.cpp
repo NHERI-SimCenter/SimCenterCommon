@@ -172,7 +172,6 @@ int DakotaResultsReliability::processResults(QString &filenameResults, QString &
      fileError.close();
   }
 
-  /*
   if ((line.length() != 0) && (!line.contains("Warning: unit probability", Qt::CaseInsensitive))
                                && !line.contains("Warning: maximum back-tracking", Qt::CaseInsensitive)
                                && !line.contains("Warning: maximum Newton iterations ", Qt::CaseInsensitive)){
@@ -180,7 +179,6 @@ int DakotaResultsReliability::processResults(QString &filenameResults, QString &
       errorMessage(QString(QString("Error Running Dakota: ") + line));
       return 0;
   }
-  */
   if ((line.length() != 0)) {
 
           if (line.contains("-- Expected 1 function value(s) but found ", Qt::CaseInsensitive)) {
@@ -208,19 +206,19 @@ int DakotaResultsReliability::processResults(QString &filenameResults, QString &
 
   }
 
-  QString errMsg("");
-  this->extractErrorMsg( fileResultsInfo.absolutePath(),"dakota.err", "Dakota", errMsg);
+  //QString errMsg("");
+  //this->extractErrorMsg( fileResultsInfo.absolutePath(),"dakota.err", "Dakota", errMsg);
 
-  if (errMsg.length() != 0) {
-      errorMessage(errMsg);
-      return 0;
-  }
-
-//  QFileInfo filenameResultsInfo(filenameResults);
-//  if (!filenameResultsInfo.exists()) {
-//      errorMessage("No dakota.out file - dakota failed .. possibly no QoI");
+//  if (errMsg.length() != 0) {
+//      errorMessage(errMsg);
 //      return 0;
 //  }
+
+  QFileInfo filenameResultsInfo(filenameResults);
+  if (!filenameResultsInfo.exists()) {
+      errorMessage("No dakota.out file - dakota failed .. possibly no QoI");
+      return 0;
+  }
 
   // 
   // read data from file filename
