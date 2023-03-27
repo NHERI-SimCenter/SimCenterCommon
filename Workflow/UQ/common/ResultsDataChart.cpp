@@ -367,53 +367,57 @@ void ResultsDataChart::checkIfSurrogate(QString &filenameTab, bool &isSur, int &
     QString surTabPath = tempFolder.filePath("surrogateTab.out");
     QString surTabHeaderPath = tempFolder.filePath("surrogateTabHeader.out");
     QString surLog = tempFolder.filePath("surrogateLog.log");
+    QString multiModelString = QString("MultiModel-");
 
     QFileInfo surTabInfo(surTabPath);
     QFileInfo surTabHeaderInfo(surTabHeaderPath);
     QFileInfo surLogInfo(surLog);
 
 
-    if (surTabInfo.exists()) {
+    if (surTabInfo.exists() &&surTabHeaderInfo.exists()) {
             isSur=true;
-            //replace dakotaTab.out with surrogateTab.out
-            filenameTab = surTabPath;
     } else {
             isSur=false;
     }
 
     if (isSur) {
 
-        if(surTabHeaderInfo.exists()) {
-            //
-            // mearge header and values
-            //
+        //
+        // mearge header and values
+        //
 
-            std::ifstream tabResults(surTabPath.toStdString().c_str());
-            std::ifstream tabHeader(surTabHeaderPath.toStdString().c_str());
+        std::ifstream tabResults(surTabPath.toStdString().c_str());
+        std::ifstream tabHeader(surTabHeaderPath.toStdString().c_str());
 
-            std::vector<std::string> lines;
-            if (tabResults.is_open() && tabHeader.is_open()) {
-                std::string line;
-                while (std::getline(tabHeader, line)) {
-                    lines.push_back(line);
-                }
-                while (std::getline(tabResults, line)) {
-                    lines.push_back(line);
-                }
-                tabResults.close();
-                tabHeader.close();
-            } else {
-                errorMessage("ERROR: tab header file not found!");
-            }
-
-            std::ofstream tabResultsNew(surTabPath.toStdString().c_str());
-            if (tabResultsNew.is_open()) {
-                for (const std::string& line : lines) {
-                tabResultsNew << line << std::endl;
+        std::vector<std::string> lines;
+        if (tabResults.is_open() && tabHeader.is_open()) {
+            std::string line;
+            while (std::getline(tabHeader, line)) {
+                lines.push_back(line);
+                QString headers = QString::fromStdString(line);
+                if (headers.contains(multiModelString)){
+                    isSur = false;
+                    nRV = nRV+1;
+                    return;
                 }
             }
-            tabResultsNew.close();
+            while (std::getline(tabResults, line)) {
+                lines.push_back(line);
+            }
+            tabResults.close();
+            tabHeader.close();
+        } else {
+            errorMessage("ERROR: tab header file not found!");
         }
+
+        std::ofstream tabResultsNew(surTabPath.toStdString().c_str());
+        if (tabResultsNew.is_open()) {
+            for (const std::string& line : lines) {
+            tabResultsNew << line << std::endl;
+            }
+        }
+        tabResultsNew.close();
+
         //
         // get nrv
         //
@@ -425,6 +429,11 @@ void ResultsDataChart::checkIfSurrogate(QString &filenameTab, bool &isSur, int &
             nRV = strList[1].toInt(); // num RV
         }
 
+    }
+
+    if (isSur) {
+        //replace dakotaTab.out with surrogateTab.out
+        filenameTab = surTabPath;
     }
 }
 
