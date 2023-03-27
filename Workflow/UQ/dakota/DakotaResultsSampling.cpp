@@ -314,6 +314,7 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
     tabWidget->adjustSize();
 
 
+
     statusMessage(tr("Results Displayed"));
     return 0;
 }
