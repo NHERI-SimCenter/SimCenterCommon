@@ -84,9 +84,7 @@ UQ_EngineSelection::initialize()
     selectionText->setMinimumWidth(250);
     selectionText->setText("UQ Method");
 
-    QComboBox *theMethodCombo = new QComboBox();
-
-
+    theMethodCombo = new QComboBox();
 
     if (typeOption == ForwardOnly) {
         theMethodCombo->addItem("Forward Propagation");
@@ -165,23 +163,32 @@ UQ_EngineSelection::initialize()
 
     theCurrentEngine=theDakotaEngine;
 
-    connect(this, SIGNAL(selectionChangedSignal(QString)), this,
-            SLOT(engineSelectionChanged(QString)));
-
 //    connect(theDakotaEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
 //    connect(theSimCenterUQEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
 //    connect(theCustomEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
 //    connect(theUCSD_Engine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
 
-    connect(theDakotaEngine, SIGNAL(onUQ_EngineChanged(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
-    connect(theSimCenterUQEngine, SIGNAL(onUQ_EngineChanged(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
-    connect(theCustomEngine, SIGNAL(onUQ_EngineChanged(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
-    connect(theUCSD_Engine, SIGNAL(onUQ_EngineChanged(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
+//    connect(theDakotaEngine, SIGNAL(onUQ_EngineChanged(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
+//    connect(theSimCenterUQEngine, SIGNAL(onUQ_EngineChanged(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
+//    connect(theCustomEngine, SIGNAL(onUQ_EngineChanged(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
+//    connect(theUCSD_Engine, SIGNAL(onUQ_EngineChanged(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
 
-    connect(theDakotaEngine, SIGNAL(onUQ_MethodUpdated(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
-    connect(theSimCenterUQEngine, SIGNAL(onUQ_MethodUpdated(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
-    connect(theCustomEngine, SIGNAL(onUQ_MethodUpdated(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
-    connect(theUCSD_Engine, SIGNAL(onUQ_MethodUpdated(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
+//    connect(theDakotaEngine, SIGNAL(onUQ_MethodUpdated(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
+//    connect(theSimCenterUQEngine, SIGNAL(onUQ_MethodUpdated(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
+//    connect(theCustomEngine, SIGNAL(onUQ_MethodUpdated(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
+//    connect(theUCSD_Engine, SIGNAL(onUQ_MethodUpdated(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
+
+    connect(theDakotaEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineOrMethodChanged(QString)));
+    connect(theSimCenterUQEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineOrMethodChanged(QString)));
+    connect(theCustomEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineOrMethodChanged(QString)));
+    connect(theUCSD_Engine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineOrMethodChanged(QString)));
+
+    connect(theDakotaEngine, SIGNAL(onUQ_MethodUpdated(QString)), this, SLOT(engineOrMethodChanged(QString)));
+    connect(theSimCenterUQEngine, SIGNAL(onUQ_MethodUpdated(QString)), this, SLOT(engineOrMethodChanged(QString)));
+    connect(theCustomEngine, SIGNAL(onUQ_MethodUpdated(QString)), this, SLOT(engineOrMethodChanged(QString)));
+    connect(theUCSD_Engine, SIGNAL(onUQ_MethodUpdated(QString)), this, SLOT(engineOrMethodChanged(QString)));
+
+    connect(this, SIGNAL(selectionChangedSignal(QString)), this, SLOT(engineSelectionChanged(QString)));
 
 //    connect(theCurrentEngine, SIGNAL(onUQ_MethodUpdated(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
 //    connect(theCurrentEngine, SIGNAL(onUQ_EngineChanged(QString)), theEngineComboDisp, SLOT(setCurrentText(QString)));
@@ -190,6 +197,11 @@ UQ_EngineSelection::initialize()
     connect(theSimCenterUQEngine, SIGNAL(queryEVT()), this, SLOT(relayQueryEVT()));
 
     this->updateEngine();
+}
+
+void UQ_EngineSelection::engineOrMethodChanged(QString MethodName) {
+    theMethodCombo->setCurrentText(MethodName);
+    engineSelectionChanged(MethodName);
 }
 
 void UQ_EngineSelection::engineSelectionChanged(const QString &arg1)
@@ -205,8 +217,9 @@ void UQ_EngineSelection::engineSelectionChanged(const QString &arg1)
     } else {
       qDebug() << "ERROR .. UQ_EngineSelection selection .. type unknown: " << arg1;
     }
-    
     theCurrentEngine->setRV_Defaults();
+    
+    //theCurrentEngine->setRV_Defaults();
 
     connect(theCurrentEngine,SIGNAL(onNumModelsChanged(int)), this, SLOT(numModelsChanged(int)));
 

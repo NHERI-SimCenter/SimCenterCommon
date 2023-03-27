@@ -74,10 +74,12 @@ class UQ_EngineSelection : public  SimCenterAppSelection
   void updateEngine(const QString="Forward Propagation");
   void relayQueryEVT(void); // added KZ
   void setEventType(QString type); // added KZ
+  void engineOrMethodChanged(QString type); // added KZ
   
 private:
   void initialize();
   void createComboBox();
+  QComboBox *theMethodCombo;
   UQ_Engine *theCurrentEngine;
   UQ_Engine *thePreviousEngine;  
   UQ_Engine *theDakotaEngine;
