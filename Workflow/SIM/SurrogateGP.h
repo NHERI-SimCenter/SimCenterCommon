@@ -41,12 +41,15 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <SimCenterAppWidget.h>
 
+#include <QPushButton>
 #include <QGroupBox>
 #include <QVector>
 #include <QGridLayout>
 #include <QComboBox>
 #include <QRadioButton>
 #include <QLabel>
+#include <QCheckBox>
+#include "SurrogateEDP.h"
 
 class InputWidgetParameters;
 class RandomVariablesContainer;
@@ -75,9 +78,13 @@ public slots:
 private:
   void specialCopyMainScript(QString fileName, QStringList varNamesAndValues);
   double interpolateForGP(QVector<double> X, QVector<double> Y, double Xval);
-
+  SurrogateEDP* theSurrogateEDPs;
+  //QCheckBox *advanced;
+  QLabel *label2;
   QLineEdit *inputScript;
   QLineEdit *postprocessScript;
+  QLineEdit *tempDir;
+  QPushButton *choosePostprocessScript;
   QStringList varNamesAndValues;
   QWidget *femWidget;
   QGroupBox *groupBox;

@@ -42,6 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <UQ_Engine.h>
 
 class QComboBox;
+class QLabel;
 class QStackedWidget;
 class QCheckBox;
 class UQ_Results;
@@ -64,9 +65,10 @@ public:
     QString getProcessingScript();
     QString getMethodName();
     bool copyFiles(QString &fileDir);
-
+    bool fixMethod(QString Methodname);
 signals:
     void onUQ_EngineChanged(QString);
+    void onUQ_MethodUpdated(QString);
     void onNumModelsChanged(int newNum);
 
 public slots:
@@ -74,6 +76,7 @@ public slots:
     void numModelsChanged(int newNum);
 
 private:
+   QLabel * label;
    QComboBox   *theEngineSelectionBox;
    QStackedWidget *theStackedWidget;
    QCheckBox *parallelCheckBox, *removeWorkdirCheckBox;

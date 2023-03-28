@@ -541,7 +541,7 @@ void RandomVariable::uqEngineChanged(QString newUqEngineName, QString newClass) 
             mainLayout->removeItem(mainLayout->itemAt(idx));
             delete theDistribution;
             theDistribution = NULL;
-            typeChanged("PAR"); // redefine RV
+            typeChanged("Parameters"); // redefine RV
         }
         return;
 

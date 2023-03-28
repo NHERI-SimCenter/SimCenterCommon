@@ -1778,9 +1778,9 @@ MDOF_BuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
          randomVariables[text] = randomVariables[text]+numReferences;
      } else {
          randomVariables[text] = numReferences;
-         RandomVariable *theRV = new RandomVariable(QString("Uncertain"), text, "Dakota");
-	RandomVariablesContainer *theRandomVariablesContainer = RandomVariablesContainer::getInstance();	 
-         theRandomVariablesContainer->addRandomVariable(theRV);
+         //RandomVariable *theRV = new RandomVariable(QString("Uncertain"), text, "Dakota");
+         RandomVariablesContainer *theRandomVariablesContainer = RandomVariablesContainer::getInstance();
+         theRandomVariablesContainer->addRandomVariable(text);
      }
  }
 

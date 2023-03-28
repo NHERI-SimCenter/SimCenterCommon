@@ -69,13 +69,13 @@ SimCenterIntensityMeasureWidget::SimCenterIntensityMeasureWidget(QWidget* parent
     title->setMinimumWidth(250);
 
     QPushButton *addButton = new QPushButton();
-    addButton->setMinimumWidth(60);
-    addButton->setMaximumWidth(60);
+//    addButton->setMinimumWidth(60);
+//    addButton->setMaximumWidth(60);
     addButton->setText(tr("Add"));
 
     QPushButton *removeButton = new QPushButton();
-    removeButton->setMinimumWidth(60);
-    removeButton->setMaximumWidth(60);
+    //removeButton->setMinimumWidth(60);
+    //removeButton->setMaximumWidth(60);
     removeButton->setText(tr("Remove"));
 
     hLayout->addWidget(title);
@@ -179,7 +179,7 @@ void SimCenterIM::addGridField(void)
     {
         if (newIM.contains("Acceleration")&& newIM.contains("Spectral")) {
             minVal->setText("0.1");
-            maxVal->setText("5.0");
+            maxVal->setText("3.5");
         } else if (newIM.contains("Velocity")&& newIM.contains("Spectral")) {
             //minVal->setText("2.5");
             //maxVal->setText("100");
@@ -188,25 +188,25 @@ void SimCenterIM::addGridField(void)
             //maxVal->setText("100");
         }else if (newIM.contains("Acceleration") && newIM.contains("Ground")) {
             minVal->setText("0.001");
-            maxVal->setText("0.4");
+            maxVal->setText("0.3");
         } else if (newIM.contains("Velocity")&& newIM.contains("Ground")) {
             minVal->setText("0.25");
-            maxVal->setText("14");
+            maxVal->setText("10");
         } else if (newIM.contains("Displacement")&& newIM.contains("Ground")) {
             minVal->setText("0.03");
-            maxVal->setText("7");
+            maxVal->setText("4");
         } else if (newIM.contains("Duration") && newIM.contains("75")) {
             minVal->setText("2.5");
-            maxVal->setText("40");
+            maxVal->setText("30");
         } else if (newIM.contains("Duration") && newIM.contains("95")) {
             minVal->setText("2.5");
-            maxVal->setText("80");
+            maxVal->setText("60");
         } else if (newIM.contains("SaRatio")) {
             minVal->setText("0.5");
-            maxVal->setText("1.5");
+            maxVal->setText("1.2");
         } else if (newIM.contains("Arias")) {
             minVal->setText("1");
-            maxVal->setText("10000");
+            maxVal->setText("5000");
         }
     });
 

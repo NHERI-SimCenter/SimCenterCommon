@@ -39,6 +39,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 // Additional edits: Michael Gardner
 
+#include "SectionTitle.h"
 #include "UQ_EngineSelection.h"
 #include <GoogleAnalytics.h>
 #include <NoneWidget.h>
@@ -59,81 +60,183 @@ UQ_EngineSelection::UQ_EngineSelection(bool includeNone,
 				       UQ_EngineType type,
 				       QWidget *parent)
   :SimCenterAppSelection(QString("UQ Application"), assetType, QString("UQ_Method"), QString(), parent),
-    theCurrentEngine(0)
+    theCurrentEngine(0), includeNoneOption(includeNone), typeOption(type)
 {
-  this->initialize(includeNone, type);
+  this->initialize();
 }
 
 UQ_EngineSelection::UQ_EngineSelection(UQ_EngineType type,
 				       QWidget *parent)
   :SimCenterAppSelection(QString("UQ Engine"), QString("UQ"), QString("UQ_Method"), QString(), parent),
-    theCurrentEngine(0)
+    theCurrentEngine(0), includeNoneOption(false), typeOption(type)
 {
-  this->initialize(false, type);
+  this->initialize();
 }
 
 void
-UQ_EngineSelection::initialize(bool includeNone, UQ_EngineType type)
+UQ_EngineSelection::initialize()
 {
-    theDakotaEngine = new DakotaEngine(type);
-    theSimCenterUQEngine = new SimCenterUQEngine(type);
-    theCustomEngine = new UQ_JsonEngine(type);
-    theUCSD_Engine = new UCSD_Engine(type);
-    theUQpyEngine = new UQpyEngine(type);
+    //
+    // In fact, we select the method first.
+    //
+
+    SectionTitle * selectionText = new SectionTitle();
+    selectionText->setMinimumWidth(250);
+    selectionText->setText("UQ Method");
+
+    theMethodCombo = new QComboBox();
+
+    if (typeOption == ForwardOnly) {
+        theMethodCombo->addItem("Forward Propagation");
+    } else if (typeOption == ForwardReliabilitySensitivity) {
+        theMethodCombo->addItem("Forward Propagation");
+        theMethodCombo->addItem("Reliability Analysis");
+        theMethodCombo->addItem("Sensitivity Analysis");
+    } else if (typeOption == ForwardReliabilitySensitivitySurrogate) {
+        theMethodCombo->addItem("Forward Propagation");
+        theMethodCombo->addItem("Reliability Analysis");
+        theMethodCombo->addItem("Sensitivity Analysis");
+        theMethodCombo->addItem("Surrogate Modeling");
+    } else  if (typeOption == All) {
+        theMethodCombo->addItem("Forward Propagation");
+        theMethodCombo->addItem("Reliability Analysis");
+        theMethodCombo->addItem("Sensitivity Analysis");
+        theMethodCombo->addItem("Deterministic Calibration");
+        theMethodCombo->addItem("Bayesian Calibration");
+        theMethodCombo->addItem("Optimization");
+        theMethodCombo->addItem("Surrogate Modeling");
+        theMethodCombo->addItem("CustomUQ");
+    } else {
+        theMethodCombo->addItem("Forward Propagation");
+    }
+
+    if (includeNoneOption) {
+        theMethodCombo->addItem("None");
+    }
+
+    theMethodCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    connect(theMethodCombo, SIGNAL(currentTextChanged(QString)), this, SLOT(updateEngineComboDisp(QString)));
+
+    QHBoxLayout * theMethodLayout = new QHBoxLayout();
+    theMethodLayout -> addWidget(selectionText);
+    theMethodLayout -> addWidget(theMethodCombo);
+    theMethodLayout -> addStretch();
+
+    auto *myLayout = dynamic_cast<QVBoxLayout*> (this->layout());
+    myLayout->insertLayout(0,theMethodLayout);
+
+
+    //
+    // Then we select the engine
+    //
+
+    QLabel * engineLabel = new QLabel(QString("  UQ Engine"));
+    theEngineComboDisp = new QComboBox();
+    engineLabel->setMinimumWidth(200);
+    theEngineComboDisp->setMinimumWidth(500);
+    QHBoxLayout * theEngineLayout = new QHBoxLayout();
+    theEngineLayout -> addWidget(engineLabel);
+    theEngineLayout -> addWidget(theEngineComboDisp);
+    theEngineLayout -> addStretch();
+    myLayout->insertLayout(1,theEngineLayout);
+
+    connect(theEngineComboDisp, &QComboBox::currentTextChanged, this, [=](QString engineName){
+              this->selectComponent(engineName);
+          });
+    //connect(theEngineComboDisp, SIGNAL(currentTextChanged(QString)), this, SLOT(selectComponent(QString)));
+    //connect(theEngineComboDisp, SIGNAL(currentTextChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
+    connect(this, SIGNAL(selectionChangedSignal(QString)), this, SLOT(engineSelectionChanged(QString)));
+    //
+    // This is the all the list of engines
+    //
+
+    this ->hideHeader();
+
+    theDakotaEngine = new DakotaEngine(typeOption);
+    theSimCenterUQEngine = new SimCenterUQEngine(typeOption);
+    theCustomEngine = new UQ_JsonEngine(typeOption);
+    theUCSD_Engine = new UCSD_Engine(typeOption);
+    theUQpyEngine = new UQpyEngine(typeOption);
 
     this->addComponent(QString("Dakota"), QString("Dakota-UQ"), theDakotaEngine);
     this->addComponent(QString("SimCenterUQ"), QString("SimCenter-UQ"), theSimCenterUQEngine);
-    this->addComponent(QString("CustomUQ"), QString("Custom-UQ"), theCustomEngine);    
-    if (type == All)
+    this->addComponent(QString("CustomUQ"), QString("Custom-UQ"), theCustomEngine);
+    if (typeOption == All)
     {
       this->addComponent(QString("UCSD-UQ"), QString("UCSD-UQ"), theUCSD_Engine);
-      this->addComponent(QString("UQpy"), QString("UQpy"), theUQpyEngine);
+      //this->addComponent(QString("UQpy"), QString("UQpy"), theUQpyEngine);
     }
 
-    if (includeNone) {
+    if (includeNoneOption) {
       SimCenterAppWidget *noneWidget = new NoneWidget(this);
       this->addComponent(QString("None"), QString("None"), noneWidget);
     }
 
     theCurrentEngine=theDakotaEngine;
-    thePreviousEngine=theCurrentEngine;
 
-    connect(this, SIGNAL(selectionChangedSignal(QString)), this,
-            SLOT(engineSelectionChanged(QString)));
+    connect(theDakotaEngine, SIGNAL(onUQ_MethodUpdated(QString)), this, SLOT(methodSelectionChanged(QString)));
+    connect(theSimCenterUQEngine, SIGNAL(onUQ_MethodUpdated(QString)), this, SLOT(methodSelectionChanged(QString)));
+    connect(theCustomEngine, SIGNAL(onUQ_MethodUpdated(QString)), this, SLOT(methodSelectionChanged(QString)));
+    connect(theUCSD_Engine, SIGNAL(onUQ_MethodUpdated(QString)), this, SLOT(methodSelectionChanged(QString)));
 
     connect(theDakotaEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
     connect(theSimCenterUQEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
     connect(theCustomEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
     connect(theUCSD_Engine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
 
+//    connect(theDakotaEngine, SIGNAL(onUQ_MethodUpdated(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
+//    connect(theSimCenterUQEngine, SIGNAL(onUQ_MethodUpdated(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
+//    connect(theCustomEngine, SIGNAL(onUQ_MethodUpdated(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
+//    connect(theUCSD_Engine, SIGNAL(onUQ_MethodUpdated(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
+
+//    connect(theDakotaEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(methodSelectionChanged(QString)));
+//    connect(theSimCenterUQEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(methodSelectionChanged(QString)));
+//    connect(theCustomEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(methodSelectionChanged(QString)));
+//    connect(theUCSD_Engine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(methodSelectionChanged(QString)));
+
+
+
+//    connect(theCurrentEngine, SIGNAL(onUQ_MethodUpdated(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
+//    connect(theCurrentEngine, SIGNAL(onUQ_EngineChanged(QString)), theEngineComboDisp, SLOT(setCurrentText(QString)));
+
     // connect queryEVT
     connect(theSimCenterUQEngine, SIGNAL(queryEVT()), this, SLOT(relayQueryEVT()));
+
+    this->updateEngineComboDisp();
 }
 
-void UQ_EngineSelection::engineSelectionChanged(const QString &arg1)
+void UQ_EngineSelection::methodSelectionChanged(QString MethodName) {
+    theMethodCombo->setCurrentText(MethodName);
+    theCurrentEngine->setRV_Defaults();
+    //engineSelectionChanged(MethodName);
+}
+
+void UQ_EngineSelection::engineSelectionChanged(QString arg1)
 {
+    engineName =  arg1;
     if (arg1 == "Dakota" || arg1 == "Dakota-UQ") {
         theCurrentEngine = theDakotaEngine;
-        //emit onUQ_EngineChanged(true);
     } else if (arg1 == "SimCenterUQ" || arg1 == "SimCenterUQ-UQ") {
         theCurrentEngine = theSimCenterUQEngine;
-        //emit onUQ_EngineChanged(true);
     } else if (arg1 == "CustomUQ") {
-      theCurrentEngine = theCustomEngine;
-      //emit onUQ_EngineChanged(false);
-      
+      theCurrentEngine = theCustomEngine;      
     } else if (arg1 == "UCSD-UQ") {
-
       theCurrentEngine = theUCSD_Engine;
-      //emit onUQ_EngineChanged(true);
-
     } else {
       qDebug() << "ERROR .. UQ_EngineSelection selection .. type unknown: " << arg1;
     }
-    
+
     theCurrentEngine->setRV_Defaults();
 
     connect(theCurrentEngine,SIGNAL(onNumModelsChanged(int)), this, SLOT(numModelsChanged(int)));
+
+    QString currentEngine = this->getCurrentComboName();
+    int idx = theEngineComboDisp->findText(currentEngine);
+    if (idx!=-1) {
+        theEngineComboDisp->setCurrentIndex(idx);
+    } else {
+        theEngineComboDisp->setCurrentIndex(0);
+    }
 
     /* FMK
     if (thePreviousEngine->getMethodName() == "surrogate")
@@ -144,14 +247,43 @@ void UQ_EngineSelection::engineSelectionChanged(const QString &arg1)
     }
     */
     
-    thePreviousEngine = theCurrentEngine;
+    //thePreviousEngine = theCurrentEngine;
 }
 
+
+void UQ_EngineSelection::updateEngineComboDisp(const QString methodName)
+{
+
+    //this->createComboBox();
+    //QString currentEngine = theEngineComboDisp->currentText();
+    QString currentEngine = this->getCurrentComboName();
+    theEngineComboDisp->clear();
+    int numItems = this->count();
+    for(int i=0; i<numItems;i++) {
+        QString engineName = this->getComboName(i);
+        if (engineName!=QString("None")) {
+            auto myWidget = dynamic_cast<UQ_Engine*> (this->getComponent(engineName));
+            if (myWidget->fixMethod(methodName)){
+                theEngineComboDisp->addItem(engineName); // Display it on the combobox
+               // this->removeItem(engineName);
+            }
+        }
+    }
+
+    int idx = theEngineComboDisp->findText(currentEngine);
+    if (idx!=-1) {
+        theEngineComboDisp->setCurrentIndex(idx);
+    } else {
+        theEngineComboDisp->setCurrentIndex(0);
+    }
+
+}
 
 void
 UQ_EngineSelection::setRV_Defaults() {
     return theCurrentEngine->setRV_Defaults();
 }
+
 
 UQ_Results *
 UQ_EngineSelection::getResults(void) {

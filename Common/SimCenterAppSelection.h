@@ -41,6 +41,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "SimCenterAppWidget.h"
 #include <QList>
+#include "SectionTitle.h"
 
 class QStackedWidget;
 class QComboBox;
@@ -62,11 +63,18 @@ public:
     bool copyFiles(QString &destName);
 
     void clear(void);
+    void clearSelections();
     bool addComponent(QString comboBoxText, QString appNameText, SimCenterAppWidget *);
     SimCenterAppWidget *getComponent(QString text);
     SimCenterAppWidget *getCurrentSelection(void);
     QString getCurrentSelectionName(void);
     bool selectComponent(const QString text);
+
+    void removeItem(QString itemName);
+    QString getComboName(int index);
+    QString getCurrentComboName(void);
+    int count();
+    void hideHeader();
 
 public slots:
     void selectionChangedSlot(const QString &);
@@ -82,6 +90,7 @@ protected:
 private:
     virtual bool displayComponent(QString text);
     void initializeWidget(QString label);
+
 
     QStackedWidget* theStackedWidget;
     QComboBox* theSelectionCombo;
@@ -99,6 +108,8 @@ private:
     QString assetType;
 
     bool viewableStatus;
+
+    SectionTitle *selectionText;
 };
 
 #endif // SimCenterAppSelection_H

@@ -190,28 +190,38 @@ int DakotaResultsSensitivity::processResults(QString &filenameResults, QString &
     //
 
     QFileInfo fileTabInfo(filenameTab);
-    QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
 
-    QFileInfo filenameErrorInfo(filenameErrorString);
-    if (!filenameErrorInfo.exists()) {
-        errorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applications failed with inputs provided");
+    QString errMsg("");
+    this->extractErrorMsg( fileTabInfo.absolutePath(),"dakota.err", "Dakota", errMsg);
+
+    if (errMsg.length() != 0) {
+        errorMessage(errMsg);
         return 0;
     }
-    QFile fileError(filenameErrorString);
-    QString line("");
-    if (fileError.open(QIODevice::ReadOnly)) {
-        QTextStream in(&fileError);
-        while (!in.atEnd()) {
-            line += in.readLine();
-        }
-        fileError.close();
-    }
 
-    if (line.length() != 0) {
-        qDebug() << line.length() << " " << line;
-        errorMessage(QString(QString("Error Running Dakota: ") + line));
-        return 0;
-    }
+
+//    QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
+
+//    QFileInfo filenameErrorInfo(filenameErrorString);
+//    if (!filenameErrorInfo.exists()) {
+//        errorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applications failed with inputs provided");
+//        return 0;
+//    }
+//    QFile fileError(filenameErrorString);
+//    QString line("");
+//    if (fileError.open(QIODevice::ReadOnly)) {
+//        QTextStream in(&fileError);
+//        while (!in.atEnd()) {
+//            line += in.readLine();
+//        }
+//        fileError.close();
+//    }
+
+//    if (line.length() != 0) {
+//        qDebug() << line.length() << " " << line;
+//        errorMessage(QString(QString("Error Running Dakota: ") + line));
+//        return 0;
+//    }
 
     QFileInfo filenameTabInfo(filenameTab);
     if (!filenameTabInfo.exists()) {
@@ -219,15 +229,15 @@ int DakotaResultsSensitivity::processResults(QString &filenameResults, QString &
         return 0;
     }
 
-    // If surrogate model is used, display additional info.
-    QDir tempFolder(filenameTabInfo.absolutePath());
-    QFileInfo surrogateTabInfo(tempFolder.filePath("surrogateTab.out"));
-    if (surrogateTabInfo.exists()) {
-        filenameTab = tempFolder.filePath("surrogateTab.out");
-        isSurrogate = true;
-    } else {
-        isSurrogate = false;
-    }
+    // // If surrogate model is used, display additional info.
+    // QDir tempFolder(fileTabInfo.absolutePath());
+    // QFileInfo surrogateTabInfo(tempFolder.filePath("surrogateTab.out"));
+    // if (surrogateTabInfo.exists()) {
+    //     filenameTab = tempFolder.filePath("surrogateTab.out");
+    //     isSurrogate = true;
+    // } else {
+    //     isSurrogate = false;
+    // }
 
     //
     // create summary, a QWidget for summary data, the EDP name, mean, stdDev, kurtosis info
@@ -339,7 +349,8 @@ Node_2_Disp Sobol' indices:
 
 
     //theDataTable = new ResultsDataChart(filenameTab);
-     theDataTable = new ResultsDataChart(filenameTab, isSurrogate, theRVs->getNumRandomVariables());
+    // theDataTable = new ResultsDataChart(filenameTab, isSurrogate, 0);
+    theDataTable = new ResultsDataChart(filenameTab, theRVs->getNumRandomVariables());
 
 
     //
@@ -509,7 +520,7 @@ DakotaResultsSensitivity::outputToJSON(QJsonObject &jsonObject)
     bool result = true;
 
     jsonObject["resultType"]=QString(tr("DakotaResultsSensitivity"));
-    jsonObject["isSurrogate"]=isSurrogate;
+    //jsonObject["isSurrogate"]=isSurrogate;
 
     if (theDataTable == NULL)
         return true;
@@ -636,13 +647,13 @@ DakotaResultsSensitivity::inputFromJSON(QJsonObject &jsonObject)
 
     //theDataTable = new ResultsDataChart(spreadsheetValue.toObject());
 
-    if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
-        isSurrogate=jsonObject["isSurrogate"].toBool();
-    } else {
-        isSurrogate=false;
-    }
+//    if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
+//        isSurrogate=jsonObject["isSurrogate"].toBool();
+//    } else {
+//        isSurrogate=false;
+//    }
 
-    theDataTable = new ResultsDataChart(spreadsheetValue.toObject(), isSurrogate, theRVs->getNumRandomVariables());
+    theDataTable = new ResultsDataChart(spreadsheetValue.toObject());
 
     tabWidget->addTab(sa,tr("Summary"));
     tabWidget->addTab(theDataTable, tr("Data Values"));

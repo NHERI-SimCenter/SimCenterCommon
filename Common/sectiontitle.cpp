@@ -67,6 +67,18 @@ void SectionTitle::setTitle(QString s)
     sectionLabel->setText(s);
 }
 
+void SectionTitle::toPlainText(void)
+{
+    QString titleString = sectionLabel->text();
+    sectionLayout->removeWidget(sectionLabel);
+    sectionLayout->removeWidget(line);
+    sectionLabel->deleteLater();
+    line->deleteLater();
+
+    sectionLayout->addWidget(new QLabel(titleString),0,0);
+
+}
+
 void SectionTitle::addWidget(QWidget *theWidget) {
     sectionLayout->addWidget(theWidget, 0, 1);
 }

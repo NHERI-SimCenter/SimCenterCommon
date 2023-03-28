@@ -329,13 +329,22 @@ int DakotaResultsBayesianCalibration::processResults(QString &filenameResults, Q
     //
 
     QFileInfo fileTabInfo(filenameTab);
-    QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
 
-    QFileInfo filenameErrorInfo(filenameErrorString);
-    if (!filenameErrorInfo.exists()) {
-        errorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applications failed with inputs provided");
-	return 0;
+    QString errMsg("");
+    this->extractErrorMsg( fileTabInfo.absolutePath(),"dakota.err", "Dakota", errMsg);
+
+    if (errMsg.length() != 0) {
+        errorMessage(errMsg);
+        return 0;
     }
+
+//    QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
+
+//    QFileInfo filenameErrorInfo(filenameErrorString);
+//    if (!filenameErrorInfo.exists()) {
+//        errorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applications failed with inputs provided");
+//	return 0;
+//    }
 
 
     QFileInfo filenameTabInfo(filenameTab);
@@ -345,20 +354,20 @@ int DakotaResultsBayesianCalibration::processResults(QString &filenameResults, Q
     }
 
 
-    QFile fileError(filenameErrorString);
-    QString line("");
-    if (fileError.open(QIODevice::ReadOnly)) {
-       QTextStream in(&fileError);
-       while (!in.atEnd()) {
-          line += in.readLine();
-       }
-       fileError.close();
-    }
+//    QFile fileError(filenameErrorString);
+//    QString line("");
+//    if (fileError.open(QIODevice::ReadOnly)) {
+//       QTextStream in(&fileError);
+//       while (!in.atEnd()) {
+//          line += in.readLine();
+//       }
+//       fileError.close();
+//    }
 
-    if (line.length() != 0) {
-        errorMessage(QString(QString("Error Running Dakota: ") + line));
-        return 0;
-    }
+//    if (line.length() != 0) {
+//        errorMessage(QString(QString("Error Running Dakota: ") + line));
+//        return 0;
+//    }
 
     //
     // open Dakota output file
