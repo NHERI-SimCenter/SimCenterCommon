@@ -488,8 +488,20 @@ void SimCenterAppSelection::removeItem(QString itemName) {
 };
 
 
-QString SimCenterAppSelection::getComponentName(int index) {
+QString SimCenterAppSelection::getComboName(int index) {
     return theComboNames[index];
+}
+
+QString SimCenterAppSelection::getCurrentComboName(void) {
+    auto idx = theComponents.indexOf(theCurrentSelection);
+
+    QString comboName;
+    if(idx != -1)
+        comboName = theComboNames[idx];
+    else
+        comboName = QString("");
+
+    return comboName;
 }
 
 int SimCenterAppSelection::count() {

@@ -153,6 +153,7 @@ UCSD_Engine::inputFromJSON(QJsonObject &jsonObject) {
     QString selection = jsonObject["uqType"].toString();
 
     emit onUQ_MethodUpdated("Bayesian Calibration");
+    emit onUQ_EngineChanged("UCSD-UQ");
 
     int index = theMethodSelection->findText(selection);
     theMethodSelection->setCurrentIndex(index);

@@ -208,7 +208,7 @@ void DakotaEngine::engineSelectionChanged(const QString &arg1)
 
     // emit signal if engine changed
     //if (theCurrentEngine != theOldEngine)
-    emit onUQ_EngineChanged("Dakota");
+    emit onUQ_MethodUpdated(arg1);
 }
 
 
@@ -246,6 +246,7 @@ DakotaEngine::inputFromJSON(QJsonObject &jsonObject) {
     } 
 
     emit onUQ_MethodUpdated(uqMethod);
+    emit onUQ_EngineChanged("Dakota");
 
     bool doParallel = true;
     if (jsonObject.contains("parallelExecution"))

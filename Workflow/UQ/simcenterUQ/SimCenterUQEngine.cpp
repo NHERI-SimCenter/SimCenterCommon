@@ -175,7 +175,13 @@ void SimCenterUQEngine::methodSelectionChanged(const QString &arg1)
 
     // emit signal if engine changed
     //if (theCurrentEngine != theOldEngine)
-    emit onUQ_EngineChanged("SimCenterUQ");
+
+
+    if ((arg1==QString("Train GP Surrogate Model")) || (arg1==QString("PLoM Model")))
+        emit onUQ_MethodUpdated(QString("Surrogate Modeling"));
+    else
+        emit onUQ_MethodUpdated(arg1);
+
 }
 
 int
@@ -200,6 +206,8 @@ SimCenterUQEngine::inputFromJSON(QJsonObject &jsonObject) {
         emit onUQ_MethodUpdated(QString("Surrogate Modeling"));
     else
         emit onUQ_MethodUpdated(selection);
+
+    emit onUQ_EngineChanged("SimCenterUQ");
 
     int index = theMethodSelectionBox->findText(selection);
     theMethodSelectionBox->setCurrentIndex(index);

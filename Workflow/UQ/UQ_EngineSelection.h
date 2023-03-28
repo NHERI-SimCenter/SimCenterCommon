@@ -70,11 +70,11 @@ class UQ_EngineSelection : public  SimCenterAppSelection
 
  public slots:
 
-  void engineSelectionChanged(const QString &);
-  void updateEngine(const QString="Forward Propagation");
+  void engineSelectionChanged(QString eng);
+  void updateEngineComboDisp(const QString="Forward Propagation");
   void relayQueryEVT(void); // added KZ
   void setEventType(QString type); // added KZ
-  void engineOrMethodChanged(QString type); // added KZ
+  void methodSelectionChanged(QString type);
   
 private:
   void initialize();
@@ -89,6 +89,7 @@ private:
   UQ_Engine *thefilterEngine;
   UQ_Engine *theCustomEngine;
   bool includeNoneOption;
+  QString engineName;
   UQ_EngineType typeOption;
 
   QComboBox *theEngineComboDisp;

@@ -367,7 +367,7 @@ void ResultsDataChart::checkIfSurrogate(QString &filenameTab, bool &isSur, int &
     QString surTabPath = tempFolder.filePath("surrogateTab.out");
     QString surTabHeaderPath = tempFolder.filePath("surrogateTabHeader.out");
     QString surLog = tempFolder.filePath("surrogateLog.log");
-    QString multiModelString = QString("MultiModel-");
+    std::string multiModelString = "MultiModel-";
 
     QFileInfo surTabInfo(surTabPath);
     QFileInfo surTabHeaderInfo(surTabHeaderPath);
@@ -394,10 +394,18 @@ void ResultsDataChart::checkIfSurrogate(QString &filenameTab, bool &isSur, int &
             std::string line;
             while (std::getline(tabHeader, line)) {
                 lines.push_back(line);
-                QString headers = QString::fromStdString(line);
-                if (headers.contains(multiModelString)){
+
+                // count the number of multi model RVs
+                int occurrences = 0;
+                std::string::size_type pos = 0;
+                while ((pos = line.find(multiModelString, pos )) != std::string::npos) {
+                       ++ occurrences;
+                       pos += multiModelString.length();
+                }
+
+                if (occurrences>0){
                     isSur = false;
-                    nRV = nRV+1;
+                    nrv = nrv + occurrences;
                     return;
                 }
             }

@@ -71,7 +71,8 @@ public:
     bool selectComponent(const QString text);
 
     void removeItem(QString itemName);
-    QString getComponentName(int index);
+    QString getComboName(int index);
+    QString getCurrentComboName(void);
     int count();
     void hideHeader();
 
