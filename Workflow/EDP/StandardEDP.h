@@ -1,5 +1,5 @@
-#ifndef SURROGATE_EDP_H
-#define SURROGATE_EDP_H
+#ifndef STANDARD_EDP_H
+#define STANDARD_EDP_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -71,4 +71,4 @@ private:
 
 };
 
-#endif // SURROGATE_EDP_H
+#endif // STANDARD_EDP_H
