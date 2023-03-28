@@ -437,7 +437,7 @@ SurrogateDoEInputWidget::updateSimNumber(QString a)
 
 
     if (!(numSampToBeRepl->text()=="") && ((numSampToBeRepl->text().toInt()<2) || (numSampToBeRepl->text().toInt() > numSamples->text().toInt()))) {
-        repMsg -> setText("The number of samples to be replicated (A) should be greater than 1 and smaller than  \n the number of the unique samples (" + numSamples->text() +"), a value greater than 4×#RV is recommended");
+        repMsg -> setText("The number of samples to be replicated (A) is recommended to be greater than 1 and smaller than  \n the number of the unique samples (" + numSamples->text() +"), a value greater than 4×#RV is highly recommended");
         repMsg -> setStyleSheet({"color: red"});
         return;
     }
