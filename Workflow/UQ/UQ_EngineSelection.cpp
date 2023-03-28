@@ -110,6 +110,9 @@ UQ_EngineSelection::initialize()
         theMethodCombo->addItem("Forward Propagation");
     }
 
+    if (includeNoneOption) {
+        theMethodCombo->addItem("None");
+    }
 
     theMethodCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
     connect(theMethodCombo, SIGNAL(currentTextChanged(QString)), this, SLOT(updateEngineComboDisp(QString)));
@@ -140,7 +143,9 @@ UQ_EngineSelection::initialize()
     connect(theEngineComboDisp, &QComboBox::currentTextChanged, this, [=](QString engineName){
               this->selectComponent(engineName);
           });
-
+    //connect(theEngineComboDisp, SIGNAL(currentTextChanged(QString)), this, SLOT(selectComponent(QString)));
+    //connect(theEngineComboDisp, SIGNAL(currentTextChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
+    connect(this, SIGNAL(selectionChangedSignal(QString)), this, SLOT(engineSelectionChanged(QString)));
     //
     // This is the all the list of engines
     //
@@ -256,10 +261,12 @@ void UQ_EngineSelection::updateEngineComboDisp(const QString methodName)
     int numItems = this->count();
     for(int i=0; i<numItems;i++) {
         QString engineName = this->getComboName(i);
-        auto myWidget = dynamic_cast<UQ_Engine*> (this->getComponent(engineName));
-        if (myWidget->fixMethod(methodName)){
-            theEngineComboDisp->addItem(engineName); // Display it on the combobox
-           // this->removeItem(engineName);
+        if (engineName!=QString("None")) {
+            auto myWidget = dynamic_cast<UQ_Engine*> (this->getComponent(engineName));
+            if (myWidget->fixMethod(methodName)){
+                theEngineComboDisp->addItem(engineName); // Display it on the combobox
+               // this->removeItem(engineName);
+            }
         }
     }
 
