@@ -45,7 +45,7 @@ class UQ_Results;
 class RandomVariablesContainer;
 class UQ_Method;
 
-enum UQ_EngineType {All, ForwardOnly, ForwardReliabilitySensitivity};
+enum UQ_EngineType {All, ForwardOnly, ForwardReliabilitySensitivity, ForwardReliabilitySensitivitySurrogate};
 
 class UQ_Engine : public SimCenterAppWidget
 {
@@ -60,12 +60,14 @@ public:
     virtual UQ_Results *getResults(void) = 0;
     virtual QString getProcessingScript();
     virtual QString getMethodName();
+    virtual bool fixMethod(QString);
     // virtual void setMethod(QString &methodName);
     virtual void setEventType(QString type);
 
 signals:
     void onNumModelsChanged(int numModels);
-
+    void onUQ_MethodUpdated(QString);
+    void onUQ_EngineChanged(QString);
 public slots:
 
 private:

@@ -285,7 +285,15 @@ RandomVariablesContainer::getRVcorr()
 void
 RandomVariablesContainer::addRandomVariable(QString &varName) {
 
-    NormalDistribution *theDistribution = new NormalDistribution();
+    RandomVariableDistribution *theDistribution;
+    if (randomVariableClass==QString("Design")) {
+        theDistribution = new ContinuousDesignDistribution();
+    } else if (randomVariableClass==QString("Uniform")) {
+        theDistribution = new UniformDistribution();
+    } else {
+        theDistribution = new NormalDistribution();
+    }
+
     RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution, uqEngineName);
 
     this->addRandomVariable(theRV);

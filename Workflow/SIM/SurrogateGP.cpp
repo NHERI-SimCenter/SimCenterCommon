@@ -59,6 +59,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 //#include <surrogateGpParser.h>
 #include <RandomVariablesContainer.h>
+#include "SurrogateEDP.h"
 
 
 surrogateGP::surrogateGP(QWidget *parent)
@@ -72,11 +73,11 @@ surrogateGP::surrogateGP(QWidget *parent)
     QPushButton *chooseMS_Button = new QPushButton();
     chooseMS_Button->setText(tr("Choose"));
     connect(chooseMS_Button, &QPushButton::clicked, this, [this](){
-        QString fileName=QFileDialog::getOpenFileName(this,tr("Open File"),
+        QString mainScriptName=QFileDialog::getOpenFileName(this,tr("Open File"),
                               "",
                               "Json files (*.json)");
-        if(!fileName.isEmpty()) {
-            this->setMainScript(fileName);
+        if(!mainScriptName.isEmpty()) {
+            this->setMainScript(mainScriptName);
         }
     });
     //connect(inputScript, SIGNAL(textEdited(QString)),SLOT(showGpOptions(QString)));
@@ -86,10 +87,10 @@ surrogateGP::surrogateGP(QWidget *parent)
     layout->addWidget(inputScript,0,1);
     layout->addWidget(chooseMS_Button,0,2);
 
-    QLabel *label2 = new QLabel("SurrogateGP Model (.pkl)");
+    label2 = new QLabel("SurrogateGP Model (.pkl)");
     postprocessScript = new QLineEdit;
     postprocessScript->setPlaceholderText("");
-    QPushButton *choosePostprocessScript = new QPushButton();
+    choosePostprocessScript = new QPushButton();
     choosePostprocessScript->setText(tr("Choose"));
     connect(choosePostprocessScript, &QPushButton::clicked, this, [this](){
       QString selectedFile = QFileDialog::getOpenFileName(this,
@@ -104,23 +105,85 @@ surrogateGP::surrogateGP(QWidget *parent)
 
     groupBox = new QGroupBox("Options");
     QGridLayout *optionsLayout = new QGridLayout(groupBox);
+
+    QCheckBox *advanced = new QCheckBox("Advanced Options");
+    QGroupBox * advancedOptions = new QGroupBox();
+    QVBoxLayout * advancedLayout = new QVBoxLayout(advancedOptions);
+
+    // Set Threshold value
     QHBoxLayout * labelVarThresLayout = new QHBoxLayout();
     thresVal = new QLineEdit("0");
     thresVal->setMaximumWidth(100);
     thresVal->setValidator(new QDoubleValidator);
     connect(thresVal,SIGNAL(textEdited(QString)), this, SLOT(updateMessage(QString)));
-
     labelVarThresLayout->addWidget( new QLabel("Maximum Allowable Normalized Variance  "));
     labelVarThresLayout->addWidget(thresVal);
     labelVarThresLayout->addStretch(1);
-    QLabel *optionsLabel = new QLabel("When surrogate model gives imprecise prediction at certain sample locations");
-    option1Button = new QRadioButton("Stop Analysis");
-    option2Button = new QRadioButton("Ignore and Continue");
-    option3Button = new QRadioButton("Run Exact FEM Simulation");
+
     labelThresMsg = new QLabel(" ");
     labelThresMsg->setStyleSheet("color: red");
-    option2Button->setChecked(true);
+    advancedLayout->addLayout(labelVarThresLayout);
+    advancedLayout->addWidget(labelThresMsg);
 
+    // Threshold exceeded
+    QLabel *optionsLabel = new QLabel("When surrogate model gives imprecise prediction at certain sample locations");
+    option1Button = new QRadioButton("Stop Analysis");
+    option2Button = new QRadioButton("Give warning and Continue (recommended)");
+    option3Button = new QRadioButton("Run Exact FEM Simulation");
+    option2Button->setChecked(true);
+    femWidget = new QWidget();
+
+    QHBoxLayout *tmpDirLayout = new QHBoxLayout(femWidget);
+    QLabel *labelTempDir = new QLabel("Template Directory");
+    tempDir = new QLineEdit;
+    QPushButton *chooseTD_Button = new QPushButton();
+    chooseTD_Button->setText(tr("Choose"));
+    connect(chooseTD_Button, &QPushButton::clicked, this, [this](){
+        QString mainScriptName=QFileDialog::getExistingDirectory(this,tr("Open Folder"),"");
+        if(!mainScriptName.isEmpty()) {
+            tempDir->setText(mainScriptName);
+        }
+    });
+    tmpDirLayout->addWidget(labelTempDir);
+    tmpDirLayout->addWidget(tempDir);
+    tmpDirLayout->addWidget(chooseTD_Button);
+
+    //QVBoxLayout *femLayout = new QVBoxLayout(femWidget);
+    //labelProgName=new QLabel();
+    //labelProgDir1=new QLabel();
+    //labelProgDir2=new QLabel();
+
+    //femLayout->addLayout(tmpDirLayout);
+    //femLayout->addWidget(labelProgName);
+    //femLayout->addWidget(labelProgDir1);
+    //femLayout->addWidget(labelProgDir2);
+    femWidget->setVisible(false);
+
+
+    advancedLayout->addWidget(optionsLabel);
+    advancedLayout->addWidget(option1Button);
+    advancedLayout->addWidget(option2Button);
+    advancedLayout->addWidget(option3Button);
+    advancedLayout->addWidget(femWidget);
+
+    advancedOptions->hide();
+    connect(advanced, &QCheckBox::clicked, this, [=](bool tog){
+        if (tog==false)
+        {
+            advancedOptions->hide();
+        } else {
+            advancedOptions->show();
+        }
+    });
+    connect(option3Button, &QRadioButton::toggled, this, [=](bool tog){
+        if (tog==false)
+        {
+            tempDir->setText("");
+            femWidget->hide();
+        } else {
+            femWidget->show();
+        }
+    });
     //femWidget = new QWidget();
     //QVBoxLayout *femLayout = new QVBoxLayout();
     //femWidget->setLayout(femLayout);
@@ -135,41 +198,37 @@ surrogateGP::surrogateGP(QWidget *parent)
     QHBoxLayout * gpOutputLayout = new QHBoxLayout();
     gpOutputComboBox= new QComboBox;
     gpOutputComboBox->addItem("Median (representative) prediction");
-    //gpOutputComboBox->addItem("Random sample under prediction uncertainty");
+    gpOutputComboBox->addItem("Random sample under prediction uncertainty");
+    gpOutputComboBox->setCurrentIndex(1);
     gpOutputLayout->addWidget( new QLabel("GP output   "));
     gpOutputLayout->addWidget(gpOutputComboBox);
     gpOutputComboBox->setMinimumWidth(400);
     gpOutputLayout->addStretch(1);
 
-    connect(option3Button, &QRadioButton::toggled, this, [=](bool tog){
-        if (tog==false)
-        {
-            //femWidget->setVisible(false);
-        } else {
-            //femWidget->setVisible(true);
-        }
-    });
 
     qoiNames = new QLabel();
     qoiNames->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    optionsLayout->addLayout(labelVarThresLayout, 0,0,1,-1);
-    //optionsLayout->addWidget(thresVal,0,4);
-    optionsLayout->addWidget(labelThresMsg,1,0,1,-1);
-    optionsLayout->addWidget(optionsLabel, 2,0,1,-1);
-    optionsLayout->addWidget(option1Button, 3,0,1,-1);
-    optionsLayout->addWidget(option2Button, 4,0,1,-1);
-    optionsLayout->addWidget(option3Button, 5,0,1,-1);
-    //optionsLayout->addWidget(femWidget, 6,0);
-    optionsLayout->addWidget(qoiNames, 6,0);
-    optionsLayout->addLayout(gpOutputLayout, 8,0,1,-1);
+    //optionsLayout->addWidget(qoiNames, 2,0);
+    optionsLayout->addLayout(gpOutputLayout, 3,0,1,-1);
+//    optionsLayout->addWidget(optionsLabel, 2,0,1,-1);
+//    optionsLayout->addWidget(option1Button, 3,0,1,-1);
+//    optionsLayout->addWidget(option2Button, 4,0,1,-1);
+//    optionsLayout->addWidget(option3Button, 5,0,1,-1);
+    optionsLayout->addWidget(advanced, 4,0,1,-1);
+    optionsLayout->addWidget(advancedOptions, 5,0,1,-1);
 
-    optionsLayout->setColumnStretch(5,1.0);
+    //optionsLayout->addWidget(femWidget, 6,0);
+
+    optionsLayout->setColumnStretch(6,1.0);
     //optionsLayout->setSpacing(0);
     //optionsLayout->setHorizontalSpacing(0);
     //optionsLayout->setContentsMargins(0,0,0,0);
     layout->addWidget(label2,1,0);
     layout->addWidget(postprocessScript,1,1);
     layout->addWidget(choosePostprocessScript,1,2);
+    label2->hide();
+    postprocessScript->hide();
+    choosePostprocessScript->hide();
     layout->addWidget(groupBox,2,0,1,3);
     groupBox->setVisible(false);
     layout->setRowStretch(3,1.0);
@@ -177,6 +236,8 @@ surrogateGP::surrogateGP(QWidget *parent)
     layout->setColumnStretch(4,1);
     this->setLayout(layout);
 
+
+    theSurrogateEDPs = SurrogateEDP::getInstance();
 }
 
 surrogateGP::~surrogateGP()
@@ -187,13 +248,13 @@ surrogateGP::~surrogateGP()
 
 void surrogateGP::clear(void)
 {
-//  QStringList names;
-//  for (int i=0; i<varNamesAndValues.size()-1; i+=2) {
-//         names.append(varNamesAndValues.at(i));
-//  }
+  QStringList names;
+  for (int i=0; i<varNamesAndValues.size()-1; i+=2) {
+         names.append(varNamesAndValues.at(i));
+  }
 
   RandomVariablesContainer *theRVs=RandomVariablesContainer::getInstance();
-  //theRVs->removeRandomVariables(names);
+  theRVs->removeRandomVariables(names);
   postprocessScript->setText("");
   inputScript->setText("");
 }
@@ -250,36 +311,37 @@ surrogateGP::outputAppDataToJSON(QJsonObject &jsonObject) {
     // and all data to be used in ApplicationDate
     //
 
-    jsonObject["Application"] = "SurrogateGP";
+    jsonObject["type"]="SurrogateGPBuildingModel";
+    jsonObject["Application"] = "SurrogateGPBuildingModel";
     QJsonObject dataObj;
 
-    QString fileName = inputScript->text();
-    QFileInfo fileInfo(fileName);
+    QString mainScriptName = inputScript->text();
+    QFileInfo fileInfo(mainScriptName);
 
     if (fileInfo.exists() && fileInfo.isFile()) {
         dataObj["mainScript"]=fileInfo.fileName();
         dataObj["MS_Path"]=fileInfo.path();
     } else {
-        QString msg = QString("surrogateGP - mainScript " ) + fileName + QString(" does not exist!");
+        QString msg = QString("surrogateGP - mainScript " ) + mainScriptName + QString(" does not exist!");
         this->errorMessage(msg);
-        dataObj["mainScript"]=fileName;
+        dataObj["mainScript"]=mainScriptName;
         dataObj["MS_Path"]=QString("");
         result = false;
     }
 
-    QString fileName1 = postprocessScript->text();
-    QFileInfo fileInfo1(fileName1);
+    QString mainScriptName1 = postprocessScript->text();
+    QFileInfo fileInfo1(mainScriptName1);
 
     if (fileInfo1.exists() && fileInfo1.isFile()) {
         dataObj["postprocessScript"]=fileInfo1.fileName();
         dataObj["PS_Path"]=fileInfo1.path();
     } else {
-        if (fileName1.isEmpty()) {
+        if (mainScriptName1.isEmpty()) {
             dataObj["postprocessScript"]=QString("");
         } else {
-            QString msg = QString("surrogateGP - postprocessScript " ) + fileName1 + QString(" does not exist!");
+            QString msg = QString("surrogateGP - postprocessScript " ) + mainScriptName1 + QString(" does not exist!");
             this->errorMessage(msg);
-            dataObj["postprocessScript"]=fileName1;
+            dataObj["postprocessScript"]=mainScriptName1;
             dataObj["PS_Path"]=QString("");
             result = false;
         }
@@ -311,15 +373,15 @@ surrogateGP::inputAppDataFromJSON(QJsonObject &jsonObject) {
     QJsonObject dataObject = jsonObject["ApplicationData"].toObject();
 
     //
-    // retrieve filename and path, set the QLIne Edit
+    // retrieve mainScriptName and path, set the QLIne Edit
     //
 
-    QString fileName;
+    QString mainScriptName;
     QString filePath;
 
     if (dataObject.contains("mainScript")) {
       QJsonValue theName = dataObject["mainScript"];
-      fileName = theName.toString();
+      mainScriptName = theName.toString();
     } else
         return false;
 
@@ -329,19 +391,19 @@ surrogateGP::inputAppDataFromJSON(QJsonObject &jsonObject) {
     } else
         return false;
 
-    inputScript->setText(QDir(filePath).filePath(fileName));
+    inputScript->setText(QDir(filePath).filePath(mainScriptName));
     setMainScript(inputScript->text());
 
     if (dataObject.contains("postprocessScript")) {
         QJsonValue theName = dataObject["postprocessScript"];
-        fileName = theName.toString();
+        mainScriptName = theName.toString();
 
         if (dataObject.contains("PS_Path")) {
             QJsonValue theName = dataObject["PS_Path"];
             filePath = theName.toString();
-            postprocessScript->setText(QDir(filePath).filePath(fileName));
+            postprocessScript->setText(QDir(filePath).filePath(mainScriptName));
         } else
-            postprocessScript->setText(fileName);
+            postprocessScript->setText(mainScriptName);
     } else {
         postprocessScript->setText("");
     }
@@ -384,10 +446,54 @@ surrogateGP::setMainScript(QString name1){
     // parse file for random variables and add them
     //
 
-   // surrogateGpParser theParser;
-    //varNamesAndValues = theParser.getVariables(name1);
+    bool isMultiFidelity = true;
 
-   // theRVs->addRVsWithValues(varNamesAndValues);
+    QFile file(name1);
+    if (file.open(QFile::ReadOnly | QFile::Text)) {
+        QString val;
+        val=file.readAll();
+        file.close();
+        val.replace(QString("NaN"),QString("null"));
+        val.replace(QString("Infinity"),QString("inf"));
+
+        QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+        QJsonObject jsonSur = doc.object();
+
+
+        auto GPidentifier = jsonSur.find("kernName"); // should be the right .json file
+        if (!jsonSur.isEmpty() && GPidentifier != jsonSur.end()) {
+            QJsonArray RVArray = jsonSur["randomVariables"].toArray();
+            foreach (const QJsonValue & v, RVArray){
+                 QJsonObject jsonRV = v.toObject();
+                 QString vname = jsonRV["name"].toString();
+                 if (vname!=QString("MultipleEvent"))  {
+                     varNamesAndValues.push_back(vname);
+                     varNamesAndValues.push_back(QString::number(jsonRV["value"].toDouble()));
+                 }
+            }
+            isMultiFidelity = jsonSur["doMultiFidelity"].toBool();
+        }
+    }
+   theRVs->addRVsWithValues(varNamesAndValues);
+   if (isMultiFidelity) {
+       label2->show();
+       postprocessScript->show();
+       choosePostprocessScript->show();
+        //postprocessScript->setDisabled(false);
+        //choosePostprocessScript->setStyleSheet("background-color: dodgerblue;border-color:dodgerblue");
+        //choosePostprocessScript->setDisabled(false);
+        //postprocessScript->setStyleSheet("QLineEdit { background: white; selection-background-color: white; }");
+   } else {
+       label2->hide();
+       postprocessScript->hide();
+       choosePostprocessScript->hide();
+       postprocessScript->setText("");
+       //postprocessScript->setDisabled(true);
+       //postprocessScript->setStyleSheet("QLineEdit { background: lightgrey; selection-background-color: lightgrey; }");
+       //choosePostprocessScript->setDisabled(true);
+       //choosePostprocessScript->setStyleSheet({ "background-color: lightgrey; border: none;" });
+
+   }
 
     return;
 }
@@ -420,7 +526,7 @@ surrogateGP::showGpOptions(QString name1) {
             foreach (const QJsonValue & v, QoIArray){
                  qoiNames_list.push_back(v.toString());
             }
-            qoiNames->setText(QString("QoI list: ") + qoiNames_list.join(", "));
+            //qoiNames->setText(QString("QoI list: ") + qoiNames_list.join(", "));
 
             if (from_data) {
                 isData = true;
@@ -464,42 +570,78 @@ surrogateGP::showGpOptions(QString name1) {
         thresVal->setText("0");
         groupBox->setVisible(false);
     }
+
+
+
+    theSurrogateEDPs->addEDPs(qoiNames_list);
 }
 
 void
-surrogateGP::specialCopyMainScript(QString fileName, QStringList varNames) {
+surrogateGP::specialCopyMainScript(QString mainScriptName, QStringList varNames) {
     // if surrogateGP or FEAP parse the file for the variables
     if (varNames.size() > 0) {
 //        surrogateGpParser theParser;
-//        theParser.writeFile(inputScript->text(), fileName, varNames);
+//        theParser.writeFile(inputScript->text(), mainScriptName, varNames);
     }
 }
 
 bool
 surrogateGP::copyFiles(QString &dirName) {
 
-     QString fileName = inputScript->text();
+    //
+    // main script
+    //
 
-     if (fileName.isEmpty()) {
+     QString mainScriptName = inputScript->text();
+
+     if (mainScriptName.isEmpty()) {
          this->errorMessage("surrogateGPInput - no file set");
          return false;
      }
-     QFileInfo fileInfo(fileName);
+     QFileInfo fileInfo(mainScriptName);
 
      QString theFile = fileInfo.fileName();
-     QString thePath = fileInfo.path();
+     //QString thePath = fileInfo.path();
 
-     SimCenterAppWidget::copyPath(thePath, dirName, false);
+     QFile::copy(mainScriptName, dirName + QDir::separator() + theFile);
 
-     RandomVariablesContainer *theRVs=RandomVariablesContainer::getInstance();
-     QStringList varNames = theRVs->getRandomVariableNames();
+     //
+     // postprocess script
+     //
 
-     // now create special copy of original main script that handles the RV
-//     surrogateGpParser theParser;
-     QString copiedFile = dirName + QDir::separator() + theFile;
-//     theParser.writeFile(fileName, copiedFile, varNames);
+     QString pklName = postprocessScript->text();
 
-     return true;
+     if (!pklName.isEmpty()) {
+         QFileInfo pfileInfo(pklName);
+
+         QString thePklFile = pfileInfo.fileName();
+         //QString thePath = fileInfo.path();
+
+         QFile::copy(pklName, dirName + QDir::separator() + thePklFile);
+     }
+
+     //
+     // template dir
+     //
+
+     QString theTmpDir = tempDir->text();
+     qDebug() << theTmpDir;
+     bool res = true;
+     if (theTmpDir!="") {
+        res = SimCenterAppWidget::copyPath(theTmpDir, dirName + QDir::separator() + "templatedir_SIM", true);
+     }
+
+//     RandomVariablesContainer *theRVs=RandomVariablesContainer::getInstance();
+//     QStringList varNames = theRVs->getRandomVariableNames();
+
+//     // now create special copy of original main script that handles the RV
+//     QString copiedFile = dirName + QDir::separator() + theFile;
+
+     if (res==false) {
+         QString msg = QString("Failed copy folder : " ) + theTmpDir;
+         this->errorMessage(msg);
+     }
+     return res;
 }
 
 double

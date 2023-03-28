@@ -200,38 +200,47 @@ int SimCenterUQResultsSensitivity::processResults(QString &filenameResults, QStr
     //
 
     QFileInfo fileResInfo(filenameResults);
-    QString filenameErrorString = fileResInfo.absolutePath() + QDir::separator() + QString("dakota.err");
 
-    QFileInfo filenameErrorInfo(filenameErrorString);
-    if (!filenameErrorInfo.exists()) {
-        errorMessage("No error file - SimCenterUQ did not run - problem with the application setup or the applications failed with inputs provided");
+
+    QString errMsg("");
+    this->extractErrorMsg( fileResInfo.absolutePath(),"dakota.err", "SimCenterUQ", errMsg);
+    if (errMsg.length() != 0) {
+        errorMessage(errMsg);
         return 0;
     }
-    QFile fileError(filenameErrorString);
-    QString line("");
-    if (fileError.open(QIODevice::ReadOnly)) {
-        QTextStream in(&fileError);
-        QString contents = in.readAll();
-//        while (!in.atEnd()) {
-//            line = in.readLine();
+
+//    QString filenameErrorString = fileResInfo.absolutePath() + QDir::separator() + QString("dakota.err");
+
+//    QFileInfo filenameErrorInfo(filenameErrorString);
+//    if (!filenameErrorInfo.exists()) {
+//        errorMessage("No error file - SimCenterUQ did not run - problem with the application setup or the applications failed with inputs provided");
+//        return 0;
+//    }
+//    QFile fileError(filenameErrorString);
+//    QString line("");
+//    if (fileError.open(QIODevice::ReadOnly)) {
+//        QTextStream in(&fileError);
+//        QString contents = in.readAll();
+////        while (!in.atEnd()) {
+////            line = in.readLine();
+////        }
+//        if (!contents.isEmpty()) {
+//            //errorMessage(QString(QString("Error Running SimCenterUQ: ") + line));
+//            errorMessage(QString(QString("Error Running SimCenterUQ: ") + contents));
+//            return 0;
 //        }
-        if (!contents.isEmpty()) {
-            //errorMessage(QString(QString("Error Running SimCenterUQ: ") + line));
-            errorMessage(QString(QString("Error Running SimCenterUQ: ") + contents));
-            return 0;
-        }
-    }
+//    }
 
 
     // If surrogate model is used, display additional info.
-    QDir tempFolder(fileResInfo.absolutePath());
-    QFileInfo surrogateTabInfo(tempFolder.filePath("surrogateTab.out"));
-    if (surrogateTabInfo.exists()) {
-        filenameTab = tempFolder.filePath("surrogateTab.out");
-        isSurrogate = true;
-    } else {
-        isSurrogate = false;
-    }
+//    QDir tempFolder(fileResInfo.absolutePath());
+//    QFileInfo surrogateTabInfo(tempFolder.filePath("surrogateTab.out"));
+//    if (surrogateTabInfo.exists()) {
+//        filenameTab = tempFolder.filePath("surrogateTab.out");
+//        isSurrogate = true;
+//    } else {
+//        isSurrogate = false;
+//    }
 
     //
     // create summary, a QWidget for summary data, the EDP name, mean, stdDev, kurtosis info
@@ -353,7 +362,7 @@ int SimCenterUQResultsSensitivity::processResults(QString &filenameResults, QStr
     //
 
     if (!usedData) {
-            theDataTable = new ResultsDataChart(filenameTab, isSurrogate, ncomb);
+            theDataTable = new ResultsDataChart(filenameTab,  theRVs->getNumRandomVariables());
     } else {
         QStringList QoIlist; // w
         for (int i=nAggQoI;i<(nAggQoI+nQoI); i++){
@@ -618,7 +627,7 @@ SimCenterUQResultsSensitivity::outputToJSON(QJsonObject &jsonObject)
         return result; // no data
 
     jsonObject["resultType"]=QString(tr("SimCenterUQResultsSensitivity"));
-    jsonObject["isSurrogate"]=isSurrogate;
+    //jsonObject["isSurrogate"]=isSurrogate;
     //
     // add summary data
     //
@@ -753,13 +762,13 @@ SimCenterUQResultsSensitivity::inputFromJSON(QJsonObject &jsonObject)
     QScrollArea *sa = new QScrollArea;
     gsaGraph(*&sa);
 
-    if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
-        isSurrogate=jsonObject["isSurrogate"].toBool();
-    } else {
-        isSurrogate=false;
-    }
+//    if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
+//        isSurrogate=jsonObject["isSurrogate"].toBool();
+//    } else {
+//        isSurrogate=false;
+//    }
 
-    theDataTable = new ResultsDataChart(spreadsheetValue.toObject(), isSurrogate, theRVs->getNumRandomVariables());
+    theDataTable = new ResultsDataChart(spreadsheetValue.toObject());
 
 
     //

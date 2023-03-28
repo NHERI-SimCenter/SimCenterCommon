@@ -42,7 +42,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <InputWidgetOpenSeesAnalysis.h>
 #include <SimCenterAppMulti.h>
 #include <CustomPySimulation.h>
+<<<<<<< HEAD
 #include <QCoreApplication>
+=======
+#include <SurrogateSimulation.h>
+#include <QCoreApplication.h>
+>>>>>>> upstream/master
 
 
 FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
@@ -52,12 +57,18 @@ FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
   SimCenterAppWidget *opensees= new InputWidgetOpenSeesAnalysis();
   this->addComponent(QString("OpenSees"), QString("OpenSees-Simulation"), opensees);
   if (inclMulti == true) {
-    SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Simulation"), QString("MultiModel-FEA"),this, this);
+    SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Simulation"), QString("MultiModel-Simulation"),this, this);
     this->addComponent(QString("Multi Model"), QString("MultiModel"), multi);
   }  
 
   SimCenterAppWidget *custom_py_simulation= new CustomPySimulation();
   this->addComponent(QString("CustomPy-Simulation"), QString("CustomPy-Simulation"), custom_py_simulation);
+
+  QString appName = QCoreApplication::applicationName();
+  if (appName == "EE-UQ") {
+     SimCenterAppWidget *surrogate = new SurrogateSimulation();
+      this->addComponent(QString("None (only for surrogate)"), QString("SurrogateSimulation"), surrogate);
+  }
 
 }
 

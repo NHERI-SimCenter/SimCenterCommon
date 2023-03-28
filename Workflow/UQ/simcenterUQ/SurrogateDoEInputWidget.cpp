@@ -337,24 +337,34 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     // Selection of im
     //
 
-    QStringList imChoices = {tr("None"), tr("Ground Motion Intensity")};
+    QStringList imChoices = {tr("Ground Motion Intensity"), tr("None")};
     createComboBox(imChoicesComboBox, imChoices, tr(""), 300,0);
 
-    theGpAdvancedWidgetLayoutEE->addWidget(new QLabel("Input postprocess"), eeid, 0);
-    theGpAdvancedWidgetLayoutEE->addWidget(imChoicesComboBox, eeid++, 1);
+    theGpAdvancedWidgetLayoutEE->addWidget(new QLabel("Input postprocess"), eeid++, 0);
+    theGpAdvancedWidgetLayoutEE->addWidget(imChoicesComboBox,eeid++,0,1,9);
+    useGeoMeanIM = new QCheckBox("Use geometric mean when 2 or more ground motion components are given");
+    useGeoMeanIM -> setChecked(true);
+    useGeoMeanIM -> setVisible(false);
+    theGpAdvancedWidgetLayoutEE->addWidget(useGeoMeanIM, eeid++, 0);
 
     QWidget *emptyVariableWidget = new QWidget();
     theSCIMWidget = new SimCenterIntensityMeasureWidget();
     im_stackedWidgets = new QStackedWidget(this);
-    im_stackedWidgets->addWidget(emptyVariableWidget);
     im_stackedWidgets->addWidget(theSCIMWidget);
+    im_stackedWidgets->addWidget(emptyVariableWidget);
     im_stackedWidgets->setCurrentIndex(0);
 
     connect(imChoicesComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int id)
     {
         im_stackedWidgets->setCurrentIndex(id);
+
+        if (id==0){
+            // "Ground Motion Intensity"
+            useGeoMeanIM ->setVisible(true);
+        } else {
+            useGeoMeanIM ->setVisible(false);
+        }
     });
-    theGpAdvancedWidgetLayoutEE->addWidget(imChoicesComboBox,eeid++,0,1,9);
     theGpAdvancedWidgetLayoutEE->addWidget(im_stackedWidgets,eeid++,0,1,9);
     //
 
@@ -404,14 +414,15 @@ SurrogateDoEInputWidget::showNuggetBox(int idx)
         theNuggetVals->hide();
     } else if (idx==4) {
         theNuggetVals->hide();
-        repMsg ->setText("With the replications, the expected number of simulations is " + numSamples->text() + "+A*(B-1)");
-        repMsg -> setStyleSheet({"color: black"});
-        repLabelA->setVisible(true);
-        repLabelB->setVisible(true);
-        numSampToBeRepl->setVisible(true);
-        numRepl->setVisible(true);
-        repMsg->setVisible(true);
-
+        if (typeEVT.compare("EQ") !=0 ) {
+            repMsg ->setText("With the replications, the expected number of simulations is " + numSamples->text() + "+A*(B-1)");
+            repMsg -> setStyleSheet({"color: black"});
+            repLabelA->setVisible(true);
+            repLabelB->setVisible(true);
+            numSampToBeRepl->setVisible(true);
+            numRepl->setVisible(true);
+            repMsg->setVisible(true);
+        }
     }
     if ((theLogtCheckBox->isChecked()) && (idx!=0))
         theNuggetMsg -> setVisible(true);
@@ -426,7 +437,7 @@ SurrogateDoEInputWidget::updateSimNumber(QString a)
 
 
     if (!(numSampToBeRepl->text()=="") && ((numSampToBeRepl->text().toInt()<2) || (numSampToBeRepl->text().toInt() > numSamples->text().toInt()))) {
-        repMsg -> setText("The number of samples to be replicated (A) should be greater than 1 and smaller than  \n the number of the unique samples (" + numSamples->text() +"), a value greater than 4×#RV is recommended");
+        repMsg -> setText("The number of samples to be replicated (A) is recommended to be greater than 1 and smaller than  \n the number of the unique samples (" + numSamples->text() +"), a value greater than 4×#RV is highly recommended");
         repMsg -> setStyleSheet({"color: red"});
         return;
     }
@@ -479,10 +490,10 @@ void SurrogateDoEInputWidget::doAdvancedGP(bool tog)
         theGpAdvancedCheckBox->setStyleSheet("font-weight: bold; color: grey");
 
         gpKernel->setCurrentIndex(0);
-        theNuggetSelection->setCurrentIndex(0);
+        //theNuggetSelection->setCurrentIndex(0);
         theDoESelection->setCurrentIndex(3);
         theLinearCheckBox->setChecked(false);
-        theLogtCheckBox->setChecked(false);
+        //theLogtCheckBox->setChecked(false);
     }
 }
 // SLOT function
@@ -597,8 +608,9 @@ SurrogateDoEInputWidget::outputToJSON(QJsonObject &jsonObj){
             jsonObj["numSampToBeRepl"]= -1; // use default
         } else {
             if ((numSampToBeRepl->text().toInt()<2) || (numSampToBeRepl->text().toInt() > numSamples->text().toInt())) {
-                errorMessage("Error prossessing inputs - the number of samples to be replicated (A) should be greater than 1 and smaller than the number of the unique samples (" + numSamples->text() +"), a value greater than 4×#RV is recommended");
+                //errorMessage("Error prossessing inputs - the number of samples to be replicated (A) should be greater than 1 and smaller than the number of the unique samples (" + numSamples->text() +"), a value greater than 4×#RV is recommended");
                 //return 0;
+                // sy- not anymore march 2023
             }
 
              jsonObj["numSampToBeRepl"]= numSampToBeRepl->text().toInt();
@@ -608,8 +620,9 @@ SurrogateDoEInputWidget::outputToJSON(QJsonObject &jsonObj){
             jsonObj["numRepl"]= -1; // use default
          } else {
             if (numRepl->text().toInt()<2) {
-                errorMessage("Error prossessing inputs - the number of replications (B) should be greater than 1 and a value greater than 5 is recommended");
+                //errorMessage("Error prossessing inputs - the number of replications (B) should be greater than 1 and a value greater than 5 is recommended");
                 //return 0;
+                // sy- not anymore march 2023
             }
             jsonObj["numRepl"]= numRepl->text().toInt();
         }
@@ -619,11 +632,18 @@ SurrogateDoEInputWidget::outputToJSON(QJsonObject &jsonObj){
         jsonObj["DoEmethod"]="None";
         jsonObj["initialDoE"]=-1;
         jsonObj["linear"]=false;
-        jsonObj["logTransform"]=false;
-        jsonObj["nuggetOpt"]="Optimize";
+        if (typeEVT.compare("EQ") ==0) {
+            jsonObj["logTransform"]=true;
+            jsonObj["numSampToBeRepl"]= 1;
+            jsonObj["numRepl"]= 1;
+            jsonObj["nuggetOpt"]="Heteroscedastic";
+        } else {
+            jsonObj["logTransform"]=false;
+            jsonObj["numSampToBeRepl"]= -1;
+            jsonObj["numRepl"]= -1;
+            jsonObj["nuggetOpt"]="Optimize";
+        }
         jsonObj["nuggetString"]="NA";
-        jsonObj["numSampToBeRepl"]= -1;
-        jsonObj["numRepl"]= -1;
     }
 
     jsonObj["existingDoE"]=theExistingCheckBox->isChecked();
@@ -636,10 +656,11 @@ SurrogateDoEInputWidget::outputToJSON(QJsonObject &jsonObj){
         jsonObj["outFile"]="NA";
     }
 
-    if (im_stackedWidgets->currentIndex()==1) {
+    if (im_stackedWidgets->currentIndex()==0) {
         QJsonObject imJson;
         result = theSCIMWidget->outputToJSON(imJson);
         jsonObj["IntensityMeasure"] = imJson;
+        jsonObj["useGeoMean"] = useGeoMeanIM->isChecked();
     }
 
     return result;    
@@ -742,8 +763,8 @@ SurrogateDoEInputWidget::inputFromJSON(QJsonObject &jsonObject){
     if (jsonObject.contains("IntensityMeasure")) {
         theGpAdvancedCheckBox->setVisible(true);
         theGpAdvancedCheckBox->setChecked(true);
-        im_stackedWidgets->setCurrentIndex(1);
-        imChoicesComboBox->setCurrentIndex(1);
+        im_stackedWidgets->setCurrentIndex(0);
+        imChoicesComboBox->setCurrentIndex(0);
         qDebug() << "Start loading intensity measure";
         result = theSCIMWidget->inputFromJSON(jsonObject);
     }
@@ -829,8 +850,13 @@ SurrogateDoEInputWidget::onEventTypeChanged(QString typeEVT) {
     if (typeEVT.compare("EQ") ==0 ) {
         // an earthquake event type
         theGpAdvancedCheckBoxEE->setVisible(true);
+        theLogtCheckBox->setChecked(true);
+        theNuggetSelection->setCurrentIndex(4);
+        numSampToBeRepl->setText("1");
+        numRepl->setText("1");
     } else {
         // not an earthquake event, inactivate ground motion intensity widget
         theGpAdvancedCheckBoxEE->setVisible(false);
+        theLogtCheckBox->setChecked(false);
     }
 }

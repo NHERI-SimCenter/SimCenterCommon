@@ -1,5 +1,5 @@
-#ifndef UQ_ENGINE_SELECTION_H
-#define UQ_ENGINE_SELECTION_H
+#ifndef SURROGATE_EDP_H
+#define SURROGATE_EDP_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -37,62 +37,51 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: fmckenna, sangri
 
-#include <SimCenterAppSelection.h>
-#include "UQ_Engine.h"
-class InputWidgetEDP;
+#include <SimCenterAppWidget.h>
 
-class UQ_EngineSelection : public  SimCenterAppSelection
+#include <QGroupBox>
+#include <QVector>
+#include <QGridLayout>
+#include <QComboBox>
+
+class InputWidgetParameters;
+
+class SurrogateEDP : public SimCenterAppWidget
 {
-  Q_OBJECT
-
-  public:
-
-  UQ_EngineSelection(UQ_EngineType = All,
-		     QWidget *parent = 0);
-  
-  UQ_EngineSelection(bool includeNone,
-		     QString assetType,
-		     UQ_EngineType = All,
-		     QWidget *parent = 0);    
-  
-  UQ_Results  *getResults();
-  int getNumParallelTasks(void);
-  UQ_Engine *getCurrentEngine();
-  void setRV_Defaults();
-  
- signals:
-
-  void onUQ_EngineChanged(QString);
-  void onNumModelsChanged(int);
-  void queryEVT(void); // added KZ
-
- public slots:
-
-  void engineSelectionChanged(QString eng);
-  void updateEngineComboDisp(const QString="Forward Propagation");
-  void relayQueryEVT(void); // added KZ
-  void setEventType(QString type); // added KZ
-  void methodSelectionChanged(QString type);
-  
+    Q_OBJECT
 private:
-  void initialize();
-  void createComboBox();
-  QComboBox *theMethodCombo;
-  UQ_Engine *theCurrentEngine;
-  UQ_Engine *thePreviousEngine;  
-  UQ_Engine *theDakotaEngine;
-  UQ_Engine *theSimCenterUQEngine;
-  UQ_Engine *theUQpyEngine;
-  UQ_Engine *theUCSD_Engine;
-  UQ_Engine *thefilterEngine;
-  UQ_Engine *theCustomEngine;
-  bool includeNoneOption;
-  QString engineName;
-  UQ_EngineType typeOption;
+    static SurrogateEDP *theInstance;
+    explicit SurrogateEDP(QWidget *parent = 0);
+    ~SurrogateEDP();
 
-  QComboBox *theEngineComboDisp;
+    QVBoxLayout *verticalLayout;
+    QVBoxLayout *edpLayout;
+    QFrame *edp;
+    bool x_button_clicked_before;
+    QStringList fullEDPnames;
+
+public:
+    static SurrogateEDP *getInstance();
+    void addEDPs(QStringList EDPs);
+
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+    bool outputAppDataToJSON(QJsonObject &rvObject);
+    bool inputAppDataFromJSON(QJsonObject &rvObject);
+    bool copyFiles(QString &dirName);
+
+    void clear(void);
+
+signals:
+    void surrogateSelected();
+public slots:
+    void resetEDP(void);
+
+
+
+
 };
 
-#endif 
+#endif // SURROGATE_EDP_H

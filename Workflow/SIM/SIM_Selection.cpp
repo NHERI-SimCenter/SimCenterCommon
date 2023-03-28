@@ -72,17 +72,17 @@ SIM_Selection::SIM_Selection(bool includeC,
     this->addComponent(QString("Concrete Building Model"), QString("ConcreteBuildingModel"), concrete);
   }
 
-//  if (appName == "EE-UQ") {
-//    SimCenterAppWidget *sur = new surrogateGP(theRVs);
-//    this->addComponent(QString("Surrogate (GP)"), QString("Surrogate (GP)"), sur);
-//  }
+  if (appName == "EE-UQ") {
+    SimCenterAppWidget *sur = new surrogateGP(theRVs);
+    this->addComponent(QString("Surrogate (GP)"), QString("SurrogateGPBuildingModel"), sur);
+  }
 
 
   SimCenterAppWidget *mdof_lu = new MDOF_LU();
   this->addComponent(QString("MDOF-LU"), QString("MDOF-LU"), mdof_lu);
     
   if (doMulti == true) {
-    SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Modeling"), QString("MultiModel-SIM"),this, this);
+    SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Modeling"), QString("MultiModel-Modeling"),this, this);
     this->addComponent(QString("Multi Model"), QString("MultiModel"), multi);
   }    
 

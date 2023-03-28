@@ -437,12 +437,12 @@ RemoteApplication::uploadDirReturn(bool result)
           QString dirName = theDirectory.dirName();
 
           QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
-          QString configFile = remoteDirectory + "/inputRWHALE.json";
+          QString inputFile = remoteDirectory + "/inputRWHALE.json";
           QString inputData = remoteDirectory + "/input_data.zip";
 
           QJsonObject inputs;
-          inputs["configFile"]=configFile;
-          inputs["dataFile"]=inputData;
+          inputs["inputFile"]=inputFile;
+          inputs["compressedInputDir"]=inputData;
           job["inputs"]=inputs;
 
           QJsonObject parameters;
@@ -450,8 +450,8 @@ RemoteApplication::uploadDirReturn(bool result)
 
           int numBldg = buildingsPerTask->text().toInt();
           if (numBldg != 0 ) {
-              parameters["buildingsPerTask"]=QString::number(numBldg);
-              parameters["saveResults"]=saveResultsBox->isChecked();
+	    // parameters["buildingsPerTask"]=QString::number(numBldg);
+            parameters["saveResults"]=saveResultsBox->isChecked();
           }
           job["parameters"]=parameters;
 

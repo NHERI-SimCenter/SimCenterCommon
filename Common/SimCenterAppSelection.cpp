@@ -99,7 +99,7 @@ SimCenterAppSelection::initializeWidget(QString label) {
     topLayout->setContentsMargins(0,0,0,0);
     layout->setContentsMargins(0,0,0,0);
 
-    SectionTitle *selectionText = new SectionTitle();
+    selectionText = new SectionTitle();
     selectionText->setMinimumWidth(250);
     selectionText->setText(label);
 
@@ -349,6 +349,15 @@ void SimCenterAppSelection::clear(void)
     }
 }
 
+void SimCenterAppSelection::clearSelections(void)
+{
+    foreach (auto&& comp, theComponents) {
+        comp->clear();
+    }
+    theComboNames.clear();
+    theApplicationNames.clear();
+    theSelectionCombo->clear();
+}
 
 bool
 SimCenterAppSelection::addComponent(QString text, QString appName, SimCenterAppWidget *theComponent)
@@ -415,6 +424,16 @@ SimCenterAppSelection::displayComponent(QString text)
 }
 
 void
+SimCenterAppSelection::hideHeader()
+{
+//    selectionText->toPlainText();
+//    selectionText->setMinimumWidth(0);
+    selectionText->hide();
+    theSelectionCombo->hide();
+}
+
+
+void
 SimCenterAppSelection::selectionChangedSlot(const QString &selectedText)
 {
     //
@@ -463,6 +482,31 @@ SimCenterAppSelection::getCurrentSelectionName(void)
     return theApplicationNames.at(idx);
 }
 
+
+void SimCenterAppSelection::removeItem(QString itemName) {
+    theSelectionCombo->removeItem(theSelectionCombo->findText(itemName));
+};
+
+
+QString SimCenterAppSelection::getComboName(int index) {
+    return theComboNames[index];
+}
+
+QString SimCenterAppSelection::getCurrentComboName(void) {
+    auto idx = theComponents.indexOf(theCurrentSelection);
+
+    QString comboName;
+    if(idx != -1)
+        comboName = theComboNames[idx];
+    else
+        comboName = QString("");
+
+    return comboName;
+}
+
+int SimCenterAppSelection::count() {
+    return theSelectionCombo->count();
+}
 
 void
 SimCenterAppSelection::setSelectionsActive(bool visibility) {

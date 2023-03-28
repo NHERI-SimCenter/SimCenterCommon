@@ -44,7 +44,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <UQ_Results.h>
 #include <QMessageBox>
 #include <QDebug>
+#include <QDir>
 #include <RandomVariablesContainer.h>
+#include <QFileInfo>
 
 UQ_Results::UQ_Results(QWidget *parent)
 : SimCenterWidget(parent), resultWidget(0)
@@ -120,6 +122,73 @@ UQ_Results::processResults(QString &dirName) {
       errorMessage(message);
 //      QMessageBox::warning(this, tr("Application"),tr("BUG - No ResultsWidget Set!"));
       return 0;
+    }
+}
+
+
+void
+UQ_Results::extractErrorMsg(QString workDir, QString errFileName, QString uqEngineName, QString &errMsg) {
+    // First check dakota.err
+
+    QString filenameErrorString = workDir + QDir::separator() + errFileName;
+    QFileInfo filenameErrorInfo(filenameErrorString);
+    if (!filenameErrorInfo.exists()) {
+        errMsg = "No " + errFileName + " file - " + uqEngineName + " did not run - problem with the setup or the applications failed with inputs provided";
+        return;
+    }
+    QFile fileError(filenameErrorString);
+    QString line("");
+
+    if (fileError.open(QIODevice::ReadOnly)) {
+        if (uqEngineName==QString("Dakota")) {
+               QTextStream in(&fileError);
+               while (!in.atEnd()) {
+                  line += in.readLine();
+               }
+
+        } else {
+                QTextStream in(&fileError);
+                // QString contents = in.readAll(); -- not reading newline char
+                bool errorWritten = false;
+                for (QString myLine = in.readLine(); !myLine.isNull(); myLine = in.readLine())
+                     line +=  myLine + "<br>";
+                //line += "Please check logFileSimUQ.txt in the Local Jobs Directory";
+        }
+        fileError.close();
+    }
+
+    if (line.length()!= 0)
+        errMsg = QString("Error Running " + uqEngineName + ": " + line);
+
+
+    // Overwrite with surrogate if sur.err is found
+    if (errMsg.length()!=0) {
+        QString filenameSurErrString = workDir + QDir::separator() + QString("surrogate.err");
+        QFileInfo surrogateErrorInfo(filenameSurErrString);
+        if (surrogateErrorInfo.exists()) {
+            QFile surrogateError(filenameSurErrString);
+            if (surrogateError.open(QIODevice::ReadOnly)) {
+               QTextStream in(&surrogateError);
+               line = in.readLine();
+               surrogateError.close();
+            }
+            if (line.length()!= 0)
+                errMsg = QString(QString("Error Running Surrogate Simulation: ") + line);
+        }
+    }
+
+    // Overwrite with workflow if workflow.err is found and not empty
+    QString filenameWorkErrString = workDir + QDir::separator() + QString("workflow.err");
+    QFileInfo workflowErrorInfo(filenameWorkErrString);
+    if (workflowErrorInfo.exists()) {
+        QFile workflowError(filenameWorkErrString);
+        if (workflowError.open(QIODevice::ReadOnly)) {
+           QTextStream in(&workflowError);
+           line = in.readLine();
+           workflowError.close();
+        }
+        if (line.length()!= 0)
+            errMsg = QString(QString("Error in Creating Workflow: ") + line);
     }
 }
 

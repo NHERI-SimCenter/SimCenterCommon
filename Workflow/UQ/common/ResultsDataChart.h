@@ -56,8 +56,9 @@ class ResultsDataChart : public SimCenterWidget
 {
     Q_OBJECT
 public:
-    explicit ResultsDataChart(QString filenameTab, bool isSur=false, int nrv=0, QWidget *parent = 0);
-    explicit ResultsDataChart(QJsonObject spreadsheet, bool isSur=false, int nrv=0, QWidget *parent = 0);
+//    explicit ResultsDataChart(QString filenameTab, bool isSur=false, int nrv=0, QWidget *parent = 0);
+    explicit ResultsDataChart(QString filenameTab, int nrv=0, QWidget *parent = 0);
+    explicit ResultsDataChart(QJsonObject spreadsheet, QWidget *parent = 0);
     explicit ResultsDataChart(QString rvFileName, QString qoiFileName, QWidget *parent = 0);
     explicit ResultsDataChart(QString rvFileName, QString qoiFileName, int xdim, int ydim, int nsamp, QStringList listRVs, QStringList listQoIs, QWidget *parent=0);
 
@@ -96,6 +97,7 @@ private:
     void makeChart(void);
     float my_erfinvf(float a);
     float my_logf(float a);
+    void checkIfSurrogate(QString &filenameTab, bool &isSur, int &nRV);
 
     //QLineEdit *randomSeed;
     //QLineEdit *numSamples;
@@ -126,6 +128,7 @@ private:
     int rowCount;
     int colCount;
     QGraphicsSimpleTextItem *box;
+    QGraphicsSimpleTextItem *corrText;
 };
 
 #endif // RESULT_DATA_CHART_H
