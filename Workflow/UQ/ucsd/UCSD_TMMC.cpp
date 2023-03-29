@@ -359,11 +359,11 @@ UCSD_TMMC::copyFiles(QString &fileDir) {
         QDir calDir = calFileInfo.dir();
 
         QFileInfo childDir(fileDir);
-        QDir dstDir = childDir.dir();
-        QString dst = dstDir.absolutePath()  + "/" + calFileInfo.fileName();
+        //QDir dstDir = childDir.dir();
+        QString dst = fileDir  + "/" + calFileInfo.fileName();
 
         qDebug() << "FileDir is: " << fileDir;
-        qDebug() << "tmp.SimCenter path is: " << dstDir.absolutePath();
+        //qDebug() << "tmp.SimCenter path is: " << dstDir.absolutePath();
         qDebug() << "calFileName is: " << calFileName;
         qDebug() << "Copying " << calFileName << " to " << dst << "\n";
 
@@ -433,8 +433,8 @@ UCSD_TMMC::copyFiles(QString &fileDir) {
         QDir loglikeDir = loglikeFileInfo.dir();
 
         QFileInfo childDir(fileDir);
-        QDir dstDir = childDir.dir();
-        QString dst = dstDir.absolutePath()  + "/" + loglikeFileInfo.fileName();
+        //QDir dstDir = childDir.dir();
+        QString dst = fileDir  + "/" + loglikeFileInfo.fileName();
 
         qDebug() << "loglikeFileName is: " << loglikeFileName;
         qDebug() << "Copying " << loglikeFileName << " to " << dst << "\n";

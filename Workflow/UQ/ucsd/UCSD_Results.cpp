@@ -228,7 +228,7 @@ int UCSD_Results::processResults(QString &filenameTab, QString &filenameTabPrior
 
     sa->setWidget(summary);
 
-    theDataTable = new ResultsDataChart(filenameTab);
+    theDataTable = new ResultsDataChart(filenameTab,  0, false);
     //
     // create spreadsheet,  a QTableWidget showing RV and results for each run
     //
@@ -440,7 +440,7 @@ UCSD_Results::inputFromJSON(QJsonObject &jsonObject)
 
     sa->setWidget(summary);
 
-    theDataTable = new ResultsDataChart(spreadsheetValue.toObject());
+    theDataTable = new ResultsDataChart(spreadsheetValue.toObject(), false);
 
     //
     // determine summary statistics for each edp

@@ -148,7 +148,7 @@ ResultsDataChart::ResultsDataChart(QJsonObject spread, QWidget *parent)
 //    //chart->setAnimationOptions(QChart::AllAnimations);
 //}
 
-ResultsDataChart::ResultsDataChart(QString filenameTab, int nRV, QWidget *parent)
+ResultsDataChart::ResultsDataChart(QString filenameTab, int nRV, bool checkSurrogate, QWidget *parent)
     : SimCenterWidget(parent), nrv(nRV)
 {
 
@@ -162,11 +162,12 @@ ResultsDataChart::ResultsDataChart(QString filenameTab, int nRV, QWidget *parent
     // Before we start, check if it is a surrogate model
     //
 
-    this->checkIfSurrogate(filenameTab,isSurrogate,nrv); // filenameTab,isSurrogate,nrv are updated
-
-    //
-    //
-    //
+    if (checkSurrogate){
+        this->checkIfSurrogate(filenameTab,isSurrogate,nrv); // filenameTab,isSurrogate,nrv are updated
+    } else {
+        isSurrogate = false;
+        nrv = nRV;
+    }
 
     QFileInfo fileTabInfo(filenameTab);
     if (!fileTabInfo.exists()) {
