@@ -440,7 +440,7 @@ UCSD_Results::inputFromJSON(QJsonObject &jsonObject)
 
     sa->setWidget(summary);
 
-    theDataTable = new ResultsDataChart(spreadsheetValue.toObject(), false);
+    theDataTable = new ResultsDataChart(spreadsheetValue.toObject());
 
     //
     // determine summary statistics for each edp
