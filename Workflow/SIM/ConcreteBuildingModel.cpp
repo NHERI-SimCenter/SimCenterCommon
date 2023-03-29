@@ -38,7 +38,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "ConcreteBuildingModel.h"
 #include "ReadWriteRVJSON.h"
-#include "sectiontitle.h"
+#include "SectionTitle.h"
 #include "RandomVariable.h"
 #include "GeneralInformationWidget.h"
 #include "RandomVariablesContainer.h"

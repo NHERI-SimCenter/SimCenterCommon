@@ -42,12 +42,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <InputWidgetOpenSeesAnalysis.h>
 #include <SimCenterAppMulti.h>
 #include <CustomPySimulation.h>
-<<<<<<< HEAD
 #include <QCoreApplication>
-=======
 #include <SurrogateSimulation.h>
-#include <QCoreApplication.h>
->>>>>>> upstream/master
+
 
 
 FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)

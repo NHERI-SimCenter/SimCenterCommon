@@ -38,7 +38,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "SimCenterAppMulti.h"
 
-#include "sectiontitle.h"
+#include "SectionTitle.h"
 
 // Qt headers
 #include <QTabWidget>

@@ -51,7 +51,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QRadioButton>
-#include <sectiontitle.h>
+#include <SectionTitle.h>
 #include <QLineEdit>
 #include <QDebug>
 #include <QRegularExpression>

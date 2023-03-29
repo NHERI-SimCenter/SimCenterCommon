@@ -12,14 +12,13 @@
 #include "Utils/RelativePathResolver.h"
 #include "Utils/dialogabout.h"
 #include "WorkflowAppWidget.h"
-#include "sectiontitle.h"
+#include "SectionTitle.h"
 
 #include <QAction>
 #include <QApplication>
 #include <QDebug>
 #include <QDockWidget>
 #include <QDesktopServices>
-#include <sectiontitle.h>
 #include <iostream>
 
 //#include <InputWidgetEE_UQ.h>
