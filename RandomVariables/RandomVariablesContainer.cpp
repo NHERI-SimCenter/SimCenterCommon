@@ -1093,6 +1093,12 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
           QStringList UserDefVecNames;
           foreach (const QJsonValue &rvValue, rvArray) {
 
+              if (rvObject.contains("name")) {
+                  QString theName =rvObject["name"].toString();
+                  if (theName.contains(QString("MultiModel-")))
+                         continue;
+
+              }
               QJsonObject rvObject = rvValue.toObject();
 
               if (rvObject.contains("variableClass")) {
