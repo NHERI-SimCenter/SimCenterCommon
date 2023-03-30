@@ -324,8 +324,16 @@ SimCenterUQResultsSurrogate::onSaveModelClicked()
 
     bool directoryCopied = copyPath(workflowDir1, workflowDir2, true);
     if (directoryCopied ==  false) {
-      QString err = QString("SimCenterUQResultsSurrogate::onSaveModelClicked - copyPath failed from : ") + workflowDir1 + QString(" to ") + workflowDir2;
-      errorMessage(err);
+        //check the remote directory
+        QDir dir(workflowDir1);// remote/results/templatedir
+        dir.cdUp();// Results
+        dir.cdUp();// Remote
+        dir.cd("templatedir");// templatedir
+        directoryCopied = copyPath(dir.path(), workflowDir2, true);
+        if (directoryCopied ==  false) {
+              QString err = QString("SimCenterUQResultsSurrogate::onSaveModelClicked - copyPath failed from : ") + workflowDir1 + QString(" to ") + workflowDir2;
+              errorMessage(err);
+        }
     }
 
     lastPath =  QFileInfo(fileName).path();

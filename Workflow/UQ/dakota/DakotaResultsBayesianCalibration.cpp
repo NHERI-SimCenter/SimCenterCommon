@@ -468,7 +468,7 @@ int DakotaResultsBayesianCalibration::processResults(QString &filenameResults, Q
     // add summary, detained info and spreadsheet with chart to the tabed widget
     //
 
-    theDataTable = new ResultsDataChart(filenameTab);
+    theDataTable = new ResultsDataChart(filenameTab,0,false); // sy - because of the burnin, we don't display surrogate
 
     tabWidget->addTab(sa,tr("Summary"));
     tabWidget->addTab(dakotaText, tr("General"));
