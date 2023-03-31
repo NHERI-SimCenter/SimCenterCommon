@@ -299,8 +299,7 @@ GeneralInformationWidget::outputToJSON(QJsonObject &jsonObj){
 
 bool
 GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
-    qDebug() << "General Information";
-
+  
     QJsonValue nameValue = jsonObject["name"];
     nameEdit->setText(nameValue.toString());
 
@@ -378,6 +377,11 @@ GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
     int tempUnitIndex = unitsTemperatureCombo->findData(tempUnit);
     unitsTemperatureCombo->setCurrentIndex(tempUnitIndex);
 
+    emit numStoriesOrHeightChanged(getNumFloors(), getHeight());
+    double newW, newD, newA;
+    this->getBuildingDimensions(newW, newD, newA);
+    emit buildingDimensionsChanged(newW, newD, newA);
+    
     return true;
 }
 
@@ -434,62 +438,44 @@ void
 GeneralInformationWidget::buildingDimensionsEditingFinished(void) {
  emit buildingDimensionsChanged(widthEdit->text().toDouble(), depthEdit->text().toDouble(), planAreaEdit->text().toDouble());
 }
-/*
-void
-GeneralInformationWidget::setNumFloors(int newNumFloors) {
-  if (storiesEdit->text().toInt() != newNumFloors) {
-    storiesEdit->setValue(newNumFloors);
-    qDebug() << "GeneralInformation::setNumFloors()";
-    emit numFloorsChanged(newNumFloors);
-  }
-}
-
-void
-GeneralInformationWidget::setHeight(double newHeight) {
-   qDebug() << "GEI:setHeight " << newHeight;
-
-  if (heightEdit->text().toDouble() != newHeight) {
-    heightEdit->setText(QString::number(newHeight)); 
-    emit buildingHeightChanged(newHeight);
-  }
-}
-*/
-
 
 void
 GeneralInformationWidget::setNumStoriesAndHeight(int newNumFloors, double newHeight) {
+  
   if ((storiesEdit->text().toInt() != newNumFloors) ||
        (heightEdit->text().toDouble() != newHeight)) {
     storiesEdit->setText(QString::number(newNumFloors));
-    heightEdit->setText(QString::number(newHeight)); 
+    heightEdit->setText(QString::number(newHeight));
+    
     emit numStoriesOrHeightChanged(newNumFloors, newHeight);
   }
 }
 
 
 void
-GeneralInformationWidget::setBuildingLocation(double newLat, double newLong) {
+GeneralInformationWidget::setBuildingLocation(double newLat, double newLong) {  
   if (latitudeEdit->text().toDouble() != newLat || 
       longitudeEdit->text().toDouble() != newLong) {
 
     latitudeEdit->setText(QString::number(newLat));
     longitudeEdit->setText(QString::number(newLong));
+
     emit buildingLocationChanged(newLat, newLong);
   }
 }
 
 void
 GeneralInformationWidget::setBuildingDimensions(double newB, double newD, double newA) {
+  
   if (widthEdit->text().toDouble() != newB || 
       depthEdit->text().toDouble() != newD ||
       planAreaEdit->text().toDouble() != newA) {
 
     widthEdit->setText(QString::number(newB)); 
-
     planAreaEdit->setText(QString::number(newA)); 
-
-    emit buildingDimensionsChanged(newB, newD, newA);
     depthEdit->setText(QString::number(newD));
+    
+    emit buildingDimensionsChanged(newB, newD, newA);
   }
 }
 

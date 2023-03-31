@@ -103,6 +103,7 @@ public slots:
 signals:
     //    void numFloorsChanged(int newNumFloors);
     //    void buildingHeightChanged(double newHeight);
+  
     void numStoriesOrHeightChanged(int numFloors, double height);
     void buildingDimensionsChanged(double newWidth, double newDepth, double planArea);
     void buildingLocationChanged(double latitude, double longitude);
