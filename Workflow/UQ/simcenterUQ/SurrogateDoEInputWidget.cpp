@@ -761,8 +761,8 @@ SurrogateDoEInputWidget::inputFromJSON(QJsonObject &jsonObject){
     }
 
     if (jsonObject.contains("IntensityMeasure")) {
-        theGpAdvancedCheckBox->setVisible(true);
-        theGpAdvancedCheckBox->setChecked(true);
+        theGpAdvancedCheckBoxEE->setVisible(true);
+        theGpAdvancedCheckBoxEE->setChecked(true);
         im_stackedWidgets->setCurrentIndex(0);
         imChoicesComboBox->setCurrentIndex(0);
         qDebug() << "Start loading intensity measure";

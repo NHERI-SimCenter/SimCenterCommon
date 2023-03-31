@@ -378,6 +378,7 @@ bool SimCenterIntensityMeasureWidget::outputToJSON(QJsonObject &jsonObject)
 
 bool SimCenterIntensityMeasureWidget::inputFromJSON(QJsonObject &jsonObject)
 {
+    this->removeAll();
     qDebug() << "starting parsing im";
     qDebug() << jsonObject;
     auto imObj = jsonObject["IntensityMeasure"].toObject();
@@ -514,6 +515,21 @@ void SimCenterIntensityMeasureWidget::removeIMItem()
     }
 }
 
+void SimCenterIntensityMeasureWidget::removeAll()
+{
+    auto numIM = this->getNumberOfIM();
+    for (int i = numIM-1; i >= 0; i--) {
+        QLayoutItem *curItem = imLayout->itemAt(i);
+        auto curWidget = dynamic_cast<SimCenterIM*>(curItem->widget());
+        imLayout->removeWidget(curWidget);
+        curWidget->setParent(0);
+        delete curWidget;
+    }
+
+    if (addGrid) {
+       this->getNumBins();
+    }
+}
 
 SimCenterIntensityMeasureCombo* SimCenterIntensityMeasureWidget::imFindChild(const QString& name)
 {
