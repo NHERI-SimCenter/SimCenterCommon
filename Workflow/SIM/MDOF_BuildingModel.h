@@ -128,7 +128,7 @@ private:
     QLineEdit *inKx;
     QLineEdit *inKy;
     QLineEdit *inK_theta;
-    //TODO: This code is not maintainable, we need to switch to Model-View Architecture
+
     QLineEdit *inFyx;
     QLineEdit *inFyy;
     QLineEdit *inBx;
@@ -190,6 +190,7 @@ private:
   GlWidget2D *theView;
 #endif
   static int numModels;
+  int myTag;
   
 };
 
