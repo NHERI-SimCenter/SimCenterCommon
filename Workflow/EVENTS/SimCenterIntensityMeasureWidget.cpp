@@ -425,6 +425,18 @@ bool SimCenterIntensityMeasureWidget::inputFromJSON(QJsonObject &jsonObject)
             curIMUnit->periodLine->setText(periods_string);
         }
 
+        if (items.contains("lowerBound")) {
+            auto lb = items.value("lowerBound").toString();
+            curIMUnit->minVal->setText(lb);
+        }
+        if (items.contains("upperBound")) {
+            auto ub = items.value("upperBound").toString();
+            curIMUnit->maxVal->setText(ub);
+        }
+        if (items.contains("numBins")) {
+            auto nb = items.value("numBins").toString();
+            curIMUnit->numBins->setText(nb);
+        }
         i = i + 1;
     }
     return true;
