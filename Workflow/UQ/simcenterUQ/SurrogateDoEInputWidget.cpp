@@ -358,7 +358,7 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     {
         im_stackedWidgets->setCurrentIndex(id);
 
-        if (id==0){
+        if (id==1){
             // "Ground Motion Intensity"
             useGeoMeanIM ->setVisible(true);
         } else {
@@ -857,6 +857,7 @@ SurrogateDoEInputWidget::onEventTypeChanged(QString typeEVT) {
     } else {
         // not an earthquake event, inactivate ground motion intensity widget
         theGpAdvancedCheckBoxEE->setVisible(false);
+        theGpAdvancedCheckBoxEE->setChecked(false);
         theLogtCheckBox->setChecked(false);
     }
 }
