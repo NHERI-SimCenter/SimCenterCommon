@@ -32,7 +32,6 @@ QLabel#titleText {
     font-weight: bold;
 }
 
-
 footerLayout {
     background-color: #B0BEC5;
     height: 30px;
