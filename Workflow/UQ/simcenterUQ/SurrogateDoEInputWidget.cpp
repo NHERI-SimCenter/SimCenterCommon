@@ -344,7 +344,7 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     theGpAdvancedWidgetLayoutEE->addWidget(imChoicesComboBox,eeid++,0,1,9);
     useGeoMeanIM = new QCheckBox("Use geometric mean when 2 or more ground motion components are given");
     useGeoMeanIM -> setChecked(true);
-    useGeoMeanIM -> setVisible(false);
+    useGeoMeanIM -> setVisible(true);
     theGpAdvancedWidgetLayoutEE->addWidget(useGeoMeanIM, eeid++, 0);
 
     QWidget *emptyVariableWidget = new QWidget();
@@ -358,7 +358,7 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     {
         im_stackedWidgets->setCurrentIndex(id);
 
-        if (id==1){
+        if (id==0){
             // "Ground Motion Intensity"
             useGeoMeanIM ->setVisible(true);
         } else {
