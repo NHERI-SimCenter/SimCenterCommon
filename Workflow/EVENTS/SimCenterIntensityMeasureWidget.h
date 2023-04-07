@@ -111,6 +111,7 @@ public:
 public slots:
     void addIMItem();
     void removeIMItem();
+    void removeAll();
     void getNumBins(void);
 
 signals:
