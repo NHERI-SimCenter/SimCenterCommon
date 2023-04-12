@@ -61,21 +61,19 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     statusDockWidget->setWidget(statusWidget);
 
     //    QString appName = QCoreApplication::applicationName();
-    if (appName == "PBE") {
-      // statusWidget->setMinimumSize(50,1000);
-      // statusWidget->setMinimumWidth(400);
-      // statusWidget->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-      resizeDocks({statusDockWidget}, {400}, Qt::Horizontal);
-
-      this->addDockWidget(Qt::BottomDockWidgetArea, statusDockWidget);
+    if (appName.contains("PBE")) {
+      
+      this->addDockWidget(Qt::RightDockWidgetArea, statusDockWidget);
+      resizeDocks({statusDockWidget}, {500}, Qt::Horizontal);
       
     }  else {
       
-      this->addDockWidget(Qt::RightDockWidgetArea, statusDockWidget);
       resizeDocks({statusDockWidget}, {30}, Qt::Vertical);
+      this->addDockWidget(Qt::BottomDockWidgetArea, statusDockWidget);
       
     } 
 
+      
 
     connect(statusWidget,&ProgramOutputDialog::showDialog,statusDockWidget,&QDockWidget::setVisible);
 
