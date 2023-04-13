@@ -43,7 +43,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SimCenterAppMulti.h>
 #include <CustomPySimulation.h>
 #include <SurrogateSimulation.h>
-#include <QCoreApplication.h>
+#include <QCoreApplication>
 
 
 FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
