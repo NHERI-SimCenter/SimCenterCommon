@@ -18,7 +18,7 @@ SOURCES += $$PWD/HeaderWidget.cpp \
     $$PWD/Utils/dialogabout.cpp \
     $$PWD/Utils/ProgramOutputDialog.cpp \
     $$PWD/Utils/PythonProcessHandler.cpp \
-    $$PWD/sectiontitle.cpp \
+    $$PWD/SectionTitle.cpp \
     $$PWD/FooterWidget.cpp \
     $$PWD/SimCenterWidget.cpp \
     $$PWD/SC_ComboBox.cpp \
@@ -42,7 +42,7 @@ HEADERS += $$PWD/HeaderWidget.h \
     $$PWD/Utils/dialogabout.h \
     $$PWD/Utils/ProgramOutputDialog.h \
     $$PWD/Utils/PythonProcessHandler.h \
-    $$PWD/sectiontitle.h \
+    $$PWD/SectionTitle.h \
     $$PWD/FooterWidget.h \
     $$PWD/SimCenterWidget.h \
     $$PWD/SC_ComboBox.h \

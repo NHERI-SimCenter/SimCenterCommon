@@ -51,11 +51,11 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QRadioButton>
-#include <sectiontitle.h>
 #include <QLineEdit>
 #include <QDebug>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
+#include <SectionTitle.h>
 
 SimCenterIntensityMeasureWidget::SimCenterIntensityMeasureWidget(QWidget* parent)
     : SimCenterWidget(parent)

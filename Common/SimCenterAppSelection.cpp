@@ -37,7 +37,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written by: fmk
 
 #include "SimCenterAppSelection.h"
-#include "sectiontitle.h"
+#include "SectionTitle.h"
 #include <GoogleAnalytics.h>
 
 // Qt headers
