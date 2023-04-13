@@ -37,6 +37,8 @@
 #include <QScreen>
 #include <QSettings>
 
+#include <SectionTitle.h>
+
 MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theService, QWidget *parent)
     : QMainWindow(parent), loggedIn(false), inputWidget(theApp),   theRemoteInterface(theService), isAutoLogin(false)
 {
