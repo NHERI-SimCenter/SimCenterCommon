@@ -375,7 +375,7 @@ void ResultsDataChart::checkIfSurrogate(QString &filenameTab, bool &isSur, int &
     QFileInfo surLogInfo(surLog);
 
 
-    if (surTabInfo.exists() &&surTabHeaderInfo.exists()) {
+    if (surTabInfo.exists()) {
             isSur=true;
     } else {
             isSur=false;
@@ -383,50 +383,53 @@ void ResultsDataChart::checkIfSurrogate(QString &filenameTab, bool &isSur, int &
 
     if (isSur) {
 
-        //
-        // mearge header and values
-        //
+        if (surTabHeaderInfo.exists()) {
 
-        std::ifstream tabResults(surTabPath.toStdString().c_str());
-        std::ifstream tabHeader(surTabHeaderPath.toStdString().c_str());
+            //
+            // mearge header and values
+            //
 
-        std::vector<std::string> lines;
-        if (tabResults.is_open() && tabHeader.is_open()) {
-            std::string line;
-            while (std::getline(tabHeader, line)) {
-                lines.push_back(line);
+            std::ifstream tabResults(surTabPath.toStdString().c_str());
+            std::ifstream tabHeader(surTabHeaderPath.toStdString().c_str());
 
-                // count the number of multi model RVs
-                int occurrences = 0;
-                std::string::size_type pos = 0;
-                while ((pos = line.find(multiModelString, pos )) != std::string::npos) {
-                       ++ occurrences;
-                       pos += multiModelString.length();
+            std::vector<std::string> lines;
+            if (tabResults.is_open() && tabHeader.is_open()) {
+                std::string line;
+                while (std::getline(tabHeader, line)) {
+                    lines.push_back(line);
+
+                    // count the number of multi model RVs
+                    int occurrences = 0;
+                    std::string::size_type pos = 0;
+                    while ((pos = line.find(multiModelString, pos )) != std::string::npos) {
+                           ++ occurrences;
+                           pos += multiModelString.length();
+                    }
+
+                    if (occurrences>0){
+                        isSur = false;
+                        nrv = nrv + occurrences;
+                        return;
+                    }
                 }
+                while (std::getline(tabResults, line)) {
+                    lines.push_back(line);
+                }
+                tabResults.close();
+                tabHeader.close();
+            } else {
+                errorMessage("ERROR: tab header file not found!");
+            }
 
-                if (occurrences>0){
-                    isSur = false;
-                    nrv = nrv + occurrences;
-                    return;
+            std::ofstream tabResultsNew(surTabPath.toStdString().c_str());
+            if (tabResultsNew.is_open()) {
+                for (const std::string& line : lines) {
+                tabResultsNew << line << std::endl;
                 }
             }
-            while (std::getline(tabResults, line)) {
-                lines.push_back(line);
-            }
-            tabResults.close();
-            tabHeader.close();
-        } else {
-            errorMessage("ERROR: tab header file not found!");
-        }
+            tabResultsNew.close();
 
-        std::ofstream tabResultsNew(surTabPath.toStdString().c_str());
-        if (tabResultsNew.is_open()) {
-            for (const std::string& line : lines) {
-            tabResultsNew << line << std::endl;
-            }
         }
-        tabResultsNew.close();
-
         //
         // get nrv
         //
@@ -435,7 +438,8 @@ void ResultsDataChart::checkIfSurrogate(QString &filenameTab, bool &isSur, int &
         if (surrogateLog.open(QIODevice::ReadOnly)) {
             QString line = surrogateLog.readLine();
             QStringList strList = line.split(" ");
-            nRV = strList[1].toInt(); // num RV
+            if (strList[0]=="numRV")
+                nRV = strList[1].toInt(); // num RV
         }
 
     }

@@ -93,7 +93,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QAreaSeries>
 
 SimCenterUQResultsSurrogate::SimCenterUQResultsSurrogate(RandomVariablesContainer *theRandomVariables, QWidget *parent)
-    : UQ_Results(parent), theRVs(theRandomVariables)
+    : UQ_Results(parent), theRVs(theRandomVariables), saveModelButton(NULL), saveResultButton(NULL), saveXButton(NULL), saveYButton(NULL)
 {
     // title & add button
     theDataTable = NULL;
@@ -262,14 +262,14 @@ int SimCenterUQResultsSurrogate::processResults(QString &filenameResults, QStrin
       qDebug() << "no xdim";
       return -1;
     }
-    int numRandomVar = 0;    
+    int numRandomVar = theRVs->getNumRandomVariables();
     QJsonValue theValue = jsonObj["xdim"];
     if (theValue.isDouble())
       numRandomVar = theValue.toInt();
       
     
     //theDataTable = new ResultsDataChart(filenameTab);
-    theDataTable = new ResultsDataChart(filenameTab,  theRVs->getNumRandomVariables());
+    theDataTable = new ResultsDataChart(filenameTab, numRandomVar );
 
     //
     // create spreadsheet,  a QTableWidget showing RV and results for each run
@@ -452,16 +452,16 @@ SimCenterUQResultsSurrogate::inputFromJSON(QJsonObject &jsonObject)
 
     QScrollArea *sa = new QScrollArea;
     summarySurrogate(*&sa);
-    saveModelButton ->setDisabled(true);
-    saveResultButton ->setDisabled(true);
-    saveXButton->setDisabled(true);
-    saveYButton->setDisabled(true);
-    saveModelButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
-    saveResultButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
-    saveXButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
-    saveYButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
-
-
+    if (saveModelButton!=NULL)  {
+        saveModelButton ->setDisabled(true);
+        saveResultButton ->setDisabled(true);
+        saveXButton->setDisabled(true);
+        saveYButton->setDisabled(true);
+        saveModelButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
+        saveResultButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
+        saveXButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
+        saveYButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
+    }
 
 
     //
@@ -543,6 +543,10 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
 
     //QJsonObject uqObject = jsonObj["UQ_Method"].toObject();
     int nQoI = jsonObj["ydim"].toInt();
+
+    if (nQoI==0) {
+        return;
+    }
 
     QJsonArray QoI_tmp = jsonObj["ylabels"].toArray();
     double nTime = jsonObj["valTime"].toDouble();

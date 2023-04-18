@@ -142,6 +142,8 @@ PLoMInputWidget::PLoMInputWidget(QWidget *parent)
     m_stackedWidgets->addWidget(preTrainGroup);
     m_typeButtonsGroup->button(0)->setChecked(true);
     m_stackedWidgets->setCurrentIndex(0);
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     connect(m_typeButtonsGroup, &QButtonGroup::idReleased, [this](int id)
     {
         if(id == 0) {
@@ -155,6 +157,21 @@ PLoMInputWidget::PLoMInputWidget(QWidget *parent)
             preTrained = true;
         }
     });
+#else
+    connect(m_typeButtonsGroup, QOverload<int>::of(&QButtonGroup::buttonReleased),this, [this](int id)
+    {
+        if(id == 0) {
+            m_typeButtonsGroup->button(0)->setChecked(true);
+            m_stackedWidgets->setCurrentIndex(0);
+            preTrained = false;
+        }
+        else if (id == 1) {
+            m_typeButtonsGroup->button(1)->setChecked(true);
+            m_stackedWidgets->setCurrentIndex(1);
+            preTrained = true;
+        }
+    });
+#endif
 
     layout->addWidget(m_stackedWidgets,wid++);
 

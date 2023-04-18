@@ -51,11 +51,11 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QRadioButton>
-#include <sectiontitle.h>
 #include <QLineEdit>
 #include <QDebug>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
+#include <SectionTitle.h>
 
 SimCenterIntensityMeasureWidget::SimCenterIntensityMeasureWidget(QWidget* parent)
     : SimCenterWidget(parent)
@@ -378,6 +378,7 @@ bool SimCenterIntensityMeasureWidget::outputToJSON(QJsonObject &jsonObject)
 
 bool SimCenterIntensityMeasureWidget::inputFromJSON(QJsonObject &jsonObject)
 {
+    this->removeAll();
     qDebug() << "starting parsing im";
     qDebug() << jsonObject;
     auto imObj = jsonObject["IntensityMeasure"].toObject();
@@ -424,6 +425,18 @@ bool SimCenterIntensityMeasureWidget::inputFromJSON(QJsonObject &jsonObject)
             curIMUnit->periodLine->setText(periods_string);
         }
 
+        if (items.contains("lowerBound")) {
+            auto lb = items.value("lowerBound").toString();
+            curIMUnit->minVal->setText(lb);
+        }
+        if (items.contains("upperBound")) {
+            auto ub = items.value("upperBound").toString();
+            curIMUnit->maxVal->setText(ub);
+        }
+        if (items.contains("numBins")) {
+            auto nb = items.value("numBins").toString();
+            curIMUnit->numBins->setText(nb);
+        }
         i = i + 1;
     }
     return true;
@@ -514,6 +527,21 @@ void SimCenterIntensityMeasureWidget::removeIMItem()
     }
 }
 
+void SimCenterIntensityMeasureWidget::removeAll()
+{
+    auto numIM = this->getNumberOfIM();
+    for (int i = numIM-1; i >= 0; i--) {
+        QLayoutItem *curItem = imLayout->itemAt(i);
+        auto curWidget = dynamic_cast<SimCenterIM*>(curItem->widget());
+        imLayout->removeWidget(curWidget);
+        curWidget->setParent(0);
+        delete curWidget;
+    }
+
+    if (addGrid) {
+       this->getNumBins();
+    }
+}
 
 SimCenterIntensityMeasureCombo* SimCenterIntensityMeasureWidget::imFindChild(const QString& name)
 {

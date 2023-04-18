@@ -34,7 +34,7 @@
 //    Maxwell Rutmann, University of California at Berkeley, CA, United States
 //    Peter Mackenzie-Helnwein, University of Washington, Seattle, WA, United States
 
-#include "sectiontitle.h"
+#include "SectionTitle.h"
 
 SectionTitle::SectionTitle(QWidget *parent) : QFrame(parent)
 {

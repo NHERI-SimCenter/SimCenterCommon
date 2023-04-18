@@ -1,4 +1,5 @@
-// Written: fmckenna
+#ifndef SC_TABLE_EDIT_H
+#define SC_TABLE_EDIT_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -19,7 +20,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -36,47 +37,37 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+/**
+ *  @author  fmckenna
+ *  @date    2/2017
+ *  @version 1.0
+ *
+ *  @section DESCRIPTION
+ *
+ *  This is an editable table for SimCenter, implements input/output To JSON
+ */
 
-#include "FEA_Selection.h"
-#include <InputWidgetOpenSeesAnalysis.h>
-#include <SimCenterAppMulti.h>
-#include <CustomPySimulation.h>
-#include <SurrogateSimulation.h>
-#include <QCoreApplication>
+#include <QWidget>
+#include <QString>
+#include <QStringList>
 
+class QTableWidget;
+class QJsonObject;
 
-FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
-  : SimCenterAppSelection(QString("FE Application"), QString("Simulation"), parent)
+class SC_TableEdit : public QWidget
 {
-
-  SimCenterAppWidget *opensees= new InputWidgetOpenSeesAnalysis();
-  this->addComponent(QString("OpenSees"), QString("OpenSees-Simulation"), opensees);
-  if (inclMulti == true) {
-    SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Simulation"), QString("MultiModel-Simulation"),this, this);
-    this->addComponent(QString("Multi Model"), QString("MultiModel"), multi);
-  }  
-
-  SimCenterAppWidget *custom_py_simulation= new CustomPySimulation();
-  this->addComponent(QString("CustomPy-Simulation"), QString("CustomPy-Simulation"), custom_py_simulation);
-
-  QString appName = QCoreApplication::applicationName();
-  if (appName == "EE-UQ") {
-     SimCenterAppWidget *surrogate = new SurrogateSimulation();
-      this->addComponent(QString("None (only for surrogate)"), QString("SurrogateSimulation"), surrogate);
-  }
-
-}
-
-FEA_Selection::~FEA_Selection()
-{
-
-}
+public:
+  
+  SC_TableEdit(QString key, QStringList values, int numRows, double *initData = 0);
+  ~SC_TableEdit();
+  
+  bool outputToJSON(QJsonObject &jsonObject);
+  bool inputFromJSON(QJsonObject &jsonObject);
 
 
-SimCenterAppWidget *
-FEA_Selection::getClone()
-{
-  FEA_Selection *newSelection = new FEA_Selection(false);
-  return newSelection;
-}
+private:
+  QString key;
+  QTableWidget *theTable;
+};
+
+#endif // SC_TABLEEDIT_H

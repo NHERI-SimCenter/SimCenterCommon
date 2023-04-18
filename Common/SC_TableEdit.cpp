@@ -1,5 +1,3 @@
-// Written: fmckenna
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -19,7 +17,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -38,45 +36,75 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include "FEA_Selection.h"
-#include <InputWidgetOpenSeesAnalysis.h>
-#include <SimCenterAppMulti.h>
-#include <CustomPySimulation.h>
-#include <SurrogateSimulation.h>
-#include <QCoreApplication>
+#include "SC_TableEdit.h"
+#include <QTableWidget>
+#include <QHeaderView>
+#include <QJsonObject>
+#include <QGridLayout>
+#include <QPushButton>
 
-
-FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
-  : SimCenterAppSelection(QString("FE Application"), QString("Simulation"), parent)
+SC_TableEdit::SC_TableEdit(QString theKey, QStringList colHeadings, int numRows, double *data)
+  :QWidget()
 {
+  key = theKey;
 
-  SimCenterAppWidget *opensees= new InputWidgetOpenSeesAnalysis();
-  this->addComponent(QString("OpenSees"), QString("OpenSees-Simulation"), opensees);
-  if (inclMulti == true) {
-    SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Simulation"), QString("MultiModel-Simulation"),this, this);
-    this->addComponent(QString("Multi Model"), QString("MultiModel"), multi);
-  }  
-
-  SimCenterAppWidget *custom_py_simulation= new CustomPySimulation();
-  this->addComponent(QString("CustomPy-Simulation"), QString("CustomPy-Simulation"), custom_py_simulation);
-
-  QString appName = QCoreApplication::applicationName();
-  if (appName == "EE-UQ") {
-     SimCenterAppWidget *surrogate = new SurrogateSimulation();
-      this->addComponent(QString("None (only for surrogate)"), QString("SurrogateSimulation"), surrogate);
+  QStringList headings;
+  int numCols = 0;
+  foreach (const QString &theHeading, colHeadings) {
+    headings << theHeading;
+    numCols++;
   }
 
+  theTable = new QTableWidget();
+  theTable->setColumnCount(numCols);
+  theTable->setRowCount(numRows);  
+  theTable->setHorizontalHeaderLabels(headings);
+  theTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+  theTable->verticalHeader()->setVisible(false);
+
+
+  QPushButton *addB = new QPushButton("Add");    
+  QPushButton *delB = new QPushButton("Del");
+ 
+  QGridLayout *layout = new QGridLayout();
+  layout->addWidget(theTable, 0,0);
+  layout->addWidget(addB,0,1);
+  layout->addWidget(delB,0,2);  
+  
+  this->setLayout(layout);
+
+  connect(addB, &QPushButton::released, this, [=]() {
+    int row = theTable->currentRow();
+    if (row != -1)  // insert below selected
+      theTable->insertRow(row+1);
+    else            // if none selected, add to end
+      theTable->insertRow(theTable->rowCount());      
+  });
+
+  connect(delB, &QPushButton::released, this, [=]() {
+    int row = theTable->currentRow();
+    if ((row != -1) && (theTable->rowCount() != 1)) // don't delete if only 1 row
+      theTable->removeRow(row);
+  });  
 }
 
-FEA_Selection::~FEA_Selection()
+SC_TableEdit::~SC_TableEdit()
 {
 
 }
 
 
-SimCenterAppWidget *
-FEA_Selection::getClone()
+bool
+SC_TableEdit::outputToJSON(QJsonObject &jsonObject)
 {
-  FEA_Selection *newSelection = new FEA_Selection(false);
-  return newSelection;
+
+    return true;
 }
+
+bool
+SC_TableEdit::inputFromJSON(QJsonObject &jsonObject)
+{
+
+    return true;
+}
+
