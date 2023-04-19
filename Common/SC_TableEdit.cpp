@@ -1,6 +1,3 @@
-#ifndef UQ_ENGINE_SELECTION_H
-#define UQ_ENGINE_SELECTION_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -20,7 +17,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -39,60 +36,75 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterAppSelection.h>
-#include "UQ_Engine.h"
-class InputWidgetEDP;
+#include "SC_TableEdit.h"
+#include <QTableWidget>
+#include <QHeaderView>
+#include <QJsonObject>
+#include <QGridLayout>
+#include <QPushButton>
 
-class UQ_EngineSelection : public  SimCenterAppSelection
+SC_TableEdit::SC_TableEdit(QString theKey, QStringList colHeadings, int numRows, double *data)
+  :QWidget()
 {
-  Q_OBJECT
+  key = theKey;
 
-  public:
+  QStringList headings;
+  int numCols = 0;
+  foreach (const QString &theHeading, colHeadings) {
+    headings << theHeading;
+    numCols++;
+  }
 
-  UQ_EngineSelection(UQ_EngineType = All,
-		     QWidget *parent = 0);
+  theTable = new QTableWidget();
+  theTable->setColumnCount(numCols);
+  theTable->setRowCount(numRows);  
+  theTable->setHorizontalHeaderLabels(headings);
+  theTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+  theTable->verticalHeader()->setVisible(false);
+
+
+  QPushButton *addB = new QPushButton("Add");    
+  QPushButton *delB = new QPushButton("Del");
+ 
+  QGridLayout *layout = new QGridLayout();
+  layout->addWidget(theTable, 0,0);
+  layout->addWidget(addB,0,1);
+  layout->addWidget(delB,0,2);  
   
-  UQ_EngineSelection(bool includeNone,
-		     QString assetType,
-		     UQ_EngineType = All,
-		     QWidget *parent = 0);    
-  
-  UQ_Results  *getResults();
-  int getNumParallelTasks(void);
-  UQ_Engine *getCurrentEngine();
-  void setRV_Defaults();
-  
- signals:
+  this->setLayout(layout);
 
-  void onUQ_EngineChanged(QString);
-  void onNumModelsChanged(int);
-  void queryEVT(void); // added KZ
+  connect(addB, &QPushButton::released, this, [=]() {
+    int row = theTable->currentRow();
+    if (row != -1)  // insert below selected
+      theTable->insertRow(row+1);
+    else            // if none selected, add to end
+      theTable->insertRow(theTable->rowCount());      
+  });
 
- public slots:
+  connect(delB, &QPushButton::released, this, [=]() {
+    int row = theTable->currentRow();
+    if ((row != -1) && (theTable->rowCount() != 1)) // don't delete if only 1 row
+      theTable->removeRow(row);
+  });  
+}
 
-  void engineSelectionChanged(QString eng);
-  void updateEngineComboDisp(const QString="Forward Propagation");
-  void relayQueryEVT(void); // added KZ
-  void setEventType(QString type); // added KZ
-  void methodSelectionChanged(QString type);
-  
-private:
-  void initialize();
-  void createComboBox();
-  QComboBox *theMethodCombo;
-  UQ_Engine *theCurrentEngine;
-  UQ_Engine *thePreviousEngine;  
-  UQ_Engine *theDakotaEngine;
-  UQ_Engine *theSimCenterUQEngine;
-  UQ_Engine *theUQpyEngine;
-  UQ_Engine *theUCSD_Engine;
-  UQ_Engine *thefilterEngine;
-  UQ_Engine *theCustomEngine;
-  bool includeNoneOption;
-  QString engineName;
-  UQ_EngineType typeOption;
+SC_TableEdit::~SC_TableEdit()
+{
 
-  QComboBox *theEngineComboDisp;
-};
+}
 
-#endif 
+
+bool
+SC_TableEdit::outputToJSON(QJsonObject &jsonObject)
+{
+
+    return true;
+}
+
+bool
+SC_TableEdit::inputFromJSON(QJsonObject &jsonObject)
+{
+
+    return true;
+}
+

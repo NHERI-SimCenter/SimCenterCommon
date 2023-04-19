@@ -458,10 +458,10 @@ void LocalApplication::handleProcessFinished(int exitCode)
 
     if(exitCode != 0)
     {
-        QString errText("An error occurred in the Python script, the exit code is " + QString::number(exitCode));
+        //QString errText("An error occurred in the Python script, the exit code is " + QString::number(exitCode));
 
-        this->errorMessage(errText);
-        this->statusMessage("Analysis complete with errors");
+        //this->errorMessage(errText);
+        this->statusMessage("Analysis finished with errors");
         emit runComplete();
 
         return;

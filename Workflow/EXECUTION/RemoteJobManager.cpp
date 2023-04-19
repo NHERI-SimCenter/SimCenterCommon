@@ -368,7 +368,7 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 
             name1 = localDir + QDir::separator() + QString("inputRWHALE.json");
             name2 = localDir + QDir::separator() + QString("input_data.zip");
-            name3 = localDir + QDir::separator() + QString("hdf.zip");
+            name3 = localDir + QDir::separator() + QString("Results.zip");
 
             localFiles.append(name1);
             localFiles.append(name2);
@@ -382,7 +382,7 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 
             QString rName1 = archiveDir + QString("/inputRWHALE.json");
             QString rName2 = archiveDir + QString("/input_data.zip");
-            QString rName3 = archiveDir + QString("/hdf.zip");
+            QString rName3 = archiveDir + QString("/Results.zip");
 
             // first download the input data & load it
 
@@ -418,6 +418,7 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
         if (result == true) {
             QString appName = QCoreApplication::applicationName();
             if (appName != "R2D"){
+	      
 		QString templateDir = name3 + QDir::separator() + QString("templatedir");
 		QDir templateD(templateDir);
 		if (templateD.exists())
@@ -430,7 +431,8 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
                 emit loadFile(inputFile);
 
 		// remove results dir if exists
-		QString resultsDir = name3 + QDir::separator() + QString("results");
+		QString resultsDir = name3 + QDir::separator() + QString("Results");
+		
 		QDir resultsD(resultsDir);
 		if (resultsD.exists())
 		  resultsD.removeRecursively();
@@ -441,46 +443,18 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
                 this->close();
 		
             } else {
+	      
                 // unzip files
                 ZipUtils::UnzipFile(name3, localDir);
                 ZipUtils::UnzipFile(name2, localDir);
 
-                // convert any hdf files to csv files
-                QStringList theFiles = localWork.entryList(QStringList() << "*.hdf5" << "*.hdf",QDir::Files);
-                QString pyScript = SimCenterPreferences::getInstance()->getAppDir() + QDir::separator() +
-                        "applications" + QDir::separator() + "performDL" + QDir::separator() + "pelicun" + QDir::separator() + "HDF_to_CSV.py";
-                foreach(QString filename, theFiles) {
-
-                    QString pathToFile = localWork.filePath(filename);
-                    QStringList args{pyScript, pathToFile};
-
-                    QString python = SimCenterPreferences::getInstance()->getPython();
-                    //QSettings settings("SimCenter", "Common"); //These names will need to be constants to be shared
-                    //QVariant  pythonLocationVariant = settings.value("pythonExePath");
-                    //if (pythonLocationVariant.isValid()) {
-                    //    python = pythonLocationVariant.toString();
-                    //}
-
-                    QString msg = "Unpacking hdf file "+filename +" to the local directory.";
-                    emit sendStatusMessage(msg);
-                    proc->start(python,args);
-
-                    proc->waitForFinished();
-
-                    handleProcessFinished(proc->exitCode(), proc->exitStatus(), filename);
-
-                    if(proc->exitCode() != 0)
-                        return;
-                }
-
                 // now load inputfile and process results
                 QFileInfo fileInfo(name1);
                 QString filePath = fileInfo.absolutePath();
-                //QString name2("");
-                //QString name3("");
+		QString resultsDir = filePath + QDir::separator() + QString("Results");
 
                 emit loadFile(name1);
-                emit processResults(filePath);
+                emit processResults(resultsDir);
             }
         } else {
             emit sendErrorMessage("ERROR - Failed to download File - did Job finish successfully?");

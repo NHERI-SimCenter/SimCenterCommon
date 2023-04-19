@@ -167,10 +167,9 @@ RemoteApplication::outputToJSON(QJsonObject &jsonObject)
 
     if (appName != "R2D"){
         jsonObject["localAppDir"]=SimCenterPreferences::getInstance()->getAppDir();
-        jsonObject["remoteAppWorkingDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();
         jsonObject["workingDir"]=SimCenterPreferences::getInstance()->getRemoteWorkDir();
     } else {
-        jsonObject["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();
+        jsonObject["localAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();	
     }
 
     jsonObject["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();    
@@ -282,6 +281,9 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
 
         proc->execute(python,args);
         proc->waitForStarted();
+
+	// qDebug() << python;
+	// qDebug() << args;
 
         //
         // in tmpDirectory we will zip up current template dir and then remove before sending (doone to reduce number of sends)
@@ -437,12 +439,12 @@ RemoteApplication::uploadDirReturn(bool result)
           QString dirName = theDirectory.dirName();
 
           QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
-          QString configFile = remoteDirectory + "/inputRWHALE.json";
+          QString inputFile = remoteDirectory + "/inputRWHALE.json";
           QString inputData = remoteDirectory + "/input_data.zip";
 
           QJsonObject inputs;
-          inputs["configFile"]=configFile;
-          inputs["dataFile"]=inputData;
+          inputs["inputFile"]=inputFile;
+          inputs["compressedInputDir"]=inputData;
           job["inputs"]=inputs;
 
           QJsonObject parameters;
@@ -450,8 +452,8 @@ RemoteApplication::uploadDirReturn(bool result)
 
           int numBldg = buildingsPerTask->text().toInt();
           if (numBldg != 0 ) {
-              parameters["buildingsPerTask"]=QString::number(numBldg);
-              parameters["saveResults"]=saveResultsBox->isChecked();
+	    // parameters["buildingsPerTask"]=QString::number(numBldg);
+            parameters["saveResults"]=saveResultsBox->isChecked();
           }
           job["parameters"]=parameters;
 

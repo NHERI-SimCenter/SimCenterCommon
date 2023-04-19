@@ -38,7 +38,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "SteelBuildingModel.h"
 #include "ReadWriteRVJSON.h"
-#include "sectiontitle.h"
 #include "RandomVariable.h"
 #include "GeneralInformationWidget.h"
 #include "OpenSeesParser.h"
@@ -257,10 +256,10 @@ SteelBuildingModel::SteelBuildingModel(RandomVariablesContainer *theRandomVariab
     // add signal and slot connections with GI
     GeneralInformationWidget *theGI = GeneralInformationWidget::getInstance();
 
+    this->setDefaultValues();
+    
     connect(this,SIGNAL(numStoriesOrHeightChanged(int, double)), theGI, SLOT(setNumStoriesAndHeight(int, double)));
     connect(this,SIGNAL(buildingDimensionsChanged(double,double,double)),theGI,SLOT(setBuildingDimensions(double,double,double)));
-
-    this->setDefaultValues();
 }
 
 
@@ -484,8 +483,9 @@ void SteelBuildingModel::addRandomVariable(QString &text, int numReferences)
     else
     {
         randomVariables[text] = numReferences;
-        RandomVariable *theRV = new RandomVariable(QString("Uncertain"), text, "Dakota");
-        theRandomVariablesContainer->addRandomVariable(theRV);
+        //RandomVariable *theRV = new RandomVariable(QString("Uncertain"), text, "Dakota");
+        //theRandomVariablesContainer->addRandomVariable(theRV);
+        theRandomVariablesContainer->addRandomVariable(text);
     }
 }
 

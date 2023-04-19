@@ -34,7 +34,7 @@
 //    Maxwell Rutmann, University of California at Berkeley, CA, United States
 //    Peter Mackenzie-Helnwein, University of Washington, Seattle, WA, United States
 
-#include "sectiontitle.h"
+#include "SectionTitle.h"
 
 SectionTitle::SectionTitle(QWidget *parent) : QFrame(parent)
 {
@@ -65,6 +65,18 @@ SectionTitle::SectionTitle(QWidget *parent) : QFrame(parent)
 void SectionTitle::setTitle(QString s)
 {
     sectionLabel->setText(s);
+}
+
+void SectionTitle::toPlainText(void)
+{
+    QString titleString = sectionLabel->text();
+    sectionLayout->removeWidget(sectionLabel);
+    sectionLayout->removeWidget(line);
+    sectionLabel->deleteLater();
+    line->deleteLater();
+
+    sectionLayout->addWidget(new QLabel(titleString),0,0);
+
 }
 
 void SectionTitle::addWidget(QWidget *theWidget) {

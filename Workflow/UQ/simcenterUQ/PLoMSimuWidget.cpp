@@ -174,6 +174,7 @@ PLoMSimuWidget::PLoMSimuWidget(QWidget *parent)
     m_typeButtonsGroup->button(0)->setChecked(true);
     m_stackedWidgets->setCurrentIndex(0);
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     connect(m_typeButtonsGroup, &QButtonGroup::idReleased, this, [this](int id)
     {
         if(id == 0) {
@@ -182,6 +183,16 @@ PLoMSimuWidget::PLoMSimuWidget(QWidget *parent)
             preTrained = false;
         }
     });
+#else
+    connect(m_typeButtonsGroup, QOverload<int>::of(&QButtonGroup::buttonReleased),this, [this](int id)
+    {
+        if(id == 0) {
+            m_typeButtonsGroup->button(0)->setChecked(true);
+            m_stackedWidgets->setCurrentIndex(0);
+            preTrained = false;
+        }
+    });
+#endif
 
     layout->addWidget(m_stackedWidgets,wid++);
 

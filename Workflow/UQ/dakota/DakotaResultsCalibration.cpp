@@ -123,7 +123,7 @@ DakotaResultsCalibration::outputToJSON(QJsonObject &jsonObject)
       return true;
 
     jsonObject["resultType"]=QString(tr("DakotaResultsCalibration"));
-    jsonObject["isSurrogate"]=isSurrogate;
+    //jsonObject["isSurrogate"]=isSurrogate;
     //
     // add summary data
     //
@@ -211,13 +211,13 @@ DakotaResultsCalibration::inputFromJSON(QJsonObject &jsonObject)
         return true;
     }
 
-    if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
-        isSurrogate=jsonObject["isSurrogate"].toBool();
-    } else {
-        isSurrogate=false;
-    }
+//    if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
+//        isSurrogate=jsonObject["isSurrogate"].toBool();
+//    } else {
+//        isSurrogate=false;
+//    }
 
-    theDataTable = new ResultsDataChart(spreadsheetValue.toObject(), isSurrogate, theRVs->getNumRandomVariables());
+    theDataTable = new ResultsDataChart(spreadsheetValue.toObject());
 
     tabWidget->addTab(sa,tr("Summary"));
     tabWidget->addTab(dakotaText,tr("General"));
@@ -296,13 +296,22 @@ int DakotaResultsCalibration::processResults(QString &filenameResults, QString &
     //
 
     QFileInfo fileTabInfo(filenameTab);
-    QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
 
-    QFileInfo filenameErrorInfo(filenameErrorString);
-    if (!filenameErrorInfo.exists()) {
-        errorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applications failed with inputs provided");
-    return 0;
+    QString errMsg("");
+    this->extractErrorMsg( fileTabInfo.absolutePath(),"dakota.err", "Dakota", errMsg);
+
+    if (errMsg.length() != 0) {
+        errorMessage(errMsg);
+        return 0;
     }
+
+//    QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
+
+//    QFileInfo filenameErrorInfo(filenameErrorString);
+//    if (!filenameErrorInfo.exists()) {
+//        errorMessage("No dakota.err file - dakota did not run - problem with dakota setup or the applications failed with inputs provided");
+//    return 0;
+//    }
 
 
     QFileInfo filenameTabInfo(filenameTab);
@@ -312,20 +321,20 @@ int DakotaResultsCalibration::processResults(QString &filenameResults, QString &
     }
 
 
-    QFile fileError(filenameErrorString);
-    QString line("");
-    if (fileError.open(QIODevice::ReadOnly)) {
-       QTextStream in(&fileError);
-       while (!in.atEnd()) {
-          line += in.readLine();
-       }
-       fileError.close();
-    }
+//    QFile fileError(filenameErrorString);
+//    QString line("");
+//    if (fileError.open(QIODevice::ReadOnly)) {
+//       QTextStream in(&fileError);
+//       while (!in.atEnd()) {
+//          line += in.readLine();
+//       }
+//       fileError.close();
+//    }
 
-    if (line.length() != 0) {
-        errorMessage(QString(QString("Error Running Dakota: ") + line));
-        return 0;
-    }
+//    if (line.length() != 0) {
+//        errorMessage(QString(QString("Error Running Dakota: ") + line));
+//        return 0;
+//    }
 
     //
     // open Dakota output file
@@ -421,14 +430,16 @@ int DakotaResultsCalibration::processResults(QString &filenameResults, QString &
 //    }
 
     // If surrogate model is used, display additional info.
-    QDir tempFolder(filenameTabInfo.absolutePath());
-    QFileInfo surrogateTabInfo(tempFolder.filePath("surrogateTab.out"));
-    if (surrogateTabInfo.exists()) {
-        filenameTab = tempFolder.filePath("surrogateTab.out");
-        isSurrogate = true;
-    } else {
-        isSurrogate = false;
-    }
+//    QDir tempFolder(filenameTabInfo.absolutePath());
+//    QFileInfo surrogateTabInfo(tempFolder.filePath("surrogateTab.out"));
+//    if (surrogateTabInfo.exists()) {
+//        filenameTab = tempFolder.filePath("surrogateTab.out");
+//        isSurrogate = true;
+//    } else {
+//        isSurrogate = false;
+//    }
+//    theDataTable = new ResultsDataChart(filenameTab, isSurrogate, theRVs->getNumRandomVariables());
+    theDataTable = new ResultsDataChart(filenameTab, theRVs->getNumRandomVariables());
 
 
 
@@ -436,7 +447,7 @@ int DakotaResultsCalibration::processResults(QString &filenameResults, QString &
     // create spreadsheet,  a QTableWidget showing RV and results for each run
     //
 
-    theDataTable = new ResultsDataChart(filenameTab, isSurrogate, theRVs->getNumRandomVariables());
+
 
 
     tabWidget->addTab(sa,tr("Summary"));

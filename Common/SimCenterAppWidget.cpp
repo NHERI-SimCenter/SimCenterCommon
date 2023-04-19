@@ -112,6 +112,9 @@ SimCenterAppWidget::copyPath(QString sourceDir, QString destinationDir, bool ove
     if(destinationDirectory.exists() && overWriteDirectory) {
         destinationDirectory.removeRecursively();
     }
+    if(!destinationDirectory.exists()) {
+        destinationDirectory.mkdir(".");
+    }
 
     foreach (QString directoryName, sourceDirectory.entryList(QDir::Dirs | \
                                                               QDir::NoDotAndDotDot))

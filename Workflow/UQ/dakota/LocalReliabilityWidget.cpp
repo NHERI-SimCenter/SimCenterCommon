@@ -180,9 +180,15 @@ LocalReliabilityWidget::outputToJSON(QJsonObject &jsonObj){
 
     QJsonArray probLevel;
     QStringList probLevelList = QStringList(probabilityLevel->text().split(" "));
-    for (int i = 0; i < probLevelList.size(); ++i)
-        probLevel.push_back(1-probLevelList.at(i).toDouble());
-    jsonObj["probabilityLevel"]=probLevel;
+
+        for (int i = 0; i < probLevelList.size(); ++i)
+            if (levelType->currentText()=="Response Levels") {
+                probLevel.push_back(probLevelList.at(i).toDouble());
+            } else {
+                probLevel.push_back(1-probLevelList.at(i).toDouble());
+            }
+        jsonObj["probabilityLevel"]=probLevel;
+
 
     /*
     QJsonArray respLevel;

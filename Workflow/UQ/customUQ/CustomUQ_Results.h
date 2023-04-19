@@ -71,6 +71,7 @@ public:
     QWidget *createResultEDPWidget(QString &name, double mean, double stdDev, double skewness, double kurtosis);
 
 signals:
+    void onUQ_MethodUpdated(QString);
 
 public slots:
   

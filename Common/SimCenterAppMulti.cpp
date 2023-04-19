@@ -38,7 +38,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "SimCenterAppMulti.h"
 
-#include "sectiontitle.h"
+#include "SectionTitle.h"
 
 // Qt headers
 #include <QTabWidget>
@@ -91,8 +91,10 @@ int
 SimCenterAppMulti::addTab() {
 
     SimCenterAppWidget *theNewSelection = thePrototype->getClone();
-    if (theNewSelection != 0) {
-        qDebug() << "Prototype failed to return a valid copy";
+    
+    if (theNewSelection == 0) {
+      errorMessage(appName+ QString(" failed to return a valid widget when trying to add tab"));
+      return -1;
     }
 
     QWidget *newWidget = new QWidget();

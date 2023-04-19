@@ -93,7 +93,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QAreaSeries>
 
 SimCenterUQResultsSurrogate::SimCenterUQResultsSurrogate(RandomVariablesContainer *theRandomVariables, QWidget *parent)
-    : UQ_Results(parent), theRVs(theRandomVariables)
+    : UQ_Results(parent), theRVs(theRandomVariables), saveModelButton(NULL), saveResultButton(NULL), saveXButton(NULL), saveYButton(NULL)
 {
     // title & add button
     theDataTable = NULL;
@@ -142,42 +142,44 @@ int SimCenterUQResultsSurrogate::processResults(QString &filenameResults, QStrin
     //
 
     QFileInfo fileTabInfo(filenameTab);
-    QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
+
+    QString errMsg("");
+    this->extractErrorMsg( fileTabInfo.absolutePath(),"dakota.err", "SimCenterUQ", errMsg);
+    if (errMsg.length() != 0) {
+        errorMessage(errMsg);
+        return 0;
+    }
     workingDir=fileTabInfo.absolutePath()+ QDir::separator();
 
-    QFileInfo filenameErrorInfo(filenameErrorString);
-    if (!filenameErrorInfo.exists()) {
-        errorMessage("No error file - SimCenterUQ did not run - problem with the application setup or the applications failed with inputs provided");
-        return -1;
-    }
+//    QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
 
-    QFile fileError(filenameErrorString);
-    if (fileError.open(QIODevice::ReadOnly)) {
-        QTextStream in(&fileError);
-        // QString contents = in.readAll(); -- not reading newline char
+//    QFileInfo filenameErrorInfo(filenameErrorString);
+//    if (!filenameErrorInfo.exists()) {
+//        errorMessage("No error file - SimCenterUQ did not run - problem with the application setup or the applications failed with inputs provided");
+//        return -1;
+//    }
 
-
-        bool errorWritten = false;
-        QString errmsgs;
-
-        for (QString line = in.readLine();
-             !line.isNull();
-             line = in.readLine()) {
-             errmsgs +=  line + "<br>";
-             errorWritten = true;
-        };
-        if (errorWritten) {
-            //errorMessage(QString(QString("Error Running SimCenterUQ: ") + line));
-            errorMessage(errmsgs);
-            return -1;
-        }
-
-    }
+//    QFile fileError(filenameErrorString);
+//    if (fileError.open(QIODevice::ReadOnly)) {
+//        QTextStream in(&fileError);
+//        // QString contents = in.readAll(); -- not reading newline char
+//        bool errorWritten = false;
+//        QString errmsgs;
+//        for (QString line = in.readLine();
+//             !line.isNull();
+//             line = in.readLine()) {
+//             errmsgs +=  line + "<br>";
+//             errorWritten = true;
+//        };
+//        if (errorWritten) {
+//            errorMessage(errmsgs);
+//            return -1;
+//        }
+//    }
 
 
     QFileInfo filenameTabInfo(filenameTab);
     if (!filenameTabInfo.exists()) {
-        // lets check simcenterUQ
         QString filenameLogString = fileTabInfo.absolutePath() + QDir::separator() + QString("logFileSimUQ.txt");
         QFile fileLog(filenameLogString);
         if (fileLog.open(QIODevice::ReadOnly)) {
@@ -194,21 +196,26 @@ int SimCenterUQResultsSurrogate::processResults(QString &filenameResults, QStrin
                 errorMessage(errmsgs);
                 errorMessage("No Tab file - Read logFileSimUQ.txt at the working directory for details");
                 return -1;
-            }
-
-        }
+            }        }
         errorMessage("No Tab file - surrogate modeling failed - possibly no QoI or a permission issue.");
         return -1;
     }
 
-    QDir tempFolder(filenameTabInfo.absolutePath());
-    QFileInfo surrogateTabInfo(tempFolder.filePath("surrogateTab.out"));
-    if (surrogateTabInfo.exists()) {
-        filenameTab = tempFolder.filePath("surrogateTab.out");
-        isSurrogate = true;
-    } else {
-        isSurrogate = false;
-    }
+    //
+    // For surrogate results
+    //
+
+//    QDir tempoFolder(filenameTabInfo.absolutePath()); //
+//    //QDir templFolder(filenameTabInfo.absolutePath()+QDir::separator() +"templatedir");
+//    QFileInfo surrogateTabInfo(tempoFolder.filePath("surrogateTab.out"));
+//    //QFileInfo scInputInfo(templFolder.filePath("scInput.json"));
+//    //if (surrogateTabInfo.exists() && scInputInfo.exists()) {
+//    if (surrogateTabInfo.exists()) {
+//        filenameTab = tempoFolder.filePath("surrogateTab.out");
+//        isSurrogate = true;
+//    } else {
+//        isSurrogate = false;
+//    }
 
 
     // create a scrollable windows, place summary inside it
@@ -255,14 +262,14 @@ int SimCenterUQResultsSurrogate::processResults(QString &filenameResults, QStrin
       qDebug() << "no xdim";
       return -1;
     }
-    int numRandomVar = 0;    
+    int numRandomVar = theRVs->getNumRandomVariables();
     QJsonValue theValue = jsonObj["xdim"];
     if (theValue.isDouble())
       numRandomVar = theValue.toInt();
       
     
     //theDataTable = new ResultsDataChart(filenameTab);
-    theDataTable = new ResultsDataChart(filenameTab, isSurrogate, numRandomVar);
+    theDataTable = new ResultsDataChart(filenameTab, numRandomVar );
 
     //
     // create spreadsheet,  a QTableWidget showing RV and results for each run
@@ -289,7 +296,7 @@ SimCenterUQResultsSurrogate::onSaveModelClicked()
 
     QString fileName = QFileDialog::getSaveFileName(this,
                                                    tr("Save Data"), lastPath+"/SimGpModel",
-                                                   tr("Pickle File (*.pkl)"));
+                                                   tr("Json File (*.json)"));
     QString fileName2 = fileName;
 
     fileName2.replace(".pkl",".json");
@@ -310,15 +317,23 @@ SimCenterUQResultsSurrogate::onSaveModelClicked()
     QDir dir(workflowDir2);
     dir.removeRecursively();
 
-    QFile::copy(pkldir, fileName);
     QFile::copy(jsondir, fileName2);
+    QFile::copy(pkldir, fileName);
     //QFile::copy(workingDir+QString("templatedir"), path+"templatedir_SIM");
 
 
     bool directoryCopied = copyPath(workflowDir1, workflowDir2, true);
     if (directoryCopied ==  false) {
-      QString err = QString("SimCenterUQResultsSurrogate::onSaveModelClicked - copyPath failed from : ") + workflowDir1 + QString(" to ") + workflowDir2;
-      errorMessage(err);
+        //check the remote directory
+        QDir dir(workflowDir1);// remote/results/templatedir
+        dir.cdUp();// Results
+        dir.cdUp();// Remote
+        dir.cd("templatedir");// templatedir
+        directoryCopied = copyPath(dir.path(), workflowDir2, true);
+        if (directoryCopied ==  false) {
+              QString err = QString("SimCenterUQResultsSurrogate::onSaveModelClicked - copyPath failed from : ") + workflowDir1 + QString(" to ") + workflowDir2;
+              errorMessage(err);
+        }
     }
 
     lastPath =  QFileInfo(fileName).path();
@@ -368,7 +383,7 @@ SimCenterUQResultsSurrogate::outputToJSON(QJsonObject &jsonObject)
     bool result = true;
 
     jsonObject["resultType"]=QString(tr("SimCenterUQResultsSurrogate"));
-    jsonObject["isSurrogate"]=isSurrogate;
+    //jsonObject["isSurrogate"]=isSurrogate;
 
     //
     // add summary data
@@ -414,39 +429,39 @@ SimCenterUQResultsSurrogate::inputFromJSON(QJsonObject &jsonObject)
 
     //isSurrogate=jsonObject["isSurrogate"].toBool();
 
-    if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
-        isSurrogate=jsonObject["isSurrogate"].toBool();
-    } else {
-        isSurrogate=false;
-    }
+//    if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
+//        isSurrogate=jsonObject["isSurrogate"].toBool();
+//    } else {
+//        isSurrogate=false;
+//    }
 
 
-    int numRandomVar;
-    if (jsonObj.contains("xdim")) { // no saving of analysis data
-        QJsonValue theValue = jsonObj["xdim"];
-        if (theValue.isDouble())
-          numRandomVar = theValue.toInt();
-        else
-          numRandomVar = theRVs->getNumRandomVariables(); // better than nothing
-    } else {
-        numRandomVar = theRVs->getNumRandomVariables(); // better than nothing
-    }
+//    int numRandomVar;
+//    if (jsonObj.contains("xdim")) { // no saving of analysis data
+//        QJsonValue theValue = jsonObj["xdim"];
+//        if (theValue.isDouble())
+//          numRandomVar = theValue.toInt();
+//        else
+//          numRandomVar = theRVs->getNumRandomVariables(); // better than nothing
+//    } else {
+//        numRandomVar = theRVs->getNumRandomVariables(); // better than nothing
+//    }
 
 
-    theDataTable = new ResultsDataChart(spreadsheetValue.toObject(), isSurrogate, numRandomVar);
+    theDataTable = new ResultsDataChart(spreadsheetValue.toObject());
 
     QScrollArea *sa = new QScrollArea;
     summarySurrogate(*&sa);
-    saveModelButton ->setDisabled(true);
-    saveResultButton ->setDisabled(true);
-    saveXButton->setDisabled(true);
-    saveYButton->setDisabled(true);
-    saveModelButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
-    saveResultButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
-    saveXButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
-    saveYButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
-
-
+    if (saveModelButton!=NULL)  {
+        saveModelButton ->setDisabled(true);
+        saveResultButton ->setDisabled(true);
+        saveXButton->setDisabled(true);
+        saveYButton->setDisabled(true);
+        saveModelButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
+        saveResultButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
+        saveXButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
+        saveYButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
+    }
 
 
     //
@@ -528,6 +543,10 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
 
     //QJsonObject uqObject = jsonObj["UQ_Method"].toObject();
     int nQoI = jsonObj["ydim"].toInt();
+
+    if (nQoI==0) {
+        return;
+    }
 
     QJsonArray QoI_tmp = jsonObj["ylabels"].toArray();
     double nTime = jsonObj["valTime"].toDouble();
@@ -625,14 +644,14 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
     QVector<bool> nugget_idx(nQoI);
     int numnugget_vars = 0;
     for (int nq=0; nq<nQoI; nq++){
-//        double nugget = valNugget[QoInames[nq]].toDouble();
-//        if (nugget/statisticsVector[jsonObj["xdim"].toInt()+1+nq][0]<1.e-12) {
-//            nugget_idx[nq] = false;
-//        } else {
-//            nugget_idx[nq] = true;
-//            numnugget_vars++;
-//        }
-        nugget_idx[nq] = false;
+        double nugget = valNugget[QoInames[nq]].toDouble();
+        if (nugget/statisticsVector[jsonObj["xdim"].toInt()+1+nq][0]<1.e-5) {
+            nugget_idx[nq] = false;
+        } else {
+            nugget_idx[nq] = true;
+            numnugget_vars++;
+        }
+//        nugget_idx[nq] = false;
     }
 
     if (numnugget_vars < nQoI) { // there are some nugget = 0 variables

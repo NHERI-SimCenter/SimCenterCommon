@@ -42,7 +42,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <InputWidgetOpenSeesAnalysis.h>
 #include <SimCenterAppMulti.h>
 #include <CustomPySimulation.h>
-#include <QCoreApplication.h>
+#include <SurrogateSimulation.h>
+#include <QCoreApplication>
 
 
 FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
@@ -58,6 +59,12 @@ FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
 
   SimCenterAppWidget *custom_py_simulation= new CustomPySimulation();
   this->addComponent(QString("CustomPy-Simulation"), QString("CustomPy-Simulation"), custom_py_simulation);
+
+  QString appName = QCoreApplication::applicationName();
+  if (appName == "EE-UQ") {
+     SimCenterAppWidget *surrogate = new SurrogateSimulation();
+      this->addComponent(QString("None (only for surrogate)"), QString("SurrogateSimulation"), surrogate);
+  }
 
 }
 

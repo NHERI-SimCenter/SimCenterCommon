@@ -54,7 +54,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QFileDialog>
 #include <QPushButton>
-#include <sectiontitle.h>
 #include <QFileInfo>
 #include <string>
 #include <sstream>
@@ -171,7 +170,7 @@ createTextEntry(QString text,
                 bool itemRight)
 {
     Q_UNUSED(itemRight);
-    //QHBoxLayout *entryLayout = new QHBoxLayout();
+
     QLabel *entryLabel = new QLabel();
 
     entryLabel->setText(text);
@@ -180,7 +179,6 @@ createTextEntry(QString text,
     res->setText("0.0");
     res->setMinimumWidth(minL);
     res->setMaximumWidth(maxL);
-    //res->setValidator(new QDoubleValidator);
 
     theLayout->addWidget(entryLabel,row,col);
     theLayout->addWidget(res,row,col+1);
@@ -202,6 +200,7 @@ createTextEntry(QString text,
 }
 
 int MDOF_BuildingModel::numModels = 0;
+static int numMDOF_BuildingModel = 0;
 
 MDOF_BuildingModel::MDOF_BuildingModel(QWidget *parent)
   : SimCenterAppWidget(parent),
@@ -211,7 +210,8 @@ MDOF_BuildingModel::MDOF_BuildingModel(QWidget *parent)
     sMinSelected(-1),sMaxSelected(-1),
     floorSelected(-1),storySelected(-1)
 {
-    numStories = 0; // originally set to 0, so that when setnumStories text later no seg fault
+
+    numStories = 0;
     floorW = "144";
     storyH = "144.0";
     Kx = "100.0";
@@ -222,10 +222,12 @@ MDOF_BuildingModel::MDOF_BuildingModel(QWidget *parent)
     by = "0.1";
     K_theta = "1e10";
 
+    myTag = numMDOF_BuildingModel;
+    numMDOF_BuildingModel = numMDOF_BuildingModel+1;
+    
     QHBoxLayout *layout = new QHBoxLayout();
 
     QVBoxLayout *inputLayout = new QVBoxLayout();
-    QVBoxLayout *graphicLayout = new QVBoxLayout();
 
     //
     // create to hold major model inputs
@@ -369,10 +371,9 @@ MDOF_BuildingModel::MDOF_BuildingModel(QWidget *parent)
 
     inputLayout->addStretch();
     theView = 0;
-    
     layout->addLayout(inputLayout);
     
-    if (numModels == 0) {
+    if (numModels == -1) {
 
       numModels = numModels+1;
       
@@ -383,10 +384,10 @@ MDOF_BuildingModel::MDOF_BuildingModel(QWidget *parent)
       theView->setController(this);
 #endif
 
-
       theView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+      
+      QVBoxLayout *graphicLayout = new QVBoxLayout();
       graphicLayout->addWidget(theView);
-
       layout->addLayout(graphicLayout);
     }
     
@@ -395,14 +396,17 @@ MDOF_BuildingModel::MDOF_BuildingModel(QWidget *parent)
 
     this->on_inFloors_editingFinished();
 
-
     // add signal and slot connections with GI
     GeneralInformationWidget *theGI = GeneralInformationWidget::getInstance();
     double plan, w, d;
     theGI->getBuildingDimensions(w, d, plan);
     buildingW = w;
     buildingD = d;
-
+    
+    int newNumFloors = theGI->getNumFloors();
+    double newHeight = theGI->getHeight();
+    this->setNumStoriesAndHeight(newNumFloors, newHeight);
+    
     connect(this,SIGNAL(numStoriesOrHeightChanged(int, double)), theGI, SLOT(setNumStoriesAndHeight(int, double)));
     connect(theGI,SIGNAL(numStoriesOrHeightChanged(int, double)), this, SLOT(setNumStoriesAndHeight(int, double)));
     connect(theGI,SIGNAL(buildingDimensionsChanged(double,double,double)),this,SLOT(setBuildingDimensions(double,double,double)));
@@ -1308,9 +1312,10 @@ void MDOF_BuildingModel::on_theSpreadsheet_cellClicked(int row, int column)
     sMinSelected = -1;
     sMaxSelected = -1;
 
-    this->draw();
-    if (theView != 0)
+    if (theView != 0) {
+      this->draw();
       theView->update();
+    }
 }
 
 
@@ -1445,7 +1450,7 @@ MDOF_BuildingModel::inputFromJSON(QJsonObject &jsonObject)
         qDebug() << "No numStories key in json object";
         return false;
     }
-
+    
     if (numStories <= 0) {
         inFloors->setText(QString::number(numStoriesOld));
         return true;
@@ -1493,9 +1498,6 @@ MDOF_BuildingModel::inputFromJSON(QJsonObject &jsonObject)
    theSpreadsheet->clear();
    theSpreadsheet->setColumnCount(9);
    theSpreadsheet->setRowCount(numStories);
-
-   // theSpreadsheet->horizontalHeader()->setStretchLastSection(true);// horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-   //theSpreadsheet->setFixedWidth(344);
 
    QStringList headings;
    headings << tr("Weight") << tr("Height") << tr("K_x") << tr("Fy_x") << tr("b_x") << tr("K_y") << tr("Fy_y") << tr("b_y") << tr("K_theta");
@@ -1780,9 +1782,9 @@ MDOF_BuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
          randomVariables[text] = randomVariables[text]+numReferences;
      } else {
          randomVariables[text] = numReferences;
-         RandomVariable *theRV = new RandomVariable(QString("Uncertain"), text, "Dakota");
-	RandomVariablesContainer *theRandomVariablesContainer = RandomVariablesContainer::getInstance();	 
-         theRandomVariablesContainer->addRandomVariable(theRV);
+         //RandomVariable *theRV = new RandomVariable(QString("Uncertain"), text, "Dakota");
+         RandomVariablesContainer *theRandomVariablesContainer = RandomVariablesContainer::getInstance();
+         theRandomVariablesContainer->addRandomVariable(text);
      }
  }
 
@@ -1808,15 +1810,15 @@ MDOF_BuildingModel::inputAppDataFromJSON(QJsonObject &jsonObject) {
  void
  MDOF_BuildingModel::setNumStoriesAndHeight(int newFloors, double newHeight) {
 
-     if ((newFloors > 0 && newFloors != numStories) ||
-             (newHeight > 0 && newHeight != buildingH)) {
-         inFloors->setText(QString::number(newFloors));
-         storyHeight->setText(QString::number(newHeight/(newFloors*1.0)));
-         if (newFloors > 0 && newFloors != numStories)
-             this->on_inFloors_editingFinished();
+   if ((newFloors > 0 && newFloors != numStories) ||
+       (newHeight > 0 && newHeight != buildingH)) {
+     inFloors->setText(QString::number(newFloors));
+     storyHeight->setText(QString::number(newHeight/(newFloors*1.0)));
+     if (newFloors > 0 && newFloors != numStories)
+       this->on_inFloors_editingFinished();
          if (newHeight > 0 && newHeight != buildingH)
-             this->on_storyHeight_editingFinished();
-     }
+	   this->on_storyHeight_editingFinished();
+   }
  }
 
  void

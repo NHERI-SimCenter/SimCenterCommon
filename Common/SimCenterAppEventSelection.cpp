@@ -37,7 +37,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written by: fmk
 
 #include "SimCenterAppEventSelection.h"
-#include "sectiontitle.h"
+#include "SectionTitle.h"
 
 // Qt headers
 #include <QHeaderView>

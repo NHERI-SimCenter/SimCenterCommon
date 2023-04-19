@@ -42,6 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <UQ_Engine.h>
 
 class QComboBox;
+class QLabel;
 class QStackedWidget;
 class UQ_Results;
 class UQ_Method;
@@ -59,7 +60,7 @@ public:
     bool inputFromJSON(QJsonObject &jsonObject);
     bool outputAppDataToJSON(QJsonObject &jsonObject);
     bool inputAppDataFromJSON(QJsonObject &jsonObject);
-
+    bool fixMethod(QString Methodname);
     void setRV_Defaults(void);
     UQ_Results *getResults(void);
 
@@ -73,6 +74,7 @@ public:
 
 signals:
     void onUQ_EngineChanged(QString);
+    void onUQ_MethodUpdated(QString);
     void onNumModelsChanged(int newNum);
     void queryEVT(void);
 
@@ -81,6 +83,7 @@ public slots:
     void numModelsChanged(int newNum);
 
 private:
+    QLabel *label ;
    QComboBox   *theMethodSelectionBox;
    QStackedWidget *theStackedWidget;
 

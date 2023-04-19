@@ -49,7 +49,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 #include <QLabel>
 #include <QDebug>
-#include <sectiontitle.h>
+#include <SectionTitle.h>
 #include <QLineEdit>
 #include <QTableWidget>
 #include <QDialog>
@@ -285,7 +285,15 @@ RandomVariablesContainer::getRVcorr()
 void
 RandomVariablesContainer::addRandomVariable(QString &varName) {
 
-    NormalDistribution *theDistribution = new NormalDistribution();
+    RandomVariableDistribution *theDistribution;
+    if (randomVariableClass==QString("Design")) {
+        theDistribution = new ContinuousDesignDistribution();
+    } else if (randomVariableClass==QString("Uniform")) {
+        theDistribution = new UniformDistribution();
+    } else {
+        theDistribution = new NormalDistribution();
+    }
+
     RandomVariable *theRV = new RandomVariable(randomVariableClass, varName, *theDistribution, uqEngineName);
 
     this->addRandomVariable(theRV);
@@ -1085,6 +1093,12 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
           QStringList UserDefVecNames;
           foreach (const QJsonValue &rvValue, rvArray) {
 
+              if (rvObject.contains("name")) {
+                  QString theName =rvObject["name"].toString();
+                  if (theName.contains(QString("MultiModel-")))
+                         continue;
+
+              }
               QJsonObject rvObject = rvValue.toObject();
 
               if (rvObject.contains("variableClass")) {

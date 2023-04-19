@@ -33,6 +33,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  // Written: fmckenna
 
 #include "EDP_EarthquakeSelection.h"
+#include "SurrogateEDP.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -50,7 +51,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QFileDialog>
 #include <QPushButton>
-#include <sectiontitle.h>
+#include <SectionTitle.h>
 
 #include <StandardEarthquakeEDP.h>
 #include <UserDefinedEDP.h>
@@ -72,6 +73,7 @@ EDP_EarthquakeSelection::EDP_EarthquakeSelection(QWidget *parent)
   edpSelection = new QComboBox();
   edpSelection->addItem(tr("Standard Earthquake"));
   edpSelection->addItem(tr("User Defined"));
+  edpSelection->addItem(tr("None (only for surrogate)"));
   edpSelection->setObjectName("EDPSelectionComboBox");
 
   edpSelection->setItemData(1, "A Seismic event using Seismic Hazard Analysis and Record Selection/Scaling", Qt::ToolTipRole);
@@ -97,6 +99,16 @@ EDP_EarthquakeSelection::EDP_EarthquakeSelection(QWidget *parent)
 
   theUserDefinedEDPs = new UserDefinedEDP();
   theStackedWidget->addWidget(theUserDefinedEDPs);
+
+
+  SurrogateEDP * theSurrogateEDPs_tmp = SurrogateEDP::getInstance();
+  theSurrogateEDPs = theSurrogateEDPs_tmp;
+
+  connect(theSurrogateEDPs_tmp, &SurrogateEDP::surrogateSelected, [=](){
+     edpSelection->setCurrentIndex(2);
+  });
+  theStackedWidget->addWidget(theSurrogateEDPs);
+
 
   layout->addWidget(theStackedWidget);
   this->setLayout(layout);
@@ -154,6 +166,11 @@ void EDP_EarthquakeSelection::edpSelectionChanged(int slot)
         theStackedWidget->setCurrentIndex(1);
         theCurrentEDP = theUserDefinedEDPs;
     }
+    else if (slot == 2) {
+        theStackedWidget->setCurrentIndex(2);
+        theCurrentEDP = theSurrogateEDPs;
+    qDebug() << "EDP_Selection::Changed tp Auto Defined";
+    }
 
     else {
         qDebug() << "ERROR .. EDP_Selection selection .. unknown slot used: " << slot;
@@ -191,6 +208,9 @@ EDP_EarthquakeSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
   } else if ((type == QString("UserDefinedEDP")) ||
 	     (type == QString("User Defined EDPs"))) {
     index = 1;
+  } else if ((type == QString("None (only for surrogate)")) ||
+             (type == QString("SurrogateSimulation"))) {
+    index = 2;
   } else {
     errorMessage("EDP_EarthquakeSelection - no valid type found");
     return false;

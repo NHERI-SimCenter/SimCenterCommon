@@ -54,6 +54,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QValueAxis>
 #include <QtCharts/QChart>
 #include <QtCharts/QChartView>
+#include <QGraphicsSimpleTextItem>
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QVXYModelMapper>
@@ -62,11 +63,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QSplitter>
 #include <QMimeData>
 #include <QClipboard>
+#include <QJsonDocument>
 //using namespace QtCharts;
 
 
-ResultsDataChart::ResultsDataChart(QJsonObject spread, bool isSur, int nRV, QWidget *parent)
-    : SimCenterWidget(parent),isSurrogate(isSur), nrv(nRV)
+ResultsDataChart::ResultsDataChart(QJsonObject spread, QWidget *parent)
+    : SimCenterWidget(parent)
 {
     // From json file
 
@@ -77,68 +79,119 @@ ResultsDataChart::ResultsDataChart(QJsonObject spread, bool isSur, int nRV, QWid
     nmetaSurrogate =7 ; // Additional columns of surrrogateTab.out file (per qoi)..
                         // median, 5% quantile, 95% quantile, variance, 5% quantile (with noise), 95% quantile (with noise), variance (with noise)
 
+    if (spread.contains("isSurrogate"))
+    {
+        isSurrogate = spread["isSurrogate"].toBool();
+    } else {
+        isSurrogate = false;
+    }
+    if (spread.contains("nrv"))
+    {
+        nrv = spread["nrv"].toInt();
+    } else {
+        nrv = 0;
+    }
 
     this->readTableFromJson(spread);
     if (rowCount==0) {
         errorMessage("ERROR: reading Dakota Results - no result widget set!");
-	dataGood = false;
+        dataGood = false;
     } else {
         this->makeChart();
-
-        if (isSur) {
-	  for (int i=nrv+nqoi+1; i<colCount; i++)
-	    spreadsheet->setColumnHidden(i,true);
+        if (isSurrogate) {
+              for (int i=nrv+nqoi+1; i<colCount; i++)
+                spreadsheet->setColumnHidden(i,true);
+        }	
+        if  ((spreadsheet->rowCount()) > 1.e5) {
+          chart->setAnimationOptions(QChart::AllAnimations);
+        } else {
+          chart->setAnimationOptions(QChart::NoAnimation);
         }
-	
-	if  ((spreadsheet->rowCount()) > 1.e5) {
-	  chart->setAnimationOptions(QChart::AllAnimations);
-	} else {
-	  chart->setAnimationOptions(QChart::NoAnimation);
-	}
-	dataGood = true;
+        dataGood = true;
     }
 
 
 }
 
-ResultsDataChart::ResultsDataChart(QString filenameTab, bool isSur, int nRV, QWidget *parent)
-    : SimCenterWidget(parent),isSurrogate(isSur), nrv(nRV)
-{
-    // From surrogateTab.out
+//ResultsDataChart::ResultsDataChart(QString filenameTab, bool isSur, int nRV, QWidget *parent)
+//    : SimCenterWidget(parent),isSurrogate(isSur), nrv(nRV)
+//{
+//    // From DakotaTab.out surrogateTab.out
 
+//    spreadsheet = new MyTableWidget();
+//    nmetaSurrogate =7 ; // Additional columns of surrrogateTab.out file (per qoi)..
+//                        // median, 5% quantile, 95% quantile, variance, 5% quantile (with noise), 95% quantile (with noise), variance (with noise)
+
+
+//    QFileInfo fileTabInfo(filenameTab);
+//    if (!fileTabInfo.exists()) {
+//        errorMessage("No Tab.out file - analysis failed - possibly no QoI or a permission issue.");
+//        return;
+//    }
+
+//    this->readTableFromTab(filenameTab);
+//    spreadsheet->setSelectionBehavior(QAbstractItemView::SelectRows);
+    
+//    if (rowCount==0) {
+//        errorMessage("ERROR: reading Results - no result widget set!");
+//        dataGood = false;
+//    } else {
+//        this->makeChart();
+
+//        if (isSur) {
+//            for (int i=nrv+nqoi+1; i<colCount; i++)
+//                spreadsheet->setColumnHidden(i,true);
+//        }
+//        dataGood = true;
+//    }
+
+//    //chart->setAnimationOptions(QChart::AllAnimations);
+//}
+
+ResultsDataChart::ResultsDataChart(QString filenameTab, int nRV, bool checkSurrogate, QWidget *parent)
+    : SimCenterWidget(parent), nrv(nRV)
+{
 
     spreadsheet = new MyTableWidget();
     nmetaSurrogate =7 ; // Additional columns of surrrogateTab.out file (per qoi)..
                         // median, 5% quantile, 95% quantile, variance, 5% quantile (with noise), 95% quantile (with noise), variance (with noise)
-
     col1 = 0;
     col2 = 0;
 
+    //
+    // Before we start, check if it is a surrogate model
+    //
+
+    if (checkSurrogate){
+        this->checkIfSurrogate(filenameTab,isSurrogate,nrv); // filenameTab,isSurrogate,nrv are updated
+    } else {
+        isSurrogate = false;
+        nrv = nRV;
+    }
+
     QFileInfo fileTabInfo(filenameTab);
     if (!fileTabInfo.exists()) {
-        errorMessage("No Tab.out file - sensitivity analysis failed - possibly no QoI or a permission issue.");
+        errorMessage("No Tab.out file - analysis failed - possibly no QoI or a permission issue.");
         return;
     }
 
     this->readTableFromTab(filenameTab);
     spreadsheet->setSelectionBehavior(QAbstractItemView::SelectRows);
-    
+
     if (rowCount==0) {
-        errorMessage("ERROR: reading Dakota Results - no result widget set!");
-	dataGood = false;
+        errorMessage("ERROR: reading Results - no result widget set!");
+        dataGood = false;
     } else {
         this->makeChart();
 
-        if (isSur) {
+        if (isSurrogate) {
             for (int i=nrv+nqoi+1; i<colCount; i++)
                 spreadsheet->setColumnHidden(i,true);
         }
-	dataGood = true;
+        dataGood = true;
     }
 
-    //chart->setAnimationOptions(QChart::AllAnimations);
 }
-
 
 ResultsDataChart::ResultsDataChart(QString rvFileName, QString qoiFileName, int xdim, int ydim, int nsamp, QStringList listRVs, QStringList listQoIs, QWidget *parent)
     : SimCenterWidget(parent),isSurrogate(false)
@@ -190,11 +243,30 @@ ResultsDataChart::makeChart() {
     // create a chart, setting data points from first and last col of spreadsheet
     //
     chart = new QChart();
+
+    //
+    // Correlation box
+    //
+    corrText = new QGraphicsSimpleTextItem("", chart);
+    connect(chart,&QChart::plotAreaChanged,this,[=] (QRectF plotArea){
+        QPointF textPos(plotArea.bottomRight().x() - corrText->boundingRect().width()*1.1,
+                            plotArea.bottomRight().y() - corrText->boundingRect().height());
+        corrText->setPos(textPos);
+    });
     //chart->setAnimationOptions(QChart::AllAnimations);
 
     // by default the constructor is called and it plots the graph of the last column on Y-axis w.r.t first column on the
     // X-axis
-    this->onSpreadsheetCellClicked(0,colCount-1);
+
+
+    int numCol;
+    if (!isSurrogate) {
+        numCol = colCount;
+    } else {
+        numCol = colCount - nmetaSurrogate*nqoi; // median, 5% quantile, 95% quantile, variance, 5% quantile (with noise), 95% quantile (with noise), variance (with noise)
+    }
+    this->onSpreadsheetCellClicked(0,numCol-1);
+    //this->onSpreadsheetCellClicked(0,1);
 
     // to control the properties, how your graph looks you must click and study the onSpreadsheetCellClicked
 
@@ -286,6 +358,96 @@ ResultsDataChart::makeChart() {
     this->setLayout(layout_tmp);
 
     onSpreadsheetCellClicked(0,1);
+}
+
+void ResultsDataChart::checkIfSurrogate(QString &filenameTab, bool &isSur, int &nRV)
+{
+    QFileInfo filenameTabInfo(filenameTab);
+    QDir tempFolder(filenameTabInfo.absolutePath());
+
+    QString surTabPath = tempFolder.filePath("surrogateTab.out");
+    QString surTabHeaderPath = tempFolder.filePath("surrogateTabHeader.out");
+    QString surLog = tempFolder.filePath("surrogateLog.log");
+    std::string multiModelString = "MultiModel-";
+
+    QFileInfo surTabInfo(surTabPath);
+    QFileInfo surTabHeaderInfo(surTabHeaderPath);
+    QFileInfo surLogInfo(surLog);
+
+
+    if (surTabInfo.exists()) {
+            isSur=true;
+    } else {
+            isSur=false;
+    }
+
+    if (isSur) {
+
+        if (surTabHeaderInfo.exists()) {
+
+            //
+            // mearge header and values
+            //
+
+            std::ifstream tabResults(surTabPath.toStdString().c_str());
+            std::ifstream tabHeader(surTabHeaderPath.toStdString().c_str());
+
+            std::vector<std::string> lines;
+            if (tabResults.is_open() && tabHeader.is_open()) {
+                std::string line;
+                while (std::getline(tabHeader, line)) {
+                    lines.push_back(line);
+
+                    // count the number of multi model RVs
+                    int occurrences = 0;
+                    std::string::size_type pos = 0;
+                    while ((pos = line.find(multiModelString, pos )) != std::string::npos) {
+                           ++ occurrences;
+                           pos += multiModelString.length();
+                    }
+
+                    if (occurrences>0){
+                        isSur = false;
+                        nrv = nrv + occurrences;
+                        return;
+                    }
+                }
+                while (std::getline(tabResults, line)) {
+                    lines.push_back(line);
+                }
+                tabResults.close();
+                tabHeader.close();
+            } else {
+                errorMessage("ERROR: tab header file not found!");
+            }
+
+            std::ofstream tabResultsNew(surTabPath.toStdString().c_str());
+            if (tabResultsNew.is_open()) {
+                for (const std::string& line : lines) {
+                tabResultsNew << line << std::endl;
+                }
+            }
+            tabResultsNew.close();
+
+        }
+        //
+        // get nrv
+        //
+
+        QFile surrogateLog(surLog);
+        if (surrogateLog.open(QIODevice::ReadOnly)) {
+            QString line = surrogateLog.readLine();
+            QStringList strList = line.split(" ");
+            if (strList[0]=="numRV")
+                nRV = strList[1].toInt(); // num RV
+        }
+
+    }
+
+    if (isSur) {
+        //replace dakotaTab.out with surrogateTab.out
+        filenameTab = surTabPath;
+    }
 }
 
 QVector<QVector<double>>
@@ -972,6 +1134,8 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
     mLeft = spreadsheet->wasLeftKeyPressed();
 
     chart->removeAllSeries();
+    corrText->setText("");
+
 
     QAbstractAxis *oldAxisX=chart->axisX();
     if (oldAxisX != 0)
@@ -1039,6 +1203,10 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
         series_selected->setColor(QColor(114, 0, 10, 250));
         series->setBorderColor(QColor(255,255,255,0));
 
+        //This is to calculate the correlation coefficient
+        double sum_X = 0., sum_Y = 0., sum_XY = 0.;
+        double squareSum_X = 0., squareSum_Y = 0.;
+
         for (int i=0; i<rowCount; i++) {
             QTableWidgetItem *itemX = spreadsheet->item(i,col1);    //col1 goes in x-axis, col2 on y-axis
             //col1=0;
@@ -1048,11 +1216,25 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
             itemY->setData(Qt::BackgroundRole, QColor(Qt::lightGray));
             itemOld->setData(Qt::BackgroundRole, QColor(Qt::white));
 
-            series->append(itemX->text().toDouble(), itemY->text().toDouble());
+            double x = itemX->text().toDouble();
+            double y = itemY->text().toDouble();
+
+            series->append(x, y);
+
+            // below is to calculate the correlation coefficient
+            sum_X = sum_X + x;
+            // sum of elements of array Y.
+            sum_Y = sum_Y + y;
+            // sum of X[i] * Y[i].
+            sum_XY = sum_XY + x * y;
+            // sum of square of array elements.
+            squareSum_X = squareSum_X + x * x;
+            squareSum_Y = squareSum_Y + y * y;
         }
 
-        auto abc = spreadsheet->item(row,col1)->text();
-        auto abcd = spreadsheet->item(row,col2)->text();
+        double corr = ((double)rowCount * sum_XY - sum_X * sum_Y)/ sqrt(((double)rowCount * squareSum_X - sum_X * sum_X) * ((double)rowCount * squareSum_Y - sum_Y * sum_Y));
+
+
         series_selected->append(spreadsheet->item(row,col1)->text().toDouble(), spreadsheet->item(row,col2)->text().toDouble());
 
         chart->addSeries(series);
@@ -1143,6 +1325,9 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
             chart->setAxisX(axisX, series_selected);
             chart->setAxisY(axisY, series_selected);
         }
+
+
+        corrText->setText("corr coef. = " + QString::number(corr,'f',2));
 
     } else {
 
@@ -1825,6 +2010,8 @@ ResultsDataChart::outputToJSON(QJsonObject &jsonObj){
     QApplication::restoreOverrideCursor();
     spreadsheetData["data"]=dataArray;
 
+    spreadsheetData["isSurrogate"] = isSurrogate;
+    spreadsheetData["nrv"] = nrv;
     jsonObj["spreadsheet"] = spreadsheetData;
 
     return true;

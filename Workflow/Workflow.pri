@@ -32,7 +32,9 @@ INCLUDEPATH += $$PWD/EDP
 
 SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/ANALYSIS/CustomPySimulation.cpp \
+    $$PWD/ANALYSIS/SurrogateSimulation.cpp \
     $$PWD/SIM/CustomPy.cpp \
+    $$PWD/SIM/SurrogateGP.cpp \
     $$PWD/UQ/UQ_Results.cpp \
     $$PWD/UQ/UQ_Engine.cpp \
     $$PWD/UQ/UQ_Method.cpp \
@@ -104,7 +106,6 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/WORKFLOW/ModelViewItems/LayerTreeModel.cpp \
     $$PWD/WORKFLOW/ModelViewItems/LayerTreeItem.cpp \    
     $$PWD/SIM/OpenSeesBuildingModel.cpp \
-    $$PWD/SIM/surrogateGP.cpp \
     $$PWD/SIM/MDOF_BuildingModel.cpp \
     $$PWD/SIM/MDOF_LU.cpp \    
     $$PWD/SIM/SteelBuildingModel.cpp \
@@ -136,13 +137,16 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/EDP/EDP_EarthquakeSelection.cpp \
     $$PWD/EDP/StandardEarthquakeEDP.cpp \
     $$PWD/EDP/EDP_Selection.cpp \
-    $$PWD/EDP/StandardEDP.cpp \    
+    $$PWD/EDP/StandardEDP.cpp \
     $$PWD/EDP/UserDefinedEDP.cpp \
+    $$PWD/EDP/SurrogateEDP.cpp \
     $$PWD/EDP/EDP.cpp
 
 HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/ANALYSIS/CustomPySimulation.h \
+    $$PWD/ANALYSIS/SurrogateSimulation.h \
     $$PWD/SIM/CustomPy.h \
+    $$PWD/SIM/SurrogateGP.h \
     $$PWD/UQ/UQ_Results.h \
     $$PWD/UQ/UQ_Engine.h \
     $$PWD/UQ/UQ_Method.h \
@@ -213,7 +217,6 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/WORKFLOW/ModelViewItems/LayerTreeModel.h \
     $$PWD/WORKFLOW/ModelViewItems/LayerTreeItem.h \    
     $$PWD/SIM/OpenSeesBuildingModel.h \
-    $$PWD/SIM/surrogateGP.h \
     $$PWD/SIM/MDOF_BuildingModel.h \
     $$PWD/SIM/MDOF_LU.h \    
     $$PWD/SIM/ReadWriteRVJSON.h \
@@ -248,5 +251,6 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/EDP/UserDefinedEDP.h \
     $$PWD/EDP/EDP_Selection.h \
     $$PWD/EDP/StandardEDP.h \    
+    $$PWD/EDP/SurrogateEDP.h \
     $$PWD/EDP/EDP.h
 

@@ -106,7 +106,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 SimCenterUQResultsPLoM::SimCenterUQResultsPLoM(RandomVariablesContainer *theRandomVariables, QWidget *parent)
-    : UQ_Results(parent), theRVs(theRandomVariables)
+    : UQ_Results(parent), theRVs(theRandomVariables), saveModelButton(NULL), saveResultButton(NULL), saveXButton(NULL), saveYButton(NULL)
 {
     // title & add button
     theDataTable = NULL;
@@ -207,30 +207,40 @@ int SimCenterUQResultsPLoM::processResults(QString &filenameResults, QString &fi
     //
 
     QFileInfo fileTabInfo(filenameTab);
-    QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
-    workingDir=fileTabInfo.absolutePath()+ QDir::separator();
-    qDebug() << "filenameErrorString: " << filenameErrorString;
 
-    QFileInfo filenameErrorInfo(filenameErrorString);
-    if (!filenameErrorInfo.exists()) {
-        errorMessage("No error file - SimCenterUQ did not run - problem with the application setup or the applications failed with inputs provided");
+
+    QString errMsg("");
+    this->extractErrorMsg( fileTabInfo.absolutePath(),"dakota.err", "SimCenterUQ", errMsg);
+
+    if (errMsg.length() != 0) {
+        errorMessage(errMsg);
         return 0;
     }
-    QFile fileError(filenameErrorString);
-    QString line("");
-    if (fileError.open(QIODevice::ReadOnly)) {
-        QTextStream in(&fileError);
-        while (!in.atEnd()) {
-            line = in.readLine();
-        }
-        fileError.close();
-    }
 
-    if (line.length() != 0) {
-        qDebug() << line.length() << " " << line;
-        errorMessage(QString(QString("Error Running SimCenterUQ: ") + line));
-        return 0;
-    }
+//    QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
+//    workingDir=fileTabInfo.absolutePath()+ QDir::separator();
+//    qDebug() << "filenameErrorString: " << filenameErrorString;
+
+//    QFileInfo filenameErrorInfo(filenameErrorString);
+//    if (!filenameErrorInfo.exists()) {
+//        errorMessage("No error file - SimCenterUQ did not run - problem with the application setup or the applications failed with inputs provided");
+//        return 0;
+//    }
+//    QFile fileError(filenameErrorString);
+//    QString line("");
+//    if (fileError.open(QIODevice::ReadOnly)) {
+//        QTextStream in(&fileError);
+//        while (!in.atEnd()) {
+//            line = in.readLine();
+//        }
+//        fileError.close();
+//    }
+
+//    if (line.length() != 0) {
+//        qDebug() << line.length() << " " << line;
+//        errorMessage(QString(QString("Error Running SimCenterUQ: ") + line));
+//        return 0;
+//    }
 
     QFileInfo filenameTabInfo(filenameTab);
     if (!filenameTabInfo.exists()) {
@@ -238,14 +248,14 @@ int SimCenterUQResultsPLoM::processResults(QString &filenameResults, QString &fi
         return 0;
     }
 
-    QDir tempFolder(filenameTabInfo.absolutePath());
-    QFileInfo surrogateTabInfo(tempFolder.filePath("surrogateTab.out"));
-    if (surrogateTabInfo.exists()) {
-        filenameTab = tempFolder.filePath("surrogateTab.out");
-        isSurrogate = true;
-    } else {
-        isSurrogate = false;
-    }
+//    QDir tempFolder(filenameTabInfo.absolutePath());
+//    QFileInfo surrogateTabInfo(tempFolder.filePath("surrogateTab.out"));
+//    if (surrogateTabInfo.exists()) {
+//        filenameTab = tempFolder.filePath("surrogateTab.out");
+//        isSurrogate = true;
+//    } else {
+//        isSurrogate = false;
+//    }
 
 
     // create a scrollable windows, place summary inside it
@@ -291,10 +301,10 @@ int SimCenterUQResultsPLoM::processResults(QString &filenameResults, QString &fi
 
     qDebug() << "creating ResultDataChart.";
     qDebug() << filenameTab;
-    qDebug() << isSurrogate;
+    //qDebug() << isSurrogate;
     qDebug() << theRVs->getNumRandomVariables();
     //theDataTable = new ResultsDataChart(filenameTab);
-    theDataTable = new ResultsDataChart(filenameTab, isSurrogate, theRVs->getNumRandomVariables());
+    theDataTable = new ResultsDataChart(filenameTab,  theRVs->getNumRandomVariables());
 
     qDebug() << "ResultDataChart created.";
 
@@ -398,7 +408,7 @@ SimCenterUQResultsPLoM::outputToJSON(QJsonObject &jsonObject)
     bool result = true;
 
     jsonObject["resultType"]=QString(tr("SimCenterUQResultsPLoM"));
-    jsonObject["isSurrogate"]=isSurrogate;
+    //jsonObject["isSurrogate"]=isSurrogate;
 
     //
     // add summary data
@@ -444,25 +454,26 @@ SimCenterUQResultsPLoM::inputFromJSON(QJsonObject &jsonObject)
 
     //isSurrogate=jsonObject["isSurrogate"].toBool();
 
-    if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
-        isSurrogate=jsonObject["isSurrogate"].toBool();
-    } else {
-        isSurrogate=false;
-    }
+//    if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
+//        isSurrogate=jsonObject["isSurrogate"].toBool();
+//    } else {
+//        isSurrogate=false;
+//    }
 
-    theDataTable = new ResultsDataChart(spreadsheetValue.toObject(), isSurrogate, theRVs->getNumRandomVariables());
+    theDataTable = new ResultsDataChart(spreadsheetValue.toObject());
 
     QScrollArea *sa = new QScrollArea;
     summarySurrogate(*&sa);
-    saveModelButton ->setDisabled(true);
-    saveResultButton ->setDisabled(true);
-    saveXButton->setDisabled(true);
-    saveYButton->setDisabled(true);
-    saveModelButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
-    saveResultButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
-    saveXButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
-    saveYButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
-
+    if (saveModelButton!=NULL)  {
+        saveModelButton ->setDisabled(true);
+        saveResultButton ->setDisabled(true);
+        saveXButton->setDisabled(true);
+        saveYButton->setDisabled(true);
+        saveModelButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
+        saveResultButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
+        saveXButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
+        saveYButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
+    }
 
 
 
@@ -544,6 +555,9 @@ void SimCenterUQResultsPLoM::summarySurrogate(QScrollArea *&sa)
     //QJsonObject uqObject = jsonObj["UQ_Method"].toObject();
     int nQoI = jsonObj["ydim"].toInt();
 
+    if (nQoI==0) {
+        return;
+    }
     QJsonArray QoI_tmp = jsonObj["ylabels"].toArray();
     int nSamp = jsonObj["valSamp"].toInt();
     int nSim  = jsonObj["valSim"].toInt();

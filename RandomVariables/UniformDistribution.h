@@ -49,8 +49,9 @@ class UniformDistribution : public RandomVariableDistribution
 {
     Q_OBJECT
 public:
-    explicit UniformDistribution(QString inpType, QWidget *parent = 0);
+    explicit UniformDistribution(QString inpType="Parameters", QWidget *parent = 0);
     explicit UniformDistribution(double initValue, QWidget *parent = 0);
+
 
     ~UniformDistribution();
 

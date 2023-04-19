@@ -12,14 +12,12 @@
 #include "Utils/RelativePathResolver.h"
 #include "Utils/dialogabout.h"
 #include "WorkflowAppWidget.h"
-#include "sectiontitle.h"
 
 #include <QAction>
 #include <QApplication>
 #include <QDebug>
 #include <QDockWidget>
 #include <QDesktopServices>
-#include <sectiontitle.h>
 #include <iostream>
 
 //#include <InputWidgetEE_UQ.h>
@@ -38,6 +36,8 @@
 #include <QPushButton>
 #include <QScreen>
 #include <QSettings>
+
+#include <SectionTitle.h>
 
 MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theService, QWidget *parent)
     : QMainWindow(parent), loggedIn(false), inputWidget(theApp),   theRemoteInterface(theService), isAutoLogin(false)
@@ -60,9 +60,20 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
 
     statusDockWidget->setWidget(statusWidget);
 
-    this->addDockWidget(Qt::BottomDockWidgetArea, statusDockWidget);
+    //    QString appName = QCoreApplication::applicationName();
+    if (appName.contains("PBE")) {
+      
+      this->addDockWidget(Qt::RightDockWidgetArea, statusDockWidget);
+      resizeDocks({statusDockWidget}, {500}, Qt::Horizontal);
+      
+    }  else {
+      
+      resizeDocks({statusDockWidget}, {30}, Qt::Vertical);
+      this->addDockWidget(Qt::BottomDockWidgetArea, statusDockWidget);
+      
+    } 
 
-    resizeDocks({statusDockWidget}, {30}, Qt::Vertical);
+      
 
     connect(statusWidget,&ProgramOutputDialog::showDialog,statusDockWidget,&QDockWidget::setVisible);
 
