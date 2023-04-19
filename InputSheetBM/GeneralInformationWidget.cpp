@@ -202,6 +202,8 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent)
     connect(depthEdit,SIGNAL(editingFinished()),this,SLOT(buildingDimensionsEditingFinished()));
     connect(planAreaEdit,SIGNAL(editingFinished()), this, SLOT(buildingDimensionsEditingFinished()));
 
+    connect(unitsLengthCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(unitLengthTextChanged()));
+
     connect(longitudeEdit, &QLineEdit::editingFinished, this, [this](){
         GeneralInformationWidget::buildingLocationChanged(latitudeEdit->text().toDouble(), longitudeEdit->text().toDouble());
     });
@@ -414,10 +416,23 @@ GeneralInformationWidget::getLengthUnit()
     return unitEnumToString(unitsLengthCombo->currentData().value<LengthUnit>());
 }
 
+void
+GeneralInformationWidget::setLengthUnit(QString unitsLengthValue)
+{
+    LengthUnit lengthUnit = unitStringToEnum<LengthUnit>(unitsLengthValue);
+    int lengthUnitIndex = unitsLengthCombo->findData(lengthUnit);
+    unitsLengthCombo->setCurrentIndex(lengthUnitIndex);
+}
+
 QString
 GeneralInformationWidget::getForceUnit()
 {
    return unitEnumToString(unitsForceCombo->currentData().value<ForceUnit>());
+}
+
+void
+GeneralInformationWidget::unitLengthTextChanged(void) {
+    emit unitLengthChanged(getLengthUnit());
 }
 
 void
