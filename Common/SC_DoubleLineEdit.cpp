@@ -54,6 +54,12 @@ SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey, double initValue, QString t
   this->setText(QString::number(initValue));
 }
 
+SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey)
+  :QLineEdit()
+{
+  key = theKey;
+}
+
 SC_DoubleLineEdit::~SC_DoubleLineEdit()
 {
 
