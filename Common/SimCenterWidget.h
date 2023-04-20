@@ -116,6 +116,8 @@ public slots:
      */
     void infoMessage(const QString& message);
 
+    void blankLineMessage();
+
 private:
 
     ProgramOutputDialog* progressDialog;

@@ -29,6 +29,8 @@ public:
 
     void appendErrorMessage(const QString text);
 
+    void appendBlankLine();
+
     void setVisibility(bool visible);
 
     void setProgressBarValue(const int val);

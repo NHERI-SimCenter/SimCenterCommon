@@ -183,6 +183,26 @@ void ProgramOutputDialog::appendInfoMessage(const QString text)
     mutex->unlock();
 }
 
+void ProgramOutputDialog::appendBlankLine()
+{
+    mutex->lock();
+
+    if (theInstance == 0)
+        theInstance = new ProgramOutputDialog(0);
+    
+    if(!this->isVisible())
+        this->setVisibility(true);
+
+    auto msgStr = QString(" ");
+
+    // Output to console and to text edit
+    progressTextEdit->appendHtml(msgStr);
+
+    progressTextEdit->moveCursor(QTextCursor::End);
+
+    mutex->unlock();
+}
+
 
 void ProgramOutputDialog::ProgramOutputDialog::updateTimerLabel()
 {

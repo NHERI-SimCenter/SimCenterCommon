@@ -92,6 +92,12 @@ SimCenterWidget::infoMessage(const QString& message)
     progressDialog->appendInfoMessage(message);
 }
 
+void
+SimCenterWidget::blankLineMessage()
+{
+    progressDialog->appendBlankLine();
+}
+
 ProgramOutputDialog*
 SimCenterWidget::getProgressDialog() const
 {
