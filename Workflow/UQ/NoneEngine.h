@@ -1,5 +1,5 @@
-#ifndef UQ_ENGINE_SELECTION_H
-#define UQ_ENGINE_SELECTION_H
+#ifndef NONE_ENGINE_H
+#define NONE_ENGINE_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -39,62 +39,30 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterAppSelection.h>
-#include "UQ_Engine.h"
-class InputWidgetEDP;
+#include <UQ_Engine.h>
 
+class UQ_Results;
+class RandomVariablesContainer;
+class UQ_Method;
 
-class UQ_EngineSelection : public  SimCenterAppSelection
+class NoneEngine : public UQ_Engine
 {
-  Q_OBJECT
+    Q_OBJECT
+public:
+    explicit NoneEngine(QWidget *parent = 0);
+    virtual ~NoneEngine();
 
-  public:
+    int getMaxNumParallelTasks(void);
+    void setRV_Defaults(void);
+    UQ_Results *getResults(void);
 
-  UQ_EngineSelection(UQ_EngineType = All,
-		     QWidget *parent = 0);
-  
-  UQ_EngineSelection(bool includeNone,
-		     QString assetType,
-		     UQ_EngineType = All,
-		     QWidget *parent = 0);    
-  
-  UQ_Results  *getResults();
-  int getNumParallelTasks(void);
-  UQ_Engine *getCurrentEngine();
-  void setRV_Defaults();
-  
- signals:
+  bool outputAppDataToJSON(QJsonObject &jsonObject) ;
+signals:
 
-  void onUQ_EngineChanged(QString);
-  void onNumModelsChanged(int);
-  void queryEVT(void); // added KZ
+public slots:
 
- public slots:
-
-  void engineSelectionChanged(QString eng);
-  void updateEngineComboDisp(const QString="Forward Propagation");
-  void relayQueryEVT(void); // added KZ
-  void setEventType(QString type); // added KZ
-  void methodSelectionChanged(QString type);
-  
 private:
-  void initialize();
-  void createComboBox();
-  QComboBox *theMethodCombo;
-  UQ_Engine *theCurrentEngine;
-  UQ_Engine *thePreviousEngine;  
-  UQ_Engine *theDakotaEngine;
-  UQ_Engine *theSimCenterUQEngine;
-  UQ_Engine *theUQpyEngine;
-  UQ_Engine *theUCSD_Engine;
-  UQ_Engine *theNoneEngine;  
-  UQ_Engine *thefilterEngine;
-  UQ_Engine *theCustomEngine;
-  bool includeNoneOption;
-  QString engineName;
-  UQ_EngineType typeOption;
 
-  QComboBox *theEngineComboDisp;
 };
 
-#endif 
+#endif // NONE_ENGINE

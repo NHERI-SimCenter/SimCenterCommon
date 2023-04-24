@@ -1,8 +1,8 @@
 /* *****************************************************************************
-Copyright (c) 2016-2017, The Regents of the University of California (Regents).
+Copyright (c) 2016-2021, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -26,80 +26,48 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+#include "NoneEngine.h"
+#include <QJsonObject>
+#include <UQ_Results.h>
 
-#include <SimCenterWidget.h>
-#include <Utils/ProgramOutputDialog.h>
-
-SimCenterWidget::SimCenterWidget(QWidget *parent)
-    :QWidget(parent)
-{
-    progressDialog = ProgramOutputDialog::getInstance(this);
-}
-
-SimCenterWidget::~SimCenterWidget()
+NoneEngine::NoneEngine(QWidget *parent):
+  UQ_Engine(parent)
 {
 
 }
 
+NoneEngine::~NoneEngine()
+{
 
-bool
-SimCenterWidget::outputToJSON(QJsonObject &jsonObject)
+}
+
+bool NoneEngine::outputAppDataToJSON(QJsonObject &jsonObject)
 {
     Q_UNUSED(jsonObject);
+    jsonObject["Application"] = "None";
+    QJsonObject dataObj;
+    jsonObject["ApplicationData"] = dataObj;    
     return true;
 }
 
-bool
-SimCenterWidget::inputFromJSON(QJsonObject &jsonObject)
-{
-    Q_UNUSED(jsonObject);
-    return true;
+int NoneEngine::getMaxNumParallelTasks(void) {
+  return 0;
 }
 
-void
-SimCenterWidget::statusMessage(const QString& message)
-{
-    if(message.isEmpty())
-        return;
-
-    progressDialog->appendText(message);
+void NoneEngine::setRV_Defaults(void) {
+  return;
 }
 
-void
-SimCenterWidget::errorMessage(const QString& message)
-{
-    if(message.isEmpty())
-        return;
-
-    progressDialog->appendErrorMessage(message);
+UQ_Results *
+NoneEngine::getResults(void){
+  return new UQ_Results();
 }
 
-void
-SimCenterWidget::infoMessage(const QString& message)
-{
-    if(message.isEmpty())
-        return;
-
-    progressDialog->appendInfoMessage(message);
-}
-
-void
-SimCenterWidget::blankLineMessage()
-{
-    progressDialog->appendBlankLine();
-}
-
-ProgramOutputDialog*
-SimCenterWidget::getProgressDialog() const
-{
-    return progressDialog;
-}

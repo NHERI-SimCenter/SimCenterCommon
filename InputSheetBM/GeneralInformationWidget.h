@@ -88,12 +88,14 @@ public:
     void getBuildingDimensions(double &newWidth, double &newDepth, double &planArea);
     void getBuildingLocation(double &latitude, double &longitude);
     QString getLengthUnit();
+    void setLengthUnit(QString unitsLengthValue);
     QString getForceUnit();
 
 public slots:
     void numStoriesEditingFinished(void);
     void heightEditingFinished(void);
     void buildingDimensionsEditingFinished(void);
+    void unitLengthTextChanged(void);
     // void setNumFloors(int newNumFloors);
     // void setHeight(double newHeight);
     void setNumStoriesAndHeight(int numFloors, double height);
@@ -107,6 +109,7 @@ signals:
     void numStoriesOrHeightChanged(int numFloors, double height);
     void buildingDimensionsChanged(double newWidth, double newDepth, double planArea);
     void buildingLocationChanged(double latitude, double longitude);
+    void unitLengthChanged(QString unitName);
 
     void unitsChanged(QString lengthUnit, QString ForceUnit);
 
