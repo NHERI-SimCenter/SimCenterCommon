@@ -63,13 +63,13 @@ SC_IntLineEdit::~SC_IntLineEdit()
 bool
 SC_IntLineEdit::outputToJSON(QJsonObject &jsonObject)
 {
+    jsonObject[key] = this->text().toInt();
     return true;
 }
 
 bool
 SC_IntLineEdit::inputFromJSON(QJsonObject &jsonObject)
 {
-
+    this->setText(jsonObject[key].toString());
     return true;
 }
-

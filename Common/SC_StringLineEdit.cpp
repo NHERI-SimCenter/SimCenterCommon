@@ -36,45 +36,45 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SC_DoubleLineEdit.h>
+#include <SC_StringLineEdit.h>
 #include <QJsonObject>
 
-SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey, double initValue)
+SC_StringLineEdit::SC_StringLineEdit(QString theKey, QString initValue)
   :QLineEdit()
 {
   key = theKey;
-  this->setText(QString::number(initValue));  
+  this->setText(initValue);
 }
 
 
-SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey, double initValue, QString toolTip)
+SC_StringLineEdit::SC_StringLineEdit(QString theKey, QString initValue, QString toolTip)
   :QLineEdit()
 {
   key = theKey;
-  this->setText(QString::number(initValue));
+  this->setText(initValue);
 }
 
-SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey)
+SC_StringLineEdit::SC_StringLineEdit(QString theKey)
   :QLineEdit()
 {
   key = theKey;
 }
 
-SC_DoubleLineEdit::~SC_DoubleLineEdit()
+SC_StringLineEdit::~SC_StringLineEdit()
 {
 
 }
 
 
 bool
-SC_DoubleLineEdit::outputToJSON(QJsonObject &jsonObject)
+SC_StringLineEdit::outputToJSON(QJsonObject &jsonObject)
 {
-    jsonObject[key] = this->text().toDouble();
+    jsonObject[key] = this->text();
     return true;
 }
 
 bool
-SC_DoubleLineEdit::inputFromJSON(QJsonObject &jsonObject)
+SC_StringLineEdit::inputFromJSON(QJsonObject &jsonObject)
 {
     this->setText(jsonObject[key].toString());
     return true;

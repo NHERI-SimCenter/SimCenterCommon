@@ -1,3 +1,6 @@
+#ifndef SC_STRING_LINEEDIT_H
+#define SC_STRING_LINEEDIT_H
+
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -34,49 +37,40 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+/**
+ *  @author  fmckenna
+ *  @date    2/2017
+ *  @version 1.0
+ *
+ *  @section DESCRIPTION
+ *
+ *  This is a combo box for SimCenter, implements input/output To JSON
+ */
 
-#include <SC_DoubleLineEdit.h>
-#include <QJsonObject>
+#include <QLineEdit>
+#include <QString>
 
-SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey, double initValue)
-  :QLineEdit()
+class QJsonObject;
+
+class SC_StringLineEdit : public QLineEdit
 {
-  key = theKey;
-  this->setText(QString::number(initValue));  
-}
+  
+public:
 
+  SC_StringLineEdit(QString key);
+  SC_StringLineEdit(QString key, QString initValue);
+  SC_StringLineEdit(QString key, QString initValue, QString toolTip);
+  ~SC_StringLineEdit();
+  
+  bool outputToJSON(QJsonObject &jsonObject);
+  bool inputFromJSON(QJsonObject &jsonObject);
+  
+signals:
 
-SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey, double initValue, QString toolTip)
-  :QLineEdit()
-{
-  key = theKey;
-  this->setText(QString::number(initValue));
-}
+public slots:
 
-SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey)
-  :QLineEdit()
-{
-  key = theKey;
-}
+private:
+  QString key;
+};
 
-SC_DoubleLineEdit::~SC_DoubleLineEdit()
-{
-
-}
-
-
-bool
-SC_DoubleLineEdit::outputToJSON(QJsonObject &jsonObject)
-{
-    jsonObject[key] = this->text().toDouble();
-    return true;
-}
-
-bool
-SC_DoubleLineEdit::inputFromJSON(QJsonObject &jsonObject)
-{
-    this->setText(jsonObject[key].toString());
-    return true;
-}
-
+#endif // SC_STRING_LINEEDIT_H
