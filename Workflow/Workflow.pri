@@ -37,6 +37,7 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/SIM/SurrogateGP.cpp \
     $$PWD/UQ/UQ_Results.cpp \
     $$PWD/UQ/UQ_Engine.cpp \
+    $$PWD/UQ/NoneEngine.cpp \
     $$PWD/UQ/UQ_Method.cpp \
     $$PWD/UQ/simcenterUQ/PLoMSimuWidget.cpp \
     $$PWD/UQ/customUQ/CustomUQ_Results.cpp \
@@ -149,6 +150,7 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/SIM/SurrogateGP.h \
     $$PWD/UQ/UQ_Results.h \
     $$PWD/UQ/UQ_Engine.h \
+    $$PWD/UQ/NoneEngine.h \    
     $$PWD/UQ/UQ_Method.h \
     $$PWD/UQ/uqpy/UQpyEngine.h \
     $$PWD/UQ/customUQ/CustomUQ_Results.h \
