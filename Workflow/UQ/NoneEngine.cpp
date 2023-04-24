@@ -49,6 +49,15 @@ NoneEngine::~NoneEngine()
 
 }
 
+
+bool
+NoneEngine::inputFromJSON(QJsonObject &jsonObject){
+    emit onUQ_MethodUpdated("None");
+    emit onUQ_EngineChanged("None");
+
+    return true;
+}
+
 bool NoneEngine::outputAppDataToJSON(QJsonObject &jsonObject)
 {
     Q_UNUSED(jsonObject);
