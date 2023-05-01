@@ -63,13 +63,26 @@ SC_DoubleLineEdit::~SC_DoubleLineEdit()
 bool
 SC_DoubleLineEdit::outputToJSON(QJsonObject &jsonObject)
 {
-    return true;
+  jsonObject[key]=this->text().QString::toDouble();
+  return true;
 }
 
 bool
 SC_DoubleLineEdit::inputFromJSON(QJsonObject &jsonObject)
 {
-
+  if (jsonObject.contains(key)) {
+    QJsonValue theValue = jsonObject[key];
+    if (theValue.isDouble())
+      this->setText(QString::number(theValue.toDouble()));
     return true;
+  }
+
+  return false;
 }
 
+
+QString &
+SC_DoubleLineEdit::getKey() {
+  return key;
+}
+  

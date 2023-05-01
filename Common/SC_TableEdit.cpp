@@ -38,12 +38,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "SC_TableEdit.h"
 #include <QTableWidget>
+#include <QTableWidgetItem>
 #include <QHeaderView>
 #include <QJsonObject>
 #include <QGridLayout>
 #include <QPushButton>
+#include <QJsonArray>
 
-SC_TableEdit::SC_TableEdit(QString theKey, QStringList colHeadings, int numRows, double *data)
+SC_TableEdit::SC_TableEdit(QString theKey, QStringList colHeadings, int numRows, QStringList dataValues)
   :QWidget()
 {
   key = theKey;
@@ -57,11 +59,20 @@ SC_TableEdit::SC_TableEdit(QString theKey, QStringList colHeadings, int numRows,
 
   theTable = new QTableWidget();
   theTable->setColumnCount(numCols);
-  theTable->setRowCount(numRows);  
+  theTable->setRowCount(numRows);
   theTable->setHorizontalHeaderLabels(headings);
   theTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
   theTable->verticalHeader()->setVisible(false);
 
+  // fill in data
+  for (int i=0; i<numRows; i++) {
+    for (int j=0; j<numCols; j++) {
+      QString entry = dataValues.at(i*numCols+j);
+      QTableWidgetItem *cellItem = new QTableWidgetItem();
+      cellItem->setText(entry);
+      theTable->setItem(i,j,cellItem);
+    }
+  }  
 
   QPushButton *addB = new QPushButton("Add");    
   QPushButton *delB = new QPushButton("Del");
@@ -88,6 +99,7 @@ SC_TableEdit::SC_TableEdit(QString theKey, QStringList colHeadings, int numRows,
   });  
 }
 
+
 SC_TableEdit::~SC_TableEdit()
 {
 
@@ -97,14 +109,70 @@ SC_TableEdit::~SC_TableEdit()
 bool
 SC_TableEdit::outputToJSON(QJsonObject &jsonObject)
 {
+  int numRow = theTable->rowCount();
+  int numColumn = theTable->columnCount();
+  QJsonArray theArray;
+  
+  for (int i=0; i<numRow; i++) {
 
-    return true;
+    // add each row as a JSON array, writing double if double
+    QJsonArray theRowArray;
+    for (int j=0; j<numColumn; j++) {
+      QTableWidgetItem *value = theTable->item(i,j);
+      QString valueText = value->text();
+      bool ok;
+      double valueDouble = valueText.QString::toDouble(&ok);
+      if (ok == true)
+        theRowArray += valueDouble;
+      else      
+	theRowArray += valueText;
+    };
+    
+    theArray += theRowArray;
+  };
+    
+  jsonObject[key] = theArray;
+  
+  return true;
 }
 
 bool
 SC_TableEdit::inputFromJSON(QJsonObject &jsonObject)
 {
+   if (jsonObject.contains(key)) {
 
-    return true;
+     QJsonValue theValue = jsonObject[key];
+       if (!theValue.isArray()) {
+           return false;
+       }
+
+       QJsonArray theArray = theValue.toArray();
+       int numRows = theArray.size();
+       theTable->setRowCount(numRows);
+       
+       for (int i=0; i<numRows; i++) {
+	 QJsonValue theRowValue = theArray.at(i);
+	 if (!theRowValue.isArray()) {
+           return false;
+	 }
+	 QJsonArray theRowArray = theRowValue.toArray();
+	 int numCols = theRowArray.size();
+	 if (numCols != theTable->columnCount())
+	   return false;
+	 QTableWidgetItem *cellItem = new QTableWidgetItem();
+	 for (int j=0; j<numCols; j++) {
+	   QJsonValue theItemValue = theRowArray.at(j);
+	   if (theItemValue.isString()) {
+	     cellItem->setText(theItemValue.toString());
+	   } else if (theValue.isDouble()) {
+	     cellItem->setText(QString::number(theItemValue.toDouble()));
+	   }
+	   theTable->setItem(i,j,cellItem);
+	 }
+       }
+       
+   }
+   
+   return true;
 }
 

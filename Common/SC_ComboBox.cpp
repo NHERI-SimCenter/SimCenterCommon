@@ -61,14 +61,24 @@ SC_ComboBox::~SC_ComboBox()
 bool
 SC_ComboBox::outputToJSON(QJsonObject &jsonObject)
 {
-
-    return true;
+  jsonObject[key] = this->currentText();
+  return true;
 }
 
 bool
 SC_ComboBox::inputFromJSON(QJsonObject &jsonObject)
 {
-
+  if (jsonObject.contains(key)) {
+    QJsonValue theValue = jsonObject[key];
+    if (theValue.isString())
+      this->setCurrentText(theValue.toString());  
     return true;
+  }
+  
+  return false;
 }
 
+QString &
+SC_ComboBox::getKey() {  
+  return key;
+}

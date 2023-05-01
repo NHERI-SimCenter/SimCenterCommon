@@ -63,13 +63,24 @@ SC_IntLineEdit::~SC_IntLineEdit()
 bool
 SC_IntLineEdit::outputToJSON(QJsonObject &jsonObject)
 {
-    return true;
+  jsonObject[key]=this->text().QString::toInt();
+  return true;
 }
 
 bool
 SC_IntLineEdit::inputFromJSON(QJsonObject &jsonObject)
 {
-
+  if (jsonObject.contains(key)) {
+    QJsonValue theValue = jsonObject[key];
+    if (theValue.isDouble())
+      this->setText(QString::number(theValue.toDouble()));
     return true;
+  }
+
+  return false;  
 }
 
+QString &
+SC_IntLineEdit::getKey() {  
+  return key;
+}
