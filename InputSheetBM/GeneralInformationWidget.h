@@ -96,6 +96,7 @@ public slots:
     void heightEditingFinished(void);
     void buildingDimensionsEditingFinished(void);
     void unitLengthTextChanged(void);
+    void unitForceTextChanged(void);
     // void setNumFloors(int newNumFloors);
     // void setHeight(double newHeight);
     void setNumStoriesAndHeight(int numFloors, double height);
@@ -110,6 +111,7 @@ signals:
     void buildingDimensionsChanged(double newWidth, double newDepth, double planArea);
     void buildingLocationChanged(double latitude, double longitude);
     void unitLengthChanged(QString unitName);
+    void unitForceChanged(QString unitName);
 
     void unitsChanged(QString lengthUnit, QString ForceUnit);
 

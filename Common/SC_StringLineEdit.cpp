@@ -36,50 +36,47 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SC_ComboBox.h>
-//#include <QComboBox>
+#include <SC_StringLineEdit.h>
 #include <QJsonObject>
 
-SC_ComboBox::SC_ComboBox(QString theKey, QStringList theValues)
-  :QComboBox()
+SC_StringLineEdit::SC_StringLineEdit(QString theKey, QString initValue)
+  :QLineEdit()
 {
   key = theKey;
-  values = theValues;
-
-  //  theBox = new QComboBox();
-  foreach (const QString &theValue, values)
-    this->addItem(theValue);
-    
+  this->setText(initValue);
 }
 
-SC_ComboBox::~SC_ComboBox()
+
+SC_StringLineEdit::SC_StringLineEdit(QString theKey, QString initValue, QString toolTip)
+  :QLineEdit()
+{
+  key = theKey;
+  this->setText(initValue);
+}
+
+SC_StringLineEdit::SC_StringLineEdit(QString theKey)
+  :QLineEdit()
+{
+  key = theKey;
+}
+
+SC_StringLineEdit::~SC_StringLineEdit()
 {
 
 }
 
 
 bool
-SC_ComboBox::outputToJSON(QJsonObject &jsonObject)
+SC_StringLineEdit::outputToJSON(QJsonObject &jsonObject)
 {
-  jsonObject[key] = this->currentText();
-  return true;
-}
-
-bool
-SC_ComboBox::inputFromJSON(QJsonObject &jsonObject)
-{
-
-  if (jsonObject.contains(key)) {
-    QJsonValue theValue = jsonObject[key];
-    if (theValue.isString())
-      this->setCurrentText(theValue.toString());  
+    jsonObject[key] = this->text();
     return true;
-  }
-  
-  return false;
 }
 
-QString &
-SC_ComboBox::getKey() {  
-  return key;
+bool
+SC_StringLineEdit::inputFromJSON(QJsonObject &jsonObject)
+{
+    this->setText(jsonObject[key].toString());
+    return true;
 }
+

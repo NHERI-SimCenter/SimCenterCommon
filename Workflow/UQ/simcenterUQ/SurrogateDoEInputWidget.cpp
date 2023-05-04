@@ -343,9 +343,9 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     theGpAdvancedWidgetLayoutEE->addWidget(new QLabel("Input postprocess"), eeid++, 0);
     theGpAdvancedWidgetLayoutEE->addWidget(imChoicesComboBox,eeid++,0,1,9);
     useGeoMeanIM = new QCheckBox("Use geometric mean when 2 or more ground motion components are given");
-    useGeoMeanIM -> setChecked(true);
-    useGeoMeanIM -> setVisible(true);
     theGpAdvancedWidgetLayoutEE->addWidget(useGeoMeanIM, eeid++, 0);
+    useGeoMeanIM -> setChecked(true);
+    useGeoMeanIM -> show();
 
     QWidget *emptyVariableWidget = new QWidget();
     theSCIMWidget = new SimCenterIntensityMeasureWidget();

@@ -56,7 +56,8 @@ class SC_DoubleLineEdit : public QLineEdit
 {
   
 public:
-  
+
+  SC_DoubleLineEdit(QString key);
   SC_DoubleLineEdit(QString key, double initValue);
   SC_DoubleLineEdit(QString key, double initValue, QString toolTip);
   ~SC_DoubleLineEdit();

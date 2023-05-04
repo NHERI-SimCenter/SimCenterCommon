@@ -1,3 +1,6 @@
+#ifndef SC_STRING_LINEEDIT_H
+#define SC_STRING_LINEEDIT_H
+
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -34,52 +37,40 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+/**
+ *  @author  fmckenna
+ *  @date    2/2017
+ *  @version 1.0
+ *
+ *  @section DESCRIPTION
+ *
+ *  This is a combo box for SimCenter, implements input/output To JSON
+ */
 
-#include <SC_ComboBox.h>
-//#include <QComboBox>
-#include <QJsonObject>
+#include <QLineEdit>
+#include <QString>
 
-SC_ComboBox::SC_ComboBox(QString theKey, QStringList theValues)
-  :QComboBox()
+class QJsonObject;
+
+class SC_StringLineEdit : public QLineEdit
 {
-  key = theKey;
-  values = theValues;
-
-  //  theBox = new QComboBox();
-  foreach (const QString &theValue, values)
-    this->addItem(theValue);
-    
-}
-
-SC_ComboBox::~SC_ComboBox()
-{
-
-}
-
-
-bool
-SC_ComboBox::outputToJSON(QJsonObject &jsonObject)
-{
-  jsonObject[key] = this->currentText();
-  return true;
-}
-
-bool
-SC_ComboBox::inputFromJSON(QJsonObject &jsonObject)
-{
-
-  if (jsonObject.contains(key)) {
-    QJsonValue theValue = jsonObject[key];
-    if (theValue.isString())
-      this->setCurrentText(theValue.toString());  
-    return true;
-  }
   
-  return false;
-}
+public:
 
-QString &
-SC_ComboBox::getKey() {  
-  return key;
-}
+  SC_StringLineEdit(QString key);
+  SC_StringLineEdit(QString key, QString initValue);
+  SC_StringLineEdit(QString key, QString initValue, QString toolTip);
+  ~SC_StringLineEdit();
+  
+  bool outputToJSON(QJsonObject &jsonObject);
+  bool inputFromJSON(QJsonObject &jsonObject);
+  
+signals:
+
+public slots:
+
+private:
+  QString key;
+};
+
+#endif // SC_STRING_LINEEDIT_H

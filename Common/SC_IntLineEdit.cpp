@@ -80,10 +80,9 @@ SC_IntLineEdit::inputFromJSON(QJsonObject &jsonObject)
   if (jsonObject.contains(key)) {
     QJsonValue theValue = jsonObject[key];
     if (theValue.isDouble())
-      this->setText(QString::number(theValue.toDouble()));
+      this->setText(QString::number(theValue.toInt()));
     return true;
   }
-
   return false;  
 }
 

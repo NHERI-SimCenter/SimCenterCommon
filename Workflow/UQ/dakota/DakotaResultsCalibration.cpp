@@ -474,14 +474,14 @@ DakotaResultsCalibration::createResultParameterWidget(QString &name, double best
     QLineEdit *nameLineEdit;
     QWidget *nameWidget = addLabeledLineEdit(QString("Name"), &nameLineEdit);
     nameLineEdit->setText(name);
-    nameLineEdit->setDisabled(true);
+    nameLineEdit->setReadOnly(true);
     theNames.append(name);
     edpLayout->addWidget(nameWidget);
 
     QLineEdit *meanLineEdit;
     QWidget *meanWidget = addLabeledLineEdit(QString("Best Parameter"), &meanLineEdit);
     meanLineEdit->setText(QString::number(bestValue));
-    meanLineEdit->setDisabled(true);
+    meanLineEdit->setReadOnly(true);
     theBestValues.append(bestValue);
     edpLayout->addWidget(meanWidget);
 

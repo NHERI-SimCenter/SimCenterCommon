@@ -23,6 +23,7 @@ SOURCES += $$PWD/HeaderWidget.cpp \
     $$PWD/SimCenterWidget.cpp \
     $$PWD/SC_ComboBox.cpp \
     $$PWD/SC_DoubleLineEdit.cpp \
+    $$PWD/SC_StringLineEdit.cpp \
     $$PWD/SC_IntLineEdit.cpp \
     $$PWD/SC_TableEdit.cpp \
     $$PWD/SC_FileEdit.cpp \                    
@@ -48,6 +49,7 @@ HEADERS += $$PWD/HeaderWidget.h \
     $$PWD/SimCenterWidget.h \
     $$PWD/SC_ComboBox.h \
     $$PWD/SC_DoubleLineEdit.h \
+    $$PWD/SC_StringLineEdit.h \
     $$PWD/SC_IntLineEdit.h \
     $$PWD/SC_TableEdit.h \
     $$PWD/SC_FileEdit.h \         

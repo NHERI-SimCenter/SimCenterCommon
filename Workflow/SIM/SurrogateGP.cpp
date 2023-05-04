@@ -170,6 +170,7 @@ surrogateGP::surrogateGP(QWidget *parent)
         if (tog==false)
         {
             advancedOptions->hide();
+            option2Button->setChecked(true);
         } else {
             advancedOptions->show();
         }
