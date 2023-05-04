@@ -203,6 +203,7 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent)
     connect(planAreaEdit,SIGNAL(editingFinished()), this, SLOT(buildingDimensionsEditingFinished()));
 
     connect(unitsLengthCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(unitLengthTextChanged()));
+    connect(unitsForceCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(unitForceTextChanged()));
 
     connect(longitudeEdit, &QLineEdit::editingFinished, this, [this](){
         GeneralInformationWidget::buildingLocationChanged(latitudeEdit->text().toDouble(), longitudeEdit->text().toDouble());
@@ -437,6 +438,11 @@ GeneralInformationWidget::getForceUnit()
 void
 GeneralInformationWidget::unitLengthTextChanged(void) {
     emit unitLengthChanged(getLengthUnit());
+}
+
+void
+GeneralInformationWidget::unitForceTextChanged(void) {
+    emit unitForceChanged(getForceUnit());
 }
 
 void
