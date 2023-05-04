@@ -1,5 +1,5 @@
-#ifndef SC_COMBOBOX_H
-#define SC_COMBOBOX_H
+#ifndef SC_FILE_EDIT_H
+#define SC_FILE_EDIT_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -47,31 +47,37 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  *  This is a combo box for SimCenter, implements input/output To JSON
  */
 
-#include <QComboBox>
+#include <QWidget>
 #include <QString>
-#include <QStringList>
+class QLineEdit;
 
 class QJsonObject;
 
-class SC_ComboBox : public QComboBox
+class SC_FileEdit : public QWidget
 {
   
 public:
   
-  SC_ComboBox(QString key, QStringList values);
-  ~SC_ComboBox();
+  SC_FileEdit(QString key);
+  SC_FileEdit(QString key, QString toolTip);
+  ~SC_FileEdit();
+  
   bool outputToJSON(QJsonObject &jsonObject);
   bool inputFromJSON(QJsonObject &jsonObject);
-  QString &getKey();
+  
+  QString getFilename(void);  
+  void setFilename(QString &fileName);
+  
+  bool copyFiles(QString &destDir);
   
 signals:
 
 public slots:
-
+  void chooseFileName(void);
+  
 private:
-  //   QComboBox *theBox;
-  QStringList values;
   QString key;
+  QLineEdit *theFile;
 };
 
-#endif // SC_COMBOBOX_H
+#endif // SC_FILE_EDIT_H

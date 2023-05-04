@@ -38,10 +38,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <SC_IntLineEdit.h>
 #include <QJsonObject>
+#include <QIntValidator>
 
 SC_IntLineEdit::SC_IntLineEdit(QString theKey, int initValue)
   :QLineEdit()
 {
+  QIntValidator* theValidator = new QIntValidator();
+  this->setValidator(theValidator);
+  
   key = theKey;
   this->setText(QString::number(initValue));  
 }
@@ -50,6 +54,9 @@ SC_IntLineEdit::SC_IntLineEdit(QString theKey, int initValue)
 SC_IntLineEdit::SC_IntLineEdit(QString theKey, int initValue, QString toolTip)
   :QLineEdit()
 {
+  QIntValidator* theValidator = new QIntValidator();
+  this->setValidator(theValidator);
+  
   key = theKey;
   this->setText(QString::number(initValue));
 }
@@ -63,13 +70,28 @@ SC_IntLineEdit::~SC_IntLineEdit()
 bool
 SC_IntLineEdit::outputToJSON(QJsonObject &jsonObject)
 {
-    jsonObject[key] = this->text().toInt();
-    return true;
+  jsonObject[key]=this->text().QString::toInt();
+  return true;
 }
 
 bool
 SC_IntLineEdit::inputFromJSON(QJsonObject &jsonObject)
 {
-    this->setText(QString::number(jsonObject[key].toInt()));
+  if (jsonObject.contains(key)) {
+    QJsonValue theValue = jsonObject[key];
+    if (theValue.isDouble())
+      this->setText(QString::number(theValue.toInt()));
     return true;
+  }
+  return false;  
+}
+
+QString &
+SC_IntLineEdit::getKey() {  
+  return key;
+}
+
+int
+SC_IntLineEdit::getInt() {  
+  return this->text().toInt();
 }

@@ -58,7 +58,7 @@ class SC_TableEdit : public QWidget
 {
 public:
   
-  SC_TableEdit(QString key, QStringList values, int numRows, double *initData = 0);
+  SC_TableEdit(QString key, QStringList colHeadings, int numRows, QStringList data);  
   ~SC_TableEdit();
   
   bool outputToJSON(QJsonObject &jsonObject);

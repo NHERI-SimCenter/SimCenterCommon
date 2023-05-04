@@ -40,6 +40,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include <UQ_Engine.h>
+#include <QString>
 
 class UQ_Results;
 class RandomVariablesContainer;
@@ -51,14 +52,17 @@ class NoneEngine : public UQ_Engine
 public:
     explicit NoneEngine(QWidget *parent = 0);
     virtual ~NoneEngine();
-
+  
+    bool inputFromJSON(QJsonObject &jsonObject);
     int getMaxNumParallelTasks(void);
     void setRV_Defaults(void);
     UQ_Results *getResults(void);
 
   bool outputAppDataToJSON(QJsonObject &jsonObject) ;
 signals:
-
+    void onUQ_EngineChanged(QString);
+    void onUQ_MethodUpdated(QString);
+				   
 public slots:
 
 private:

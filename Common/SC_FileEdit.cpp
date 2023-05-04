@@ -1,6 +1,3 @@
-#ifndef SC_COMBOBOX_H
-#define SC_COMBOBOX_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -37,41 +34,75 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-/**
- *  @author  fmckenna
- *  @date    2/2017
- *  @version 1.0
- *
- *  @section DESCRIPTION
- *
- *  This is a combo box for SimCenter, implements input/output To JSON
- */
+// Written: fmckenna
 
-#include <QComboBox>
-#include <QString>
-#include <QStringList>
+#include <SC_FileEdit.h>
 
-class QJsonObject;
+#include <QLineEdit>
+#include <QPushButton>
+#include <QJsonObject>
+#include <QGridLayout>
+#include <QFileDialog>
 
-class SC_ComboBox : public QComboBox
+SC_FileEdit::SC_FileEdit(QString theKey)
+  :QWidget()
 {
-  
-public:
-  
-  SC_ComboBox(QString key, QStringList values);
-  ~SC_ComboBox();
-  bool outputToJSON(QJsonObject &jsonObject);
-  bool inputFromJSON(QJsonObject &jsonObject);
-  QString &getKey();
-  
-signals:
+  key = theKey;
 
-public slots:
+  QGridLayout *theLayout = new QGridLayout;
+  
+  theFile = new QLineEdit;    
+  QPushButton *chooseFile = new QPushButton();
+  chooseFile->setText(tr("Choose"));
 
-private:
-  //   QComboBox *theBox;
-  QStringList values;
-  QString key;
-};
+  theLayout->addWidget(theFile,0,0);
+  theLayout->addWidget(chooseFile, 0,1);
+  this->setLayout(theLayout);
 
-#endif // SC_COMBOBOX_H
+  connect(chooseFile, SIGNAL(clicked(bool)), this, SLOT(chooseFileName()));
+}
+
+
+SC_FileEdit::SC_FileEdit(QString theKey, QString toolTip)
+  :QWidget()
+{
+
+}
+
+SC_FileEdit::~SC_FileEdit()
+{
+
+}
+
+bool
+SC_FileEdit::outputToJSON(QJsonObject &jsonObject)
+{
+    return true;
+}
+
+bool
+SC_FileEdit::inputFromJSON(QJsonObject &jsonObject)
+{
+    return true;
+}
+
+void
+SC_FileEdit::chooseFileName(void) {
+  QString fileName=QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)");
+  theFile->setText(fileName);
+}
+
+bool
+SC_FileEdit::copyFiles(QString &destDir) {
+  return true;
+}
+
+QString
+SC_FileEdit::getFilename(void) {
+  return theFile->text();
+}
+
+void
+SC_FileEdit::setFilename(QString &filename) {
+  return theFile->setText(filename);
+}

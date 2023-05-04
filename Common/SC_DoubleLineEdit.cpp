@@ -38,10 +38,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <SC_DoubleLineEdit.h>
 #include <QJsonObject>
+#include <QDoubleValidator>
 
 SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey, double initValue)
   :QLineEdit()
 {
+  QDoubleValidator* theValidator = new QDoubleValidator();
+  this->setValidator(theValidator);
+  
   key = theKey;
   this->setText(QString::number(initValue));  
 }
@@ -50,6 +54,9 @@ SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey, double initValue)
 SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey, double initValue, QString toolTip)
   :QLineEdit()
 {
+  QDoubleValidator* theValidator = new QDoubleValidator();
+  this->setValidator(theValidator);
+  
   key = theKey;
   this->setText(QString::number(initValue));
 }
@@ -69,14 +76,31 @@ SC_DoubleLineEdit::~SC_DoubleLineEdit()
 bool
 SC_DoubleLineEdit::outputToJSON(QJsonObject &jsonObject)
 {
-    jsonObject[key] = this->text().toDouble();
-    return true;
+  jsonObject[key]=this->text().QString::toDouble();
+  return true;
 }
 
 bool
 SC_DoubleLineEdit::inputFromJSON(QJsonObject &jsonObject)
 {
-    this->setText(QString::number(jsonObject[key].toDouble()));
+  if (jsonObject.contains(key)) {
+    QJsonValue theValue = jsonObject[key];
+    if (theValue.isDouble())
+      this->setText(QString::number(theValue.toDouble()));
     return true;
+  }
+
+  return false;
 }
 
+
+QString &
+SC_DoubleLineEdit::getKey(void) {
+  return key;
+}
+
+double
+SC_DoubleLineEdit::getDouble(void) {
+  return this->text().toDouble();
+}
+  
