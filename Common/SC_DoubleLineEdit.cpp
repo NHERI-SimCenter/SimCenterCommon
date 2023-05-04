@@ -76,7 +76,7 @@ SC_DoubleLineEdit::outputToJSON(QJsonObject &jsonObject)
 bool
 SC_DoubleLineEdit::inputFromJSON(QJsonObject &jsonObject)
 {
-    this->setText(jsonObject[key].toString());
+    this->setText(QString::number(jsonObject[key].toDouble()));
     return true;
 }
 

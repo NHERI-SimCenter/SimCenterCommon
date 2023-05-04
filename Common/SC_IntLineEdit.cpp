@@ -70,6 +70,6 @@ SC_IntLineEdit::outputToJSON(QJsonObject &jsonObject)
 bool
 SC_IntLineEdit::inputFromJSON(QJsonObject &jsonObject)
 {
-    this->setText(jsonObject[key].toString());
+    this->setText(QString::number(jsonObject[key].toInt()));
     return true;
 }
