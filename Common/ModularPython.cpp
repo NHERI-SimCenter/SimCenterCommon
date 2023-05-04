@@ -145,7 +145,16 @@ void ModularPython::run(QString pythonScriptPath, QStringList pythonArgs){
     QString command;
 
     command = sourceBash + exportPath + "; \"" + python + QString("\" \"" ) +
-            pythonScriptPath + QString("\" " ) + pythonArgs.join(" \"");
+      pythonScriptPath + QString("\" "); //  + pythonArgs.join(" \"");
+
+    const int listSize = pythonArgs.size();
+    for (int i = 0; i < listSize; ++i) {
+      QString arg = pythonArgs.at(i);
+      if (arg.contains("/")) // adding back space if dir path involved
+	command += QString(" \"") + arg + QString("\"");
+      else
+	command += QString(" ") + arg;	
+    }
 
     qDebug() << "PYTHON COMMAND" << command;
 

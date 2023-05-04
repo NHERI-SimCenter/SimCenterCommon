@@ -96,3 +96,13 @@ bool
 SC_FileEdit::copyFiles(QString &destDir) {
   return true;
 }
+
+QString
+SC_FileEdit::getFilename(void) {
+  return theFile->text();
+}
+
+void
+SC_FileEdit::setFilename(QString &filename) {
+  return theFile->setText(filename);
+}

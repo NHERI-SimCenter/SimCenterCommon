@@ -63,7 +63,8 @@ public:
   
   bool outputToJSON(QJsonObject &jsonObject);
   bool inputFromJSON(QJsonObject &jsonObject);
-  QString &getKey();
+  QString &getKey(void);
+  double getDouble(void);  
   
 signals:
 

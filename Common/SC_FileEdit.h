@@ -64,7 +64,10 @@ public:
   
   bool outputToJSON(QJsonObject &jsonObject);
   bool inputFromJSON(QJsonObject &jsonObject);
-
+  
+  QString getFilename(void);  
+  void setFilename(QString &fileName);
+  
   bool copyFiles(QString &destDir);
   
 signals:

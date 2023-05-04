@@ -38,10 +38,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <SC_DoubleLineEdit.h>
 #include <QJsonObject>
+#include <QDoubleValidator>
 
 SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey, double initValue)
   :QLineEdit()
 {
+  QDoubleValidator* theValidator = new QDoubleValidator();
+  this->setValidator(theValidator);
+  
   key = theKey;
   this->setText(QString::number(initValue));  
 }
@@ -50,6 +54,9 @@ SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey, double initValue)
 SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey, double initValue, QString toolTip)
   :QLineEdit()
 {
+  QDoubleValidator* theValidator = new QDoubleValidator();
+  this->setValidator(theValidator);
+  
   key = theKey;
   this->setText(QString::number(initValue));
 }
@@ -82,7 +89,12 @@ SC_DoubleLineEdit::inputFromJSON(QJsonObject &jsonObject)
 
 
 QString &
-SC_DoubleLineEdit::getKey() {
+SC_DoubleLineEdit::getKey(void) {
   return key;
+}
+
+double
+SC_DoubleLineEdit::getDouble(void) {
+  return this->text().toDouble();
 }
   

@@ -38,10 +38,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <SC_IntLineEdit.h>
 #include <QJsonObject>
+#include <QIntValidator>
 
 SC_IntLineEdit::SC_IntLineEdit(QString theKey, int initValue)
   :QLineEdit()
 {
+  QIntValidator* theValidator = new QIntValidator();
+  this->setValidator(theValidator);
+  
   key = theKey;
   this->setText(QString::number(initValue));  
 }
@@ -50,6 +54,9 @@ SC_IntLineEdit::SC_IntLineEdit(QString theKey, int initValue)
 SC_IntLineEdit::SC_IntLineEdit(QString theKey, int initValue, QString toolTip)
   :QLineEdit()
 {
+  QIntValidator* theValidator = new QIntValidator();
+  this->setValidator(theValidator);
+  
   key = theKey;
   this->setText(QString::number(initValue));
 }
@@ -83,4 +90,9 @@ SC_IntLineEdit::inputFromJSON(QJsonObject &jsonObject)
 QString &
 SC_IntLineEdit::getKey() {  
   return key;
+}
+
+int
+SC_IntLineEdit::getInt() {  
+  return this->text().toInt();
 }
