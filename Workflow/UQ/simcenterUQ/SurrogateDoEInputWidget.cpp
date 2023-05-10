@@ -761,6 +761,7 @@ SurrogateDoEInputWidget::inputFromJSON(QJsonObject &jsonObject){
     }
 
     if (jsonObject.contains("IntensityMeasure")) {
+        useGeoMeanIM->setChecked(jsonObject["useGeoMean"].toBool());
         theGpAdvancedCheckBoxEE->setVisible(true);
         theGpAdvancedCheckBoxEE->setChecked(true);
         im_stackedWidgets->setCurrentIndex(0);

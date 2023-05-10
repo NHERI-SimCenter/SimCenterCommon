@@ -209,7 +209,7 @@ EDP_EarthquakeSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
 	     (type == QString("User Defined EDPs"))) {
     index = 1;
   } else if ((type == QString("None (only for surrogate)")) ||
-             (type == QString("SurrogateSimulation"))) {
+             (type == QString("SurrogateEDP"))) {
     index = 2;
   } else {
     errorMessage("EDP_EarthquakeSelection - no valid type found");
