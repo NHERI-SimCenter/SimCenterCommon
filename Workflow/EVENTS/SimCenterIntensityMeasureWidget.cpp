@@ -221,8 +221,8 @@ void SimCenterIM::handleIMChanged(const QString& newIM)
 {
     if ((newIM.contains("Spectral")) || (newIM.contains("SaRatio"))){
         periodLine->setDisabled(false);
-        periodLine->setStyleSheet("background-color: white;"
-                        "color: black;");
+        //periodLine->setStyleSheet("background-color: white;"
+        //                "color: black;");
 
         if (newIM.contains("Spectral")) {
             periodLine->setText("0.5");
@@ -231,8 +231,8 @@ void SimCenterIM::handleIMChanged(const QString& newIM)
         }
     }else{
         periodLine->setDisabled(true);
-        periodLine->setStyleSheet("background-color: lightgray;"
-                        "color: lightgray;");
+        //periodLine->setStyleSheet("background-color: lightgray;"
+        //                "color: lightgray;");
         periodLine->setText("");
     }
 
