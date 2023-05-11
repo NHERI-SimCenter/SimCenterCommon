@@ -48,7 +48,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QFileDialog>
 #include <QPushButton>
-#include <SectionTitle.h>
 #include <QFileInfo>
 #include <string>
 #include <sstream>
@@ -171,6 +170,7 @@ surrogateGP::surrogateGP(QWidget *parent)
         if (tog==false)
         {
             advancedOptions->hide();
+            option2Button->setChecked(true);
         } else {
             advancedOptions->show();
         }

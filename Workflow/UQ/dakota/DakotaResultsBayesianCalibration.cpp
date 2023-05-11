@@ -468,7 +468,7 @@ int DakotaResultsBayesianCalibration::processResults(QString &filenameResults, Q
     // add summary, detained info and spreadsheet with chart to the tabed widget
     //
 
-    theDataTable = new ResultsDataChart(filenameTab);
+    theDataTable = new ResultsDataChart(filenameTab,0,false); // sy - because of the burnin, we don't display surrogate
 
     tabWidget->addTab(sa,tr("Summary"));
     tabWidget->addTab(dakotaText, tr("General"));
@@ -497,21 +497,21 @@ DakotaResultsBayesianCalibration::createResultParameterWidget(QString &name, dou
     QLineEdit *nameLineEdit;
     QWidget *nameWidget = addLabeledLineEdit(QString("Parameter Name"), &nameLineEdit);
     nameLineEdit->setText(name);
-    nameLineEdit->setDisabled(true);
+    nameLineEdit->setReadOnly(true);
     theNames.append(name);
     edpLayout->addWidget(nameWidget);
 
     QLineEdit *meanLineEdit;
     QWidget *meanWidget = addLabeledLineEdit(QString("Mean"), &meanLineEdit);
     meanLineEdit->setText(QString::number(mean));
-    meanLineEdit->setDisabled(true);
+    meanLineEdit->setReadOnly(true);
     theMeans.append(mean);
     edpLayout->addWidget(meanWidget);
 
     QLineEdit *stdDevLineEdit;
     QWidget *stdDevWidget = addLabeledLineEdit(QString("Standard Deviation"), &stdDevLineEdit);
     stdDevLineEdit->setText(QString::number(stdDev));
-    stdDevLineEdit->setDisabled(true);
+    stdDevLineEdit->setReadOnly(true);
     theStdDevs.append(stdDev);
     edpLayout->addWidget(stdDevWidget);
 

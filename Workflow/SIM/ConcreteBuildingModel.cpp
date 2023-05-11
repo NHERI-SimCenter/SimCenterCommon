@@ -38,7 +38,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "ConcreteBuildingModel.h"
 #include "ReadWriteRVJSON.h"
-#include "SectionTitle.h"
 #include "RandomVariable.h"
 #include "GeneralInformationWidget.h"
 #include "RandomVariablesContainer.h"
@@ -356,10 +355,11 @@ ConcreteBuildingModel::ConcreteBuildingModel(RandomVariablesContainer *theRandom
     // add signal and slot connections with GI
     GeneralInformationWidget *theGI = GeneralInformationWidget::getInstance();
 
+    this->setDefaultValues();
+    
+    
     connect(this,SIGNAL(numStoriesOrHeightChanged(int, double)), theGI, SLOT(setNumStoriesAndHeight(int, double)));
     connect(this,SIGNAL(buildingDimensionsChanged(double,double,double)),theGI,SLOT(setBuildingDimensions(double,double,double)));
-
-    this->setDefaultValues();
 }
 
 

@@ -172,8 +172,10 @@ UQ_Results::extractErrorMsg(QString workDir, QString errFileName, QString uqEngi
                line = in.readLine();
                surrogateError.close();
             }
-            if (line.length()!= 0)
+            if (line.length()!= 0) {
                 errMsg = QString(QString("Error Running Surrogate Simulation: ") + line);
+                errMsg = errMsg + ".... see more in " + filenameSurErrString;
+            }
         }
     }
 
@@ -187,8 +189,10 @@ UQ_Results::extractErrorMsg(QString workDir, QString errFileName, QString uqEngi
            line = in.readLine();
            workflowError.close();
         }
-        if (line.length()!= 0)
+        if (line.length()!= 0) {
             errMsg = QString(QString("Error in Creating Workflow: ") + line);
+            errMsg = errMsg + ".... see more in " + filenameWorkErrString;
+        }
     }
 }
 

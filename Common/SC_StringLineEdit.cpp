@@ -1,6 +1,3 @@
-#ifndef UQ_ENGINE_SELECTION_H
-#define UQ_ENGINE_SELECTION_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -20,7 +17,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -39,62 +36,47 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterAppSelection.h>
-#include "UQ_Engine.h"
-class InputWidgetEDP;
+#include <SC_StringLineEdit.h>
+#include <QJsonObject>
 
-
-class UQ_EngineSelection : public  SimCenterAppSelection
+SC_StringLineEdit::SC_StringLineEdit(QString theKey, QString initValue)
+  :QLineEdit()
 {
-  Q_OBJECT
+  key = theKey;
+  this->setText(initValue);
+}
 
-  public:
 
-  UQ_EngineSelection(UQ_EngineType = All,
-		     QWidget *parent = 0);
-  
-  UQ_EngineSelection(bool includeNone,
-		     QString assetType,
-		     UQ_EngineType = All,
-		     QWidget *parent = 0);    
-  
-  UQ_Results  *getResults();
-  int getNumParallelTasks(void);
-  UQ_Engine *getCurrentEngine();
-  void setRV_Defaults();
-  
- signals:
+SC_StringLineEdit::SC_StringLineEdit(QString theKey, QString initValue, QString toolTip)
+  :QLineEdit()
+{
+  key = theKey;
+  this->setText(initValue);
+}
 
-  void onUQ_EngineChanged(QString);
-  void onNumModelsChanged(int);
-  void queryEVT(void); // added KZ
+SC_StringLineEdit::SC_StringLineEdit(QString theKey)
+  :QLineEdit()
+{
+  key = theKey;
+}
 
- public slots:
+SC_StringLineEdit::~SC_StringLineEdit()
+{
 
-  void engineSelectionChanged(QString eng);
-  void updateEngineComboDisp(const QString="Forward Propagation");
-  void relayQueryEVT(void); // added KZ
-  void setEventType(QString type); // added KZ
-  void methodSelectionChanged(QString type);
-  
-private:
-  void initialize();
-  void createComboBox();
-  QComboBox *theMethodCombo;
-  UQ_Engine *theCurrentEngine;
-  UQ_Engine *thePreviousEngine;  
-  UQ_Engine *theDakotaEngine;
-  UQ_Engine *theSimCenterUQEngine;
-  UQ_Engine *theUQpyEngine;
-  UQ_Engine *theUCSD_Engine;
-  UQ_Engine *theNoneEngine;  
-  UQ_Engine *thefilterEngine;
-  UQ_Engine *theCustomEngine;
-  bool includeNoneOption;
-  QString engineName;
-  UQ_EngineType typeOption;
+}
 
-  QComboBox *theEngineComboDisp;
-};
 
-#endif 
+bool
+SC_StringLineEdit::outputToJSON(QJsonObject &jsonObject)
+{
+    jsonObject[key] = this->text();
+    return true;
+}
+
+bool
+SC_StringLineEdit::inputFromJSON(QJsonObject &jsonObject)
+{
+    this->setText(jsonObject[key].toString());
+    return true;
+}
+

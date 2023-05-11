@@ -46,7 +46,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 #include <QLabel>
 #include <QDebug>
-#include <SectionTitle.h>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QRadioButton>

@@ -343,9 +343,9 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     theGpAdvancedWidgetLayoutEE->addWidget(new QLabel("Input postprocess"), eeid++, 0);
     theGpAdvancedWidgetLayoutEE->addWidget(imChoicesComboBox,eeid++,0,1,9);
     useGeoMeanIM = new QCheckBox("Use geometric mean when 2 or more ground motion components are given");
-    useGeoMeanIM -> setChecked(true);
-    useGeoMeanIM -> setVisible(false);
     theGpAdvancedWidgetLayoutEE->addWidget(useGeoMeanIM, eeid++, 0);
+    useGeoMeanIM -> setChecked(true);
+    useGeoMeanIM -> show();
 
     QWidget *emptyVariableWidget = new QWidget();
     theSCIMWidget = new SimCenterIntensityMeasureWidget();
@@ -761,8 +761,9 @@ SurrogateDoEInputWidget::inputFromJSON(QJsonObject &jsonObject){
     }
 
     if (jsonObject.contains("IntensityMeasure")) {
-        theGpAdvancedCheckBox->setVisible(true);
-        theGpAdvancedCheckBox->setChecked(true);
+        useGeoMeanIM->setChecked(jsonObject["useGeoMean"].toBool());
+        theGpAdvancedCheckBoxEE->setVisible(true);
+        theGpAdvancedCheckBoxEE->setChecked(true);
         im_stackedWidgets->setCurrentIndex(0);
         imChoicesComboBox->setCurrentIndex(0);
         qDebug() << "Start loading intensity measure";
@@ -857,6 +858,7 @@ SurrogateDoEInputWidget::onEventTypeChanged(QString typeEVT) {
     } else {
         // not an earthquake event, inactivate ground motion intensity widget
         theGpAdvancedCheckBoxEE->setVisible(false);
+        theGpAdvancedCheckBoxEE->setChecked(false);
         theLogtCheckBox->setChecked(false);
     }
 }

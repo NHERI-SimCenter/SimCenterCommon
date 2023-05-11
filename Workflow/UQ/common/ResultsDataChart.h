@@ -57,7 +57,7 @@ class ResultsDataChart : public SimCenterWidget
     Q_OBJECT
 public:
 //    explicit ResultsDataChart(QString filenameTab, bool isSur=false, int nrv=0, QWidget *parent = 0);
-    explicit ResultsDataChart(QString filenameTab, int nrv=0, QWidget *parent = 0);
+    explicit ResultsDataChart(QString filenameTab, int nrv=0, bool checkSurrogate=true, QWidget *parent = 0);
     explicit ResultsDataChart(QJsonObject spreadsheet, QWidget *parent = 0);
     explicit ResultsDataChart(QString rvFileName, QString qoiFileName, QWidget *parent = 0);
     explicit ResultsDataChart(QString rvFileName, QString qoiFileName, int xdim, int ydim, int nsamp, QStringList listRVs, QStringList listQoIs, QWidget *parent=0);

@@ -1,5 +1,5 @@
-#ifndef UQ_ENGINE_SELECTION_H
-#define UQ_ENGINE_SELECTION_H
+#ifndef SC_INT_LINEEDIT_H
+#define SC_INT_LINEEDIT_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -20,7 +20,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -37,64 +37,41 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+/**
+ *  @author  fmckenna
+ *  @date    2/2017
+ *  @version 1.0
+ *
+ *  @section DESCRIPTION
+ *
+ *  This is a combo box for SimCenter, implements input/output To JSON
+ */
 
-#include <SimCenterAppSelection.h>
-#include "UQ_Engine.h"
-class InputWidgetEDP;
+#include <QLineEdit>
+#include <QString>
 
+class QJsonObject;
 
-class UQ_EngineSelection : public  SimCenterAppSelection
+class SC_IntLineEdit : public QLineEdit
 {
-  Q_OBJECT
-
-  public:
-
-  UQ_EngineSelection(UQ_EngineType = All,
-		     QWidget *parent = 0);
   
-  UQ_EngineSelection(bool includeNone,
-		     QString assetType,
-		     UQ_EngineType = All,
-		     QWidget *parent = 0);    
+public:
   
-  UQ_Results  *getResults();
-  int getNumParallelTasks(void);
-  UQ_Engine *getCurrentEngine();
-  void setRV_Defaults();
+  SC_IntLineEdit(QString key, int initValue);
+  SC_IntLineEdit(QString key, int initValue, QString toolTip);
+  ~SC_IntLineEdit();
   
- signals:
-
-  void onUQ_EngineChanged(QString);
-  void onNumModelsChanged(int);
-  void queryEVT(void); // added KZ
-
- public slots:
-
-  void engineSelectionChanged(QString eng);
-  void updateEngineComboDisp(const QString="Forward Propagation");
-  void relayQueryEVT(void); // added KZ
-  void setEventType(QString type); // added KZ
-  void methodSelectionChanged(QString type);
+  bool outputToJSON(QJsonObject &jsonObject);
+  bool inputFromJSON(QJsonObject &jsonObject);
+  QString &getKey(void);
+  int getInt(void);  
   
+signals:
+
+public slots:
+
 private:
-  void initialize();
-  void createComboBox();
-  QComboBox *theMethodCombo;
-  UQ_Engine *theCurrentEngine;
-  UQ_Engine *thePreviousEngine;  
-  UQ_Engine *theDakotaEngine;
-  UQ_Engine *theSimCenterUQEngine;
-  UQ_Engine *theUQpyEngine;
-  UQ_Engine *theUCSD_Engine;
-  UQ_Engine *theNoneEngine;  
-  UQ_Engine *thefilterEngine;
-  UQ_Engine *theCustomEngine;
-  bool includeNoneOption;
-  QString engineName;
-  UQ_EngineType typeOption;
-
-  QComboBox *theEngineComboDisp;
+  QString key;
 };
 
-#endif 
+#endif // SC_INT_LINEEDIT_H

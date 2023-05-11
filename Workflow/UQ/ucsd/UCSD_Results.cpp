@@ -228,7 +228,7 @@ int UCSD_Results::processResults(QString &filenameTab, QString &filenameTabPrior
 
     sa->setWidget(summary);
 
-    theDataTable = new ResultsDataChart(filenameTab);
+    theDataTable = new ResultsDataChart(filenameTab,  0, false);
     //
     // create spreadsheet,  a QTableWidget showing RV and results for each run
     //
@@ -485,35 +485,35 @@ UCSD_Results::createResultEDPWidget(QString &name, QVector<double> statistics) {
     QLineEdit *nameLineEdit;
     QWidget *nameWidget = addLabeledLineEdit(QString("Name"), &nameLineEdit);
     nameLineEdit->setText(name);
-    nameLineEdit->setDisabled(true);
+    nameLineEdit->setReadOnly(true);
     theNames.append(name);
     edpLayout->addWidget(nameWidget);
 
     QLineEdit *meanLineEdit;
     QWidget *meanWidget = addLabeledLineEdit(QString("Mean"), &meanLineEdit);
     meanLineEdit->setText(QString::number(mean));
-    meanLineEdit->setDisabled(true);
+    meanLineEdit->setReadOnly(true);
     theMeans.append(mean);
     edpLayout->addWidget(meanWidget);
 
     QLineEdit *stdDevLineEdit;
     QWidget *stdDevWidget = addLabeledLineEdit(QString("StdDev"), &stdDevLineEdit);
     stdDevLineEdit->setText(QString::number(stdDev));
-    stdDevLineEdit->setDisabled(true);
+    stdDevLineEdit->setReadOnly(true);
     theStdDevs.append(stdDev);
     edpLayout->addWidget(stdDevWidget);
 
     QLineEdit *skewnessLineEdit;
     QWidget *skewnessWidget = addLabeledLineEdit(QString("Skewness"), &skewnessLineEdit);
     skewnessLineEdit->setText(QString::number(skewness));
-    skewnessLineEdit->setDisabled(true);
+    skewnessLineEdit->setReadOnly(true);
     theSkewness.append(skewness);
     edpLayout->addWidget(skewnessWidget);
 
     QLineEdit *kurtosisLineEdit;
     QWidget *kurtosisWidget = addLabeledLineEdit(QString("Kurtosis"), &kurtosisLineEdit);
     kurtosisLineEdit->setText(QString::number(kurtosis));
-    kurtosisLineEdit->setDisabled(true);
+    kurtosisLineEdit->setReadOnly(true);
     theKurtosis.append(kurtosis);
     edpLayout->addWidget(kurtosisWidget);
 

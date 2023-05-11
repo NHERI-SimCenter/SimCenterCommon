@@ -136,7 +136,7 @@ LocalApplication::onRunButtonPressed(void)
 //
 // now use the applications Workflow Application EE-UQ.py  to run dakota and produce output files:
 //    dakota.in dakota.out dakotaTab.out dakota.err
-//
+//bash
 
 bool
 LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile)

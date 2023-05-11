@@ -262,6 +262,7 @@ bool SimCenterAppSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
 
             // qDebug() << __PRETTY_FUNCTION__<< " " << jsonKeyword << " " << appName;
 
+		 
             int index = theApplicationNames.indexOf(appName);
 
             if (index != -1) {
@@ -279,6 +280,7 @@ bool SimCenterAppSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
             {
                 auto theAssetObject = theApplicationObject[assetType].toObject();
 
+		
                 if(!theAssetObject.contains("Application"))
                 {
                     QString message = assetType +  QString(" needs to contain an application field");

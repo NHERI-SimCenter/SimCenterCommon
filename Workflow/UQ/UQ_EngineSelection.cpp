@@ -42,7 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "SectionTitle.h"
 #include "UQ_EngineSelection.h"
 #include <GoogleAnalytics.h>
-#include <NoneWidget.h>
+#include <NoneEngine.h>
 #include <QJsonObject>
 #include <QJsonArray>
 
@@ -54,6 +54,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <UQ_JsonEngine.h>
 #include <JsonConfiguredUQEngine.h>
 #include <UQpyEngine.h>
+#include <NoneEngine.h>
 
 UQ_EngineSelection::UQ_EngineSelection(bool includeNone,
 				       QString assetType,
@@ -112,7 +113,8 @@ UQ_EngineSelection::initialize()
 
     if (includeNoneOption) {
         theMethodCombo->addItem("None");
-    }
+    } 
+    
 
     theMethodCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
     connect(theMethodCombo, SIGNAL(currentTextChanged(QString)), this, SLOT(updateEngineComboDisp(QString)));
@@ -143,6 +145,7 @@ UQ_EngineSelection::initialize()
     connect(theEngineComboDisp, &QComboBox::currentTextChanged, this, [=](QString engineName){
               this->selectComponent(engineName);
           });
+    
     //connect(theEngineComboDisp, SIGNAL(currentTextChanged(QString)), this, SLOT(selectComponent(QString)));
     //connect(theEngineComboDisp, SIGNAL(currentTextChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
     connect(this, SIGNAL(selectionChangedSignal(QString)), this, SLOT(engineSelectionChanged(QString)));
@@ -161,16 +164,20 @@ UQ_EngineSelection::initialize()
     this->addComponent(QString("Dakota"), QString("Dakota-UQ"), theDakotaEngine);
     this->addComponent(QString("SimCenterUQ"), QString("SimCenter-UQ"), theSimCenterUQEngine);
     this->addComponent(QString("CustomUQ"), QString("Custom-UQ"), theCustomEngine);
+    
+    if (includeNoneOption) {
+      theNoneEngine = new NoneEngine(this);
+      this->addComponent(QString("None"), QString("None"), theNoneEngine);
+    } else
+      theNoneEngine = 0;
+    
+    
     if (typeOption == All)
     {
       this->addComponent(QString("UCSD-UQ"), QString("UCSD-UQ"), theUCSD_Engine);
       //this->addComponent(QString("UQpy"), QString("UQpy"), theUQpyEngine);
     }
 
-    if (includeNoneOption) {
-      SimCenterAppWidget *noneWidget = new NoneWidget(this);
-      this->addComponent(QString("None"), QString("None"), noneWidget);
-    }
 
     theCurrentEngine=theDakotaEngine;
 
@@ -178,11 +185,14 @@ UQ_EngineSelection::initialize()
     connect(theSimCenterUQEngine, SIGNAL(onUQ_MethodUpdated(QString)), this, SLOT(methodSelectionChanged(QString)));
     connect(theCustomEngine, SIGNAL(onUQ_MethodUpdated(QString)), this, SLOT(methodSelectionChanged(QString)));
     connect(theUCSD_Engine, SIGNAL(onUQ_MethodUpdated(QString)), this, SLOT(methodSelectionChanged(QString)));
+    connect(theNoneEngine, SIGNAL(onUQ_MethodUpdated(QString)), this, SLOT(methodSelectionChanged(QString)));    
 
     connect(theDakotaEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
     connect(theSimCenterUQEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
     connect(theCustomEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
     connect(theUCSD_Engine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
+    connect(theNoneEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineSelectionChanged(QString)));    
+    
 
 //    connect(theDakotaEngine, SIGNAL(onUQ_MethodUpdated(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
 //    connect(theSimCenterUQEngine, SIGNAL(onUQ_MethodUpdated(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
@@ -222,6 +232,8 @@ void UQ_EngineSelection::engineSelectionChanged(QString arg1)
       theCurrentEngine = theCustomEngine;      
     } else if (arg1 == "UCSD-UQ") {
       theCurrentEngine = theUCSD_Engine;
+    } else if (arg1 == "None") {
+      theCurrentEngine = theNoneEngine;
     } else {
       qDebug() << "ERROR .. UQ_EngineSelection selection .. type unknown: " << arg1;
     }
@@ -254,20 +266,27 @@ void UQ_EngineSelection::engineSelectionChanged(QString arg1)
 void UQ_EngineSelection::updateEngineComboDisp(const QString methodName)
 {
 
-    //this->createComboBox();
-    //QString currentEngine = theEngineComboDisp->currentText();
+  //this->createComboBox();
+  //QString currentEngine = theEngineComboDisp->currentText();
+  theEngineComboDisp->clear();
+  
+  if (methodName == "None") {
+    theEngineComboDisp->addItem("None"); // Display it on the combobox
+    theEngineComboDisp->setCurrentIndex(0);
+    return;
+  }
+  
     QString currentEngine = this->getCurrentComboName();
-    theEngineComboDisp->clear();
     int numItems = this->count();
     for(int i=0; i<numItems;i++) {
         QString engineName = this->getComboName(i);
-        if (engineName!=QString("None")) {
+	if (engineName!=QString("None")) {
             auto myWidget = dynamic_cast<UQ_Engine*> (this->getComponent(engineName));
             if (myWidget->fixMethod(methodName)){
                 theEngineComboDisp->addItem(engineName); // Display it on the combobox
                // this->removeItem(engineName);
             }
-        }
+	}
     }
 
     int idx = theEngineComboDisp->findText(currentEngine);

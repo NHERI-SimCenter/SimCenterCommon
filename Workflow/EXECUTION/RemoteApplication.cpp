@@ -167,10 +167,9 @@ RemoteApplication::outputToJSON(QJsonObject &jsonObject)
 
     if (appName != "R2D"){
         jsonObject["localAppDir"]=SimCenterPreferences::getInstance()->getAppDir();
-        jsonObject["remoteAppWorkingDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();
         jsonObject["workingDir"]=SimCenterPreferences::getInstance()->getRemoteWorkDir();
     } else {
-        jsonObject["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();
+        jsonObject["localAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();	
     }
 
     jsonObject["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();    
@@ -282,6 +281,9 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
 
         proc->execute(python,args);
         proc->waitForStarted();
+
+	// qDebug() << python;
+	// qDebug() << args;
 
         //
         // in tmpDirectory we will zip up current template dir and then remove before sending (doone to reduce number of sends)

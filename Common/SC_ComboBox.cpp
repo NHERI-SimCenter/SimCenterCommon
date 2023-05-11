@@ -1,6 +1,3 @@
-#ifndef UQ_ENGINE_SELECTION_H
-#define UQ_ENGINE_SELECTION_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -20,7 +17,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -39,62 +36,50 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterAppSelection.h>
-#include "UQ_Engine.h"
-class InputWidgetEDP;
+#include <SC_ComboBox.h>
+//#include <QComboBox>
+#include <QJsonObject>
 
-
-class UQ_EngineSelection : public  SimCenterAppSelection
+SC_ComboBox::SC_ComboBox(QString theKey, QStringList theValues)
+  :QComboBox()
 {
-  Q_OBJECT
+  key = theKey;
+  values = theValues;
 
-  public:
+  //  theBox = new QComboBox();
+  foreach (const QString &theValue, values)
+    this->addItem(theValue);
+    
+}
 
-  UQ_EngineSelection(UQ_EngineType = All,
-		     QWidget *parent = 0);
+SC_ComboBox::~SC_ComboBox()
+{
+
+}
+
+
+bool
+SC_ComboBox::outputToJSON(QJsonObject &jsonObject)
+{
+  jsonObject[key] = this->currentText();
+  return true;
+}
+
+bool
+SC_ComboBox::inputFromJSON(QJsonObject &jsonObject)
+{
+
+  if (jsonObject.contains(key)) {
+    QJsonValue theValue = jsonObject[key];
+    if (theValue.isString())
+      this->setCurrentText(theValue.toString());  
+    return true;
+  }
   
-  UQ_EngineSelection(bool includeNone,
-		     QString assetType,
-		     UQ_EngineType = All,
-		     QWidget *parent = 0);    
-  
-  UQ_Results  *getResults();
-  int getNumParallelTasks(void);
-  UQ_Engine *getCurrentEngine();
-  void setRV_Defaults();
-  
- signals:
+  return false;
+}
 
-  void onUQ_EngineChanged(QString);
-  void onNumModelsChanged(int);
-  void queryEVT(void); // added KZ
-
- public slots:
-
-  void engineSelectionChanged(QString eng);
-  void updateEngineComboDisp(const QString="Forward Propagation");
-  void relayQueryEVT(void); // added KZ
-  void setEventType(QString type); // added KZ
-  void methodSelectionChanged(QString type);
-  
-private:
-  void initialize();
-  void createComboBox();
-  QComboBox *theMethodCombo;
-  UQ_Engine *theCurrentEngine;
-  UQ_Engine *thePreviousEngine;  
-  UQ_Engine *theDakotaEngine;
-  UQ_Engine *theSimCenterUQEngine;
-  UQ_Engine *theUQpyEngine;
-  UQ_Engine *theUCSD_Engine;
-  UQ_Engine *theNoneEngine;  
-  UQ_Engine *thefilterEngine;
-  UQ_Engine *theCustomEngine;
-  bool includeNoneOption;
-  QString engineName;
-  UQ_EngineType typeOption;
-
-  QComboBox *theEngineComboDisp;
-};
-
-#endif 
+QString &
+SC_ComboBox::getKey() {  
+  return key;
+}

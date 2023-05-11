@@ -51,7 +51,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QFileDialog>
 #include <QPushButton>
-#include <SectionTitle.h>
 #include <iostream>
 #include <sstream>
 #include <fstream>

@@ -52,7 +52,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QFileDialog>
 #include <QPushButton>
-#include <SectionTitle.h>
 #include <QGridLayout>
 #include <QComboBox>
 #include <QValidator>
