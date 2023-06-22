@@ -510,6 +510,16 @@ GeneralInformationWidget::getHeight(void) {
   return heightEdit->text().toDouble();
 }
 
+double
+GeneralInformationWidget::getWidth(void) {
+  return widthEdit->text().toDouble();
+}
+
+double
+GeneralInformationWidget::getDepth(void) {
+  return depthEdit->text().toDouble();
+}
+
 void
 GeneralInformationWidget::getBuildingDimensions(double &width, double &depth, double &area) {
   width = widthEdit->text().toDouble();
