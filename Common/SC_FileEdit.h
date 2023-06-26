@@ -71,9 +71,6 @@ public:
   bool copyFiles(QString &destDir);
   
 signals:
-
-public slots:
-  void chooseFileName(void);
   
 private:
   QString key;
