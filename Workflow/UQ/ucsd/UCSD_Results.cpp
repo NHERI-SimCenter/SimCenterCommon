@@ -241,8 +241,8 @@ int UCSD_Results::processResults(QString &filenameTab, QString &filenameTabPrior
     }
     summaryLayout->addStretch();
 
-//    theDataTablePrior = new ResultsDataChart(filenameTabPrior);
-//    QVector<QVector<double>> statisticsVectorPrior = theDataTablePrior->getStatistics();
+    theDataTablePrior = new ResultsDataChart(filenameTabPrior);
+    QVector<QVector<double>> statisticsVectorPrior = theDataTablePrior->getStatistics();
 
     // Read the dakota.json file located in ./templatedir
     QFileInfo jsonFileInfo(fileDirTab.absolutePath() + "/" + QString("templatedir"), QString("scInput.json"));
@@ -282,19 +282,19 @@ int UCSD_Results::processResults(QString &filenameTab, QString &filenameTabPrior
         }
     QString calFileName = calFileInfo.absoluteFilePath();
 
-//    theDataTableCalData = new ResultsDataChart(calFileName);
-//    QVector<QVector<double>> statisticsVectorCalData = theDataTableCalData->getStatistics();
-//    QVector<QString> namesVectorCalData = theDataTablePrior->getNames();
+    theDataTableCalData = new ResultsDataChart(calFileName);
+    QVector<QVector<double>> statisticsVectorCalData = theDataTableCalData->getStatistics();
+    QVector<QString> namesVectorCalData = theDataTablePrior->getNames();
 
-//    // Get the range of the predictions
-//    QVector<QVector<double>> minMaxVector = theDataTable->getMinMax();
-//    QVector<QVector<double>> minMaxVectorPrior = theDataTablePrior->getMinMax();
+    // Get the range of the predictions
+    QVector<QVector<double>> minMaxVector = theDataTable->getMinMax();
+    QVector<QVector<double>> minMaxVectorPrior = theDataTablePrior->getMinMax();
 
-//    QString xLabel = "Component";
-//    QString yLabel = "Value";
+    QString xLabel = "Component";
+    QString yLabel = "Value";
 
-//    BayesPlots *thePlot = new BayesPlots(edpNames, edpLengths);
-//    thePlot->plotPosterior(minMaxVector, minMaxVectorPrior, statisticsVector, statisticsVectorPrior, statisticsVectorCalData);
+    BayesPlots *thePlot = new BayesPlots(edpNames, edpLengths);
+    thePlot->plotPosterior(minMaxVector, minMaxVectorPrior, statisticsVector, statisticsVectorPrior, statisticsVectorCalData);
 
     // Create a tab for the TMCMC logfile
     QScrollArea *logFileTMCMC = new QScrollArea;
@@ -337,7 +337,7 @@ int UCSD_Results::processResults(QString &filenameTab, QString &filenameTabPrior
     tabWidget->addTab(theDataTable, tr("Data Values"));
 //    tabWidget->addTab(theDataTable, tr("Posterior"));
 //    tabWidget->addTab(theDataTableCalData, tr("Calibration Data"));
-//    tabWidget->addTab(thePlot, tr("Plots"));
+    tabWidget->addTab(thePlot, tr("Plots"));
     tabWidget->adjustSize();
 
     statusMessage(tr(""));
