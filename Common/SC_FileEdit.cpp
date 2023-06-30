@@ -58,8 +58,14 @@ SC_FileEdit::SC_FileEdit(QString theKey)
   theLayout->addWidget(theFile,0,0);
   theLayout->addWidget(chooseFile, 0,1);
   this->setLayout(theLayout);
+    connect(chooseFile, &QPushButton::clicked, this,
+            [=]() {
+        QString fileName=QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)");
+        theFile->setText(fileName);
+     });
 
-  connect(chooseFile, SIGNAL(clicked(bool)), this, SLOT(chooseFileName()));
+  //connect(chooseFile, SIGNAL(clicked(bool)), this, SLOT(chooseFileName(bool)));
+  //connect(chooseFile, SIGNAL(clicked(bool)), this, SLOT(chooseFileName(bool)));
 }
 
 
@@ -84,12 +90,6 @@ bool
 SC_FileEdit::inputFromJSON(QJsonObject &jsonObject)
 {
     return true;
-}
-
-void
-SC_FileEdit::chooseFileName(void) {
-  QString fileName=QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)");
-  theFile->setText(fileName);
 }
 
 bool
