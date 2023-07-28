@@ -68,7 +68,7 @@ public:
   QString getFilename(void);  
   void setFilename(QString &fileName);
   
-  bool copyFiles(QString &destDir);
+  bool copyFile(QString &destDir);
   
 signals:
   
