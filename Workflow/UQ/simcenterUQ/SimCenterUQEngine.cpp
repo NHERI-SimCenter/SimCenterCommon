@@ -298,7 +298,7 @@ SimCenterUQEngine::fixMethod(QString Methodname) {
 
 bool
 SimCenterUQEngine::copyFiles(QString &fileDir) {
-    QString googleString=QString("UQ-SimCenterUQ-") + this->getMethodName();
+    QString googleString=QString("UQ_SimCenterUQ_") + this->getMethodName();
     GoogleAnalytics::ReportAppUsage(googleString);
 
     return theCurrentEngine->copyFiles(fileDir);
