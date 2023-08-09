@@ -121,10 +121,10 @@ WorkflowCLI::configureSimCenterApps(int argc, char **argv) {
           char *val = strtok_s(tokptr, "=", &tokptr);
 #else
           char *key = strtok_r(tokptr, "=", &tokptr);
-          char *val = strtok_r(tokptr, "=", &tokptr);
+          QString val = QString(strtok_r(tokptr, "=", &tokptr));
 #endif
 
-          if (val) {
+          if (!val.isEmpty()) {
             // 
             // --config KEY=VALUE ; set KEY with VALUE
             //
