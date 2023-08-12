@@ -79,7 +79,7 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
 
     int numRow = 0;
 
-    nameLabel->setText(QString("job Name:"));
+    nameLabel->setText(QString("Job Name:"));
     layout->addWidget(nameLabel, numRow,0);
 
     nameLineEdit = new QLineEdit();

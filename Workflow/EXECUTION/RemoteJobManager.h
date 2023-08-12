@@ -48,6 +48,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 #include <QStringList>
 #include <QProcess>
+#include <QRegularExpression>
 
 //#include <AgaveCurl.h>
 
@@ -128,6 +129,9 @@ private:
     MainWindow *theMainWindow;
 
     QProcess *proc;
+
+    //Gets how long the job is runing for
+    QString getJobRunTime(QString startedTime, QString currentTime);
 };
 
 #endif // REMOTEJOBMANAGER_H
