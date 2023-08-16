@@ -96,6 +96,7 @@ private:
     QStackedWidget *theStackedWidget;
     UQ_Method *theCurrentMethod;
     UQ_Method *theMC;
+    UQ_Method *theMF;
 //    UQ_MethodInputWidget *theLHS;
 //    UQ_MethodInputWidget *theIS;
 //    UQ_MethodInputWidget *theGP;

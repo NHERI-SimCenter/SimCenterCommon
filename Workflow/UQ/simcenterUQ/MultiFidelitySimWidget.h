@@ -1,3 +1,6 @@
+#ifndef MULTI_FIDELITY_SIM_WIDGET_H
+#define MULTI_FIDELITY_SIM_WIDGET_H
+
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -36,64 +39,38 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SC_IntLineEdit.h>
-#include <QJsonObject>
-#include <QIntValidator>
+#include <UQ_Method.h>
+#include "SC_DoubleLineEdit.h"
+#include "SC_IntLineEdit.h"
 
-SC_IntLineEdit::SC_IntLineEdit(QString theKey, int initValue)
-  :QLineEdit()
+class QLineEdit;
+class QHBoxLayout;
+class QCheckBox;
+class QLabel;
+class MultiFidelitySimWidget : public UQ_Method
 {
-  QIntValidator* theValidator = new QIntValidator();
-  this->setValidator(theValidator);
-  
-  key = theKey;
-  this->setText(QString::number(initValue));
+    Q_OBJECT
+public:
+    explicit MultiFidelitySimWidget(QWidget *parent = 0);
+    ~MultiFidelitySimWidget();
 
-  this->setMaximumWidth(200);
-}
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+    void clear(void);
 
+    int getNumberTasks(void);
 
-SC_IntLineEdit::SC_IntLineEdit(QString theKey, int initValue, QString toolTip)
-  :QLineEdit()
-{
-  QIntValidator* theValidator = new QIntValidator();
-  this->setValidator(theValidator);
-  
-  key = theKey;
-  this->setText(QString::number(initValue));
-}
+public slots:
+    void updateHelpText(void);
 
-SC_IntLineEdit::~SC_IntLineEdit()
-{
+private:
+    SC_DoubleLineEdit *maxTime;
+    SC_IntLineEdit *seed;
+    SC_IntLineEdit *numPilot;
+    QHBoxLayout *advancedLayout;
+    QCheckBox *advancedCheckBox;
+    QWidget * advancedGroup;
+    QLabel *helpText;
+};
 
-}
-
-
-bool
-SC_IntLineEdit::outputToJSON(QJsonObject &jsonObject)
-{
-  jsonObject[key]=this->text().QString::toInt();
-  return true;
-}
-
-bool
-SC_IntLineEdit::inputFromJSON(QJsonObject &jsonObject)
-{
-  if (jsonObject.contains(key)) {
-    QJsonValue theValue = jsonObject[key];
-    if (theValue.isDouble())
-      this->setText(QString::number(theValue.toInt()));
-    return true;
-  }
-  return false;  
-}
-
-QString &
-SC_IntLineEdit::getKey() {  
-  return key;
-}
-
-int
-SC_IntLineEdit::getInt() {  
-  return this->text().toInt();
-}
+#endif // MULTI_FIDELITY_SIM_WIDGET_H
