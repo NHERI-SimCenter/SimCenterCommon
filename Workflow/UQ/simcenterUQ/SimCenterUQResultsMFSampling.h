@@ -81,7 +81,8 @@ public slots:
 private:
   
    int processResults(QString &filenameResults, QString &filenameTab);
-  
+   bool getNamesAndSummary(QJsonObject qoiObj, QVector<QString> & qoiNames, QVector<QVector<double>> & statistics);
+
    RandomVariablesContainer *theRVs;
    QTabWidget *tabWidget;
 

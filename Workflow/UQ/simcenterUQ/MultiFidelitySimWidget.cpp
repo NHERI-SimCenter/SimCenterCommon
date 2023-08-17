@@ -61,7 +61,7 @@ MultiFidelitySimWidget::MultiFidelitySimWidget(QWidget *parent)
     //
 
     maxTime = new SC_DoubleLineEdit("maxTime",20);
-    seed = new SC_IntLineEdit("Seed",42);
+    seed = new SC_IntLineEdit("seed",42);
     helpText = new QLabel("Note: At least "+ QString::number(npilot_default) +" samples will be simulated for each model even if the time exceed the specified limit.\n");
     helpText->setStyleSheet("color: grey");
     advancedCheckBox = new QCheckBox("Advanced Options");

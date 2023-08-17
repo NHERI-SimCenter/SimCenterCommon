@@ -37,6 +37,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "SimCenterUQInputSampling.h"
 #include <SimCenterUQResultsSampling.h>
+#include <SimCenterUQResultsMFSampling.h>
 #include <RandomVariablesContainer.h>
 
 
@@ -337,7 +338,14 @@ SimCenterUQInputSampling::inputAppDataFromJSON(QJsonObject &jsonObject)
 UQ_Results *
 SimCenterUQInputSampling::getResults(void) {
     qDebug() << "RETURNED SimCenterUQRESULTSSAMPLING";
-    return new SimCenterUQResultsSampling(RandomVariablesContainer::getInstance());
+
+    if (samplingMethod->currentText()==QString("Monte Carlo")) {
+        return new SimCenterUQResultsSampling(RandomVariablesContainer::getInstance());
+    } else if (samplingMethod->currentText()==QString("Multi-fidelity Monte Carlo")) {
+        return new SimCenterUQResultsMFSampling(RandomVariablesContainer::getInstance());
+    }
+
+
 }
 
 void

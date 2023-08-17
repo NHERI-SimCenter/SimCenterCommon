@@ -43,7 +43,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QApplication>
-
+#include <QJsonDocument>
 #include <QFileDialog>
 #include <QTabWidget>
 #include <QTextEdit>
@@ -205,63 +205,11 @@ int SimCenterUQResultsMFSampling::processResults(QString &filenameResults, QStri
         return 0;
     }
 
-//    QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
-
-//    QFileInfo filenameErrorInfo(filenameErrorString);
-//    if (!filenameErrorInfo.exists()) {
-//        errorMessage("No error file - SimCenterUQ did not run - problem with SimCenterUQ setup or the applications failed with inputs provided");
-//        return 0;
-//    }
-
-//    QFile fileError(filenameErrorString);
-//    QString line("");
-//    if (fileError.open(QIODevice::ReadOnly)) {
-//        QTextStream in(&fileError);
-//        QString contents = in.readAll();
-////        while (!in.atEnd()) {
-////            line = in.readLine();
-////        }
-//        if (!contents.isEmpty()) {
-//            //errorMessage(QString(QString("Error Running SimCenterUQ: ") + line));
-//            errorMessage(QString(QString("Error Running SimCenterUQ: ") + contents));
-//            return 0;
-//        }
-//    }
-
-
-
-//    QFile fileError(filenameErrorString);
-//    QString line("");
-//    if (fileError.open(QIODevice::ReadOnly)) {
-//       QTextStream in(&fileError);
-//       while (!in.atEnd()) {
-//          line = in.readLine();
-//       }
-//       fileError.close();
-//    }
-
-//    if (line.length() != 0) {
-//        qDebug() << line.length() << " " << line;
-//        errorMessage(QString(QString("Error Running SimCenterUQ: ") + line));
-//        return 0;
-//    }
-
     QFileInfo filenameTabInfo(filenameTab);
     if (!filenameTabInfo.exists()) {
         errorMessage("No SimCenterUQTab.out file - SimCenterUQ failed .. possibly no QoI");
         return 0;
     }
-
-
-    // If surrogate model is used, display additional info.
-//    QDir tempFolder(filenameTabInfo.absolutePath());
-//    QFileInfo surrogateTabInfo(tempFolder.filePath("surrogateTab.out"));
-//    if (surrogateTabInfo.exists()) {
-//        filenameTab = tempFolder.filePath("surrogateTab.out");
-//        isSurrogate = true;
-//    } else {
-//        isSurrogate = false;
-//    }
 
     //
     // create summary, a QWidget for summary data, the EDP name, mean, stdDev, kurtosis info
@@ -280,23 +228,56 @@ int SimCenterUQResultsMFSampling::processResults(QString &filenameResults, QStri
 
     sa->setWidget(summary);
 
+
+    //
+    // Load summary contents
+    //
+
+
+    //
+    // open file
+    //
+
+    QFile Resfile(filenameResults);
+
+    // place contents of file into json object
+    QString val;
+    if (Resfile.open(QFile::ReadOnly | QFile::Text)) {
+        val=Resfile.readAll();
+        Resfile.close();
+    }
+
+    val.replace(QString("NaN"),QString("null"));
+    val.replace(QString("Infinity"),QString("inf"));
+
+    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+    QJsonObject resObj = doc.object();
+    QJsonObject qoiObj = resObj["QoI"].toObject();
+
+    QVector<QVector<double>> statisticsVector;
+    QVector<QString> NamesVector;
+    getNamesAndSummary(qoiObj, NamesVector,statisticsVector);
+    for (int nq = 0; nq<NamesVector.size(); nq++) {
+        QWidget *theWidget = this->createResultEDPWidget(NamesVector[nq], statisticsVector[nq]);
+        summaryLayout->addWidget(theWidget);
+    }
+
+    double analysis_time = resObj["AnalysisTime_sec"].toDouble();
+    if (analysis_time>180) {
+        QString elapsCutoff = QString::number(analysis_time/60, 'f', 1);
+        summaryLayout->addWidget(new QLabel("Elapsed time: " + elapsCutoff + " mins"));
+    } else {
+        QString elapsCutoff = QString::number(analysis_time, 'f', 1);
+        summaryLayout->addWidget(new QLabel("Elapsed time: " + elapsCutoff + " s"));
+    }
+
+    summaryLayout->addStretch();
+
     //
     // create spreadsheet,  a QTableWidget showing RV and results for each run
     //
 
     theDataTable = new ResultsDataChart(filenameTab,  theRVs->getNumRandomVariables());
-
-    //
-    // determine summary statistics for each edp
-    //
-
-    QVector<QVector<double>> statisticsVector = theDataTable->getStatistics();
-    QVector<QString> NamesVector = theDataTable->getNames();
-    for (int col = theRVs->getNumRandomVariables()+1; col<NamesVector.size(); ++col) { // +
-        QWidget *theWidget = this->createResultEDPWidget(NamesVector[col], statisticsVector[col]);
-        summaryLayout->addWidget(theWidget);
-    }
-    summaryLayout->addStretch();
 
     //
     // add summary, detained info and spreadsheet with chart to the tabed widget
@@ -311,7 +292,21 @@ int SimCenterUQResultsMFSampling::processResults(QString &filenameResults, QStri
     return 0;
 }
 
+bool
+SimCenterUQResultsMFSampling::getNamesAndSummary(QJsonObject qoiObj, QVector<QString> & qoiNames, QVector<QVector<double>> & statistics) {
 
+    int nqoi = qoiObj["qoiNames"].toArray().size();
+
+    QJsonArray name_array = qoiObj["qoiNames"].toArray();
+    QJsonArray mean_array = qoiObj["mean"].toArray();
+    QJsonArray std_array = qoiObj["standardDeviation"].toArray();
+
+    for (int nq =0; nq<nqoi; nq++) {
+        qoiNames.push_back(name_array[nq].toString());
+        statistics.push_back( {mean_array[nq].toDouble(), std_array[nq].toDouble()});
+    }
+    return 0;
+};
 
 // padhye
 // this function is called if you decide to say save the data from UI into a json object
@@ -335,8 +330,8 @@ SimCenterUQResultsMFSampling::outputToJSON(QJsonObject &jsonObject)
         edpData["name"]=theNames.at(i);
         edpData["mean"]=theMeans.at(i);
         edpData["stdDev"]=theStdDevs.at(i);
-        edpData["kurtosis"]=theKurtosis.at(i);
-        edpData["skewness"]=theSkewness.at(i);
+        //edpData["kurtosis"]=theKurtosis.at(i);
+        //edpData["skewness"]=theSkewness.at(i);
         resultsData.append(edpData);
     }
 
@@ -398,27 +393,22 @@ SimCenterUQResultsMFSampling::inputFromJSON(QJsonObject &jsonObject)
 
     sa->setWidget(summary);
 
-//    if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
-//        isSurrogate=jsonObject["isSurrogate"].toBool();
-//    } else {
-//        isSurrogate=false;
-//    }
-
     theDataTable = new ResultsDataChart(spreadsheetValue.toObject());
 
-//    theDataTable = new ResultsDataChart(spreadsheetValue.toObject());
 
     //
     // determine summary statistics for each edp
     //
 
-    QVector<QVector<double>> statisticsVector = theDataTable->getStatistics();
-    QVector<QString> NamesVector = theDataTable->getNames();
-    for (int col = theRVs->getNumRandomVariables()+1; col<NamesVector.size(); ++col) { // +
-        QWidget *theWidget = this->createResultEDPWidget(NamesVector[col], statisticsVector[col]);
-        summaryLayout->addWidget(theWidget);
-    }
-    summaryLayout->addStretch();
+//    QVector<QVector<double>> statisticsVector;
+//    QVector<QString> NamesVector;
+//    getNamesAndSummary(filepath, NamesVector,statisticsVector);
+
+//    for (int col = theRVs->getNumRandomVariables()+1; col<NamesVector.size(); ++col) { // +
+//        QWidget *theWidget = this->createResultEDPWidget(NamesVector[col], statisticsVector[col]);
+//        summaryLayout->addWidget(theWidget);
+//    }
+//    summaryLayout->addStretch();
 
     //
     // add summary, detained info and spreadsheet with chart to the tabed widget
@@ -437,10 +427,16 @@ extern QWidget *addLabeledLineEdit(QString theLabelName, QLineEdit **theLineEdit
 QWidget *
 SimCenterUQResultsMFSampling::createResultEDPWidget(QString &name, QVector<double> statistics) {
 
+    bool do_ske_kur = false;
+
     double mean = statistics[0];
     double stdDev = statistics[1];
-    double skewness = statistics[2];
-    double kurtosis = statistics[3];
+    double skewness, kurtosis;
+
+    if (do_ske_kur) {
+        skewness = statistics[2];
+        kurtosis = statistics[3];
+    }
 
     QWidget *edp = new QWidget;
     QHBoxLayout *edpLayout = new QHBoxLayout();
@@ -468,19 +464,21 @@ SimCenterUQResultsMFSampling::createResultEDPWidget(QString &name, QVector<doubl
     theStdDevs.append(stdDev);
     edpLayout->addWidget(stdDevWidget);
 
-    QLineEdit *skewnessLineEdit;
-    QWidget *skewnessWidget = addLabeledLineEdit(QString("Skewness"), &skewnessLineEdit);
-    skewnessLineEdit->setText(QString::number(skewness));
-    skewnessLineEdit->setReadOnly(true);
-    theSkewness.append(skewness);
-    edpLayout->addWidget(skewnessWidget);
+    if (do_ske_kur) {
+        QLineEdit *skewnessLineEdit;
+        QWidget *skewnessWidget = addLabeledLineEdit(QString("Skewness"), &skewnessLineEdit);
+        skewnessLineEdit->setText(QString::number(skewness));
+        skewnessLineEdit->setReadOnly(true);
+        theSkewness.append(skewness);
+        edpLayout->addWidget(skewnessWidget);
 
-    QLineEdit *kurtosisLineEdit;
-    QWidget *kurtosisWidget = addLabeledLineEdit(QString("Kurtosis"), &kurtosisLineEdit);
-    kurtosisLineEdit->setText(QString::number(kurtosis));
-    kurtosisLineEdit->setReadOnly(true);
-    theKurtosis.append(kurtosis);
-    edpLayout->addWidget(kurtosisWidget);
+        QLineEdit *kurtosisLineEdit;
+        QWidget *kurtosisWidget = addLabeledLineEdit(QString("Kurtosis"), &kurtosisLineEdit);
+        kurtosisLineEdit->setText(QString::number(kurtosis));
+        kurtosisLineEdit->setReadOnly(true);
+        theKurtosis.append(kurtosis);
+        edpLayout->addWidget(kurtosisWidget);
+    }
 
     edpLayout->addStretch();
 
