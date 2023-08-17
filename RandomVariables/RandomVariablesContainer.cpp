@@ -1064,7 +1064,7 @@ RandomVariablesContainer::copyFiles(QString fileDir)
 
 
 bool
-RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
+RandomVariablesContainer::inputFromJSON(QJsonObject &jsonObject)
 {
   bool result = true;
 
@@ -1084,14 +1084,16 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
 
   // get randomVariables & add
   int numRandomVariables = 0;
-  if (rvObject.contains("randomVariables")) {
-      if (rvObject["randomVariables"].isArray()) {
+  if (jsonObject.contains("randomVariables")) {
+      if (jsonObject["randomVariables"].isArray()) {
 
-          QJsonArray rvArray = rvObject["randomVariables"].toArray();
+          QJsonArray rvArray = jsonObject["randomVariables"].toArray();
 
           // foreach object in array
           QStringList UserDefVecNames;
           foreach (const QJsonValue &rvValue, rvArray) {
+
+              QJsonObject rvObject = rvValue.toObject();
 
               if (rvObject.contains("name")) {
                   QString theName =rvObject["name"].toString();
@@ -1099,7 +1101,6 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
                          continue;
 
               }
-              QJsonObject rvObject = rvValue.toObject();
 
               if (rvObject.contains("variableClass")) {
 
@@ -1157,13 +1158,13 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
 
   correlationDialog = 0; // reset correlationDialog
   // get correlationMatrix if present and add data if it is int
-  if (rvObject.contains("correlationMatrix")) {
+  if (jsonObject.contains("correlationMatrix")) {
 
-      if (rvObject["correlationMatrix"].isArray()) {
+      if (jsonObject["correlationMatrix"].isArray()) {
 
           this->addCorrelationMatrix();
 
-          QJsonArray rvArray = rvObject["correlationMatrix"].toArray();
+          QJsonArray rvArray = jsonObject["correlationMatrix"].toArray();
           // foreach object in array
           //int row = 0; int col = 0;
 
@@ -1176,6 +1177,11 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &rvObject)
           //        row++; col=0;
           //    }
          // }
+
+      if (numRandomVariables*numRandomVariables != rvArray.size()) {
+          int ncol = std::sqrt(rvArray.size());
+          this->errorMessage("Mismatch between the size of correlation matrix (" + QString::number(ncol) + "x" + QString::number(ncol) + ") and number of random variables (" + QString::number(numRandomVariables)  + ")");
+      }
 
       for (int row=0; row<numRandomVariables; row++) {
              for (int col=0; col<row; col++) {
