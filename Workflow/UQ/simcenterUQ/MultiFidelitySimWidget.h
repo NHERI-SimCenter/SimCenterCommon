@@ -61,7 +61,7 @@ public:
     int getNumberTasks(void);
 
 public slots:
-    void updateHelpText(void);
+    void updateHelpText(QString);
 
 private:
     SC_DoubleLineEdit *maxTime;

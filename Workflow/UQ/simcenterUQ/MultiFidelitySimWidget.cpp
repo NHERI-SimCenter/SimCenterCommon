@@ -94,6 +94,7 @@ MultiFidelitySimWidget::MultiFidelitySimWidget(QWidget *parent)
     advancedGroup -> setVisible(false);
 
     connect(advancedCheckBox,SIGNAL(toggled(bool)),advancedGroup,SLOT(setVisible(bool)));
+    connect(numPilot, SIGNAL(textChanged(QString)), this, SLOT(updateHelpText(QString)));
 }
 
 MultiFidelitySimWidget::~MultiFidelitySimWidget()
@@ -102,7 +103,7 @@ MultiFidelitySimWidget::~MultiFidelitySimWidget()
 }
 
 void
-MultiFidelitySimWidget::updateHelpText(void)
+MultiFidelitySimWidget::updateHelpText(QString)
 {
 
     helpText->setText("Note: At least "+ QString::number(numPilot->text().toInt()) +" samples will be simulated for each model even if the time exceed the specified limit.\n");

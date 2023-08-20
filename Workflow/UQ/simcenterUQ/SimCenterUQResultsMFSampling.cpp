@@ -263,13 +263,37 @@ int SimCenterUQResultsMFSampling::processResults(QString &filenameResults, QStri
     }
 
     double analysis_time = resObj["AnalysisTime_sec"].toDouble();
+
+    QString infoMsg;
     if (analysis_time>180) {
         QString elapsCutoff = QString::number(analysis_time/60, 'f', 1);
-        summaryLayout->addWidget(new QLabel("Elapsed time: " + elapsCutoff + " mins"));
+        infoMsg = "Elapsed time: " + elapsCutoff + " mins";
     } else {
         QString elapsCutoff = QString::number(analysis_time, 'f', 1);
-        summaryLayout->addWidget(new QLabel("Elapsed time: " + elapsCutoff + " s"));
+        infoMsg = "Elapsed time: " + elapsCutoff + " s";
     }
+
+    QJsonObject infoObj = resObj["Info"].toObject()["models"].toObject();
+    int numModels = infoObj.size();
+    for (int nm =0; nm<numModels; nm++) {
+        QJsonObject modelObj = infoObj["model" + QString::number(nm+1)].toObject();
+        int neval = modelObj["nPilot"].toInt();
+        neval += modelObj["nAdd"].toInt();
+
+        double cost = modelObj["cost_sec_per_sim"].toDouble();
+        QString costCutoff;
+        if (cost>600) {
+            costCutoff = QString::number(cost/60, 'f', 1)+ " mins.";
+         } else if (cost>0.1) {
+            costCutoff = QString::number(cost, 'f', 1)+ " s.";
+        } else  if (cost>0.001)  {
+            costCutoff = QString::number(cost, 'f', 4)+ " s";
+        } else {
+            costCutoff = QString::number(cost)+ " s";
+        }
+        infoMsg += "\n Model " + QString::number(nm+1) + " is evaluated " + QString::number(neval) + " times. The computation time (wall clock) per evaluation is measured as " + costCutoff + ".";
+    }
+    summaryLayout->addWidget(new QLabel(infoMsg));
 
     summaryLayout->addStretch();
 
