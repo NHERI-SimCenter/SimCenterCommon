@@ -82,7 +82,9 @@ private:
   
    int processResults(QString &filenameResults, QString &filenameTab);
    bool getNamesAndSummary(QJsonObject qoiObj, QVector<QString> & qoiNames, QVector<QVector<double>> & statistics);
+    bool createSummary(QScrollArea *&sa);
 
+    QJsonObject resObj;
    RandomVariablesContainer *theRVs;
    QTabWidget *tabWidget;
 
@@ -96,6 +98,7 @@ private:
    QVector<QString>theNames;
    QVector<double>theMeans;
    QVector<double>theStdDevs;
+   QVector<double>theSpeedUps;
    QVector<double>theKurtosis;
    QVector<double>theSkewness;
 

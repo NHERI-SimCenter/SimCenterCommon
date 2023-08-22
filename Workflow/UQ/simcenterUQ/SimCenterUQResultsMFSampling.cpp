@@ -212,24 +212,6 @@ int SimCenterUQResultsMFSampling::processResults(QString &filenameResults, QStri
     }
 
     //
-    // create summary, a QWidget for summary data, the EDP name, mean, stdDev, kurtosis info
-    //
-
-    // create a scrollable windows, place summary inside it
-    QScrollArea *sa = new QScrollArea;
-    sa->setWidgetResizable(true);
-    sa->setLineWidth(0);
-    sa->setFrameShape(QFrame::NoFrame);
-
-    QWidget *summary = new QWidget();
-    QVBoxLayout *summaryLayout = new QVBoxLayout();
-    summaryLayout->setContentsMargins(0,0,0,0); // adding back
-    summary->setLayout(summaryLayout);
-
-    sa->setWidget(summary);
-
-
-    //
     // Load summary contents
     //
 
@@ -251,7 +233,53 @@ int SimCenterUQResultsMFSampling::processResults(QString &filenameResults, QStri
     val.replace(QString("Infinity"),QString("inf"));
 
     QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
-    QJsonObject resObj = doc.object();
+    resObj = doc.object();
+
+
+
+    //
+    // create summary, a QWidget for summary data, the EDP name, mean, stdDev, kurtosis info
+    //
+
+    // create a scrollable windows, place summary inside it
+    QScrollArea *sa = new QScrollArea;
+    this->createSummary(sa);
+
+    //
+    // create spreadsheet,  a QTableWidget showing RV and results for each run
+    //
+
+    theDataTable = new ResultsDataChart(filenameTab,  theRVs->getNumRandomVariables());
+
+    //
+    // add summary, detained info and spreadsheet with chart to the tabed widget
+    //
+
+    tabWidget->addTab(sa,tr("Summary"));
+    tabWidget->addTab(theDataTable, tr("Data Values"));
+    tabWidget->adjustSize();
+
+    statusMessage(tr(""));
+
+    return 0;
+}
+
+bool
+SimCenterUQResultsMFSampling::createSummary(QScrollArea *&sa)
+{
+
+    sa->setWidgetResizable(true);
+    sa->setLineWidth(0);
+    sa->setFrameShape(QFrame::NoFrame);
+
+    QWidget *summary = new QWidget();
+    QVBoxLayout *summaryLayout = new QVBoxLayout();
+    summaryLayout->setContentsMargins(0,0,0,0); // adding back
+    summary->setLayout(summaryLayout);
+
+    sa->setWidget(summary);
+
+
     QJsonObject qoiObj = resObj["QoI"].toObject();
 
     QVector<QVector<double>> statisticsVector;
@@ -283,9 +311,9 @@ int SimCenterUQResultsMFSampling::processResults(QString &filenameResults, QStri
         double cost = modelObj["cost_sec_per_sim"].toDouble();
         QString costCutoff;
         if (cost>600) {
-            costCutoff = QString::number(cost/60, 'f', 1)+ " mins.";
+            costCutoff = QString::number(cost/60, 'f', 1)+ " mins";
          } else if (cost>0.1) {
-            costCutoff = QString::number(cost, 'f', 1)+ " s.";
+            costCutoff = QString::number(cost, 'f', 1)+ " s";
         } else  if (cost>0.001)  {
             costCutoff = QString::number(cost, 'f', 4)+ " s";
         } else {
@@ -297,23 +325,7 @@ int SimCenterUQResultsMFSampling::processResults(QString &filenameResults, QStri
 
     summaryLayout->addStretch();
 
-    //
-    // create spreadsheet,  a QTableWidget showing RV and results for each run
-    //
-
-    theDataTable = new ResultsDataChart(filenameTab,  theRVs->getNumRandomVariables());
-
-    //
-    // add summary, detained info and spreadsheet with chart to the tabed widget
-    //
-
-    tabWidget->addTab(sa,tr("Summary"));
-    tabWidget->addTab(theDataTable, tr("Data Values"));
-    tabWidget->adjustSize();
-
-    statusMessage(tr(""));
-
-    return 0;
+    return true;
 }
 
 bool
@@ -324,10 +336,11 @@ SimCenterUQResultsMFSampling::getNamesAndSummary(QJsonObject qoiObj, QVector<QSt
     QJsonArray name_array = qoiObj["qoiNames"].toArray();
     QJsonArray mean_array = qoiObj["mean"].toArray();
     QJsonArray std_array = qoiObj["standardDeviation"].toArray();
+    QJsonArray speedUp_array = qoiObj["speedUp"].toArray();
 
     for (int nq =0; nq<nqoi; nq++) {
         qoiNames.push_back(name_array[nq].toString());
-        statistics.push_back( {mean_array[nq].toDouble(), std_array[nq].toDouble()});
+        statistics.push_back( {mean_array[nq].toDouble(), std_array[nq].toDouble(), speedUp_array[nq].toDouble()});
     }
     return 0;
 };
@@ -341,7 +354,6 @@ SimCenterUQResultsMFSampling::outputToJSON(QJsonObject &jsonObject)
 
 
     jsonObject["resultType"]=QString(tr("SimCenterUQResultsMFSampling"));
-    //jsonObject["isSurrogate"]=isSurrogate;
 
     //
     // add summary data
@@ -357,9 +369,11 @@ SimCenterUQResultsMFSampling::outputToJSON(QJsonObject &jsonObject)
         //edpData["kurtosis"]=theKurtosis.at(i);
         //edpData["skewness"]=theSkewness.at(i);
         resultsData.append(edpData);
-    }
+    } // not going to be used
 
     jsonObject["summary"]=resultsData;
+
+    jsonObject["MFres"] = resObj;
 
     //
     // add spreadsheet data
@@ -405,17 +419,19 @@ SimCenterUQResultsMFSampling::inputFromJSON(QJsonObject &jsonObject)
     // create a summary widget in which place basic output (name, mean, stdDev)
     //
 
+    resObj = jsonObject["MFres"].toObject();
     QScrollArea *sa = new QScrollArea;
-    sa->setWidgetResizable(true);
-    sa->setLineWidth(0);
-    sa->setFrameShape(QFrame::NoFrame);
+    this->createSummary(sa);
+    //    sa->setWidgetResizable(true);
+    //    sa->setLineWidth(0);
+    //    sa->setFrameShape(QFrame::NoFrame);
 
-    QWidget *summary = new QWidget();
-    QVBoxLayout *summaryLayout = new QVBoxLayout();
-    summaryLayout->setContentsMargins(0,0,0,0); // adding back
-    summary->setLayout(summaryLayout);
+    //    QWidget *summary = new QWidget();
+    //    QVBoxLayout *summaryLayout = new QVBoxLayout();
+    //    summaryLayout->setContentsMargins(0,0,0,0); // adding back
+    //    summary->setLayout(summaryLayout);
 
-    sa->setWidget(summary);
+    //    sa->setWidget(summary);
 
     theDataTable = new ResultsDataChart(spreadsheetValue.toObject());
 
@@ -455,6 +471,7 @@ SimCenterUQResultsMFSampling::createResultEDPWidget(QString &name, QVector<doubl
 
     double mean = statistics[0];
     double stdDev = statistics[1];
+    double speedUp = statistics[2];
     double skewness, kurtosis;
 
     if (do_ske_kur) {
@@ -487,6 +504,14 @@ SimCenterUQResultsMFSampling::createResultEDPWidget(QString &name, QVector<doubl
     stdDevLineEdit->setReadOnly(true);
     theStdDevs.append(stdDev);
     edpLayout->addWidget(stdDevWidget);
+
+    QLineEdit *speedUpLineEdit;
+    QWidget *speedUpWidget = addLabeledLineEdit(QString("Speed Up"), &speedUpLineEdit);
+    speedUpLineEdit->setText(QString::number(speedUp));
+    speedUpLineEdit->setReadOnly(true);
+    theSpeedUps.append(speedUp);
+    edpLayout->addWidget(speedUpWidget);
+
 
     if (do_ske_kur) {
         QLineEdit *skewnessLineEdit;
