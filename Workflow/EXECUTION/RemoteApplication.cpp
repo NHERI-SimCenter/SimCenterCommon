@@ -64,6 +64,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <ZipUtils.h>
 #include <QCoreApplication>
 
+
 RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QWidget *parent)
 : Application(parent), theRemoteService(theService)
 {
@@ -104,7 +105,7 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
     layout->addWidget(numProcessorsLabel,numRow,0);
 
     numProcessorsLineEdit = new QLineEdit();
-    numProcessorsLineEdit->setText("32");
+    numProcessorsLineEdit->setText(QString::number(maxProcPerNode));
         numProcessorsLineEdit->setToolTip(tr("Total # of Processes to Start"));
     layout->addWidget(numProcessorsLineEdit,numRow,1);
 

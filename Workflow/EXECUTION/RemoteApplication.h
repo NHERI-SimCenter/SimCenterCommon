@@ -50,6 +50,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 #include <QMap>
 
+//Maximum number of processors per node
+//Based on the number of processors pernode in Frontera
+const int maxProcPerNode = 56;
+
 class RemoteService;
 
 class QLineEdit;
