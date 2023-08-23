@@ -25,10 +25,9 @@ FooterWidget, HeaderWidget {
     border-radius: 2px;
 }
 
-
 QLabel#titleText {
-    font-size: 10pt;
-    padding-left: 15px;
+    font-size: 16px;
+    padding-left: 25px;
     font-weight: bold;
 }
 
@@ -41,32 +40,8 @@ footerLayout {
 
 QLabel#nsfText {
     color: #E0E0E0;
-    font-size: 12pt;
+    font-size: 10px;
     font-weight: bold;
-}
-
-QTreeWidget {
-    font-size: 10pt;
-}
-QHeaderView {
-font-size: 10pt;
-}
-
-QTableWidget {
-    font-size: 10pt;
-}
-
-
-QPlainTextEdit {
-    font-size: 10pt;
-}
-
-QToolButton {
-font-size: 10pt;
-}
-
-QSlider {
-    font-size: 10pt;
 }
 
 /*----------------------------------------------------------------------------*/
@@ -74,90 +49,32 @@ QSlider {
 /*----------------------------------------------------------------------------*/
 
 QLabel#sectionTitle {
+    font-size: 14px;
     font-weight: bold;
 }
 
 QLabel#propertiesTitle {
+    font-size: 12px;
     font-weight: bold;
 }
 
 QLabel#vizTitle {
+    font-size: 12px;
     font-weight: bold;
 }
 
 QLabel#outTitle {
-    font-size: 15pt;
+    font-size: 15px;
     font-weight: bold;
 }
 
 QLabel#inTitle {
-    font-size: 15pt;
+    font-size: 15px;
     font-weight: bold;
 }
 
 QLabel{
-    font-size: 10pt;
-}
-
-/*----------------------------------------------------------------------------*/
-/* LineEdit                                                                   */
-/*----------------------------------------------------------------------------*/
-
-QLineEdit {
-    font-size: 10pt;
-}
-
-QTextEdit {
-    font-size: 10pt;
-}
-
-/*----------------------------------------------------------------------------*/
-/* QRadioButton                                                               */
-/*----------------------------------------------------------------------------*/
-
-QRadioButton {
-    font-size: 10pt;
-}
-
-
-/*----------------------------------------------------------------------------*/
-/* QCheckBox                                                                  */
-/*----------------------------------------------------------------------------*/
-
-QCheckBox {
-    font-size: 10pt;
-}
-
-/*----------------------------------------------------------------------------*/
-/* QSpinBox                                                                */
-/*----------------------------------------------------------------------------*/
-
-QSpinBox {
-    font-size: 10pt;
-}
-
-/*----------------------------------------------------------------------------*/
-/* QDoubleSpinBox                                                                */
-/*----------------------------------------------------------------------------*/
-
-QDoubleSpinBox {
-    font-size: 10pt;
-}
-
-/*----------------------------------------------------------------------------*/
-/* QTabWidget                                                                */
-/*----------------------------------------------------------------------------*/
-
-QTabWidget {
-    font-size: 10pt;
-}
-
-/*----------------------------------------------------------------------------*/
-/* QValueAxis                                                                     */
-/*----------------------------------------------------------------------------*/
-
-QValueAxis {
-    font-size: 10pt;
+    font-size: 14px;
 }
 
 /*----------------------------------------------------------------------------*/
@@ -218,7 +135,6 @@ QFrame#pushButtons {
 /*----------------------------------------------------------------------------*/
 
 QPushButton {
-    font-size: 10pt;
     color: white;
     border-style: outset;
     background-color: #64B5F6;
@@ -226,6 +142,7 @@ QPushButton {
     border-width: 1px;
     border-radius: 2px;
     border-color: #607D8B;
+    font-size: 12px;
     font-weight: bold;
     padding: 3px;
 }
@@ -236,13 +153,11 @@ QPushButton:pressed {
     border-color: black;
 }
 
-
 /*----------------------------------------------------------------------------*/
 /* QGroupBox                                                                  */
 /*----------------------------------------------------------------------------*/
 
 QGroupBox {
-    font-size: 10pt;
     font-weight: bold;
 }
 
@@ -260,7 +175,7 @@ QTreeView#treeViewOnTheLeft{
     background: rgb(79, 83, 89);
 
     /* set the font properties*/
-    font-size:12pt;
+    font-size:17px;
     color: white;
 }
 
@@ -276,32 +191,31 @@ QTreeView#treeViewOnTheLeft::item:selected:!active {
     background: rgb(63, 147, 168);
 }
 
-QComboBox {
-    font-size: 10pt;
-    border:  solid gray;
-    /*min-width: 6em;*/
+
+QComboBoxFMK {
+   background: rgb(211, 211, 211);
+   border-radius: 5px;   
+   min-width: 4em;
 }
 
-QComboBox:editable {
-    background: white;
-}
-
-QComboBox:!editable, QComboBox::drop-down:editable {
-     background: white;
-}
-
-QComboBox:!editable:on, QComboBox::drop-down:editable:on {
-    background: rgb(240, 240, 240);
-}
-
-QLineEdit:enabled {
-    background: white;
+QLineEditFMK {
+    background: rgb(211, 211, 211);
     border-radius: 5px;
     color: black;    
-}, :disabled { background: gray;}
+}
+
+QTextEditFMK {
+    background: rgb(211, 211, 211);
+    border-radius: 5px;
+    color: black;    
+}
+
+QLineEdit {
+    background: rgb(255, 255, 255);
+    color: black;        
+}
 
 QTextEdit {
-    background: white;
-    border-radius: 5px;
-    color: black;    
+    background: rgb(255, 255, 255);
+    color: black;        
 }
