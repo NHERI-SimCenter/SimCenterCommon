@@ -15,6 +15,7 @@ include($$PWD/ZipUtils/ZipUtils.pri)
 SOURCES += $$PWD/HeaderWidget.cpp \
     $$PWD/Utils/RelativePathResolver.cpp \
     $$PWD/Utils/FileOperations.cpp \
+    $$PWD/Utils/SimCenterConfigFile.cpp \    
     $$PWD/Utils/dialogabout.cpp \
     $$PWD/Utils/ProgramOutputDialog.cpp \
     $$PWD/Utils/PythonProcessHandler.cpp \
@@ -43,6 +44,7 @@ HEADERS += $$PWD/HeaderWidget.h \
     $$PWD/Utils/FileOperations.h \
     $$PWD/Utils/dialogabout.h \
     $$PWD/Utils/ProgramOutputDialog.h \
+    $$PWD/Utils/SimCenterConfigFile.h \        
     $$PWD/Utils/PythonProcessHandler.h \
     $$PWD/SectionTitle.h \
     $$PWD/FooterWidget.h \
