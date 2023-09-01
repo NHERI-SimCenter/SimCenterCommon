@@ -63,6 +63,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QProcessEnvironment>
 #include <QCoreApplication>
 #include <SimCenterPreferences.h>
+#include "Utils/SimCenterConfigFile.h"
 
 LocalApplication::LocalApplication(QString workflowScriptName, QWidget *parent)
     : Application(parent)
@@ -81,6 +82,10 @@ LocalApplication::outputToJSON(QJsonObject &jsonObject)
     jsonObject["workingDir"]=SimCenterPreferences::getInstance()->getLocalWorkDir();
 
     jsonObject["runType"]=QString("runningLocal");
+
+    int numP = 0;
+    if (getConfigOptionInteger("oversubscribeMultiplier", numP) == true)
+      jsonObject["oversubscribeMultiplier"]=numP;
 
     return true;
 }

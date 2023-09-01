@@ -5,6 +5,7 @@
 #include <QJsonObject>
 
 QString getConfigOptionString(QString);
+bool getConfigOptionInteger(QString option, int &returnValue);
 QJsonObject getConfigOptionJSON(QString);
 
 
