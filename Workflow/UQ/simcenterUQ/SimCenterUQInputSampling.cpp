@@ -358,6 +358,12 @@ SimCenterUQInputSampling::setRV_Defaults(void) {
 }
 
 
+void SimCenterUQInputSampling::setEventType(QString type) {
+    typeEVT = type;
+    emit eventTypeChanged(typeEVT);
+    theMF->setEventType(typeEVT);
+}
+
 QString
 SimCenterUQInputSampling::getMethodName(void){
   return QString("sampling");

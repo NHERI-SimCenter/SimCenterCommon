@@ -72,7 +72,10 @@ public:
 
     QVBoxLayout *mLayout;
 
+    void setEventType(QString type);
+
 signals:
+    void eventTypeChanged(QString typeEVT);
 
 public slots:
    void clear(void);
@@ -107,6 +110,8 @@ private:
     QHBoxLayout *checkBoxLayout;
     QLabel *label2;
     QLineEdit * varList;
+    QString typeEVT;
+
 };
 
 #endif // SimCenterUQ_INPUT_SAMPLING_H
