@@ -40,6 +40,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <RandomVariablesContainer.h>
 #include "SC_DoubleLineEdit.h"
 #include "SC_IntLineEdit.h"
+#include "SC_CheckBox.h"
 
 #include <QLineEdit>
 #include <QVBoxLayout>
@@ -87,6 +88,11 @@ MultiFidelitySimWidget::MultiFidelitySimWidget(QWidget *parent)
     numPilot = new SC_IntLineEdit("numPilot", npilot_default);
     advancedOptions -> addWidget(new QLabel("Minimum # simulations per model"),0,0);
     advancedOptions -> addWidget(numPilot,0,1);
+    advancedOptions -> addWidget(new QLabel("Perform log-transform"),1,0);
+    logTransformCheckBox = new SC_CheckBox("logTransform","Default is unchecked",false);
+    logTransformCheckBox->setStyleSheet("QCheckBox {color: grey}");
+    advancedOptions -> addWidget(logTransformCheckBox,1,1);
+
     advancedOptions -> setColumnStretch(2,1);
     advancedOptions -> setMargin(0);
 
@@ -95,6 +101,7 @@ MultiFidelitySimWidget::MultiFidelitySimWidget(QWidget *parent)
 
     connect(advancedCheckBox,SIGNAL(toggled(bool)),advancedGroup,SLOT(setVisible(bool)));
     connect(numPilot, SIGNAL(textChanged(QString)), this, SLOT(updateHelpText(QString)));
+    connect(this, SIGNAL(eventTypeChanged(QString)), this, SLOT(onEventTypeChanged(QString)));
 }
 
 MultiFidelitySimWidget::~MultiFidelitySimWidget()
@@ -119,8 +126,14 @@ MultiFidelitySimWidget::outputToJSON(QJsonObject &jsonObj){
     jsonObj["advancedCheckBox"] = advancedCheckBox->isChecked();
     if (advancedCheckBox->isChecked()) {
         numPilot->outputToJSON(jsonObj);
+        logTransformCheckBox->outputToJSON(jsonObj);
     } else {
         jsonObj["numPilot"] = 40;
+        if (typeEVT.compare("EQ") ==0 ) {
+            jsonObj["logTransform"] = true;
+        } else {
+            jsonObj["logTransform"] = false;
+        }
     }
     return result;    
 }
@@ -146,7 +159,19 @@ MultiFidelitySimWidget::clear(void)
     advancedCheckBox->setChecked(false);
 }
 
-
+void
+MultiFidelitySimWidget::onEventTypeChanged(QString typeEVT) {
+    if (typeEVT.compare("EQ") ==0 ) {
+        // an earthquake event type
+        logTransformCheckBox->setChecked(true);
+        logTransformCheckBox->setText("Default is checked");
+    }
+}
+void
+MultiFidelitySimWidget::setEventType(QString type) {
+    typeEVT = type;
+    emit eventTypeChanged(typeEVT);
+}
 
 int
 MultiFidelitySimWidget::getNumberTasks()

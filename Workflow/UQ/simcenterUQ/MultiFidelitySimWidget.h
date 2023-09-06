@@ -42,6 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <UQ_Method.h>
 #include "SC_DoubleLineEdit.h"
 #include "SC_IntLineEdit.h"
+#include "SC_CheckBox.h"
 
 class QLineEdit;
 class QHBoxLayout;
@@ -59,9 +60,14 @@ public:
     void clear(void);
 
     int getNumberTasks(void);
+    void setEventType(QString type);
 
 public slots:
     void updateHelpText(QString);
+    void onEventTypeChanged(QString typeEVT);
+
+signals:
+    void eventTypeChanged(QString typeEVT);
 
 private:
     SC_DoubleLineEdit *maxTime;
@@ -71,6 +77,8 @@ private:
     QCheckBox *advancedCheckBox;
     QWidget * advancedGroup;
     QLabel *helpText;
+    SC_CheckBox *logTransformCheckBox;
+    QString typeEVT;
 };
 
 #endif // MULTI_FIDELITY_SIM_WIDGET_H
