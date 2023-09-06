@@ -128,8 +128,8 @@ UQ_Results::processResults(QString &dirName) {
 
 void
 UQ_Results::extractErrorMsg(QString workDir, QString errFileName, QString uqEngineName, QString &errMsg) {
-    // First check dakota.err
 
+    // First check "dakota.err" - error from UQ is written here.
     QString filenameErrorString = workDir + QDir::separator() + errFileName;
     QFileInfo filenameErrorInfo(filenameErrorString);
     if (!filenameErrorInfo.exists()) {
@@ -149,7 +149,6 @@ UQ_Results::extractErrorMsg(QString workDir, QString errFileName, QString uqEngi
         } else {
                 QTextStream in(&fileError);
                 // QString contents = in.readAll(); -- not reading newline char
-                bool errorWritten = false;
                 for (QString myLine = in.readLine(); !myLine.isNull(); myLine = in.readLine())
                      line +=  myLine + "<br>";
                 //line += "Please check logFileSimUQ.txt in the Local Jobs Directory";
@@ -179,7 +178,8 @@ UQ_Results::extractErrorMsg(QString workDir, QString errFileName, QString uqEngi
         }
     }
 
-    // Overwrite with workflow if workflow.err is found and not empty
+    // Change "workflow.err" to "workflow.err.1"
+    // Overwrite with workflow if workflow.err is found and not empty - error from other workflow pieces should be written here - sy
     QString filenameWorkErrString = workDir + QDir::separator() + QString("workflow.err");
     QFileInfo workflowErrorInfo(filenameWorkErrString);
     if (workflowErrorInfo.exists()) {
@@ -190,7 +190,7 @@ UQ_Results::extractErrorMsg(QString workDir, QString errFileName, QString uqEngi
            workflowError.close();
         }
         if (line.length()!= 0) {
-            errMsg = QString(QString("Error in Creating Workflow: ") + line);
+            errMsg = QString(QString("Error in Workflow: ") + line);
             errMsg = errMsg + ".... see more in " + filenameWorkErrString;
         }
     }
