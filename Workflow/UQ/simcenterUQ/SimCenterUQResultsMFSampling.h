@@ -67,7 +67,7 @@ public:
     bool inputFromJSON(QJsonObject &rvObject);
 
     int processResults(QString &dirName);  
-    QWidget *createResultEDPWidget(QString &name, QVector<double> statistics);
+    QWidget *createResultEDPWidget(QString &name, QVector<double> statistics, int flags, bool logTrans);
 
 signals:
 
@@ -81,10 +81,10 @@ public slots:
 private:
   
    int processResults(QString &filenameResults, QString &filenameTab);
-   bool getNamesAndSummary(QJsonObject qoiObj, QVector<QString> & qoiNames, QVector<QVector<double>> & statistics);
+   bool getNamesAndSummary(QVector<QString> & qoiNames, QVector<QVector<double>> & statistics, QVector<int> & flags) ;
     bool createSummary(QScrollArea *&sa);
 
-    QJsonObject resObj;
+   QJsonObject resObj;
    RandomVariablesContainer *theRVs;
    QTabWidget *tabWidget;
 

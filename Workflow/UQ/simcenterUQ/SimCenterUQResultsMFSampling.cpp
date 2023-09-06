@@ -280,15 +280,48 @@ SimCenterUQResultsMFSampling::createSummary(QScrollArea *&sa)
     sa->setWidget(summary);
 
 
-    QJsonObject qoiObj = resObj["QoI"].toObject();
-
     QVector<QVector<double>> statisticsVector;
     QVector<QString> NamesVector;
-    getNamesAndSummary(qoiObj, NamesVector,statisticsVector);
+    QVector<int> flags;
+    bool atLeastOneIs1 = false;
+    bool atLeastOneIs2 = false;
+    getNamesAndSummary(NamesVector,statisticsVector, flags);
+    bool did_log_transform = resObj["Log_transform"].toBool();
+
     for (int nq = 0; nq<NamesVector.size(); nq++) {
-        QWidget *theWidget = this->createResultEDPWidget(NamesVector[nq], statisticsVector[nq]);
+        QWidget *theWidget = this->createResultEDPWidget(NamesVector[nq], statisticsVector[nq], flags[nq],did_log_transform);
         summaryLayout->addWidget(theWidget);
+
+        if (flags[nq]==1) {
+            atLeastOneIs1 = true;
+        } else if (flags[nq]==2) {
+            // flag1 is more critical so if the qoi shares both flag1 and flag2, we show only flag1
+            atLeastOneIs2 = true;
+        }
     }
+
+    if (atLeastOneIs1) {
+        QLabel * myWarning1 ;
+        if (atLeastOneIs2) {
+            myWarning1 = new QLabel(QString("*Warning: Multi-fidelity estimate of the variance is negative. High-fidelity variance is displayed."));
+        } else {
+            myWarning1 = new  QLabel(QString("**Warning: Multi-fidelity estimate of the variance is negative. High-fidelity variance is displayed. \nCarefully check the <Data Values> tab to see if the analysis results match your intuition."));
+        }
+        myWarning1->setStyleSheet("QLabel {color:red}");
+        summaryLayout->addWidget(myWarning1);
+    }
+    if (atLeastOneIs2) {
+        QLabel * myWarning2 = new  QLabel(QString("**Warning: The results may not be accurate as the model variability is very large. \nCarefully check the <Data Values> tab to see if the analysis results match your intuition."));
+        myWarning2->setStyleSheet("QLabel {color:blue}");
+        summaryLayout->addWidget(myWarning2);
+    }
+
+    /*
+    myWarning += QString("Warning: Multi-fidelity estimate of the variance is negative. High-fidelity variance is displayed");
+    myWarning += QString("\nWarning: The results may not be accuracy as the coefficient of variance is too large.");
+    */
+
+    summaryLayout->setSpacing(0);
 
     double analysis_time = resObj["AnalysisTime_sec"].toDouble();
 
@@ -304,6 +337,10 @@ SimCenterUQResultsMFSampling::createSummary(QScrollArea *&sa)
     QJsonObject infoObj = resObj["Info"].toObject()["models"].toObject();
     int numModels = infoObj.size();
     for (int nm =0; nm<numModels; nm++) {
+        //
+        // Computing correlation coefficient
+        //
+
         QJsonObject modelObj = infoObj["model" + QString::number(nm+1)].toObject();
         int neval = modelObj["nPilot"].toInt();
         neval += modelObj["nAdd"].toInt();
@@ -319,8 +356,9 @@ SimCenterUQResultsMFSampling::createSummary(QScrollArea *&sa)
         } else {
             costCutoff = QString::number(cost)+ " s";
         }
-        infoMsg += "\n Model " + QString::number(nm+1) + " is evaluated " + QString::number(neval) + " times. The computation time (wall clock) per evaluation is measured as " + costCutoff + ".";
+        infoMsg += "\n Model " + QString::number(nm+1) + " is evaluated " + QString::number(neval) + " times. The computation time per evaluation was " + costCutoff + ".";
     }
+
     summaryLayout->addWidget(new QLabel(infoMsg));
 
     summaryLayout->addStretch();
@@ -329,18 +367,44 @@ SimCenterUQResultsMFSampling::createSummary(QScrollArea *&sa)
 }
 
 bool
-SimCenterUQResultsMFSampling::getNamesAndSummary(QJsonObject qoiObj, QVector<QString> & qoiNames, QVector<QVector<double>> & statistics) {
+SimCenterUQResultsMFSampling::getNamesAndSummary(QVector<QString> & qoiNames, QVector<QVector<double>> & statistics, QVector<int> & flags) {
+
+    QJsonObject qoiObj = resObj["QoI"].toObject();
+    QJsonObject hfObj = resObj["Info"].toObject()["models"].toObject()["model1"].toObject();
+    QJsonObject lfObj = resObj["Info"].toObject()["models"].toObject()["model2"].toObject(); // first low fidelity model
 
     int nqoi = qoiObj["qoiNames"].toArray().size();
 
     QJsonArray name_array = qoiObj["qoiNames"].toArray();
     QJsonArray mean_array = qoiObj["mean"].toArray();
     QJsonArray std_array = qoiObj["standardDeviation"].toArray();
+    QJsonArray var_HF_array = hfObj["modelVar"].toArray();
+
     QJsonArray speedUp_array = qoiObj["speedUp"].toArray();
 
     for (int nq =0; nq<nqoi; nq++) {
+        double myStd =  std_array[nq].toDouble();
+        double myVariabilityScore = lfObj["mean_diff"].toArray()[nq].toDouble()/std::sqrt(lfObj["modelVar"].toArray()[nq].toDouble());
+
+        int flag = 0;
+        //
+        // Check if MF estimate of variance is negative
+        //
+
+        if (myStd==0){
+            myStd =std::sqrt(var_HF_array[nq].toDouble());
+            flag = 1;
+           // myWarning += QString("Warning: Multi-fidelity estimate of the variance is negative. High-fidelity variance is displayed");
+        }
+
+        if (std::abs(myVariabilityScore)>0.3){
+            flag = 2;
+          //  myWarning += QString("\nWarning: The results may not be accuracy as the coefficient of variance is too large.");
+        }
+
         qoiNames.push_back(name_array[nq].toString());
-        statistics.push_back( {mean_array[nq].toDouble(), std_array[nq].toDouble(), speedUp_array[nq].toDouble()});
+        statistics.push_back( {mean_array[nq].toDouble(), myStd, speedUp_array[nq].toDouble() , speedUp_array[nq+nqoi].toDouble()});
+        flags.push_back(flag);
     }
     return 0;
 };
@@ -465,13 +529,14 @@ SimCenterUQResultsMFSampling::inputFromJSON(QJsonObject &jsonObject)
 extern QWidget *addLabeledLineEdit(QString theLabelName, QLineEdit **theLineEdit);
 
 QWidget *
-SimCenterUQResultsMFSampling::createResultEDPWidget(QString &name, QVector<double> statistics) {
+SimCenterUQResultsMFSampling::createResultEDPWidget(QString &name, QVector<double> statistics, int flag, bool log_transform) {
 
     bool do_ske_kur = false;
 
     double mean = statistics[0];
     double stdDev = statistics[1];
-    double speedUp = statistics[2];
+    double speedUp_m = statistics[2];
+    double speedUp_v = statistics[3];
     double skewness, kurtosis;
 
     if (do_ske_kur) {
@@ -491,26 +556,52 @@ SimCenterUQResultsMFSampling::createResultEDPWidget(QString &name, QVector<doubl
     theNames.append(name);
     edpLayout->addWidget(nameWidget);
 
+
+    QString meanStr = QString("Mean");
+    QString stdStr = QString("StdDev");
+    if (log_transform) {
+        meanStr = "Log " + meanStr;
+        stdStr = "Log " + stdStr;
+    }
+
     QLineEdit *meanLineEdit;
-    QWidget *meanWidget = addLabeledLineEdit(QString("Mean"), &meanLineEdit);
+    QWidget *meanWidget = addLabeledLineEdit(meanStr, &meanLineEdit);
     meanLineEdit->setText(QString::number(mean));
     meanLineEdit->setReadOnly(true);
     theMeans.append(mean);
     edpLayout->addWidget(meanWidget);
 
     QLineEdit *stdDevLineEdit;
-    QWidget *stdDevWidget = addLabeledLineEdit(QString("StdDev"), &stdDevLineEdit);
+    QWidget *stdDevWidget;
+    if (flag == 1 ) { // HF variance
+        stdStr += "*";
+        stdDevWidget = addLabeledLineEdit(stdStr, &stdDevLineEdit);
+        stdDevWidget->setStyleSheet("QLabel {color:red}");
+    } else if (flag == 2) {// large c.o.v. warning
+        stdStr += "**";
+        stdDevWidget = addLabeledLineEdit(stdStr, &stdDevLineEdit);
+        stdDevWidget->setStyleSheet("QLabel {color:blue}");
+    } else {
+        stdDevWidget = addLabeledLineEdit(stdStr, &stdDevLineEdit);
+    }
     stdDevLineEdit->setText(QString::number(stdDev));
     stdDevLineEdit->setReadOnly(true);
     theStdDevs.append(stdDev);
     edpLayout->addWidget(stdDevWidget);
 
     QLineEdit *speedUpLineEdit;
-    QWidget *speedUpWidget = addLabeledLineEdit(QString("Speed Up"), &speedUpLineEdit);
-    speedUpLineEdit->setText(QString::number(speedUp));
+    QWidget *speedUpWidget = addLabeledLineEdit(QString("Speed Up (Mean)"), &speedUpLineEdit);
+    speedUpLineEdit->setText(QString::number(speedUp_m));
     speedUpLineEdit->setReadOnly(true);
-    theSpeedUps.append(speedUp);
+    theSpeedUps.append(speedUp_m);
     edpLayout->addWidget(speedUpWidget);
+
+    QLineEdit *speedUpLineEdit2;
+    QWidget *speedUpWidget2 = addLabeledLineEdit(QString("Speed Up (StdDev)"), &speedUpLineEdit2);
+    speedUpLineEdit2->setText(QString::number(speedUp_v));
+    speedUpLineEdit2->setReadOnly(true);
+    theSpeedUps.append(speedUp_v);
+    edpLayout->addWidget(speedUpWidget2);
 
 
     if (do_ske_kur) {
