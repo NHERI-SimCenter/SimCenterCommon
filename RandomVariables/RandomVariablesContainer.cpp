@@ -1097,7 +1097,7 @@ RandomVariablesContainer::inputFromJSON(QJsonObject &jsonObject)
 
               if (rvObject.contains("name")) {
                   QString theName =rvObject["name"].toString();
-                  if (theName.contains(QString("MultiModel-")))
+                  if (theName.contains(QString("MultiModel-")) ||  (theName==QString("StochasticSeed")))
                          continue;
 
               }
