@@ -64,7 +64,7 @@ MultiFidelitySimWidget::MultiFidelitySimWidget(QWidget *parent)
     maxTime = new SC_DoubleLineEdit("maxTime",20);
     seed = new SC_IntLineEdit("seed",42);
     helpText = new QLabel("Note: At least "+ QString::number(npilot_default) +" samples will be simulated for each model even if the time exceed the specified limit.\n");
-    helpText->setStyleSheet("color: grey");
+    //helpText->setStyleSheet("color: grey");
     advancedCheckBox = new QCheckBox("Advanced Options");
     advancedGroup = new QWidget();
 
@@ -90,7 +90,7 @@ MultiFidelitySimWidget::MultiFidelitySimWidget(QWidget *parent)
     advancedOptions -> addWidget(numPilot,0,1);
     advancedOptions -> addWidget(new QLabel("Perform log-transform"),1,0);
     logTransformCheckBox = new SC_CheckBox("logTransform","Default is unchecked",false);
-    logTransformCheckBox->setStyleSheet("QCheckBox {color: grey}");
+    //logTransformCheckBox->setStyleSheet("QCheckBox {color: grey}");
     advancedOptions -> addWidget(logTransformCheckBox,1,1);
 
     advancedOptions -> setColumnStretch(2,1);
