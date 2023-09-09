@@ -47,6 +47,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDir>
 #include <RandomVariablesContainer.h>
 #include <QFileInfo>
+#include <filesystem>
 
 UQ_Results::UQ_Results(QWidget *parent)
 : SimCenterWidget(parent), resultWidget(0)
@@ -180,18 +181,25 @@ UQ_Results::extractErrorMsg(QString workDir, QString errFileName, QString uqEngi
 
     // Change "workflow.err" to "workflow.err.1"
     // Overwrite with workflow if workflow.err is found and not empty - error from other workflow pieces should be written here - sy
-    QString filenameWorkErrString = workDir + QDir::separator() + QString("workflow.err");
-    QFileInfo workflowErrorInfo(filenameWorkErrString);
-    if (workflowErrorInfo.exists()) {
-        QFile workflowError(filenameWorkErrString);
-        if (workflowError.open(QIODevice::ReadOnly)) {
-           QTextStream in(&workflowError);
-           line = in.readLine();
-           workflowError.close();
-        }
-        if (line.length()!= 0) {
-            errMsg = QString(QString("Error in Workflow: ") + line);
-            errMsg = errMsg + ".... see more in " + filenameWorkErrString;
+
+    QDir myWorkDir(workDir);
+    QStringList errFiles = myWorkDir.entryList(QStringList() << "workflow.err.*",QDir::Files);
+
+    if (errFiles.size()>0) {
+        QString filenameWorkErrString = workDir + QDir::separator() + errFiles[0]; // display the first file
+        //QString filenameWorkErrString = workDir + QDir::separator() + QString("workflow.err");
+        QFileInfo workflowErrorInfo(filenameWorkErrString);
+        if (workflowErrorInfo.exists()) {
+            QFile workflowError(filenameWorkErrString);
+            if (workflowError.open(QIODevice::ReadOnly)) {
+               QTextStream in(&workflowError);
+               line = in.readLine();
+               workflowError.close();
+            }
+            if (line.length()!= 0) {
+                errMsg = QString(QString("Error in Workflow: ") + line);
+                errMsg = errMsg + ".... see more in " + filenameWorkErrString;
+            }
         }
     }
 }
