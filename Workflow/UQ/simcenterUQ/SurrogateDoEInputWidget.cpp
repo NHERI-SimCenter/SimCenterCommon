@@ -379,7 +379,7 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     connect(theGpAdvancedCheckBox,SIGNAL(toggled(bool)),this,SLOT(doAdvancedGP(bool)));
     connect(theGpAdvancedCheckBoxEE,SIGNAL(toggled(bool)),this,SLOT(doAdvancedEE(bool)));
     connect(theExistingCheckBox,SIGNAL(toggled(bool)),this,SLOT(doExistingGP(bool)));
-    connect(this, SIGNAL(eventTypeChanged(QString)), this, SLOT(onEventTypeChanged(QString)));
+    //connect(this, SIGNAL(eventTypeChanged(QString)), this, SLOT(onEventTypeChanged(QString)));
 
 }
 
