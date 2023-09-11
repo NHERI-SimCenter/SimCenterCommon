@@ -398,6 +398,23 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     qDebug() << python;
     qDebug() << args;
 
+    //
+    // sy - testing adding a batch file to directly run backend. Only for windows and EE-UQ
+    //
+    if (appName == "EE-UQ") {
+        // to delete all the files except for template dir
+        QStringList cmdList = {"cd /d \"tmp.SimCenter\"","move templatedir ../tmp", "for /F \"delims=\" %%i in ('dir /b') do (rmdir \"%%i\" /s/q || del \"%%i\" /s/q) ",  "move ../tmp templatedir","cd .. \n"};
+        //batchFileString = "cd /d \"tmp.SimCenter\" \nmove templatedir ../tmp \nfor /F \"delims=\" %%i in ('dir /b') do (rmdir \"%%i\" /s/q || del \"%%i\" /s/q) \nmove ../tmp templatedir\ncd .. \n";
+        QString batchFileString = cmdList.join("\n");
+        batchFileString += "set PATH=$PATH$;"+pythonPath+";"+ openseesPath+";"+ dakotaPath+"\n";
+        batchFileString += "set PYTHONPATH=$PYTHONPATH$;" + pythonPath + "\n";
+        batchFileString += python + " " + args.join(" ");
+        QString batFilePath = SimCenterPreferences::getInstance()->getLocalWorkDir()+ QDir::separator() + "backendLauncher.bat";
+        QFile file(batFilePath);
+        file.open(QIODevice::WriteOnly);
+        file.write(batchFileString.toUtf8());
+    }
+
     theMainProcessHandler->startProcess(python,args,"backend", nullptr);
 
 #else
