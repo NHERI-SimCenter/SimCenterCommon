@@ -129,8 +129,9 @@ UQ_Results::processResults(QString &dirName) {
 
 void
 UQ_Results::extractErrorMsg(QString workDir, QString errFileName, QString uqEngineName, QString &errMsg) {
-
+    //
     // First check "dakota.err" - error from UQ is written here.
+    //
     QString filenameErrorString = workDir + QDir::separator() + errFileName;
     QFileInfo filenameErrorInfo(filenameErrorString);
     if (!filenameErrorInfo.exists()) {
@@ -149,7 +150,7 @@ UQ_Results::extractErrorMsg(QString workDir, QString errFileName, QString uqEngi
 
         } else {
                 QTextStream in(&fileError);
-                // QString contents = in.readAll(); -- not reading newline char
+                // QString contents = in.readAll(); -- not reading newline char, so adding <br> - sy
                 for (QString myLine = in.readLine(); !myLine.isNull(); myLine = in.readLine())
                      line +=  myLine + "<br>";
                 //line += "Please check logFileSimUQ.txt in the Local Jobs Directory";
@@ -160,8 +161,9 @@ UQ_Results::extractErrorMsg(QString workDir, QString errFileName, QString uqEngi
     if (line.length()!= 0)
         errMsg = QString("Error Running " + uqEngineName + ": " + line);
 
-
+    //
     // Overwrite with surrogate if sur.err is found
+    //
     if (errMsg.length()!=0) {
         QString filenameSurErrString = workDir + QDir::separator() + QString("surrogate.err");
         QFileInfo surrogateErrorInfo(filenameSurErrString);
@@ -179,11 +181,11 @@ UQ_Results::extractErrorMsg(QString workDir, QString errFileName, QString uqEngi
         }
     }
 
-    // Change "workflow.err" to "workflow.err.1"
-    // Overwrite with workflow if workflow.err is found and not empty - error from other workflow pieces should be written here - sy
-
+    //
+    // Overwrite with workflow err if "workflow.err*" file is found and not empty - error from other workflow pieces should be written here - sy
+    //
     QDir myWorkDir(workDir);
-    QStringList errFiles = myWorkDir.entryList(QStringList() << "workflow.err.*",QDir::Files);
+    QStringList errFiles = myWorkDir.entryList(QStringList() << "workflow.err*",QDir::Files); // find all files that starts with workflow.err
 
     if (errFiles.size()>0) {
         QString filenameWorkErrString = workDir + QDir::separator() + errFiles[0]; // display the first file
