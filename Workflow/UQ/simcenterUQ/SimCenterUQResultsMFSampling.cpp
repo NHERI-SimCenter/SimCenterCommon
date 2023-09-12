@@ -590,14 +590,14 @@ SimCenterUQResultsMFSampling::createResultEDPWidget(QString &name, QVector<doubl
     edpLayout->addWidget(stdDevWidget);
 
     QLineEdit *speedUpLineEdit;
-    QWidget *speedUpWidget = addLabeledLineEdit(QString("Speed Up (Mean)"), &speedUpLineEdit);
+    QWidget *speedUpWidget = addLabeledLineEdit(QString("Speed Up (1st order moment)"), &speedUpLineEdit);
     speedUpLineEdit->setText(QString::number(speedUp_m));
     speedUpLineEdit->setReadOnly(true);
     theSpeedUps.append(speedUp_m);
     edpLayout->addWidget(speedUpWidget);
 
     QLineEdit *speedUpLineEdit2;
-    QWidget *speedUpWidget2 = addLabeledLineEdit(QString("Speed Up (StdDev)"), &speedUpLineEdit2);
+    QWidget *speedUpWidget2 = addLabeledLineEdit(QString("Speed Up (2nd order moment)"), &speedUpLineEdit2);
     speedUpLineEdit2->setText(QString::number(speedUp_v));
     speedUpLineEdit2->setReadOnly(true);
     theSpeedUps.append(speedUp_v);
