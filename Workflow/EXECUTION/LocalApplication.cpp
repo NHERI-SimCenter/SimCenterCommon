@@ -197,7 +197,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
     SimCenterPreferences *preferences = SimCenterPreferences::getInstance();
     python = preferences->getPython();
-
+    QString pythonPath;
     QFileInfo pythonFile(python);
     if (pythonFile.exists()) {
         QString pythonPath = pythonFile.absolutePath();
@@ -304,11 +304,11 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     }
 
     ******************************************************************************** */
-
+    QString openseesPath;
     QString openseesExe = preferences->getOpenSees();
     QFileInfo openseesFile(openseesExe);
     if (openseesFile.exists()) {
-        QString openseesPath = openseesFile.absolutePath();
+        openseesPath = openseesFile.absolutePath();
 #ifdef Q_OS_WIN
         pathEnv = openseesPath + ';' + pathEnv;
 #else
@@ -331,8 +331,9 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
 
     QFileInfo dakotaFile(dakotaExe);
+    QString dakotaPath;
     if (dakotaFile.exists()) {
-        QString dakotaPath = dakotaFile.absolutePath();
+        dakotaPath = dakotaFile.absolutePath();
         if (colonYes == false) {
             colonYes = true;
         } else {
