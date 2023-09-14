@@ -145,7 +145,6 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
 
    // layout->addWidget(theAdvancedTitle, wid, 0, 1, 3,Qt::AlignBottom);
     theGpAdvancedWidgetLayout->addWidget(lineA, aid++, 0, 1, 3);
-    theGpAdvancedWidgetLayout->setMargin(0);
     //lineA->setVisible(false);
 
     //
@@ -264,7 +263,6 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     lineB->setFrameShape(QFrame::HLine);
     lineB->setFrameShadow(QFrame::Sunken);
     theExistingWidgetLayout->addWidget(lineB, eid++, 0, 1, 3);
-    theExistingWidgetLayout->setMargin(0);
 
     //
     // Input data
@@ -331,7 +329,6 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     lineC->setFrameShape(QFrame::HLine);
     lineC->setFrameShadow(QFrame::Sunken);
     theGpAdvancedWidgetLayoutEE->addWidget(lineC, eeid++, 0, 1, 3);
-    theGpAdvancedWidgetLayoutEE->setMargin(0);
 
     //
     // Selection of im

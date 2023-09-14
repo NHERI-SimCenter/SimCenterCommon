@@ -42,9 +42,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <InputWidgetOpenSeesAnalysis.h>
 #include <SimCenterAppMulti.h>
 #include <CustomPySimulation.h>
+#include <QCoreApplication>
 #include <SurrogateSimulation.h>
 #include <QCoreApplication>
-
 
 FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
   : SimCenterAppSelection(QString("FE Application"), QString("Simulation"), parent)

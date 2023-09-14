@@ -127,7 +127,6 @@ SimCenterIM::SimCenterIM(SimCenterIntensityMeasureCombo *theIM, SimCenterUnitsCo
     imUnitLayout->addWidget(new QLabel(tr("Periods")),0,3);
     imUnitLayout->addWidget(periodLine,1,3);
     imUnitLayout->setColumnStretch(7,1);
-    imUnitLayout->setMargin(5);
     this->setLayout(imUnitLayout);
     connect(myIM, SIGNAL(currentTextChanged(const QString&)), this, SLOT(handleIMChanged(const QString&)));
     nCol = 4;
@@ -183,7 +182,7 @@ void SimCenterIM::addGridField(void)
         } else if (newIM.contains("Velocity")&& newIM.contains("Spectral")) {
             //minVal->setText("2.5");
             //maxVal->setText("100");
-        } else if (newIM.contains("Displacement"&& newIM.contains("Spectral"))) {
+        } else if (newIM.contains("Displacement")&& newIM.contains("Spectral")) {
             //minVal->setText("2.5");
             //maxVal->setText("100");
         }else if (newIM.contains("Acceleration") && newIM.contains("Ground")) {
