@@ -204,8 +204,9 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     python = preferences->getPython();
 
     QFileInfo pythonFile(python);
+    QString pythonPath;
     if (pythonFile.exists()) {
-        QString pythonPath = pythonFile.absolutePath();
+        pythonPath = pythonFile.absolutePath();
         colonYes=true;
         exportPath += pythonPath;
         pathEnv = pythonPath + ';' + pathEnv;
@@ -312,8 +313,9 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
     QString openseesExe = preferences->getOpenSees();
     QFileInfo openseesFile(openseesExe);
+     QString openseesPath;
     if (openseesFile.exists()) {
-        QString openseesPath = openseesFile.absolutePath();
+        openseesPath = openseesFile.absolutePath();
 #ifdef Q_OS_WIN
         pathEnv = openseesPath + ';' + pathEnv;
 #else
@@ -336,8 +338,9 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
 
     QFileInfo dakotaFile(dakotaExe);
+    QString dakotaPath;
     if (dakotaFile.exists()) {
-        QString dakotaPath = dakotaFile.absolutePath();
+        dakotaPath = dakotaFile.absolutePath();
         if (colonYes == false) {
             colonYes = true;
         } else {
