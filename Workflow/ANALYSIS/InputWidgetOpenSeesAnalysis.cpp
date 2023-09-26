@@ -492,8 +492,12 @@ InputWidgetOpenSeesAnalysis::inputAppDataFromJSON(QJsonObject &jsonObject)
 
 void
 InputWidgetOpenSeesAnalysis::chooseFileName(void) {
-    QString fileName=QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)");
-    file->setText(fileName);
+    QString fileName =QFileDialog::getOpenFileName(this,tr("Open File"),"", "Opensees tcl file (*.tcl)");
+    if (fileName!="")
+        file->setText(fileName);
+
+    //QString fileName=QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)");
+    //file->setText(fileName);
 }
 
 bool
