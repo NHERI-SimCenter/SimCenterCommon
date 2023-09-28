@@ -176,5 +176,5 @@ MultiFidelitySimWidget::setEventType(QString type) {
 int
 MultiFidelitySimWidget::getNumberTasks()
 {
-  return 0; // what's this?
+  return 50; // Let's do almost max
 }
