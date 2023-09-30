@@ -175,6 +175,11 @@ RemoteApplication::outputToJSON(QJsonObject &jsonObject)
 
     jsonObject["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();    
     jsonObject["runType"]=QString("runningRemote");
+    int nodeCount = numCPU_LineEdit->text().toInt();
+    int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
+    jsonObject["nodeCount"]=nodeCount;
+    jsonObject["numP"]=nodeCount*numProcessorsPerNode;    
+    jsonObject["processorsOnEachNode"]=numProcessorsPerNode;    
 
     return true;
 }
@@ -280,6 +285,8 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
             return false;
         }
 
+	qDebug() << "RUNNING: " << python << " " << args;
+	
         proc->execute(python,args);
         proc->waitForStarted();
 
