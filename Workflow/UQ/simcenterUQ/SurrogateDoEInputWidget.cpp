@@ -363,7 +363,10 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
         }
     });
     theGpAdvancedWidgetLayoutEE->addWidget(im_stackedWidgets,eeid++,0,1,9);
-    //
+    // not an earthquake event, inactivate ground motion intensity widget
+    theGpAdvancedCheckBoxEE->setVisible(false);
+    theGpAdvancedCheckBoxEE->setChecked(false);
+    theLogtCheckBox->setChecked(false);
 
 
     //
@@ -376,7 +379,7 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
     connect(theGpAdvancedCheckBox,SIGNAL(toggled(bool)),this,SLOT(doAdvancedGP(bool)));
     connect(theGpAdvancedCheckBoxEE,SIGNAL(toggled(bool)),this,SLOT(doAdvancedEE(bool)));
     connect(theExistingCheckBox,SIGNAL(toggled(bool)),this,SLOT(doExistingGP(bool)));
-    //connect(this, SIGNAL(eventTypeChanged(QString)), this, SLOT(onEventTypeChanged(QString)));
+    connect(this, SIGNAL(eventTypeChanged(QString)), this, SLOT(onEventTypeChanged(QString)));
 
 }
 
