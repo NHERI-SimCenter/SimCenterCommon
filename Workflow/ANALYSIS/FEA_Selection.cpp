@@ -42,9 +42,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <InputWidgetOpenSeesAnalysis.h>
 #include <SimCenterAppMulti.h>
 #include <CustomPySimulation.h>
+#include <QCoreApplication>
 #include <SurrogateSimulation.h>
 #include <QCoreApplication>
-
 
 FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
   : SimCenterAppSelection(QString("FE Application"), QString("Simulation"), parent)
@@ -54,7 +54,7 @@ FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
   this->addComponent(QString("OpenSees"), QString("OpenSees-Simulation"), opensees);
   if (inclMulti == true) {
     SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Simulation"), QString("MultiModel-Simulation"),this, this);
-    this->addComponent(QString("Multi Model"), QString("MultiModel"), multi);
+    this->addComponent(QString("Multiple Models"), QString("MultiModel"), multi);
   }  
 
   SimCenterAppWidget *custom_py_simulation= new CustomPySimulation();

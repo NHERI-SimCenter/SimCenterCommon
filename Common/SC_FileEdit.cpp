@@ -43,6 +43,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 #include <QGridLayout>
 #include <QFileDialog>
+#include <SimCenterAppWidget.h>
 
 SC_FileEdit::SC_FileEdit(QString theKey)
   :QWidget()
@@ -83,18 +84,47 @@ SC_FileEdit::~SC_FileEdit()
 bool
 SC_FileEdit::outputToJSON(QJsonObject &jsonObject)
 {
+    QString fileName = theFile->text();
+    QFileInfo fileInfo(fileName);
+    QString keyPath = key + QString("Path");
+    
+    jsonObject[key]= fileInfo.fileName();
+    jsonObject[keyPath]=fileInfo.path();  
     return true;
 }
 
 bool
 SC_FileEdit::inputFromJSON(QJsonObject &jsonObject)
 {
+        QString fileName;
+        QString filePath;
+
+        if (jsonObject.contains(key)) {
+            QJsonValue theName = jsonObject[key];
+            fileName = theName.toString();
+        } else {
+	  qDebug() << "ERROR: SC_FileEdit: no key: " << key << " in JSON object";
+	  return false;
+	}
+
+	QString keyPath = key + QString("Path");
+        if (jsonObject.contains(keyPath)) {
+            QJsonValue theName = jsonObject[keyPath];
+            filePath = theName.toString();
+	    theFile->setText(QDir(filePath).filePath(fileName));  	    
+        } else {
+	    theFile->setText(fileName);
+	    qDebug() << "WARNING: SC_FileEdit: no key: " << keyPath << " in JSON object, just using " << key << " as full filename";
+            return false;
+	}
+
+
     return true;
 }
 
 bool
-SC_FileEdit::copyFiles(QString &destDir) {
-  return true;
+SC_FileEdit::copyFile(QString &destDir) {
+  return SimCenterAppWidget::copyFile(theFile->text(), destDir);  
 }
 
 QString

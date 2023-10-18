@@ -337,7 +337,7 @@ surrogateGP::outputAppDataToJSON(QJsonObject &jsonObject) {
         dataObj["PS_Path"]=fileInfo1.path();
     } else {
         if (mainScriptName1.isEmpty()) {
-            dataObj["postprocessScript"]=QString("");
+            dataObj["postprocessScript"]=QString("none");
         } else {
             QString msg = QString("surrogateGP - postprocessScript " ) + mainScriptName1 + QString(" does not exist!");
             this->errorMessage(msg);
@@ -643,6 +643,15 @@ surrogateGP::copyFiles(QString &dirName) {
      }
      return res;
 }
+
+
+SimCenterAppWidget *
+surrogateGP::getClone()
+{
+  surrogateGP *newSelection = new surrogateGP();
+  return newSelection;
+}
+
 
 double
 surrogateGP::interpolateForGP(QVector<double> X, QVector<double> Y, double Xval){

@@ -1,5 +1,5 @@
-#ifndef SC_FILE_EDIT_H
-#define SC_FILE_EDIT_H
+#ifndef MULTI_FIDELITY_SIM_WIDGET_H
+#define MULTI_FIDELITY_SIM_WIDGET_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -37,44 +37,48 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-/**
- *  @author  fmckenna
- *  @date    2/2017
- *  @version 1.0
- *
- *  @section DESCRIPTION
- *
- *  This is a combo box for SimCenter, implements input/output To JSON
- */
+// Written: fmckenna
 
-#include <QWidget>
-#include <QString>
+#include <UQ_Method.h>
+#include "SC_DoubleLineEdit.h"
+#include "SC_IntLineEdit.h"
+#include "SC_CheckBox.h"
+
 class QLineEdit;
-
-class QJsonObject;
-
-class SC_FileEdit : public QWidget
+class QHBoxLayout;
+class QCheckBox;
+class QLabel;
+class MultiFidelitySimWidget : public UQ_Method
 {
-  
+    Q_OBJECT
 public:
-  
-  SC_FileEdit(QString key);
-  SC_FileEdit(QString key, QString toolTip);
-  ~SC_FileEdit();
-  
-  bool outputToJSON(QJsonObject &jsonObject);
-  bool inputFromJSON(QJsonObject &jsonObject);
-  
-  QString getFilename(void);  
-  void setFilename(QString &fileName);
-  
-  bool copyFile(QString &destDir);
-  
+    explicit MultiFidelitySimWidget(QWidget *parent = 0);
+    ~MultiFidelitySimWidget();
+
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+    void clear(void);
+
+    int getNumberTasks(void);
+    void setEventType(QString type);
+
+public slots:
+    void updateHelpText(QString);
+    void onEventTypeChanged(QString typeEVT);
+
 signals:
-  
+    void eventTypeChanged(QString typeEVT);
+
 private:
-  QString key;
-  QLineEdit *theFile;
+    SC_DoubleLineEdit *maxTime;
+    SC_IntLineEdit *seed;
+    SC_IntLineEdit *numPilot;
+    QHBoxLayout *advancedLayout;
+    QCheckBox *advancedCheckBox;
+    QWidget * advancedGroup;
+    QLabel *helpText;
+    SC_CheckBox *logTransformCheckBox;
+    QString typeEVT;
 };
 
-#endif // SC_FILE_EDIT_H
+#endif // MULTI_FIDELITY_SIM_WIDGET_H

@@ -82,6 +82,14 @@ public:
      */
     ProgramOutputDialog *getProgressDialog() const;
 
+    /**
+     *   @brief puts a blank line in the output
+     *   @param void
+     *   @return void
+     */  
+    void blankLineMessage(void);
+  
+
 signals:
 
     /**
@@ -116,7 +124,6 @@ public slots:
      */
     void infoMessage(const QString& message);
 
-    void blankLineMessage();
 
 private:
 

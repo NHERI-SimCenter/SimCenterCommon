@@ -1,6 +1,3 @@
-#ifndef SC_FILE_EDIT_H
-#define SC_FILE_EDIT_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -37,44 +34,54 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-/**
- *  @author  fmckenna
- *  @date    2/2017
- *  @version 1.0
- *
- *  @section DESCRIPTION
- *
- *  This is a combo box for SimCenter, implements input/output To JSON
- */
+// Written: fmckenna
 
-#include <QWidget>
-#include <QString>
-class QLineEdit;
+#include <SC_CheckBox.h>
+//#include <QComboBox>
+#include <QJsonObject>
 
-class QJsonObject;
-
-class SC_FileEdit : public QWidget
+SC_CheckBox::SC_CheckBox(QString theKey, bool isChecked)
+  :QCheckBox()
 {
-  
-public:
-  
-  SC_FileEdit(QString key);
-  SC_FileEdit(QString key, QString toolTip);
-  ~SC_FileEdit();
-  
-  bool outputToJSON(QJsonObject &jsonObject);
-  bool inputFromJSON(QJsonObject &jsonObject);
-  
-  QString getFilename(void);  
-  void setFilename(QString &fileName);
-  
-  bool copyFile(QString &destDir);
-  
-signals:
-  
-private:
-  QString key;
-  QLineEdit *theFile;
-};
+  key = theKey;
+  this->setChecked(isChecked);
+}
 
-#endif // SC_FILE_EDIT_H
+SC_CheckBox::SC_CheckBox(QString theKey, QString text, bool isChecked)
+  :QCheckBox(text)
+{
+  key = theKey;
+  this->setChecked(isChecked);
+}
+
+SC_CheckBox::~SC_CheckBox()
+{
+
+}
+
+
+bool
+SC_CheckBox::outputToJSON(QJsonObject &jsonObject)
+{
+  jsonObject[key] = this->isChecked();
+  return true;
+}
+
+bool
+SC_CheckBox::inputFromJSON(QJsonObject &jsonObject)
+{
+
+  if (jsonObject.contains(key)) {
+    QJsonValue theValue = jsonObject[key];
+    if (theValue.isBool())
+      this->setChecked(theValue.toBool());
+    return true;
+  }
+  
+  return false;
+}
+
+QString &
+SC_CheckBox::getKey() {  
+  return key;
+}

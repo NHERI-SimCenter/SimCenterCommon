@@ -9,5 +9,6 @@
         <file>common_experimental.qss</file>
 	<file>stylesheetMAC.qss</file>
 	<file>stylesheetWIN.qss</file>
+	<file>stylesheetLinux.qss</file>
     </qresource>
 </RCC>

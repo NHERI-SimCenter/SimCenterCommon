@@ -80,9 +80,9 @@ RemoteJobManager::RemoteJobManager(RemoteService *theRemoteInterface, QWidget *p
     
     jobsTable = 0;
     htmlInputDirectory = QString("agave://designsafe.storage.default/");
-    headers << "Name" << "STATUS" << "ID" << "Date Created";
+    headers << "Name" << "STATUS" << "ID" << "Date Created" << "Remote Started";
     jobsTable=new QTableWidget(this);
-    jobsTable->setColumnCount(4);
+    jobsTable->setColumnCount(headers.size());
     jobsTable->setHorizontalHeaderLabels(headers);
     jobsTable->setRowCount(0);
 
@@ -167,10 +167,27 @@ RemoteJobManager::jobsListReturn(QJsonObject theJobs){
             QString jobName = job["name"].toString();
             QString jobStatus = job["status"].toString();
             QString jobDate = job["created"].toString();
-            jobsTable->setItem(i, 2, new QTableWidgetItem(jobID));
-            jobsTable->setItem(i, 1, new QTableWidgetItem(jobStatus));
-            jobsTable->setItem(i, 3, new QTableWidgetItem(jobDate));
+
+            qDebug() << "All job info:" << job.length();
+
+            QString processorsPerNode  = job["processorsPerNode"].toString();
+            QString nodes  = job["nodeCount"].toString();
+            QString maxHour  = job["status"].toString();
+            QString remoteStarted = job["remoteStarted"].toString();
+            QString lastUpdated = job["lastUpdated"].toString();
+
             jobsTable->setItem(i, 0, new QTableWidgetItem(jobName));
+            jobsTable->setItem(i, 1, new QTableWidgetItem(jobStatus));
+            jobsTable->setItem(i, 2, new QTableWidgetItem(jobID));
+            jobsTable->setItem(i, 3, new QTableWidgetItem(jobDate));
+
+            //Added by Abiy
+            jobsTable->setItem(i, 4, new QTableWidgetItem(remoteStarted));
+//            jobsTable->setItem(i, 4, new QTableWidgetItem(QString::number(processorsPerNode.toInt()*nodes.toInt())));
+//            jobsTable->setItem(i, 5, new QTableWidgetItem(maxHour));
+//            jobsTable->setItem(i, 6, new QTableWidgetItem(maxHour));
+
+//            getJobRunTime(remoteStarted, lastUpdated);
         }
     }
      //jobsTable->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
@@ -210,7 +227,7 @@ void
 RemoteJobManager::updateJobStatus(void)
 {
     if (triggeredRow != -1) {
-        QTableWidgetItem *itemID=jobsTable->item(triggeredRow,2);
+        QTableWidgetItem *itemID = jobsTable->item(triggeredRow,2);
         QString jobID = itemID->text();
         //QString status=theInterface->getJobStatus(jobID);
         emit getJobStatus(jobID);
@@ -518,6 +535,15 @@ void RemoteJobManager::handleProcessTextOutput(void)
     QString outputStr = QString(output);
     emit sendStatusMessage(outputStr);
     QApplication::processEvents();
+}
+
+QString RemoteJobManager::getJobRunTime(QString startedTime, QString currentTime)
+{
+    QDateTime UTC(QDateTime::fromString(startedTime,Qt::ISODateWithMs));
+    QDateTime local(UTC.toLocalTime());
+    qDebug() << "UTC time is:" << UTC;
+
+    return "yes";
 }
 
 

@@ -13,27 +13,32 @@ namespace GoogleAnalytics {
 
 void ReportLocalRun()
 {
+    Report("SimulationLocal", "");
     Report("Simulation", "Local");
 }
 
 void ReportDesignSafeRun()
 {
+    Report("SimulationDesignSafe", "");
     Report("Simulation", "DesignSafe");
 }
 
 void ReportAppUsage(QString appName)
 {
+    Report("Application" + appName, "");
     Report("Application", appName);
 }  
 
 void StartSession()
 {
+    Report("SessionStart", "");
     Report("Session", "Start");
 
 }
 
 void EndSession()
 {
+    Report("SessionEnd", "");
     Report("Session", "End");
 }
 
@@ -66,7 +71,6 @@ void CreateSessionId()
 }
 
 void sendReport();
-
 
 void Report(QString eventCategory, QString eventName)
 {

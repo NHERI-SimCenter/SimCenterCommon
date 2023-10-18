@@ -1,5 +1,5 @@
-#ifndef SC_FILE_EDIT_H
-#define SC_FILE_EDIT_H
+#ifndef SC_CHECKBOX_H
+#define SC_CHECKBOX_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -47,34 +47,30 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  *  This is a combo box for SimCenter, implements input/output To JSON
  */
 
-#include <QWidget>
+#include <QCheckBox>
 #include <QString>
-class QLineEdit;
+#include <QStringList>
 
 class QJsonObject;
 
-class SC_FileEdit : public QWidget
+class SC_CheckBox : public QCheckBox
 {
   
 public:
-  
-  SC_FileEdit(QString key);
-  SC_FileEdit(QString key, QString toolTip);
-  ~SC_FileEdit();
-  
+
+  SC_CheckBox(QString theKey, bool isChecked=false);
+  SC_CheckBox(QString theKey, QString text, bool isChecked=false);
+  ~SC_CheckBox();
   bool outputToJSON(QJsonObject &jsonObject);
   bool inputFromJSON(QJsonObject &jsonObject);
-  
-  QString getFilename(void);  
-  void setFilename(QString &fileName);
-  
-  bool copyFile(QString &destDir);
+  QString &getKey();
   
 signals:
-  
+
+public slots:
+
 private:
   QString key;
-  QLineEdit *theFile;
 };
 
-#endif // SC_FILE_EDIT_H
+#endif // SC_CHECKBOX_H
