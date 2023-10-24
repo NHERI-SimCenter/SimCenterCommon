@@ -382,8 +382,9 @@ OpenSeesBuildingModel::setFilename1(QString name1){
 
 void
 OpenSeesBuildingModel::chooseFileName1(void) {
-    fileName1=QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)");
-    this->setFilename1(fileName1);
+    fileName1=QFileDialog::getOpenFileName(this,tr("Open File"),"", "OpenSees tcl file (*.tcl)");
+    if (fileName1!="")
+        this->setFilename1(fileName1);
 }
 
 void

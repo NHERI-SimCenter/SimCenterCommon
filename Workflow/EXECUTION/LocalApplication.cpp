@@ -63,6 +63,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QProcessEnvironment>
 #include <QCoreApplication>
 #include <SimCenterPreferences.h>
+#include "Utils/SimCenterConfigFile.h"
 
 LocalApplication::LocalApplication(QString workflowScriptName, QWidget *parent)
     : Application(parent)
@@ -81,6 +82,10 @@ LocalApplication::outputToJSON(QJsonObject &jsonObject)
     jsonObject["workingDir"]=SimCenterPreferences::getInstance()->getLocalWorkDir();
 
     jsonObject["runType"]=QString("runningLocal");
+
+    int numP = 0;
+    if (getConfigOptionInteger("oversubscribeMultiplier", numP) == true)
+      jsonObject["oversubscribeMultiplier"]=numP;
 
     return true;
 }
@@ -199,8 +204,9 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     python = preferences->getPython();
 
     QFileInfo pythonFile(python);
+    QString pythonPath;
     if (pythonFile.exists()) {
-        QString pythonPath = pythonFile.absolutePath();
+        pythonPath = pythonFile.absolutePath();
         colonYes=true;
         exportPath += pythonPath;
         pathEnv = pythonPath + ';' + pathEnv;
@@ -307,8 +313,9 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
     QString openseesExe = preferences->getOpenSees();
     QFileInfo openseesFile(openseesExe);
+     QString openseesPath;
     if (openseesFile.exists()) {
-        QString openseesPath = openseesFile.absolutePath();
+        openseesPath = openseesFile.absolutePath();
 #ifdef Q_OS_WIN
         pathEnv = openseesPath + ';' + pathEnv;
 #else
@@ -331,8 +338,9 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
 
     QFileInfo dakotaFile(dakotaExe);
+    QString dakotaPath;
     if (dakotaFile.exists()) {
-        QString dakotaPath = dakotaFile.absolutePath();
+        dakotaPath = dakotaFile.absolutePath();
         if (colonYes == false) {
             colonYes = true;
         } else {
@@ -397,6 +405,23 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
     qDebug() << python;
     qDebug() << args;
+
+    //
+    // sy - testing adding a batch file to directly run backend. Only for windows and EE-UQ
+    //
+    if (appName == "EE-UQ") {
+        // to delete all the files except for template dir
+        QStringList cmdList = {"cd /d \"tmp.SimCenter\"","move templatedir ../tmp", "for /F \"delims=\" %%i in ('dir /b') do (rmdir \"%%i\" /s/q || del \"%%i\" /s/q) ",  "move ../tmp templatedir","cd .. \n"};
+        //batchFileString = "cd /d \"tmp.SimCenter\" \nmove templatedir ../tmp \nfor /F \"delims=\" %%i in ('dir /b') do (rmdir \"%%i\" /s/q || del \"%%i\" /s/q) \nmove ../tmp templatedir\ncd .. \n";
+        QString batchFileString = cmdList.join("\n");
+        batchFileString += "set PATH=$PATH$;"+pythonPath+";"+ openseesPath+";"+ dakotaPath+"\n";
+        batchFileString += "set PYTHONPATH=$PYTHONPATH$;" + pythonPath + "\n";
+        batchFileString += python + " " + args.join(" ");
+        QString batFilePath = SimCenterPreferences::getInstance()->getLocalWorkDir()+ QDir::separator() + "backendLauncher.bat";
+        QFile file(batFilePath);
+        file.open(QIODevice::WriteOnly);
+        file.write(batchFileString.toUtf8());
+    }
 
     theMainProcessHandler->startProcess(python,args,"backend", nullptr);
 

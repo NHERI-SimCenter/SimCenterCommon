@@ -1,4 +1,5 @@
-// Written: fmckenna
+#ifndef SimCenterUQ_RESULTS_MF_SAMPLING_H
+#define SimCenterUQ_RESULTS_MF_SAMPLING_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -38,45 +39,72 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include "FEA_Selection.h"
-#include <InputWidgetOpenSeesAnalysis.h>
-#include <SimCenterAppMulti.h>
-#include <CustomPySimulation.h>
-#include <QCoreApplication>
-#include <SurrogateSimulation.h>
-#include <QCoreApplication>
+#include <UQ_Results.h>
+#include <QtCharts/QChart>
+#include <QMessageBox>
+#include <QPushButton>
+#include <ResultsDataChart.h>
 
-FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
-  : SimCenterAppSelection(QString("FE Application"), QString("Simulation"), parent)
+
+//using namespace QtCharts;
+
+class QTextEdit;
+class QTabWidget;
+class MyTableWidget;
+class MainWindow;
+class RandomVariablesContainer;
+
+//class QChart;
+
+class SimCenterUQResultsMFSampling : public UQ_Results
 {
+    Q_OBJECT
+public:
+  explicit SimCenterUQResultsMFSampling(RandomVariablesContainer *, QWidget *parent = 0);
+    ~SimCenterUQResultsMFSampling();
 
-  SimCenterAppWidget *opensees= new InputWidgetOpenSeesAnalysis();
-  this->addComponent(QString("OpenSees"), QString("OpenSees-Simulation"), opensees);
-  if (inclMulti == true) {
-    SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Simulation"), QString("MultiModel-Simulation"),this, this);
-    this->addComponent(QString("Multiple Models"), QString("MultiModel"), multi);
-  }  
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
 
-  SimCenterAppWidget *custom_py_simulation= new CustomPySimulation();
-  this->addComponent(QString("CustomPy-Simulation"), QString("CustomPy-Simulation"), custom_py_simulation);
+    int processResults(QString &dirName);  
+    QWidget *createResultEDPWidget(QString &name, QVector<double> statistics, int flags, bool logTrans);
 
-  QString appName = QCoreApplication::applicationName();
-  if (appName == "EE-UQ") {
-     SimCenterAppWidget *surrogate = new SurrogateSimulation();
-      this->addComponent(QString("None (only for surrogate)"), QString("SurrogateSimulation"), surrogate);
-  }
+signals:
 
-}
+public slots:
+   void clear(void);
+//   void onSpreadsheetCellClicked(int, int);
+//   void onSaveSpreadsheetClicked();
+//   void onSaveSpreadsheetSeparatelyClicked();
+   // modified by padhye 08/25/2018
 
-FEA_Selection::~FEA_Selection()
-{
+private:
+  
+   int processResults(QString &filenameResults, QString &filenameTab);
+   bool getNamesAndSummary(QVector<QString> & qoiNames, QVector<QVector<double>> & statistics, QVector<int> & flags) ;
+    bool createSummary(QScrollArea *&sa);
 
-}
+   QJsonObject resObj;
+   RandomVariablesContainer *theRVs;
+   QTabWidget *tabWidget;
+
+   //MyTableWidget *spreadsheet;  // MyTableWidget inherits the QTableWidget
+   //QChart *chart;
+   //QPushButton* save_spreadheet; // save the data from spreadsheet
+   //QLabel *label;
+   //QLabel *best_fit_instructions;
 
 
-SimCenterAppWidget *
-FEA_Selection::getClone()
-{
-  FEA_Selection *newSelection = new FEA_Selection(false);
-  return newSelection;
-}
+   QVector<QString>theNames;
+   QVector<double>theMeans;
+   QVector<double>theStdDevs;
+   QVector<double>theSpeedUps;
+   QVector<double>theKurtosis;
+   QVector<double>theSkewness;
+
+   ResultsDataChart * theDataTable;
+   bool isSurrogate = false;
+
+};
+
+#endif // SimCenterUQ_RESULTS_MF_SAMPLING_H

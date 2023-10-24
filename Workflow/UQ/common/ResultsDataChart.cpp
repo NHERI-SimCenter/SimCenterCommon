@@ -131,7 +131,7 @@ ResultsDataChart::ResultsDataChart(QJsonObject spread, QWidget *parent)
 
 //    this->readTableFromTab(filenameTab);
 //    spreadsheet->setSelectionBehavior(QAbstractItemView::SelectRows);
-    
+
 //    if (rowCount==0) {
 //        errorMessage("ERROR: reading Results - no result widget set!");
 //        dataGood = false;
@@ -176,7 +176,8 @@ ResultsDataChart::ResultsDataChart(QString filenameTab, int nRV, bool checkSurro
     }
 
     this->readTableFromTab(filenameTab);
-    spreadsheet->setSelectionBehavior(QAbstractItemView::SelectRows);
+    //spreadsheet->setSelectionBehavior(QAbstractItemView::SelectRows);
+    spreadsheet->setSelectionBehavior(QAbstractItemView::SelectColumns);
 
     if (rowCount==0) {
         errorMessage("ERROR: reading Results - no result widget set!");
@@ -218,7 +219,8 @@ ResultsDataChart::ResultsDataChart(QString rvFileName, QString qoiFileName, int 
 
     this->readTableFromTxt(rvFileName, xdim, listRVs, 0); // starting column 0
     this->readTableFromTxt(qoiFileName, ydim, listQoIs, xdim); // starting column xdim
-    spreadsheet->setSelectionBehavior(QAbstractItemView::SelectRows);
+    //spreadsheet->setSelectionBehavior(QAbstractItemView::SelectRows);
+    spreadsheet->setSelectionBehavior(QAbstractItemView::SelectColumns);
 
 
     if (rowCount==0) {
@@ -1205,16 +1207,24 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
 
         //This is to calculate the correlation coefficient
         double sum_X = 0., sum_Y = 0., sum_XY = 0.;
-        double squareSum_X = 0., squareSum_Y = 0.;
+        double squareSum_X = 0., squareSum_Y = 0.;        
+        int n_eff = 0;
 
         for (int i=0; i<rowCount; i++) {
+
+            //  "-" is there, we will not consider that as a value.
+
             QTableWidgetItem *itemX = spreadsheet->item(i,col1);    //col1 goes in x-axis, col2 on y-axis
             //col1=0;
             QTableWidgetItem *itemY = spreadsheet->item(i,col2);
             QTableWidgetItem *itemOld = spreadsheet->item(i,oldCol);
+            itemOld->setData(Qt::BackgroundRole, QColor(Qt::white));
             itemX->setData(Qt::BackgroundRole, QColor(Qt::lightGray));
             itemY->setData(Qt::BackgroundRole, QColor(Qt::lightGray));
-            itemOld->setData(Qt::BackgroundRole, QColor(Qt::white));
+
+            if((spreadsheet->item(i,col1)->text()=="-")|| (spreadsheet->item(i,col2)->text()=="-"))  {
+                continue;
+            }
 
             double x = itemX->text().toDouble();
             double y = itemY->text().toDouble();
@@ -1230,9 +1240,11 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
             // sum of square of array elements.
             squareSum_X = squareSum_X + x * x;
             squareSum_Y = squareSum_Y + y * y;
+
+            n_eff+=1;
         }
 
-        double corr = ((double)rowCount * sum_XY - sum_X * sum_Y)/ sqrt(((double)rowCount * squareSum_X - sum_X * sum_X) * ((double)rowCount * squareSum_Y - sum_Y * sum_Y));
+        double corr = ((double)n_eff * sum_XY - sum_X * sum_Y)/ sqrt(((double)n_eff * squareSum_X - sum_X * sum_X) * ((double)n_eff * squareSum_Y - sum_Y * sum_Y));
 
 
         series_selected->append(spreadsheet->item(row,col1)->text().toDouble(), spreadsheet->item(row,col2)->text().toDouble());
@@ -1264,6 +1276,10 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
         double minX, maxX;
         double minY, maxY;
         for (int i=0; i<rowCount; i++) {
+
+            if((spreadsheet->item(i,col1)->text()=="-")|| (spreadsheet->item(i,col2)->text()=="-"))  {
+                continue;
+            }
 
             QTableWidgetItem *itemX = spreadsheet->item(i,col1);
             QTableWidgetItem *itemY = spreadsheet->item(i,col2);
@@ -1348,11 +1364,21 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
 
         double min = 0;
         double max = 0;
+        int n_eff = 0;
+
         for (int i=0; i<rowCount; i++) {
+
+
             QTableWidgetItem *itemX = spreadsheet->item(i,col1);
             QTableWidgetItem *itemOld = spreadsheet->item(i,oldCol);
-            itemOld->setData(Qt::BackgroundRole, QColor(Qt::white));
-            itemX->setData(Qt::BackgroundRole, QColor(Qt::lightGray));
+                itemOld->setData(Qt::BackgroundRole, QColor(Qt::white));
+                itemX->setData(Qt::BackgroundRole, QColor(Qt::lightGray));
+
+            if((spreadsheet->item(i,col1)->text()=="-"))  {
+                continue;
+            }
+
+
             double value = itemX->text().toDouble();
             dataValues[i] =  value;
 
@@ -1364,6 +1390,8 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
             } else if (value > max) {
                 max = value;
             }
+
+            n_eff+=1;
         }
 
         // if constant
@@ -1380,6 +1408,10 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
             double dRange = range/NUM_DIVISIONS_FOR_DIVISION;
 
             for (int i=0; i<rowCount; i++) {
+
+                if((spreadsheet->item(i,col1)->text()=="-"))  {
+                    continue;
+                }
                 // compute block belongs to, watch under and overflow due to numerics
                 int block = floor((dataValues[i]-min)/dRange);
                 if (block < 0) block = 0;
@@ -1389,7 +1421,7 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
 
             double maxPercent = 0;
             for (int i=0; i<NUM_DIVISIONS; i++) {
-                histogram[i] = histogram[i]/rowCount;
+                histogram[i] = histogram[i]/n_eff;
                 if (histogram[i] > maxPercent)
                     maxPercent = histogram[i];
             }
@@ -1577,8 +1609,13 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
 
             series->append(xAxisMin,0);
             for (int i=0; i<rowCount; i++) {
-                series->append(dataValues[i], 1.0*i/rowCount);
-                series->append(dataValues[i], 1.0*(i+1)/rowCount);
+
+                if((spreadsheet->item(i,col1)->text()=="-"))  {
+                    continue;
+                }
+
+                series->append(dataValues[i], 1.0*i/n_eff);
+                series->append(dataValues[i], 1.0*(i+1)/n_eff);
                 //qDebug()<<"\n the dataValues[i] and rowCount is     "<<dataValues[i]<<"\t"<<rowCount<<"";
             }
             series->append(xAxisMax, 1.0);
@@ -1614,8 +1651,12 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
 
 
     if (! sameCell){
-        spreadsheet->item(row,col1)->setData(Qt::BackgroundRole, QColor::fromRgb(220,180,180));
-        spreadsheet->item(row,col2)->setData(Qt::BackgroundRole, QColor::fromRgb(220,180,180));
+        //spreadsheet->item(row,col1)->setData(Qt::BackgroundRole, QColor::fromRgb(220,180,180));
+        //spreadsheet->item(row,col2)->setData(Qt::BackgroundRole, QColor::fromRgb(220,180,180));
+        //spreadsheet->item(0,0)->setSelected(true);
+        spreadsheet->clearSelection();
+        spreadsheet->item(row,col1)->setSelected(true);
+        spreadsheet->item(row,col2)->setSelected(true);
         spreadsheet->scrollToItem(spreadsheet->item(row,col2));
     }
 
@@ -1660,6 +1701,9 @@ void ResultsDataChart::highlightCell(QPointF point)
                 //we have found our value so we can update 'i' row
                 //spreadsheet->item(i,col1)->setData(Qt::BackgroundRole, QColor::fromRgb(255,200,200));
                 //spreadsheet->item(i,col2)->setData(Qt::BackgroundRole, QColor::fromRgb(255,200,200));
+                spreadsheet->clearSelection();
+                spreadsheet->item(i,col2)->setSelected(true);
+                spreadsheet->item(i,col1)->setSelected(true);
                 if (mLeft) {
                     onSpreadsheetCellClicked(i, col2);
                 }else {
@@ -1801,8 +1845,12 @@ void ResultsDataChart::overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxi
 
         // find min/max
         double minX, maxX, minY, maxY;
+        int n_eff = 0;
         for (int i=0; i<rowCount; i++) {
-
+            if ((spreadsheet->item(i,col1)->text()=="-")&&(spreadsheet->item(i,col2)->text()=="-"))
+            {
+                continue;
+            }
             double valueXl = spreadsheet->item(i,col1_lbm)->text().toDouble(); // bounds based on w_mnoise
             double valueYl = spreadsheet->item(i,col2_lbm)->text().toDouble();
             double valueXu = spreadsheet->item(i,col1_ubm)->text().toDouble();
@@ -1826,7 +1874,7 @@ void ResultsDataChart::overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxi
             if(valueYu>maxY){maxY=valueYu;}
             if(valueYs<minY){minY=valueYs;} // sample may lie outside of the range
             if(valueYs>maxY){maxY=valueYs;}
-
+            n_eff+=1;
         }
 
         double xRange=maxX-minX;
@@ -1842,6 +1890,12 @@ void ResultsDataChart::overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxi
         QPen pen_m;
         pen_m.setWidth(markerSize/5);
         for (int i=0; i<rowCount; i++) {
+
+            if ((spreadsheet->item(i,col1)->text()=="-")&&(spreadsheet->item(i,col2)->text()=="-"))
+            {
+                continue;
+            }
+
             QLineSeries *series_err_m = new QLineSeries;
             series_err_m->append(spreadsheet->item(i,col1_lbm)->text().toDouble(), spreadsheet->item(i,col2_lbm)->text().toDouble());
             series_err_m->append(eps*spreadsheet->item(i,col1_ubm)->text().toDouble(), eps*spreadsheet->item(i,col2_ubm)->text().toDouble());
@@ -1862,6 +1916,13 @@ void ResultsDataChart::overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxi
         QPen pen;
         pen_m.setWidth(markerSize/5);
         for (int i=0; i<rowCount; i++) {
+
+
+            if ((spreadsheet->item(i,col1)->text()=="-")&&(spreadsheet->item(i,col2)->text()=="-"))
+            {
+                continue;
+            }
+
             QLineSeries *series_err = new QLineSeries;
             series_err->append(spreadsheet->item(i,col1_lb)->text().toDouble(), spreadsheet->item(i,col2_lb)->text().toDouble());
             series_err->append(eps*spreadsheet->item(i,col1_ub)->text().toDouble(), eps*spreadsheet->item(i,col2_ub)->text().toDouble());
@@ -1880,6 +1941,12 @@ void ResultsDataChart::overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxi
         //
 
         for (int i=0; i<rowCount; i++) {
+
+            if ((spreadsheet->item(i,col1)->text()=="-")&&(spreadsheet->item(i,col2)->text()=="-"))
+            {
+                continue;
+            }
+
             QTableWidgetItem *itemX = spreadsheet->item(i,col1_mean);    //col1 goes in x-axis, col2 on y-axis
             //col1=0;
             QTableWidgetItem *itemY = spreadsheet->item(i,col2_mean);

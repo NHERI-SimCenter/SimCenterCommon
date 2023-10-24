@@ -67,7 +67,6 @@ void CreateSessionId()
 
 void sendReport();
 
-
 void Report(QString eventCategory, QString eventName)
 {
     // no tracking if no tracking ID set

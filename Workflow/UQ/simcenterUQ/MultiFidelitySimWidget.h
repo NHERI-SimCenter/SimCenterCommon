@@ -1,4 +1,5 @@
-// Written: fmckenna
+#ifndef MULTI_FIDELITY_SIM_WIDGET_H
+#define MULTI_FIDELITY_SIM_WIDGET_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -19,7 +20,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -38,45 +39,46 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include "FEA_Selection.h"
-#include <InputWidgetOpenSeesAnalysis.h>
-#include <SimCenterAppMulti.h>
-#include <CustomPySimulation.h>
-#include <QCoreApplication>
-#include <SurrogateSimulation.h>
-#include <QCoreApplication>
+#include <UQ_Method.h>
+#include "SC_DoubleLineEdit.h"
+#include "SC_IntLineEdit.h"
+#include "SC_CheckBox.h"
 
-FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
-  : SimCenterAppSelection(QString("FE Application"), QString("Simulation"), parent)
+class QLineEdit;
+class QHBoxLayout;
+class QCheckBox;
+class QLabel;
+class MultiFidelitySimWidget : public UQ_Method
 {
+    Q_OBJECT
+public:
+    explicit MultiFidelitySimWidget(QWidget *parent = 0);
+    ~MultiFidelitySimWidget();
 
-  SimCenterAppWidget *opensees= new InputWidgetOpenSeesAnalysis();
-  this->addComponent(QString("OpenSees"), QString("OpenSees-Simulation"), opensees);
-  if (inclMulti == true) {
-    SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Simulation"), QString("MultiModel-Simulation"),this, this);
-    this->addComponent(QString("Multiple Models"), QString("MultiModel"), multi);
-  }  
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+    void clear(void);
 
-  SimCenterAppWidget *custom_py_simulation= new CustomPySimulation();
-  this->addComponent(QString("CustomPy-Simulation"), QString("CustomPy-Simulation"), custom_py_simulation);
+    int getNumberTasks(void);
+    void setEventType(QString type);
 
-  QString appName = QCoreApplication::applicationName();
-  if (appName == "EE-UQ") {
-     SimCenterAppWidget *surrogate = new SurrogateSimulation();
-      this->addComponent(QString("None (only for surrogate)"), QString("SurrogateSimulation"), surrogate);
-  }
+public slots:
+    void updateHelpText(QString);
+    void onEventTypeChanged(QString typeEVT);
 
-}
+signals:
+    void eventTypeChanged(QString typeEVT);
 
-FEA_Selection::~FEA_Selection()
-{
+private:
+    SC_DoubleLineEdit *maxTime;
+    SC_IntLineEdit *seed;
+    SC_IntLineEdit *numPilot;
+    QHBoxLayout *advancedLayout;
+    QCheckBox *advancedCheckBox;
+    QWidget * advancedGroup;
+    QLabel *helpText;
+    SC_CheckBox *logTransformCheckBox;
+    QString typeEVT;
+};
 
-}
-
-
-SimCenterAppWidget *
-FEA_Selection::getClone()
-{
-  FEA_Selection *newSelection = new FEA_Selection(false);
-  return newSelection;
-}
+#endif // MULTI_FIDELITY_SIM_WIDGET_H

@@ -37,6 +37,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "SimCenterUQInputSampling.h"
 #include <SimCenterUQResultsSampling.h>
+#include <SimCenterUQResultsMFSampling.h>
 #include <RandomVariablesContainer.h>
 
 
@@ -58,7 +59,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <QStackedWidget>
 #include <MonteCarloInputSimWidget.h>
-#include <ImportSamplesWidget.h>
+#include <MultiFidelitySimWidget.h>
+//#include <ImportSamplesWidget.h>
 //#include <LatinHypercubeInputWidget.h>
 //#include <ImportanceSamplingInputWidget.h>
 //#include <GaussianProcessInputWidget.h>
@@ -79,6 +81,7 @@ SimCenterUQInputSampling::SimCenterUQInputSampling(QWidget *parent)
     label1->setText(QString("Method"));
     samplingMethod = new QComboBox();
     samplingMethod->addItem(tr("Monte Carlo"));
+    samplingMethod->addItem(tr("Multi-fidelity Monte Carlo"));
 
     samplingMethod->setMaximumWidth(200);
     samplingMethod->setMinimumWidth(200);
@@ -92,7 +95,9 @@ SimCenterUQInputSampling::SimCenterUQInputSampling(QWidget *parent)
     theStackedWidget = new QStackedWidget();
 
     theMC = new MonteCarloInputSimWidget();
+    theMF = new MultiFidelitySimWidget();
     theStackedWidget->addWidget(theMC);
+    theStackedWidget->addWidget(theMF);
 
     // set current widget to index 0
     theStackedWidget->setCurrentIndex(0);
@@ -164,10 +169,10 @@ void SimCenterUQInputSampling::onTextChanged(const QString &text)
     theStackedWidget->setCurrentIndex(0);
     theCurrentMethod = theMC;  
   }
-//  else if (text=="Importance Sampling") {
-//    theStackedWidget->setCurrentIndex(2);
-//    theCurrentMethod = theIS;
-//  }
+  else if (text=="Multi-fidelity Monte Carlo") {
+    theStackedWidget->setCurrentIndex(1);
+    theCurrentMethod = theMF;
+  }
 //  else if (text=="Gaussian Process Regression") {
 //    theStackedWidget->setCurrentIndex(3);
 //    theCurrentMethod = theGP;
@@ -333,7 +338,14 @@ SimCenterUQInputSampling::inputAppDataFromJSON(QJsonObject &jsonObject)
 UQ_Results *
 SimCenterUQInputSampling::getResults(void) {
     qDebug() << "RETURNED SimCenterUQRESULTSSAMPLING";
-    return new SimCenterUQResultsSampling(RandomVariablesContainer::getInstance());
+
+    if (samplingMethod->currentText()==QString("Monte Carlo")) {
+        return new SimCenterUQResultsSampling(RandomVariablesContainer::getInstance());
+    } else if (samplingMethod->currentText()==QString("Multi-fidelity Monte Carlo")) {
+        return new SimCenterUQResultsMFSampling(RandomVariablesContainer::getInstance());
+    }
+
+
 }
 
 void
@@ -345,6 +357,12 @@ SimCenterUQInputSampling::setRV_Defaults(void) {
   theRVs->setDefaults(engineType, classType, Normal);
 }
 
+
+void SimCenterUQInputSampling::setEventType(QString type) {
+    typeEVT = type;
+    emit eventTypeChanged(typeEVT);
+    theMF->setEventType(typeEVT);
+}
 
 QString
 SimCenterUQInputSampling::getMethodName(void){

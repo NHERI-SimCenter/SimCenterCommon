@@ -44,6 +44,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QGridLayout>
 #include <QPushButton>
 #include <QJsonArray>
+#include <QDebug>
 
 SC_TableEdit::SC_TableEdit(QString theKey, QStringList colHeadings, int numRows, QStringList dataValues)
   :QWidget()
@@ -111,6 +112,7 @@ SC_TableEdit::outputToJSON(QJsonObject &jsonObject)
 {
   int numRow = theTable->rowCount();
   int numColumn = theTable->columnCount();
+  //  qDebug() << "SC_TableEdit::outputToJson: numRow: " << numRow << " numCol: " << numCol;
   QJsonArray theArray;
   
   for (int i=0; i<numRow; i++) {
@@ -142,35 +144,47 @@ SC_TableEdit::inputFromJSON(QJsonObject &jsonObject)
    if (jsonObject.contains(key)) {
 
      QJsonValue theValue = jsonObject[key];
+     
        if (!theValue.isArray()) {
            return false;
        }
 
        QJsonArray theArray = theValue.toArray();
-       int numRows = theArray.size();
+       QJsonValue firstRow = theArray.at(0);
+       QJsonArray firstRowArray = firstRow.toArray();
+       int numRows = theArray.size();       
+       int numCols = firstRowArray.size();
+
+       theTable->clearContents();
        theTable->setRowCount(numRows);
-       
+       theTable->setColumnCount(numCols);       
+
        for (int i=0; i<numRows; i++) {
+	 
 	 QJsonValue theRowValue = theArray.at(i);
 	 if (!theRowValue.isArray()) {
            return false;
 	 }
 	 QJsonArray theRowArray = theRowValue.toArray();
-	 int numCols = theRowArray.size();
-	 if (numCols != theTable->columnCount())
+	 int numColsRow = theRowArray.size();
+	 if (numColsRow != numCols)
 	   return false;
-	 QTableWidgetItem *cellItem = new QTableWidgetItem();
+	 
 	 for (int j=0; j<numCols; j++) {
+
+	   QTableWidgetItem *cellItem = new QTableWidgetItem();
+	   
 	   QJsonValue theItemValue = theRowArray.at(j);
 	   if (theItemValue.isString()) {
 	     cellItem->setText(theItemValue.toString());
-	   } else if (theValue.isDouble()) {
+	   } else if (theItemValue.isDouble()) {
 	     cellItem->setText(QString::number(theItemValue.toDouble()));
 	   }
 	   theTable->setItem(i,j,cellItem);
 	 }
        }
-       
+   } else {
+     qDebug() << "SC_TableEdit::inputFromJSON - no key: " << key << " found in input";
    }
    
    return true;

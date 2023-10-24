@@ -223,6 +223,8 @@ void UQ_EngineSelection::methodSelectionChanged(QString MethodName) {
 
 void UQ_EngineSelection::engineSelectionChanged(QString arg1)
 {
+    emit queryEVT();
+
     engineName =  arg1;
     if (arg1 == "Dakota" || arg1 == "Dakota-UQ") {
         theCurrentEngine = theDakotaEngine;

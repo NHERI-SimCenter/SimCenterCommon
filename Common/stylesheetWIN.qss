@@ -95,6 +95,19 @@ QLabel#inTitle {
     font-weight: bold;
 }
 
+/* sy - testing global styles*/
+QLabel#warningMsg {
+    color: red;
+}
+
+QLabel#infoMsg {
+    color: blue;
+}
+
+QLabel#helpMsg {
+    color: grey;
+}
+
 QLabel{
     font-size: 10pt;
 }

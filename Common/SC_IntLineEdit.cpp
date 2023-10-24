@@ -47,7 +47,9 @@ SC_IntLineEdit::SC_IntLineEdit(QString theKey, int initValue)
   this->setValidator(theValidator);
   
   key = theKey;
-  this->setText(QString::number(initValue));  
+  this->setText(QString::number(initValue));
+
+  this->setMaximumWidth(200);
 }
 
 

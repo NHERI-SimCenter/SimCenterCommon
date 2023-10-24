@@ -34,6 +34,31 @@ QString getConfigOptionString(QString option) {
 }
 
 
+bool getConfigOptionInteger(QString option, int &returnValue) {
+  
+  bool res = false;
+  
+  QString appPath = QCoreApplication::applicationDirPath();
+  QString configFile = appPath + QDir::separator() + QString("config.json");
+  QFile jsonFile(configFile);
+
+  if (jsonFile.exists() && jsonFile.open(QFile::ReadOnly)) {
+
+    QJsonDocument exDoc = QJsonDocument::fromJson(jsonFile.readAll());
+    QJsonObject jsonObject = exDoc.object();
+    if (jsonObject.contains(option)) {
+
+      QJsonValue value = jsonObject[option];
+      returnValue = value.toInt(returnValue);
+      return true;
+
+    }
+  } 
+
+  return res;
+}
+
+
 QJsonObject getConfigOptionJSON(QString option) {
   QJsonObject res;
   
