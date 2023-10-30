@@ -497,9 +497,10 @@ SimCenterPreferences::resetPreferences(bool) {
 
     QString remoteAppName;
     if (QCoreApplication::applicationName() == QString("WE-UQ")) 
-      remoteAppName = QString("simcenter-openfoam-dakota-1.1.0u2");
+      remoteAppName = QString("simcenter-openfoam-frontera-1.0.0u2");
     else
       remoteAppName = QString("simcenter-dakota-1.0.0u1");
+    
 
     settingsApplication.setValue("remoteAgaveApp-Mar2020", remoteAppName);
     remoteAgaveApp->setText(remoteAppName);

@@ -10,6 +10,7 @@
 #include "SimCenterPreferences.h"
 #include "Utils/ProgramOutputDialog.h"
 #include "Utils/RelativePathResolver.h"
+#include "Utils/SimCenterConfigFile.h"
 #include "Utils/dialogabout.h"
 #include "WorkflowAppWidget.h"
 
@@ -60,19 +61,50 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
 
     statusDockWidget->setWidget(statusWidget);
 
+    Qt::DockWidgetArea placementArea = Qt::BottomDockWidgetArea;
+    
     //    QString appName = QCoreApplication::applicationName();
     if (appName.contains("PBE")) {
-      
-      this->addDockWidget(Qt::RightDockWidgetArea, statusDockWidget);
+      placementArea = Qt::RightDockWidgetArea;
+      //      this->addDockWidget(Qt::RightDockWidgetArea, statusDockWidget);
       resizeDocks({statusDockWidget}, {500}, Qt::Horizontal);
-      
     }  else {
-      
       resizeDocks({statusDockWidget}, {30}, Qt::Vertical);
-      this->addDockWidget(Qt::BottomDockWidgetArea, statusDockWidget);
-      
-    } 
+      // this->addDockWidget(Qt::BottomDockWidgetArea, statusDockWidget);
+    }
 
+    QJsonObject outputOptions = getConfigOptionJSON("helpLocation");
+    if (outputOptions.contains("position")) {
+      QJsonValue value = outputOptions["position"];
+      if (value.isString()) {
+	QString placement = value.toString();
+	qDebug() << "POSITION " << placement;	
+	if (placement == "Right")
+	  placementArea = Qt::RightDockWidgetArea;
+	else if (placement == "Left")
+	  placementArea = Qt::LeftDockWidgetArea;
+	else if (placement == "Bottom")
+	  placementArea = Qt::BottomDockWidgetArea;
+	else if (placement == "Top")
+	  placementArea = Qt::TopDockWidgetArea;	    	  
+      }
+    }
+    
+    if (outputOptions.contains("verticalSize")) {
+      QJsonValue value = outputOptions["verticalSize"];
+      int size = value.toInt();
+      qDebug() << "VERICAL SIZE " << size;
+      resizeDocks({statusDockWidget}, {size}, Qt::Vertical);	
+    }
+    
+    if (outputOptions.contains("horizontalSize")) {
+      QJsonValue value = outputOptions["horizontalSize"];
+      int size = value.toInt();
+      qDebug() << "HORIZONTAL SIZE " << size;      
+      resizeDocks({statusDockWidget}, {size}, Qt::Horizontal);	
+    }
+      
+    this->addDockWidget(placementArea, statusDockWidget);  
       
 
     connect(statusWidget,&ProgramOutputDialog::showDialog,statusDockWidget,&QDockWidget::setVisible);
@@ -105,9 +137,13 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     width = abs(0.85*width);    
     
     // if (width>1280) width=1280;
-    this->resize(width, height);
 
-
+    
+    if (getConfigOptionString("screenSize") == "fullScreen")
+      this->showMaximized();
+    else
+      this->resize(width, height);
+    
     //
     // add SimCenter Header
     //

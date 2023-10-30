@@ -162,7 +162,7 @@ bool
 UQ_JsonEngine::copyFiles(QString &fileDir) {
   
     Q_UNUSED(fileDir);
-    QString googleString=QString("UQ-CustomUQ-") + this->getMethodName();
+    QString googleString=QString("UQ_CustomUQ_") + this->getMethodName();
     GoogleAnalytics::ReportAppUsage(googleString);
 
     return true;

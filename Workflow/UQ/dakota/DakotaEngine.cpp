@@ -325,7 +325,7 @@ DakotaEngine::fixMethod(QString Methodname) {
 }
 bool
 DakotaEngine::copyFiles(QString &fileDir) {
-    QString googleString=QString("UQ-DAKOTA-") + this->getMethodName();
+    QString googleString=QString("UQ_DAKOTA_") + this->getMethodName();
     GoogleAnalytics::ReportAppUsage(googleString);
 
     return theCurrentEngine->copyFiles(fileDir);

@@ -65,7 +65,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 SimCenterUQEngine::SimCenterUQEngine(UQ_EngineType type, QWidget *parent)
   : UQ_Engine(parent), theCurrentEngine(0)
 {
-  
+
     QVBoxLayout *layout = new QVBoxLayout();
 
     bool doForward = true;
@@ -154,9 +154,6 @@ void SimCenterUQEngine::methodSelectionChanged(const QString &arg1)
 
     // theEdpWidget->showAdvancedSensitivity(false);
 
-    typeEVT = "None";
-    this->setEventType(typeEVT);
-    emit queryEVT();
     if (arg1 == QString("Forward Propagation")) {
         theStackedWidget->setCurrentIndex(0);
         theCurrentEngine = theSamplingEngine;
@@ -298,7 +295,7 @@ SimCenterUQEngine::fixMethod(QString Methodname) {
 
 bool
 SimCenterUQEngine::copyFiles(QString &fileDir) {
-    QString googleString=QString("UQ-SimCenterUQ-") + this->getMethodName();
+    QString googleString=QString("UQ_SimCenterUQ_") + this->getMethodName();
     GoogleAnalytics::ReportAppUsage(googleString);
 
     return theCurrentEngine->copyFiles(fileDir);
@@ -308,4 +305,5 @@ void
 SimCenterUQEngine::setEventType(QString type) {
     thePLoMEngine->setEventType(type);
     theSurrogateEngine->setEventType(type);
+    theSamplingEngine->setEventType(type);
 }

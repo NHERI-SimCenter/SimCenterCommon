@@ -64,6 +64,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <ZipUtils.h>
 #include <QCoreApplication>
 
+
 RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QWidget *parent)
 : Application(parent), theRemoteService(theService)
 {
@@ -79,7 +80,7 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
 
     int numRow = 0;
 
-    nameLabel->setText(QString("job Name:"));
+    nameLabel->setText(QString("Job Name:"));
     layout->addWidget(nameLabel, numRow,0);
 
     nameLineEdit = new QLineEdit();
@@ -104,7 +105,7 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
     layout->addWidget(numProcessorsLabel,numRow,0);
 
     numProcessorsLineEdit = new QLineEdit();
-    numProcessorsLineEdit->setText("32");
+    numProcessorsLineEdit->setText(QString::number(maxProcPerNode));
         numProcessorsLineEdit->setToolTip(tr("Total # of Processes to Start"));
     layout->addWidget(numProcessorsLineEdit,numRow,1);
 
@@ -174,6 +175,11 @@ RemoteApplication::outputToJSON(QJsonObject &jsonObject)
 
     jsonObject["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();    
     jsonObject["runType"]=QString("runningRemote");
+    int nodeCount = numCPU_LineEdit->text().toInt();
+    int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
+    jsonObject["nodeCount"]=nodeCount;
+    jsonObject["numP"]=nodeCount*numProcessorsPerNode;    
+    jsonObject["processorsOnEachNode"]=numProcessorsPerNode;    
 
     return true;
 }
@@ -279,6 +285,8 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
             return false;
         }
 
+	qDebug() << "RUNNING: " << python << " " << args;
+	
         proc->execute(python,args);
         proc->waitForStarted();
 

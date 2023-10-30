@@ -1,5 +1,5 @@
-#ifndef SC_FILE_EDIT_H
-#define SC_FILE_EDIT_H
+#ifndef SimCenterUQ_RESULTS_MF_SAMPLING_H
+#define SimCenterUQ_RESULTS_MF_SAMPLING_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -20,7 +20,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -37,44 +37,74 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-/**
- *  @author  fmckenna
- *  @date    2/2017
- *  @version 1.0
- *
- *  @section DESCRIPTION
- *
- *  This is a combo box for SimCenter, implements input/output To JSON
- */
+// Written: fmckenna
 
-#include <QWidget>
-#include <QString>
-class QLineEdit;
+#include <UQ_Results.h>
+#include <QtCharts/QChart>
+#include <QMessageBox>
+#include <QPushButton>
+#include <ResultsDataChart.h>
 
-class QJsonObject;
 
-class SC_FileEdit : public QWidget
+//using namespace QtCharts;
+
+class QTextEdit;
+class QTabWidget;
+class MyTableWidget;
+class MainWindow;
+class RandomVariablesContainer;
+
+//class QChart;
+
+class SimCenterUQResultsMFSampling : public UQ_Results
 {
-  
+    Q_OBJECT
 public:
-  
-  SC_FileEdit(QString key);
-  SC_FileEdit(QString key, QString toolTip);
-  ~SC_FileEdit();
-  
-  bool outputToJSON(QJsonObject &jsonObject);
-  bool inputFromJSON(QJsonObject &jsonObject);
-  
-  QString getFilename(void);  
-  void setFilename(QString &fileName);
-  
-  bool copyFile(QString &destDir);
-  
+  explicit SimCenterUQResultsMFSampling(RandomVariablesContainer *, QWidget *parent = 0);
+    ~SimCenterUQResultsMFSampling();
+
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+
+    int processResults(QString &dirName);  
+    QWidget *createResultEDPWidget(QString &name, QVector<double> statistics, int flags, bool logTrans);
+
 signals:
-  
+
+public slots:
+   void clear(void);
+//   void onSpreadsheetCellClicked(int, int);
+//   void onSaveSpreadsheetClicked();
+//   void onSaveSpreadsheetSeparatelyClicked();
+   // modified by padhye 08/25/2018
+
 private:
-  QString key;
-  QLineEdit *theFile;
+  
+   int processResults(QString &filenameResults, QString &filenameTab);
+   bool getNamesAndSummary(QVector<QString> & qoiNames, QVector<QVector<double>> & statistics, QVector<int> & flags) ;
+    bool createSummary(QScrollArea *&sa);
+
+   QJsonObject resObj;
+   RandomVariablesContainer *theRVs;
+   QTabWidget *tabWidget;
+
+   //MyTableWidget *spreadsheet;  // MyTableWidget inherits the QTableWidget
+   //QChart *chart;
+   //QPushButton* save_spreadheet; // save the data from spreadsheet
+   //QLabel *label;
+   //QLabel *best_fit_instructions;
+
+
+   QVector<QString>theNames;
+   QVector<double>theMeans;
+   QVector<double>theStdDevs;
+   QVector<double>theSpeedUps;
+   QVector<double>theKurtosis;
+   QVector<double>theSkewness;
+
+   ResultsDataChart * theDataTable;
+   bool isSurrogate = false;
+
 };
 
-#endif // SC_FILE_EDIT_H
+#endif // SimCenterUQ_RESULTS_MF_SAMPLING_H

@@ -6,7 +6,7 @@
 namespace GoogleAnalytics {
 enum SessionControl {Start, End, None};
 
-void Report(QString eventAction, QString category = "Action", SessionControl sessionControl = None);
+void Report(QString eventCategory, QString eventName = "Action");
 void ReportStart();
 void ReportLocalRun();
 void ReportDesignSafeRun();
@@ -14,9 +14,13 @@ void ReportAppUsage(QString appName);
 void StartSession();
 void EndSession();
 QUuid GetCommonClientId();
-void SetTrackingId(QString trackingId);
+void SetMeasurementId(QString measurementId);
+void SetAPISecret(QString api_secret);
+void CreateSessionId();
 
-static QString trackingId = "";
+static QString _measurementId = "";
 static QNetworkAccessManager networkManager;
+static QUuid _sessionId;
+static QString _api_secret;
 }
 #endif // GOOGLEANALYTICS_H

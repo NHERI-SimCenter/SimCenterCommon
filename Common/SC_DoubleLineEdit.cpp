@@ -48,6 +48,8 @@ SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey, double initValue)
   
   key = theKey;
   this->setText(QString::number(initValue));  
+
+  this->setMaximumWidth(200);
 }
 
 

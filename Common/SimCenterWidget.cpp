@@ -39,6 +39,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SimCenterWidget.h>
 #include <Utils/ProgramOutputDialog.h>
 
+
 SimCenterWidget::SimCenterWidget(QWidget *parent)
     :QWidget(parent)
 {
@@ -92,14 +93,18 @@ SimCenterWidget::infoMessage(const QString& message)
     progressDialog->appendInfoMessage(message);
 }
 
-void
-SimCenterWidget::blankLineMessage()
-{
-    progressDialog->appendBlankLine();
-}
-
 ProgramOutputDialog*
 SimCenterWidget::getProgressDialog() const
 {
     return progressDialog;
 }
+
+
+
+void
+SimCenterWidget::blankLineMessage(void)
+{
+    progressDialog->appendBlankLine();
+}
+
+

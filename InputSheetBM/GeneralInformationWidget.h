@@ -85,6 +85,8 @@ public:
 
     int getNumFloors(void);
     double getHeight(void);
+    double getWidth(void);
+    double getDepth(void);
     void getBuildingDimensions(double &newWidth, double &newDepth, double &planArea);
     void getBuildingLocation(double &latitude, double &longitude);
     QString getLengthUnit();

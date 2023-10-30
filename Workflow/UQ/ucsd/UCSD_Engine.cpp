@@ -230,7 +230,7 @@ UCSD_Engine::fixMethod(QString Methodname) {
 
 bool
 UCSD_Engine::copyFiles(QString &fileName) {
-    QString googleString=QString("UQ-UCSD-") + this->getMethodName();
+    QString googleString=QString("UQ_UCSD_") + this->getMethodName();
     GoogleAnalytics::ReportAppUsage(googleString);
     return theCurrentMethod->copyFiles(fileName);
 }
