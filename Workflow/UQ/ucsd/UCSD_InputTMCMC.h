@@ -50,7 +50,7 @@ class UCSD_InputTMCMC : public UQ_Method
 {
     Q_OBJECT
 public:
-    explicit UCSD_TMMC(QWidget *parent = 0);
+    explicit UCSD_InputTMCMC(QWidget *parent = 0);
     virtual ~UCSD_InputTMCMC();
 
     bool outputToJSON(QJsonObject &rvObject);
