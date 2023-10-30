@@ -52,7 +52,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <QDebug>
 
-#include <UCSD_TMMC.h>
+#include <UCSD_InputTMCMC.h>
 
 UCSD_Engine::UCSD_Engine(UQ_EngineType type, QWidget *parent)
 : UQ_Engine(parent), theCurrentMethod(0)
@@ -91,7 +91,7 @@ UCSD_Engine::UCSD_Engine(UQ_EngineType type, QWidget *parent)
     // create the individual widgets add to stacked widget
     //
 
-    theTMMC = new UCSD_TMMC();
+    theTMMC = new UCSD_InputTMCMC();
     theStackedWidget->addWidget(theTMMC);
 
     layout->addWidget(theStackedWidget);

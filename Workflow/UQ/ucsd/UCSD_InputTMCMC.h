@@ -1,5 +1,5 @@
-#ifndef UCSD_TMMC_H
-#define UCSD_TMMC_H
+#ifndef UCSD_INPUTTMCMC_H
+#define UCSD_INPUTTMCMC_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -46,12 +46,12 @@ class QCheckBox;
 class QLabel;
 class QFrame;
 
-class UCSD_TMMC : public UQ_Method
+class UCSD_InputTMCMC : public UQ_Method
 {
     Q_OBJECT
 public:
     explicit UCSD_TMMC(QWidget *parent = 0);
-    virtual ~UCSD_TMMC();
+    virtual ~UCSD_InputTMCMC();
 
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
@@ -90,4 +90,4 @@ private:
   QLineEdit *maxRunTime;
 };
 
-#endif // UCSD_TMMC_H
+#endif // UCSD_INPUTTMCMC_H
