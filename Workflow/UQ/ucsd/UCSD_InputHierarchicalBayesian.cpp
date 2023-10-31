@@ -202,9 +202,10 @@ void UCSD_InputHierarchicalBayesian::updateDatasetGroupBox()
     QString groupBoxTitle = "The following " + QString::number(numDataDirectories) + " datasets were found in the chosen directory:";
 
     dataDirectoriesGroupBox->setTitle(groupBoxTitle);
-    for (QLabel *label : selectedDatasetDirectoriesVector)
+    for (int i=0; i<selectedDatasetDirectoriesVector.size(); ++i) {
+        QLabel *label = selectedDatasetDirectoriesVector.at(i);
         dataDirectoriesBoxLayout->addWidget(label);
-
+    }
     if (selectedDirectory.isEmpty()) {
         dataDirectoriesGroupBox->hide();
     } else dataDirectoriesGroupBox->show();
