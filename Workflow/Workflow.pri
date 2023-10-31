@@ -42,6 +42,7 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/UQ/simcenterUQ/PLoMSimuWidget.cpp \
     $$PWD/UQ/customUQ/CustomUQ_Results.cpp \
     $$PWD/UQ/customUQ/UQ_JsonEngine.cpp \
+    $$PWD/UQ/ucsd/UCSD_InputBayesianCalibration.cpp \
     $$PWD/UQ/ucsd/UCSD_InputHierarchicalBayesian.cpp \
     $$PWD/UQ/ucsd/UCSD_InputTMCMC.cpp \
     $$PWD/UQ/uqpy/UQpyEngine.cpp\
@@ -154,6 +155,7 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/UQ/UQ_Results.h \
     $$PWD/UQ/UQ_Engine.h \
     $$PWD/UQ/NoneEngine.h \     \
+    $$PWD/UQ/ucsd/UCSD_InputBayesianCalibration.h \
     $$PWD/UQ/ucsd/UCSD_InputHierarchicalBayesian.h \
     $$PWD/UQ/ucsd/UCSD_InputTMCMC.h \
     $$PWD/UQ/UQ_Method.h \
