@@ -39,12 +39,20 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna, bsaakash
 
+#include <QLabel>
 #include <UQ_Method.h>
+#include <QLineEdit>
+#include <QGridLayout>
+#include <QPushButton>
+#include <QGroupBox>
+#include <QVBoxLayout>
 
 class UCSD_InputHierarchicalBayesian : public UQ_Method
 {
+    Q_OBJECT
 public:
     UCSD_InputHierarchicalBayesian();
+    ~UCSD_InputHierarchicalBayesian();
 
     // SimCenterWidget interface
 public:
@@ -58,6 +66,30 @@ public:
     void setRV_Defaults();
     void setEventType(QString typeEVT);
     void clear();
+
+    void updateCalDataMainDirectory();
+    void updateSelectedDatasets();
+    void updateDatasetDirectoriesVector();
+    void updateDatasetGroupBox();
+
+public slots:
+    void updateCalDataFileName(const QString &text);
+    void updateDatasetDirectories();
+
+private:
+    QLineEdit *sampleSize;
+    QLineEdit *randomState;
+    QLineEdit *calDataFileEdit;
+    QString calDataFileName;
+    QLineEdit *calDataMainDirectory;
+    QLineEdit *logLikelihoodScript;
+    QGridLayout *layout;
+    QPushButton *selectDataDirectoryButton;
+    QStringList datasetDirectories;
+//    QStringList selectedDirectoriesList;
+    QVBoxLayout* dataDirectoriesBoxLayout;
+    QVector<QLabel*> selectedDatasetDirectoriesVector;
+    QGroupBox *dataDirectoriesGroupBox;
 };
 
 #endif // UCSD_INPUTHIERARCHICALBAYESIAN_H
