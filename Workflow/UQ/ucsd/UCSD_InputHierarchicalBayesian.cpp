@@ -162,7 +162,10 @@ void UCSD_InputHierarchicalBayesian::updateCalDataMainDirectory()
     QStringList selectedDirectoriesList;
     if (dialog.exec())
         selectedDirectoriesList = dialog.selectedFiles();
-    QString selectedDirectory = selectedDirectoriesList.at(0);
+    QString selectedDirectory;
+    if (selectedDirectoriesList.size() > 0) {
+        selectedDirectory = selectedDirectoriesList.at(0);
+    }
     calDataMainDirectory->setText(selectedDirectory);
 }
 
@@ -183,7 +186,9 @@ void UCSD_InputHierarchicalBayesian::updateDatasetDirectoriesVector()
     selectedDatasetDirectoriesVector.clear();
 
     // Add new labels for the selected filenames to the vector
-    for (const QString& dirPath : datasetDirectories) {
+//    int len = this->datasetDirectories.size();
+    for (int i=0; i < datasetDirectories.size(); ++i) {
+        QString dirPath = datasetDirectories.at(i);
 //        QLabel* label = new QLabel(dirPath + QDir::separator() + calDataFileName, this);
         QLabel* label = new QLabel(dirPath, this);
         selectedDatasetDirectoriesVector.append(label);
