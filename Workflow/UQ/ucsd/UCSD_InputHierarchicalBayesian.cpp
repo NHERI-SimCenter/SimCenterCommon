@@ -206,8 +206,12 @@ void UCSD_InputHierarchicalBayesian::updateDatasetGroupBox()
 {
     QString selectedDirectory = calDataMainDirectory->text();
     int numDataDirectories = selectedDatasetDirectoriesVector.size();
-    QString groupBoxTitle = "The following " + QString::number(numDataDirectories) + " datasets were found in the chosen directory:";
-
+    QString groupBoxTitle;
+    if (numDataDirectories == 0) {
+        groupBoxTitle = "No subdirectories were found in the chosen directory";
+    } else {
+        groupBoxTitle = "The following " + QString::number(numDataDirectories) + " datasets were found in the chosen directory:";
+    }
     dataDirectoriesGroupBox->setTitle(groupBoxTitle);
     for (int i=0; i<selectedDatasetDirectoriesVector.size(); ++i) {
         QLabel *label = selectedDatasetDirectoriesVector.at(i);
