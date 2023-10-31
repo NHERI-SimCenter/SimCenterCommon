@@ -337,7 +337,7 @@ int UCSD_Results::processResults(QString &filenameTab, QString &filenameTabPrior
     tabWidget->addTab(theDataTable, tr("Data Values"));
 //    tabWidget->addTab(theDataTable, tr("Posterior"));
 //    tabWidget->addTab(theDataTableCalData, tr("Calibration Data"));
-    tabWidget->addTab(thePlot, tr("Plots"));
+//    tabWidget->addTab(thePlot, tr("Predictions"));
     tabWidget->adjustSize();
 
     statusMessage(tr(""));
