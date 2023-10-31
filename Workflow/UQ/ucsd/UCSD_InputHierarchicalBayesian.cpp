@@ -38,6 +38,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna, bsaakash
 
 #include "UCSD_InputHierarchicalBayesian.h"
+#include <QCollator>
 #include <QIntValidator>
 #include <time.h>
 #include <QFileDialog>
@@ -173,7 +174,13 @@ void UCSD_InputHierarchicalBayesian::updateDatasetDirectories()
 {
     QString selectedDirectory = calDataMainDirectory->text();
     QDir mainDir(selectedDirectory);
-    datasetDirectories = mainDir.entryList(QDir::NoDot | QDir::NoDotDot | QDir::Dirs);
+    mainDir.setFilter(QDir::NoDot | QDir::NoDotDot | QDir::Dirs);
+//    mainDir.setSorting(QDir::NoSort);
+    datasetDirectories = mainDir.entryList();
+
+    QCollator collator;
+    collator.setNumericMode(true);
+    std::sort(datasetDirectories.begin(), datasetDirectories.end(), collator);
 }
 
 void UCSD_InputHierarchicalBayesian::updateDatasetDirectoriesVector()
