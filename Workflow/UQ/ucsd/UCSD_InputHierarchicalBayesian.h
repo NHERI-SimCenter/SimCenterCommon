@@ -39,6 +39,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna, bsaakash
 
+#include <QFileInfo>
 #include <QLabel>
 #include <UQ_Method.h>
 #include <QLineEdit>
@@ -46,6 +47,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QPushButton>
 #include <QGroupBox>
 #include <QVBoxLayout>
+#include <QJsonObject>
 
 class UCSD_InputHierarchicalBayesian : public UQ_Method
 {
@@ -85,7 +87,8 @@ private:
     QLineEdit *logLikelihoodScript;
     QGridLayout *layout;
     QPushButton *selectDataDirectoryButton;
-    QStringList datasetDirectories;
+    QStringList datasetList;
+//    QFileInfoList *datasetDirectories;
 //    QStringList selectedDirectoriesList;
     QVBoxLayout* dataDirectoriesBoxLayout;
     QVector<QLabel*> selectedDatasetDirectoriesVector;

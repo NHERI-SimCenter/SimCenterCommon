@@ -176,11 +176,21 @@ void UCSD_InputHierarchicalBayesian::updateDatasetDirectories()
     QDir mainDir(selectedDirectory);
     mainDir.setFilter(QDir::NoDot | QDir::NoDotDot | QDir::Dirs);
 //    mainDir.setSorting(QDir::NoSort);
-    datasetDirectories = mainDir.entryList();
-
+    QFileInfoList tempDatasetDirectories = mainDir.entryInfoList();
+    datasetList.clear();
+    for (int i=0; i<tempDatasetDirectories.size(); ++i) {
+        QString dirPath = tempDatasetDirectories.at(i).canonicalFilePath();
+        calDataFileName = "output_data.txt";
+        QString calDataOutputFile = dirPath + QDir::separator() + calDataFileName;
+        qDebug() << "i: " << i << "calDataOutputFile: " << calDataOutputFile;
+        QFileInfo calFile(calDataOutputFile);
+        calFile.setCaching(false);
+        if (calFile.exists() && calFile.isFile())
+            datasetList.append(calDataOutputFile);
+    }
     QCollator collator;
     collator.setNumericMode(true);
-    std::sort(datasetDirectories.begin(), datasetDirectories.end(), collator);
+    std::sort(datasetList.begin(), datasetList.end(), collator);
 }
 
 void UCSD_InputHierarchicalBayesian::updateDatasetDirectoriesVector()
@@ -194,8 +204,8 @@ void UCSD_InputHierarchicalBayesian::updateDatasetDirectoriesVector()
 
     // Add new labels for the selected filenames to the vector
 //    int len = this->datasetDirectories.size();
-    for (int i=0; i < datasetDirectories.size(); ++i) {
-        QString dirPath = datasetDirectories.at(i);
+    for (int i=0; i < datasetList.size(); ++i) {
+        QString dirPath = datasetList.at(i);
 //        QLabel* label = new QLabel(dirPath + QDir::separator() + calDataFileName, this);
         QLabel* label = new QLabel(dirPath, this);
         selectedDatasetDirectoriesVector.append(label);
@@ -208,9 +218,9 @@ void UCSD_InputHierarchicalBayesian::updateDatasetGroupBox()
     int numDataDirectories = selectedDatasetDirectoriesVector.size();
     QString groupBoxTitle;
     if (numDataDirectories == 0) {
-        groupBoxTitle = "No subdirectories were found in the chosen directory";
+        groupBoxTitle = "No subdirectories containing " + calDataFileName + " were found in the chosen directory";
     } else {
-        groupBoxTitle = "The following " + QString::number(numDataDirectories) + " datasets were found in the chosen directory:";
+        groupBoxTitle = "The following " + QString::number(numDataDirectories) + " datasets for calibration were found in the chosen directory:";
     }
     dataDirectoriesGroupBox->setTitle(groupBoxTitle);
     for (int i=0; i<selectedDatasetDirectoriesVector.size(); ++i) {
