@@ -82,17 +82,17 @@ public slots:
     void updateListsOfCalibrationDatasetsAndDirectories();
 
 private:
-    QLineEdit *sampleSize;
-    QLineEdit *randomState;
-    QLineEdit *calDataFileEdit;
+    QLineEdit *sampleSizeLineEdit;
+    QLineEdit *randomStateLineEdit;
+    QLineEdit *calDataFileLineEdit;
     QString calDataFileName;
     QLineEdit *calDataMainDirectoryLineEdit;
     QLineEdit *logLikelihoodScript;
-    QGridLayout *layout;
+    QGridLayout *userInputsGridLayout;
     QPushButton *selectDataDirectoryButton;
     QStringList datasetList;
     QStringList datasetDirectoriesList;
-    QVBoxLayout* dataDirectoriesBoxLayout;
+    QVBoxLayout* dataDirectoriesVBoxLayout;
     QVector<QLabel*> selectedDatasetDirectoriesVector;
     QGroupBox *dataDirectoriesGroupBox;
 };

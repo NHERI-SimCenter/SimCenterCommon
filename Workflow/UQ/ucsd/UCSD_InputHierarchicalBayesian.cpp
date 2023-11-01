@@ -47,23 +47,23 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 UCSD_InputHierarchicalBayesian::UCSD_InputHierarchicalBayesian()
 {
-    sampleSize = new QLineEdit();
-    sampleSize->setText(tr("500"));
+    sampleSizeLineEdit = new QLineEdit();
+    sampleSizeLineEdit->setText(tr("500"));
     QIntValidator *positiveIntegerValidator = new QIntValidator;
     positiveIntegerValidator->setBottom(0);
-    sampleSize->setValidator(positiveIntegerValidator);
-    sampleSize->setToolTip("Specify the number of sample values to be drawn from the posterior");
+    sampleSizeLineEdit->setValidator(positiveIntegerValidator);
+    sampleSizeLineEdit->setToolTip("Specify the number of sample values to be drawn from the posterior");
 
     srand(time(NULL));
     int randomNumber = arc4random() % 1000 + 1;
-    randomState = new QLineEdit();
-    randomState->setText(QString::number(randomNumber));
-    randomState->setValidator(positiveIntegerValidator);
-    randomState->setToolTip("Specify the random state used by the pseudo random number generator. This is used for reproducibility.");
+    randomStateLineEdit = new QLineEdit();
+    randomStateLineEdit->setText(QString::number(randomNumber));
+    randomStateLineEdit->setValidator(positiveIntegerValidator);
+    randomStateLineEdit->setToolTip("Specify the random state used by the pseudo random number generator. This is used for reproducibility.");
 
-    calDataFileEdit = new QLineEdit();
-    calDataFileEdit->setToolTip("Enter the name of the file containing the output data from one of the datasets used for calibrating the model parameters. The same file name must be used across datasets. This file is read from each calibration data directory to find the number of data points in that dataset.");
-    connect(calDataFileEdit, &QLineEdit::textChanged, this, &UCSD_InputHierarchicalBayesian::updateCalDataFileName);
+    calDataFileLineEdit = new QLineEdit();
+    calDataFileLineEdit->setToolTip("Enter the name of the file containing the output data from one of the datasets used for calibrating the model parameters. The same file name must be used across datasets. This file is read from each calibration data directory to find the number of data points in that dataset.");
+    connect(calDataFileLineEdit, &QLineEdit::textChanged, this, &UCSD_InputHierarchicalBayesian::updateCalDataFileName);
 
     calDataMainDirectoryLineEdit = new QLineEdit();
     calDataMainDirectoryLineEdit->setToolTip("Select the directory containing the datasets used for calibration of the hierarchical model. Each dataset must be placed in a separate sub-directory of this directory.");
@@ -73,26 +73,26 @@ UCSD_InputHierarchicalBayesian::UCSD_InputHierarchicalBayesian()
 
     dataDirectoriesGroupBox = new QGroupBox();
     dataDirectoriesGroupBox->hide();
-    dataDirectoriesBoxLayout = new QVBoxLayout(dataDirectoriesGroupBox);
+    dataDirectoriesVBoxLayout = new QVBoxLayout(dataDirectoriesGroupBox);
 
     int row = 0;
-    layout = new QGridLayout();
-    layout->addWidget(new QLabel("Sample Size"), row, 0);
-    layout->addWidget(sampleSize, row++, 1);
-    layout->addWidget(new QLabel("Random State"), row, 0);
-    layout->addWidget(randomState, row++, 1);
-    layout->addWidget(new QLabel("Calibration Data File Name"), row, 0);
-    layout->addWidget(calDataFileEdit, row++, 1);
-    layout->addWidget(new QLabel("Calibration Datasets Directory"), row, 0);
-    layout->addWidget(calDataMainDirectoryLineEdit, row, 1, 1, 3);
-    layout->addWidget(selectDataDirectoryButton, row++, 4);
-    layout->setColumnStretch(3, 1);
+    userInputsGridLayout = new QGridLayout();
+    userInputsGridLayout->addWidget(new QLabel("Sample Size"), row, 0);
+    userInputsGridLayout->addWidget(sampleSizeLineEdit, row++, 1);
+    userInputsGridLayout->addWidget(new QLabel("Random State"), row, 0);
+    userInputsGridLayout->addWidget(randomStateLineEdit, row++, 1);
+    userInputsGridLayout->addWidget(new QLabel("Calibration Data File Name"), row, 0);
+    userInputsGridLayout->addWidget(calDataFileLineEdit, row++, 1);
+    userInputsGridLayout->addWidget(new QLabel("Calibration Datasets Directory"), row, 0);
+    userInputsGridLayout->addWidget(calDataMainDirectoryLineEdit, row, 1, 1, 3);
+    userInputsGridLayout->addWidget(selectDataDirectoryButton, row++, 4);
+    userInputsGridLayout->setColumnStretch(3, 1);
 
-    QVBoxLayout *mainLayout = new QVBoxLayout();
-    mainLayout->addLayout(layout);
-    mainLayout->addWidget(dataDirectoriesGroupBox);
-    mainLayout->addStretch();
-    this->setLayout(mainLayout);
+    QVBoxLayout *mainVBoxLayout = new QVBoxLayout();
+    mainVBoxLayout->addLayout(userInputsGridLayout);
+    mainVBoxLayout->addWidget(dataDirectoriesGroupBox);
+    mainVBoxLayout->addStretch();
+    this->setLayout(mainVBoxLayout);
 
     this->initialize();
 
@@ -205,7 +205,7 @@ void UCSD_InputHierarchicalBayesian::updateVectorOfDatasetLabels()
 {
     // Remove any previously added labels from the layout and delete them
     for (QLabel* label : qAsConst(selectedDatasetDirectoriesVector)) {
-      dataDirectoriesBoxLayout->removeWidget(label);
+      dataDirectoriesVBoxLayout->removeWidget(label);
       delete label;
     }
     selectedDatasetDirectoriesVector.clear();
@@ -234,7 +234,7 @@ void UCSD_InputHierarchicalBayesian::updateDatasetGroupBox()
         dataDirectoriesGroupBox->setTitle(groupBoxTitle);
         for (int i=0; i<selectedDatasetDirectoriesVector.size(); ++i) {
             QLabel *label = selectedDatasetDirectoriesVector.at(i);
-            dataDirectoriesBoxLayout->addWidget(label);
+            dataDirectoriesVBoxLayout->addWidget(label);
         }
         if (selectedDirectory.isEmpty()) {
             dataDirectoriesGroupBox->hide();
@@ -249,7 +249,7 @@ void UCSD_InputHierarchicalBayesian::updateDatasetGroupBox()
 void UCSD_InputHierarchicalBayesian::initialize()
 {
     const QString defaultCalDataFileName = "output_data.txt";
-    calDataFileEdit->setText(defaultCalDataFileName);
+    calDataFileLineEdit->setText(defaultCalDataFileName);
     //    this->updateCalDataFileName(defaultCalDataFileName);
 }
 
