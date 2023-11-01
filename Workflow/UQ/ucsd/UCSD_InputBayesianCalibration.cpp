@@ -87,7 +87,9 @@ UCSD_InputBayesianCalibration::onTextChanged(const QString &text)
 {
     auto iterator = modelToSamplerWidgetMap.find(text);
     if (iterator == modelToSamplerWidgetMap.end()) {
-        qDebug() << "ERROR .. UCSD_InputBayesianCalibration .. no method " << text;
+        QString message = "ERROR .. UCSD_InputBayesianCalibration .. no method " + text;
+        qDebug() << message;
+        errorMessage(message);
         return;
     } else {
         theCurrentMethod = iterator->second;
@@ -106,6 +108,7 @@ bool UCSD_InputBayesianCalibration::outputToJSON(QJsonObject &jsonObject)
     QString model = modelCombobox->currentText();
     jsonObject["uqType"] = modelToMethodNameMap.find(model)->second;
     jsonObject["method"] = "Bayesian Calibration";
+    this->onTextChanged(model);
     bool result = theCurrentMethod->outputToJSON(jsonObject);
     return result;
 }
@@ -129,6 +132,7 @@ bool UCSD_InputBayesianCalibration::inputFromJSON(QJsonObject &jsonObject)
             return false;
         }
         modelCombobox->setCurrentIndex(index);
+        this->onTextChanged(modelKey);
         result = theCurrentMethod->inputFromJSON(jsonObject);
         if (result == false)
             return result;
