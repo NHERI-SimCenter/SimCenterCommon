@@ -43,7 +43,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <time.h>
 #include <QFileDialog>
 #include <QDebug>
-
+#include <QJsonValue>
 
 UCSD_InputHierarchicalBayesian::UCSD_InputHierarchicalBayesian()
 {
@@ -105,22 +105,82 @@ UCSD_InputHierarchicalBayesian::~UCSD_InputHierarchicalBayesian()
 
 void UCSD_InputHierarchicalBayesian::updateSelectedDatasets()
 {
-    this->updateCalDataMainDirectory();
-    this->updateDatasetDirectories();
-    this->updateDatasetDirectoriesVector();
-    this->updateDatasetGroupBox();
+    this->selectCalDataMainDirectory();
+    this->updateDisplayOfLabels();
 }
 
 bool UCSD_InputHierarchicalBayesian::outputToJSON(QJsonObject &jsonObject)
 {
-    Q_UNUSED(jsonObject);
-    return false;
+    jsonObject["Sample Size"] = sampleSizeLineEdit->text().toInt();
+    jsonObject["Random State"] = randomStateLineEdit->text().toInt();
+    jsonObject["Calibration Data File Name"] = calDataFileName;
+    jsonObject["Calibration Datasets Directory"] = calDataMainDirectoryLineEdit->text();
+    return true;
 }
 
 bool UCSD_InputHierarchicalBayesian::inputFromJSON(QJsonObject &jsonObject)
 {
-    Q_UNUSED(jsonObject);
-    return false;
+    bool result = true;
+    QString msg;
+    QString key;
+
+    key = "Sample Size";
+    if (jsonObject.contains(key)) {
+        QJsonValue value = jsonObject[key];
+        if (value.isDouble()) {
+            this->sampleSizeLineEdit->setText(QString::number(value.toInt()));
+        } else {
+            msg = "The value in the JSON file corresponding to " + key + " is not a number.";
+            result = this->handleInputFromJSONError(msg);
+        }
+    } else {
+        msg = "The JSON file does not contain the key " + key + ".";
+        result = this->handleInputFromJSONError(msg);
+    }
+
+    key = "Random State";
+    if (jsonObject.contains(key)) {
+        QJsonValue value = jsonObject[key];
+        if (value.isDouble()) {
+            this->randomStateLineEdit->setText(QString::number(value.toInt()));
+        } else {
+            msg = "The value in the JSON file corresponding to " + key + " is not a number.";
+            result = this->handleInputFromJSONError(msg);
+        }
+    } else {
+        msg = "The JSON file does not contain the key " + key + ".";
+        result = this->handleInputFromJSONError(msg);
+    }
+
+    key = "Calibration Data File Name";
+    if (jsonObject.contains(key)) {
+        QJsonValue value = jsonObject[key];
+        if (value.isString()) {
+            this->calDataFileLineEdit->setText(value.toString());
+        } else {
+            msg = "The value in the JSON file corresponding to " + key + " is not a string.";
+            result = this->handleInputFromJSONError(msg);
+        }
+    } else {
+        msg = "The JSON file does not contain the key " + key + ".";
+        result = this->handleInputFromJSONError(msg);
+    }
+
+    key = "Calibration Datasets Directory";
+    if (jsonObject.contains(key)) {
+        QJsonValue value = jsonObject[key];
+        if (value.isString()) {
+            this->calDataMainDirectoryLineEdit->setText(value.toString());
+        } else {
+            msg = "The value in the JSON file corresponding to " + key + " is not a string.";
+            result = this->handleInputFromJSONError(msg);
+        }
+    } else {
+        msg = "The JSON file does not contain the key " + key + ".";
+        result = this->handleInputFromJSONError(msg);
+    }
+
+    return result;
 }
 
 int UCSD_InputHierarchicalBayesian::getNumberTasks()
@@ -250,7 +310,6 @@ void UCSD_InputHierarchicalBayesian::initialize()
 {
     const QString defaultCalDataFileName = "output_data.txt";
     calDataFileLineEdit->setText(defaultCalDataFileName);
-    //    this->updateCalDataFileName(defaultCalDataFileName);
 }
 
 void UCSD_InputHierarchicalBayesian::updateDisplayOfLabels()
@@ -258,6 +317,13 @@ void UCSD_InputHierarchicalBayesian::updateDisplayOfLabels()
     this->updateListsOfCalibrationDatasetsAndDirectories();
     this->updateVectorOfDatasetLabels();
     this->updateDatasetGroupBox();
+}
+
+bool UCSD_InputHierarchicalBayesian::handleInputFromJSONError(QString &msg)
+{
+    qDebug() << msg;
+    errorMessage(msg);
+    return false;
 }
 
 

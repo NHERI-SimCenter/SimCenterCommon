@@ -76,6 +76,7 @@ public:
     void updateDatasetGroupBox();
     void initialize();
     void updateDisplayOfLabels();
+    bool handleInputFromJSONError(QString &msg);
 
 public slots:
     void updateCalDataFileName(const QString &text);
