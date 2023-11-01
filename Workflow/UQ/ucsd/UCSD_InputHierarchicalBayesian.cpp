@@ -125,7 +125,7 @@ bool UCSD_InputHierarchicalBayesian::inputFromJSON(QJsonObject &jsonObject)
 
 int UCSD_InputHierarchicalBayesian::getNumberTasks()
 {
-    return 1;
+    return this->datasetList.size();
 }
 
 bool UCSD_InputHierarchicalBayesian::copyFiles(QString &fileDir)
