@@ -44,6 +44,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QFileDialog>
 #include <QDebug>
 #include <QJsonValue>
+#include <QJsonArray>
 
 UCSD_InputHierarchicalBayesian::UCSD_InputHierarchicalBayesian()
 {
@@ -115,6 +116,7 @@ bool UCSD_InputHierarchicalBayesian::outputToJSON(QJsonObject &jsonObject)
     jsonObject["Random State"] = randomStateLineEdit->text().toInt();
     jsonObject["Calibration Data File Name"] = calDataFileName;
     jsonObject["Calibration Datasets Directory"] = calDataMainDirectoryLineEdit->text();
+    jsonObject["List Of Dataset Subdirectories"] = QJsonArray::fromStringList(this->datasetDirectoriesList);
     return true;
 }
 
@@ -130,11 +132,11 @@ bool UCSD_InputHierarchicalBayesian::inputFromJSON(QJsonObject &jsonObject)
         if (value.isDouble()) {
             this->sampleSizeLineEdit->setText(QString::number(value.toInt()));
         } else {
-            msg = "The value in the JSON file corresponding to " + key + " is not a number.";
+            msg = "The value in the JSON file corresponding to '" + key + "' is not a number.";
             result = this->handleInputFromJSONError(msg);
         }
     } else {
-        msg = "The JSON file does not contain the key " + key + ".";
+        msg = "The JSON file does not contain the key '" + key + "'.";
         result = this->handleInputFromJSONError(msg);
     }
 
@@ -144,11 +146,11 @@ bool UCSD_InputHierarchicalBayesian::inputFromJSON(QJsonObject &jsonObject)
         if (value.isDouble()) {
             this->randomStateLineEdit->setText(QString::number(value.toInt()));
         } else {
-            msg = "The value in the JSON file corresponding to " + key + " is not a number.";
+            msg = "The value in the JSON file corresponding to '" + key + "' is not a number.";
             result = this->handleInputFromJSONError(msg);
         }
     } else {
-        msg = "The JSON file does not contain the key " + key + ".";
+        msg = "The JSON file does not contain the key '" + key + "'.";
         result = this->handleInputFromJSONError(msg);
     }
 
@@ -158,11 +160,11 @@ bool UCSD_InputHierarchicalBayesian::inputFromJSON(QJsonObject &jsonObject)
         if (value.isString()) {
             this->calDataFileLineEdit->setText(value.toString());
         } else {
-            msg = "The value in the JSON file corresponding to " + key + " is not a string.";
+            msg = "The value in the JSON file corresponding to '" + key + "' is not a string.";
             result = this->handleInputFromJSONError(msg);
         }
     } else {
-        msg = "The JSON file does not contain the key " + key + ".";
+        msg = "The JSON file does not contain the key '" + key + "'.";
         result = this->handleInputFromJSONError(msg);
     }
 
@@ -172,12 +174,18 @@ bool UCSD_InputHierarchicalBayesian::inputFromJSON(QJsonObject &jsonObject)
         if (value.isString()) {
             this->calDataMainDirectoryLineEdit->setText(value.toString());
         } else {
-            msg = "The value in the JSON file corresponding to " + key + " is not a string.";
+            msg = "The value in the JSON file corresponding to the key'" + key + "' is not a string.";
             result = this->handleInputFromJSONError(msg);
         }
     } else {
-        msg = "The JSON file does not contain the key " + key + ".";
+        msg = "The JSON file does not contain the key '" + key + "'.";
         result = this->handleInputFromJSONError(msg);
+    }
+
+    key = "List Of Dataset Subdirectories";
+    if (jsonObject.contains(key)) {
+        msg = "The value corresponding to the key '" + key + "' is not used. Instead, all the datasets found under the 'Calibration Datasets Directory' are included in the analysis.";
+        infoMessage(msg);
     }
 
     return result;
