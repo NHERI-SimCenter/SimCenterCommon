@@ -69,27 +69,29 @@ public:
     void setEventType(QString typeEVT);
     void clear();
 
-    void updateCalDataMainDirectory();
+public:
+    void selectCalDataMainDirectory();
     void updateSelectedDatasets();
-    void updateDatasetDirectoriesVector();
+    void updateVectorOfDatasetLabels();
     void updateDatasetGroupBox();
+    void initialize();
+    void updateDisplayOfLabels();
 
 public slots:
     void updateCalDataFileName(const QString &text);
-    void updateDatasetDirectories();
+    void updateListsOfCalibrationDatasetsAndDirectories();
 
 private:
     QLineEdit *sampleSize;
     QLineEdit *randomState;
     QLineEdit *calDataFileEdit;
     QString calDataFileName;
-    QLineEdit *calDataMainDirectory;
+    QLineEdit *calDataMainDirectoryLineEdit;
     QLineEdit *logLikelihoodScript;
     QGridLayout *layout;
     QPushButton *selectDataDirectoryButton;
     QStringList datasetList;
-//    QFileInfoList *datasetDirectories;
-//    QStringList selectedDirectoriesList;
+    QStringList datasetDirectoriesList;
     QVBoxLayout* dataDirectoriesBoxLayout;
     QVector<QLabel*> selectedDatasetDirectoriesVector;
     QGroupBox *dataDirectoriesGroupBox;

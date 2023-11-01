@@ -44,6 +44,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QFileDialog>
 #include <QDebug>
 
+
 UCSD_InputHierarchicalBayesian::UCSD_InputHierarchicalBayesian()
 {
     sampleSize = new QLineEdit();
@@ -60,15 +61,15 @@ UCSD_InputHierarchicalBayesian::UCSD_InputHierarchicalBayesian()
     randomState->setValidator(positiveIntegerValidator);
     randomState->setToolTip("Specify the random state used by the pseudo random number generator. This is used for reproducibility.");
 
-//    calDataFileEdit = new QLineEdit();
-//    calDataFileEdit->setText(tr("output_data.txt"));
-//    calDataFileEdit->setToolTip("Enter the name of the file containing the output data from one of the datasets used for calibrating the model parameters. The same file name must be used across datasets. This file is read from each calibration data directory to find the number of data points in that dataset.");
-//    connect(calDataFileEdit, &QLineEdit::textChanged, this, &UCSD_InputHierarchicalBayesian::updateCalDataFileName);
+    calDataFileEdit = new QLineEdit();
+    calDataFileEdit->setToolTip("Enter the name of the file containing the output data from one of the datasets used for calibrating the model parameters. The same file name must be used across datasets. This file is read from each calibration data directory to find the number of data points in that dataset.");
+    connect(calDataFileEdit, &QLineEdit::textChanged, this, &UCSD_InputHierarchicalBayesian::updateCalDataFileName);
 
-    calDataMainDirectory = new QLineEdit();
-    calDataMainDirectory->setToolTip("Select the directory containing the datasets used for calibration of the hierarchical model. Each dataset must be placed in a separate sub-directory of this directory.");
+    calDataMainDirectoryLineEdit = new QLineEdit();
+    calDataMainDirectoryLineEdit->setToolTip("Select the directory containing the datasets used for calibration of the hierarchical model. Each dataset must be placed in a separate sub-directory of this directory.");
     selectDataDirectoryButton = new QPushButton("Choose");
     connect(selectDataDirectoryButton, &QPushButton::clicked, this, &UCSD_InputHierarchicalBayesian::updateSelectedDatasets);
+    connect(calDataMainDirectoryLineEdit, &QLineEdit::textChanged, this, &UCSD_InputHierarchicalBayesian::updateDisplayOfLabels);
 
     dataDirectoriesGroupBox = new QGroupBox();
     dataDirectoriesGroupBox->hide();
@@ -80,11 +81,10 @@ UCSD_InputHierarchicalBayesian::UCSD_InputHierarchicalBayesian()
     layout->addWidget(sampleSize, row++, 1);
     layout->addWidget(new QLabel("Random State"), row, 0);
     layout->addWidget(randomState, row++, 1);
-//    layout->addWidget(new QLabel("Calibration Data File Name"), row, 0);
-//    layout->addWidget(calDataFileEdit, row++, 1);
-//    //   layout->addWidget(chooseCalDataFile, row++, 3);
+    layout->addWidget(new QLabel("Calibration Data File Name"), row, 0);
+    layout->addWidget(calDataFileEdit, row++, 1);
     layout->addWidget(new QLabel("Calibration Datasets Directory"), row, 0);
-    layout->addWidget(calDataMainDirectory, row, 1, 1, 3);
+    layout->addWidget(calDataMainDirectoryLineEdit, row, 1, 1, 3);
     layout->addWidget(selectDataDirectoryButton, row++, 4);
     layout->setColumnStretch(3, 1);
 
@@ -93,6 +93,8 @@ UCSD_InputHierarchicalBayesian::UCSD_InputHierarchicalBayesian()
     mainLayout->addWidget(dataDirectoriesGroupBox);
     mainLayout->addStretch();
     this->setLayout(mainLayout);
+
+    this->initialize();
 
 }
 
@@ -147,13 +149,13 @@ void UCSD_InputHierarchicalBayesian::clear()
 
 void UCSD_InputHierarchicalBayesian::updateCalDataFileName(const QString &text)
 {
-    calDataFileName = text;
-    if (this->calDataMainDirectory)
-        this->updateSelectedDatasets();
-    qDebug() << "text: " << text <<"calDataFileName: " << calDataFileName;
+    this->calDataFileName = text;
+    if (!(this->calDataMainDirectoryLineEdit->text().isEmpty())) {
+        this->updateDisplayOfLabels();
+    }
 }
 
-void UCSD_InputHierarchicalBayesian::updateCalDataMainDirectory()
+void UCSD_InputHierarchicalBayesian::selectCalDataMainDirectory()
 {
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::Directory);
@@ -167,33 +169,39 @@ void UCSD_InputHierarchicalBayesian::updateCalDataMainDirectory()
     if (selectedDirectoriesList.size() > 0) {
         selectedDirectory = selectedDirectoriesList.at(0);
     }
-    calDataMainDirectory->setText(selectedDirectory);
+    this->calDataMainDirectoryLineEdit->setText(selectedDirectory);
 }
 
-void UCSD_InputHierarchicalBayesian::updateDatasetDirectories()
+void UCSD_InputHierarchicalBayesian::updateListsOfCalibrationDatasetsAndDirectories()
 {
-    QString selectedDirectory = calDataMainDirectory->text();
+    this->datasetList.clear();
+    this->datasetDirectoriesList.clear();
+
+    QString selectedDirectory = calDataMainDirectoryLineEdit->text();
     QDir mainDir(selectedDirectory);
-    mainDir.setFilter(QDir::NoDot | QDir::NoDotDot | QDir::Dirs);
-//    mainDir.setSorting(QDir::NoSort);
-    QFileInfoList tempDatasetDirectories = mainDir.entryInfoList();
-    datasetList.clear();
-    for (int i=0; i<tempDatasetDirectories.size(); ++i) {
-        QString dirPath = tempDatasetDirectories.at(i).canonicalFilePath();
-        calDataFileName = "output_data.txt";
-        QString calDataOutputFile = dirPath + QDir::separator() + calDataFileName;
-        qDebug() << "i: " << i << "calDataOutputFile: " << calDataOutputFile;
-        QFileInfo calFile(calDataOutputFile);
-        calFile.setCaching(false);
-        if (calFile.exists() && calFile.isFile())
-            datasetList.append(calDataOutputFile);
+    if (mainDir.exists()) {
+        mainDir.setFilter(QDir::NoDot | QDir::NoDotDot | QDir::Dirs);
+        QFileInfoList tempDatasetDirectories = mainDir.entryInfoList();
+
+        for (int i=0; i<tempDatasetDirectories.size(); ++i) {
+            QString dirPath = tempDatasetDirectories.at(i).canonicalFilePath();
+            QString calDataOutputFile = dirPath + QDir::separator() + this->calDataFileName;
+            QFileInfo calFile(calDataOutputFile);
+            calFile.setCaching(false);
+            if (calFile.exists() && calFile.isFile()) {
+                this->datasetList.append(calDataOutputFile);
+                this->datasetDirectoriesList.append(dirPath);
+            }
+        }
+        QCollator collator;
+        collator.setNumericMode(true);
+        std::sort(this->datasetList.begin(), this->datasetList.end(), collator);
+        std::sort(this->datasetDirectoriesList.begin(), this->datasetDirectoriesList.end(), collator);
     }
-    QCollator collator;
-    collator.setNumericMode(true);
-    std::sort(datasetList.begin(), datasetList.end(), collator);
 }
 
-void UCSD_InputHierarchicalBayesian::updateDatasetDirectoriesVector()
+
+void UCSD_InputHierarchicalBayesian::updateVectorOfDatasetLabels()
 {
     // Remove any previously added labels from the layout and delete them
     for (QLabel* label : qAsConst(selectedDatasetDirectoriesVector)) {
@@ -203,7 +211,6 @@ void UCSD_InputHierarchicalBayesian::updateDatasetDirectoriesVector()
     selectedDatasetDirectoriesVector.clear();
 
     // Add new labels for the selected filenames to the vector
-//    int len = this->datasetDirectories.size();
     for (int i=0; i < datasetList.size(); ++i) {
         QString dirPath = datasetList.at(i);
 //        QLabel* label = new QLabel(dirPath + QDir::separator() + calDataFileName, this);
@@ -214,22 +221,43 @@ void UCSD_InputHierarchicalBayesian::updateDatasetDirectoriesVector()
 
 void UCSD_InputHierarchicalBayesian::updateDatasetGroupBox()
 {
-    QString selectedDirectory = calDataMainDirectory->text();
+    QString selectedDirectory = calDataMainDirectoryLineEdit->text();
     int numDataDirectories = selectedDatasetDirectoriesVector.size();
     QString groupBoxTitle;
-    if (numDataDirectories == 0) {
-        groupBoxTitle = "No subdirectories containing " + calDataFileName + " were found in the chosen directory";
+    QDir mainDir(selectedDirectory);
+    if (mainDir.exists()) {
+        if (numDataDirectories == 0) {
+            groupBoxTitle = "No subdirectories containing '" + calDataFileName + "' were found in the chosen directory";
+        } else {
+            groupBoxTitle = "The following " + QString::number(numDataDirectories) + " datasets for calibration were found in the chosen directory:";
+        }
+        dataDirectoriesGroupBox->setTitle(groupBoxTitle);
+        for (int i=0; i<selectedDatasetDirectoriesVector.size(); ++i) {
+            QLabel *label = selectedDatasetDirectoriesVector.at(i);
+            dataDirectoriesBoxLayout->addWidget(label);
+        }
+        if (selectedDirectory.isEmpty()) {
+            dataDirectoriesGroupBox->hide();
+        } else dataDirectoriesGroupBox->show();
     } else {
-        groupBoxTitle = "The following " + QString::number(numDataDirectories) + " datasets for calibration were found in the chosen directory:";
+        groupBoxTitle = "The directory '" + selectedDirectory + "' does not exist.";
+        dataDirectoriesGroupBox->setTitle(groupBoxTitle);
     }
-    dataDirectoriesGroupBox->setTitle(groupBoxTitle);
-    for (int i=0; i<selectedDatasetDirectoriesVector.size(); ++i) {
-        QLabel *label = selectedDatasetDirectoriesVector.at(i);
-        dataDirectoriesBoxLayout->addWidget(label);
-    }
-    if (selectedDirectory.isEmpty()) {
-        dataDirectoriesGroupBox->hide();
-    } else dataDirectoriesGroupBox->show();
+
+}
+
+void UCSD_InputHierarchicalBayesian::initialize()
+{
+    const QString defaultCalDataFileName = "output_data.txt";
+    calDataFileEdit->setText(defaultCalDataFileName);
+    //    this->updateCalDataFileName(defaultCalDataFileName);
+}
+
+void UCSD_InputHierarchicalBayesian::updateDisplayOfLabels()
+{
+    this->updateListsOfCalibrationDatasetsAndDirectories();
+    this->updateVectorOfDatasetLabels();
+    this->updateDatasetGroupBox();
 }
 
 
