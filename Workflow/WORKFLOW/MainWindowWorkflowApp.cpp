@@ -13,6 +13,7 @@
 #include "Utils/SimCenterConfigFile.h"
 #include "Utils/dialogabout.h"
 #include "WorkflowAppWidget.h"
+#include <ZipUtils.h>
 
 #include <QAction>
 #include <QApplication>
@@ -138,7 +139,6 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     
     // if (width>1280) width=1280;
 
-    
     if (getConfigOptionString("screenSize") == "fullScreen")
       this->showMaximized();
     else
@@ -389,7 +389,66 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
 
 MainWindowWorkflowApp::~MainWindowWorkflowApp()
 {
+  if (getConfigOptionString("handleWorkDirsOnExit") == "zipThem") {
+    
+    thePreferences = SimCenterPreferences::getInstance(this);
 
+    //
+    // local dir first
+    //
+    
+    QString dirToZip = thePreferences->getLocalWorkDir();
+    QDir theLocalDir(dirToZip);
+    if (theLocalDir.exists()) {
+
+      // zip it .. give zip file same name with .zip extension
+      QDir parentDir = theLocalDir;
+      parentDir.cdUp();      
+      QString dirName = theLocalDir.dirName();
+      QString zipFile=parentDir.absoluteFilePath(dirName+QString(".zip"));
+      ZipUtils::ZipFolder(theLocalDir, zipFile);
+
+      // now remove
+      theLocalDir.removeRecursively();
+    }
+
+    //
+    // lastly remote dir
+    //
+
+    dirToZip = thePreferences->getRemoteWorkDir();
+    QDir theRemoteDir(dirToZip);
+    if (theRemoteDir.exists()) {
+
+      // zip it .. give zip file same name with .zip extension
+      QDir parentDir = theRemoteDir;
+      parentDir.cdUp();      
+      QString dirName = theRemoteDir.dirName();
+      QString zipFile=parentDir.absoluteFilePath(dirName+QString(".zip"));
+      ZipUtils::ZipFolder(theRemoteDir, zipFile);
+
+      // now remove
+      theRemoteDir.removeRecursively();
+    }    
+    
+    dirToZip = thePreferences->getLocalWorkDir();      
+  }
+    
+  if (getConfigOptionString("handleWorkDirsOnExit") == "removeThem")  {
+    
+    QString dirToRemove = thePreferences->getLocalWorkDir();
+    QDir theLocalDir(dirToRemove);    
+    if (theLocalDir.exists()) {
+      theLocalDir.removeRecursively();
+    }
+
+    dirToRemove = thePreferences->getRemoteWorkDir();
+    QDir theRemoteDir(dirToRemove);    
+    if (theRemoteDir.exists()) {
+      theRemoteDir.removeRecursively();
+    }    
+    
+  }
 }
 
 
