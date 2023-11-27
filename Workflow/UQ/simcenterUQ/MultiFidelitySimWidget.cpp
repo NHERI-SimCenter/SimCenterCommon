@@ -94,7 +94,7 @@ MultiFidelitySimWidget::MultiFidelitySimWidget(QWidget *parent)
     advancedOptions -> addWidget(logTransformCheckBox,1,1);
 
     advancedOptions -> setColumnStretch(2,1);
-    advancedOptions -> setMargin(0);
+    //advancedOptions -> setMargin(0);
 
     advancedGroup ->setLayout(advancedOptions);
     advancedGroup -> setVisible(false);
@@ -176,5 +176,5 @@ MultiFidelitySimWidget::setEventType(QString type) {
 int
 MultiFidelitySimWidget::getNumberTasks()
 {
-  return 0; // what's this?
+  return 50; // Let's do almost max
 }

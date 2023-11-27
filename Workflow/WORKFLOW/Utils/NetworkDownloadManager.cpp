@@ -444,7 +444,7 @@ void NetworkDownloadManager::fileInfoDownloadFinished(QNetworkReply *reply)
                 return;
             }
 
-            auto downloadLink = downloadFile.at(0)["links"].toObject()["self"].toString();
+           auto downloadLink = downloadFile.at(0)["links"].toObject()["self"].toString();
 
             auto fileHash = downloadFile.at(0)["checksum"].toString();
 

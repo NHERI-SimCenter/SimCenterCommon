@@ -204,8 +204,9 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     python = preferences->getPython();
     QString pythonPath;
     QFileInfo pythonFile(python);
+    QString pythonPath;
     if (pythonFile.exists()) {
-        QString pythonPath = pythonFile.absolutePath();
+        pythonPath = pythonFile.absolutePath();
         colonYes=true;
         exportPath += pythonPath;
         pathEnv = pythonPath + ';' + pathEnv;
@@ -312,6 +313,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     QString openseesPath;
     QString openseesExe = preferences->getOpenSees();
     QFileInfo openseesFile(openseesExe);
+     QString openseesPath;
     if (openseesFile.exists()) {
         openseesPath = openseesFile.absolutePath();
 #ifdef Q_OS_WIN
