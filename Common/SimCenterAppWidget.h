@@ -53,6 +53,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QMainWindow>
 
 class QJsonObject;
+class SC_ResultsWidget;
 
 class SimCenterAppWidget : public SimCenterWidget
 {
@@ -112,7 +113,20 @@ public:
         return nullptr;
     }
 
+  /*
+   *  @brief return a copy of itself
+   *  @return SimCenterAppWidget;
+   */
+  
     virtual SimCenterAppWidget *getClone();
+
+  
+  /*
+   *  @brief return a widget to present the results
+   *  @return SC_ResultsWidget;
+   */
+  
+    virtual SC_ResultsWidget *getResultsWidget();
 
 
 signals:
