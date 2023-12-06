@@ -50,6 +50,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
 #include <SimCenterWidget.h>
+#include <QMainWindow>
 
 class QJsonObject;
 
@@ -101,6 +102,15 @@ public:
 
     static bool copyPath(QString sourceDir, QString destinationDir, bool overWriteDirectory);
     static bool copyFile(QString filename, QString destinationDir);
+
+    /**
+     *   @brief Return a postprocessor. Only called by the DLWidget in R2D.
+     *   @param void
+     *   @return QMainWindow - a pointer to the postprocessor's base class.
+     */
+    QMainWindow* getPostProcessor(QWidget *parent, SimCenterAppWidget* visWidget){
+        return nullptr;
+    }
 
     virtual SimCenterAppWidget *getClone();
 
