@@ -52,7 +52,21 @@ SC_ResultsWidget::processResults(QString &outputFile, QString &dirName){
   return 0;
 }
 
+int
+SC_ResultsWidget::processResults(QString &outputFile, QString &dirName,
+                                     QString &assetType, QList<QString> typesInAssetType){
+  return 0;
+}
+
 void
 SC_ResultsWidget::clear(void) {
 
+}
+
+void SC_ResultsWidget::restoreUI(void){
+
+}
+
+void SC_ResultsWidget::setVisualizationWidget(QWidget *vizWidget){
+  theVizWidget = vizWidget;
 }

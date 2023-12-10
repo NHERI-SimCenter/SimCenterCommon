@@ -126,7 +126,7 @@ public:
    *  @return SC_ResultsWidget;
    */
   
-    virtual SC_ResultsWidget *getResultsWidget();
+    virtual SC_ResultsWidget *getResultsWidget(QWidget* parent = nullptr);
 
 
 signals:
