@@ -1,4 +1,5 @@
-// Written: fmckenna
+#ifndef SC_RESULTS_WIDGET_H
+#define SC_RESULTS_WIDGET_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -38,45 +39,25 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include "FEA_Selection.h"
-#include <InputWidgetOpenSeesAnalysis.h>
-#include <SimCenterAppMulti.h>
-#include <CustomPySimulation.h>
-#include <QCoreApplication>
-#include <SurrogateSimulation.h>
-#include <QCoreApplication>
+#include <SimCenterWidget.h>
 
-FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
-  : SimCenterAppSelection(QString("FE Application"), QString("Simulation"), parent)
+class SC_ResultsWidget : public SimCenterWidget
 {
+    Q_OBJECT
+public:
+    explicit SC_ResultsWidget(QWidget *parent = 0);
+    virtual ~SC_ResultsWidget();
 
-  SimCenterAppWidget *opensees= new InputWidgetOpenSeesAnalysis();
-  this->addComponent(QString("OpenSees"), QString("OpenSees-Simulation"), opensees);
-  if (inclMulti == true) {
-    SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Simulation"), QString("MultiModel-Simulation"),this, this);
-    this->addComponent(QString("Multiple Models"), QString("MultiModel"), multi);
-  }  
+    virtual int processResults(QString &outputFile, QString &dirName);  
+    void clear(void);
 
-  SimCenterAppWidget *custom_py_simulation= new CustomPySimulation();
-  this->addComponent(QString("CustomPy-Simulation"), QString("CustomPy-Simulation"), custom_py_simulation);
+signals:
 
-  QString appName = QCoreApplication::applicationName();
-  if (appName == "EE-UQ") {
-     SimCenterAppWidget *surrogate = new SurrogateSimulation();
-      this->addComponent(QString("None (only for surrogate)"), QString("SurrogateSimulation"), surrogate);
-  }
+public slots:
 
-}
+protected:
 
-FEA_Selection::~FEA_Selection()
-{
+    void extractErrorMsg(QString workDir, QString errFileName, QString uqEngineName, QString &errMsg);
+};
 
-}
-
-
-SimCenterAppWidget *
-FEA_Selection::getClone()
-{
-  FEA_Selection *newSelection = new FEA_Selection(false);
-  return newSelection;
-}
+#endif // SC_RESULTS_WIDGET

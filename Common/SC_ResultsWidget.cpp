@@ -1,5 +1,3 @@
-// Written: fmckenna
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -37,46 +35,24 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written: fmckenna
+#include <SC_ResultsWidget.h>
 
-#include "FEA_Selection.h"
-#include <InputWidgetOpenSeesAnalysis.h>
-#include <SimCenterAppMulti.h>
-#include <CustomPySimulation.h>
-#include <QCoreApplication>
-#include <SurrogateSimulation.h>
-#include <QCoreApplication>
-
-FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
-  : SimCenterAppSelection(QString("FE Application"), QString("Simulation"), parent)
+SC_ResultsWidget::SC_ResultsWidget(QWidget *parent)
+  :SimCenterWidget(parent)
 {
-
-  SimCenterAppWidget *opensees= new InputWidgetOpenSeesAnalysis();
-  this->addComponent(QString("OpenSees"), QString("OpenSees-Simulation"), opensees);
-  if (inclMulti == true) {
-    SimCenterAppWidget *multi = new SimCenterAppMulti(QString("Simulation"), QString("MultiModel-Simulation"),this, this);
-    this->addComponent(QString("Multiple Models"), QString("MultiModel"), multi);
-  }  
-
-  SimCenterAppWidget *custom_py_simulation= new CustomPySimulation();
-  this->addComponent(QString("CustomPy-Simulation"), QString("CustomPy-Simulation"), custom_py_simulation);
-
-  QString appName = QCoreApplication::applicationName();
-  if (appName == "EE-UQ") {
-     SimCenterAppWidget *surrogate = new SurrogateSimulation();
-      this->addComponent(QString("None (only for surrogate)"), QString("SurrogateSimulation"), surrogate);
-  }
-
 }
 
-FEA_Selection::~FEA_Selection()
+SC_ResultsWidget::~SC_ResultsWidget()
 {
 
 }
 
+int
+SC_ResultsWidget::processResults(QString &outputFile, QString &dirName){
+  return 0;
+}
 
-SimCenterAppWidget *
-FEA_Selection::getClone()
-{
-  FEA_Selection *newSelection = new FEA_Selection(false);
-  return newSelection;
+void
+SC_ResultsWidget::clear(void) {
+
 }

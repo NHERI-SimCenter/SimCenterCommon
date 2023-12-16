@@ -336,7 +336,7 @@ bool SimCenterAppSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
 bool SimCenterAppSelection::copyFiles(QString &destDir)
 {
   if (theCurrentSelection != NULL) {
-        QString textForAnalytics = jsonKeyword.replace("-", "_") + QString("_") + theApplicationNames.at(currentIndex);
+    QString textForAnalytics = jsonKeyword.replace("-", "_") + QString("_") + theApplicationNames.at(currentIndex);
     GoogleAnalytics::ReportAppUsage(textForAnalytics);    
     return theCurrentSelection->copyFiles(destDir);
   } else

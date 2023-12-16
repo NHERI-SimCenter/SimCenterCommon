@@ -23,11 +23,13 @@ SOURCES += $$PWD/HeaderWidget.cpp \
     $$PWD/FooterWidget.cpp \
     $$PWD/SimCenterWidget.cpp \
     $$PWD/SC_ComboBox.cpp \
+    $$PWD/SC_CheckBox.cpp \
     $$PWD/SC_DoubleLineEdit.cpp \
     $$PWD/SC_StringLineEdit.cpp \
     $$PWD/SC_IntLineEdit.cpp \
     $$PWD/SC_TableEdit.cpp \
-    $$PWD/SC_FileEdit.cpp \                    
+    $$PWD/SC_FileEdit.cpp \
+    $$PWD/SC_ResultsWidget.cpp \                        
     $$PWD/ModularPython.cpp \
     $$PWD/SimCenterAppWidget.cpp\
     $$PWD/NoArgSimCenterApp.cpp\
@@ -50,11 +52,13 @@ HEADERS += $$PWD/HeaderWidget.h \
     $$PWD/FooterWidget.h \
     $$PWD/SimCenterWidget.h \
     $$PWD/SC_ComboBox.h \
+    $$PWD/SC_CheckBox.h \
     $$PWD/SC_DoubleLineEdit.h \
     $$PWD/SC_StringLineEdit.h \
     $$PWD/SC_IntLineEdit.h \
     $$PWD/SC_TableEdit.h \
-    $$PWD/SC_FileEdit.h \         
+    $$PWD/SC_FileEdit.h \
+    $$PWD/SC_ResultsWidget.h \    
     $$PWD/ModularPython.h \
     $$PWD/NoArgSimCenterApp.h \
     $$PWD/SimCenterAppSelection.h \

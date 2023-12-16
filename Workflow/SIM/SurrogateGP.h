@@ -67,6 +67,7 @@ public:
     bool inputAppDataFromJSON(QJsonObject &rvObject) override;
     bool copyFiles(QString &dirName) override;
     void setMainScript(QString filnema1);
+    SimCenterAppWidget * getClone();
 
 signals:
 

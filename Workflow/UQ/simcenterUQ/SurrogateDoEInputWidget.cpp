@@ -363,7 +363,10 @@ SurrogateDoEInputWidget::SurrogateDoEInputWidget(QWidget *parent)
         }
     });
     theGpAdvancedWidgetLayoutEE->addWidget(im_stackedWidgets,eeid++,0,1,9);
-    //
+    // not an earthquake event, inactivate ground motion intensity widget
+    theGpAdvancedCheckBoxEE->setVisible(false);
+    theGpAdvancedCheckBoxEE->setChecked(false);
+    theLogtCheckBox->setChecked(false);
 
 
     //

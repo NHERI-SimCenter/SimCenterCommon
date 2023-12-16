@@ -74,6 +74,7 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/UQ/simcenterUQ/SimCenterUQEngine.cpp \
     $$PWD/UQ/simcenterUQ/SimCenterUQInputSampling.cpp \
     $$PWD/UQ/simcenterUQ/SimCenterUQResultsSampling.cpp \
+    $$PWD/UQ/simcenterUQ/SimCenterUQResultsMFSampling.cpp \
     $$PWD/UQ/simcenterUQ/SimCenterUQInputSensitivity.cpp \
     $$PWD/UQ/simcenterUQ/SimCenterUQResultsSensitivity.cpp \
     $$PWD/UQ/simcenterUQ/SimCenterUQInputSurrogate.cpp \
@@ -86,6 +87,7 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/UQ/simcenterUQ/SimCenterUQResultsPLoM.cpp \
     $$PWD/UQ/simcenterUQ/ImportSamplesWidget.cpp \
     $$PWD/UQ/simcenterUQ/MonteCarloInputSimWidget.cpp \
+    $$PWD/UQ/simcenterUQ/MultiFidelitySimWidget.cpp \
     $$PWD/WORKFLOW/MainWindowWorkflowApp.cpp \
     $$PWD/WORKFLOW/WorkflowAppWidget.cpp \
     $$PWD/WORKFLOW/SimCenterComponentSelection.cpp \
@@ -185,6 +187,7 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/UQ/simcenterUQ/SimCenterUQEngine.h \
     $$PWD/UQ/simcenterUQ/SimCenterUQInputSampling.h \
     $$PWD/UQ/simcenterUQ/SimCenterUQResultsSampling.h \
+    $$PWD/UQ/simcenterUQ/SimCenterUQResultsMFSampling.h \
     $$PWD/UQ/simcenterUQ/SimCenterUQInputSensitivity.h \
     $$PWD/UQ/simcenterUQ/SimCenterUQResultsSensitivity.h \
     $$PWD/UQ/simcenterUQ/SimCenterUQInputSurrogate.h \
@@ -197,6 +200,7 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/UQ/simcenterUQ/SimCenterUQResultsPLoM.h \
     $$PWD/UQ/simcenterUQ/ImportSamplesWidget.h \
     $$PWD/UQ/simcenterUQ/MonteCarloInputSimWidget.h \
+    $$PWD/UQ/simcenterUQ/MultiFidelitySimWidget.h \
     $$PWD/UQ/uqpy/UQpyResultsSubsetSim.h \
     $$PWD/UQ/uqpy/UQpySubsetSimulation.h \
     $$PWD/WORKFLOW/MainWindowWorkflowApp.h \

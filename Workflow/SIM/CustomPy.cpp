@@ -381,8 +381,11 @@ CustomPy::setFilename1(QString name1){
 
 void
 CustomPy::chooseFileName1(void) {
-    fileName1=QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)");
-    this->setFilename1(fileName1);
+    fileName1=QFileDialog::getOpenFileName(this,tr("Open File"),"", "python (*.py)");
+    if (fileName1!="")
+        this->setFilename1(fileName1);
+    //fileName1=QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)");
+    //this->setFilename1(fileName1);
 }
 
 void

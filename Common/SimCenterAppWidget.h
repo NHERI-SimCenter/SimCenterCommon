@@ -52,6 +52,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SimCenterWidget.h>
 
 class QJsonObject;
+class SC_ResultsWidget;
 
 class SimCenterAppWidget : public SimCenterWidget
 {
@@ -102,7 +103,20 @@ public:
     static bool copyPath(QString sourceDir, QString destinationDir, bool overWriteDirectory);
     static bool copyFile(QString filename, QString destinationDir);
 
+  /*
+   *  @brief return a copy of itself
+   *  @return SimCenterAppWidget;
+   */
+  
     virtual SimCenterAppWidget *getClone();
+
+  
+  /*
+   *  @brief return a widget to present the results
+   *  @return SC_ResultsWidget;
+   */
+  
+    virtual SC_ResultsWidget *getResultsWidget();
 
 
 signals:
