@@ -38,6 +38,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <SimCenterWidget.h>
 #include <Utils/ProgramOutputDialog.h>
+#include <GoogleAnalytics.h>
 
 
 SimCenterWidget::SimCenterWidget(QWidget *parent)
@@ -82,6 +83,7 @@ SimCenterWidget::errorMessage(const QString& message)
         return;
 
     progressDialog->appendErrorMessage(message);
+    GoogleAnalytics::Report("SimcenterWidgetErrorMessage", message);
 }
 
 void
