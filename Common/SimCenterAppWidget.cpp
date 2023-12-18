@@ -196,7 +196,8 @@ SimCenterAppWidget::getClone()
 }
 
 SC_ResultsWidget *
-SimCenterAppWidget::getResultsWidget()
+SimCenterAppWidget::getResultsWidget(QWidget* parent)
 {
+  Q_UNUSED(parent);
   return NULL;
 }

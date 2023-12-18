@@ -48,15 +48,19 @@ public:
     explicit SC_ResultsWidget(QWidget *parent = 0);
     virtual ~SC_ResultsWidget();
 
-    virtual int processResults(QString &outputFile, QString &dirName);  
-    void clear(void);
+    virtual int processResults(QString &outputFile, QString &dirName, QString &assetType, QList<QString> typesInAssetType);
+    virtual int processResults(QString &outputFile, QString &dirName);
+    virtual void clear(void);
+    void setVisualizationWidget(QWidget * vizWidget);
 
 signals:
 
 public slots:
 
+private slots:
+    void restoreUI(void);
 protected:
-
+    QWidget* theVizWidget;
     void extractErrorMsg(QString workDir, QString errFileName, QString uqEngineName, QString &errMsg);
 };
 
