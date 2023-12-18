@@ -24,17 +24,24 @@ void ReportDesignSafeRun()
 void ReportAppUsage(QString appName)
 {
     Report("Application", appName);
-}  
+}
+
+void ReportExample(QString exampleName) {
+    Report("Example", exampleName);
+}
 
 void StartSession()
 {
+    _session_start_time = QDateTime::currentMSecsSinceEpoch();
     Report("Session", "Start");
-
 }
 
 void EndSession()
 {
+    qint64 current_time = QDateTime::currentMSecsSinceEpoch();
+    qint64 session_len = current_time - _session_start_time;
     Report("Session", "End");
+    Report("SessionLength", QString::number(session_len));
 }
 
 //TODO: This code may need to be refactored and shared in SimCenterCommon
@@ -107,6 +114,7 @@ void Report(QString eventCategory, QString eventName)
     eventParams["type"] = eventName;
     eventParams["engagement_time_msec"] = 100;
     eventParams["session_id"] = _sessionId.toString();
+    eventParams["AppVersion"] = QString("Version ") + QCoreApplication::applicationVersion();
     #ifdef Q_OS_WIN
         eventParams["os"] = "Windows";
     #endif
