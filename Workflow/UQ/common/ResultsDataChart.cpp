@@ -676,7 +676,21 @@ ResultsDataChart::readTableFromJson(QJsonObject spreadsheetData) {
     for (int row =0; row<numRow; row++) {
         for (int col=0; col<numCol; col++) {
             QModelIndex index = spreadsheet->model()->index(row, col);
-            spreadsheet->model()->setData(index, dataData.at(dataCount).toDouble());
+
+//            QString str =dataData.at(dataCount).toString();
+//            bool isNumeric ;
+//            int dummy = str.toDouble(&isNumeric);
+//            if (isNumeric){ // this is numeric
+//                spreadsheet->model()->setData(index, dataData.at(dataCount).toDouble()); // for correct sorting
+//            } else { // this is string probably..
+//                spreadsheet->model()->setData(index, "-");
+//            }
+            if (dataData.at(dataCount).isNull()) {
+                spreadsheet->model()->setData(index, "-");
+            }
+            else{
+                spreadsheet->model()->setData(index, dataData.at(dataCount).toDouble());
+            }
             dataCount++;
         }
     }

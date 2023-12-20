@@ -41,6 +41,8 @@
 
 #include <SectionTitle.h>
 
+#include <GoogleAnalytics.h>
+
 MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theService, QWidget *parent)
     : QMainWindow(parent), loggedIn(false), inputWidget(theApp),   theRemoteInterface(theService), isAutoLogin(false)
 {
@@ -979,7 +981,10 @@ MainWindowWorkflowApp::loadExamples()
     this->loadFile(pathToExample);
     
      statusWidget->hideProgressBar();
-    emit sendStatusMessage("Done Loading Example.");    
+    emit sendStatusMessage("Done Loading Example.");
+
+     // google analytics example
+    GoogleAnalytics::ReportExample(exampleName);
 
     // Automatically hide after n seconds
     // progressDialog->hideAfterElapsedTime(4);

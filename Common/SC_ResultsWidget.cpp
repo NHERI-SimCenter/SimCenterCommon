@@ -17,7 +17,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -35,78 +35,38 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written: fmckenna
+#include <SC_ResultsWidget.h>
 
-#include <SimCenterWidget.h>
-#include <Utils/ProgramOutputDialog.h>
-#include <GoogleAnalytics.h>
-
-
-SimCenterWidget::SimCenterWidget(QWidget *parent)
-    :QWidget(parent)
+SC_ResultsWidget::SC_ResultsWidget(QWidget *parent)
+  :SimCenterWidget(parent)
 {
-    progressDialog = ProgramOutputDialog::getInstance(this);
 }
 
-SimCenterWidget::~SimCenterWidget()
+SC_ResultsWidget::~SC_ResultsWidget()
 {
 
 }
 
-
-bool
-SimCenterWidget::outputToJSON(QJsonObject &jsonObject)
-{
-    Q_UNUSED(jsonObject);
-    return true;
+int
+SC_ResultsWidget::processResults(QString &outputFile, QString &dirName){
+  return 0;
 }
 
-bool
-SimCenterWidget::inputFromJSON(QJsonObject &jsonObject)
-{
-    Q_UNUSED(jsonObject);
-    return true;
+int
+SC_ResultsWidget::processResults(QString &outputFile, QString &dirName,
+                                     QString &assetType, QList<QString> typesInAssetType){
+  return 0;
 }
 
 void
-SimCenterWidget::statusMessage(const QString& message)
-{
-    if(message.isEmpty())
-        return;
+SC_ResultsWidget::clear(void) {
 
-    progressDialog->appendText(message);
 }
 
-void
-SimCenterWidget::errorMessage(const QString& message)
-{
-    if(message.isEmpty())
-        return;
+void SC_ResultsWidget::restoreUI(void){
 
-    progressDialog->appendErrorMessage(message);
-    GoogleAnalytics::Report("SimcenterWidgetErrorMessage", message);
 }
 
-void
-SimCenterWidget::infoMessage(const QString& message)
-{
-    if(message.isEmpty())
-        return;
-
-    progressDialog->appendInfoMessage(message);
+void SC_ResultsWidget::setVisualizationWidget(QWidget *vizWidget){
+  theVizWidget = vizWidget;
 }
-
-ProgramOutputDialog*
-SimCenterWidget::getProgressDialog() const
-{
-    return progressDialog;
-}
-
-
-
-void
-SimCenterWidget::blankLineMessage(void)
-{
-    progressDialog->appendBlankLine();
-}
-
-
