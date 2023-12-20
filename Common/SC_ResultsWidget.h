@@ -1,3 +1,6 @@
+#ifndef SC_RESULTS_WIDGET_H
+#define SC_RESULTS_WIDGET_H
+
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -17,7 +20,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -37,76 +40,28 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include <SimCenterWidget.h>
-#include <Utils/ProgramOutputDialog.h>
-#include <GoogleAnalytics.h>
 
-
-SimCenterWidget::SimCenterWidget(QWidget *parent)
-    :QWidget(parent)
+class SC_ResultsWidget : public SimCenterWidget
 {
-    progressDialog = ProgramOutputDialog::getInstance(this);
-}
+    Q_OBJECT
+public:
+    explicit SC_ResultsWidget(QWidget *parent = 0);
+    virtual ~SC_ResultsWidget();
 
-SimCenterWidget::~SimCenterWidget()
-{
+    virtual int processResults(QString &outputFile, QString &dirName, QString &assetType, QList<QString> typesInAssetType);
+    virtual int processResults(QString &outputFile, QString &dirName);
+    virtual void clear(void);
+    void setVisualizationWidget(QWidget * vizWidget);
 
-}
+signals:
 
+public slots:
 
-bool
-SimCenterWidget::outputToJSON(QJsonObject &jsonObject)
-{
-    Q_UNUSED(jsonObject);
-    return true;
-}
+private slots:
+    void restoreUI(void);
+protected:
+    QWidget* theVizWidget;
+    void extractErrorMsg(QString workDir, QString errFileName, QString uqEngineName, QString &errMsg);
+};
 
-bool
-SimCenterWidget::inputFromJSON(QJsonObject &jsonObject)
-{
-    Q_UNUSED(jsonObject);
-    return true;
-}
-
-void
-SimCenterWidget::statusMessage(const QString& message)
-{
-    if(message.isEmpty())
-        return;
-
-    progressDialog->appendText(message);
-}
-
-void
-SimCenterWidget::errorMessage(const QString& message)
-{
-    if(message.isEmpty())
-        return;
-
-    progressDialog->appendErrorMessage(message);
-    GoogleAnalytics::Report("SimcenterWidgetErrorMessage", message);
-}
-
-void
-SimCenterWidget::infoMessage(const QString& message)
-{
-    if(message.isEmpty())
-        return;
-
-    progressDialog->appendInfoMessage(message);
-}
-
-ProgramOutputDialog*
-SimCenterWidget::getProgressDialog() const
-{
-    return progressDialog;
-}
-
-
-
-void
-SimCenterWidget::blankLineMessage(void)
-{
-    progressDialog->appendBlankLine();
-}
-
-
+#endif // SC_RESULTS_WIDGET
