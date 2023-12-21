@@ -225,10 +225,10 @@ int UCSD_ResultsHierarchicalBayesian::postprocessResults(QFileInfo &posteriorPre
     }
     summaryLayout->addStretch();
 
-    foreach (QFileInfo fileInfo, posteriorSamplesTabFileInfoPerDataset) {
-        QString fileName = fileInfo.canonicalFilePath();
-        statusMessage("Looping over: " + fileName);
-    }
+//    foreach (QFileInfo fileInfo, posteriorSamplesTabFileInfoPerDataset) {
+//        QString fileName = fileInfo.canonicalFilePath();
+//        statusMessage("Looping over: " + fileName);
+//    }
 
     tabWidget->addTab(sa,tr("Summary"));
     tabWidget->addTab(theDataTable, tr("Data Values"));
