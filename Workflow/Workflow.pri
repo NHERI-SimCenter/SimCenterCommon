@@ -45,6 +45,9 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/UQ/ucsd/UCSD_InputBayesianCalibration.cpp \
     $$PWD/UQ/ucsd/UCSD_InputHierarchicalBayesian.cpp \
     $$PWD/UQ/ucsd/UCSD_InputTMCMC.cpp \
+    $$PWD/UQ/ucsd/UCSD_ResultsHierarchicalBayesian.cpp \
+    $$PWD/UQ/ucsd/UCSD_ResultsTMCMC.cpp \
+    $$PWD/UQ/ucsd/UCSD_UQ_Method.cpp \
     $$PWD/UQ/uqpy/UQpyEngine.cpp\
     $$PWD/UQ/uqpy/UQpyResultsSubsetSim.cpp \
     $$PWD/UQ/uqpy/UQpySubsetSimulation.cpp \
@@ -71,7 +74,6 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/UQ/dakota/DakotaInputOptimization.cpp\
     $$PWD/UQ/dakota/DakotaResultsOptimization.cpp\
     $$PWD/UQ/ucsd/UCSD_Engine.cpp \
-    $$PWD/UQ/ucsd/UCSD_Results.cpp \
     $$PWD/UQ/ucsd/BayesPlots.cpp \
     $$PWD/UQ/simcenterUQ/SimCenterUQEngine.cpp \
     $$PWD/UQ/simcenterUQ/SimCenterUQInputSampling.cpp \
@@ -159,6 +161,9 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/UQ/ucsd/UCSD_InputHierarchicalBayesian.h \
     $$PWD/UQ/ucsd/UCSD_InputTMCMC.h \
     $$PWD/UQ/UQ_Method.h \
+    $$PWD/UQ/ucsd/UCSD_ResultsHierarchicalBayesian.h \
+    $$PWD/UQ/ucsd/UCSD_ResultsTMCMC.h \
+    $$PWD/UQ/ucsd/UCSD_UQ_Method.h \
     $$PWD/UQ/uqpy/UQpyEngine.h \
     $$PWD/UQ/customUQ/CustomUQ_Results.h \
     $$PWD/UQ/customUQ/UQ_JsonEngine.h \
@@ -186,7 +191,6 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/UQ/dakota/DakotaResultsOptimization.h\
     $$PWD/UQ/simcenterUQ/PLoMSimuWidget.h \
     $$PWD/UQ/ucsd/UCSD_Engine.h \
-    $$PWD/UQ/ucsd/UCSD_Results.h \
     $$PWD/UQ/ucsd/BayesPlots.h \
     $$PWD/UQ/simcenterUQ/SimCenterUQEngine.h \
     $$PWD/UQ/simcenterUQ/SimCenterUQInputSampling.h \

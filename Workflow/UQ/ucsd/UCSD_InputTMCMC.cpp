@@ -34,7 +34,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: fmckenna, bsaakash
 
 #include "UCSD_InputTMCMC.h"
 #include <QLineEdit>
@@ -51,9 +51,11 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <fstream>
 #include <sstream>
+#include "RandomVariablesContainer.h"
+#include <UCSD_ResultsTMCMC.h>
 
 UCSD_InputTMCMC::UCSD_InputTMCMC(QWidget *parent)
-:UQ_Method(parent)
+: UCSD_UQ_Method(parent)
 {
     auto layout = new QGridLayout();
     int row = 0;
@@ -108,7 +110,8 @@ UCSD_InputTMCMC::UCSD_InputTMCMC(QWidget *parent)
     // create label and entry for seed to layout
     srand(time(NULL));
 //    int randomNumber = rand() % 1000 + 1;
-    int randomNumber = arc4random() % 1000 + 1;
+//    int randomNumber = arc4random() % 1000 + 1;
+    int randomNumber = arc4random_uniform(1000) + 1;
     randomSeed = new QLineEdit();
     randomSeed->setText(QString::number(randomNumber));
     randomSeed->setValidator(new QIntValidator);
@@ -461,3 +464,16 @@ UCSD_InputTMCMC::getNumExp(QString &calFileName) {
     return numExperiments;
 }
 
+void UCSD_InputTMCMC::setRV_Defaults()
+{
+    RandomVariablesContainer *theRVs = RandomVariablesContainer::getInstance();
+    QString classType = "Uncertain";
+    QString engineType = "UCSD";
+
+    theRVs->setDefaults(engineType, classType, Normal);
+}
+
+UQ_Results *UCSD_InputTMCMC::getResults()
+{
+    return new UCSD_ResultsTMCMC(RandomVariablesContainer::getInstance());
+}

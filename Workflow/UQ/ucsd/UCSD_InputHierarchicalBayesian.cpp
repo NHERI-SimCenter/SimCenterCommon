@@ -45,8 +45,11 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <QJsonValue>
 #include <QJsonArray>
+#include <SimCenterAppWidget.h>
+#include "RandomVariablesContainer.h"
+#include "UCSD_ResultsHierarchicalBayesian.h"
 
-UCSD_InputHierarchicalBayesian::UCSD_InputHierarchicalBayesian()
+UCSD_InputHierarchicalBayesian::UCSD_InputHierarchicalBayesian(QWidget *parent) : UCSD_UQ_Method(parent)
 {
     sampleSizeLineEdit = new QLineEdit();
     sampleSizeLineEdit->setText(tr("500"));
@@ -56,11 +59,16 @@ UCSD_InputHierarchicalBayesian::UCSD_InputHierarchicalBayesian()
     sampleSizeLineEdit->setToolTip("Specify the number of sample values to be drawn from the posterior");
 
     srand(time(NULL));
-    int randomNumber = arc4random() % 1000 + 1;
+    int randomNumber = arc4random_uniform(1000) + 1;
     randomStateLineEdit = new QLineEdit();
     randomStateLineEdit->setText(QString::number(randomNumber));
     randomStateLineEdit->setValidator(positiveIntegerValidator);
     randomStateLineEdit->setToolTip("Specify the random state used by the pseudo random number generator. This is used for reproducibility.");
+
+    restartFileLineEdit = new QLineEdit();
+    restartFileLineEdit->setToolTip("Enter the name of the file containing the data from a previous run of the sampling algorithm to restart the Markov chains. This file must be in the directory containing the model scripts or the directory containing the calibration datasets.");
+//    connect(restartFileLineEdit, &QLineEdit::textChanged, this, &UCSD_InputHierarchicalBayesian::updateCalDataFileName);
+
 
     calDataFileLineEdit = new QLineEdit();
     calDataFileLineEdit->setToolTip("Enter the name of the file containing the output data from one of the datasets used for calibrating the model parameters. The same file name must be used across datasets. This file is read from each calibration data directory to find the number of data points in that dataset.");
@@ -82,6 +90,8 @@ UCSD_InputHierarchicalBayesian::UCSD_InputHierarchicalBayesian()
     userInputsGridLayout->addWidget(sampleSizeLineEdit, row++, 1);
     userInputsGridLayout->addWidget(new QLabel("Random State"), row, 0);
     userInputsGridLayout->addWidget(randomStateLineEdit, row++, 1);
+    userInputsGridLayout->addWidget(new QLabel("Restart File Name"), row, 0);
+    userInputsGridLayout->addWidget(restartFileLineEdit, row++, 1);
     userInputsGridLayout->addWidget(new QLabel("Calibration Data File Name"), row, 0);
     userInputsGridLayout->addWidget(calDataFileLineEdit, row++, 1);
     userInputsGridLayout->addWidget(new QLabel("Calibration Datasets Directory"), row, 0);
@@ -114,6 +124,7 @@ bool UCSD_InputHierarchicalBayesian::outputToJSON(QJsonObject &jsonObject)
 {
     jsonObject["Sample Size"] = sampleSizeLineEdit->text().toInt();
     jsonObject["Random State"] = randomStateLineEdit->text().toInt();
+    jsonObject["Restart File Name"] = restartFileLineEdit->text();
     jsonObject["Calibration Data File Name"] = calDataFileName;
     jsonObject["Calibration Datasets Directory"] = calDataMainDirectoryLineEdit->text();
     jsonObject["List Of Dataset Subdirectories"] = QJsonArray::fromStringList(this->datasetDirectoriesList);
@@ -147,6 +158,20 @@ bool UCSD_InputHierarchicalBayesian::inputFromJSON(QJsonObject &jsonObject)
             this->randomStateLineEdit->setText(QString::number(value.toInt()));
         } else {
             msg = "The value in the JSON file corresponding to '" + key + "' is not a number.";
+            result = this->handleInputFromJSONError(msg);
+        }
+    } else {
+        msg = "The JSON file does not contain the key '" + key + "'.";
+        result = this->handleInputFromJSONError(msg);
+    }
+
+    key = "Restart File Name";
+    if (jsonObject.contains(key)) {
+        QJsonValue value = jsonObject[key];
+        if (value.isString()) {
+            this->restartFileLineEdit->setText(value.toString());
+        } else {
+            msg = "The value in the JSON file corresponding to '" + key + "' is not a string.";
             result = this->handleInputFromJSONError(msg);
         }
     } else {
@@ -198,12 +223,19 @@ int UCSD_InputHierarchicalBayesian::getNumberTasks()
 
 bool UCSD_InputHierarchicalBayesian::copyFiles(QString &fileDir)
 {
-    Q_UNUSED(fileDir);
-    return false;
+    QDir templatedir(fileDir);
+    QString destinationDir = templatedir.canonicalPath();
+    QString sourceDir = this->calDatasetsMainDirectory;
+    return SimCenterAppWidget::copyPath(sourceDir, destinationDir, false);
 }
 
 void UCSD_InputHierarchicalBayesian::setRV_Defaults()
 {
+    RandomVariablesContainer * theRVs = RandomVariablesContainer::getInstance();
+    QString classType("Uncertain");
+    QString engineType("UCSD_UQ"); // This will show correlation matrix ("UCSD" will not)
+
+    theRVs->setDefaults(engineType, classType, Normal);
 }
 
 void UCSD_InputHierarchicalBayesian::setEventType(QString typeEVT)
@@ -213,6 +245,14 @@ void UCSD_InputHierarchicalBayesian::setEventType(QString typeEVT)
 
 void UCSD_InputHierarchicalBayesian::clear()
 {
+    datasetLabelsVector.clear();
+    datasetDirectoriesList.clear();
+    datasetList.clear();
+}
+
+UQ_Results *UCSD_InputHierarchicalBayesian::getResults()
+{
+    return new UCSD_ResultsHierarchicalBayesian(RandomVariablesContainer::getInstance());
 }
 
 void UCSD_InputHierarchicalBayesian::updateCalDataFileName(const QString &text)
@@ -236,6 +276,7 @@ void UCSD_InputHierarchicalBayesian::selectCalDataMainDirectory()
     QString selectedDirectory;
     if (selectedDirectoriesList.size() > 0) {
         selectedDirectory = selectedDirectoriesList.at(0);
+        this->calDatasetsMainDirectory = selectedDirectory;
     }
     this->calDataMainDirectoryLineEdit->setText(selectedDirectory);
 }
@@ -245,8 +286,8 @@ void UCSD_InputHierarchicalBayesian::updateListsOfCalibrationDatasetsAndDirector
     this->datasetList.clear();
     this->datasetDirectoriesList.clear();
 
-    QString selectedDirectory = calDataMainDirectoryLineEdit->text();
-    QDir mainDir(selectedDirectory);
+    this->calDatasetsMainDirectory = calDataMainDirectoryLineEdit->text();
+    QDir mainDir(this->calDatasetsMainDirectory);
     if (mainDir.exists()) {
         mainDir.setFilter(QDir::NoDot | QDir::NoDotDot | QDir::Dirs);
         QFileInfoList tempDatasetDirectories = mainDir.entryInfoList();
@@ -272,27 +313,27 @@ void UCSD_InputHierarchicalBayesian::updateListsOfCalibrationDatasetsAndDirector
 void UCSD_InputHierarchicalBayesian::updateVectorOfDatasetLabels()
 {
     // Remove any previously added labels from the layout and delete them
-    for (QLabel* label : qAsConst(selectedDatasetDirectoriesVector)) {
+    for (QLabel* label : qAsConst(datasetLabelsVector)) {
       dataDirectoriesVBoxLayout->removeWidget(label);
       delete label;
     }
-    selectedDatasetDirectoriesVector.clear();
+    datasetLabelsVector.clear();
 
     // Add new labels for the selected filenames to the vector
     for (int i=0; i < datasetList.size(); ++i) {
         QString dirPath = datasetList.at(i);
 //        QLabel* label = new QLabel(dirPath + QDir::separator() + calDataFileName, this);
         QLabel* label = new QLabel(dirPath, this);
-        selectedDatasetDirectoriesVector.append(label);
+        datasetLabelsVector.append(label);
     }
 }
 
 void UCSD_InputHierarchicalBayesian::updateDatasetGroupBox()
 {
-    QString selectedDirectory = calDataMainDirectoryLineEdit->text();
-    int numDataDirectories = selectedDatasetDirectoriesVector.size();
+    this->calDatasetsMainDirectory = calDataMainDirectoryLineEdit->text();
+    int numDataDirectories = datasetLabelsVector.size();
     QString groupBoxTitle;
-    QDir mainDir(selectedDirectory);
+    QDir mainDir(this->calDatasetsMainDirectory);
     if (mainDir.exists()) {
         if (numDataDirectories == 0) {
             groupBoxTitle = "No subdirectories containing '" + calDataFileName + "' were found in the chosen directory";
@@ -300,15 +341,15 @@ void UCSD_InputHierarchicalBayesian::updateDatasetGroupBox()
             groupBoxTitle = "The following " + QString::number(numDataDirectories) + " datasets for calibration were found in the chosen directory:";
         }
         dataDirectoriesGroupBox->setTitle(groupBoxTitle);
-        for (int i=0; i<selectedDatasetDirectoriesVector.size(); ++i) {
-            QLabel *label = selectedDatasetDirectoriesVector.at(i);
+        for (int i=0; i<datasetLabelsVector.size(); ++i) {
+            QLabel *label = datasetLabelsVector.at(i);
             dataDirectoriesVBoxLayout->addWidget(label);
         }
-        if (selectedDirectory.isEmpty()) {
+        if (this->calDatasetsMainDirectory.isEmpty()) {
             dataDirectoriesGroupBox->hide();
         } else dataDirectoriesGroupBox->show();
     } else {
-        groupBoxTitle = "The directory '" + selectedDirectory + "' does not exist.";
+        groupBoxTitle = "The directory '" + this->calDatasetsMainDirectory + "' does not exist.";
         dataDirectoriesGroupBox->setTitle(groupBoxTitle);
     }
 
@@ -333,6 +374,4 @@ bool UCSD_InputHierarchicalBayesian::handleInputFromJSONError(QString &msg)
     errorMessage(msg);
     return false;
 }
-
-
 

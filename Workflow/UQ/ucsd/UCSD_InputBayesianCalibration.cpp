@@ -42,7 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <UCSD_InputHierarchicalBayesian.h>
 #include <QDebug>
 #include <RandomVariablesContainer.h>
-#include <UCSD_Results.h>
+#include <UCSD_ResultsTMCMC.h>
 
 UCSD_InputBayesianCalibration::UCSD_InputBayesianCalibration(QWidget *parent) : UQ_Engine(parent)
 {
@@ -95,13 +95,17 @@ UCSD_InputBayesianCalibration::onTextChanged(const QString &text)
         theCurrentMethod = iterator->second;
         samplerStackedWidget->setCurrentWidget(iterator->second);
     }
+    if (text == "Non-hierarchical")
+        emit onUQ_EngineChanged("UCSD");
+    else
+        emit onUQ_EngineChanged("UCSD");
+    emit onUQ_MethodUpdated("Bayesian Calibration");
 }
 
 UCSD_InputBayesianCalibration::~UCSD_InputBayesianCalibration()
 {
 
 }
-
 
 bool UCSD_InputBayesianCalibration::outputToJSON(QJsonObject &jsonObject)
 {
@@ -202,7 +206,7 @@ void UCSD_InputBayesianCalibration::clear()
 
 //SimCenterAppWidget *UCSD_InputBayesianCalibration::getClone()
 //{
-//    return
+//    return NULL;
 //}
 
 //void UCSD_InputBayesianCalibration::setCurrentlyViewable(bool)
@@ -216,16 +220,13 @@ int UCSD_InputBayesianCalibration::getMaxNumParallelTasks()
 
 void UCSD_InputBayesianCalibration::setRV_Defaults()
 {
-    RandomVariablesContainer *theRVs = RandomVariablesContainer::getInstance();
-    QString classType = "Uncertain";
-    QString engineType = "UCSD";
-
-    theRVs->setDefaults(engineType, classType, Normal);
+    theCurrentMethod->setRV_Defaults();
 }
 
 UQ_Results *UCSD_InputBayesianCalibration::getResults()
 {
-    return new UCSD_Results(RandomVariablesContainer::getInstance());
+    return theCurrentMethod->getResults();
+//    return new UCSD_Results(RandomVariablesContainer::getInstance());
 }
 
 //QString UCSD_InputBayesianCalibration::getProcessingScript()

@@ -39,9 +39,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna, bsaakash
 
+#include <UQ_Results.h>
 #include <QFileInfo>
 #include <QLabel>
-#include <UQ_Method.h>
+#include <UCSD_UQ_Method.h>
 #include <QLineEdit>
 #include <QGridLayout>
 #include <QPushButton>
@@ -49,11 +50,11 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QVBoxLayout>
 #include <QJsonObject>
 
-class UCSD_InputHierarchicalBayesian : public UQ_Method
+class UCSD_InputHierarchicalBayesian : public UCSD_UQ_Method
 {
     Q_OBJECT
 public:
-    UCSD_InputHierarchicalBayesian();
+    explicit UCSD_InputHierarchicalBayesian(QWidget *parent=0);
     ~UCSD_InputHierarchicalBayesian();
 
     // SimCenterWidget interface
@@ -69,7 +70,12 @@ public:
     void setEventType(QString typeEVT);
     void clear();
 
+    // UCSD_UQ_Method interface
 public:
+    UQ_Results *getResults();
+
+public:
+    // Methods
     void selectCalDataMainDirectory();
     void updateSelectedDatasets();
     void updateVectorOfDatasetLabels();
@@ -83,19 +89,23 @@ public slots:
     void updateListsOfCalibrationDatasetsAndDirectories();
 
 private:
+    // User interface elements
     QLineEdit *sampleSizeLineEdit;
     QLineEdit *randomStateLineEdit;
+    QLineEdit *restartFileLineEdit;
     QLineEdit *calDataFileLineEdit;
-    QString calDataFileName;
     QLineEdit *calDataMainDirectoryLineEdit;
-    QLineEdit *logLikelihoodScript;
     QGridLayout *userInputsGridLayout;
     QPushButton *selectDataDirectoryButton;
+    QVBoxLayout* dataDirectoriesVBoxLayout;
+    QGroupBox *dataDirectoriesGroupBox;
+
+    // Data
+    QString calDataFileName;
+    QString calDatasetsMainDirectory;
     QStringList datasetList;
     QStringList datasetDirectoriesList;
-    QVBoxLayout* dataDirectoriesVBoxLayout;
-    QVector<QLabel*> selectedDatasetDirectoriesVector;
-    QGroupBox *dataDirectoriesGroupBox;
+    QVector<QLabel*> datasetLabelsVector;
 };
 
 #endif // UCSD_INPUTHIERARCHICALBAYESIAN_H

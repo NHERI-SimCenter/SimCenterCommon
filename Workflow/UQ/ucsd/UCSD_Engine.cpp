@@ -36,7 +36,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: fmckenna, bsaakash
+
 #include <GoogleAnalytics.h>
 
 #include "UCSD_Engine.h"
@@ -119,6 +120,7 @@ void UCSD_Engine::methodChanged(const QString &arg1)
         qDebug() << "ERROR .. UCSDEngine selection .. type unknown: " << arg1;
     }
     emit onUQ_EngineChanged("UCSD-UQ");
+    emit onUQ_MethodUpdated("Bayesian Calibration");
 }
 
 

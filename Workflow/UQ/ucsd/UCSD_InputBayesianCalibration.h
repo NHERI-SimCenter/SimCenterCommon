@@ -44,7 +44,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QStackedWidget>
 #include <QComboBox>
 #include <QStringList>
-#include <UQ_Method.h>
+#include <UCSD_UQ_Method.h>
 
 
 class UCSD_InputBayesianCalibration : public UQ_Engine
@@ -88,11 +88,11 @@ public:
     QHBoxLayout *methodLayout;
     QStackedWidget *samplerStackedWidget;
     QComboBox *modelCombobox;
-    std::map<QString, UQ_Method *> modelToSamplerWidgetMap;
+    std::map<QString, UCSD_UQ_Method *> modelToSamplerWidgetMap;
     std::map<QString, QString> modelToMethodNameMap;
-    UQ_Method *theTMCMC;
-    UQ_Method *theHierarchicalBayesian;
-    UQ_Method *theCurrentMethod;
+    UCSD_UQ_Method *theTMCMC;
+    UCSD_UQ_Method *theHierarchicalBayesian;
+    UCSD_UQ_Method *theCurrentMethod;
 };
 
 #endif // UCSD_INPUTBAYESIANCALIBRATION_H

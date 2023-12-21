@@ -39,19 +39,20 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna, bsaakash
 
-#include <UQ_Method.h>
+#include <UQ_Results.h>
+#include <UCSD_UQ_Method.h>
 class QLineEdit;
 class QGroupBox;
 class QCheckBox;
 class QLabel;
 class QFrame;
 
-class UCSD_InputTMCMC : public UQ_Method
+class UCSD_InputTMCMC : public UCSD_UQ_Method
 {
     Q_OBJECT
 public:
     explicit UCSD_InputTMCMC(QWidget *parent = 0);
-    virtual ~UCSD_InputTMCMC();
+    ~UCSD_InputTMCMC();
 
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
@@ -68,6 +69,12 @@ public:
     int recommendedSampleSize = 200;
 
     bool checkSampleSize(int sampleSize);
+
+    void setRV_Defaults();
+
+    // UCSD_UQ_Method interface
+public:
+    UQ_Results *getResults();
 
 public slots:
      void advancedOptionsSlotFunction(bool tog);

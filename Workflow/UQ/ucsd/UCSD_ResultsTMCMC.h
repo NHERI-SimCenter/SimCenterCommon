@@ -1,5 +1,5 @@
-#ifndef UCSD_RESULTS_H
-#define UCSD_RESULTS_H
+#ifndef UCSD_RESULTSTMCMC_H
+#define UCSD_RESULTSTMCMC_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -57,12 +57,12 @@ class BayesPlots;
 
 //class QChart;
 
-class UCSD_Results : public UQ_Results
+class UCSD_ResultsTMCMC : public UQ_Results
 {
     Q_OBJECT
 public:
-  explicit UCSD_Results(RandomVariablesContainer *, QWidget *parent = 0);
-    ~UCSD_Results();
+  explicit UCSD_ResultsTMCMC(RandomVariablesContainer *, QWidget *parent = 0);
+    ~UCSD_ResultsTMCMC();
 
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
@@ -107,4 +107,4 @@ private:
 
 };
 
-#endif // UCSD_RESULTS_H
+#endif // UCSD_RESULTSTMCMC_H
