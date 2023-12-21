@@ -61,8 +61,10 @@ SC_FileEdit::SC_FileEdit(QString theKey)
   this->setLayout(theLayout);
     connect(chooseFile, &QPushButton::clicked, this,
             [=]() {
-        QString fileName=QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)");
+        //QString fileName=QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)");
+        QString fileName=QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"); // sy - to continue from the previously visited directory
         theFile->setText(fileName);
+        emit fileNameChanged(fileName);
      });
 
   //connect(chooseFile, SIGNAL(clicked(bool)), this, SLOT(chooseFileName(bool)));
