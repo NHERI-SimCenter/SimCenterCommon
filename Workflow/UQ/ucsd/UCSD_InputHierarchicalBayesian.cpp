@@ -56,27 +56,37 @@ UCSD_InputHierarchicalBayesian::UCSD_InputHierarchicalBayesian(QWidget *parent) 
     QIntValidator *positiveIntegerValidator = new QIntValidator;
     positiveIntegerValidator->setBottom(0);
     sampleSizeLineEdit->setValidator(positiveIntegerValidator);
-    sampleSizeLineEdit->setToolTip("Specify the number of sample values to be drawn from the posterior");
+    sampleSizeLineEdit->setToolTip(tr("Specify the number of sample values to be drawn from the posterior"));
 
     srand(time(NULL));
     int randomNumber = arc4random_uniform(1000) + 1;
     randomStateLineEdit = new QLineEdit();
     randomStateLineEdit->setText(QString::number(randomNumber));
     randomStateLineEdit->setValidator(positiveIntegerValidator);
-    randomStateLineEdit->setToolTip("Specify the random state used by the pseudo random number generator. This is used for reproducibility.");
+    randomStateLineEdit->setToolTip(tr("Specify the random state used by the pseudo random number generator. This is used for reproducibility."));
 
     restartFileLineEdit = new QLineEdit();
-    restartFileLineEdit->setToolTip("Enter the name of the file containing the data from a previous run of the sampling algorithm to restart the Markov chains. This file must be in the directory containing the model scripts or the directory containing the calibration datasets.");
+    restartFileLineEdit->setToolTip(tr("Enter the name of the file containing the data from a previous run of the sampling algorithm to restart the Markov chains. This file must be in the directory containing the model scripts or the directory containing the calibration datasets."));
 //    connect(restartFileLineEdit, &QLineEdit::textChanged, this, &UCSD_InputHierarchicalBayesian::updateCalDataFileName);
+    restartFileLineEdit->setPlaceholderText(tr("Optional"));
 
+    proposalAdaptationDurationLineEdit = new QLineEdit();
+    proposalAdaptationDurationLineEdit->setToolTip(tr("Set the initial number of steps during which the sampler is adapted (tuned) to the problem. The parameter values sampled during this intial phase are not recommended for use."));
+    proposalAdaptationDurationLineEdit->setPlaceholderText(tr("Optional"));
+    proposalAdaptationDurationLineEdit->setValidator(positiveIntegerValidator);
+
+    proposalAdaptationIntervalLineEdit = new QLineEdit();
+    proposalAdaptationIntervalLineEdit->setToolTip(tr("Set the frequency (number of steps) at which the sampler is adapted in the initial tuning phase."));
+    proposalAdaptationIntervalLineEdit->setPlaceholderText(tr("Optional"));
+    proposalAdaptationIntervalLineEdit->setValidator(positiveIntegerValidator);
 
     calDataFileLineEdit = new QLineEdit();
-    calDataFileLineEdit->setToolTip("Enter the name of the file containing the output data from one of the datasets used for calibrating the model parameters. The same file name must be used across datasets. This file is read from each calibration data directory to find the number of data points in that dataset.");
+    calDataFileLineEdit->setToolTip(tr("Enter the name of the file containing the output data from one of the datasets used for calibrating the model parameters. The same file name must be used across datasets. This file is read from each calibration data directory to find the number of data points in that dataset."));
     connect(calDataFileLineEdit, &QLineEdit::textChanged, this, &UCSD_InputHierarchicalBayesian::updateCalDataFileName);
 
     calDataMainDirectoryLineEdit = new QLineEdit();
-    calDataMainDirectoryLineEdit->setToolTip("Select the directory containing the datasets used for calibration of the hierarchical model. Each dataset must be placed in a separate sub-directory of this directory.");
-    selectDataDirectoryButton = new QPushButton("Choose");
+    calDataMainDirectoryLineEdit->setToolTip(tr("Select the directory containing the datasets used for calibration of the hierarchical model. Each dataset must be placed in a separate sub-directory of this directory."));
+    selectDataDirectoryButton = new QPushButton(tr("Choose"));
     connect(selectDataDirectoryButton, &QPushButton::clicked, this, &UCSD_InputHierarchicalBayesian::updateSelectedDatasets);
     connect(calDataMainDirectoryLineEdit, &QLineEdit::textChanged, this, &UCSD_InputHierarchicalBayesian::updateDisplayOfLabels);
 
@@ -86,15 +96,19 @@ UCSD_InputHierarchicalBayesian::UCSD_InputHierarchicalBayesian(QWidget *parent) 
 
     int row = 0;
     userInputsGridLayout = new QGridLayout();
-    userInputsGridLayout->addWidget(new QLabel("Sample Size"), row, 0);
+    userInputsGridLayout->addWidget(new QLabel(tr("Sample Size")), row, 0);
     userInputsGridLayout->addWidget(sampleSizeLineEdit, row++, 1);
-    userInputsGridLayout->addWidget(new QLabel("Random State"), row, 0);
+    userInputsGridLayout->addWidget(new QLabel(tr("Random State")), row, 0);
     userInputsGridLayout->addWidget(randomStateLineEdit, row++, 1);
-    userInputsGridLayout->addWidget(new QLabel("Restart File Name"), row, 0);
+    userInputsGridLayout->addWidget(new QLabel(tr("Restart File Name")), row, 0);
     userInputsGridLayout->addWidget(restartFileLineEdit, row++, 1);
-    userInputsGridLayout->addWidget(new QLabel("Calibration Data File Name"), row, 0);
+    userInputsGridLayout->addWidget(new QLabel(tr("Adaptation Duration")), row, 0);
+    userInputsGridLayout->addWidget(proposalAdaptationDurationLineEdit, row++, 1);
+    userInputsGridLayout->addWidget(new QLabel(tr("Adaptation Frequency")), row, 0);
+    userInputsGridLayout->addWidget(proposalAdaptationIntervalLineEdit, row++, 1);
+    userInputsGridLayout->addWidget(new QLabel(tr("Calibration Data File Name")), row, 0);
     userInputsGridLayout->addWidget(calDataFileLineEdit, row++, 1);
-    userInputsGridLayout->addWidget(new QLabel("Calibration Datasets Directory"), row, 0);
+    userInputsGridLayout->addWidget(new QLabel(tr("Calibration Datasets Directory")), row, 0);
     userInputsGridLayout->addWidget(calDataMainDirectoryLineEdit, row, 1, 1, 3);
     userInputsGridLayout->addWidget(selectDataDirectoryButton, row++, 4);
     userInputsGridLayout->setColumnStretch(3, 1);
@@ -128,6 +142,8 @@ bool UCSD_InputHierarchicalBayesian::outputToJSON(QJsonObject &jsonObject)
     jsonObject["Calibration Data File Name"] = calDataFileName;
     jsonObject["Calibration Datasets Directory"] = calDataMainDirectoryLineEdit->text();
     jsonObject["List Of Dataset Subdirectories"] = QJsonArray::fromStringList(this->datasetDirectoriesList);
+    jsonObject["Tuning Interval"] = proposalAdaptationIntervalLineEdit->text().toInt();
+    jsonObject["Tuning Period"] = proposalAdaptationDurationLineEdit->text().toInt();
     return true;
 }
 
@@ -172,6 +188,34 @@ bool UCSD_InputHierarchicalBayesian::inputFromJSON(QJsonObject &jsonObject)
             this->restartFileLineEdit->setText(value.toString());
         } else {
             msg = "The value in the JSON file corresponding to '" + key + "' is not a string.";
+            result = this->handleInputFromJSONError(msg);
+        }
+    } else {
+        msg = "The JSON file does not contain the key '" + key + "'.";
+        result = this->handleInputFromJSONError(msg);
+    }
+
+    key = "Tuning Interval";
+    if (jsonObject.contains(key)) {
+        QJsonValue value = jsonObject[key];
+        if (value.isDouble()) {
+            this->proposalAdaptationIntervalLineEdit->setText(QString::number(value.toInt()));
+        } else {
+            msg = "The value in the JSON file corresponding to '" + key + "' is not a number.";
+            result = this->handleInputFromJSONError(msg);
+        }
+    } else {
+        msg = "The JSON file does not contain the key '" + key + "'.";
+        result = this->handleInputFromJSONError(msg);
+    }
+
+    key = "Tuning Period";
+    if (jsonObject.contains(key)) {
+        QJsonValue value = jsonObject[key];
+        if (value.isDouble()) {
+            this->proposalAdaptationDurationLineEdit->setText(QString::number(value.toInt()));
+        } else {
+            msg = "The value in the JSON file corresponding to '" + key + "' is not a number.";
             result = this->handleInputFromJSONError(msg);
         }
     } else {

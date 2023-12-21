@@ -93,6 +93,8 @@ private:
     QLineEdit *sampleSizeLineEdit;
     QLineEdit *randomStateLineEdit;
     QLineEdit *restartFileLineEdit;
+    QLineEdit *proposalAdaptationDurationLineEdit;
+    QLineEdit *proposalAdaptationIntervalLineEdit;
     QLineEdit *calDataFileLineEdit;
     QLineEdit *calDataMainDirectoryLineEdit;
     QGridLayout *userInputsGridLayout;
