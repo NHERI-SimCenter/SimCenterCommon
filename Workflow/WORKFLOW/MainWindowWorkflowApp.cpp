@@ -13,6 +13,7 @@
 #include "Utils/SimCenterConfigFile.h"
 #include "Utils/dialogabout.h"
 #include "WorkflowAppWidget.h"
+#include <ZipUtils.h>
 
 #include <QAction>
 #include <QApplication>
@@ -40,6 +41,8 @@
 
 #include <SectionTitle.h>
 
+#include <GoogleAnalytics.h>
+
 MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theService, QWidget *parent)
     : QMainWindow(parent), loggedIn(false), inputWidget(theApp),   theRemoteInterface(theService), isAutoLogin(false)
 {
@@ -54,78 +57,11 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     centralWidget->setContentsMargins(0,0,0,0);
 
     exampleMenu = nullptr;
-    statusWidget = ProgramOutputDialog::getInstance(this);
-
-    statusDockWidget = new QDockWidget(tr("Program Output"), this);
-    statusDockWidget->setContentsMargins(0,0,0,0);
-
-    statusDockWidget->setWidget(statusWidget);
-
-    Qt::DockWidgetArea placementArea = Qt::BottomDockWidgetArea;
-    
-    //    QString appName = QCoreApplication::applicationName();
-    if (appName.contains("PBE")) {
-      placementArea = Qt::RightDockWidgetArea;
-      //      this->addDockWidget(Qt::RightDockWidgetArea, statusDockWidget);
-      resizeDocks({statusDockWidget}, {500}, Qt::Horizontal);
-    }  else {
-      resizeDocks({statusDockWidget}, {30}, Qt::Vertical);
-      // this->addDockWidget(Qt::BottomDockWidgetArea, statusDockWidget);
-    }
-
-    QJsonObject outputOptions = getConfigOptionJSON("helpLocation");
-    if (outputOptions.contains("position")) {
-      QJsonValue value = outputOptions["position"];
-      if (value.isString()) {
-	QString placement = value.toString();
-	qDebug() << "POSITION " << placement;	
-	if (placement == "Right")
-	  placementArea = Qt::RightDockWidgetArea;
-	else if (placement == "Left")
-	  placementArea = Qt::LeftDockWidgetArea;
-	else if (placement == "Bottom")
-	  placementArea = Qt::BottomDockWidgetArea;
-	else if (placement == "Top")
-	  placementArea = Qt::TopDockWidgetArea;	    	  
-      }
-    }
-    
-    if (outputOptions.contains("verticalSize")) {
-      QJsonValue value = outputOptions["verticalSize"];
-      int size = value.toInt();
-      qDebug() << "VERICAL SIZE " << size;
-      resizeDocks({statusDockWidget}, {size}, Qt::Vertical);	
-    }
-    
-    if (outputOptions.contains("horizontalSize")) {
-      QJsonValue value = outputOptions["horizontalSize"];
-      int size = value.toInt();
-      qDebug() << "HORIZONTAL SIZE " << size;      
-      resizeDocks({statusDockWidget}, {size}, Qt::Horizontal);	
-    }
-      
-    this->addDockWidget(placementArea, statusDockWidget);  
-      
-
-    connect(statusWidget,&ProgramOutputDialog::showDialog,statusDockWidget,&QDockWidget::setVisible);
 
     //
     // resize to primary screen
     //
-    /*************************** keep around
-    QSize availableSize = qApp->desktop()->availableGeometry().size();
-    int availWidth = availableSize.width();
-    int availHeight = availableSize.height();
-    QSize newSize( availWidth*.85, availHeight*.65 );
     
-    setGeometry(QStyle::alignedRect(Qt::LeftToRight,
-                    Qt::AlignCenter,
-                    newSize,
-                    qApp->desktop()->availableGeometry()
-                     )
-        );
-        ********************************************************/
-
     QRect rec = QGuiApplication::primaryScreen()->geometry();
     //    int height = this->height()<int(0.75*rec.height())?int(0.75*rec.height()):this->height();
     //    int width  = this->width()<int(0.75*rec.width())?int(0.75*rec.width()):this->width();
@@ -138,12 +74,12 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     
     // if (width>1280) width=1280;
 
-    
     if (getConfigOptionString("screenSize") == "fullScreen")
       this->showMaximized();
     else
       this->resize(width, height);
-    
+
+
     //
     // add SimCenter Header
     //
@@ -169,6 +105,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
 
     layout->addWidget(inputWidget);
 
+    
     //
     // add run, run-DesignSafe and exit buttons into a new widget for buttons
     //
@@ -224,15 +161,89 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     loginLayout->addWidget(loginSubmitButton,4,2);
     loginWindow->setLayout(loginLayout);
 
+
+    // add button widget to layout
+    pushButtonLayout->setSpacing(10);
+    layout->addLayout(pushButtonLayout);
+
+    //
+    // add SimCenter footer
+    //
+
+    //FooterWidget *footer = new FooterWidget();
+    //layout->addWidget(footer);
+    layout->setSpacing(0);
+
+    this->setCentralWidget(centralWidget);
+
+    inputWidget->setMainWindow(this);
+
+
+    //
+    // Example Downloader
+    //
+    
     theExampleDownloader = new ExampleDownloader(this);
+    this->updateExamplesMenu();
 
-    /*
-    loginWindow->setStyleSheet("QComboBox {background: #FFFFFF;} \
-    QGroupBox {font-weight: bold;}\
-    QLineEdit {background-color: #FFFFFF; border: 2px solid darkgray;} \
-    QTabWidget::pane {background-color: #ECECEC; border: 1px solid rgb(239, 239, 239);}");
-    */
+    
+    
+    //
+    // Program Helper/ Output Dock
+    //
 
+    statusWidget = ProgramOutputDialog::getInstance(this);
+    statusDockWidget = new QDockWidget(tr("Program Output"), this);
+    statusDockWidget->setContentsMargins(0,0,0,0);
+    statusDockWidget->setWidget(statusWidget);
+
+    Qt::DockWidgetArea placementArea = Qt::BottomDockWidgetArea;
+    int numPixels = 30;
+    
+    if (appName.contains("PBE")) {
+      placementArea = Qt::RightDockWidgetArea;
+      numPixels = 500;
+    }  
+
+    QJsonObject outputOptions = getConfigOptionJSON("helpLocation");
+    if (outputOptions.contains("position")) {
+      QJsonValue value = outputOptions["position"];
+      if (value.isString()) {
+	QString placement = value.toString();
+	qDebug() << "POSITION " << placement;	
+	if (placement == "right")
+	  placementArea = Qt::RightDockWidgetArea;
+	else if (placement == "left")
+	  placementArea = Qt::LeftDockWidgetArea;
+	else if (placement == "bottom")
+	  placementArea = Qt::BottomDockWidgetArea;
+	else if (placement == "top")
+	  placementArea = Qt::TopDockWidgetArea;	    	  
+      }
+    }
+
+    if (outputOptions.contains("numPixels")) {
+      QJsonValue value = outputOptions["numPixels"];      
+      numPixels = value.toInt();
+      qDebug() << " numPixels: " << numPixels;
+    }
+
+    // add dock widget & resize
+    
+    this->addDockWidget(placementArea, statusDockWidget);
+    
+    if (placementArea==Qt::RightDockWidgetArea || placementArea==Qt::LeftDockWidgetArea) {
+      statusWidget->resize(numPixels, statusWidget->height());
+      resizeDocks({statusDockWidget}, {numPixels}, Qt::Horizontal);
+    } else {
+      statusWidget->resize(statusWidget->width(), numPixels);                  
+      resizeDocks({statusDockWidget}, {numPixels}, Qt::Vertical);
+    }
+
+    // connect signal to show the output dialog
+    connect(statusWidget,&ProgramOutputDialog::showDialog,statusDockWidget,&QDockWidget::setVisible);
+
+    
     //
     // connect some signals and slots
     //
@@ -269,36 +280,6 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     connect(getDesignSafeButton, SIGNAL(clicked(bool)),this,SLOT(onRemoteGetButtonClicked()));
     connect(exitButton, SIGNAL(clicked(bool)),this,SLOT(onExitButtonClicked()));
 
-    /*
-    connect(uq,SIGNAL(uqWidgetChanged()), this,SLOT(onDakotaMethodChanged()));
-
-    connect(fem,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
-    connect(random,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
-    connect(results,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
-    connect(uq,SIGNAL(sendErrorMessage(QString)),this,SLOT(errorMessage(QString)));
-    */
-
-    // add button widget to layout
-    //layout->addWidget(buttonWidget);
-    pushButtonLayout->setSpacing(10);
-    layout->addLayout(pushButtonLayout);
-
-    //
-    // add SimCenter footer
-    //
-
-    //FooterWidget *footer = new FooterWidget();
-    //layout->addWidget(footer);
-    layout->setSpacing(0);
-
-    this->setCentralWidget(centralWidget);
-
-    this->createActions();
-    this->updateExamplesMenu();
-
-    inputWidget->setMainWindow(this);
-
-    
     //
     // if have save login and passowrd fill in lineedits
     //
@@ -384,12 +365,72 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
       <p>\
       ");
 
-
+    this->createActions();
+    
 }
 
 MainWindowWorkflowApp::~MainWindowWorkflowApp()
 {
+  if (getConfigOptionString("handleWorkDirsOnExit") == "zipThem") {
+    
+    thePreferences = SimCenterPreferences::getInstance(this);
 
+    //
+    // local dir first
+    //
+    
+    QString dirToZip = thePreferences->getLocalWorkDir();
+    QDir theLocalDir(dirToZip);
+    if (theLocalDir.exists()) {
+
+      // zip it .. give zip file same name with .zip extension
+      QDir parentDir = theLocalDir;
+      parentDir.cdUp();      
+      QString dirName = theLocalDir.dirName();
+      QString zipFile=parentDir.absoluteFilePath(dirName+QString(".zip"));
+      ZipUtils::ZipFolder(theLocalDir, zipFile);
+
+      // now remove
+      theLocalDir.removeRecursively();
+    }
+
+    //
+    // lastly remote dir
+    //
+
+    dirToZip = thePreferences->getRemoteWorkDir();
+    QDir theRemoteDir(dirToZip);
+    if (theRemoteDir.exists()) {
+
+      // zip it .. give zip file same name with .zip extension
+      QDir parentDir = theRemoteDir;
+      parentDir.cdUp();      
+      QString dirName = theRemoteDir.dirName();
+      QString zipFile=parentDir.absoluteFilePath(dirName+QString(".zip"));
+      ZipUtils::ZipFolder(theRemoteDir, zipFile);
+
+      // now remove
+      theRemoteDir.removeRecursively();
+    }    
+    
+    dirToZip = thePreferences->getLocalWorkDir();      
+  }
+    
+  if (getConfigOptionString("handleWorkDirsOnExit") == "removeThem")  {
+    
+    QString dirToRemove = thePreferences->getLocalWorkDir();
+    QDir theLocalDir(dirToRemove);    
+    if (theLocalDir.exists()) {
+      theLocalDir.removeRecursively();
+    }
+
+    dirToRemove = thePreferences->getRemoteWorkDir();
+    QDir theRemoteDir(dirToRemove);    
+    if (theRemoteDir.exists()) {
+      theRemoteDir.removeRecursively();
+    }    
+    
+  }
 }
 
 
@@ -940,7 +981,10 @@ MainWindowWorkflowApp::loadExamples()
     this->loadFile(pathToExample);
     
      statusWidget->hideProgressBar();
-    emit sendStatusMessage("Done Loading Example.");    
+    emit sendStatusMessage("Done Loading Example.");
+
+     // google analytics example
+    GoogleAnalytics::ReportExample(exampleName);
 
     // Automatically hide after n seconds
     // progressDialog->hideAfterElapsedTime(4);

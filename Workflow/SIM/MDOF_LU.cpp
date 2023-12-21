@@ -151,14 +151,23 @@ bool MDOF_LU::outputToJSON(QJsonObject &dataObj)
 	  + QDir::separator() + "MDOF-LU" + QDir::separator()
 	  + "data";
 
-	errorMessage(filePath);
-	errorMessage(theFile.path());
+//    errorMessage(filePath);
+//    errorMessage(theFile.path());
 	
-	// do not put in default path
-	if (theFile.path() != filePath)
-	  dataObj["pathToHazusFile"]=theFile.path();
-	
+    // do not put in default path
+    if (theFile.path() != filePath){
+        statusMessage(QString("MDOF_LU: User provided Hazus Data File: ") + theFile.path() + QString(" is used."));
+      dataObj["pathToHazusFile"]=theFile.path();
+    }
+
     } else {
+        auto SCPrefs = SimCenterPreferences::getInstance();
+        QString filePath = SCPrefs->getAppDir() + QDir::separator()
+                           + "applications" + QDir::separator() + "createSAM"
+                           + QDir::separator() + "MDOF-LU" + QDir::separator()
+                           + "data";
+        statusMessage(QString("MDOF_LU: User provided Hazus Data File is not found."));
+        statusMessage(QString("MDOF_LU: Default Hazus Data File: ") + filePath + QString(" is used."));
         dataObj["hazusData"]=QString("None");
         dataObj["pathToHazusFile"]=QString("");
         return false;

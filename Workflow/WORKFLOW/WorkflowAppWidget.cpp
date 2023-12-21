@@ -3,6 +3,7 @@
 #include <QWidget>
 #include <RemoteService.h>
 #include <Utils/ProgramOutputDialog.h>
+#include <GoogleAnalytics.h>
 
 #include <QMenuBar>
 #include <QDebug>
@@ -42,6 +43,7 @@ void
 WorkflowAppWidget::errorMessage(const QString msg){
     qDebug() << "WorkflowAppWidget::errorMessage" << msg;
     progressDialog->appendErrorMessage(msg);
+    GoogleAnalytics::Report("WorkflowAppWidgetErrorMessage", msg);
     emit sendErrorMessage(msg);
 }
 
