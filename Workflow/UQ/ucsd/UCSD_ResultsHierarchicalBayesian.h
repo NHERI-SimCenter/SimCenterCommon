@@ -1,11 +1,11 @@
-#ifndef UQ_METHOD_H
-#define UQ_METHOD_H
+#ifndef UCSD_RESULTSHIERARCHICALBAYESIAN_H
+#define UCSD_RESULTSHIERARCHICALBAYESIAN_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -20,7 +20,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -29,62 +29,53 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
-// abstract class needed for methods so that can get number of parallel tasks
+// Written: bsaakash
 
-#include "UQ_Results.h"
-#include <SimCenterWidget.h>
+#include <ResultsDataChart.h>
+#include <UQ_Results.h>
+#include <RandomVariablesContainer.h>
 
-class UQ_Method : public SimCenterWidget
+class UCSD_ResultsHierarchicalBayesian : public UQ_Results
 {
     Q_OBJECT
-
 public:
-    UQ_Method(QWidget *parent = 0);
-    virtual ~UQ_Method();
-
-    /** 
-     *   @brief getNumberTasks  method to return number of tasks that can be performed in parallel
-     *   @return int - number of tasks
-     */      
-    virtual int getNumberTasks(void) =0;
+  explicit UCSD_ResultsHierarchicalBayesian(RandomVariablesContainer *, QWidget *parent = 0);
+    ~UCSD_ResultsHierarchicalBayesian();
 
 
-    /** 
-     *   @brief copyFiles  method invoked so any needed files are copied to dir for workflow
-     *   @return bool - success or failure
-     */        
-    virtual bool copyFiles(QString &fileDir);
+    // SimCenterWidget interface
+public:
+    bool outputToJSON(QJsonObject &jsonObject);
+    bool inputFromJSON(QJsonObject &jsonObject);
 
+    // UQ_Results interface
+public:
+    int processResults(QString &dirName);
 
-    /** 
-     *   @brief setRV_Defaults  method invoked to set defaults in RV Container
-     */
-  
-    virtual void setRV_Defaults(void);  
+    QWidget *createResultEDPWidget(QString &name, QVector<double> statistics);
 
-    /**
-     *   @brief setEventType  method invoked to set event type queried from EVT in UQ method
-     */
+public slots:
+    void clear(void);
 
-    virtual void setEventType(QString typeEVT);
+private:
+    RandomVariablesContainer *theRVs;
 
-
-
-    /**
-     *   @brief setRV_Defaults  method invoked to set defaults in RV Container
-     */
-
-    virtual void clear(void);
-
+    QTabWidget *tabWidget;
+    QStringList theHeadings;
+    QVector<QString>theNames;
+    QVector<double>theMeans;
+    QVector<double>theStdDevs;
+    QVector<double>thePercentCoVs;
+    ResultsDataChart *theDataTable;
+    int postprocessResults(QFileInfo &posteriorPredictiveSamplesTabFileInfo, QFileInfoList &posteriorSamplesTabFileInfoPerDataset);
 };
 
-#endif // UQ_METHOD_H
+#endif // UCSD_RESULTSHIERARCHICALBAYESIAN_H

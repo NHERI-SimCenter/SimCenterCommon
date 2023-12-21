@@ -1,5 +1,5 @@
-#ifndef UCSD_RESULTS_H
-#define UCSD_RESULTS_H
+#ifndef UCSD_INPUTTMCMC_H
+#define UCSD_INPUTTMCMC_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -20,7 +20,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -37,74 +37,64 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: fmckenna, bsaakash
 
 #include <UQ_Results.h>
-#include <QtCharts/QChart>
-#include <QMessageBox>
-#include <QPushButton>
-#include <ResultsDataChart.h>
+#include <UCSD_UQ_Method.h>
+class QLineEdit;
+class QGroupBox;
+class QCheckBox;
+class QLabel;
+class QFrame;
 
-
-//using namespace QtCharts;
-
-class QTextEdit;
-class QTabWidget;
-class MyTableWidget;
-class MainWindow;
-class RandomVariablesContainer;
-class BayesPlots;
-
-//class QChart;
-
-class UCSD_Results : public UQ_Results
+class UCSD_InputTMCMC : public UCSD_UQ_Method
 {
     Q_OBJECT
 public:
-  explicit UCSD_Results(RandomVariablesContainer *, QWidget *parent = 0);
-    ~UCSD_Results();
+    explicit UCSD_InputTMCMC(QWidget *parent = 0);
+    ~UCSD_InputTMCMC();
 
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
+    void clear(void);
 
-    int processResults(QString &dirName);  
-    QWidget *createResultEDPWidget(QString &name, QVector<double> statistics);
+    int getNumberTasks(void);
 
-signals:
+    bool copyFiles(QString &fileDir);
+  
+    int getNumExp(QString &calFileName);
+
+    int numExperiments;
+    int requiredSampleSize = 100;
+    int recommendedSampleSize = 200;
+
+    bool checkSampleSize(int sampleSize);
+
+    void setRV_Defaults();
+
+    // UCSD_UQ_Method interface
+public:
+    UQ_Results *getResults();
 
 public slots:
-   void clear(void);
-
-   // modified by padhye 08/25/2018
+     void advancedOptionsSlotFunction(bool tog);
 
 private:
-   int processResults(QString &filenameResults, QString &filenameTab);
-  
-   RandomVariablesContainer *theRVs;
-   QTabWidget *tabWidget;
-
-   MyTableWidget *spreadsheet;  // MyTableWidget inherits the QTableWidget
-   QChart *chart;
-   QPushButton* save_spreadheet; // save the data from spreadsheet
-   QLabel *label;
-   QLabel *best_fit_instructions;
-
-   int col1, col2;
-   bool mLeft;
-   QStringList theHeadings;
-
-   QVector<QString>theNames;
-   QVector<double>theMeans;
-   QVector<double>theStdDevs;
-   QVector<double>theKurtosis;
-   QVector<double>theSkewness;
-
-   ResultsDataChart *theDataTable;
-   ResultsDataChart *theDataTablePrior;
-   ResultsDataChart *theDataTableCalData;
-
-   BayesPlots *thePlot;
-
+  QLineEdit *numParticles;
+  QLineEdit *logLikelihoodScript;
+  QLineEdit *randomSeed;
+  QLineEdit *calDataFileEdit;
+  QGroupBox *requiredInputsGroupBox;
+  QGroupBox *optionalInputsGroupBox;
+  QCheckBox *readCovarianceDataCheckBox;
+  QCheckBox *advancedOptionsCheckBox;
+  QLabel *advancedOptionsTitle;
+  QFrame *lineA;
+  QLineEdit *numMCMCStepsMinimum;
+  QLineEdit *numMCMCStepsMaximum;
+  QLabel *numSamplesError;
+  QLabel *numSamplesWarning;
+  QLineEdit *maxRunTime;
 };
 
-#endif // UCSD_RESULTS_H
+#endif // UCSD_INPUTTMCMC_H
