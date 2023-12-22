@@ -24,7 +24,7 @@ class MainWindowWorkflowApp : public QMainWindow
   Q_OBJECT   
 
 public:
-    explicit MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theRemoteInterface, QWidget *parent = 0);
+    explicit MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theRemoteInterface, QWidget *parent = 0, bool exampleDownloader = false);
     ~MainWindowWorkflowApp();
     void setCopyright(QString &copyright);
     void setVersion(QString &version);
@@ -96,6 +96,7 @@ public:
     QToolBar *fileToolBar;
     QToolBar *editToolBar;
     QMenu *exampleMenu;
+    bool _exampleDownloader;
 
     // some variables for logging in
     QWidget *loginWindow;

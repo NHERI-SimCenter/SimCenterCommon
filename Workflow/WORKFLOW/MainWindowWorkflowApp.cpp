@@ -43,7 +43,7 @@
 
 #include <GoogleAnalytics.h>
 
-MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theService, QWidget *parent)
+MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theService, QWidget *parent, bool exampleDownloader)
     : QMainWindow(parent), loggedIn(false), inputWidget(theApp),   theRemoteInterface(theService), isAutoLogin(false)
 {
     //
@@ -182,10 +182,11 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     //
     // Example Downloader
     //
-    
-    theExampleDownloader = new ExampleDownloader(this);
+    _exampleDownloader = exampleDownloader;
+    if (exampleDownloader) {
+        theExampleDownloader = new ExampleDownloader(this);
+    }
     this->updateExamplesMenu();
-
     
     
     //
@@ -565,10 +566,10 @@ void MainWindowWorkflowApp::updateExamplesMenu(void)
         exampleMenu = menuBar()->addMenu(tr("&Examples"));
     else
         exampleMenu->clear();
-
-    exampleMenu->addAction("Manage Examples", this, &MainWindowWorkflowApp::showExampleDownloader);
-    exampleMenu->addSeparator();
-
+    if (_exampleDownloader) {
+        exampleMenu->addAction("Manage Examples", this, &MainWindowWorkflowApp::showExampleDownloader);
+        exampleMenu->addSeparator();
+    }
     auto pathExamplesFolder = QCoreApplication::applicationDirPath() + "/" + "Examples";
 
     auto pathToExamplesJson = pathExamplesFolder + "/" + "Examples.json";
@@ -599,17 +600,19 @@ void MainWindowWorkflowApp::updateExamplesMenu(void)
                 action->setProperty("inputFile",inputFileName);
                 action->setProperty("description",description);
             }
-
-            if(!downloadUrl.isEmpty())
-            {
-                theExampleDownloader->addExampleToDownload(downloadUrl,name,description,inputFileName);
+            if (_exampleDownloader) {
+                if(!downloadUrl.isEmpty())
+                {
+                    theExampleDownloader->addExampleToDownload(downloadUrl,name,description,inputFileName);
+                }
             }
         }
     } else
         qDebug() << "No Examples" << pathToExamplesJson;
 
-    theExampleDownloader->updateTree();
-
+    if (_exampleDownloader) {
+        theExampleDownloader->updateTree();
+    }
 }
 
 
