@@ -43,7 +43,7 @@
 
 #include <GoogleAnalytics.h>
 
-MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theService, QWidget *parent)
+MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theService, QWidget *parent, bool exampleDownloader)
     : QMainWindow(parent), loggedIn(false), inputWidget(theApp),   theRemoteInterface(theService), isAutoLogin(false)
 {
     //
@@ -182,10 +182,10 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     //
     // Example Downloader
     //
-    
-    theExampleDownloader = new ExampleDownloader(this);
-    this->updateExamplesMenu();
-
+    if (exampleDownloader) {
+        theExampleDownloader = new ExampleDownloader(this);
+        this->updateExamplesMenu();
+    }
     
     
     //
