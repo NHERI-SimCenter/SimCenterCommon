@@ -59,7 +59,8 @@ UCSD_InputHierarchicalBayesian::UCSD_InputHierarchicalBayesian(QWidget *parent) 
     sampleSizeLineEdit->setToolTip(tr("Specify the number of sample values to be drawn from the posterior"));
 
     srand(time(NULL));
-    int randomNumber = arc4random_uniform(1000) + 1;
+    int randomNumber = rand() % 1000 + 1;
+//    int randomNumber = arc4random_uniform(1000) + 1;
     randomStateLineEdit = new QLineEdit();
     randomStateLineEdit->setText(QString::number(randomNumber));
     randomStateLineEdit->setValidator(positiveIntegerValidator);
