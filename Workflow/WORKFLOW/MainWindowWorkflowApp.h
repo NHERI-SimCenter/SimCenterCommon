@@ -96,6 +96,7 @@ public:
     QToolBar *fileToolBar;
     QToolBar *editToolBar;
     QMenu *exampleMenu;
+    bool _exampleDownloader;
 
     // some variables for logging in
     QWidget *loginWindow;
