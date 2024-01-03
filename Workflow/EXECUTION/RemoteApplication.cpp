@@ -509,7 +509,7 @@ RemoteApplication::startJobReturn(QString result) {
 
 void
 RemoteApplication::setNumTasks(int numTasks) {
-    if (numTasks < 32)
+    if (numTasks < 64)
         numProcessorsLineEdit->setText(QString::number(numTasks));
 }
 
