@@ -198,6 +198,8 @@ void
 RemoteApplication::onRunButtonPressed(void)
 {
     QString workingDir = SimCenterPreferences::getInstance()->getRemoteWorkDir();
+
+
     QDir dirWork(workingDir);
     if (!dirWork.exists())
         if (!dirWork.mkpath(workingDir)) {
@@ -316,10 +318,18 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
         QString zipFile(templateDir.absoluteFilePath("templatedir.zip"));
         qDebug() << "ZIP FILE: " << zipFile;
         qDebug() << "DIR TO ZIP: " << templateDIR;
-        QDir tmpDir(templateDIR);
+        QDir tmpDir(tmpDirectory);
+
+	// add input_data folder if it exists to what is sent across
+	
+        if (tmpDir.exists("input_data")) {
+            QString zipFile = tmpDir.absoluteFilePath("input_data.zip");
+            QDir inputDataDir(tmpDir.absoluteFilePath("input_data"));
+            ZipUtils::ZipFolder(inputDataDir, zipFile);
+            inputDataDir.removeRecursively();
+	}  
 
         ZipUtils::ZipFolder(tmpDir, zipFile);
-        //ZipUtils::ZipFolder(QDir(templateDIR), zipFile);
 
         QDir dirToRemove(templateDIR);
         templateDir.cd("templatedir");
