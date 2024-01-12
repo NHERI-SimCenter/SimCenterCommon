@@ -315,26 +315,26 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
         }
         templateDir.cdUp();
 
-        QString zipFile(templateDir.absoluteFilePath("templatedir.zip"));
+        QString zipFile(templateDir.absoluteFilePath("tmpSimCenter.zip"));
         qDebug() << "ZIP FILE: " << zipFile;
-        qDebug() << "DIR TO ZIP: " << templateDIR;
+        qDebug() << "DIR TO ZIP: " << tmpDirectory;
         QDir tmpDir(tmpDirectory);
 
-	// add input_data folder if it exists to what is sent across
+        ZipUtils::ZipFolder(tmpDir, zipFile);
+
+	//
+	// remove input_data & templatedir directories before we send tmp directory across (they are now in zip file)
+	//
 	
         if (tmpDir.exists("input_data")) {
-            QString zipFile = tmpDir.absoluteFilePath("input_data.zip");
             QDir inputDataDir(tmpDir.absoluteFilePath("input_data"));
-            ZipUtils::ZipFolder(inputDataDir, zipFile);
             inputDataDir.removeRecursively();
-	}  
-
-        ZipUtils::ZipFolder(tmpDir, zipFile);
+	} 
 
         QDir dirToRemove(templateDIR);
         templateDir.cd("templatedir");
         templateDir.removeRecursively();
-
+	
     } else {
 
         // zip up data_dir
