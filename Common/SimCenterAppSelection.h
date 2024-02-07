@@ -51,8 +51,8 @@ class SimCenterAppSelection : public  SimCenterAppWidget
     Q_OBJECT
 
 public:
-    explicit SimCenterAppSelection(QString label, QString jsonkeyword, QWidget *parent);
-    explicit SimCenterAppSelection(QString label, QString jsonKeyword, QString oldKeyword, QString typeOfAsset = QString(), QWidget *parent = nullptr);
+  explicit SimCenterAppSelection(QString label, QString jsonkeyword, QWidget *parent);
+  explicit SimCenterAppSelection(QString label, QString jsonKeyword, QString oldKeyword, QString typeOfAsset = QString(), QWidget *parent = nullptr);
   explicit SimCenterAppSelection(QString label, QString jsonKeyword, QList<QString>extraKeys, QString typeOfAsset = QString(), QWidget *parent = nullptr);  
     ~SimCenterAppSelection();
 
@@ -76,6 +76,8 @@ public:
     int count();
     void hideHeader();
 
+    void setOldKeyName(QString jsonKeywordOld);
+		     
 public slots:
     void selectionChangedSlot(const QString &);
     void setCurrentlyViewable(bool);

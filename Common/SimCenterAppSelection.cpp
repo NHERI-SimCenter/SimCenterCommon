@@ -520,3 +520,8 @@ SimCenterAppSelection::setSelectionsActive(bool visibility) {
         theSelectionCombo->setEnabled(true);
     }
 }
+
+void
+SimCenterAppSelection::setOldKeyName(QString oldKeyword) {
+  jsonKeywordOld = oldKeyword;
+}
