@@ -64,7 +64,7 @@ public:
 
     void clear(void);
     void clearSelections();
-    bool addComponent(QString comboBoxText, QString appNameText, SimCenterAppWidget *);
+  bool addComponent(QString comboBoxText, QString appNameText, SimCenterAppWidget *, QString oldAppName=QString());
     SimCenterAppWidget *getComponent(QString text);
     SimCenterAppWidget *getCurrentSelection(void);
     QString getCurrentSelectionName(void);
@@ -102,6 +102,7 @@ private:
 
     QList<QString> theComboNames;
     QList<QString> theApplicationNames;
+    QList<QString> theOldApplicationNames;  
     QList<SimCenterAppWidget *> theComponents;
     QList<QString> extraKeys;  // needed ascertainasset types have multiple assets and workflow as yet does not handle this
   
