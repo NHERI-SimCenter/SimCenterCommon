@@ -1,3 +1,6 @@
+#ifndef UCSD_INPUTTMCMC_H
+#define UCSD_INPUTTMCMC_H
+
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -34,79 +37,64 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: fmckenna, bsaakash
 
-#include <SimCenterWidget.h>
-#include <Utils/ProgramOutputDialog.h>
-#include <GoogleAnalytics.h>
+#include <UQ_Results.h>
+#include <UCSD_UQ_Method.h>
+class QLineEdit;
+class QGroupBox;
+class QCheckBox;
+class QLabel;
+class QFrame;
 
-
-SimCenterWidget::SimCenterWidget(QWidget *parent)
-    :QWidget(parent)
+class UCSD_InputTMCMC : public UCSD_UQ_Method
 {
-    progressDialog = ProgramOutputDialog::getInstance(this);
-}
+    Q_OBJECT
+public:
+    explicit UCSD_InputTMCMC(QWidget *parent = 0);
+    ~UCSD_InputTMCMC();
 
-SimCenterWidget::~SimCenterWidget()
-{
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+    void clear(void);
 
-}
+    int getNumberTasks(void);
 
+    bool copyFiles(QString &fileDir);
+  
+    int getNumExp(QString &calFileName);
 
-bool
-SimCenterWidget::outputToJSON(QJsonObject &jsonObject)
-{
-    Q_UNUSED(jsonObject);
-    return true;
-}
+    int numExperiments;
+    int requiredSampleSize = 100;
+    int recommendedSampleSize = 200;
 
-bool
-SimCenterWidget::inputFromJSON(QJsonObject &jsonObject)
-{
-    Q_UNUSED(jsonObject);
-    return true;
-}
+    bool checkSampleSize(int sampleSize);
 
-void
-SimCenterWidget::statusMessage(const QString& message)
-{
-    if(message.isEmpty())
-        return;
+    void setRV_Defaults();
 
-    progressDialog->appendText(message);
-}
+    // UCSD_UQ_Method interface
+public:
+    UQ_Results *getResults();
 
-void
-SimCenterWidget::errorMessage(const QString& message)
-{
-    if(message.isEmpty())
-        return;
+public slots:
+     void advancedOptionsSlotFunction(bool tog);
 
-    progressDialog->appendErrorMessage(message);
-    GoogleAnalytics::Report("SimcenterWidgetErrorMessage", message);
-}
+private:
+  QLineEdit *numParticles;
+  QLineEdit *logLikelihoodScript;
+  QLineEdit *randomSeed;
+  QLineEdit *calDataFileEdit;
+  QGroupBox *requiredInputsGroupBox;
+  QGroupBox *optionalInputsGroupBox;
+  QCheckBox *readCovarianceDataCheckBox;
+  QCheckBox *advancedOptionsCheckBox;
+  QLabel *advancedOptionsTitle;
+  QFrame *lineA;
+  QLineEdit *numMCMCStepsMinimum;
+  QLineEdit *numMCMCStepsMaximum;
+  QLabel *numSamplesError;
+  QLabel *numSamplesWarning;
+  QLineEdit *maxRunTime;
+};
 
-void
-SimCenterWidget::infoMessage(const QString& message)
-{
-    if(message.isEmpty())
-        return;
-
-    progressDialog->appendInfoMessage(message);
-}
-
-ProgramOutputDialog*
-SimCenterWidget::getProgressDialog() const
-{
-    return progressDialog;
-}
-
-
-
-void
-SimCenterWidget::blankLineMessage(void)
-{
-    progressDialog->appendBlankLine();
-}
-
-
+#endif // UCSD_INPUTTMCMC_H

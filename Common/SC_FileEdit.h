@@ -55,7 +55,7 @@ class QJsonObject;
 
 class SC_FileEdit : public QWidget
 {
-  
+  Q_OBJECT
 public:
   
   SC_FileEdit(QString key);
@@ -71,7 +71,8 @@ public:
   bool copyFile(QString &destDir);
   
 signals:
-  
+  void fileNameChanged(QString filename);
+
 private:
   QString key;
   QLineEdit *theFile;

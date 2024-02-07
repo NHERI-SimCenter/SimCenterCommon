@@ -37,7 +37,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 // added and modified: padhye, bsaakash
 
-#include "UCSD_Results.h"
+#include "UCSD_ResultsTMCMC.h"
 //#include "InputWidgetFEM.h"
 #include "BayesPlots.h"
 
@@ -90,7 +90,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 //#define NUM_DIVISIONS 10
 
-UCSD_Results::UCSD_Results(RandomVariablesContainer *theRandomVariables, QWidget *parent)
+UCSD_ResultsTMCMC::UCSD_ResultsTMCMC(RandomVariablesContainer *theRandomVariables, QWidget *parent)
     : UQ_Results(parent), theRVs(theRandomVariables)
 {
     // title & add button
@@ -99,13 +99,13 @@ UCSD_Results::UCSD_Results(RandomVariablesContainer *theRandomVariables, QWidget
     layout->addWidget(tabWidget,1);
 }
 
-UCSD_Results::~UCSD_Results()
+UCSD_ResultsTMCMC::~UCSD_ResultsTMCMC()
 {
 
 }
 
 
-void UCSD_Results::clear(void)
+void UCSD_ResultsTMCMC::clear(void)
 {
     // delete any existing widgets
     int count = tabWidget->count();
@@ -177,14 +177,14 @@ void UCSD_Results::clear(void)
 //}
 
 // if sobelov indices are selected then we would need to do some processing outselves
-int UCSD_Results::processResults(QString &dirName)
+int UCSD_ResultsTMCMC::processResults(QString &dirName)
 {
   QString tabFile = dirName + "/" + tr("dakotaTab.out");;
   QString tabPriorFile = dirName + "/" + tr("dakotaTabPrior.out");;
   return this->processResults(tabFile, tabPriorFile);
 }
 
-int UCSD_Results::processResults(QString &filenameTab, QString &filenameTabPrior)
+int UCSD_ResultsTMCMC::processResults(QString &filenameTab, QString &filenameTabPrior)
 {
     statusMessage(tr("Processing Results"));
 
@@ -210,6 +210,10 @@ int UCSD_Results::processResults(QString &filenameTab, QString &filenameTabPrior
 
     QString logFileName = "logFileTMCMC.txt";
     QFileInfo logFileInfo(fileDirTab.absolutePath() + "/" + logFileName);
+    if (!logFileInfo.exists()) {
+        errorMessage("ERROR: No logFileTMCMC.txt file - TMCMC failed .. possibly no QoI");
+        return 0;
+    }
 
     //
     // create summary, a QWidget for summary data, the EDP name, mean, stdDev, kurtosis info
@@ -241,8 +245,8 @@ int UCSD_Results::processResults(QString &filenameTab, QString &filenameTabPrior
     }
     summaryLayout->addStretch();
 
-//    theDataTablePrior = new ResultsDataChart(filenameTabPrior);
-//    QVector<QVector<double>> statisticsVectorPrior = theDataTablePrior->getStatistics();
+    theDataTablePrior = new ResultsDataChart(filenameTabPrior);
+    QVector<QVector<double>> statisticsVectorPrior = theDataTablePrior->getStatistics();
 
     // Read the dakota.json file located in ./templatedir
     QFileInfo jsonFileInfo(fileDirTab.absolutePath() + "/" + QString("templatedir"), QString("scInput.json"));
@@ -282,19 +286,19 @@ int UCSD_Results::processResults(QString &filenameTab, QString &filenameTabPrior
         }
     QString calFileName = calFileInfo.absoluteFilePath();
 
-//    theDataTableCalData = new ResultsDataChart(calFileName);
-//    QVector<QVector<double>> statisticsVectorCalData = theDataTableCalData->getStatistics();
-//    QVector<QString> namesVectorCalData = theDataTablePrior->getNames();
+    theDataTableCalData = new ResultsDataChart(calFileName);
+    QVector<QVector<double>> statisticsVectorCalData = theDataTableCalData->getStatistics();
+    QVector<QString> namesVectorCalData = theDataTablePrior->getNames();
 
-//    // Get the range of the predictions
-//    QVector<QVector<double>> minMaxVector = theDataTable->getMinMax();
-//    QVector<QVector<double>> minMaxVectorPrior = theDataTablePrior->getMinMax();
+    // Get the range of the predictions
+    QVector<QVector<double>> minMaxVector = theDataTable->getMinMax();
+    QVector<QVector<double>> minMaxVectorPrior = theDataTablePrior->getMinMax();
 
-//    QString xLabel = "Component";
-//    QString yLabel = "Value";
+    QString xLabel = "Component";
+    QString yLabel = "Value";
 
-//    BayesPlots *thePlot = new BayesPlots(edpNames, edpLengths);
-//    thePlot->plotPosterior(minMaxVector, minMaxVectorPrior, statisticsVector, statisticsVectorPrior, statisticsVectorCalData);
+    BayesPlots *thePlot = new BayesPlots(edpNames, edpLengths);
+    thePlot->plotPosterior(minMaxVector, minMaxVectorPrior, statisticsVector, statisticsVectorPrior, statisticsVectorCalData);
 
     // Create a tab for the TMCMC logfile
     QScrollArea *logFileTMCMC = new QScrollArea;
@@ -337,7 +341,7 @@ int UCSD_Results::processResults(QString &filenameTab, QString &filenameTabPrior
     tabWidget->addTab(theDataTable, tr("Data Values"));
 //    tabWidget->addTab(theDataTable, tr("Posterior"));
 //    tabWidget->addTab(theDataTableCalData, tr("Calibration Data"));
-//    tabWidget->addTab(thePlot, tr("Plots"));
+//    tabWidget->addTab(thePlot, tr("Predictions"));
     tabWidget->adjustSize();
 
     statusMessage(tr(""));
@@ -349,7 +353,7 @@ int UCSD_Results::processResults(QString &filenameTab, QString &filenameTabPrior
 // padhye
 // this function is called if you decide to say save the data from UI into a json object
 bool
-UCSD_Results::outputToJSON(QJsonObject &jsonObject)
+UCSD_ResultsTMCMC::outputToJSON(QJsonObject &jsonObject)
 {
     bool result = true;
 
@@ -362,7 +366,7 @@ UCSD_Results::outputToJSON(QJsonObject &jsonObject)
     if (numEDP == 0)
         return true;
 
-    jsonObject["resultType"]=QString(tr("UCSD_Results"));
+    jsonObject["resultType"]=QString(tr("UCSD_ResultsTMCMC"));
 
     //
     // add summary data
@@ -399,7 +403,7 @@ UCSD_Results::outputToJSON(QJsonObject &jsonObject)
 // if you already have a json data file then you can populate the UI with the entries from json.
 
 bool
-UCSD_Results::inputFromJSON(QJsonObject &jsonObject)
+UCSD_ResultsTMCMC::inputFromJSON(QJsonObject &jsonObject)
 {
     bool result = true;
 
@@ -470,7 +474,7 @@ extern QWidget *addLabeledLineEdit(QString theLabelName, QLineEdit **theLineEdit
 
 
 QWidget *
-UCSD_Results::createResultEDPWidget(QString &name, QVector<double> statistics) {
+UCSD_ResultsTMCMC::createResultEDPWidget(QString &name, QVector<double> statistics) {
 
     double mean = statistics[0];
     double stdDev = statistics[1];

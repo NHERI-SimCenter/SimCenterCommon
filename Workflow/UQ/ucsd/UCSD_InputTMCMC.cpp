@@ -34,9 +34,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: fmckenna, bsaakash
 
-#include <UCSD_TMMC.h>
+#include "UCSD_InputTMCMC.h"
 #include <QLineEdit>
 #include <QVBoxLayout>
 #include <QLabel>
@@ -51,9 +51,11 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <fstream>
 #include <sstream>
+#include "RandomVariablesContainer.h"
+#include <UCSD_ResultsTMCMC.h>
 
-UCSD_TMMC::UCSD_TMMC(QWidget *parent)
-:UQ_Method(parent)
+UCSD_InputTMCMC::UCSD_InputTMCMC(QWidget *parent)
+: UCSD_UQ_Method(parent)
 {
     auto layout = new QGridLayout();
     int row = 0;
@@ -108,7 +110,8 @@ UCSD_TMMC::UCSD_TMMC(QWidget *parent)
     // create label and entry for seed to layout
     srand(time(NULL));
     int randomNumber = rand() % 1000 + 1;
-    //int randomNumber = arc4random() % 1000 + 1;
+//    int randomNumber = arc4random() % 1000 + 1;
+//    int randomNumber = arc4random_uniform(1000) + 1;
     randomSeed = new QLineEdit();
     randomSeed->setText(QString::number(randomNumber));
     randomSeed->setValidator(new QIntValidator);
@@ -188,12 +191,12 @@ UCSD_TMMC::UCSD_TMMC(QWidget *parent)
     connect(advancedOptionsCheckBox,SIGNAL(toggled(bool)),this,SLOT(advancedOptionsSlotFunction(bool)));
 }
 
-UCSD_TMMC::~UCSD_TMMC()
+UCSD_InputTMCMC::~UCSD_InputTMCMC()
 {
 
 }
 
-bool UCSD_TMMC::checkSampleSize(int sampleSize) {
+bool UCSD_InputTMCMC::checkSampleSize(int sampleSize) {
     bool sizeOk = true;
     if (sampleSize < requiredSampleSize) {
         sizeOk = false;
@@ -211,7 +214,7 @@ bool UCSD_TMMC::checkSampleSize(int sampleSize) {
 }
 
 // SLOT function
-void UCSD_TMMC::advancedOptionsSlotFunction(bool tog)
+void UCSD_InputTMCMC::advancedOptionsSlotFunction(bool tog)
 {
 
     lineA->setVisible(tog);
@@ -226,7 +229,7 @@ void UCSD_TMMC::advancedOptionsSlotFunction(bool tog)
 }
 
 bool
-UCSD_TMMC::outputToJSON(QJsonObject &jsonObj){
+UCSD_InputTMCMC::outputToJSON(QJsonObject &jsonObj){
 
     bool result = true;
 
@@ -262,7 +265,7 @@ UCSD_TMMC::outputToJSON(QJsonObject &jsonObj){
 }
 
 bool
-UCSD_TMMC::inputFromJSON(QJsonObject &jsonObject){
+UCSD_InputTMCMC::inputFromJSON(QJsonObject &jsonObject){
 
   bool result = true;
   this->clear();
@@ -317,14 +320,14 @@ UCSD_TMMC::inputFromJSON(QJsonObject &jsonObject){
 }
 
 void
-UCSD_TMMC::clear(void)
+UCSD_InputTMCMC::clear(void)
 {
 
 }
 
 
 int
-UCSD_TMMC::getNumberTasks()
+UCSD_InputTMCMC::getNumberTasks()
 {
   return numParticles->text().toInt();
 }
@@ -350,7 +353,7 @@ UCSD_TMMC::getNumberTasks() {
 */
 
 bool
-UCSD_TMMC::copyFiles(QString &fileDir) {
+UCSD_InputTMCMC::copyFiles(QString &fileDir) {
 
     QString calFileName = calDataFileEdit->text();
     if (calFileName != "") {
@@ -448,7 +451,7 @@ UCSD_TMMC::copyFiles(QString &fileDir) {
 }
 
 int
-UCSD_TMMC::getNumExp(QString &calFileName) {
+UCSD_InputTMCMC::getNumExp(QString &calFileName) {
 
     std::ifstream calDataFile(calFileName.toStdString());
     int numExperiments = 0;
@@ -461,3 +464,16 @@ UCSD_TMMC::getNumExp(QString &calFileName) {
     return numExperiments;
 }
 
+void UCSD_InputTMCMC::setRV_Defaults()
+{
+    RandomVariablesContainer *theRVs = RandomVariablesContainer::getInstance();
+    QString classType = "Uncertain";
+    QString engineType = "UCSD";
+
+    theRVs->setDefaults(engineType, classType, Normal);
+}
+
+UQ_Results *UCSD_InputTMCMC::getResults()
+{
+    return new UCSD_ResultsTMCMC(RandomVariablesContainer::getInstance());
+}

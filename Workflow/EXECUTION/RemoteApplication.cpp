@@ -198,6 +198,8 @@ void
 RemoteApplication::onRunButtonPressed(void)
 {
     QString workingDir = SimCenterPreferences::getInstance()->getRemoteWorkDir();
+
+
     QDir dirWork(workingDir);
     if (!dirWork.exists())
         if (!dirWork.mkpath(workingDir)) {
@@ -313,18 +315,26 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
         }
         templateDir.cdUp();
 
-        QString zipFile(templateDir.absoluteFilePath("templatedir.zip"));
+        QString zipFile(templateDir.absoluteFilePath("tmpSimCenter.zip"));
         qDebug() << "ZIP FILE: " << zipFile;
-        qDebug() << "DIR TO ZIP: " << templateDIR;
-        QDir tmpDir(templateDIR);
+        qDebug() << "DIR TO ZIP: " << tmpDirectory;
+        QDir tmpDir(tmpDirectory);
 
         ZipUtils::ZipFolder(tmpDir, zipFile);
-        //ZipUtils::ZipFolder(QDir(templateDIR), zipFile);
+
+	//
+	// remove input_data & templatedir directories before we send tmp directory across (they are now in zip file)
+	//
+	
+        if (tmpDir.exists("input_data")) {
+            QDir inputDataDir(tmpDir.absoluteFilePath("input_data"));
+            inputDataDir.removeRecursively();
+	} 
 
         QDir dirToRemove(templateDIR);
         templateDir.cd("templatedir");
         templateDir.removeRecursively();
-
+	
     } else {
 
         // zip up data_dir
@@ -509,7 +519,7 @@ RemoteApplication::startJobReturn(QString result) {
 
 void
 RemoteApplication::setNumTasks(int numTasks) {
-    if (numTasks < 32)
+    if (numTasks < 64)
         numProcessorsLineEdit->setText(QString::number(numTasks));
 }
 

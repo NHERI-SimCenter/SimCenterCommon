@@ -42,6 +42,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDir>
 #include <QDebug>
 
+#include <SC_ResultsWidget.h>
+
 SimCenterAppWidget::SimCenterAppWidget(QWidget *parent)
     :SimCenterWidget(parent)
 {
@@ -190,5 +192,12 @@ SimCenterAppWidget::outputCitation(QJsonObject &jsonObject)
 SimCenterAppWidget *
 SimCenterAppWidget::getClone()
 {
+  return NULL;
+}
+
+SC_ResultsWidget *
+SimCenterAppWidget::getResultsWidget(QWidget* parent)
+{
+  Q_UNUSED(parent);
   return NULL;
 }

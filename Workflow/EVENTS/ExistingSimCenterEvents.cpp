@@ -39,6 +39,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "ExistingSimCenterEvents.h"
 #include <InputWidgetExistingEvent.h>
 #include <RandomVariablesContainer.h>
+#include <stdlib.h>
 
 #include <QPushButton>
 #include <QScrollArea>
@@ -408,13 +409,34 @@ ExistingSimCenterEvents::inputAppDataFromJSON(QJsonObject &jsonObject) {
 
 bool 
 ExistingSimCenterEvents::copyFiles(QString &dirName) {
+
+    // 
+    // copying files to folder input_data dir instead of dirName .. input_data as same level as dirName
+    //
+
+    // make the input_data dir if it does not exist
+    QDir inputDataDir(dirName);
+    inputDataDir.cdUp();
+    QString inputDataDirPath = inputDataDir.absoluteFilePath("input_data");
+    
+    if (inputDataDir.mkpath(inputDataDirPath) == false) {
+      this->errorMessage("MultipleSimCenterEvents failed to  create folder: ");
+      this->errorMessage(inputDataDirPath);
+      return false;
+    }
+    
+    //
+    // now copy files
+    //
+    
     for (int i = 0; i <theEvents.size(); ++i) {
         QString fileName = theEvents.at(i)->file->text();
-        if (this->copyFile(fileName, dirName) ==  false) {
+        if (this->copyFile(fileName, inputDataDirPath) ==  false) {
             emit errorMessage(QString("ERROR: copyFiles: failed to copy") + theEvents.at(i)->theName->text());
             return false;
         }
     }
+
     return true;
 }
 

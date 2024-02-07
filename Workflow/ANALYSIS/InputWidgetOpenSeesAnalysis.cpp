@@ -229,6 +229,7 @@ InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(QWidget *parent)
     labelFile->setText("Analysis Script: ");
     file = new QLineEdit;
     file->setToolTip(tr("User provided analysis script, replaces OpenSees default"));
+    file->setPlaceholderText("(Optional)");
     layout->addWidget(labelFile, row, 0);
     layout->addWidget(file, row, 1);
 

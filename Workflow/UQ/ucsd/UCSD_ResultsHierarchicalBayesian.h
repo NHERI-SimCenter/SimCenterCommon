@@ -1,8 +1,11 @@
+#ifndef UCSD_RESULTSHIERARCHICALBAYESIAN_H
+#define UCSD_RESULTSHIERARCHICALBAYESIAN_H
+
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -17,7 +20,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -26,87 +29,53 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: bsaakash
 
-#include <SimCenterWidget.h>
-#include <Utils/ProgramOutputDialog.h>
-#include <GoogleAnalytics.h>
+#include <ResultsDataChart.h>
+#include <UQ_Results.h>
+#include <RandomVariablesContainer.h>
 
-
-SimCenterWidget::SimCenterWidget(QWidget *parent)
-    :QWidget(parent)
+class UCSD_ResultsHierarchicalBayesian : public UQ_Results
 {
-    progressDialog = ProgramOutputDialog::getInstance(this);
-}
-
-SimCenterWidget::~SimCenterWidget()
-{
-
-}
+    Q_OBJECT
+public:
+  explicit UCSD_ResultsHierarchicalBayesian(RandomVariablesContainer *, QWidget *parent = 0);
+    ~UCSD_ResultsHierarchicalBayesian();
 
 
-bool
-SimCenterWidget::outputToJSON(QJsonObject &jsonObject)
-{
-    Q_UNUSED(jsonObject);
-    return true;
-}
+    // SimCenterWidget interface
+public:
+    bool outputToJSON(QJsonObject &jsonObject);
+    bool inputFromJSON(QJsonObject &jsonObject);
 
-bool
-SimCenterWidget::inputFromJSON(QJsonObject &jsonObject)
-{
-    Q_UNUSED(jsonObject);
-    return true;
-}
+    // UQ_Results interface
+public:
+    int processResults(QString &dirName);
 
-void
-SimCenterWidget::statusMessage(const QString& message)
-{
-    if(message.isEmpty())
-        return;
+    QWidget *createResultEDPWidget(QString &name, QVector<double> statistics);
 
-    progressDialog->appendText(message);
-}
+public slots:
+    void clear(void);
 
-void
-SimCenterWidget::errorMessage(const QString& message)
-{
-    if(message.isEmpty())
-        return;
+private:
+    RandomVariablesContainer *theRVs;
 
-    progressDialog->appendErrorMessage(message);
-    GoogleAnalytics::Report("SimcenterWidgetErrorMessage", message);
-}
+    QTabWidget *tabWidget;
+    QStringList theHeadings;
+    QVector<QString>theNames;
+    QVector<double>theMeans;
+    QVector<double>theStdDevs;
+    QVector<double>thePercentCoVs;
+    ResultsDataChart *theDataTable;
+    int postprocessResults(QFileInfo &posteriorPredictiveSamplesTabFileInfo, QFileInfoList &posteriorSamplesTabFileInfoPerDataset);
+};
 
-void
-SimCenterWidget::infoMessage(const QString& message)
-{
-    if(message.isEmpty())
-        return;
-
-    progressDialog->appendInfoMessage(message);
-}
-
-ProgramOutputDialog*
-SimCenterWidget::getProgressDialog() const
-{
-    return progressDialog;
-}
-
-
-
-void
-SimCenterWidget::blankLineMessage(void)
-{
-    progressDialog->appendBlankLine();
-}
-
-
+#endif // UCSD_RESULTSHIERARCHICALBAYESIAN_H

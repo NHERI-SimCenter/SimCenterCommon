@@ -1,5 +1,5 @@
-#ifndef UCSD_TMMC_H
-#define UCSD_TMMC_H
+#ifndef SC_RESULTS_WIDGET_H
+#define SC_RESULTS_WIDGET_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -20,7 +20,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -39,55 +39,29 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <UQ_Method.h>
-class QLineEdit;
-class QGroupBox;
-class QCheckBox;
-class QLabel;
-class QFrame;
+#include <SimCenterWidget.h>
 
-class UCSD_TMMC : public UQ_Method
+class SC_ResultsWidget : public SimCenterWidget
 {
     Q_OBJECT
 public:
-    explicit UCSD_TMMC(QWidget *parent = 0);
-    virtual ~UCSD_TMMC();
+    explicit SC_ResultsWidget(QWidget *parent = 0);
+    virtual ~SC_ResultsWidget();
 
-    bool outputToJSON(QJsonObject &rvObject);
-    bool inputFromJSON(QJsonObject &rvObject);
-    void clear(void);
+    virtual int processResults(QString &outputFile, QString &dirName, QString &assetType, QList<QString> typesInAssetType);
+    virtual int processResults(QString &outputFile, QString &dirName);
+    virtual void clear(void);
+    void setVisualizationWidget(QWidget * vizWidget);
 
-    int getNumberTasks(void);
-
-    bool copyFiles(QString &fileDir);
-  
-    int getNumExp(QString &calFileName);
-
-    int numExperiments;
-    int requiredSampleSize = 100;
-    int recommendedSampleSize = 200;
-
-    bool checkSampleSize(int sampleSize);
+signals:
 
 public slots:
-     void advancedOptionsSlotFunction(bool tog);
 
-private:
-  QLineEdit *numParticles;
-  QLineEdit *logLikelihoodScript;
-  QLineEdit *randomSeed;
-  QLineEdit *calDataFileEdit;
-  QGroupBox *requiredInputsGroupBox;
-  QGroupBox *optionalInputsGroupBox;
-  QCheckBox *readCovarianceDataCheckBox;
-  QCheckBox *advancedOptionsCheckBox;
-  QLabel *advancedOptionsTitle;
-  QFrame *lineA;
-  QLineEdit *numMCMCStepsMinimum;
-  QLineEdit *numMCMCStepsMaximum;
-  QLabel *numSamplesError;
-  QLabel *numSamplesWarning;
-  QLineEdit *maxRunTime;
+private slots:
+    void restoreUI(void);
+protected:
+    QWidget* theVizWidget;
+    void extractErrorMsg(QString workDir, QString errFileName, QString uqEngineName, QString &errMsg);
 };
 
-#endif // UCSD_TMMC_H
+#endif // SC_RESULTS_WIDGET

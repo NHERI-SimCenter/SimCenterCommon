@@ -72,3 +72,4 @@ void
 UQ_Method::clear(void) {
 
 }
+

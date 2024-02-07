@@ -40,6 +40,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 // abstract class needed for methods so that can get number of parallel tasks
 
+#include "UQ_Results.h"
 #include <SimCenterWidget.h>
 
 class UQ_Method : public SimCenterWidget
@@ -83,6 +84,7 @@ public:
      */
 
     virtual void clear(void);
+
 };
 
 #endif // UQ_METHOD_H
