@@ -107,7 +107,7 @@ public:
     int numTries;
 
     QString currentFile;
-    WorkflowAppWidget *inputWidget;
+    WorkflowAppWidget *theWorkflowAppWidget;
     RemoteService *theRemoteInterface;
     //SimCenterWidget *currentWidget;
 
