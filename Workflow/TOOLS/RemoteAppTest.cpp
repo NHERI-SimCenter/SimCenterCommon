@@ -18,7 +18,7 @@ RemoteAppTestResult::RemoteAppTestResult()
   :SC_ResultsWidget()
 {
   QGridLayout *theLayout = new QGridLayout();
-  this->SimCenterAppWidget::setLayout(theLayout);
+  this->setLayout(theLayout);
   
   theOutputLine = new QPlainTextEdit("NO RESULT .. YOU HAVE TO RUN TOOL & GET RESULTS BACK");
   theLayout->addWidget(theOutputLine,0,0);  
