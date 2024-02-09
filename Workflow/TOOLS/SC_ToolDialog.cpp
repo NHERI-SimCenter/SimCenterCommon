@@ -16,6 +16,7 @@ SC_ToolDialog::SC_ToolDialog(WorkflowAppWidget* parent)
   theStackedWidget = new QStackedWidget();
   theMainLayout->addWidget(theStackedWidget);
 
+  /*
   QGridLayout *theButtonLayout = new QGridLayout();
   closeButton = new QPushButton("Close");
   runLocalButton = new QPushButton("Run");
@@ -27,6 +28,7 @@ SC_ToolDialog::SC_ToolDialog(WorkflowAppWidget* parent)
   theButtonLayout->addWidget(getRemoteButton,0,2);
   theButtonLayout->addWidget(closeButton,0,3);
   
+  
   //  theMainLayout->addLayout(theButtonLayout);
   runLocalButton->hide();
   //runRemoteButton->hide();  
@@ -34,6 +36,8 @@ SC_ToolDialog::SC_ToolDialog(WorkflowAppWidget* parent)
   //  closeButton->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Maximum);
   connect(closeButton,&QPushButton::clicked,this,&QDialog::close);
   // theMainLayout->addWidget(closeButton);
+  */
+  
 }
 
 
