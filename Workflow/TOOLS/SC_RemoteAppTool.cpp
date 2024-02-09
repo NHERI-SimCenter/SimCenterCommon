@@ -6,6 +6,7 @@
 #include <ZipUtils/ZipUtils.h>
 #include <RemoteJobManager.h>
 #include <SC_ResultsWidget.h>
+#include <Utils/RelativePathResolver.h>
 
 #include <QDebug>
 #include <QStackedWidget>
@@ -19,6 +20,7 @@
 #include <QLineEdit>
 #include <QJsonDocument>
 #include <QMessageBox>
+#include <QFileDialog>
 
 
 SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
@@ -31,20 +33,20 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   QVBoxLayout *theMainLayout = new QVBoxLayout(this);
   theMainLayout->addWidget(theApp);
 
+
   QGridLayout *theButtonLayout = new QGridLayout();
+  QPushButton *fileLoadButton = new QPushButton("LOAD File");
+  QPushButton *fileSaveButton = new QPushButton("SAVE File");  
   QPushButton *runRemoteButton = new QPushButton("RUN at DesignSafe");
   QPushButton *getRemoteButton = new QPushButton("GET from DesignSafe");
+
+  theButtonLayout->addWidget(fileLoadButton,0,0);
+  theButtonLayout->addWidget(fileSaveButton,0,1);  
+  theButtonLayout->addWidget(runRemoteButton,0,2);
+  theButtonLayout->addWidget(getRemoteButton,0,3);
   
-  theButtonLayout->addWidget(runRemoteButton,0,0);
-  theButtonLayout->addWidget(getRemoteButton,0,1);
   theMainLayout->addLayout(theButtonLayout);
 
-  if (enclosingDialog != nullptr) {
-    QPushButton *closeButton = new QPushButton("Close");  
-    theButtonLayout->addWidget(closeButton,0,2);
-    connect(closeButton,&QPushButton::clicked,enclosingDialog,&QDialog::close);
-  }
-  
   // now create the Dialog for the Remote Applications
 
   QDialog *theRemoteDialog = new QDialog(this);
@@ -102,6 +104,75 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   theRemoteDialog->setLayout(remoteLayout);
   theRemoteDialog->hide();
 
+  
+  connect(fileLoadButton, &QPushButton::clicked, this,
+	  [=]() {
+	    //QString fileName=QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)");
+	    QString fileName=QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"); // sy - to continue from the previously visited directory
+	    QFile file(fileName);
+	    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+	      emit errorMessage(QString("Could Not Open File: ") + fileName);
+	      return -1;
+	    }
+
+	    //
+	    // place contents of file into json object
+	    //
+	    
+	    QString val;
+	    val=file.readAll();
+	    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+	    QJsonObject jsonObj = doc.object();
+
+	    // close file
+	    file.close();
+	    
+	    //Resolve absolute paths from relative ones
+	    QFileInfo fileInfo(fileName);
+	    SCUtils::ResolveAbsolutePaths(jsonObj, fileInfo.dir());    
+    
+	    //
+	    // clear current and input from new JSON
+	    //
+	    
+	    theApp->clear();	    
+	    theApp->inputFromJSON(jsonObj);
+	  });
+
+
+  connect(fileSaveButton, &QPushButton::clicked, this,
+	  [=]() {
+
+	    QString fileName=QFileDialog::getSaveFileName(this,tr("Open File"),"", "All files (*.*)"); // sy - to continue from the previously visited directory	    
+	    QFile file(fileName);
+	    if (!file.open(QFile::WriteOnly | QFile::Text)) {
+	      QMessageBox::warning(this, tr("Application"),
+				   tr("Cannot write file %1:\n%2.")
+				   .arg(QDir::toNativeSeparators(fileName),
+					file.errorString()));
+	      return false;
+	    }
+	    
+	    //
+	    // create a json object, fill it in & then use a QJsonDocument
+	    // to write the contents of the object to the file in JSON format
+	    //
+	    
+	    QJsonObject json;
+	    theApp->outputToJSON(json);
+	    
+	    //Resolve relative paths before saving
+	    QFileInfo fileInfo(fileName);
+	    SCUtils::ResolveRelativePaths(json, fileInfo.dir());
+	    
+	    QJsonDocument doc(json);
+	    file.write(doc.toJson());
+	    
+	    // close file
+	    file.close();	    
+	    
+	  });
+  
   connect(getRemoteButton,&QPushButton::clicked, this, [=](){
     this->onGetRemoteButtonPressed();
   });
@@ -117,7 +188,7 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 
   if (enclosingDialog != nullptr) {
     QPushButton *closeButton = new QPushButton("Close");  
-    theButtonLayout->addWidget(closeButton,0,2);
+    theButtonLayout->addWidget(closeButton,0,4);
     connect(closeButton,&QPushButton::clicked,enclosingDialog,&QDialog::close);
     connect(closeButton,&QPushButton::clicked,theRemoteDialog,&QDialog::close);
     connect(closeButton,&QPushButton::clicked,[=]() {
@@ -125,6 +196,8 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
     });
   }
 
+
+  
   QStringList filesToDownload; filesToDownload << "scInput.json" << "results.zip";
   theJobManager = new RemoteJobManager(theService);
   theJobManager->setFilesToDownload(filesToDownload);
