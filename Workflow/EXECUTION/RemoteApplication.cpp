@@ -109,7 +109,6 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
         numProcessorsLineEdit->setToolTip(tr("Total # of Processes to Start"));
     layout->addWidget(numProcessorsLineEdit,numRow,1);
 
-
     QString appName = QCoreApplication::applicationName();
     if (appName == "R2D"){
         numRow++;
@@ -148,16 +147,21 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
     //
 
     // on login from interface to set up homeDirPath
-    //    connect(theService,SIGNAL(loginReturn(bool)),this,SLOT(attemptLoginReturn(bool)));
-    connect(this,SIGNAL(getHomeDirCall()),theService,SLOT(getHomeDirPathCall()));
-    connect(theService,SIGNAL(getHomeDirPathReturn(QString)), this, SLOT(getHomeDirReturned(QString)));
+    //    connect(theRemoteService,SIGNAL(loginReturn(bool)),this,SLOT(attemptLoginReturn(bool)));
+
+    /*
+    connect(this,SIGNAL(getHomeDirCall()),theRemoteService,SLOT(getHomeDirPathCall()));
+    connect(theRemoteService,SIGNAL(getHomeDirPathReturn(QString)), this, SLOT(getHomeDirReturned(QString)));
+    */
 
     // to start job need to connect uploadDir and start job
-    connect(this,SIGNAL(uploadDirCall(const QString &,const QString &)), theService, SLOT(uploadDirectoryCall(const QString &,const QString &)));
-    connect(theService, SIGNAL(uploadDirectoryReturn(bool)), this, SLOT(uploadDirReturn(bool)));
-    connect(this,SIGNAL(startJobCall(QJsonObject)),theService,SLOT(startJobCall(QJsonObject)));
-    connect(theService,SIGNAL(startJobReturn(QString)), this, SLOT(startJobReturn(QString)));
-
+    /*
+    connect(this,SIGNAL(uploadDirCall(const QString &,const QString &)), theRemoteService, SLOT(uploadDirectoryCall(const QString &,const QString &)));
+    connect(theRemoteService, SIGNAL(uploadDirectoryReturn(bool)), this, SLOT(uploadDirReturn(bool)));
+    connect(this,SIGNAL(startJobCall(QJsonObject)),theRemoteService,SLOT(startJobCall(QJsonObject)));
+    connect(theRemoteService,SIGNAL(startJobReturn(QString)), this, SLOT(startJobReturn(QString)));
+    */
+    
     connect(pushButton,SIGNAL(clicked()), this, SLOT(onRunButtonPressed()));
 }
 
@@ -192,13 +196,10 @@ RemoteApplication::inputFromJSON(QJsonObject &dataObject) {
 }
 
 
-
-
 void
 RemoteApplication::onRunButtonPressed(void)
 {
     QString workingDir = SimCenterPreferences::getInstance()->getRemoteWorkDir();
-
 
     QDir dirWork(workingDir);
     if (!dirWork.exists())
@@ -210,10 +211,10 @@ RemoteApplication::onRunButtonPressed(void)
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
     //   QString appDir = localAppDirName->text();
     QDir dirApp(appDir);
-   if (!dirApp.exists()) {
-       emit sendErrorMessage(QString("The application directory, ") + appDir +QString(" specified does not exist!"));
-       return;
-   }
+    if (!dirApp.exists()) {
+      emit sendErrorMessage(QString("The application directory, ") + appDir +QString(" specified does not exist!"));
+      return;
+    }
 
     QString templateDir("templatedir");
 
@@ -229,19 +230,19 @@ RemoteApplication::onRunButtonPressed(void)
 bool
 RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile) {
 
-    //Q_UNUSED(runType);
-     //    QString appDir = localAppDirName->text();
-    QString runType("runningRemote");
-
-    QString appDir = SimCenterPreferences::getInstance()->getAppDir();
-    QString pySCRIPT;
-
-    QString appName = QCoreApplication::applicationName();
-
-    // R2D does not have a local setup run
-
-    if (appName != "R2D"){
-
+  //Q_UNUSED(runType);
+  //    QString appDir = localAppDirName->text();
+  QString runType("runningRemote");
+  
+  QString appDir = SimCenterPreferences::getInstance()->getAppDir();
+  QString pySCRIPT;
+  
+  QString appName = QCoreApplication::applicationName();
+  
+  // R2D does not have a local setup run
+  
+  if (appName != "R2D"){
+    
         QDir scriptDir(appDir);
         scriptDir.cd("applications");
         scriptDir.cd("Workflow");
@@ -371,11 +372,18 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
 
     theDirectory.cd(newName);
     QString dirName = theDirectory.dirName();
-    
+
+    remoteHomeDirPath = theRemoteService->getHomeDir();
+    if (remoteHomeDirPath.isEmpty()) {
+      qDebug() << "RemoteApplication:: - remoteHomeDir is empty!!";
+      return -1;
+    }
     QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
     pushButton->setEnabled(false);
 
-    emit uploadDirCall(tempDirectory, remoteHomeDirPath);
+    //connect(this,SIGNAL(uploadDirCall(const QString &,const QString &)), theRemoteService, SLOT(uploadDirectoryCall(const QString &,const QString &)));
+    connect(theRemoteService, SIGNAL(uploadDirectoryReturn(bool)), this, SLOT(uploadDirReturn(bool)));
+    theRemoteService->uploadDirectoryCall(tempDirectory, remoteHomeDirPath);        
 
     return 0;
 }
@@ -385,6 +393,8 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
 void
 RemoteApplication::uploadDirReturn(bool result)
 {
+    disconnect(theRemoteService, SIGNAL(uploadDirectoryReturn(bool)), this, SLOT(uploadDirReturn(bool)));  
+    
     if (result == true) {
 
       //
@@ -486,33 +496,39 @@ RemoteApplication::uploadDirReturn(bool result)
       qDebug() << "JOBS_SUBMIT: " << job;
 
       qDebug() << "JOB: " << job;
+
       //
       // start the remote job
       //
 
-      emit startJobCall(job);
-      
 
-
+      // connect(this,SIGNAL(startJobCall(QJsonObject)),theRemoteService,SLOT(startJobCall(QJsonObject)));
+      connect(theRemoteService,SIGNAL(startJobReturn(QString)), this, SLOT(startJobReturn(QString)));      
+      theRemoteService->startJobCall(job);
     }
 }
 
 void
 RemoteApplication::attemptLoginReturn(bool ok) {
-    if (ok == true) {
-        emit getHomeDirCall();
-    }
+  
+  if (ok == true) {
+    connect(theRemoteService,SIGNAL(getHomeDirPathReturn(QString)), this, SLOT(getHomeDirReturned(QString)));    
+    theRemoteService->getHomeDirPathCall();
+  }
+  
 }
 
 
 void
 RemoteApplication::getHomeDirReturned(QString path){
     remoteHomeDirPath = path;
+    disconnect(theRemoteService,SIGNAL(getHomeDirPathReturn(QString)), this, SLOT(getHomeDirReturned(QString)));      
 }
 
 void
 RemoteApplication::startJobReturn(QString result) {
-    Q_UNUSED(result);
+   disconnect(theRemoteService,SIGNAL(startJobReturn(QString)), nullptr, nullptr);      
+   Q_UNUSED(result);
    pushButton->setEnabled(true);
    emit successfullJobStart();
 }

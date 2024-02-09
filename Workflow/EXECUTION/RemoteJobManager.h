@@ -63,9 +63,10 @@ class RemoteJobManager : public QWidget
     Q_OBJECT
 public:
 
-    explicit RemoteJobManager(RemoteService *theInterface, QWidget *parent = nullptr);
+    explicit RemoteJobManager(RemoteService *theService, QWidget *parent = nullptr);
     bool addJob(QString &jobID);
     void clearTable(void);
+    void setFilesToDownload(QStringList filesToDownload);
 
 signals:
     void sendStatusMessage(QString);
@@ -88,7 +89,6 @@ public slots:
     void jobStatusReturn(QString);
     void deleteJobReturn(bool);
     void getJobDetailsReturn(QJsonObject);
-
 
     // void deleteDirectoryReturn(bool);
     // void jobDetailsReturn(QJsonObject);
@@ -132,6 +132,9 @@ private:
 
     //Gets how long the job is runing for
     QString getJobRunTime(QString startedTime, QString currentTime);
+    RemoteService *theService;
+    bool callProcessResultsOnApp;
+    QStringList filesToDownload;
 };
 
 #endif // REMOTEJOBMANAGER_H
