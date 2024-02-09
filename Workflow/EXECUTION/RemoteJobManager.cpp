@@ -69,8 +69,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <ZipUtils/ZipUtils.h>
 class RemoteService;
 
-RemoteJobManager::RemoteJobManager(RemoteService *theRemoteInterface, QWidget *parent)
-    : QWidget(parent), triggeredRow(-1)
+RemoteJobManager::RemoteJobManager(RemoteService *theRemoteService, QWidget *parent)
+  : QWidget(parent), triggeredRow(-1), theService(theRemoteService), callProcessResultsOnApp(true)
 {
     QVBoxLayout *layout = new QVBoxLayout();
 
@@ -108,52 +108,37 @@ RemoteJobManager::RemoteJobManager(RemoteService *theRemoteInterface, QWidget *p
     connect(jobsTable, SIGNAL(cellClicked(int,int)),this,SLOT(bringUpJobActionMenu(int,int)));
     connect(jobsTable, SIGNAL(cellPressed(int,int)),this,SLOT(bringUpJobActionMenu(int,int)));
 
-    // update jobs list
-    connect(this,SIGNAL(getJobsList(QString)),theRemoteInterface,SLOT(getJobListCall(QString)));
-    connect(theRemoteInterface,SIGNAL(getJobListReturn(QJsonObject)), this,SLOT(jobsListReturn(QJsonObject)));
-
-    // update job status
-    connect(this,SIGNAL(getJobStatus(QString)),theRemoteInterface,SLOT(getJobStatusCall(QString)));
-    connect(theRemoteInterface,SIGNAL(getJobStatusReturn(QString)),this,SLOT(jobStatusReturn(QString)));
-
-    // getJobDetails
-    connect(this,SIGNAL(getJobDetails(QString)), theRemoteInterface,SLOT(getJobDetailsCall(QString)));
-    connect(theRemoteInterface,SIGNAL(getJobDetailsReturn(QJsonObject)),this,SLOT(getJobDetailsReturn(QJsonObject)));
-
-    // delete job
-    connect(this,SIGNAL(deleteJob(QString,QStringList)),theRemoteInterface,SLOT(deleteJobCall(QString,QStringList)));
-    connect(theRemoteInterface,SIGNAL(deleteJobReturn(bool)), this,SLOT(deleteJobReturn(bool)));
-
-    // download files
-    connect(this,&RemoteJobManager::downloadFiles, theRemoteInterface,
-            [this, theRemoteInterface](QStringList remoteFiles, QStringList localFiles)
-    {
-        theRemoteInterface->downloadFilesCall(remoteFiles, localFiles, this);
-    });
-    connect(theRemoteInterface,SIGNAL(downloadFilesReturn(bool, QObject*)),this,SLOT(downloadFilesReturn(bool, QObject*)));
 
     // The python process for extracting the hdf5 file
     proc = new QProcess(this);
-
     connect(proc, &QProcess::readyReadStandardOutput, this, &RemoteJobManager::handleProcessTextOutput);
 }
 
 void
 RemoteJobManager::clearTable(void){
     jobsTable->setRowCount(0);
+}
 
+void
+RemoteJobManager::setFilesToDownload(QStringList fileList){
+  filesToDownload = fileList;
 }
 
 void
 RemoteJobManager::updateJobTable(QString appName){
 
-    emit getJobsList(appName);
-   // jobs = theInterface->getJobList(QString(""));
+  // update jobs list
+  connect(theService,SIGNAL(getJobListReturn(QJsonObject)), this,SLOT(jobsListReturn(QJsonObject)));  
+  theService->getJobListCall(appName);
+  
+  // emit getJobsList(appName);
+  // jobs = theInterface->getJobList(QString(""));
 }
 
 void
 RemoteJobManager::jobsListReturn(QJsonObject theJobs){
-
+  
+    disconnect(theService, SIGNAL(uploadDirectoryReturn(bool)), this, SLOT(uploadDirReturn(bool)));  
     jobs = theJobs;
 
     if (jobs.contains("jobs")) {
@@ -198,8 +183,6 @@ RemoteJobManager::jobsListReturn(QJsonObject theJobs){
      QString msg2("Select a job from table and use left mouse button to see options for that job");
      emit sendStatusMessage(msg2);
 
-
-       
    // jobsTable->resizeRowsToContents();
    // jobsTable->setSizePolicy(QSizePolicy::Ignored);
     return;
@@ -217,7 +200,7 @@ RemoteJobManager::bringUpJobActionMenu(int row, int col){
     jobMenu.addAction("Retrieve Data", this, SLOT(getJobData()));
     jobMenu.addSeparator();
     jobMenu.addAction("Delete Job", this, SLOT(deleteJob()));
-    jobMenu.addAction("Delete Job And Data", this, SLOT(deleteJobAndData()));
+    //    jobMenu.addAction("Delete Job And Data", this, SLOT(deleteJobAndData()));
 
     jobMenu.exec(QCursor::pos());
 }
@@ -229,13 +212,17 @@ RemoteJobManager::updateJobStatus(void)
     if (triggeredRow != -1) {
         QTableWidgetItem *itemID = jobsTable->item(triggeredRow,2);
         QString jobID = itemID->text();
-        //QString status=theInterface->getJobStatus(jobID);
-        emit getJobStatus(jobID);
+	//    connect(this,SIGNAL(getJobStatus(QString)),theService,SLOT(getJobStatusCall(QString)));
+	connect(theService,SIGNAL(getJobStatusReturn(QString)),this,SLOT(jobStatusReturn(QString)));
+	theService->getJobStatusCall(jobID);
+        // emit getJobStatus(jobID);
     }
 }
 
 void
 RemoteJobManager::jobStatusReturn(QString status) {
+  
+    disconnect(theService,SIGNAL(getJobStatusReturn(QString)),this,SLOT(jobStatusReturn(QString)));  
     if (triggeredRow != -1) {
         QTableWidgetItem *itemStatus=jobsTable->item(triggeredRow,1);
         itemStatus->setText(status);
@@ -252,15 +239,20 @@ RemoteJobManager::deleteJob(void){
         QTableWidgetItem *itemID=jobsTable->item(triggeredRow,2);
         QString jobID = itemID->text();
 //        bool result = theInterface->deleteJob(jobID);
-        emit deleteJob(jobID, noDirToRemove);
+	// delete job
+	//connect(this,SIGNAL(deleteJob(QString,QStringList)),theService,SLOT(deleteJobCall(QString,QStringList)));
+	connect(theService,SIGNAL(deleteJobReturn(bool)), this,SLOT(deleteJobReturn(bool)));
+	theService->deleteJobCall(jobID, noDirToRemove);
+        //emit deleteJob(jobID, noDirToRemove);
     }
 }
 
 void
 RemoteJobManager::deleteJobReturn(bool result) {
-    if (result == true)
-        jobsTable->removeRow(triggeredRow);
-    triggeredRow = -1;
+  disconnect(theService,SIGNAL(deleteJobReturn(bool)), this,SLOT(deleteJobReturn(bool)));  
+  if (result == true)
+    jobsTable->removeRow(triggeredRow);
+  triggeredRow = -1;
 }
 
 
@@ -279,19 +271,27 @@ RemoteJobManager::deleteJobAndData(void){
 
         jobIDRequest = itemID->text();
         getJobDetailsRequest = 1;
-        emit getJobDetails(jobIDRequest);
+	// getJobDetails
+	// connect(this,SIGNAL(getJobDetails(QString)), theService,SLOT(getJobDetailsCall(QString)));
+	connect(theService,SIGNAL(getJobDetailsReturn(QJsonObject)),this,SLOT(getJobDetailsReturn(QJsonObject)));
+	theService->getJobDetailsCall(jobIDRequest);
+	
+	// emit getJobDetails(jobIDRequest);
     }
 }
 
 void
 RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 
-
+    disconnect(theService,SIGNAL(getJobDetailsReturn(QJsonObject)),this,SLOT(getJobDetailsReturn(QJsonObject)));
+    
     if (getJobDetailsRequest == 1) {
+
         //
         // the request was from deleteJobAndData
         //   - request the deletion of archive and input directories along with the job
         //
+      
         QStringList dirToRemove;
         QJsonValue archivePath = job["archivePath"];
         if (archivePath.isString()) {
@@ -299,7 +299,7 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
             dirToRemove << archiveDir;
         }
         QJsonValue inputs = job["inputs"];
-
+	
         if (inputs.isObject()) {
 
             QJsonObject inputObject = inputs.toObject();
@@ -314,7 +314,10 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
                 dirToRemove << inputDir;
 	    }
         }
-        emit deleteJob(jobIDRequest, dirToRemove);
+	
+	connect(theService,SIGNAL(deleteJobReturn(bool)), this,SLOT(deleteJobReturn(bool)));
+	theService->deleteJobCall(jobIDRequest, dirToRemove);	
+        // emit deleteJob(jobIDRequest, dirToRemove);
     }
 
      if (getJobDetailsRequest == 2) {
@@ -357,58 +360,74 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
         }
 
         QStringList localFiles;
-        QStringList filesToDownload;
-
+        QStringList remoteFiles;
         QString appName = QCoreApplication::applicationName();
-        if (appName != "R2D"){
+	
+	if (filesToDownload.size() == 0) {
+	  if (appName != "R2D"){
+	    
+	    name1 = localDir + QDir::separator() + QString("templatedir.zip");
+	    name2 = localDir + QDir::separator() + QString("results.zip");
+	    name3 = localDir;	  
+	    
+	    localFiles.append(name1);
+	    localFiles.append(name2);
+	    
+	    //
+	    // download data to temp files & then process them as normal
+	    //
+	    
+	    archiveDir = archiveDir + QString("/") + inputDir.remove(QRegularExpression(".*\\/")); // regex to remove up till last /
+	    
+	    QString inputJSON = archiveDir + QString("/templatedir.zip");
+	    QString resultsZIP = archiveDir + QString("/results.zip");
+	    
+	    remoteFiles.append(inputJSON);
+	    remoteFiles.append(resultsZIP);
 
-	  name1 = localDir + QDir::separator() + QString("templatedir.zip");
-	  name2 = localDir + QDir::separator() + QString("results.zip");
-	  name3 = localDir;	  
-	  
-	  localFiles.append(name1);
-	  localFiles.append(name2);
-	  
-	  //
-	  // download data to temp files & then process them as normal
-	  //
-	  
-      archiveDir = archiveDir + QString("/") + inputDir.remove(QRegularExpression(".*\\/")); // regex to remove up till last /
-
-         QString inputJSON = archiveDir + QString("/templatedir.zip");
-         QString resultsZIP = archiveDir + QString("/results.zip");
-
-	 filesToDownload.append(inputJSON);
-	 filesToDownload.append(resultsZIP);
-
-        } else {
-
+	  } else {
+	    
             name1 = localDir + QDir::separator() + QString("inputRWHALE.json");
             name2 = localDir + QDir::separator() + QString("input_data.zip");
             name3 = localDir + QDir::separator() + QString("Results.zip");
-
+	    
             localFiles.append(name1);
             localFiles.append(name2);
             localFiles.append(name3);
-
+	    
             //
             // download data to temp files & then process them as normal
             //
-
+	    
             archiveDir = archiveDir + QString("/") + inputDir.remove(QRegularExpression(".*\\/")); // regex to remove up till last /
 
             QString rName1 = archiveDir + QString("/inputRWHALE.json");
             QString rName2 = archiveDir + QString("/input_data.zip");
             QString rName3 = archiveDir + QString("/Results.zip");
-
+	    
             // first download the input data & load it
+	    
+            remoteFiles.append(rName1);
+            remoteFiles.append(rName2);
+            remoteFiles.append(rName3);
+	  }
+	  
+	} else {
 
-            filesToDownload.append(rName1);
-            filesToDownload.append(rName2);
-            filesToDownload.append(rName3);
-        }
+	  archiveDir = archiveDir + QString("/") + inputDir.remove(QRegularExpression(".*\\/")); // regex to remove up till last /
+	    
+	  for (int i=0; i<filesToDownload.size(); i++) {
+	    QString name = filesToDownload.at(i);
+	    QString localFilePath = localDir + QDir::separator() + name;
+	    QString remoteFilePath = archiveDir + QString("/") + name;
+	    localFiles.append(localFilePath);
+	    remoteFiles.append(remoteFilePath);
+	  }
+	}
 
-        emit downloadFiles(filesToDownload, localFiles);
+	connect(theService,SIGNAL(downloadFilesReturn(bool, QObject*)),this,SLOT(downloadFilesReturn(bool, QObject*)));
+	theService->downloadFilesCall(remoteFiles, localFiles, this);    
+	
      }
 }
 
@@ -421,61 +440,81 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
     //    which itself was a result of the getJobData methid and it's emit getJobDetails signal
     //
 
-    if (sender == this)
-    {
-        QString localDir = SimCenterPreferences::getInstance()->getRemoteWorkDir();
-        QDir localWork(localDir);
+    if (sender == this && callProcessResultsOnApp == true) {
+      
+      disconnect(theService,SIGNAL(downloadFilesReturn(bool, QObject*)),this,SLOT(downloadFilesReturn(bool, QObject*)));
+      
+      QString localDir = SimCenterPreferences::getInstance()->getRemoteWorkDir();
+      QDir localWork(localDir);
+      
+      if (!localWork.exists())
+	if (!localWork.mkpath(localDir)) {
+	  emit sendErrorMessage(QString("Could not create Working Dir: ") + localDir + QString(" . Try using an existing directory or make sure you have permission to create the working directory."));
+	  return;
+	}
+      
+      if (result == true) {
+	QString appName = QCoreApplication::applicationName();
 
-        if (!localWork.exists())
-            if (!localWork.mkpath(localDir)) {
-                emit sendErrorMessage(QString("Could not create Working Dir: ") + localDir + QString(" . Try using an existing directory or make sure you have permission to create the working directory."));
-                return;
-            }
+	if (filesToDownload.size() == 0) {
+	
+	  if (appName != "R2D"){
+	    
+	    QString templateDir = name3 + QDir::separator() + QString("templatedir");
+	    QDir templateD(templateDir);
+	    if (templateD.exists())
+	      templateD.removeRecursively();
+	    
+	    // unzip .. this places files in a new dir templatedir
+	    ZipUtils::UnzipFile(name1, QDir(name3));
+	    QString inputFile = templateDir + QDir::separator() + QString("scInput.json");
+	    qDebug() << "loadingFile after download .. " << inputFile;
+	    emit loadFile(inputFile);
+	    
+	    // remove results dir if exists
+	    QString resultsDir = name3 + QDir::separator() + QString("Results");
+	    
+	    QDir resultsD(resultsDir);
+	    if (resultsD.exists())
+	      resultsD.removeRecursively();
+	    
+	    // unzip .. this places files in a new dir results
+	    ZipUtils::UnzipFile(name2, QDir(name3));
+	    emit processResults(resultsDir);		
+	    this->close();
+	    
+	  } else {
+	    
+	    // unzip files
+	    ZipUtils::UnzipFile(name3, localDir);
+	    ZipUtils::UnzipFile(name2, localDir);
+	    
+	    // now load inputfile and process results
+	    QFileInfo fileInfo(name1);
+	    QString filePath = fileInfo.absolutePath();
+	    QString resultsDir = filePath + QDir::separator() + QString("Results");
+	    
+	    emit loadFile(name1);
+	    emit processResults(resultsDir);
+	  }
+	  
+	} else {
 
-        if (result == true) {
-            QString appName = QCoreApplication::applicationName();
-            if (appName != "R2D"){
-	      
-		QString templateDir = name3 + QDir::separator() + QString("templatedir");
-		QDir templateD(templateDir);
-		if (templateD.exists())
-		  templateD.removeRecursively();
-
-		// unzip .. this places files in a new dir templatedir
-		ZipUtils::UnzipFile(name1, QDir(name3));
-		QString inputFile = templateDir + QDir::separator() + QString("scInput.json");
-		qDebug() << "loadingFile after download .. " << inputFile;
-                emit loadFile(inputFile);
-
-		// remove results dir if exists
-		QString resultsDir = name3 + QDir::separator() + QString("Results");
-		
-		QDir resultsD(resultsDir);
-		if (resultsD.exists())
-		  resultsD.removeRecursively();
-		
-		// unzip .. this places files in a new dir results
-		ZipUtils::UnzipFile(name2, QDir(name3));
-		emit processResults(resultsDir);		
-                this->close();
-		
-            } else {
-	      
-                // unzip files
-                ZipUtils::UnzipFile(name3, localDir);
-                ZipUtils::UnzipFile(name2, localDir);
-
-                // now load inputfile and process results
-                QFileInfo fileInfo(name1);
-                QString filePath = fileInfo.absolutePath();
-		QString resultsDir = filePath + QDir::separator() + QString("Results");
-
-                emit loadFile(name1);
-                emit processResults(resultsDir);
-            }
-        } else {
-            emit sendErrorMessage("ERROR - Failed to download File - did Job finish successfully?");
-       }
+	  for (int i=0; i<filesToDownload.size(); i++) {
+	    QString name = filesToDownload.at(i);
+	    qDebug() << "name: " << name;
+	    if (name.contains(".zip")) {
+	      QString filePath = localDir + QDir::separator() + name;	      
+	      ZipUtils::UnzipFile(filePath, localDir);
+	      qDebug() << "unipiing " << filePath << " in: " << localDir;
+	    }
+	  }
+	  emit processResults(localDir);
+	}
+	
+      } else {
+	emit sendErrorMessage("ERROR - Failed to download File - did Job finish successfully?");
+      }
     }
 }
 
@@ -496,7 +535,9 @@ RemoteJobManager::getJobData(void) {
         QTableWidgetItem *itemID=jobsTable->item(triggeredRow,2);
         jobIDRequest = itemID->text();
         getJobDetailsRequest = 2;
-        emit getJobDetails(jobIDRequest);
+	connect(theService,SIGNAL(getJobDetailsReturn(QJsonObject)),this,SLOT(getJobDetailsReturn(QJsonObject)));
+	theService->getJobDetailsCall(jobIDRequest);	
+        // emit getJobDetails(jobIDRequest);
     }
 
     triggeredRow = -1;

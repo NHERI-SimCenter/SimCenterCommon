@@ -25,6 +25,7 @@ INCLUDEPATH += $$PWD/EVENTS/earthquake/StochasticMotionInput/include
 INCLUDEPATH += $$PWD/ANALYSIS
 INCLUDEPATH += $$PWD/GRAPHICS
 INCLUDEPATH += $$PWD/EDP
+INCLUDEPATH += $$PWD/TOOLS
 
 
 #INCLUDEPATH += "../SimCenterCommon/Workflow"
@@ -111,7 +112,10 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/WORKFLOW/ModelViewItems/TreeItem.cpp \
     $$PWD/WORKFLOW/ModelViewItems/TreeViewStyle.cpp \
     $$PWD/WORKFLOW/ModelViewItems/LayerTreeModel.cpp \
-    $$PWD/WORKFLOW/ModelViewItems/LayerTreeItem.cpp \    
+    $$PWD/WORKFLOW/ModelViewItems/LayerTreeItem.cpp \
+    $$PWD/TOOLS/SC_ToolDialog.cpp \ 
+    $$PWD/TOOLS/SC_RemoteAppTool.cpp \
+    $$PWD/TOOLS/RemoteAppTest.cpp \    
     $$PWD/SIM/OpenSeesBuildingModel.cpp \
     $$PWD/SIM/MDOF_BuildingModel.cpp \
     $$PWD/SIM/MDOF_LU.cpp \    
@@ -229,7 +233,10 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/WORKFLOW/ModelViewItems/TreeItem.h \
     $$PWD/WORKFLOW/ModelViewItems/TreeViewStyle.h \ 
     $$PWD/WORKFLOW/ModelViewItems/LayerTreeModel.h \
-    $$PWD/WORKFLOW/ModelViewItems/LayerTreeItem.h \    
+    $$PWD/WORKFLOW/ModelViewItems/LayerTreeItem.h \
+    $$PWD/TOOLS/SC_ToolDialog.h \
+    $$PWD/TOOLS/SC_RemoteAppTool.h \
+    $$PWD/TOOLS/RemoteAppTest.h \
     $$PWD/SIM/OpenSeesBuildingModel.h \
     $$PWD/SIM/MDOF_BuildingModel.h \
     $$PWD/SIM/MDOF_LU.h \    
