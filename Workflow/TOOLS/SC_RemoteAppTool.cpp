@@ -108,7 +108,7 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   connect(fileLoadButton, &QPushButton::clicked, this,
 	  [=]() {
 	    //QString fileName=QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)");
-	    QString fileName=QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"); // sy - to continue from the previously visited directory
+        QString fileName=QFileDialog::getOpenFileName(this,tr("Open JSON File"),"", "JSON file (*.json)"); // sy - to continue from the previously visited directory
 	    QFile file(fileName);
 	    if (!file.open(QFile::ReadOnly | QFile::Text)) {
 	      emit errorMessage(QString("Could Not Open File: ") + fileName);
@@ -143,8 +143,9 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   connect(fileSaveButton, &QPushButton::clicked, this,
 	  [=]() {
 
-	    QString fileName=QFileDialog::getSaveFileName(this,tr("Open File"),"", "All files (*.*)"); // sy - to continue from the previously visited directory	    
+        QString fileName=QFileDialog::getSaveFileName(this, tr("Save JSON File"),"", "JSON file (*.json)"); // sy - to continue from the previously visited directory
 	    QFile file(fileName);
+
 	    if (!file.open(QFile::WriteOnly | QFile::Text)) {
 	      QMessageBox::warning(this, tr("Application"),
 				   tr("Cannot write file %1:\n%2.")
