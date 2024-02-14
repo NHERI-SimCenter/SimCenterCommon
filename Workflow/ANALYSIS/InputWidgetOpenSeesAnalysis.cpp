@@ -229,8 +229,21 @@ InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(QWidget *parent)
     labelFile->setText("Analysis Script: ");
     file = new QLineEdit;
     file->setToolTip(tr("User provided analysis script, replaces OpenSees default"));
+    file->setPlaceholderText("(Optional)");
+    infoMsg = new QLabel("The information above will be ignored");
     layout->addWidget(labelFile, row, 0);
     layout->addWidget(file, row, 1);
+    infoMsg->setVisible(false);
+    layout->addWidget(infoMsg, row, 3);
+
+    connect(file, &QLineEdit::textEdited, this, [=] (QString text) {
+      if (text!="") {
+          infoMsg->setVisible(true);
+      } else {
+          infoMsg->setVisible(false);
+      }
+    });
+
 
     QPushButton *chooseFile = new QPushButton();
     chooseFile->setText(tr("Choose"));
@@ -245,7 +258,7 @@ InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(QWidget *parent)
     QWidget *dummy = new QWidget();
     layout->addWidget(dummy,8,0);
     layout->setRowStretch(row,1);
-    layout->setColumnStretch(3,2);
+    layout->setColumnStretch(4,2);
     layout->setColumnStretch(1,1);
 
     // set the widgets layout
