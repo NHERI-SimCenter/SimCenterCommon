@@ -102,6 +102,10 @@ MDOF_LU::MDOF_LU(QWidget *parent)
                                 " \"A coarse-grained parallel approach for seismic damage simulations of urban areas based on refined models "
                                 "and GPU/CPU cooperative computing\" , Advances in Engineering Software,"
                                 "2014, 70: 90-103.");
+    citation1->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    citation2->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    citation3->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
     citation1->setWordWrap(true);
     citation2->setWordWrap(true);
     citation3->setWordWrap(true);
