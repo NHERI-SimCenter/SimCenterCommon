@@ -264,6 +264,8 @@ bool SimCenterAppSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
 
 		 
             int index = theApplicationNames.indexOf(appName);
+	    if (index == -1)
+	      index = theOldApplicationNames.indexOf(appName);	      
 
             if (index != -1) {
                 theSelectionCombo->setCurrentIndex(index);
@@ -362,11 +364,12 @@ void SimCenterAppSelection::clearSelections(void)
 }
 
 bool
-SimCenterAppSelection::addComponent(QString text, QString appName, SimCenterAppWidget *theComponent)
+SimCenterAppSelection::addComponent(QString text, QString appName, SimCenterAppWidget *theComponent, QString oldAppName)
 {
     if (theComboNames.indexOf(text) == -1) {
         theComboNames.append(text);
         theApplicationNames.append(appName);
+        theOldApplicationNames.append(oldAppName);	
         theComponents.append(theComponent);
         theStackedWidget->addWidget(theComponent);
 
@@ -386,7 +389,7 @@ SimCenterAppSelection::getComponent(QString text)
 {
     if (theComboNames.indexOf(text) != -1)
         return theComponents.at(theComboNames.indexOf(text));
-    else
+    else 
         return NULL;
 }
 
@@ -519,4 +522,9 @@ SimCenterAppSelection::setSelectionsActive(bool visibility) {
         theStackedWidget->setVisible(true);
         theSelectionCombo->setEnabled(true);
     }
+}
+
+void
+SimCenterAppSelection::setOldKeyName(QString oldKeyword) {
+  jsonKeywordOld = oldKeyword;
 }

@@ -51,8 +51,8 @@ class SimCenterAppSelection : public  SimCenterAppWidget
     Q_OBJECT
 
 public:
-    explicit SimCenterAppSelection(QString label, QString jsonkeyword, QWidget *parent);
-    explicit SimCenterAppSelection(QString label, QString jsonKeyword, QString oldKeyword, QString typeOfAsset = QString(), QWidget *parent = nullptr);
+  explicit SimCenterAppSelection(QString label, QString jsonkeyword, QWidget *parent);
+  explicit SimCenterAppSelection(QString label, QString jsonKeyword, QString oldKeyword, QString typeOfAsset = QString(), QWidget *parent = nullptr);
   explicit SimCenterAppSelection(QString label, QString jsonKeyword, QList<QString>extraKeys, QString typeOfAsset = QString(), QWidget *parent = nullptr);  
     ~SimCenterAppSelection();
 
@@ -64,7 +64,7 @@ public:
 
     void clear(void);
     void clearSelections();
-    bool addComponent(QString comboBoxText, QString appNameText, SimCenterAppWidget *);
+  bool addComponent(QString comboBoxText, QString appNameText, SimCenterAppWidget *, QString oldAppName=QString());
     SimCenterAppWidget *getComponent(QString text);
     SimCenterAppWidget *getCurrentSelection(void);
     QString getCurrentSelectionName(void);
@@ -76,6 +76,8 @@ public:
     int count();
     void hideHeader();
 
+    void setOldKeyName(QString jsonKeywordOld);
+		     
 public slots:
     void selectionChangedSlot(const QString &);
     void setCurrentlyViewable(bool);
@@ -100,6 +102,7 @@ private:
 
     QList<QString> theComboNames;
     QList<QString> theApplicationNames;
+    QList<QString> theOldApplicationNames;  
     QList<SimCenterAppWidget *> theComponents;
     QList<QString> extraKeys;  // needed ascertainasset types have multiple assets and workflow as yet does not handle this
   

@@ -64,6 +64,7 @@ public:
     virtual ~RemoteService();
 
     virtual bool isLoggedIn() =0;
+    QString getHomeDir(void);
 
 public slots:
     // login
@@ -113,6 +114,9 @@ signals:
     void deleteJobReturn(bool) ;
     void remoteLSReturn(QJsonArray dirList);
 
+protected:
+     QString homeDir;
+  
 private:
 
 };

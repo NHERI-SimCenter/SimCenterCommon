@@ -1,11 +1,11 @@
-#ifndef UCSD_ENGINE_H
-#define UCSD_ENGINE_H
+#ifndef UCSD_INPUTBAYESIANCALIBRATION_H
+#define UCSD_INPUTBAYESIANCALIBRATION_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -29,80 +29,70 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
-
-// Written: fmckenna
+// written by: bsaakash
 
 #include <UQ_Engine.h>
-
-class QComboBox;
-class QLabel;
-class QStackedWidget;
-class UQ_Results;
-
-class RandomVariablesContainer;
-class UQ_Method;
-
-class InputWidgetEDP;
-class InputWidgetParameters;
-class InputWidgetFEM;
-
-class QCheckBox;
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QStackedWidget>
+#include <QComboBox>
+#include <QStringList>
+#include <UCSD_UQ_Method.h>
 
 
-class UCSD_Engine : public UQ_Engine
+class UCSD_InputBayesianCalibration : public UQ_Engine
 {
     Q_OBJECT
-
 public:
+    explicit UCSD_InputBayesianCalibration(QWidget *parent = 0);
+    ~UCSD_InputBayesianCalibration();
 
-    explicit UCSD_Engine(UQ_EngineType type, QWidget *parent = 0);
-    virtual ~UCSD_Engine();
-
-    int getMaxNumParallelTasks(void);
+    // SimCenterWidget interface
+public:
     bool outputToJSON(QJsonObject &jsonObject);
     bool inputFromJSON(QJsonObject &jsonObject);
+
+    // SimCenterAppWidget interface
+public:
     bool outputAppDataToJSON(QJsonObject &jsonObject);
     bool inputAppDataFromJSON(QJsonObject &jsonObject);
-
-    void setRV_Defaults(void);  
-    UQ_Results *getResults(void);
-
-    QString getProcessingScript();
-    QString getMethodName();
-
-    bool copyFiles(QString &fileName);
-
-    bool fixMethod(QString Methodname);
-signals:
-//    void onUQ_EngineChanged(QString);
-//    void onUQ_MethodUpdated(QString);
-    void onMethodChanged(void);
+    bool copyFiles(QString &destDir);
+    bool supportsLocalRun();
+    void clear();
+//    bool outputCitation(QJsonObject &jsonObject);
+//    SimCenterAppWidget *getClone();
 
 public slots:
-    void methodChanged(const QString &arg1);
-    void numModelsChanged(int newNum);
+//    void setCurrentlyViewable(bool);
+    void onTextChanged(const QString &text);
 
-private:
-   QLabel *label;
-   QComboBox   *theMethodSelectionBox;
-   QStackedWidget *theStackedWidget;
-   QStringList *methodNames;
-   UQ_Engine *theBayesianCalibration;
-   UQ_Engine *theCurrentEngine;
+    // UQ_Engine interface
 
-  RandomVariablesContainer *theRandomVariables;
-  QCheckBox *parallelCheckBox;
+public:
+    int getMaxNumParallelTasks();
+    void setRV_Defaults();
+    UQ_Results *getResults();
+//    QString getProcessingScript();
+    QString getMethodName();
+//    bool fixMethod(QString);
+//    void setEventType(QString type);
 
-  InputWidgetParameters *theParameters;
-  InputWidgetFEM *theFemWidget;
-  InputWidgetEDP *theEdpWidget;
+    QVBoxLayout *layout;
+    QHBoxLayout *methodLayout;
+    QStackedWidget *samplerStackedWidget;
+    QComboBox *modelCombobox;
+    std::map<QString, UCSD_UQ_Method *> modelToSamplerWidgetMap;
+    std::map<QString, QString> modelToMethodNameMap;
+    UCSD_UQ_Method *theTMCMC;
+    UCSD_UQ_Method *theHierarchicalBayesian;
+    UCSD_UQ_Method *theCurrentMethod;
 };
 
-#endif // UCSD_ENGINE_H
+#endif // UCSD_INPUTBAYESIANCALIBRATION_H

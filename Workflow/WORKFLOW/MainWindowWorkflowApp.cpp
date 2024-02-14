@@ -43,8 +43,8 @@
 
 #include <GoogleAnalytics.h>
 
-MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theService, QWidget *parent)
-    : QMainWindow(parent), loggedIn(false), inputWidget(theApp),   theRemoteInterface(theService), isAutoLogin(false)
+MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theService, QWidget *parent, bool exampleDownloader)
+    : QMainWindow(parent), loggedIn(false), theWorkflowAppWidget(theApp),   theRemoteInterface(theService), isAutoLogin(false)
 {
     //
     // create a layout & widget for central area of this QMainWidget
@@ -96,14 +96,16 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     QHBoxLayout *layoutLogin = new QHBoxLayout();
     QLabel *name = new QLabel();
     //name->setText("");
+    
     loginButton = new QPushButton();
     loginButton->setText("Login");
     layoutLogin->addWidget(name);
     layoutLogin->addWidget(loginButton);
+
     layoutLogin->setAlignment(Qt::AlignLeft);
     header->appendLayout(layoutLogin);
 
-    layout->addWidget(inputWidget);
+    layout->addWidget(theWorkflowAppWidget);
 
     
     //
@@ -176,16 +178,17 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
 
     this->setCentralWidget(centralWidget);
 
-    inputWidget->setMainWindow(this);
+    theWorkflowAppWidget->setMainWindow(this);
 
 
     //
     // Example Downloader
     //
-    
-    theExampleDownloader = new ExampleDownloader(this);
+    _exampleDownloader = exampleDownloader;
+    if (exampleDownloader) {
+        theExampleDownloader = new ExampleDownloader(this);
+    }
     this->updateExamplesMenu();
-
     
     
     //
@@ -265,13 +268,13 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     connect(theRemoteInterface,SIGNAL(logoutReturn(bool)),this,SLOT(logoutReturn(bool)));
 
     // allow remote interface to send error and status messages
-    connect(theRemoteInterface,SIGNAL(errorMessage(QString)),inputWidget,SLOT(errorMessage(QString)));
-    connect(theRemoteInterface,SIGNAL(statusMessage(QString)),inputWidget,SLOT(statusMessage(QString)));
+    connect(theRemoteInterface,SIGNAL(errorMessage(QString)),theWorkflowAppWidget,SLOT(errorMessage(QString)));
+    connect(theRemoteInterface,SIGNAL(statusMessage(QString)),theWorkflowAppWidget,SLOT(statusMessage(QString)));
 
-    connect(this,SIGNAL(sendErrorMessage(QString)),inputWidget,SLOT(errorMessage(QString)));
-    connect(this,SIGNAL(sendStatusMessage(QString)),inputWidget,SLOT(statusMessage(QString)));
-    connect(this,SIGNAL(sendFatalMessage(QString)),inputWidget,SLOT(fatalMessage(QString)));
-    connect(this,SIGNAL(sendInfoMessage(QString)),inputWidget,SLOT(infoMessage(QString)));
+    connect(this,SIGNAL(sendErrorMessage(QString)),theWorkflowAppWidget,SLOT(errorMessage(QString)));
+    connect(this,SIGNAL(sendStatusMessage(QString)),theWorkflowAppWidget,SLOT(statusMessage(QString)));
+    connect(this,SIGNAL(sendFatalMessage(QString)),theWorkflowAppWidget,SLOT(fatalMessage(QString)));
+    connect(this,SIGNAL(sendInfoMessage(QString)),theWorkflowAppWidget,SLOT(infoMessage(QString)));
 
     // connect(runButton, SIGNAL(clicked(bool)),this,SLOT(onRunButtonClicked()));
     // connect job manager
@@ -491,7 +494,7 @@ void MainWindowWorkflowApp::openFile(QString fileName)
 void MainWindowWorkflowApp::newFile()
 {
     // clear old
-    inputWidget->clear();
+    theWorkflowAppWidget->clear();
 
     // set currentFile blank
     setCurrentFile(QString());
@@ -534,7 +537,7 @@ bool MainWindowWorkflowApp::saveFile(const QString &fileName)
     //
 
     QJsonObject json;
-    inputWidget->outputToJSON(json);
+    theWorkflowAppWidget->outputToJSON(json);
 
     //Resolve relative paths before saving
     QFileInfo fileInfo(fileName);
@@ -555,7 +558,7 @@ bool MainWindowWorkflowApp::saveFile(const QString &fileName)
 
 void MainWindowWorkflowApp::loadFile(QString &fileName)
 {
-    inputWidget->loadFile(fileName);
+    theWorkflowAppWidget->loadFile(fileName);
 }
 
 
@@ -565,10 +568,10 @@ void MainWindowWorkflowApp::updateExamplesMenu(void)
         exampleMenu = menuBar()->addMenu(tr("&Examples"));
     else
         exampleMenu->clear();
-
-    exampleMenu->addAction("Manage Examples", this, &MainWindowWorkflowApp::showExampleDownloader);
-    exampleMenu->addSeparator();
-
+    if (_exampleDownloader) {
+        exampleMenu->addAction("Manage Examples", this, &MainWindowWorkflowApp::showExampleDownloader);
+        exampleMenu->addSeparator();
+    }
     auto pathExamplesFolder = QCoreApplication::applicationDirPath() + "/" + "Examples";
 
     auto pathToExamplesJson = pathExamplesFolder + "/" + "Examples.json";
@@ -599,17 +602,19 @@ void MainWindowWorkflowApp::updateExamplesMenu(void)
                 action->setProperty("inputFile",inputFileName);
                 action->setProperty("description",description);
             }
-
-            if(!downloadUrl.isEmpty())
-            {
-                theExampleDownloader->addExampleToDownload(downloadUrl,name,description,inputFileName);
+            if (_exampleDownloader) {
+                if(!downloadUrl.isEmpty())
+                {
+                    theExampleDownloader->addExampleToDownload(downloadUrl,name,description,inputFileName);
+                }
             }
         }
     } else
         qDebug() << "No Examples" << pathToExamplesJson;
 
-    theExampleDownloader->updateTree();
-
+    if (_exampleDownloader) {
+        theExampleDownloader->updateTree();
+    }
 }
 
 
@@ -776,15 +781,14 @@ MainWindowWorkflowApp::logoutReturn(bool ok){
 
 void
 MainWindowWorkflowApp::onRunButtonClicked() {
-    inputWidget->onRunButtonClicked();
+    theWorkflowAppWidget->onRunButtonClicked();
 }
 
 void
 MainWindowWorkflowApp::onRemoteRunButtonClicked(){
     if (loggedIn == true) {
-        inputWidget->onRemoteRunButtonClicked();
-    } else
-    {
+        theWorkflowAppWidget->onRemoteRunButtonClicked();
+    } else {
         QString msg = tr("You must log in to DesignSafe before you can run a remote job");
         emit sendErrorMessage(msg);
 
@@ -796,10 +800,8 @@ MainWindowWorkflowApp::onRemoteRunButtonClicked(){
 void
 MainWindowWorkflowApp::onRemoteGetButtonClicked(){
     if (loggedIn == true) {
-
-        inputWidget->onRemoteGetButtonClicked();
-    } else
-    {
+        theWorkflowAppWidget->onRemoteGetButtonClicked();
+    } else {
         QString msg = tr("You Must LOGIN (button top right) before you can run retrieve remote data");
         emit sendErrorMessage(msg);
 
@@ -810,7 +812,7 @@ MainWindowWorkflowApp::onRemoteGetButtonClicked(){
 
 void MainWindowWorkflowApp::onExitButtonClicked(){
     //RandomVariablesContainer *theParameters = uq->getParameters();
-    inputWidget->onExitButtonClicked();
+    theWorkflowAppWidget->onExitButtonClicked();
     QCoreApplication::exit(0);
 }
 
@@ -993,7 +995,7 @@ MainWindowWorkflowApp::loadExamples()
 void
 MainWindowWorkflowApp::clear()
 {
-    inputWidget->clear();
+    theWorkflowAppWidget->clear();
 }
 
 

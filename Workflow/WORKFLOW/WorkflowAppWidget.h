@@ -52,7 +52,7 @@ public:
     WorkflowAppWidget(RemoteService *theService, QWidget *parent = 0);
     virtual ~WorkflowAppWidget();
 
-    void setMainWindow(MainWindowWorkflowApp* window);
+    virtual void setMainWindow(MainWindowWorkflowApp* window);
 
     virtual bool outputToJSON(QJsonObject &rvObject) =0;
     virtual bool inputFromJSON(QJsonObject &rvObject) =0;
