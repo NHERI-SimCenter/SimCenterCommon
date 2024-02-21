@@ -385,7 +385,9 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
 
     QJsonObject inputs;
     inputs["inputDirectory"]=remoteDirectory;
-    job["inputs"]=inputs;    
+    job["inputs"]=inputs;
+
+    qDebug() << job;
 
     connect(theService,SIGNAL(startJobReturn(QString)), this, SLOT(startJobReturn(QString)));      
     theService->startJobCall(job);
