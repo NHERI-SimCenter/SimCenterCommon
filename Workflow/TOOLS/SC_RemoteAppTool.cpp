@@ -353,7 +353,7 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     
     //submitButton->setDisabled(true);
 
-    QString shortDirName = QCoreApplication::applicationName() + "BLAH";
+    QString shortDirName = QCoreApplication::applicationName() + ": ";
     
     job["name"]=shortDirName + nameLineEdit->text();
     int nodeCount = numCPU_LineEdit->text().toInt();
@@ -364,6 +364,7 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     job["maxRunTime"]=runtimeLineEdit->text();
 
     QString queue = "small";
+//    QString queue = "development";
     if (nodeCount > 2)
       queue = "normal";
     if (nodeCount > 512)
