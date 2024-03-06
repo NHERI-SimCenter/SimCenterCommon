@@ -64,7 +64,7 @@ RemoteAppTest::RemoteAppTest()
 	  });  
   theResult = new RemoteAppTestResult();
   
-  theLayout->addWidget(new QLabel("MPI Program Source Code"),0,0);      
+  theLayout->addWidget(new QLabel("MPI Program Source Code"), 0, 0);
   theLayout->addWidget(theFile, 0,1);
   theLayout->addWidget(chooseFile,0,2);
   theLayout->addWidget(theResult, 1,1);

@@ -133,6 +133,7 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/EXECUTION/RemoteApplication.cpp \
     $$PWD/EXECUTION/RemoteService.cpp \
     $$PWD/EXECUTION/RemoteJobManager.cpp \
+    $$PWD/EXECUTION/ModularPython.cpp \
     $$PWD/EVENTS/ExistingSimCenterEvents.cpp \
     $$PWD/EVENTS/InputWidgetExistingEvent.cpp \
     $$PWD/EVENTS/SimCenterUnitsCombo.cpp \
@@ -256,6 +257,7 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/EXECUTION/RemoteService.h \
     $$PWD/EXECUTION/RemoteJobManager.h \
     $$PWD/EXECUTION/UserDefinedApplication.h \
+    $$PWD/EXECUTION/ModularPython.h \    
     $$PWD/EVENTS/ExistingSimCenterEvents.h \
     $$PWD/EVENTS/InputWidgetExistingEvent.h \
     $$PWD/EVENTS/SimCenterIntensityMeasureWidget.h \

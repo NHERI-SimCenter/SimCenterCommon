@@ -30,7 +30,6 @@ SOURCES += $$PWD/HeaderWidget.cpp \
     $$PWD/SC_TableEdit.cpp \
     $$PWD/SC_FileEdit.cpp \
     $$PWD/SC_ResultsWidget.cpp \                        
-    $$PWD/ModularPython.cpp \
     $$PWD/SimCenterAppWidget.cpp\
     $$PWD/NoArgSimCenterApp.cpp\
     $$PWD/SimCenterAppSelection.cpp \
@@ -59,7 +58,6 @@ HEADERS += $$PWD/HeaderWidget.h \
     $$PWD/SC_TableEdit.h \
     $$PWD/SC_FileEdit.h \
     $$PWD/SC_ResultsWidget.h \    
-    $$PWD/ModularPython.h \
     $$PWD/NoArgSimCenterApp.h \
     $$PWD/SimCenterAppSelection.h \
     $$PWD/SimCenterAppMulti.h \    
