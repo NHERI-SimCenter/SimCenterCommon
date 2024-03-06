@@ -51,7 +51,7 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 
   QDialog *theRemoteDialog = new QDialog(this);
   // QString workflowScriptName = "FMK-NAME";
-  QString shortDirName = QCoreApplication::applicationName() + "BLAH";
+  QString shortDirName = QCoreApplication::applicationName() + ":";
 
   //shortDirName = workflowScriptName;
   //shortDirName = name.chopped(3); // remove .py
@@ -199,7 +199,7 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 
 
   
-  QStringList filesToDownload; filesToDownload << "scInput.json" << "results.zip";
+  QStringList filesToDownload; filesToDownload << "scInput.json" << "results.zip" << "inputData.zip";
   theJobManager = new RemoteJobManager(theService);
   theJobManager->setFilesToDownload(filesToDownload);
   theJobManager->hide();
@@ -265,10 +265,6 @@ SC_RemoteAppTool::submitButtonPressed() {
 
   QString zipFile(destinationDirectory.absoluteFilePath("inputData.zip"));
   QDir inputDataDir(destinationDirectory.absoluteFilePath("inputData"));  
-  
-  qDebug() << "destinationDir: " << destinationDirectory;  
-  qDebug() << "ZIP FILE: " << zipFile;
-  qDebug() << "DIR TO ZIP: " << inputsDirectory;
   
   theApp->copyFiles(inputsDirectory);  
   
@@ -363,8 +359,8 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     job["processorsOnEachNode"]=numProcessorsPerNode;
     job["maxRunTime"]=runtimeLineEdit->text();
 
-    QString queue = "small";
-//    QString queue = "development";
+    //QString queue = "small";
+    QString queue = "development";
     if (nodeCount > 2)
       queue = "normal";
     if (nodeCount > 512)
@@ -451,8 +447,10 @@ SC_RemoteAppTool::processResults(QString &dirName){
     this->errorMessage("FATAL - App cannot process Results");
     return;
   }
-  QString blankFileName("");
-  theResults->processResults(blankFileName, dirName);
+
+  QString blankFileName("scInput.json");
+  theResults->processResults(blankFileName,dirName);
+
 }
 
 
