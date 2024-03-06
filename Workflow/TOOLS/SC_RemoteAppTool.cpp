@@ -452,7 +452,7 @@ SC_RemoteAppTool::processResults(QString &dirName){
     return;
   }
   QString blankFileName("");
-  theResults->processResults(blankFileName,dirName);
+  theResults->processResults(blankFileName, dirName);
 }
 
 
