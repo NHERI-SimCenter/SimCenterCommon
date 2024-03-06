@@ -27,8 +27,9 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 				   QList<QString> queus,
 				   RemoteService *theRemoteService,
 				   SimCenterAppWidget* theEnclosedApp,
-				   QDialog *enclosingDialog)
-:SimCenterAppWidget(), theApp(theEnclosedApp), theService(theRemoteService), tapisAppName(appName)
+				   QDialog *enclosingDialog,
+           QString remoteSystemName)
+:SimCenterAppWidget(), systemName(remoteSystemName), theApp(theEnclosedApp), theService(theRemoteService), tapisAppName(appName)
 {
   QVBoxLayout *theMainLayout = new QVBoxLayout(this);
   theMainLayout->addWidget(theApp);
@@ -68,6 +69,14 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   remoteLayout->addWidget(nameLineEdit,numRow,1);
   
   numRow++;
+  remoteLayout->addWidget(new QLabel("Remote DesignSafe HPC:"), numRow,0);
+  systemLineEdit = new QLineEdit();
+  systemLineEdit->setText(systemName);
+  systemLineEdit->setToolTip(tr("Name of the remote HPC system to run the job on using DesignSafe resources. Options are frontera and lonestar6. To use GPUs, specify as frontera-gpu or lonestar6-gpu"));
+  remoteLayout->addWidget(systemLineEdit,numRow,1);
+  
+  
+  numRow++;
   QLabel *numCPU_Label = new QLabel();
   remoteLayout->addWidget(new QLabel("Num Nodes:"),numRow,0);
   
@@ -78,16 +87,26 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   
   numRow++;
   remoteLayout->addWidget(new QLabel("# Processors Per Node"),numRow,0);
-
+  
   int maxProcPerNode = 56; //theApp->getMaxNumProcessors(56);
   numProcessorsLineEdit = new QLineEdit();
   numProcessorsLineEdit->setText(QString::number(maxProcPerNode));
   numProcessorsLineEdit->setText(QString::number(maxProcPerNode));  
   numProcessorsLineEdit->setToolTip(tr("Total # of Processes to Start"));
   remoteLayout->addWidget(numProcessorsLineEdit,numRow,1);
+
+  numRow++;
+  QLabel *numGPU_Label = new QLabel();
+  remoteLayout->addWidget(new QLabel("Num GPUs:"),numRow,0);
+  
+  numGPU_LineEdit = new QLineEdit();
+  numGPU_LineEdit->setText("0");
+  numGPU_LineEdit->setToolTip(tr("Total # of GPUs to use (across all nodes)"));
+  remoteLayout->addWidget(numGPU_LineEdit,numRow,1);
   
   //  QString appName = QCoreApplication::applicationName();
   
+
   numRow++;
   remoteLayout->addWidget(new QLabel("Max Run Time:"),numRow,0);
   runtimeLineEdit = new QLineEdit();
@@ -228,9 +247,9 @@ SC_RemoteAppTool::submitButtonPressed() {
   bool loggedIn = theService->isLoggedIn();
 
   if (loggedIn != true) {
-    errorMessage("ERROR - You Need to Login");
+    errorMessage("ERROR - You Need to Login to DesignSafe to run a remote application.");
     QMessageBox msg;
-    msg.setText("You need to go back to the Main Application and Login");
+    msg.setText("You need to go back to the Main Application and Login to DesignSafe to run a remote application.");
     msg.show();
     return;
   }
@@ -294,10 +313,14 @@ SC_RemoteAppTool::submitButtonPressed() {
   json["runDir"]=tmpDirectory;
   json["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();    
   json["runType"]=QString("runningRemote");
+  systemName = systemLineEdit->text();
   int nodeCount = numCPU_LineEdit->text().toInt();
+  int gpuCount = numGPU_LineEdit->text().toInt();
   int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
+  json["system"]=systemLineEdit->text();
   json["nodeCount"]=nodeCount;
-  json["numP"]=nodeCount*numProcessorsPerNode;    
+  json["numP"]=nodeCount*numProcessorsPerNode;  
+  json["gpus"]=gpuCount;  
   json["processorsOnEachNode"]=numProcessorsPerNode;    
 
   QJsonDocument doc(json);
@@ -352,9 +375,13 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     QString shortDirName = QCoreApplication::applicationName() + ": ";
     
     job["name"]=shortDirName + nameLineEdit->text();
+    // job["system"]=systemLineEdit->text();
     int nodeCount = numCPU_LineEdit->text().toInt();
+    int gpuCount = numGPU_LineEdit->text().toInt();
     int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
+
     job["nodeCount"]=nodeCount;
+    // job["gpus"]=gpuCount; // TODO: --gres=gpu:{gpuName}:{gpuCount} may be a neccesary format for slurm
     //job["processorsPerNode"]=nodeCount*numProcessorsPerNode; // DesignSafe has inconsistant documentation
     job["processorsOnEachNode"]=numProcessorsPerNode;
     job["maxRunTime"]=runtimeLineEdit->text();
@@ -362,9 +389,32 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     //QString queue = "small";
     QString queue = "development";
     if (nodeCount > 2)
-	queue = "normal";
+      queue = "normal";
     if (nodeCount > 512)
-	queue = "large";
+      queue = "large";
+
+    if (gpuCount) {
+      if (systemName == "lonestar6-gpu" || systemName == "ls6-gpu" || systemName == "lonestar6" || systemName == "ls6") 
+      {
+        if (nodeCount > 0 && nodeCount <= 2)
+          queue = "gpu-a100-dev"; // TODO: Don't use gpu-a100-dev queue in release, try gpu-a100-small (one 40GB GPU) 
+        else if (nodeCount > 2 && nodeCount <= 6)
+          queue = "gpu-a100"; // (three 40 GB GPU, 1-6 nodes)
+        else 
+          qDebug() << "ERROR: Requested node count is too high for lonestar6-gpu system, node count: " << nodeCount;
+      } 
+      else if (systemName == "frontera-gpu" || systemName == "frontera-rtx" || systemName == "frontera") 
+      {
+        if (nodeCount > 0 && nodeCount < 2)
+          queue = "rtx-dev";
+        else if (nodeCount >= 2 && nodeCount <= 6)
+          queue = "rtx";
+        else 
+          qDebug() << "ERROR: Requested node count is too high for frontera-gpu system, node count: " << nodeCount;
+      }
+      else 
+        qDebug() << "ERROR: Requested system is not a GPU system, system name: " << systemName;
+    }
 
     job["appId"]=tapisAppName;
     
