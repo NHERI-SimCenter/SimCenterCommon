@@ -266,13 +266,13 @@ SC_RemoteAppTool::submitButtonPressed() {
   QString zipFile(destinationDirectory.absoluteFilePath("inputData.zip"));
   QDir inputDataDir(destinationDirectory.absoluteFilePath("inputData"));  
   
-  qDebug() << "destinationDir: " << destinationDirectory;  
-  qDebug() << "ZIP FILE: " << zipFile;
-  qDebug() << "DIR TO ZIP: " << inputsDirectory;
   
   theApp->copyFiles(inputsDirectory);  
   
   ZipUtils::ZipFolder(inputDataDir, zipFile);
+
+  // remove inputData so not sent
+  inputDataDir.removeRecursively();
   
   //
   // in tmpDir create the input file
@@ -308,14 +308,8 @@ SC_RemoteAppTool::submitButtonPressed() {
   file.write(doc.toJson());
   file.close();
 
-
-  // remove inputData so not sent
-  
-  inputDataDir.removeRecursively();
-
-  
   //
-  // now send directory across
+  // now send directory containing inputFile and inputData.zip across
   //
 
   QString dirName = destinationDirectory.dirName();
@@ -363,8 +357,8 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     job["processorsOnEachNode"]=numProcessorsPerNode;
     job["maxRunTime"]=runtimeLineEdit->text();
 
-    QString queue = "small";
-//    QString queue = "development";
+    //QString queue = "small";
+    QString queue = "development";
     if (nodeCount > 2)
       queue = "normal";
     if (nodeCount > 512)
