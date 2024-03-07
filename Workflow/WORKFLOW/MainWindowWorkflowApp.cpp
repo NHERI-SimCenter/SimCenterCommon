@@ -178,18 +178,14 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
 
     this->setCentralWidget(centralWidget);
 
-    theWorkflowAppWidget->setMainWindow(this);
-
-
     //
     // Example Downloader
     //
+    
     _exampleDownloader = exampleDownloader;
     if (exampleDownloader) {
         theExampleDownloader = new ExampleDownloader(this);
     }
-    this->updateExamplesMenu();
-    
     
     //
     // Program Helper/ Output Dock
@@ -369,6 +365,9 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
       ");
 
     this->createActions();
+    this->updateExamplesMenu(true);
+    theWorkflowAppWidget->setMainWindow(this);
+    
     
 }
 
@@ -562,12 +561,30 @@ void MainWindowWorkflowApp::loadFile(QString &fileName)
 }
 
 
-void MainWindowWorkflowApp::updateExamplesMenu(void)
+void MainWindowWorkflowApp::updateExamplesMenu(bool placeBeforeHelp)
 {
-    if(exampleMenu == nullptr)
+  
+    if(exampleMenu == nullptr) {
+      if (placeBeforeHelp == false) {
         exampleMenu = menuBar()->addMenu(tr("&Examples"));
-    else
+	
+      } else {
+	
+	QAction* menuAfter = nullptr;
+	foreach (QAction *action, menuBar()->actions()) {
+	  QString actionText = action->text();
+	  if(actionText.compare("&Help") == 0) {
+	    menuAfter = action;
+	    break;
+	  }
+	}
+	exampleMenu = new QMenu(tr("&Examples"));	  
+	menuBar()->insertMenu(menuAfter, exampleMenu);    	  
+      }
+      
+    } else
         exampleMenu->clear();
+
     if (_exampleDownloader) {
         exampleMenu->addAction("Manage Examples", this, &MainWindowWorkflowApp::showExampleDownloader);
         exampleMenu->addSeparator();
@@ -619,6 +636,7 @@ void MainWindowWorkflowApp::updateExamplesMenu(void)
 
 
 void MainWindowWorkflowApp::createActions() {
+  
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
 
 
