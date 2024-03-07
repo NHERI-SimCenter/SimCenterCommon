@@ -8,6 +8,8 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QGridLayout>
+#include <QGuiApplication>
+#include <QScreen>
 
 SC_ToolDialog::SC_ToolDialog(WorkflowAppWidget* parent)
   : QDialog(parent)
@@ -16,28 +18,15 @@ SC_ToolDialog::SC_ToolDialog(WorkflowAppWidget* parent)
   theStackedWidget = new QStackedWidget();
   theMainLayout->addWidget(theStackedWidget);
 
-  /*
-  QGridLayout *theButtonLayout = new QGridLayout();
-  closeButton = new QPushButton("Close");
-  runLocalButton = new QPushButton("Run");
-  runRemoteButton = new QPushButton("RUN at DesignSafe");
-  getRemoteButton = new QPushButton("GET from DesignSafe");
-  
-  theButtonLayout->addWidget(runLocalButton,0,0);
-  theButtonLayout->addWidget(runRemoteButton,0,1);
-  theButtonLayout->addWidget(getRemoteButton,0,2);
-  theButtonLayout->addWidget(closeButton,0,3);
-  
-  
-  //  theMainLayout->addLayout(theButtonLayout);
-  runLocalButton->hide();
-  //runRemoteButton->hide();  
-  //getRemoteButton->hide();
-  //  closeButton->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Maximum);
-  connect(closeButton,&QPushButton::clicked,this,&QDialog::close);
-  // theMainLayout->addWidget(closeButton);
-  */
-  
+  QRect rec = QGuiApplication::primaryScreen()->geometry();
+  int height = this->height()<int(rec.height())?int(rec.height()):this->height();
+  int width  = this->width()<int(rec.width())?int(rec.width()):this->width();
+  height = abs(0.75*height);
+  width = abs(0.75*width);
+  this->resize(width, height);
+  this->hide();
+
+  setWindowFlag(Qt::WindowStaysOnTopHint);
 }
 
 
@@ -56,15 +45,19 @@ void SC_ToolDialog::addTool(SimCenterAppWidget *theAppWidget, QString text) {
     if (theApplicationNames.indexOf(text) == -1) {
         theApplicationNames.append(text);
         theStackedWidget->addWidget(theAppWidget);
-	this->hide();	
     }
 }
 
 void SC_ToolDialog::showTool(QString text) {
+  
   int index = theApplicationNames.indexOf(text);
   if (index != -1) {
+    
     theStackedWidget->setCurrentIndex(index);
-    this->showMaximized();
+    this->show();
+    this->activateWindow();
+    this->raise();
+
   }
 }  
 
