@@ -153,8 +153,6 @@ RemoteJobManager::jobsListReturn(QJsonObject theJobs){
             QString jobStatus = job["status"].toString();
             QString jobDate = job["created"].toString();
 
-            qDebug() << "All job info:" << job.length();
-
             QString processorsPerNode  = job["processorsPerNode"].toString();
             QString nodes  = job["nodeCount"].toString();
             QString maxHour  = job["status"].toString();

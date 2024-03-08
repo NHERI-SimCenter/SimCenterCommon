@@ -269,6 +269,9 @@ SC_RemoteAppTool::submitButtonPressed() {
   theApp->copyFiles(inputsDirectory);  
   
   ZipUtils::ZipFolder(inputDataDir, zipFile);
+
+  // remove inputData so not sent
+  inputDataDir.removeRecursively();
   
   //
   // in tmpDir create the input file
@@ -304,14 +307,8 @@ SC_RemoteAppTool::submitButtonPressed() {
   file.write(doc.toJson());
   file.close();
 
-
-  // remove inputData so not sent
-  
-  inputDataDir.removeRecursively();
-
-  
   //
-  // now send directory across
+  // now send directory containing inputFile and inputData.zip across
   //
 
   QString dirName = destinationDirectory.dirName();
