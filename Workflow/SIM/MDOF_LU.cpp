@@ -91,6 +91,7 @@ MDOF_LU::MDOF_LU(QWidget *parent)
     storyHeight->setText("");
     layout->addWidget(new QLabel("Default Story Height:"), 3,0);
     layout->addWidget(storyHeight,   3,1);
+    storyHeight->setPlaceholderText("(Optional)");
 
     auto citation1 = new QLabel("This backend application used by this selection was provided by Prof. Xinzheng Lu, Tsinghua University, China. "
                                        "Users should cite the work as follows:");
