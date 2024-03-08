@@ -356,8 +356,8 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     job["processorsOnEachNode"]=numProcessorsPerNode;
     job["maxRunTime"]=runtimeLineEdit->text();
 
-    //QString queue = "small";
-    QString queue = "development";
+    QString queue = "small";
+    //QString queue = "development";
     if (nodeCount > 2)
       queue = "normal";
     if (nodeCount > 512)
