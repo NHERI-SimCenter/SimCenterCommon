@@ -444,8 +444,10 @@ SC_RemoteAppTool::processResults(QString &dirName){
     this->errorMessage("FATAL - App cannot process Results");
     return;
   }
+
   QString blankFileName("scInput.json");
   theResults->processResults(blankFileName,dirName);
+
 }
 
 
