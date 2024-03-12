@@ -376,7 +376,6 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     int nodeCount = numCPU_LineEdit->text().toInt();
     int gpuCount = numGPU_LineEdit->text().toInt();
     int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
-
     job["nodeCount"]=nodeCount;
     // job["gpus"]=gpuCount; // TODO: --gres=gpu:{gpuName}:{gpuCount} may be a neccesary format for slurm
     //job["processorsPerNode"]=nodeCount*numProcessorsPerNode; // DesignSafe has inconsistant documentation
@@ -491,7 +490,7 @@ SC_RemoteAppTool::processResults(QString &dirName){
     
   SC_ResultsWidget *theResults=theApp->getResultsWidget();
   if (theResults == NULL) {
-    this->errorMessage("FATAL - App cannot process Results");
+    this->errorMessage("FATAL - SC_RemoteAppTool received NULL pointer theResults from theApp->getResultsWidget()... skipping theResults->processResults()");
     return;
   }
 
