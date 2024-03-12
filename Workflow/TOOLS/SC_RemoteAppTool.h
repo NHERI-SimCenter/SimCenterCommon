@@ -22,7 +22,8 @@ public:
 		   QList<QString> queueNames,
 		   RemoteService *theService,
 		   SimCenterAppWidget* theEnclosedApp,
-		   QDialog *enclosingDialog = nullptr);
+		   QDialog *enclosingDialog = nullptr, 
+       QString remoteSystemName = "frontera");
   
   ~SC_RemoteAppTool();
   
@@ -41,10 +42,13 @@ private:
 
   SimCenterAppWidget *theApp;
   QString tapisAppName;
+  QString systemName;
   RemoteService *theService;
 
   QLineEdit *nameLineEdit;
+  QLineEdit *systemLineEdit;
   QLineEdit *numCPU_LineEdit;
+  QLineEdit *numGPU_LineEdit;
   QLineEdit *numProcessorsLineEdit;
   QLineEdit *runtimeLineEdit;  
 
