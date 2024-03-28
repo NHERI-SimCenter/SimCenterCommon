@@ -227,8 +227,6 @@ int CustomUQ_Results::processResults(QString &filenameOUT, QString &filenameTAB)
     tabWidget->addTab(theDataTable, tr("Data Values"));
     tabWidget->adjustSize();
 
-    statusMessage(tr(""));
-
     return 0;
 }
 
