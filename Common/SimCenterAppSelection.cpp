@@ -528,3 +528,14 @@ void
 SimCenterAppSelection::setOldKeyName(QString oldKeyword) {
   jsonKeywordOld = oldKeyword;
 }
+
+bool
+SimCenterAppSelection::outputCitation(QJsonObject &citation)
+{
+
+  QJsonObject appSpecificCitation;
+  theCurrentSelection->outputCitation(appSpecificCitation);
+  if (!appSpecificCitation.isEmpty()) {
+    citation.insert(theApplicationNames[currentIndex], appSpecificCitation);
+  }  
+}

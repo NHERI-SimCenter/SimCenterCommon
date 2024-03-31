@@ -69,6 +69,7 @@ public:
     SimCenterAppWidget *getCurrentSelection(void);
     QString getCurrentSelectionName(void);
     bool selectComponent(const QString text);
+    bool outputCitation(QJsonObject &jsonObject);
 
     void removeItem(QString itemName);
     QString getComboName(int index);
