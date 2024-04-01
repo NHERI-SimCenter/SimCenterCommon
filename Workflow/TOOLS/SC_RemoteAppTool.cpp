@@ -24,15 +24,15 @@
 
 
 SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
-				   QList<QString> queus,
+				   QList<QString> theQueus,
 				   RemoteService *theRemoteService,
 				   SimCenterAppWidget* theEnclosedApp,
 				   QDialog *enclosingDialog)
-:SimCenterAppWidget(), theApp(theEnclosedApp), theService(theRemoteService), tapisAppName(appName)
+:SimCenterAppWidget(), theApp(theEnclosedApp), theService(theRemoteService), tapisAppName(appName), queus(theQueus)
 {
   QVBoxLayout *theMainLayout = new QVBoxLayout(this);
   theMainLayout->addWidget(theApp);
-
+  
 
   QGridLayout *theButtonLayout = new QGridLayout();
   QPushButton *fileLoadButton = new QPushButton("LOAD File");
@@ -66,22 +66,37 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   nameLineEdit = new QLineEdit();
   nameLineEdit->setToolTip(tr("A meaningful name to provide for you to remember run later (days and weeks from now)"));
   remoteLayout->addWidget(nameLineEdit,numRow,1);
-  
-  numRow++;
-  QLabel *numCPU_Label = new QLabel();
-  remoteLayout->addWidget(new QLabel("Num Nodes:"),numRow,0);
+
+  int numNode = 1;
+  int maxProcPerNode = 56; //theApp->getMaxNumProcessors(56);
   
   numCPU_LineEdit = new QLineEdit();
-  numCPU_LineEdit->setText("1");
-  numCPU_LineEdit->setToolTip(tr("Total # of nodes to use (each node has many cores)"));
+  numRow++;
   remoteLayout->addWidget(numCPU_LineEdit,numRow,1);
   
   numRow++;
-  remoteLayout->addWidget(new QLabel("# Processors Per Node"),numRow,0);
 
-  int maxProcPerNode = 56; //theApp->getMaxNumProcessors(56);
+  
+  if (queus.first() == "gpu-a100") {
+    
+    // lonestar 6 .. only set up for gpu-a100
+    maxProcPerNode = 516; //theApp->getMaxNumProcessors(56);
+    remoteLayout->addWidget(new QLabel("Num GPU:"),numRow-1,0); 
+    remoteLayout->addWidget(new QLabel("# Cores Per GPU"),numRow,0);           
+    numCPU_LineEdit->setText("4");
+    numCPU_LineEdit->setToolTip(tr("Total # of GPU to use (each node has many cores)"));
+    numCPU_LineEdit->setReadOnly(true); // min/max num nodes is 4 so cannot edit this
+    
+  } else {
+
+    remoteLayout->addWidget(new QLabel("Num Nodes:"),numRow-1,0);
+    remoteLayout->addWidget(new QLabel("# Cores Per Node"),numRow,0);        
+    numCPU_LineEdit->setText("1");
+    numCPU_LineEdit->setToolTip(tr("Total # of nodes to use (each node has many cores)"));
+    
+  }
+
   numProcessorsLineEdit = new QLineEdit();
-  numProcessorsLineEdit->setText(QString::number(maxProcPerNode));
   numProcessorsLineEdit->setText(QString::number(maxProcPerNode));  
   numProcessorsLineEdit->setToolTip(tr("Total # of Processes to Start"));
   remoteLayout->addWidget(numProcessorsLineEdit,numRow,1);
@@ -345,26 +360,39 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     QJsonObject job;
     
     //submitButton->setDisabled(true);
-
+    int nodeCount = numCPU_LineEdit->text().toInt();
+    int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
+    
+    QString queue; // queuu to send job to
+    QString firstQueue = queus.first();
+    if (firstQueue == "gpu-a100") {
+      
+      queue = "gpu-a100";
+      
+    } else { // Frontera
+	
+      QString queue = "small";
+      //QString queue = "development";
+      if (nodeCount > 2)
+	queue = "normal";
+      if (nodeCount > 512)
+	queue = "large";
+    }
+    
     QString shortDirName = QCoreApplication::applicationName() + ": ";
     
     job["name"]=shortDirName + nameLineEdit->text();
-    int nodeCount = numCPU_LineEdit->text().toInt();
-    int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
     job["nodeCount"]=nodeCount;
     //job["processorsPerNode"]=nodeCount*numProcessorsPerNode; // DesignSafe has inconsistant documentation
     job["processorsOnEachNode"]=numProcessorsPerNode;
     job["maxRunTime"]=runtimeLineEdit->text();
 
-    QString queue = "small";
-    //QString queue = "development";
-    if (nodeCount > 2)
-      queue = "normal";
-    if (nodeCount > 512)
-      queue = "large";
+    //
+    // hard code the queue stuff for this release, wil; need more info on cores, min counts
+    //
+
     
     job["appId"]=tapisAppName;
-    
     job["memoryPerNode"]= "1GB";
     job["archive"]=true;
     job["batchQueue"]=queue;      
