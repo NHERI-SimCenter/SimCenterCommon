@@ -46,9 +46,10 @@ private:
   
   QLineEdit *nameLineEdit;
   QLineEdit *numCPU_LineEdit;
+  QLineEdit *numGPU_LineEdit;  
   QLineEdit *numProcessorsLineEdit;
   QLineEdit *runtimeLineEdit;  
-
+  
   QPushButton *submitButton;
 
   QString tmpDirName;

@@ -70,40 +70,46 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   int numNode = 1;
   int maxProcPerNode = 56; //theApp->getMaxNumProcessors(56);
   
-  numCPU_LineEdit = new QLineEdit();
   numRow++;
+  numCPU_LineEdit = new QLineEdit();
+  remoteLayout->addWidget(new QLabel("Num Nodes:"),numRow,0);  
   remoteLayout->addWidget(numCPU_LineEdit,numRow,1);
-  
+  numCPU_LineEdit->setText("1");
+    
   numRow++;
 
-  
   if (queus.first() == "gpu-a100") {
     
     // lonestar 6 .. only set up for gpu-a100
     maxProcPerNode = 516; //theApp->getMaxNumProcessors(56);
-    remoteLayout->addWidget(new QLabel("Num GPU:"),numRow-1,0); 
-    remoteLayout->addWidget(new QLabel("# Cores Per GPU"),numRow,0);           
-    numCPU_LineEdit->setText("4");
-    numCPU_LineEdit->setToolTip(tr("Total # of GPU to use (each node has many cores)"));
-    numCPU_LineEdit->setReadOnly(true); // min/max num nodes is 4 so cannot edit this
-    
-  } else {
 
-    remoteLayout->addWidget(new QLabel("Num Nodes:"),numRow-1,0);
-    remoteLayout->addWidget(new QLabel("# Cores Per Node"),numRow,0);        
-    numCPU_LineEdit->setText("1");
-    numCPU_LineEdit->setToolTip(tr("Total # of nodes to use (each node has many cores)"));
+    QLabel *numGPU_Label = new QLabel();
+    remoteLayout->addWidget(new QLabel("Num GPUs:"),numRow,0);
     
-  }
+    numGPU_LineEdit = new QLineEdit();
+    numGPU_LineEdit->setText("0");
+    numGPU_LineEdit->setToolTip(tr("Total # of GPUs to use (across all nodes)"));
+    remoteLayout->addWidget(numGPU_LineEdit,numRow,1);
+    
+    numRow++;
+    
+  } else
+    
+    numGPU_LineEdit = NULL;
+    
 
+  remoteLayout->addWidget(new QLabel("Num Processors Per Node:"),numRow,0);    
   numProcessorsLineEdit = new QLineEdit();
-  numProcessorsLineEdit->setText(QString::number(maxProcPerNode));  
+  numProcessorsLineEdit->setText(QString::number(maxProcPerNode));
   numProcessorsLineEdit->setToolTip(tr("Total # of Processes to Start"));
+  numProcessorsLineEdit->setText(QString::number(maxProcPerNode));    
   remoteLayout->addWidget(numProcessorsLineEdit,numRow,1);
-  
-  //  QString appName = QCoreApplication::applicationName();
-  
+
   numRow++;
+  
+
+
+  
   remoteLayout->addWidget(new QLabel("Max Run Time:"),numRow,0);
   runtimeLineEdit = new QLineEdit();
   runtimeLineEdit->setText("00:20:00");
@@ -316,7 +322,11 @@ SC_RemoteAppTool::submitButtonPressed() {
   int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
   json["nodeCount"]=nodeCount;
   json["numP"]=nodeCount*numProcessorsPerNode;    
-  json["processorsOnEachNode"]=numProcessorsPerNode;    
+  json["processorsOnEachNode"]=numProcessorsPerNode;
+  if (numGPU_LineEdit != NULL) {
+    int gpuCount = numGPU_LineEdit->text().toInt();
+    json["gpus"]=gpuCount;
+  }
 
   QJsonDocument doc(json);
   file.write(doc.toJson());
@@ -397,7 +407,7 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     job["archive"]=true;
     job["batchQueue"]=queue;      
     job["archivePath"]="";
-    job["archiveSystem"]="designsafe.storage.default";  
+    job["archiveSystem"]="designsafe.storage.default";
 
     QJsonObject parameters;    
     parameters["inputFile"]="scInput.json";
