@@ -20,10 +20,9 @@ class SC_RemoteAppTool : public SimCenterAppWidget
 public:
   SC_RemoteAppTool(QString tapisAppName,
 		   QList<QString> queueNames,
-		   RemoteService *theService,
+		   RemoteService *theRemoteService,
 		   SimCenterAppWidget* theEnclosedApp,
-		   QDialog *enclosingDialog = nullptr, 
-       QString remoteSystemName = "frontera");
+		   QDialog *enclosingDialog = nullptr);
   
   ~SC_RemoteAppTool();
   
@@ -43,9 +42,6 @@ private:
   SimCenterAppWidget *theApp;
   RemoteService *theService;  
   QString tapisAppName;
-  QString systemName;
-  RemoteService *theService;
-
   QStringList queus;
   
   QLineEdit *nameLineEdit;

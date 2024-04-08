@@ -27,9 +27,8 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 				   QList<QString> theQueus,
 				   RemoteService *theRemoteService,
 				   SimCenterAppWidget* theEnclosedApp,
-				   QDialog *enclosingDialog,
-           QString remoteSystemName)
-:SimCenterAppWidget(), systemName(remoteSystemName), theApp(theEnclosedApp), theService(theRemoteService), tapisAppName(appName)
+				   QDialog *enclosingDialog)
+:SimCenterAppWidget(), theApp(theEnclosedApp), theService(theRemoteService), tapisAppName(appName), queus(theQueus)
 {
   QVBoxLayout *theMainLayout = new QVBoxLayout(this);
   theMainLayout->addWidget(theApp);
@@ -71,12 +70,12 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   int numNode = 1;
   int maxProcPerNode = 56; //theApp->getMaxNumProcessors(56);
   
-  numRow++;
-  remoteLayout->addWidget(new QLabel("Remote DesignSafe HPC:"), numRow,0);
-  systemLineEdit = new QLineEdit();
-  systemLineEdit->setText(systemName);
-  systemLineEdit->setToolTip(tr("Name of the remote HPC system to run the job on using DesignSafe resources. Options are frontera and lonestar6. To use GPUs, specify as frontera-gpu or lonestar6-gpu"));
-  remoteLayout->addWidget(systemLineEdit,numRow,1);
+  // numRow++;
+  // remoteLayout->addWidget(new QLabel("Remote DesignSafe HPC:"), numRow,0);
+  // systemLineEdit = new QLineEdit();
+  // systemLineEdit->setText(systemName);
+  // systemLineEdit->setToolTip(tr("Name of the remote HPC system to run the job on using DesignSafe resources. Options are frontera and lonestar6. To use GPUs, specify as frontera-gpu or lonestar6-gpu"));
+  // remoteLayout->addWidget(systemLineEdit,numRow,1);
   
   
   numRow++;
@@ -87,7 +86,7 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
     
   numRow++;
 
-  if (queus.first() == "gpu-a100" || systemName == "lonestar6-gpu") {
+  if (queus.first() == "gpu-a100") {
     
     // lonestar 6 .. only set up for gpu-a100
     maxProcPerNode = 128; //theApp->getMaxNumProcessors(56);
@@ -327,7 +326,6 @@ SC_RemoteAppTool::submitButtonPressed() {
   json["runDir"]=tmpDirectory;
   json["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();    
   json["runType"]=QString("runningRemote");
-  systemName = systemLineEdit->text();
   int nodeCount = numCPU_LineEdit->text().toInt();
   int gpuCount = numGPU_LineEdit->text().toInt();
   int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
@@ -388,17 +386,14 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     QString queue; // queuu to send job to
     QString firstQueue = queus.first();
     if (firstQueue == "gpu-a100") {
-      
       queue = "gpu-a100";
-      
     } else { // Frontera
-	
       queue = "small";
       //QString queue = "development";
       if (nodeCount > 2)
-	queue = "normal";
+        queue = "normal";
       if (nodeCount > 512)
-	queue = "large";
+        queue = "large";
     }
     
     QString shortDirName = QCoreApplication::applicationName() + ": ";
@@ -411,28 +406,28 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     job["processorsOnEachNode"]=numProcessorsPerNode;
     job["maxRunTime"]=runtimeLineEdit->text();
 
-    if (gpuCount) {
-      if (systemName == "lonestar6-gpu" || systemName == "ls6-gpu" || systemName == "lonestar6" || systemName == "ls6") 
-      {
-        if (nodeCount > 0 && nodeCount <= 2)
-          queue = "gpu-a100-dev"; // TODO: Don't use gpu-a100-dev queue in release, try gpu-a100-small (one 40GB GPU) 
-        else if (nodeCount > 2 && nodeCount <= 6)
-          queue = "gpu-a100"; // (three 40 GB GPU, 1-6 nodes)
-        else 
-          qDebug() << "ERROR: Requested node count is too high for lonestar6-gpu system, node count: " << nodeCount;
-      } 
-      else if (systemName == "frontera-gpu" || systemName == "frontera-rtx" || systemName == "frontera") 
-      {
-        if (nodeCount > 0 && nodeCount < 2)
-          queue = "rtx-dev";
-        else if (nodeCount >= 2 && nodeCount <= 6)
-          queue = "rtx";
-        else 
-          qDebug() << "ERROR: Requested node count is too high for frontera-gpu system, node count: " << nodeCount;
-      }
-      else 
-        qDebug() << "ERROR: Requested system is not a GPU system, system name: " << systemName;
-    }
+    // if (gpuCount) {
+    //   if (systemName == "lonestar6-gpu" || systemName == "ls6-gpu" || systemName == "lonestar6" || systemName == "ls6") 
+    //   {
+    //     if (nodeCount > 0 && nodeCount <= 2)
+    //       queue = "gpu-a100"; // TODO: Don't use gpu-a100-dev queue in release, try gpu-a100-small (one 40GB GPU) 
+    //     else if (nodeCount > 2 && nodeCount <= 6)
+    //       queue = "gpu-a100"; // (three 40 GB GPU, 1-6 nodes)
+    //     else 
+    //       qDebug() << "ERROR: Requested node count is too high for lonestar6-gpu system, node count: " << nodeCount;
+    //   } 
+    //   else if (systemName == "frontera-gpu" || systemName == "frontera-rtx" || systemName == "frontera") 
+    //   {
+    //     if (nodeCount > 0 && nodeCount < 2)
+    //       queue = "rtx-dev";
+    //     else if (nodeCount >= 2 && nodeCount <= 6)
+    //       queue = "rtx";
+    //     else 
+    //       qDebug() << "ERROR: Requested node count is too high for frontera-gpu system, node count: " << nodeCount;
+    //   }
+    //   else 
+    //     qDebug() << "ERROR: Requested system is not a GPU system, system name: " << systemName;
+    // }
 
     //
     // hard code the queue stuff for this release, wil; need more info on cores, min counts
