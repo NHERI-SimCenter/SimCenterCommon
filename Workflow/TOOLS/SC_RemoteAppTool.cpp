@@ -393,7 +393,7 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
       
     } else { // Frontera
 	
-      QString queue = "small";
+      queue = "small";
       //QString queue = "development";
       if (nodeCount > 2)
 	queue = "normal";
@@ -405,21 +405,14 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     
     job["name"]=shortDirName + nameLineEdit->text();
     // job["system"]=systemLineEdit->text();
-    int nodeCount = numCPU_LineEdit->text().toInt();
+    // int nodeCount = numCPU_LineEdit->text().toInt();
     int gpuCount = numGPU_LineEdit->text().toInt();
-    int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
+    // int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
     job["nodeCount"]=nodeCount;
-    // job["gpus"]=gpuCount; // TODO: --gres=gpu:{gpuName}:{gpuCount} may be a neccesary format for slurm
+    job["gpus"]=gpuCount; // TODO: --gres=gpu:{gpuName}:{gpuCount} may be a neccesary format for slurm
     //job["processorsPerNode"]=nodeCount*numProcessorsPerNode; // DesignSafe has inconsistant documentation
     job["processorsOnEachNode"]=numProcessorsPerNode;
     job["maxRunTime"]=runtimeLineEdit->text();
-
-    QString queue = "small";
-    //QString queue = "development";
-    if (nodeCount > 2)
-      queue = "normal";
-    if (nodeCount > 512)
-      queue = "large";
 
     if (gpuCount) {
       if (systemName == "lonestar6-gpu" || systemName == "ls6-gpu" || systemName == "lonestar6" || systemName == "ls6") 
