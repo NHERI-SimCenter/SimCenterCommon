@@ -404,10 +404,7 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     QString shortDirName = QCoreApplication::applicationName() + ": ";
     
     job["name"]=shortDirName + nameLineEdit->text();
-    // job["system"]=systemLineEdit->text();
-    // int nodeCount = numCPU_LineEdit->text().toInt();
     int gpuCount = numGPU_LineEdit->text().toInt();
-    // int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
     job["nodeCount"]=nodeCount;
     job["gpus"]=gpuCount; // TODO: --gres=gpu:{gpuName}:{gpuCount} may be a neccesary format for slurm
     //job["processorsPerNode"]=nodeCount*numProcessorsPerNode; // DesignSafe has inconsistant documentation
