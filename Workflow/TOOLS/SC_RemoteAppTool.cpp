@@ -24,7 +24,7 @@
 
 
 SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
-				   QList<QString> queus,
+				   QList<QString> theQueus,
 				   RemoteService *theRemoteService,
 				   SimCenterAppWidget* theEnclosedApp,
 				   QDialog *enclosingDialog,
@@ -33,7 +33,7 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 {
   QVBoxLayout *theMainLayout = new QVBoxLayout(this);
   theMainLayout->addWidget(theApp);
-
+  
 
   QGridLayout *theButtonLayout = new QGridLayout();
   QPushButton *fileLoadButton = new QPushButton("LOAD File");
@@ -67,6 +67,9 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   nameLineEdit = new QLineEdit();
   nameLineEdit->setToolTip(tr("A meaningful name to provide for you to remember run later (days and weeks from now)"));
   remoteLayout->addWidget(nameLineEdit,numRow,1);
+
+  int numNode = 1;
+  int maxProcPerNode = 56; //theApp->getMaxNumProcessors(56);
   
   numRow++;
   remoteLayout->addWidget(new QLabel("Remote DesignSafe HPC:"), numRow,0);
@@ -77,37 +80,45 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   
   
   numRow++;
-  QLabel *numCPU_Label = new QLabel();
-  remoteLayout->addWidget(new QLabel("Num Nodes:"),numRow,0);
-  
   numCPU_LineEdit = new QLineEdit();
-  numCPU_LineEdit->setText("1");
-  numCPU_LineEdit->setToolTip(tr("Total # of nodes to use (each node has many cores)"));
+  remoteLayout->addWidget(new QLabel("Num Nodes:"),numRow,0);  
   remoteLayout->addWidget(numCPU_LineEdit,numRow,1);
-  
+  numCPU_LineEdit->setText("1");
+    
   numRow++;
-  remoteLayout->addWidget(new QLabel("# Processors Per Node"),numRow,0);
-  
-  int maxProcPerNode = 56; //theApp->getMaxNumProcessors(56);
+
+  if (queus.first() == "gpu-a100" || systemName == "lonestar6-gpu") {
+    
+    // lonestar 6 .. only set up for gpu-a100
+    maxProcPerNode = 128; //theApp->getMaxNumProcessors(56);
+
+    QLabel *numGPU_Label = new QLabel();
+    remoteLayout->addWidget(new QLabel("Num GPUs:"),numRow,0);
+    
+    numGPU_LineEdit = new QLineEdit();
+    numGPU_LineEdit->setText("0");
+    numGPU_LineEdit->setToolTip(tr("Total # of GPUs to use (across all nodes)"));
+    remoteLayout->addWidget(numGPU_LineEdit,numRow,1);
+    
+    numRow++;
+    
+  } else
+    
+    numGPU_LineEdit = NULL;
+    
+
+  remoteLayout->addWidget(new QLabel("Num Processors Per Node:"),numRow,0);    
   numProcessorsLineEdit = new QLineEdit();
   numProcessorsLineEdit->setText(QString::number(maxProcPerNode));
-  numProcessorsLineEdit->setText(QString::number(maxProcPerNode));  
   numProcessorsLineEdit->setToolTip(tr("Total # of Processes to Start"));
+  numProcessorsLineEdit->setText(QString::number(maxProcPerNode));    
   remoteLayout->addWidget(numProcessorsLineEdit,numRow,1);
 
   numRow++;
-  QLabel *numGPU_Label = new QLabel();
-  remoteLayout->addWidget(new QLabel("Num GPUs:"),numRow,0);
-  
-  numGPU_LineEdit = new QLineEdit();
-  numGPU_LineEdit->setText("0");
-  numGPU_LineEdit->setToolTip(tr("Total # of GPUs to use (across all nodes)"));
-  remoteLayout->addWidget(numGPU_LineEdit,numRow,1);
-  
-  //  QString appName = QCoreApplication::applicationName();
   
 
-  numRow++;
+
+  
   remoteLayout->addWidget(new QLabel("Max Run Time:"),numRow,0);
   runtimeLineEdit = new QLineEdit();
   runtimeLineEdit->setText("00:20:00");
@@ -322,9 +333,12 @@ SC_RemoteAppTool::submitButtonPressed() {
   int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
   json["system"]=systemLineEdit->text();
   json["nodeCount"]=nodeCount;
-  json["numP"]=nodeCount*numProcessorsPerNode;  
-  json["gpus"]=gpuCount;  
-  json["processorsOnEachNode"]=numProcessorsPerNode;    
+  json["numP"]=nodeCount*numProcessorsPerNode;    
+  json["processorsOnEachNode"]=numProcessorsPerNode;
+  if (numGPU_LineEdit != NULL) {
+    int gpuCount = numGPU_LineEdit->text().toInt();
+    json["gpus"]=gpuCount;
+  }
 
   QJsonDocument doc(json);
   file.write(doc.toJson());
@@ -368,7 +382,25 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     QJsonObject job;
     
     //submitButton->setDisabled(true);
-
+    int nodeCount = numCPU_LineEdit->text().toInt();
+    int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
+    
+    QString queue; // queuu to send job to
+    QString firstQueue = queus.first();
+    if (firstQueue == "gpu-a100") {
+      
+      queue = "gpu-a100";
+      
+    } else { // Frontera
+	
+      QString queue = "small";
+      //QString queue = "development";
+      if (nodeCount > 2)
+	queue = "normal";
+      if (nodeCount > 512)
+	queue = "large";
+    }
+    
     QString shortDirName = QCoreApplication::applicationName() + ": ";
     
     job["name"]=shortDirName + nameLineEdit->text();
@@ -412,13 +444,17 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
         qDebug() << "ERROR: Requested system is not a GPU system, system name: " << systemName;
     }
 
-    job["appId"]=tapisAppName;
+    //
+    // hard code the queue stuff for this release, wil; need more info on cores, min counts
+    //
+
     
+    job["appId"]=tapisAppName;
     job["memoryPerNode"]= "1GB";
     job["archive"]=true;
     job["batchQueue"]=queue;      
     job["archivePath"]="";
-    job["archiveSystem"]="designsafe.storage.default";  
+    job["archiveSystem"]="designsafe.storage.default";
 
     QJsonObject parameters;    
     parameters["inputFile"]="scInput.json";

@@ -41,17 +41,20 @@ public slots:
 private:
 
   SimCenterAppWidget *theApp;
+  RemoteService *theService;  
   QString tapisAppName;
   QString systemName;
   RemoteService *theService;
 
+  QStringList queus;
+  
   QLineEdit *nameLineEdit;
   QLineEdit *systemLineEdit;
   QLineEdit *numCPU_LineEdit;
   QLineEdit *numGPU_LineEdit;
   QLineEdit *numProcessorsLineEdit;
   QLineEdit *runtimeLineEdit;  
-
+  
   QPushButton *submitButton;
 
   QString tmpDirName;

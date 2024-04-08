@@ -71,6 +71,8 @@ public slots:
     // Downloads the file info
     void downloadExamples(const QStringList urls, const QStringList fileNames);
 
+    void downloadData(const QStringList urls, const QStringList fileNames, QString type, QString saveFolder);
+
     // Slot to let the program know that the download is finished
     void fileDownloadFinished(QNetworkReply *reply);
 
@@ -103,6 +105,9 @@ private:
     QStringList fileDownloadUrls;
     QStringList fileDownloadNames;
     QStringList fileHashes;
+
+    QString downloadType;
+    QString folderToSaveData;
 
     int unzipFile(const QString pathZipFile);
 
