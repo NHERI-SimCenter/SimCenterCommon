@@ -70,14 +70,6 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   int numNode = 1;
   int maxProcPerNode = 56; //theApp->getMaxNumProcessors(56);
   
-  // numRow++;
-  // remoteLayout->addWidget(new QLabel("Remote DesignSafe HPC:"), numRow,0);
-  // systemLineEdit = new QLineEdit();
-  // systemLineEdit->setText(systemName);
-  // systemLineEdit->setToolTip(tr("Name of the remote HPC system to run the job on using DesignSafe resources. Options are frontera and lonestar6. To use GPUs, specify as frontera-gpu or lonestar6-gpu"));
-  // remoteLayout->addWidget(systemLineEdit,numRow,1);
-  
-  
   numRow++;
   numCPU_LineEdit = new QLineEdit();
   remoteLayout->addWidget(new QLabel("Num Nodes:"),numRow,0);  
@@ -95,22 +87,22 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
     remoteLayout->addWidget(new QLabel("Num GPUs:"),numRow,0);
     
     numGPU_LineEdit = new QLineEdit();
-    numGPU_LineEdit->setText("0");
+    numGPU_LineEdit->setText("3");
     numGPU_LineEdit->setToolTip(tr("Total # of GPUs to use (across all nodes)"));
     remoteLayout->addWidget(numGPU_LineEdit,numRow,1);
     
     numRow++;
     
-  } else
-    
+  } else {
     numGPU_LineEdit = NULL;
-    
+  }
+
 
   remoteLayout->addWidget(new QLabel("Num Processors Per Node:"),numRow,0);    
   numProcessorsLineEdit = new QLineEdit();
   numProcessorsLineEdit->setText(QString::number(maxProcPerNode));
   numProcessorsLineEdit->setToolTip(tr("Total # of Processes to Start"));
-  numProcessorsLineEdit->setText(QString::number(maxProcPerNode));    
+
   remoteLayout->addWidget(numProcessorsLineEdit,numRow,1);
 
   numRow++;
@@ -137,7 +129,7 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   connect(fileLoadButton, &QPushButton::clicked, this,
 	  [=]() {
 	    //QString fileName=QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)");
-        QString fileName=QFileDialog::getOpenFileName(this,tr("Open JSON File"),"", "JSON file (*.json)"); // sy - to continue from the previously visited directory
+      QString fileName=QFileDialog::getOpenFileName(this,tr("Open JSON File"),"", "JSON file (*.json)"); // sy - to continue from the previously visited directory
 	    QFile file(fileName);
 	    if (!file.open(QFile::ReadOnly | QFile::Text)) {
 	      emit errorMessage(QString("Could Not Open File: ") + fileName);
@@ -172,7 +164,7 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   connect(fileSaveButton, &QPushButton::clicked, this,
 	  [=]() {
 
-        QString fileName=QFileDialog::getSaveFileName(this, tr("Save JSON File"),"", "JSON file (*.json)"); // sy - to continue from the previously visited directory
+      QString fileName=QFileDialog::getSaveFileName(this, tr("Save JSON File"),"", "JSON file (*.json)"); // sy - to continue from the previously visited directory
 	    QFile file(fileName);
 
 	    if (!file.open(QFile::WriteOnly | QFile::Text)) {
@@ -327,9 +319,7 @@ SC_RemoteAppTool::submitButtonPressed() {
   json["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();    
   json["runType"]=QString("runningRemote");
   int nodeCount = numCPU_LineEdit->text().toInt();
-  int gpuCount = numGPU_LineEdit->text().toInt();
   int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
-  json["system"]=systemLineEdit->text();
   json["nodeCount"]=nodeCount;
   json["numP"]=nodeCount*numProcessorsPerNode;    
   json["processorsOnEachNode"]=numProcessorsPerNode;
@@ -386,8 +376,11 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     QString queue; // queuu to send job to
     QString firstQueue = queus.first();
     if (firstQueue == "gpu-a100") {
+
       queue = "gpu-a100";
+
     } else { // Frontera
+
       queue = "small";
       //QString queue = "development";
       if (nodeCount > 2)
@@ -399,35 +392,10 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     QString shortDirName = QCoreApplication::applicationName() + ": ";
     
     job["name"]=shortDirName + nameLineEdit->text();
-    int gpuCount = numGPU_LineEdit->text().toInt();
     job["nodeCount"]=nodeCount;
-    job["gpus"]=gpuCount; // TODO: --gres=gpu:{gpuName}:{gpuCount} may be a neccesary format for slurm
     //job["processorsPerNode"]=nodeCount*numProcessorsPerNode; // DesignSafe has inconsistant documentation
     job["processorsOnEachNode"]=numProcessorsPerNode;
     job["maxRunTime"]=runtimeLineEdit->text();
-
-    // if (gpuCount) {
-    //   if (systemName == "lonestar6-gpu" || systemName == "ls6-gpu" || systemName == "lonestar6" || systemName == "ls6") 
-    //   {
-    //     if (nodeCount > 0 && nodeCount <= 2)
-    //       queue = "gpu-a100"; // TODO: Don't use gpu-a100-dev queue in release, try gpu-a100-small (one 40GB GPU) 
-    //     else if (nodeCount > 2 && nodeCount <= 6)
-    //       queue = "gpu-a100"; // (three 40 GB GPU, 1-6 nodes)
-    //     else 
-    //       qDebug() << "ERROR: Requested node count is too high for lonestar6-gpu system, node count: " << nodeCount;
-    //   } 
-    //   else if (systemName == "frontera-gpu" || systemName == "frontera-rtx" || systemName == "frontera") 
-    //   {
-    //     if (nodeCount > 0 && nodeCount < 2)
-    //       queue = "rtx-dev";
-    //     else if (nodeCount >= 2 && nodeCount <= 6)
-    //       queue = "rtx";
-    //     else 
-    //       qDebug() << "ERROR: Requested node count is too high for frontera-gpu system, node count: " << nodeCount;
-    //   }
-    //   else 
-    //     qDebug() << "ERROR: Requested system is not a GPU system, system name: " << systemName;
-    // }
 
     //
     // hard code the queue stuff for this release, wil; need more info on cores, min counts

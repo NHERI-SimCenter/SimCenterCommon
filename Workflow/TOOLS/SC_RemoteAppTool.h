@@ -4,6 +4,7 @@
 #include <SimCenterAppWidget.h>
 #include <QList>
 #include <QString>
+#include <QStringList>
 
 class QStackedWidget;
 class SimCenterAppWidget;
@@ -45,7 +46,7 @@ private:
   QStringList queus;
   
   QLineEdit *nameLineEdit;
-  QLineEdit *systemLineEdit;
+  // QLineEdit *systemLineEdit;
   QLineEdit *numCPU_LineEdit;
   QLineEdit *numGPU_LineEdit;
   QLineEdit *numProcessorsLineEdit;
