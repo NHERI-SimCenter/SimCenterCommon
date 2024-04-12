@@ -107,12 +107,13 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 
   numRow++;
   
-
-
-  
   remoteLayout->addWidget(new QLabel("Max Run Time:"),numRow,0);
   runtimeLineEdit = new QLineEdit();
-  runtimeLineEdit->setText("00:20:00");
+  if (queus.first() == "gpu-a100") 
+    runtimeLineEdit->setText("02:00:00");
+  else
+    runtimeLineEdit->setText("00:20:00");
+  
   runtimeLineEdit->setToolTip(tr("Run time Limit on running Job hours:Min:Sec. Job will be stopped if while running it exceeds this"));
   remoteLayout->addWidget(runtimeLineEdit,numRow,1);
   
