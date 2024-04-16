@@ -34,66 +34,52 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: snaeimi
 
-#include <SC_IntLineEdit.h>
+#include <SC_QRadioButton.h>
 #include <QJsonObject>
-#include <QIntValidator>
 
-SC_IntLineEdit::SC_IntLineEdit(QString theKey, int initValue, int min, int max)
-  :QLineEdit()
+SC_QRadioButton::SC_QRadioButton(QString theKey, QWidget *parent)
+  :QRadioButton(parent)
 {
-  QIntValidator* theValidator = new QIntValidator(min, max);
-  this->setValidator(theValidator);
-  
-  key = theKey;
-  this->setText(QString::number(initValue));
-
-  this->setMaximumWidth(200);
+    key = theKey;
 }
 
 
-SC_IntLineEdit::SC_IntLineEdit(QString theKey, int initValue, QString toolTip, int min, int max)
-  :QLineEdit()
+SC_QRadioButton::SC_QRadioButton(QString theKey, QString toolTip, QWidget *parent)
+  :QRadioButton(toolTip, parent)
 {
-  QIntValidator* theValidator = new QIntValidator(min, max);
-  this->setValidator(theValidator);
-  
   key = theKey;
-  this->setText(QString::number(initValue));
 }
 
-SC_IntLineEdit::~SC_IntLineEdit()
+SC_QRadioButton::~SC_QRadioButton()
 {
 
 }
 
 
 bool
-SC_IntLineEdit::outputToJSON(QJsonObject &jsonObject)
+SC_QRadioButton::outputToJSON(QJsonObject &jsonObject)
 {
-  jsonObject[key]=this->text().QString::toInt();
+  jsonObject[key]=this->isChecked();
   return true;
 }
 
 bool
-SC_IntLineEdit::inputFromJSON(QJsonObject &jsonObject)
+SC_QRadioButton::inputFromJSON(QJsonObject &jsonObject)
 {
   if (jsonObject.contains(key)) {
     QJsonValue theValue = jsonObject[key];
-    if (theValue.isDouble())
-      this->setText(QString::number(theValue.toInt()));
+    if (theValue.isBool())
+      this->setChecked(theValue.toBool());
     return true;
   }
   return false;  
 }
 
 QString &
-SC_IntLineEdit::getKey() {  
+SC_QRadioButton::getKey() {  
   return key;
 }
 
-int
-SC_IntLineEdit::getInt() {  
-  return this->text().toInt();
-}
+

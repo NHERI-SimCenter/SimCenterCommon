@@ -34,7 +34,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: fmckenna, Sina Naeimi
 
 #include <SC_DoubleLineEdit.h>
 #include <QJsonObject>
@@ -52,7 +52,6 @@ SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey, double initValue)
   this->setMaximumWidth(200);
 }
 
-
 SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey, double initValue, QString toolTip)
   :QLineEdit()
 {
@@ -66,6 +65,37 @@ SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey, double initValue, QString t
 SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey)
   :QLineEdit()
 {
+  // Sina Added this. This a bug from before
+  this->setValidator(new QDoubleValidator());
+  key = theKey;
+}
+
+SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey, double initValue, double min, double max, int decimal)
+  :QLineEdit()
+{
+  //QDoubleValidator* theValidator = new QDoubleValidator(min, max, decimal);
+  this->setValidator(new TextFieldDoubleValidator(min, max, decimal));
+  
+  key = theKey;
+  this->setText(QString::number(initValue));  
+
+  this->setMaximumWidth(200);
+}
+
+SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey, double initValue, QString toolTip, double min, double max, int decimal)
+  :QLineEdit()
+{
+  //QDoubleValidator* theValidator = new QDoubleValidator();
+  this->setValidator(new TextFieldDoubleValidator(min, max, decimal));
+  
+  key = theKey;
+  this->setText(QString::number(initValue));
+}
+
+SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey, double min, double max, int decimal)
+  :QLineEdit()
+{
+  this->setValidator(new TextFieldDoubleValidator(min, max, decimal));
   key = theKey;
 }
 
@@ -73,7 +103,6 @@ SC_DoubleLineEdit::~SC_DoubleLineEdit()
 {
 
 }
-
 
 bool
 SC_DoubleLineEdit::outputToJSON(QJsonObject &jsonObject)
@@ -105,4 +134,3 @@ double
 SC_DoubleLineEdit::getDouble(void) {
   return this->text().toDouble();
 }
-  
