@@ -3,6 +3,7 @@
 
 #include <QApplication>
 //#include <QProcess>
+#include <QProcessEnvironment>
 #include <QDebug>
 #include <QFile>
 #include <QDir>
@@ -130,10 +131,9 @@ RunPython::processScript() {
   QFileInfo pythonFile(python);
   if (!pythonFile.exists()) {
     emit errorMessage("NO VALID PYTHON - Read the Manual & Check your Preferences");
-    //pythonProcessDone("Process failed to launch due to missing python exe.");
     emit processFinished(-1);
   }
-  
+
   //
   // set up a QProcess in which to run our command
   //
@@ -141,6 +141,17 @@ RunPython::processScript() {
   process = new QProcess(this);
   process->setWorkingDirectory(workDir);
   process->setProcessChannelMode(QProcess::MergedChannels);
+
+#ifdef _WIN32
+  QDir pythonDir = pythonFile.dir();
+  pythonDir.cd("Lib");
+  QString site_packages_path = pythonDir.absoluteFilePath("site-packages");
+  if (QFile::exists(site_packages_path) {
+      QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+      env.insert("PYTHONPATH", site_packages_path);
+    } else
+	qDebug() << "RunPythonInThread::runPython - no site-packages path: " << site_packages_path;
+#endif
 
   //
   // do connections to capture outputs and exit
