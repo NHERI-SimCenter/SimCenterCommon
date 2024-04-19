@@ -416,8 +416,8 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     
     // Check if maxRunTime is set in job["parameters"] already and if it is not null
     // Trying not to overwrite any correctly set maxRunTime param
-    QString parameterName = "maxRunTime";
-    if (parameters.contains(parameterName)) {
+    if (parameters.contains("maxRunTime") && parameters["maxRunTime"].isString()) {
+      QString parameterName = "maxRunTime";
       QString paramTimeQString = parameters[parameterName].toString();
       QString jobTimeQString = job[parameterName].toString();
       auto secToHHMMSS = [](int totalNumberOfSeconds) {
@@ -434,94 +434,41 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
               .arg(minutes, 2, 10, QChar('0'))
               .arg(seconds, 2, 10, QChar('0'));
       };
-      
       QTime jobTime = QTime::fromString(jobTimeQString, "hh:mm:ss");
       QTime paramTime = QTime::fromString(paramTimeQString, "hh:mm:ss");
 
+      // Works for 99:59:59 maxRunTime I believe
+      // Does not guarantee that the specific Tapis wrapper script's time arithmetic supports that high (i.e. may only go to one or two days)
+      // TODO: Allow for different max times based on queue and system
       int job_sec = jobTime.hour() * 60 * 60 + jobTime.minute() * 60 + jobTime.second();
       int param_sec = paramTime.hour() * 60 * 60 + paramTime.minute() * 60 + paramTime.second();
 
-
-      if (job_sec < 300) {
-        job_sec = 300; // Don't fall below minimum time, needed for file transfers / zipping
+      int MIN_SEC = 5 * 60; // 5 minutes
+      int MAX_SEC = 1 * 24 * 60 * 60; // 1 day
+      // Job maxRunTime lower and upper bound
+      if (job_sec < MIN_SEC) {
+        job_sec = MIN_SEC; // Don't fall below minimum time, needed for file transfers / zipping
         jobTimeQString = secToHHMMSS(job_sec);
-        job[parameterName] = jobTimeQString;
         qDebug() << "RemoteApplication::uploadDirReturn - WARN: maxRunTime in tapis job['maxRunTime'] requested by user is below minimum request, setting to 00:05:00 hh:mm:ss...";
+      } else if (job_sec > MAX_SEC) {
+        job_sec = MAX_SEC; // For now, don't exceed 24 hours (GPU queues do go to 2 days though)
+        jobTimeQString = secToHHMMSS(job_sec);
+        qDebug() << "RemoteApplication::uploadDirReturn - WARN: maxRunTime in tapis job['maxRunTime'] requested by user is above 24 hours, setting to 24:00:00 hh:mm:ss...";
       }
 
-      if (param_sec > job_sec) {
-        param_sec = job_sec; // Don't exceed total job wall time
-        // paramTimeQString = QTime::fromString(param_sec, "hh:mm:ss").toString();
+      // Application's maxRunTime lower and upper bound
+      if (param_sec < MIN_SEC) {
+        param_sec = MIN_SEC; // Don't fall below minimum time, needed for file transfers / zipping
         paramTimeQString = secToHHMMSS(param_sec);
-
+        // extraParameters[parameterName] = secToHHMMSS(param_sec); 
+        qDebug() << "RemoteApplication::uploadDirReturn - WARN: maxRunTime in tapis job['parameters']['maxRunTime'] is below minimum request, setting to 00:05:00 hh:mm:ss...";
+      } else if (param_sec > job_sec) {
+        param_sec = job_sec; // Don't exceed total job wall time
+        paramTimeQString = secToHHMMSS(param_sec);
         qDebug() << "RemoteApplication::uploadDirReturn - WARN: maxRunTime in tapis job['parameters']['maxRunTime'] is above job['maxRunTime'], setting to job['maxRunTime']...";
       }
-
-      parameters[parameterName] = paramTimeQString;
-    
-  //     if (job.contains("parameters")) {
-  //       if (job["parameters"].isObject()) {
-  //         if (!job["parameters"].toObject().contains(parameterName) || (job["parameters"].toObject().contains(parameterName) && job["parameters"].toObject()[parameterName].isNull())) { // TODO: Check if this carries over per job....
-  //           QJsonObject temp_parameters = job["parameters"].toObject();
-  //           QString jobParamTimeQString = temp_parameters[parameterName].toString();
-  //           temp_parameters[parameterName] = parameters[parameterName].toString();
-
-  //           QTime jobTime = QTime::fromString(jobTimeQString, "hh:mm:ss");
-  //           QTime paramTime = QTime::fromString(paramTimeQString, "hh:mm:ss");
-  //           int job_sec = jobTime.hour() * 60 * 60 + jobTime.minute() * 60 + jobTime.second();
-  //           int param_sec = paramTime.hour() * 60 * 60 + paramTime.minute() * 60 + paramTime.second();
-
-  //           // qDebug () << "RemoteApplication::uploadDirReturn - INFO: job[parameterName]: " << job[parameterName] << ", extraParameters[parameterName]: " << extraParameters[parameterName];
-  //           qDebug () << "RemoteApplication::uploadDirReturn - INFO: jobTimeQString: " << jobTimeQString << ", paramTimeQString: " << paramTimeQString;
-  //           qDebug () << "RemoteApplication::uploadDirReturn - INFO: jobTime: " << jobTime << ", paramTime: " << paramTime;
-  //           qDebug () << "RemoteApplication::uploadDirReturn - INFO: job_sec: " << job_sec << ", param_sec: " << param_sec;
-
-  //           // Assume we need ATLEAST 3 minutes for main wrapper script. Add ~2 minutes for zipping results
-  //           int MIN_RUN_TIME_HH = 0;
-  //           int MIN_RUN_TIME_MM = 5;
-  //           int MIN_RUN_TIME_SS = 0;
-  //           int MIN_RUN_TIME_SEC = (MIN_RUN_TIME_HH * 60 * 60) + (MIN_RUN_TIME_MM * 60) + MIN_RUN_TIME_SS;
-  //           // Works upto 99 hours, 59 minutes, 59 seconds
-  //           // https://stackoverflow.com/questions/16419333/qt-c-convert-seconds-to-formatted-string-hhmmss
-
-  //           QString MIN_RUN_TIME_QSTRING = secToHHMMSS(MIN_RUN_TIME_SEC); // Minimum job time, e.g. 5min, "hh:mm:ss"
-  //           qDebug() << "RemoteApplication::uploadDirReturn - INFO: MIN_RUN_TIME_SEC: " << MIN_RUN_TIME_SEC << ", MIN_RUN_TIME_QSTRING: " << MIN_RUN_TIME_QSTRING;
-
-  //           // Don't fall below minimum time, needed for file transfers / zipping
-  //           if (job_sec < MIN_RUN_TIME_SEC) {
-  //               job_sec = MIN_RUN_TIME_SEC;
-  //               jobTimeQString = secToHHMMSS(job_sec);
-  //               job[parameterName] = jobTimeQString;
-  //               qDebug() << "RemoteApplication::uploadDirReturn - WARN: maxRunTime in tapis job['maxRunTime'] requested by user is below minimum request, setting to 00:05:00 hh:mm:ss...";
-  //           }
-  //           if (param_sec < MIN_RUN_TIME_SEC) {
-  //               param_sec = MIN_RUN_TIME_SEC;
-  //               paramTimeQString = secToHHMMSS(param_sec);
-  //               // extraParameters[parameterName] = secToHHMMSS(param_sec); 
-  //               qDebug() << "RemoteApplication::uploadDirReturn - WARN: maxRunTime in tapis job['parameters']['maxRunTime'] is below minimum request, setting to 00:05:00 hh:mm:ss...";
-  //           }
-  //           // Don't exceed total job wall time, or commands may hang and job --> Fail
-  //           qDebug() << "RemoteApplication::uploadDirReturn - INFO: job_sec: " << job_sec << ", param_sec: " << param_sec;
-  //           if (param_sec > job_sec) {
-  //               param_sec = job_sec; // Don't exceed total job wall time
-  //               paramTimeQString = secToHHMMSS(param_sec);
-  //           }
-  //           qDebug() << "RemoteApplication::uploadDirReturn - INFO: job_sec: " << job_sec << ", param_sec: " << param_sec;
-
-  //           // Update the tapis app extra parameters' maxRunTime. Available in the job's wrapper.sh as ${maxRunTime}, "hh:mm:ss"
-  //           temp_parameters[parameterName] = paramTimeQString;
-  //           qDebug () << "RemoteApplication::uploadDirReturn - INFO: paramTimeQString: " << paramTimeQString << ", parameters[parameterName]: " << parameters[parameterName];
-  //           // }
-
-  // //
-  //           qDebug() << "SC_RemoteAppTool::uploadDirReturn() - Overwriting maxRunTime in job[\"parameters\"]";
-            
-  //           parameters[parameterName] = paramTimeQString;
-  //           job[parameterName] = jobTimeQString;
-  //           // job["parameters"] = temp_parameters;
-  //         }
-  //       }
-  //     }
+      job[parameterName] = jobTimeQString; // Fixed version of maxRunTime in job
+      parameters[parameterName] = paramTimeQString; // Fixed version of maxRunTime in wrapper parameters
     }
     job["parameters"]=parameters;
 
