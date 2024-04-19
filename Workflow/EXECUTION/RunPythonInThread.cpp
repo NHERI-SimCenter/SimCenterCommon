@@ -146,9 +146,10 @@ RunPython::processScript() {
   QDir pythonDir = pythonFile.dir();
   pythonDir.cd("Lib");
   QString site_packages_path = pythonDir.absoluteFilePath("site-packages");
-  if (QFile::exists(site_packages_path) {
+  if (QFile::exists(site_packages_path)) {
       QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
       env.insert("PYTHONPATH", site_packages_path);
+	qDebug() << "RunPythonInThread::runPython - FOUND site-packages path: " << site_packages_path;
     } else
 	qDebug() << "RunPythonInThread::runPython - no site-packages path: " << site_packages_path;
 #endif
