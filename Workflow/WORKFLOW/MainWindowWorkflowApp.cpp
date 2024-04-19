@@ -14,6 +14,7 @@
 #include "Utils/dialogabout.h"
 #include "WorkflowAppWidget.h"
 #include <ZipUtils.h>
+#include <RunPythonInThread.h>
 
 #include <QAction>
 #include <QApplication>
@@ -38,6 +39,7 @@
 #include <QPushButton>
 #include <QScreen>
 #include <QSettings>
+#include <QCoreApplication>
 
 #include <SectionTitle.h>
 
@@ -367,8 +369,26 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     this->createActions();
     this->updateExamplesMenu(true);
     theWorkflowAppWidget->setMainWindow(this);
+
+    //
+    // some code to run an app_init.py script at startup if present in app dir
+    //
     
+    QString appInitScript = QCoreApplication::applicationDirPath() + QDir::separator() + "app_init.py";
     
+    QFile appInitFile(appInitScript);
+    if (appInitFile.exists()) {
+      runButton->setEnabled(false);
+      runDesignSafeButton->setEnabled(false);
+      QStringList args;
+      // runs appInit.py with 0 args using the applications own dir as working dir
+      RunPythonInThread *thePythonProcess = new RunPythonInThread(appInitScript, args, QCoreApplication::applicationDirPath()); 
+      connect(thePythonProcess, &RunPythonInThread::processFinished, this, [=](){
+	runButton->setEnabled(true);
+	runDesignSafeButton->setEnabled(true);
+      });
+      thePythonProcess->runProcess();
+    }
 }
 
 MainWindowWorkflowApp::~MainWindowWorkflowApp()
