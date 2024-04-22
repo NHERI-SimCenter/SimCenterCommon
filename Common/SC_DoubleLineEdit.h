@@ -49,6 +49,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <QLineEdit>
 #include <QString>
+#include <QDoubleValidator>
 
 class QJsonObject;
 
@@ -60,6 +61,9 @@ public:
   SC_DoubleLineEdit(QString key);
   SC_DoubleLineEdit(QString key, double initValue);
   SC_DoubleLineEdit(QString key, double initValue, QString toolTip);
+  SC_DoubleLineEdit(QString key, double min, double max, int decimal);
+  SC_DoubleLineEdit(QString key, double initValue, double min, double max, int decimal);
+  SC_DoubleLineEdit(QString key, double initValue, QString toolTip, double min, double max, int decimal);
   ~SC_DoubleLineEdit();
   
   bool outputToJSON(QJsonObject &jsonObject);
@@ -73,6 +77,36 @@ public slots:
 
 private:
   QString key;
+};
+
+class TextFieldDoubleValidator : public QDoubleValidator {
+public:
+    TextFieldDoubleValidator (QObject * parent = 0) : QDoubleValidator(parent) {}
+    TextFieldDoubleValidator (double bottom, double top, int decimals, QObject * parent = nullptr) :
+    QDoubleValidator(bottom, top, decimals, parent) {}
+
+    QValidator::State validate(QString & s, int & pos) const {
+        if (s.isEmpty() || (s.startsWith("-") && s.length() == 1)) {
+            // allow empty field or standalone minus sign
+            return QValidator::Intermediate;
+        }
+        // check length of decimal places
+        QChar point = locale().decimalPoint();
+        if(s.indexOf(point) != -1) {
+            int lengthDecimals = s.length() - s.indexOf(point) - 1;
+            if (lengthDecimals > decimals()) {
+                return QValidator::Invalid;
+            }
+        }
+        // check range of value
+        bool isNumber;
+        double value = locale().toDouble(s, &isNumber);
+        if (isNumber && bottom() <= value && value <= top()) {
+            return QValidator::Acceptable;
+        }
+        return QValidator::Invalid;
+    }
+
 };
 
 #endif // SC_DOUBLE_LINEEDIT_H

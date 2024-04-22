@@ -4,6 +4,7 @@
 #include <SimCenterAppWidget.h>
 #include <QList>
 #include <QString>
+#include <QStringList>
 
 class QStackedWidget;
 class SimCenterAppWidget;
@@ -20,7 +21,7 @@ class SC_RemoteAppTool : public SimCenterAppWidget
 public:
   SC_RemoteAppTool(QString tapisAppName,
 		   QList<QString> queueNames,
-		   RemoteService *theService,
+		   RemoteService *theRemoteService,
 		   SimCenterAppWidget* theEnclosedApp,
 		   QDialog *enclosingDialog = nullptr);
   
@@ -40,14 +41,17 @@ public slots:
 private:
 
   SimCenterAppWidget *theApp;
+  RemoteService *theService;  
   QString tapisAppName;
-  RemoteService *theService;
-
+  QStringList queus;
+  
   QLineEdit *nameLineEdit;
+  // QLineEdit *systemLineEdit;
   QLineEdit *numCPU_LineEdit;
+  QLineEdit *numGPU_LineEdit;
   QLineEdit *numProcessorsLineEdit;
   QLineEdit *runtimeLineEdit;  
-
+  
   QPushButton *submitButton;
 
   QString tmpDirName;

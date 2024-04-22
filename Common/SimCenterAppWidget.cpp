@@ -148,6 +148,13 @@ bool
 SimCenterAppWidget::copyFile(QString filename, QString destinationDir)
 {
     QFileInfo originalFileInfo(filename);
+    
+    if (filename.size() < 1){
+      QString msg = QString("WARNING file to copy does not exist");
+      qDebug() << msg;
+      return false;
+    }
+
     if (!originalFileInfo.exists()) {
       QString msg = QString("WARNING file to copy: ") + filename + QString(" does not exist!");
       qDebug() << msg;

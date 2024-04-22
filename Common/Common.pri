@@ -27,8 +27,10 @@ SOURCES += $$PWD/HeaderWidget.cpp \
     $$PWD/SC_DoubleLineEdit.cpp \
     $$PWD/SC_StringLineEdit.cpp \
     $$PWD/SC_IntLineEdit.cpp \
+	$$PWD/SC_QRadioButton.cpp \
     $$PWD/SC_TableEdit.cpp \
     $$PWD/SC_FileEdit.cpp \
+    $$PWD/SC_DirEdit.cpp \    
     $$PWD/SC_ResultsWidget.cpp \                        
     $$PWD/SimCenterAppWidget.cpp\
     $$PWD/NoArgSimCenterApp.cpp\
@@ -55,8 +57,10 @@ HEADERS += $$PWD/HeaderWidget.h \
     $$PWD/SC_DoubleLineEdit.h \
     $$PWD/SC_StringLineEdit.h \
     $$PWD/SC_IntLineEdit.h \
+	$$PWD/SC_QRadioButton.h \
     $$PWD/SC_TableEdit.h \
     $$PWD/SC_FileEdit.h \
+    $$PWD/SC_DirEdit.h \    
     $$PWD/SC_ResultsWidget.h \    
     $$PWD/NoArgSimCenterApp.h \
     $$PWD/SimCenterAppSelection.h \

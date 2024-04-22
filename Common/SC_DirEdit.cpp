@@ -1,6 +1,3 @@
-#ifndef INPUT_WIDGET_OPENSEES_ANALYSIS_H
-#define INPUT_WIDGET_OPENSEES_ANALYSIS_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -20,7 +17,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -39,66 +36,89 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
+#include <SC_DirEdit.h>
+
+#include <QLineEdit>
+#include <QPushButton>
+#include <QJsonObject>
+#include <QGridLayout>
+#include <QFileDialog>
 #include <SimCenterAppWidget.h>
 
-class QLineEdit;
-class RandomVariablesContainer;
-class QComboBox;
-class QStackedWidget;
-class QLabel;
-
-class InputWidgetOpenSeesAnalysis : public  SimCenterAppWidget
+SC_DirEdit::SC_DirEdit(QString theKey, bool copyFiles)
+  :QWidget()
 {
-    Q_OBJECT
-public:
-    explicit InputWidgetOpenSeesAnalysis(QWidget *parent = 0);
-    ~InputWidgetOpenSeesAnalysis();
+  key = theKey;
 
-    bool outputToJSON(QJsonObject &jsonObject) override;
-    bool inputFromJSON(QJsonObject &jsonObject) override;
-    bool outputAppDataToJSON(QJsonObject &jsonObject) override;
-    bool inputAppDataFromJSON(QJsonObject &jsonObject) override;
-    bool copyFiles(QString &dirName) override;
-    bool outputCitation(QJsonObject &jsonObject);
+  copyFilesWhenCalled = copyFiles;
+  
+  QGridLayout *theLayout = new QGridLayout;
+  
+  theDirectory = new QLineEdit;    
+  QPushButton *chooseFile = new QPushButton();
+  chooseFile->setText(tr("Choose"));
 
-signals:
+  theLayout->addWidget(theDirectory,0,0);
+  theLayout->addWidget(chooseFile, 0,1);
+  this->setLayout(theLayout);
+    connect(chooseFile, &QPushButton::clicked, this,
+            [=]() {
+        QString fileName=QFileDialog::getExistingDirectory(this,tr("Select Directory"),"", QFileDialog::ShowDirsOnly);
+	
+        theDirectory->setText(fileName);
+        emit dirNameChanged(fileName);
+     });
+}
 
-public slots:
-   void clear(void) override;
-   void chooseFileName(void);
-   void dampingEditingFinished();
-   void toleranceEditingFinished();
 
-   void changedDampingMethod(QString);
+SC_DirEdit::SC_DirEdit(QString theKey, QString toolTip, bool copyFiles)
+  :QWidget()
+{
 
+}
 
-private:
-    //QLineEdit   *theTolerance;
-    QLineEdit   *theAnalysis;
-    QLineEdit   *theConvergenceTest;
-    //QLineEdit   *theAlgorithm;
-    QComboBox   *theAlgorithm;
-    QLineEdit   *theIntegration;
-    QLineEdit   *theSolver;
-    QLabel *infoMsg;
+SC_DirEdit::~SC_DirEdit()
+{
 
-    QLineEdit *file;
-    RandomVariablesContainer *theRandomVariablesContainer;
+}
 
-    QString lastDampingRatio;
-    QString lastTolerance;
+bool
+SC_DirEdit::outputToJSON(QJsonObject &jsonObject)
+{
+    theDirectory->text();
+    jsonObject[key]= theDirectory->text();
 
-    QStackedWidget *theStackedWidget;
-    QComboBox *theSelectionBox;
+    return true;
+}
 
-    QLineEdit *dampingRatio;
-    QLineEdit *firstMode;
-    QLineEdit *secondMode;
-    QComboBox *theRayleighStiffness;
+bool
+SC_DirEdit::inputFromJSON(QJsonObject &jsonObject)
+{
+  QString fileName;
 
-    QLineEdit *numModesModal;
-    QLineEdit *dampingRatioModal;
-    QLineEdit *dampingRatioModalTangent;
-};
+  if (jsonObject.contains(key)) {
+    QJsonValue theName = jsonObject[key];
+    fileName = theName.toString();
+    theDirectory->setText(fileName);
+  }
+  
+  return true;
+}
 
-#endif // INPUTWIDGET_OPENSEES_ANALYSIS_H
+bool
+SC_DirEdit::copyFile(QString &destDir) {
+  if (copyFilesWhenCalled == true)
+    return SimCenterAppWidget::copyPath(theDirectory->text(), destDir, true);
+  else
+    return true;
+}
+
+QString
+SC_DirEdit::getDirName(void) {
+  return theDirectory->text();
+}
+
+void
+SC_DirEdit::setDirName(QString &filename) {
+  return theDirectory->setText(filename);
+}

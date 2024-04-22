@@ -1,5 +1,5 @@
-#ifndef INPUT_WIDGET_OPENSEES_ANALYSIS_H
-#define INPUT_WIDGET_OPENSEES_ANALYSIS_H
+#ifndef SC_DIR_EDIT_H
+#define SC_DIR_EDIT_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -20,7 +20,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -37,68 +37,45 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+/**
+ *  @author  fmckenna
+ *  @date    2/2017
+ *  @version 1.0
+ *
+ *  @section DESCRIPTION
+ *
+ *  This is a combo box for SimCenter, implements input/output To JSON
+ */
 
-#include <SimCenterAppWidget.h>
-
+#include <QWidget>
+#include <QString>
 class QLineEdit;
-class RandomVariablesContainer;
-class QComboBox;
-class QStackedWidget;
-class QLabel;
+class QJsonObject;
 
-class InputWidgetOpenSeesAnalysis : public  SimCenterAppWidget
+class SC_DirEdit : public QWidget
 {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    explicit InputWidgetOpenSeesAnalysis(QWidget *parent = 0);
-    ~InputWidgetOpenSeesAnalysis();
-
-    bool outputToJSON(QJsonObject &jsonObject) override;
-    bool inputFromJSON(QJsonObject &jsonObject) override;
-    bool outputAppDataToJSON(QJsonObject &jsonObject) override;
-    bool inputAppDataFromJSON(QJsonObject &jsonObject) override;
-    bool copyFiles(QString &dirName) override;
-    bool outputCitation(QJsonObject &jsonObject);
-
+  
+  SC_DirEdit(QString key, bool copyFiles=true);
+  SC_DirEdit(QString key, QString toolTip, bool copyFiles=true);
+  ~SC_DirEdit();
+  
+  bool outputToJSON(QJsonObject &jsonObject);
+  bool inputFromJSON(QJsonObject &jsonObject);
+  
+  QString getDirName(void);  
+  void setDirName(QString &fileName);
+  
+  bool copyFile(QString &destDir);
+  
 signals:
-
-public slots:
-   void clear(void) override;
-   void chooseFileName(void);
-   void dampingEditingFinished();
-   void toleranceEditingFinished();
-
-   void changedDampingMethod(QString);
-
+  void dirNameChanged(QString filename);
 
 private:
-    //QLineEdit   *theTolerance;
-    QLineEdit   *theAnalysis;
-    QLineEdit   *theConvergenceTest;
-    //QLineEdit   *theAlgorithm;
-    QComboBox   *theAlgorithm;
-    QLineEdit   *theIntegration;
-    QLineEdit   *theSolver;
-    QLabel *infoMsg;
-
-    QLineEdit *file;
-    RandomVariablesContainer *theRandomVariablesContainer;
-
-    QString lastDampingRatio;
-    QString lastTolerance;
-
-    QStackedWidget *theStackedWidget;
-    QComboBox *theSelectionBox;
-
-    QLineEdit *dampingRatio;
-    QLineEdit *firstMode;
-    QLineEdit *secondMode;
-    QComboBox *theRayleighStiffness;
-
-    QLineEdit *numModesModal;
-    QLineEdit *dampingRatioModal;
-    QLineEdit *dampingRatioModalTangent;
+  QString key;
+  QLineEdit *theDirectory;
+  bool copyFilesWhenCalled;
 };
 
-#endif // INPUTWIDGET_OPENSEES_ANALYSIS_H
+#endif // SC_DIR_EDIT_H

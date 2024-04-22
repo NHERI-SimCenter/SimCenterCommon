@@ -561,3 +561,12 @@ void InputWidgetOpenSeesAnalysis::toleranceEditingFinished() {
         }
     }
 }
+
+bool
+InputWidgetOpenSeesAnalysis::outputCitation(QJsonObject &jsonObject)
+{
+  jsonObject.insert("citation",QString("McKenna, F., Scott, M. H., and Fenves, G. L. (2010) “Nonlinear finite-element analysis software architecture using object composition.” Journal of Computing in Civil Engineering, 24(1):95-107.")); // https://portwooddigital.com/2019/09/22/how-to-cite-opensees/
+  jsonObject.insert("description",QString("A number of nonlinear time history analysis were performed in the generation of the results using the open-source software application OpenSees."));
+  
+  return true;
+}

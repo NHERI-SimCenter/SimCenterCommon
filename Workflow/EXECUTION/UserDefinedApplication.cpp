@@ -124,8 +124,8 @@ bool
 UserDefinedApplication::outputAppDataToJSON(QJsonObject &jsonObject) {
 
     //
-    // per API, need to add name of application to be called in AppLication
-    // and all data to be used in ApplicationDate
+    // per API, need to add name of application to be called in Application
+    // and all data to be used in ApplicationData
     //
 
     jsonObject["Application"] = applicationName;
@@ -153,7 +153,7 @@ UserDefinedApplication::inputAppDataFromJSON(QJsonObject &jsonObject) {
         QJsonObject dataObject = jsonObject["ApplicationData"].toObject();
 
         //
-        // retrieve filename and path, set the QLIne Edit
+        // retrieve filename and path, set the QLine Edit
         //
 
         QString fileName;

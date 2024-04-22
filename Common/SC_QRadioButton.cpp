@@ -1,6 +1,3 @@
-#ifndef INPUT_WIDGET_OPENSEES_ANALYSIS_H
-#define INPUT_WIDGET_OPENSEES_ANALYSIS_H
-
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -20,7 +17,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -37,68 +34,52 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: snaeimi
 
-#include <SimCenterAppWidget.h>
+#include <SC_QRadioButton.h>
+#include <QJsonObject>
 
-class QLineEdit;
-class RandomVariablesContainer;
-class QComboBox;
-class QStackedWidget;
-class QLabel;
-
-class InputWidgetOpenSeesAnalysis : public  SimCenterAppWidget
+SC_QRadioButton::SC_QRadioButton(QString theKey, QWidget *parent)
+  :QRadioButton(parent)
 {
-    Q_OBJECT
-public:
-    explicit InputWidgetOpenSeesAnalysis(QWidget *parent = 0);
-    ~InputWidgetOpenSeesAnalysis();
-
-    bool outputToJSON(QJsonObject &jsonObject) override;
-    bool inputFromJSON(QJsonObject &jsonObject) override;
-    bool outputAppDataToJSON(QJsonObject &jsonObject) override;
-    bool inputAppDataFromJSON(QJsonObject &jsonObject) override;
-    bool copyFiles(QString &dirName) override;
-    bool outputCitation(QJsonObject &jsonObject);
-
-signals:
-
-public slots:
-   void clear(void) override;
-   void chooseFileName(void);
-   void dampingEditingFinished();
-   void toleranceEditingFinished();
-
-   void changedDampingMethod(QString);
+    key = theKey;
+}
 
 
-private:
-    //QLineEdit   *theTolerance;
-    QLineEdit   *theAnalysis;
-    QLineEdit   *theConvergenceTest;
-    //QLineEdit   *theAlgorithm;
-    QComboBox   *theAlgorithm;
-    QLineEdit   *theIntegration;
-    QLineEdit   *theSolver;
-    QLabel *infoMsg;
+SC_QRadioButton::SC_QRadioButton(QString theKey, QString toolTip, QWidget *parent)
+  :QRadioButton(toolTip, parent)
+{
+  key = theKey;
+}
 
-    QLineEdit *file;
-    RandomVariablesContainer *theRandomVariablesContainer;
+SC_QRadioButton::~SC_QRadioButton()
+{
 
-    QString lastDampingRatio;
-    QString lastTolerance;
+}
 
-    QStackedWidget *theStackedWidget;
-    QComboBox *theSelectionBox;
 
-    QLineEdit *dampingRatio;
-    QLineEdit *firstMode;
-    QLineEdit *secondMode;
-    QComboBox *theRayleighStiffness;
+bool
+SC_QRadioButton::outputToJSON(QJsonObject &jsonObject)
+{
+  jsonObject[key]=this->isChecked();
+  return true;
+}
 
-    QLineEdit *numModesModal;
-    QLineEdit *dampingRatioModal;
-    QLineEdit *dampingRatioModalTangent;
-};
+bool
+SC_QRadioButton::inputFromJSON(QJsonObject &jsonObject)
+{
+  if (jsonObject.contains(key)) {
+    QJsonValue theValue = jsonObject[key];
+    if (theValue.isBool())
+      this->setChecked(theValue.toBool());
+    return true;
+  }
+  return false;  
+}
 
-#endif // INPUTWIDGET_OPENSEES_ANALYSIS_H
+QString &
+SC_QRadioButton::getKey() {  
+  return key;
+}
+
+
