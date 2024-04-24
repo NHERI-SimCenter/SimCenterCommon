@@ -134,6 +134,11 @@ SimCenterAppSelection::initializeWidget(QString label) {
 }
 
 
+QString SimCenterAppSelection::getJsonKeyword() const
+{
+    return jsonKeyword;
+}
+
 
 SimCenterAppSelection::~SimCenterAppSelection()
 {

@@ -78,7 +78,9 @@ public:
     void hideHeader();
 
     void setOldKeyName(QString jsonKeywordOld);
-		     
+
+    QString getJsonKeyword() const;
+
 public slots:
     void selectionChangedSlot(const QString &);
     void setCurrentlyViewable(bool);

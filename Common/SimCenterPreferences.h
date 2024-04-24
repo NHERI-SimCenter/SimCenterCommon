@@ -58,6 +58,7 @@ public:
     static SimCenterPreferences *getInstance(QWidget *parent = 0);
     QString getPython(void); 
     QString getDakota(void);
+    QString getOpenSRA(void);
     QString getOpenSees(void);   
     QString getAppDir(void);
     QString getRemoteAppDir(void);
@@ -77,10 +78,12 @@ private:
     QString getDefaultOpenSees(void);
     QString getDefaultDakota(void);
     QString getDefaultPython(void);
+    QString getDefaultOpenSRA(void);
 
     QLineEdit *python;
     QLineEdit *opensees;
     QLineEdit *dakota;
+    QLineEdit *openSRA = nullptr;
     QLineEdit *localWorkDir;
     QLineEdit *remoteWorkDir;
     QLineEdit *appDir;
@@ -90,6 +93,7 @@ private:
     QCheckBox* customPythonCheckBox;  
     QCheckBox* customOpenSeesCheckBox;
     QCheckBox* customDakotaCheckBox;
+    QCheckBox* customOpenSRACheckBox = nullptr;
     QCheckBox* customAppDirCheckBox;
     QCheckBox* customTapisAppCheckBox;
     QCheckBox* customRemoteAppDirCheckBox;  

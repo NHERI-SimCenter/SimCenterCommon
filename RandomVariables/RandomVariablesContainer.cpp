@@ -73,7 +73,7 @@ RandomVariablesContainer::getInstance() {
 }
 
 RandomVariablesContainer::RandomVariablesContainer(QWidget *parent)
-    : SimCenterWidget(parent),
+    : SimCenterAppWidget(parent),
       correlationDialog(NULL),
       correlationMatrix(NULL),
       checkbox(NULL)
