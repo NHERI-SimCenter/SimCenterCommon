@@ -380,8 +380,6 @@ int SimCenterUQResultsSensitivity::processResults(QString &filenameResults, QStr
     tabWidget->addTab(theDataTable, tr("Data Values"));
     tabWidget->adjustSize();
 
-    statusMessage(tr(""));
-
     return 0;
 }
 

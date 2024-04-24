@@ -187,7 +187,6 @@ int DakotaResultsSampling::processResults(QString &dirName)
 int DakotaResultsSampling::processResults(QString &filenameResults, QString &filenameTab)
 {
     Q_UNUSED(filenameResults);
-    statusMessage(tr("Analysis done"));
 
     this->clear();
 
@@ -204,6 +203,7 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
         errorMessage(errMsg);
         return 0;
     }
+    statusMessage(tr("Analysis done"));
 
 //    // First check dakota.err
 //    QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");

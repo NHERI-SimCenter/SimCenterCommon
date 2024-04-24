@@ -344,8 +344,6 @@ int UCSD_ResultsTMCMC::processResults(QString &filenameTab, QString &filenameTab
 //    tabWidget->addTab(thePlot, tr("Predictions"));
     tabWidget->adjustSize();
 
-    statusMessage(tr(""));
-
     return 0;
 }
 

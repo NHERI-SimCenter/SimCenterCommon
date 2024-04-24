@@ -401,8 +401,6 @@ int DakotaResultsOptimization::processResults(QString &filenameResults, QString 
     tabWidget->addTab(theDataTable, tr("Data Values"));
     tabWidget->adjustSize();
 
-    statusMessage(tr(""));
-
     return 0;
 }
 
