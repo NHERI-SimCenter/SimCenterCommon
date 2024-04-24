@@ -3,6 +3,7 @@
 
 #include <QApplication>
 //#include <QProcess>
+#include <QProcessEnvironment>
 #include <QDebug>
 #include <QFile>
 #include <QDir>
@@ -130,10 +131,9 @@ RunPython::processScript() {
   QFileInfo pythonFile(python);
   if (!pythonFile.exists()) {
     emit errorMessage("NO VALID PYTHON - Read the Manual & Check your Preferences");
-    //pythonProcessDone("Process failed to launch due to missing python exe.");
     emit processFinished(-1);
   }
-  
+
   //
   // set up a QProcess in which to run our command
   //
@@ -141,6 +141,18 @@ RunPython::processScript() {
   process = new QProcess(this);
   process->setWorkingDirectory(workDir);
   process->setProcessChannelMode(QProcess::MergedChannels);
+
+#ifdef _WIN32
+  QDir pythonDir = pythonFile.dir();
+  pythonDir.cd("Lib");
+  QString site_packages_path = pythonDir.absoluteFilePath("site-packages");
+  if (QFile::exists(site_packages_path)) {
+      QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+      env.insert("PYTHONPATH", site_packages_path);
+	qDebug() << "RunPythonInThread::runPython - FOUND site-packages path: " << site_packages_path;
+    } else
+	qDebug() << "RunPythonInThread::runPython - no site-packages path: " << site_packages_path;
+#endif
 
   //
   // do connections to capture outputs and exit
@@ -156,16 +168,10 @@ RunPython::processScript() {
 
   QStringList argsWithScript; argsWithScript << script << args;
   process->start(python, argsWithScript);  
-
-  
-  // emit errorMessage("RunPython script:" + script);
-  //emit statusMessage("Hello World");
-  // emit processFinished(0);
 }
 
 void RunPython::handleProcessTextOutput(void) {
     QByteArray output = process->readAllStandardOutput();
-    qDebug() << "OUTPUT_OUTPUT: " << output;
     emit statusMessage(QString(output));
     // QApplication::processEvents();
 }
@@ -175,8 +181,6 @@ void RunPython::handleProcessErrorOutput(void) {
     QByteArray output = process->readAllStandardError();
 
     emit errorMessage(QString(output));
-    qDebug() << "ERROR_OUTPUT: " << output;
-    //QApplication::processEvents();
 }
 
 void RunPython::handleProcessFinished(int exitCode, QProcess::ExitStatus exitStatus) {
@@ -184,21 +188,15 @@ void RunPython::handleProcessFinished(int exitCode, QProcess::ExitStatus exitSta
   qDebug() << "RunPython::handleProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)" << exitCode << " " << exitStatus;
   
   if(exitStatus == QProcess::ExitStatus::CrashExit) {
-    //QString errText("Error, the python process " + processName + " crashed");
     QString errText("Error, the python process crashed");    
     emit errorMessage(errText);
-    //        this->getProgressDialog()->hideProgressBar();
-    
-    emit processFinished(-1);
+    emit processFinished(-2);
     return;
   }
   
   if(exitCode != 0) {
-    //QString errText("There was an error in the python process " + processName + ", the exit code is " + QString::number(exitCode));
     QString errText("There was an error in the python process, the exit code is " + QString::number(exitCode));    
     emit errorMessage(errText);
-    // this->getProgressDialog()->hideProgressBar();
-    
     emit processFinished(-1);
     return;
   }

@@ -81,38 +81,39 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   if (queus.first() == "gpu-a100") {
     
     // lonestar 6 .. only set up for gpu-a100
-    maxProcPerNode = 516; //theApp->getMaxNumProcessors(56);
+    maxProcPerNode = 128; //theApp->getMaxNumProcessors(56);
 
     QLabel *numGPU_Label = new QLabel();
     remoteLayout->addWidget(new QLabel("Num GPUs:"),numRow,0);
     
     numGPU_LineEdit = new QLineEdit();
-    numGPU_LineEdit->setText("0");
+    numGPU_LineEdit->setText("3");
     numGPU_LineEdit->setToolTip(tr("Total # of GPUs to use (across all nodes)"));
     remoteLayout->addWidget(numGPU_LineEdit,numRow,1);
     
     numRow++;
     
-  } else
-    
+  } else {
     numGPU_LineEdit = NULL;
-    
+  }
+
 
   remoteLayout->addWidget(new QLabel("Num Processors Per Node:"),numRow,0);    
   numProcessorsLineEdit = new QLineEdit();
   numProcessorsLineEdit->setText(QString::number(maxProcPerNode));
   numProcessorsLineEdit->setToolTip(tr("Total # of Processes to Start"));
-  numProcessorsLineEdit->setText(QString::number(maxProcPerNode));    
+
   remoteLayout->addWidget(numProcessorsLineEdit,numRow,1);
 
   numRow++;
   
-
-
-  
   remoteLayout->addWidget(new QLabel("Max Run Time:"),numRow,0);
   runtimeLineEdit = new QLineEdit();
-  runtimeLineEdit->setText("00:20:00");
+  if (queus.first() == "gpu-a100") 
+    runtimeLineEdit->setText("02:00:00");
+  else
+    runtimeLineEdit->setText("00:20:00");
+  
   runtimeLineEdit->setToolTip(tr("Run time Limit on running Job hours:Min:Sec. Job will be stopped if while running it exceeds this"));
   remoteLayout->addWidget(runtimeLineEdit,numRow,1);
   
@@ -129,7 +130,7 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   connect(fileLoadButton, &QPushButton::clicked, this,
 	  [=]() {
 	    //QString fileName=QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)");
-        QString fileName=QFileDialog::getOpenFileName(this,tr("Open JSON File"),"", "JSON file (*.json)"); // sy - to continue from the previously visited directory
+      QString fileName=QFileDialog::getOpenFileName(this,tr("Open JSON File"),"", "JSON file (*.json)"); // sy - to continue from the previously visited directory
 	    QFile file(fileName);
 	    if (!file.open(QFile::ReadOnly | QFile::Text)) {
 	      emit errorMessage(QString("Could Not Open File: ") + fileName);
@@ -164,7 +165,7 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   connect(fileSaveButton, &QPushButton::clicked, this,
 	  [=]() {
 
-        QString fileName=QFileDialog::getSaveFileName(this, tr("Save JSON File"),"", "JSON file (*.json)"); // sy - to continue from the previously visited directory
+      QString fileName=QFileDialog::getSaveFileName(this, tr("Save JSON File"),"", "JSON file (*.json)"); // sy - to continue from the previously visited directory
 	    QFile file(fileName);
 
 	    if (!file.open(QFile::WriteOnly | QFile::Text)) {
@@ -249,9 +250,9 @@ SC_RemoteAppTool::submitButtonPressed() {
   bool loggedIn = theService->isLoggedIn();
 
   if (loggedIn != true) {
-    errorMessage("ERROR - You Need to Login");
+    errorMessage("ERROR - You Need to Login to DesignSafe to run a remote application.");
     QMessageBox msg;
-    msg.setText("You need to go back to the Main Application and Login");
+    msg.setText("You need to go back to the Main Application and Login to DesignSafe to run a remote application.");
     msg.show();
     return;
   }
@@ -376,17 +377,17 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     QString queue; // queuu to send job to
     QString firstQueue = queus.first();
     if (firstQueue == "gpu-a100") {
-      
+
       queue = "gpu-a100";
-      
+
     } else { // Frontera
-	
-      QString queue = "small";
+
+      queue = "small";
       //QString queue = "development";
       if (nodeCount > 2)
-	queue = "normal";
+        queue = "normal";
       if (nodeCount > 512)
-	queue = "large";
+        queue = "large";
     }
     
     QString shortDirName = QCoreApplication::applicationName() + ": ";
@@ -412,7 +413,117 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     QJsonObject parameters;    
     parameters["inputFile"]="scInput.json";
     parameters["modules"]="petsc,python3";
-    theApp->outputAppDataToJSON(parameters);
+    theApp->outputAppDataToJSON(parameters); //< sets maxRunTime in parameters
+    
+    // Check if maxRunTime is set in job["parameters"] already and if it is not null
+    // Trying not to overwrite any correctly set maxRunTime param
+    QString parameterName = "maxRunTime";
+    if (parameters.contains(parameterName)) {
+      QString paramTimeQString = parameters[parameterName].toString();
+      QString jobTimeQString = job[parameterName].toString();
+      auto secToHHMMSS = [](int totalNumberOfSeconds) {
+          if (totalNumberOfSeconds < 0) {
+              totalNumberOfSeconds = 0;
+          } else if (totalNumberOfSeconds > 99 * 60 * 60 + 59 * 60 + 59) {
+              totalNumberOfSeconds = 99 * 60 * 60 + 59 * 60 + 59;
+          }
+          int seconds = totalNumberOfSeconds % 60;
+          int minutes = (totalNumberOfSeconds / 60) % 60;
+          int hours = (totalNumberOfSeconds / 60 / 60);
+          return QString("%1:%2:%3")
+              .arg(hours, 2, 10, QChar('0'))
+              .arg(minutes, 2, 10, QChar('0'))
+              .arg(seconds, 2, 10, QChar('0'));
+      };
+      
+      QTime jobTime = QTime::fromString(jobTimeQString, "hh:mm:ss");
+      QTime paramTime = QTime::fromString(paramTimeQString, "hh:mm:ss");
+
+      int job_sec = jobTime.hour() * 60 * 60 + jobTime.minute() * 60 + jobTime.second();
+      int param_sec = paramTime.hour() * 60 * 60 + paramTime.minute() * 60 + paramTime.second();
+
+
+      if (job_sec < 300) {
+        job_sec = 300; // Don't fall below minimum time, needed for file transfers / zipping
+        jobTimeQString = secToHHMMSS(job_sec);
+        job[parameterName] = jobTimeQString;
+        qDebug() << "RemoteApplication::uploadDirReturn - WARN: maxRunTime in tapis job['maxRunTime'] requested by user is below minimum request, setting to 00:05:00 hh:mm:ss...";
+      }
+
+      if (param_sec > job_sec) {
+        param_sec = job_sec; // Don't exceed total job wall time
+        // paramTimeQString = QTime::fromString(param_sec, "hh:mm:ss").toString();
+        paramTimeQString = secToHHMMSS(param_sec);
+
+        qDebug() << "RemoteApplication::uploadDirReturn - WARN: maxRunTime in tapis job['parameters']['maxRunTime'] is above job['maxRunTime'], setting to job['maxRunTime']...";
+      }
+
+      parameters[parameterName] = paramTimeQString;
+    
+  //     if (job.contains("parameters")) {
+  //       if (job["parameters"].isObject()) {
+  //         if (!job["parameters"].toObject().contains(parameterName) || (job["parameters"].toObject().contains(parameterName) && job["parameters"].toObject()[parameterName].isNull())) { // TODO: Check if this carries over per job....
+  //           QJsonObject temp_parameters = job["parameters"].toObject();
+  //           QString jobParamTimeQString = temp_parameters[parameterName].toString();
+  //           temp_parameters[parameterName] = parameters[parameterName].toString();
+
+  //           QTime jobTime = QTime::fromString(jobTimeQString, "hh:mm:ss");
+  //           QTime paramTime = QTime::fromString(paramTimeQString, "hh:mm:ss");
+  //           int job_sec = jobTime.hour() * 60 * 60 + jobTime.minute() * 60 + jobTime.second();
+  //           int param_sec = paramTime.hour() * 60 * 60 + paramTime.minute() * 60 + paramTime.second();
+
+  //           // qDebug () << "RemoteApplication::uploadDirReturn - INFO: job[parameterName]: " << job[parameterName] << ", extraParameters[parameterName]: " << extraParameters[parameterName];
+  //           qDebug () << "RemoteApplication::uploadDirReturn - INFO: jobTimeQString: " << jobTimeQString << ", paramTimeQString: " << paramTimeQString;
+  //           qDebug () << "RemoteApplication::uploadDirReturn - INFO: jobTime: " << jobTime << ", paramTime: " << paramTime;
+  //           qDebug () << "RemoteApplication::uploadDirReturn - INFO: job_sec: " << job_sec << ", param_sec: " << param_sec;
+
+  //           // Assume we need ATLEAST 3 minutes for main wrapper script. Add ~2 minutes for zipping results
+  //           int MIN_RUN_TIME_HH = 0;
+  //           int MIN_RUN_TIME_MM = 5;
+  //           int MIN_RUN_TIME_SS = 0;
+  //           int MIN_RUN_TIME_SEC = (MIN_RUN_TIME_HH * 60 * 60) + (MIN_RUN_TIME_MM * 60) + MIN_RUN_TIME_SS;
+  //           // Works upto 99 hours, 59 minutes, 59 seconds
+  //           // https://stackoverflow.com/questions/16419333/qt-c-convert-seconds-to-formatted-string-hhmmss
+
+  //           QString MIN_RUN_TIME_QSTRING = secToHHMMSS(MIN_RUN_TIME_SEC); // Minimum job time, e.g. 5min, "hh:mm:ss"
+  //           qDebug() << "RemoteApplication::uploadDirReturn - INFO: MIN_RUN_TIME_SEC: " << MIN_RUN_TIME_SEC << ", MIN_RUN_TIME_QSTRING: " << MIN_RUN_TIME_QSTRING;
+
+  //           // Don't fall below minimum time, needed for file transfers / zipping
+  //           if (job_sec < MIN_RUN_TIME_SEC) {
+  //               job_sec = MIN_RUN_TIME_SEC;
+  //               jobTimeQString = secToHHMMSS(job_sec);
+  //               job[parameterName] = jobTimeQString;
+  //               qDebug() << "RemoteApplication::uploadDirReturn - WARN: maxRunTime in tapis job['maxRunTime'] requested by user is below minimum request, setting to 00:05:00 hh:mm:ss...";
+  //           }
+  //           if (param_sec < MIN_RUN_TIME_SEC) {
+  //               param_sec = MIN_RUN_TIME_SEC;
+  //               paramTimeQString = secToHHMMSS(param_sec);
+  //               // extraParameters[parameterName] = secToHHMMSS(param_sec); 
+  //               qDebug() << "RemoteApplication::uploadDirReturn - WARN: maxRunTime in tapis job['parameters']['maxRunTime'] is below minimum request, setting to 00:05:00 hh:mm:ss...";
+  //           }
+  //           // Don't exceed total job wall time, or commands may hang and job --> Fail
+  //           qDebug() << "RemoteApplication::uploadDirReturn - INFO: job_sec: " << job_sec << ", param_sec: " << param_sec;
+  //           if (param_sec > job_sec) {
+  //               param_sec = job_sec; // Don't exceed total job wall time
+  //               paramTimeQString = secToHHMMSS(param_sec);
+  //           }
+  //           qDebug() << "RemoteApplication::uploadDirReturn - INFO: job_sec: " << job_sec << ", param_sec: " << param_sec;
+
+  //           // Update the tapis app extra parameters' maxRunTime. Available in the job's wrapper.sh as ${maxRunTime}, "hh:mm:ss"
+  //           temp_parameters[parameterName] = paramTimeQString;
+  //           qDebug () << "RemoteApplication::uploadDirReturn - INFO: paramTimeQString: " << paramTimeQString << ", parameters[parameterName]: " << parameters[parameterName];
+  //           // }
+
+  // //
+  //           qDebug() << "SC_RemoteAppTool::uploadDirReturn() - Overwriting maxRunTime in job[\"parameters\"]";
+            
+  //           parameters[parameterName] = paramTimeQString;
+  //           job[parameterName] = jobTimeQString;
+  //           // job["parameters"] = temp_parameters;
+  //         }
+  //       }
+  //     }
+    }
     job["parameters"]=parameters;
 
     QJsonObject inputs;
@@ -479,7 +590,7 @@ SC_RemoteAppTool::processResults(QString &dirName){
     
   SC_ResultsWidget *theResults=theApp->getResultsWidget();
   if (theResults == NULL) {
-    this->errorMessage("FATAL - App cannot process Results");
+    this->errorMessage("FATAL - SC_RemoteAppTool received NULL pointer theResults from theApp->getResultsWidget()... skipping theResults->processResults()");
     return;
   }
 

@@ -55,7 +55,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QProcess>
 #include <QSettings>
 #include <SimCenterPreferences.h>
-
+#include <QString>
 //#include <AgaveInterface.h>
 #include <QDebug>
 #include <QDir>
@@ -114,7 +114,7 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
         numRow++;
         layout->addWidget(new QLabel("# Buildings Per Task:"), numRow, 0);
         buildingsPerTask=new QLineEdit("10");
-        buildingsPerTask->setToolTip("Number of buildings per task when runnig in parallel");
+        buildingsPerTask->setToolTip("Number of buildings per task when running in parallel");
         layout->addWidget(buildingsPerTask, numRow, 1);
 
         numRow++;
@@ -413,11 +413,11 @@ RemoteApplication::uploadDirReturn(bool result)
       job["processorsOnEachNode"]=numProcessorsPerNode;
       job["maxRunTime"]=runtimeLineEdit->text();
 
-      QString queue = "small";
+      QString queue = "small"; // Frontera default CPU queues, use rtx for GPU. For LS6, use vm-small or gpu-100  -  JustinBonus 
       if (nodeCount > 2)
-	queue = "normal";
+        queue = "normal";
       if (nodeCount > 512)
-	queue = "large";
+        queue = "large";
 	
       job["appId"]=SimCenterPreferences::getInstance()->getRemoteAgaveApp();
       job["memoryPerNode"]= "1GB";
@@ -430,36 +430,103 @@ RemoteApplication::uploadDirReturn(bool result)
       QString appName = QCoreApplication::applicationName();
       if (appName != "R2D"){
 
-          QJsonObject parameters;
-          parameters["inputFile"]="scInput.json";
-	  
-	  if (appName == "quoFEM")
-	    parameters["driverFile"]="driver";
-	  else
-	    parameters["driverFile"]="sc_driver";
-	  
-          parameters["modules"]="petsc,python3";
-          for (auto parameterName : extraParameters.keys())
-          {
-              parameters[parameterName] = extraParameters[parameterName];
-          }
-          job["parameters"]=parameters;
+        QJsonObject parameters;
+        parameters["inputFile"]="scInput.json";
+        
+        if (appName == "quoFEM")
+            parameters["driverFile"]="driver";
+        else
+            parameters["driverFile"]="sc_driver";
+    
+        parameters["modules"]="petsc,python3";
+        for (auto parameterName : extraParameters.keys())
+        {
+            parameters[parameterName] = extraParameters[parameterName];
+            if (parameterName == "maxRunTime") {
+                // if (appName == "HydroUQ" || appName == "Hydro-UQ" || appName == "Hydro" || appName == "MPM" || appName == "Digital Twin (MPM)" || appName == "ClaymoreUW") {
+                // Get hh:mm:ss QString, QTime from QString, convert to seconds
+                QString jobTimeQString = job[parameterName].toString(); // "hh:mm:ss"
+                QString paramTimeQString = extraParameters[parameterName]; // "hh:mm:ss"
+                QTime jobTime = QTime::fromString(job[parameterName].toString(), "hh:mm:ss");
+                QTime paramTime = QTime::fromString(extraParameters[parameterName], "hh:mm:ss");
+                int job_sec = jobTime.hour() * 60 * 60 + jobTime.minute() * 60 + jobTime.second();
+                int param_sec = paramTime.hour() * 60 * 60 + paramTime.minute() * 60 + paramTime.second();
 
-          QDir theDirectory(tempDirectory);
-          QString dirName = theDirectory.dirName();
+                qDebug () << "RemoteApplication::uploadDirReturn - INFO: job[parameterName]: " << job[parameterName] << ", extraParameters[parameterName]: " << extraParameters[parameterName];
+                qDebug () << "RemoteApplication::uploadDirReturn - INFO: jobTimeQString: " << jobTimeQString << ", paramTimeQString: " << paramTimeQString;
+                qDebug () << "RemoteApplication::uploadDirReturn - INFO: jobTime: " << jobTime << ", paramTime: " << paramTime;
+                qDebug () << "RemoteApplication::uploadDirReturn - INFO: job_sec: " << job_sec << ", param_sec: " << param_sec;
 
-          QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
+                // Assume we need ATLEAST 3 minutes for main wrapper script. Add ~2 minutes for zipping results
+                int MIN_RUN_TIME_HH = 0;
+                int MIN_RUN_TIME_MM = 5;
+                int MIN_RUN_TIME_SS = 0;
+                int MIN_RUN_TIME_SEC = (MIN_RUN_TIME_HH * 60 * 60) + (MIN_RUN_TIME_MM * 60) + MIN_RUN_TIME_SS;
+                // Works upto 99 hours, 59 minutes, 59 seconds
+                // https://stackoverflow.com/questions/16419333/qt-c-convert-seconds-to-formatted-string-hhmmss
+                auto secToHHMMSS = [](int totalNumberOfSeconds) {
+                    if (totalNumberOfSeconds < 0) {
+                        totalNumberOfSeconds = 0;
+                    } else if (totalNumberOfSeconds > 99 * 60 * 60 + 59 * 60 + 59) {
+                        totalNumberOfSeconds = 99 * 60 * 60 + 59 * 60 + 59;
+                    }
+                    int seconds = totalNumberOfSeconds % 60;
+                    int minutes = (totalNumberOfSeconds / 60) % 60;
+                    int hours = (totalNumberOfSeconds / 60 / 60);
+                    return QString("%1:%2:%3")
+                        .arg(hours, 2, 10, QChar('0'))
+                        .arg(minutes, 2, 10, QChar('0'))
+                        .arg(seconds, 2, 10, QChar('0'));
+                };
 
-          QJsonObject inputs;
-          inputs["inputDirectory"]=remoteDirectory;
-          for (auto inputName : extraInputs.keys())
-          {
-              inputs[inputName] = extraInputs[inputName];
-          }
-          job["inputs"]=inputs;
+                QString MIN_RUN_TIME_QSTRING = secToHHMMSS(MIN_RUN_TIME_SEC); // Minimum job time, e.g. 5min, "hh:mm:ss"
 
-          // now remove the tmp directory
-          theDirectory.removeRecursively();
+                qDebug() << "RemoteApplication::uploadDirReturn - INFO: MIN_RUN_TIME_SEC: " << MIN_RUN_TIME_SEC << ", MIN_RUN_TIME_QSTRING: " << MIN_RUN_TIME_QSTRING;
+
+                // Don't fall below minimum time, needed for file transfers / zipping
+                if (job_sec < MIN_RUN_TIME_SEC) {
+                    job_sec = MIN_RUN_TIME_SEC;
+                    job[parameterName] = secToHHMMSS(job_sec);
+                    qDebug() << "RemoteApplication::uploadDirReturn - WARN: maxRunTime in tapis job['maxRunTime'] requested by user is below minimum request, setting to 00:05:00 hh:mm:ss...";
+                }
+                if (param_sec < MIN_RUN_TIME_SEC) {
+                    param_sec = MIN_RUN_TIME_SEC;
+                    paramTimeQString = secToHHMMSS(param_sec);
+                    // extraParameters[parameterName] = secToHHMMSS(param_sec); 
+                    qDebug() << "RemoteApplication::uploadDirReturn - WARN: maxRunTime in tapis job['parameters']['maxRunTime'] is below minimum request, setting to 00:05:00 hh:mm:ss...";
+                }
+                // Don't exceed total job wall time, or commands may hang and job --> Fail
+                qDebug() << "RemoteApplication::uploadDirReturn - INFO: job_sec: " << job_sec << ", param_sec: " << param_sec;
+                if (param_sec > job_sec) {
+                    param_sec = job_sec; // Don't exceed total job wall time
+                    paramTimeQString = secToHHMMSS(param_sec);
+                }
+                qDebug() << "RemoteApplication::uploadDirReturn - INFO: job_sec: " << job_sec << ", param_sec: " << param_sec;
+
+                // Update the tapis app extra parameters' maxRunTime. Available in the job's wrapper.sh as ${maxRunTime}, "hh:mm:ss"
+                parameters[parameterName] = paramTimeQString;
+                qDebug () << "RemoteApplication::uploadDirReturn - INFO: paramTimeQString: " << paramTimeQString << ", parameters[parameterName]: " << parameters[parameterName];
+                // }
+            } 
+        }
+        job["parameters"]=parameters;
+        qDebug () << "RemoteApplication::uploadDirReturn - INFO: job[parameters] maxRunTime: " << job["parameters"].toObject()["maxRunTime"];
+
+        QDir theDirectory(tempDirectory);
+        QString dirName = theDirectory.dirName();
+
+        QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
+
+        QJsonObject inputs;
+        inputs["inputDirectory"]=remoteDirectory;
+        for (auto inputName : extraInputs.keys())
+        {
+            inputs[inputName] = extraInputs[inputName];
+        }
+        job["inputs"]=inputs;
+
+        // now remove the tmp directory
+        theDirectory.removeRecursively();
 
       } else {
 

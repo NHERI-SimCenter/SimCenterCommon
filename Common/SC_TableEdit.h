@@ -50,15 +50,44 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QWidget>
 #include <QString>
 #include <QStringList>
+#include <QStyledItemDelegate>
 
 class QTableWidget;
 class QJsonObject;
+class QLineEdit;
+
+
+class SpinBoxDelegate : public QStyledItemDelegate
+{
+    Q_OBJECT
+
+public:
+    SpinBoxDelegate(QObject *parent = nullptr);
+
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
+                          const QModelIndex &index) const override;
+
+    void setEditorData(QWidget *editor, const QModelIndex &index) const override;
+    void setModelData(QWidget *editor, QAbstractItemModel *model,
+                      const QModelIndex &index) const override;
+
+    void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
+                              const QModelIndex &index) const override;
+};
 
 class SC_TableEdit : public QWidget
 {
 public:
-  
-  SC_TableEdit(QString key, QStringList colHeadings, int numRows, QStringList data);  
+
+  SC_TableEdit(QString key,
+	       QStringList colHeadings,
+	       int numRows,
+	       QStringList data,
+	       QStringList *special = NULL,
+	       bool doubleVal=false,
+	       int startColumn=0,
+	       bool addRemove=true);  
+
   ~SC_TableEdit();
   
   bool outputToJSON(QJsonObject &jsonObject);
@@ -69,5 +98,7 @@ private:
   QString key;
   QTableWidget *theTable;
 };
+
+
 
 #endif // SC_TABLEEDIT_H

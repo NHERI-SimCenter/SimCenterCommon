@@ -1,3 +1,6 @@
+#ifndef SC_QRADIOBUTTON_H
+#define SC_QRADIOBUTTON_H
+
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -34,66 +37,40 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+/**
+ *  @author  snaeimi
+ *  @date    2/2024
+ *  @version 1.0
+ *
+ *  @section DESCRIPTION
+ *
+ *  This is a radio button for SimCenter, implements input/output To JSON
+ */
 
-#include <SC_IntLineEdit.h>
-#include <QJsonObject>
-#include <QIntValidator>
+#include <QRadioButton>
+#include <QString>
 
-SC_IntLineEdit::SC_IntLineEdit(QString theKey, int initValue, int min, int max)
-  :QLineEdit()
+class QJsonObject;
+
+class SC_QRadioButton : public QRadioButton
 {
-  QIntValidator* theValidator = new QIntValidator(min, max);
-  this->setValidator(theValidator);
   
-  key = theKey;
-  this->setText(QString::number(initValue));
-
-  this->setMaximumWidth(200);
-}
-
-
-SC_IntLineEdit::SC_IntLineEdit(QString theKey, int initValue, QString toolTip, int min, int max)
-  :QLineEdit()
-{
-  QIntValidator* theValidator = new QIntValidator(min, max);
-  this->setValidator(theValidator);
+public:
   
-  key = theKey;
-  this->setText(QString::number(initValue));
-}
+  SC_QRadioButton(QString key, QWidget *parent = nullptr);
+  SC_QRadioButton(QString key, QString toolTip, QWidget *parent = nullptr);
+  ~SC_QRadioButton();
+  
+  bool outputToJSON(QJsonObject &jsonObject);
+  bool inputFromJSON(QJsonObject &jsonObject);
+  QString &getKey(void);
+  
+signals:
 
-SC_IntLineEdit::~SC_IntLineEdit()
-{
+public slots:
 
-}
+private:
+  QString key;
+};
 
-
-bool
-SC_IntLineEdit::outputToJSON(QJsonObject &jsonObject)
-{
-  jsonObject[key]=this->text().QString::toInt();
-  return true;
-}
-
-bool
-SC_IntLineEdit::inputFromJSON(QJsonObject &jsonObject)
-{
-  if (jsonObject.contains(key)) {
-    QJsonValue theValue = jsonObject[key];
-    if (theValue.isDouble())
-      this->setText(QString::number(theValue.toInt()));
-    return true;
-  }
-  return false;  
-}
-
-QString &
-SC_IntLineEdit::getKey() {  
-  return key;
-}
-
-int
-SC_IntLineEdit::getInt() {  
-  return this->text().toInt();
-}
+#endif // SC_QRADIOBUTTON_H

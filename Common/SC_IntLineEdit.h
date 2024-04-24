@@ -57,8 +57,8 @@ class SC_IntLineEdit : public QLineEdit
   
 public:
   
-  SC_IntLineEdit(QString key, int initValue);
-  SC_IntLineEdit(QString key, int initValue, QString toolTip);
+  SC_IntLineEdit(QString key, int initValue, int min=-2147483647, int max=2147483647);
+  SC_IntLineEdit(QString key, int initValue, QString toolTip, int min=-2147483647, int max=2147483647);
   ~SC_IntLineEdit();
   
   bool outputToJSON(QJsonObject &jsonObject);
