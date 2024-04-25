@@ -129,41 +129,107 @@ UQ_Results::processResults(QString &dirName) {
 
 void
 UQ_Results::extractErrorMsg(QString workDir, QString errFileName, QString uqEngineName, QString &errMsg) {
+
     //
-    // First check "dakota.err" - error from UQ is written here.
+    // 1. First check if "dakota.err" is created.
     //
+
     QString filenameErrorString = workDir + QDir::separator() + errFileName;
     QFileInfo filenameErrorInfo(filenameErrorString);
     if (!filenameErrorInfo.exists()) {
         errMsg = "No " + errFileName + " file - " + uqEngineName + " did not run - problem with the setup or the applications failed with inputs provided";
         return;
     }
+
+    //
+    // When "dakota.err" is found - error from UQ is written here.
+    //
+
     QFile fileError(filenameErrorString);
-    QString line("");
+    QString line_UQ("");
 
     if (fileError.open(QIODevice::ReadOnly)) {
         if (uqEngineName==QString("Dakota")) {
                QTextStream in(&fileError);
                while (!in.atEnd()) {
-                  line += in.readLine();
+                  line_UQ += in.readLine();
                }
 
         } else {
                 QTextStream in(&fileError);
                 // QString contents = in.readAll(); -- not reading newline char, so adding <br> - sy
                 for (QString myLine = in.readLine(); !myLine.isNull(); myLine = in.readLine())
-                     line +=  myLine + "<br>";
+                     line_UQ +=  myLine + "<br>";
                 //line += "Please check logFileSimUQ.txt in the Local Jobs Directory";
         }
         fileError.close();
     }
+    if ((line_UQ.length()!= 0))
+        errMsg = QString("Analysis terminated with error<br>") +
+                 QString("-----------------------------------------------------------------------<br>") +
+                 QString("Error from ") + uqEngineName + QString(": ") + line_UQ + QString("<br>") +
+                 QString("-----------------------------------------------------------------------<br>");
+    //
+    // Parse workdir number
+    //
+    line_UQ.replace("/","\\");
+    if (line_UQ.contains(QString("workdir."))) {
 
-    if (line.length()!= 0)
-        errMsg = QString("Error Running " + uqEngineName + ": " + line);
+        QString tmp_string = line_UQ.right(line_UQ.length()  - line_UQ.indexOf("workdir."));
+        QString workdirName;
+        if (uqEngineName=="Dakota") {
+            workdirName = tmp_string.left(tmp_string.indexOf("\\"));
+        } else {
+            if (tmp_string.lastIndexOf(".") == tmp_string.indexOf(".")) {
+                //python(surrogate): "results.out missing at C:/Users/SimCenter/Documents/quoFEM/LocalWorkDir/tmp.SimCenter/workdir.1<br>"
+                workdirName = tmp_string.left(tmp_string.lastIndexOf("<"));
+            } else {
+                // cpp: "results.out not found at workdir.1."
+                workdirName = tmp_string.left(tmp_string.lastIndexOf("."));
+            }
+
+        }
+
+
+        QDir myWorkDir(workDir);
+        QString filenameWorkErrString = workDir + QDir::separator() + workdirName + QDir::separator() + "workflow.err"; // display the first file
+
+        QString openseesMsg = QString("OpenSees -- Open System For Earthquake Engineering Simulation Pacific Earthquake Engineering Research Center Version 3.3.0 64-Bit (c) Copyright 1999-2016 The Regents of the University of California All Rights Reserved (Copyright and Disclaimer @ http://www.berkeley.edu/OpenSees/copyright.html)").replace(" ","");
+        if (QDir(workDir + QDir::separator() + workdirName).exists("workflow.err")) {
+
+            QString line_WF("");
+
+            QFileInfo workflowErrorInfo(filenameWorkErrString);
+            if (workflowErrorInfo.exists()) {
+                QFile workflowError(filenameWorkErrString);
+                if (workflowError.open(QIODevice::ReadOnly)) {
+                   //QTextStream in(&workflowError);
+                   //line = in.readLine();
+                    QTextStream in2(&workflowError);
+                    int lineCount = 0;
+                    while ((!in2.atEnd()) && lineCount<10) {
+                       QString lineTmp = in2.readLine();
+                       QString lineTmp2 = lineTmp;
+                       if (!openseesMsg.contains(lineTmp2.replace(" ",""))) {
+                            line_WF += lineTmp + QString("<br>");
+                            lineCount ++;
+                       }
+                    }
+                    workflowError.close();
+                }
+                if (line_WF.length()!= 0) {
+                    errMsg += QString("Error running the workflow in ") + workdirName + QString(": <br>") +
+                            line_WF + ".... see more in " + filenameWorkErrString.replace("/","\\") + QString("<br>") +
+                            QString("-----------------------------------------------------------------------<br>");
+                }
+            }
+        }
+    }
 
     //
     // Overwrite with surrogate if sur.err is found
     //
+    /*
     if (errMsg.length()!=0) {
         QString filenameSurErrString = workDir + QDir::separator() + QString("surrogate.err");
         QFileInfo surrogateErrorInfo(filenameSurErrString);
@@ -204,6 +270,7 @@ UQ_Results::extractErrorMsg(QString workDir, QString errFileName, QString uqEngi
             }
         }
     }
+    */
 }
 
 void

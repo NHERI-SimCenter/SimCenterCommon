@@ -407,10 +407,9 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     //
     // sy - testing adding a batch file to directly run backend. Only for windows and EE-UQ
     //
-    if (appName == "EE-UQ") {
+    if ((appName == "EE-UQ") || (appName == "quoFEM") ){
         // to delete all the files except for template dir
         QStringList cmdList = {"cd /d \"tmp.SimCenter\"","move templatedir ../tmp", "for /F \"delims=\" %%i in ('dir /b') do (rmdir \"%%i\" /s/q || del \"%%i\" /s/q) ",  "move ../tmp templatedir","cd .. \n"};
-        //batchFileString = "cd /d \"tmp.SimCenter\" \nmove templatedir ../tmp \nfor /F \"delims=\" %%i in ('dir /b') do (rmdir \"%%i\" /s/q || del \"%%i\" /s/q) \nmove ../tmp templatedir\ncd .. \n";
         QString batchFileString = cmdList.join("\n");
         batchFileString += "set PATH=$PATH$;"+pythonPath+";"+ openseesPath+";"+ dakotaPath+"\n";
         batchFileString += "set PYTHONPATH=$PYTHONPATH$;" + pythonPath + "\n";

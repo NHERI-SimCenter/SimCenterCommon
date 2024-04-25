@@ -475,8 +475,6 @@ int DakotaResultsBayesianCalibration::processResults(QString &filenameResults, Q
     tabWidget->addTab(theDataTable, tr("Data Values"));
     tabWidget->adjustSize();
 
-    statusMessage(tr(""));
-
     return 0;
 }
 
