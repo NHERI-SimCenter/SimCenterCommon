@@ -1015,7 +1015,7 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
     if (appName == QString("R2D"))
       remoteApp = QString("simcenter-rWHale-frontera-4.4.0u1");
     if (appName == QString("WE-UQ") || appName == QString("HydroUQ"))
-      remoteApp = QString("simcenter-openfoam-frontera-1.0.0u6");
+      remoteApp = QString("simcenter-openfoam-frontera-1.0.0u7");
 
     return remoteApp;
 }
