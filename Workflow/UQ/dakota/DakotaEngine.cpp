@@ -330,3 +330,12 @@ DakotaEngine::copyFiles(QString &fileDir) {
 
     return theCurrentEngine->copyFiles(fileDir);
 }
+
+
+bool DakotaEngine::outputCitation(QJsonObject &jsonObject)
+{
+    jsonObject.insert("citation",QString("Adams, B.M., Bohnhoff, W.J., Dalbey, K.R., Ebeida, M.S., Eddy, J.P., Eldred, M.S., Hooper, R.W., Hough, P.D., Hu, K.T., Jakeman, J.D., Khalil, M., Maupin, K.A., Monschke, J.A., Ridgway, E.M., Rushdi, A.A., Seidl, D.T., Stephens, J.A., Swiler, L.P., and Winokur, J.G. (2020). Dakota, A Multilevel Parallel Object-Oriented Framework for Design Optimization, Parameter Estimation, Uncertainty Quantification, and Sensitivity Analysis: Version 6.12 User’s Manual. Sandia Technical Report SAND2020-5001."));
+    jsonObject.insert("description",QString("The uncertainty quantification method used in this analysis with quoFEM relies on an algorithm provided by Dakota Version 6.12."));
+
+    return true;
+}
