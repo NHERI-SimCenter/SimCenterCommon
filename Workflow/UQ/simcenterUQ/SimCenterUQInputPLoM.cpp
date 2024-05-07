@@ -325,8 +325,8 @@ bool SimCenterUQInputPLoM::outputCitation(QJsonObject &jsonObject)
     paper2.insert("description",QString("If constraints are added in the 'Constraints' user interface after checking the 'Advanced Options' box in the PLoM Model, then the SimCenterUQ engine uses the algorithm presented in this paper."));
 
     QJsonObject paper3;
-    paper2.insert("citation",QString("Zhong, K., Navarro, J. G., Govindjee, S., & Deierlein, G. G. (2023). Surrogate modeling of structural seismic response using probabilistic learning on manifolds. Earthquake Engineering & Structural Dynamics, 1-22. https://doi.org/10.1002/eqe.3839."));
-    paper2.insert("description",QString("The implementation of the PLoM algorithm in the SimCenter tools is detailed in this paper."));
+    paper3.insert("citation",QString("Zhong, K., Navarro, J. G., Govindjee, S., & Deierlein, G. G. (2023). Surrogate modeling of structural seismic response using probabilistic learning on manifolds. Earthquake Engineering & Structural Dynamics, 1-22. https://doi.org/10.1002/eqe.3839."));
+    paper3.insert("description",QString("The implementation of the PLoM algorithm in the SimCenter tools is detailed in this paper."));
 
     citations.append(paper1);
     citations.append(paper2);
