@@ -307,3 +307,10 @@ SimCenterUQEngine::setEventType(QString type) {
     theSurrogateEngine->setEventType(type);
     theSamplingEngine->setEventType(type);
 }
+
+
+bool SimCenterUQEngine::outputCitation(QJsonObject &jsonObject)
+{
+    theCurrentEngine->outputCitation(jsonObject);
+    return true;
+}

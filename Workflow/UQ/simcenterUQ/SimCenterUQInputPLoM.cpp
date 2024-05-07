@@ -310,3 +310,29 @@ SimCenterUQInputPLoM::getMethodName(void){
 void SimCenterUQInputPLoM::setEventType(QString type) {
     theSimu->setEventType(type);
 }
+
+
+bool SimCenterUQInputPLoM::outputCitation(QJsonObject &jsonObject)
+{
+    QJsonArray citations;
+
+    QJsonObject paper1;
+    paper1.insert("citation",QString("Soize, C., & Ghanem, R. (2016). Data-driven probability concentration and sampling on manifold. Journal of Computational Physics, 321, 242-258."));
+    paper1.insert("description",QString("This paper provides the algorithm implemented in the SimCenterUQ engine that is used for surrogate modeling when the 'PLoM Model' option is selected as the 'SimCenterUQ Method Category'."));
+
+    QJsonObject paper2;
+    paper2.insert("citation",QString("Soize, C., & Ghanem, R. (2020). Physics‐constrained non‐Gaussian probabilistic learning on manifolds. International Journal for Numerical Methods in Engineering, 121(1), 110-145."));
+    paper2.insert("description",QString("If constraints are added in the 'Constraints' user interface after checking the 'Advanced Options' box in the PLoM Model, then the SimCenterUQ engine uses the algorithm presented in this paper."));
+
+    QJsonObject paper3;
+    paper2.insert("citation",QString("Zhong, K., Navarro, J. G., Govindjee, S., & Deierlein, G. G. (2023). Surrogate modeling of structural seismic response using probabilistic learning on manifolds. Earthquake Engineering & Structural Dynamics, 1-22. https://doi.org/10.1002/eqe.3839."));
+    paper2.insert("description",QString("The implementation of the PLoM algorithm in the SimCenter tools is detailed in this paper."));
+
+    citations.append(paper1);
+    citations.append(paper2);
+    citations.append(paper3);
+
+    jsonObject.insert("citations", citations);
+
+    return true;
+}

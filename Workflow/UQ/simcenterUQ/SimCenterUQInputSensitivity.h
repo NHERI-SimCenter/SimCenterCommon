@@ -109,6 +109,10 @@ private:
     QLabel *advancedLabel, *PCAautoText;
     QLineEdit *RVvarList, *PCAvarRatio;
     QComboBox *performPCA;
+
+    // SimCenterAppWidget interface
+public:
+    bool outputCitation(QJsonObject &jsonObject);
 };
 
 #endif // SIMCENTERUQ_INPUT_SENSITIVITY_H
