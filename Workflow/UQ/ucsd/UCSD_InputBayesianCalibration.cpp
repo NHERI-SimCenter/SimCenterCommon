@@ -245,3 +245,30 @@ QString UCSD_InputBayesianCalibration::getMethodName()
 //void UCSD_InputBayesianCalibration::setEventType(QString type)
 //{
 //}
+
+
+bool UCSD_InputBayesianCalibration::outputCitation(QJsonObject &jsonObject)
+{
+    if (theCurrentMethod == theTMCMC) {
+        // citations for TMCMC
+        QJsonArray citations;
+
+        QJsonObject paper1;
+        paper1.insert("citation",QString("Ching, J., & Chen, Y.-C. (2007). Transitional Markov Chain Monte Carlo Method for Bayesian Model Updating, Model Class Selection, and Model Averaging. Journal of Engineering Mechanics, 133(7), 816-832."));
+        paper1.insert("description",QString("This is the paper where the TMCMC method was proposed. The implementation of the TMCMC algorithm in quoFEM is based on ideas proposed in this paper."));
+
+        QJsonObject paper2;
+        paper2.insert("citation",QString("Minson, S. E., Simons, M., & Beck, J. L. (2013). Bayesian Inversion for Finite Fault Earthquake Source Models I-Theory and Algorithm. Geophysical Journal International, 194(3), 1701-1726."));
+        paper2.insert("description",QString("In this paper a parallel version of the TMCMC algorithm was described. The implementation of the TMCMC algorithm in quoFEM is based on ideas proposed in this paper."));
+
+        citations.append(paper1);
+        citations.append(paper2);
+
+        jsonObject.insert("citations", citations);
+
+    } else if (theCurrentMethod == theHierarchicalBayesian) {
+        jsonObject.insert("citation",QString("Kurumbhati, M. M., Ramancha, M. K., Aakash, B. S., Conte, J. P., Lotfizadeh, K. H. (Year). Hierarchical Bayesian Modeling for Calibration and Uncertainty Quantification of Constitutive Material Models: Application to a Uniaxial Steel Material Model. Engineering Structures."));
+        jsonObject.insert("description",QString("The implementation of the sampling algorithm for Bayesian calibration of hierarchial models follows the description in this paper."));
+    }
+  return true;
+}
