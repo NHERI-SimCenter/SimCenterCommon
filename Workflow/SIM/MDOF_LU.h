@@ -62,6 +62,7 @@ public:
 
      // copy main file to new filename ONLY if varNamesAndValues not empy
     void setFileName(QString filnema1);
+    bool outputCitation(QJsonObject &json);
 
 public slots:
    void clear(void) override;
