@@ -292,3 +292,16 @@ bool MDOF_LU::copyFiles(QString &dirName) {
     return true;
 }
 
+bool MDOF_LU::outputCitation(QJsonObject &jsonObject) {
+    QJsonArray citations;
+    QJsonObject jsonObject1;
+    jsonObject1["Citation"] = QString("Lu X.Z., McKenna F., Cheng Q.L., Xu Z., Zeng X., and Mahin S.A., \"An open-source framework for regional earthquake loss estimation using the city-scale nonlinear time-history analysis\" , Earthquake Spectra, 2020, 36(2): 806-831.");
+    jsonObject1["description"] = QString("Please cite this paper when utilizing the MDOF_LU model as building models.");
+    QJsonObject jsonObject2;
+    jsonObject2["Citation"] = QString("Lu X.Z., Han B., Hori M., Xiong C., and Xu Z., \"A coarse-grained parallel approach for seismic damage simulations of urban areas based on refined models and GPU/CPU cooperative computing\" , Advances in Engineering Software,2014, 70: 90-103.");
+    jsonObject2["description"] = QString("Please cite this paper when utilizing the MDOF_LU model as building models.");
+    citations.append(jsonObject1);
+    citations.append(jsonObject2);
+    jsonObject["citations"] = citations;
+}
+
