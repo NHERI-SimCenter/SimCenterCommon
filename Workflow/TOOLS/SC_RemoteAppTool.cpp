@@ -21,7 +21,7 @@
 #include <QJsonDocument>
 #include <QMessageBox>
 #include <QFileDialog>
-
+#include <QJsonObject>
 
 SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 				   QList<QString> theQueus,
@@ -546,7 +546,9 @@ SC_RemoteAppTool::processResults(QString &dirName){
 
 }
 
-
+bool SC_RemoteAppTool::outputCitation(QJsonObject &jsonObject) {
+  return theApp->outputCitation(jsonObject);
+}
 
 	     
 
