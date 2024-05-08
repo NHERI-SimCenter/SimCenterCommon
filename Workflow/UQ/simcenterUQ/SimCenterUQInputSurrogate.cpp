@@ -309,3 +309,34 @@ SimCenterUQInputSurrogate::onEventTypeChanged(QString typeEVT) {
         // not an earthquake event, inactivate ground motion intensity widget
     }
 }
+
+
+bool SimCenterUQInputSurrogate::outputCitation(QJsonObject &jsonObject)
+{
+    QJsonArray citations;
+
+    QJsonObject paper1;
+    paper1.insert("citation",QString("GPy. (2012-present). GPy: A Gaussian process framework in Python. Retrieved from http://github.com/SheffieldML/GPy."));
+    paper1.insert("description",QString("Surrogate modeling functionality of quoFEM is built upon the GPy library, an open-source Python framework for Gaussian process modeling developed in the Sheffield machine learning group."));
+
+    QJsonObject paper2;
+    paper2.insert("citation",QString("Kyprioti, A.P., Zhang, J., and Taflanidis, A.A. (2020). Adaptive design of experiments for global Kriging metamodeling through cross-validation information. Structural and Multidisciplinary Optimization, 1-23."));
+    paper2.insert("description",QString("If the user selected the IMSEw or MMSEw DoE Options under the 'Advanced Option for Gaussian Process Model' in the SimCenterUQ engine, the algorithm outlined in this paper is utilized."));
+
+    QJsonObject paper3;
+    paper3.insert("citation",QString("Yi, S.R. and Taflanidis, A.A., (2023). Computationally Efficient Adaptive Design of Experiments for Global Metamodeling through Integrated Error Approximation and Multicriteria Search Strategies. Journal of Engineering Mechanics, 149(8), p.04023050."));
+    paper3.insert("description",QString("If the user selected the Pareto DoE Option under the 'Advanced Option for Gaussian Process Model' in the SimCenterUQ engine, the algorithm outlined in this paper is utilized."));
+
+    QJsonObject paper4;
+    paper4.insert("citation",QString("Kyprioti, A.P. and Taflanidis, A.A., (2021). Kriging metamodeling for seismic response distribution estimation. Earthquake Engineering & Structural Dynamics, 50(13), pp.3550-3576."));
+    paper4.insert("description",QString("If the user selected the Heteroscedastic 'Nugget Variances' option under the 'Advanced Option for Gaussian Process Model' in the SimCenterUQ engine, the algorithm outlined in this paper is utilized."));
+
+    citations.append(paper1);
+    citations.append(paper2);
+    citations.append(paper3);
+    citations.append(paper4);
+
+    jsonObject.insert("citations", citations);
+
+    return true;
+}

@@ -88,6 +88,10 @@ private:
    UQ_Engine *theBayesianCalibrationEngine;
    UQ_Engine *theSensitivityEngine;
    UQ_Engine *theOptimizationEngine;
+
+   // SimCenterAppWidget interface
+public:
+   bool outputCitation(QJsonObject &jsonObject);
 };
 
 #endif // DAKOTA_ENGINE_H

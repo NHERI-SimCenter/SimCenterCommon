@@ -229,3 +229,11 @@ UCSD_Engine::copyFiles(QString &fileName) {
 
     return theCurrentEngine->copyFiles(fileName);
 }
+
+
+bool UCSD_Engine::outputCitation(QJsonObject &jsonObject)
+{
+    theCurrentEngine->outputCitation(jsonObject);
+
+  return true;
+}

@@ -96,6 +96,10 @@ private:
    QString typeEVT; // used for PLoM to identify Event type
 
    RandomVariablesContainer *theRVs;
+
+   // SimCenterAppWidget interface
+public:
+   bool outputCitation(QJsonObject &jsonObject);
 };
 
 #endif // SimCenterUQ_ENGINE_H
