@@ -698,7 +698,7 @@ bool surrogateGP::outputCitation(QJsonObject &jsonObject){
 
     QJsonObject StochasticKrigingCitation;
     StochasticKrigingCitation.insert("citation",QString("Kyprioti, A.P. and Taflanidis, A.A. (2021). “Kriging metamodeling for seismic response distribution estimation”. Earthquake Engineering & Structural Dynamics, 50(13), 3550-3576."));
-    StochasticKrigingCitation.insert("description",QString("The surrogate model is trained using the stochastic kriging approach described in this paper to capture heteroskedastic property (i.e. not only the predicted mean but also the predicted variance is a function of surrogate inputs) of siesmic respopnse"));
+    StochasticKrigingCitation.insert("description",QString("The surrogate model is trained using the stochastic kriging approach described in this paper to capture heteroskedastic property (i.e. not only the predicted mean but also the predicted variance is a function of surrogate inputs) of seismic response"));
     GpCitation.push_back(StochasticKrigingCitation);
 
     jsonObject.insert("citations",GpCitation);
