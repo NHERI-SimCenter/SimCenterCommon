@@ -108,6 +108,10 @@ private:
     //InputWidgetFEM *theFemWidget;
     QString typeEVT;
 
+
+    // SimCenterAppWidget interface
+public:
+    bool outputCitation(QJsonObject &jsonObject);
 };
 
 #endif // SimCenterUQ_INPUT_PLOM_H

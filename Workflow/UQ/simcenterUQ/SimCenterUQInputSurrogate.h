@@ -103,6 +103,10 @@ private:
     UQ_Method *theMultiFidelity;
 
     QString typeEVT;
+
+    // SimCenterAppWidget interface
+public:
+    bool outputCitation(QJsonObject &jsonObject);
 };
 
 #endif // SimCenterUQ_INPUT_SURROGATE_H
