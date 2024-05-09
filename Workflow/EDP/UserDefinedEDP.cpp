@@ -78,6 +78,7 @@ UserDefinedEDP::UserDefinedEDP(QWidget *parent)
     // add stuff to enter Additional INput
     QLabel *labelAI = new QLabel("Additional Input");
     additionalInputLE = new QLineEdit;
+    additionalInputLE->setPlaceholderText("(Optional)");
     QPushButton *chooseAdditionalInputButton = new QPushButton();
     chooseAdditionalInputButton->setText(tr("Choose"));
     connect(chooseAdditionalInputButton,SIGNAL(clicked()),this,SLOT(chooseAdditionalInput()));
@@ -88,6 +89,7 @@ UserDefinedEDP::UserDefinedEDP(QWidget *parent)
     // add stuff to enter processing script
     QLabel *labelPS = new QLabel("Processing Script");
     processingScriptLE = new QLineEdit;
+    processingScriptLE->setPlaceholderText("(Optional)");
     QPushButton *chooseProcessingScriptButton = new QPushButton();
     chooseProcessingScriptButton->setText(tr("Choose"));
     connect(chooseProcessingScriptButton,SIGNAL(clicked()),this,SLOT(chooseProcessingScript()));

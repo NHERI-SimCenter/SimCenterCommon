@@ -686,3 +686,22 @@ surrogateGP::interpolateForGP(QVector<double> X, QVector<double> Y, double Xval)
 
     return (estY);
 }
+
+bool surrogateGP::outputCitation(QJsonObject &jsonObject){
+
+    QJsonArray GpCitation;
+
+    QJsonObject GPyCitation;
+    GPyCitation.insert("citation",QString("GPy (Since 2012), {GPy}: A Gaussian process framework in python, http://github.com/SheffieldML/GPy"));
+    GPyCitation.insert("description",QString("Gaussian Process surrogate modules of SimCenter tools are built upon GPy library (available under BSD 3-clause license), an opensource python framework for Gaussian process modeling developed in the Sheffield machine learning group."));
+    GpCitation.push_back(GPyCitation);
+
+    QJsonObject StochasticKrigingCitation;
+    StochasticKrigingCitation.insert("citation",QString("Kyprioti, A.P. and Taflanidis, A.A. (2021). “Kriging metamodeling for seismic response distribution estimation”. Earthquake Engineering & Structural Dynamics, 50(13), 3550-3576."));
+    StochasticKrigingCitation.insert("description",QString("The surrogate model is trained using the stochastic kriging approach described in this paper to capture heteroskedastic property (i.e. not only the predicted mean but also the predicted variance is a function of surrogate inputs) of seismic response"));
+    GpCitation.push_back(StochasticKrigingCitation);
+
+    jsonObject.insert("citations",GpCitation);
+
+    return true;
+}
