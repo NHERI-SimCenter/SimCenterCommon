@@ -448,6 +448,11 @@ RemoteApplication::uploadDirReturn(bool result)
         for (auto parameterName : extraParameters.keys())
         {
             parameters[parameterName] = extraParameters[parameterName];
+
+            // --- Justin
+            // Below code checks that an app doesn't request more runtime than the whole job's maximum runtime (i.e. wall time requested by user in GUI)
+            // Apps are allowed to request a runtime in outputAppDataToJSON(), which they can calculate or estimate based on the job's parameters
+            // 
             if (parameterName == "maxRunTime") {
                 // if (appName == "HydroUQ" || appName == "Hydro-UQ" || appName == "Hydro" || appName == "MPM" || appName == "Digital Twin (MPM)" || appName == "ClaymoreUW") {
                 // Get hh:mm:ss QString, QTime from QString, convert to seconds
