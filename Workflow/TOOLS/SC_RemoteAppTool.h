@@ -13,6 +13,7 @@ class QPushButton;
 class RemoteService;
 class QLineEdit;
 class RemoteJobManager;
+class QJsonObject;
 
 class SC_RemoteAppTool : public SimCenterAppWidget
 {
@@ -28,6 +29,7 @@ public:
   ~SC_RemoteAppTool();
   
   void clear(void);
+  bool outputCitation(QJsonObject &jsonObject) override;
 		    
 public slots:
   //  void onRunRemoteButtonPressed();

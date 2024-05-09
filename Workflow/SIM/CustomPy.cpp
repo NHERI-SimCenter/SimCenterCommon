@@ -413,6 +413,11 @@ QString CustomPy::getMainInput() {
      }
      QFileInfo fileInfo(fileName);
 
+     if (!fileInfo.exists()) {
+         this->errorMessage("File " + fileName + " does not exist");
+         return false;
+     }
+
      QString theFile = fileInfo.fileName();
      QString thePath = fileInfo.path();
 

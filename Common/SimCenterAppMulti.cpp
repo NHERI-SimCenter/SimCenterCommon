@@ -261,8 +261,20 @@ bool SimCenterAppMulti::copyFiles(QString &destDir)
 
 bool SimCenterAppMulti::outputCitation(QJsonObject &jsonObj)
 {
-    Q_UNUSED(jsonObj);
-        return true;
+    int numModels = theModels.size();
+
+    for (int i=0; i<numModels; i++) {
+        QJsonObject jsonObj_tmp;
+        SimCenterAppWidget *theWidget = theModels.at(i);
+        theWidget->outputCitation(jsonObj_tmp);
+
+        if (!jsonObj_tmp.isEmpty()) {
+          jsonObj.insert("model " + QString::number(i+1) , jsonObj_tmp);
+        }
+
+    }
+
+    return true;
 }
 
 
