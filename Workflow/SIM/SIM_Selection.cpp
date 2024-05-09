@@ -103,3 +103,17 @@ SIM_Selection::getClone()
   SIM_Selection *newSelection = new SIM_Selection(includeCentroid, false);
   return newSelection;
 }
+
+
+
+
+bool
+SIM_Selection::outputCitation(QJsonObject &jsonObject) {
+  QJsonObject appSpecificCitation;
+  auto currentApp = this->getCurrentSelection();
+  currentApp->outputCitation(appSpecificCitation);
+  if (!appSpecificCitation.isEmpty()) {
+    jsonObject.insert(this->getCurrentSelectionName(), appSpecificCitation);
+  }
+  return true;
+}

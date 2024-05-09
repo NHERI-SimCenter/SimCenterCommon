@@ -292,3 +292,10 @@ bool MDOF_LU::copyFiles(QString &dirName) {
     return true;
 }
 
+
+bool MDOF_LU::outputCitation(QJsonObject &jsonObject){
+    jsonObject.insert("citation",QString("Lu, X., McKenna, F., Cheng, Q., Xu, Z., Zeng, X., & Mahin, S. A. (2020). An open-source framework for regional earthquake loss estimation using the city-scale nonlinear time history analysis. Earthquake Spectra, 36(2), 806-831."));
+    jsonObject.insert("description",QString("The MDOF-LU building modeling application creates a hysteretic, multi-degree of freedom (MDOF) OpenSees model based on high-level building information such as number of stories, structural type, plan area etc."));
+
+    return true;
+}
