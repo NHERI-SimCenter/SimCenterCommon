@@ -303,6 +303,7 @@ bool MDOF_LU::outputCitation(QJsonObject &jsonObject) {
     citations.append(jsonObject1);
     citations.append(jsonObject2);
     jsonObject["citations"] = citations;
+    return true;
 }
 
 
