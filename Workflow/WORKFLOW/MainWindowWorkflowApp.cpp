@@ -1164,7 +1164,7 @@ MainWindowWorkflowApp::showCitations(void)
   textEdit->setPlainText(json_string);
   textEdit->setReadOnly(true);
   layout->addWidget(textEdit, 0, 0, 1, 5);
-  for (int i=0; i<=5; i++)
+  for (int i=0; i<5; i++)
     layout->setColumnStretch(i,1);
   
   dialog->show();
@@ -1177,22 +1177,23 @@ MainWindowWorkflowApp::showCitations(void)
     justText.append(QString::number(counter)); justText.append(".  "); justText.append(str); justText.append("\n\n");
     counter++;
   }  
+
+  QPushButton *json = new QPushButton("JSON");
+  layout->addWidget(json,1,1);
+  connect(json, &QPushButton::clicked, this, [textEdit, json_string](){
+    textEdit->setPlainText(json_string);
+  });
+
   
   QPushButton *justCitations = new QPushButton("Citations Only");
-  layout->addWidget(justCitations,1,3);
+  layout->addWidget(justCitations,1,2);
   connect(justCitations, &QPushButton::clicked, this, [textEdit, justText](){
     textEdit->setPlainText(justText);
   });
 
 
-  QPushButton *json = new QPushButton("JSON");
-  layout->addWidget(json,1,2);
-  connect(json, &QPushButton::clicked, this, [textEdit, json_string](){
-    textEdit->setPlainText(json_string);
-  });
-
   QPushButton *close = new QPushButton("Close");
-  layout->addWidget(close,1,4);
+  layout->addWidget(close,1,3);
   connect(close, &QPushButton::clicked, this, [dialog](){
     dialog->close();
   });  
