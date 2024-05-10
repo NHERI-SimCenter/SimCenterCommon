@@ -423,7 +423,9 @@ RemoteApplication::uploadDirReturn(bool result)
       if (nodeCount > 512)
         queue = "large";
 
-      queue = "skx";
+      QString appName = QCoreApplication::applicationName();      
+      if (appName != QString("WE-UQ") && appName != QString("HydroUQ"))	  	
+	queue = "skx";
 	
       job["appId"]=SimCenterPreferences::getInstance()->getRemoteAgaveApp();
       job["memoryPerNode"]= "1GB";
@@ -432,8 +434,6 @@ RemoteApplication::uploadDirReturn(bool result)
       job["archivePath"]="";
       job["archiveSystem"]="designsafe.storage.default";
       
-
-      QString appName = QCoreApplication::applicationName();
       if (appName != "R2D"){
 
         QJsonObject parameters;
