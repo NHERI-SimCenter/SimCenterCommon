@@ -423,7 +423,8 @@ RemoteApplication::uploadDirReturn(bool result)
       if (nodeCount > 512)
         queue = "large";
 
-      if (appName == QString("R2D") || appName == QString("quoFEM"))
+      QString appName = QCoreApplication::applicationName();      
+      if ((appName == QString("R2D")) || (appName == QString("quoFEM")) )
 	queue = "skx";
 
       job["appId"]=SimCenterPreferences::getInstance()->getRemoteAgaveApp();
