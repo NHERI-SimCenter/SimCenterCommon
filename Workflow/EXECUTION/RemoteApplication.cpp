@@ -424,7 +424,7 @@ RemoteApplication::uploadDirReturn(bool result)
         queue = "large";
 
       QString appName = QCoreApplication::applicationName();      
-      if (appName != QString("WE-UQ") && appName != QString("HydroUQ"))	  	
+      if (appName == QString("R2D") || appName != QString("quoFEM"))	  	
 	queue = "skx";
 	
       job["appId"]=SimCenterPreferences::getInstance()->getRemoteAgaveApp();
