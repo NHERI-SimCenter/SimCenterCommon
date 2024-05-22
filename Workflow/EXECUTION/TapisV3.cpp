@@ -169,42 +169,12 @@ TapisV3::loginCall(QString uname, QString upassword)
     }
 }
 
-int debug_callback(CURL *handle, curl_infotype type, char *data, size_t size, void *userptr) {
-    Q_UNUSED(handle);
-    Q_UNUSED(userptr);
-
-    switch (type) {
-    case CURLINFO_TEXT:
-        qDebug() << "Info: " << QByteArray(data, size);
-        break;
-    case CURLINFO_HEADER_IN:
-        qDebug() << "Header IN: " << QByteArray(data, size);
-        break;
-    case CURLINFO_HEADER_OUT:
-        qDebug() << "Header OUT: " << QByteArray(data, size);
-        break;
-    case CURLINFO_DATA_IN:
-        qDebug() << "Data IN: " << QByteArray(data, size);
-        break;
-    case CURLINFO_DATA_OUT:
-        qDebug() << "Data OUT: " << QByteArray(data, size);
-        break;
-    default: /* Do nothing for other types */
-        break;
-    }
-
-    return 0;
-}
-
 
 bool
 TapisV3::login(QString uname, QString upassword)
 {
     username = uname;
     password = upassword;
-
-    QString consumerSecret;
-    QString consumerKey;
 
     curl_slist_free_all(slist1);
     slist1 = NULL;
@@ -215,12 +185,11 @@ TapisV3::login(QString uname, QString upassword)
     // before thread was shutdown
     //
 
-    QString message = QString("Contacting ") + tenant + QString(" to delete any old clients ");
+    QString message = QString("Contacting ") + tenant + QString(" to log in.");
     emit statusMessage(message);
 
     QString url = tenantURL + QString("clients/v3/") + appClient;
     QString user_passwd = "{\"username\":\"" + username +"\", \"password\": \"" + password + "\", \"grant_type\": \"password\" }";
-    //QString user_passwd = username + QString(":") + password;
 
     curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
     curl_easy_setopt(hnd, CURLOPT_USERPWD, user_passwd.toStdString().c_str());
@@ -262,7 +231,7 @@ TapisV3::login(QString uname, QString upassword)
     QString val=file2.readAll();
     file2.close();
 
-    if (val.contains("Invalid Credentals") || val.isEmpty()) {
+    if (val.contains("Invalid username/password combination.") || val.isEmpty()) {
         emit errorMessage("ERROR: Invalid Credentials in OAuth!");
         return false;
     } else {
@@ -331,32 +300,12 @@ TapisV3::logout()
     if (loggedInFlag == false)
         return true;
 
-    QString url = tenantURL + QString("clients/v2/") + appClient;
-    QString user_passwd = username + QString(":") + password;
 
-    emit statusMessage("STATUS: contacting Agave to delete remote client app");
-
-    curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
-    curl_easy_setopt(hnd, CURLOPT_USERPWD, user_passwd.toStdString().c_str());
-    curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "DELETE");
-    bool ok = this->invokeCurl();
-
-    if (ok == false) {
-        emit statusMessage("ERROR: Failed to invokeCurl when deleting remote client app");
-    } else {
-        emit statusMessage("STATUS: contacting Agave to revoke auth tokens");
-    }
-
-    curl_slist_free_all(slist1);
-    slist1 = NULL;
-
-    /* DOES Not appear to be needed .. need to set correct URL
-    //QString command = QString("auth-tokens-revoke > ")  + uniqueFileName1;
-    //this->invokeCurl();
-    */
+    // don't need to log out since v3 uses access tokens
 
     emit statusMessage("Logout SUCCESS");
 
+    accessToken = "";
     loggedInFlag = false;
 
     return true;
@@ -453,7 +402,7 @@ TapisV3::removeDirectory(const QString &remote)
     emit statusMessage(message);
 
     // invoke curl to remove the file or directory
-    QString url = tenantURL + QString("files/v2/media/") + remote;
+    QString url = tenantURL + QString("v3/files/ops/stampede3/") + remote;
     curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
     curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "DELETE");
     if (this->invokeCurl() == false) {
@@ -527,17 +476,28 @@ TapisV3::mkdir(const QString &remoteName, const QString &remotePath) {
 
     bool result = false;
 
-    QString url = tenantURL + QString("v3/files/ops/") + remotePath;
+    QString url = tenantURL + QString("v3/files/ops/") + remoteName;
 
-    QString postField = QString("action=mkdir&path=") + remoteName;
+    QString postField = QString("{\"path\":\"%1\"}").arg(remotePath);
     int postFieldLength = postField.length() ; // strlen(postFieldChar);
     char *pField = new char[postFieldLength+1]; // have to do new char as seems to miss ending string char when pass directcly
     strncpy(pField, postField.toStdString().c_str(),postFieldLength+1);
 
+
+    std::string headerData = QString("X-Tapis-Token: %1").arg(accessToken).toStdString();
+    slist1 = NULL;
+    slist1 = curl_slist_append(slist1, headerData.c_str());
+    slist1 = curl_slist_append(slist1, "Content-Type:application/json");
+    curl_easy_setopt(hnd, CURLOPT_BUFFERSIZE, 102400L);
     curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
-    curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, pField);
-    curl_easy_setopt(hnd, CURLOPT_POSTFIELDSIZE_LARGE, (curl_off_t)postFieldLength);
-    curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "PUT");
+    curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L);
+    std::string postData = postField.toStdString();
+    curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, postData.c_str());
+    curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, slist1);
+    curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 50L);
+    curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "POST");
+    curl_easy_setopt(hnd, CURLOPT_FTP_SKIP_PASV_IP, 1L);
+    curl_easy_setopt(hnd, CURLOPT_TCP_KEEPALIVE, 1L);
 
     if (this->invokeCurl() == false) {
         return false;
@@ -612,30 +572,23 @@ TapisV3::uploadFile(const QString &local, const QString &remote) {
     QString remoteCleaned = remote;
     remoteCleaned.remove(storage);
     QFileInfo   fileInfo(remoteCleaned);
-    QString remoteName = fileInfo.fileName();
-    QString remotePath = fileInfo.path();
 
-    // invoke curl to upload the file or directory
-    struct curl_httppost *post1;
-    struct curl_httppost *postend;
 
-    post1 = NULL;
-    postend = NULL;
-    curl_formadd(&post1, &postend,
-                 CURLFORM_COPYNAME, "fileToUpload",
-                 CURLFORM_FILE, local.toStdString().c_str(),
-                 CURLFORM_CONTENTTYPE, "text/plain",
-                 CURLFORM_END);
-    curl_formadd(&post1, &postend,
-                 CURLFORM_COPYNAME, "fileName",
-                 CURLFORM_COPYCONTENTS, remoteName.toStdString().c_str(),
-                 CURLFORM_END);
+    curl_mime *mime1;
+    curl_mimepart *part1;
 
-    slist1 = curl_slist_append(slist1, "Expect: ");
+    mime1 = curl_mime_init(hnd);
+    part1 = curl_mime_addpart(mime1);
+    curl_mime_filedata(part1, local.toStdString().c_str());
+    curl_mime_name(part1, "file");
+    curl_easy_setopt(hnd, CURLOPT_MIMEPOST, mime1);
 
-    QString url = tenantURL + QString("files/v2/media/") + remotePath;
+    std::string headerData = QString("X-Tapis-Token: %1").arg(accessToken).toStdString();
+    slist1 = NULL;
+    slist1 = curl_slist_append(slist1, headerData.c_str());
+
+    QString url = tenantURL + QString("v3/files/ops/stampede3/") + remote;
     curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
-    curl_easy_setopt(hnd, CURLOPT_HTTPPOST, post1);
     curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "POST");
 
     if (this->invokeCurl() == false) {
@@ -724,11 +677,14 @@ TapisV3::downloadFile(const QString &remoteFile, const QString &localFile)
     //   QString localName = localFile.fileName();
 
     QString message = QString("Contacting ") + tenant + QString(" to download remote file ") + remoteName; // + QString( " to ") + localFile;
-    emit statusMessage(message);
+
 
     // set up the call
-    QString url = tenantURL + QString("files/v2/media/") + remoteFile;
+    QString url = tenantURL + QString("v3/files/content/stampede3/") + remoteFile;
 
+    std::string headerData = QString("X-Tapis-Token: %1").arg(accessToken).toStdString();
+    slist1 = NULL;
+    slist1 = curl_slist_append(slist1, headerData.c_str());
     curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
     curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L);
     curl_easy_setopt(hnd, CURLOPT_USERAGENT, "curl/7.54.0");
@@ -785,10 +741,14 @@ TapisV3::remoteLS(const QString &remotePath)
     emit statusMessage(message);
 
     // set up the call
-    QString url = tenantURL + QString("files/v2/listings/") + remotePath;
+    QString url = tenantURL + QString("v3/files/ops/stampede3/") + remotePath;
     if(remotePath.isEmpty())
         url.append(username);
 
+    std::string headerData = QString("X-Tapis-Token: %1").arg(accessToken).toStdString();
+    slist1 = NULL;
+    slist1 = curl_slist_append(slist1, headerData.c_str());
+    curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, slist1);
     curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
     if (this->invokeCurl() == false) {
         return result;
@@ -891,6 +851,11 @@ TapisV3::startJob(const QJsonObject &theJob)
     slist2 = curl_slist_append(slist2, "Content-Type: application/json");
     slist2 = curl_slist_append(slist2, bearer.toStdString().c_str());
 
+    std::string headerData = QString("X-Tapis-Token: %1").arg(accessToken).toStdString();
+    slist1 = NULL;
+    slist1 = curl_slist_append(slist1, headerData.c_str());
+    curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, slist1);
+
     QJsonDocument docJob(theJob);
     QString strJson(docJob.toJson(QJsonDocument::Compact));
     QByteArray ba = strJson.toLocal8Bit();
@@ -898,7 +863,7 @@ TapisV3::startJob(const QJsonObject &theJob)
     curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, c_str2);
     //  curl_easy_setopt(hnd, CURLOPT_POSTFIELDSIZE_LARGE, (curl_off_t)strlen(c_str2));
 
-    QString url = tenantURL + QString("jobs/v2/?pretty=true");
+    QString url = tenantURL + QString("v3/jobs/submit");
     curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
     curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "POST");
 
@@ -986,12 +951,17 @@ TapisV3::getJobList(const QString &matchingName, QString appIdFilter)
 
     QJsonObject result;
 
-    QString url = tenantURL + QString("jobs/v2");
+    QString url = tenantURL + QString("v3/jobs/list?orderBy=lastUpdated(desc),name(asc)&computeTotal=true");
     if (!appIdFilter.isEmpty())
     {
         QString params = QString("?appId.like=%1").arg(appIdFilter);
         url.append(params);
     }
+
+    std::string headerData = QString("X-Tapis-Token: %1").arg(accessToken).toStdString();
+    slist1 = NULL;
+    slist1 = curl_slist_append(slist1, headerData.c_str());
+    curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, slist1);
     curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
     this->invokeCurl();
 
@@ -1048,7 +1018,12 @@ TapisV3::getJobDetails(const QString &jobID)
     QString message = QString("Contacting ") + tenant + QString(" to Get Job Details of ") + jobID;
     emit statusMessage(message);
 
-    QString url = tenantURL + QString("jobs/v2/") + jobID;
+    QString url = tenantURL + QString("v3/jobs/") + jobID;
+
+    std::string headerData = QString("X-Tapis-Token: %1").arg(accessToken).toStdString();
+    slist1 = NULL;
+    slist1 = curl_slist_append(slist1, headerData.c_str());
+    curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, slist1);
     curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
     if (this->invokeCurl() == false) {
         return result;
@@ -1098,7 +1073,11 @@ TapisV3::getJobStatus(const QString &jobID){
     QString message = QString("Contacting ") + tenant + QString(" to Get Job Status of ") + jobID;
     emit statusMessage(message);
 
-    QString url = tenantURL + QString("jobs/v2/") + jobID + QString("/status");
+    QString url = tenantURL + QString("v3/jobs/") + jobID + QString("/status");
+    std::string headerData = QString("X-Tapis-Token: %1").arg(accessToken).toStdString();
+    slist1 = NULL;
+    slist1 = curl_slist_append(slist1, headerData.c_str());
+    curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, slist1);
     curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
     if (this->invokeCurl() == false) {
         return result;
