@@ -382,7 +382,9 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
 
     } else { // Frontera
 
-      queue = "small";
+//      queue = "small";
+//      queue = "simcenter";
+          queue = "icx";
       //QString queue = "development";
       if (nodeCount > 2)
         queue = "normal";
