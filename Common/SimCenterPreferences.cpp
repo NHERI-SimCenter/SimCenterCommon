@@ -902,12 +902,12 @@ SimCenterPreferences::getRemoteAppDir(void) {
 	
 	// if not set, use default & set default as application directory
 	if (!remoteBackendDirVariant.isValid()) {
-	  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v4.5.0");
+	  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v4.5.0");
 
 	  QString appName = QCoreApplication::applicationName();
-	  /*	  if (appName == QString("quoFEM"))
-	    remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v4.0.0");      
-	  */
+	  if (appName == QString("WE-UQ") || appName == QString("HydroUQ") || appName == QString("EE-UQ") || appName == QString("PBE"))
+	    remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v4.5.0");
+
 	  settingsApplication.setValue("remoteBackendDir", remoteBackendDirLocation);
 	  return remoteBackendDirLocation;
 	}
@@ -1010,24 +1010,30 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
 
     //Default appDir is the location of the application
     QString appName = QCoreApplication::applicationName();
-    QString remoteApp = QString("simcenter-uq-frontera-4.4.0u2");
+    QString remoteApp = QString("simcenter-uq-stampede3-1.0.0u1");
 
     if (appName == QString("R2D"))
-      remoteApp = QString("simcenter-rWHale-frontera-4.4.0u1");
+      remoteApp = QString("simcenter-rWhale-stampede3-1.0.0u1");
     if (appName == QString("WE-UQ") || appName == QString("HydroUQ"))
-      remoteApp = QString("simcenter-openfoam-frontera-1.0.0u7");
+      remoteApp = QString("simcenter-openfoam-frontera-1.0.0u8");
+    if (appName == QString("EE-UQ") || appName == QString("PBE"))
+      remoteApp = QString("simcenter-uq-frontera-4.4.0u2");      
 
     return remoteApp;
 }
 
+
 QString
 SimCenterPreferences::getDefaultRemoteAppDir(void) {
 
-  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v4.5.0");
+  QString appName = QCoreApplication::applicationName();  
+  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v4.5.0");
+  if (appName == QString("WE-UQ") || appName == QString("HydroUQ") || appName == QString("EE-UQ") || appName == QString("PBE"))
+      remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v4.5.0");  
 
-  QString appName = QCoreApplication::applicationName();
   return remoteBackendDirLocation;
 }
+
 
 
 QString
@@ -1132,22 +1138,16 @@ SimCenterPreferences::getDefaultPython(void) {
 #else
     
     QString pythonPath; //  = QStandardPaths::findExecutable("python3");
-    //    QFileInfo pythonPathFileInfo(pythonPath);
-
-    //if (!pythonPathFileInfo.exists()) {
-      
-    // this is where python.org installer puts it .. documented installer
+    QFileInfo installedPython39("/Library/Frameworks/Python.framework/Versions/3.9/bin/python3");
     QFileInfo installedPython310("/Library/Frameworks/Python.framework/Versions/3.10/bin/python3");
-    QFileInfo installedPython38("/Library/Frameworks/Python.framework/Versions/3.8/bin/python3");
     
-    if (installedPython38.exists()) {
-      pythonPath = installedPython38.filePath();
+    if (installedPython39.exists()) {
+      pythonPath = installedPython39.filePath();
     } else if (installedPython310.exists()) {
       pythonPath = installedPython310.filePath();	
     } else {
       pythonPath = QStandardPaths::findExecutable("python3");
     }
-    //}
     
 #endif
     

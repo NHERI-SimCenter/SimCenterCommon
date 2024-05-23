@@ -1,3 +1,4 @@
+
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -63,7 +64,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QFileDialog>
 #include <ZipUtils.h>
 #include <QCoreApplication>
-
+#include <QIntValidator>
 
 RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QWidget *parent)
 : Application(parent), theRemoteService(theService)
@@ -94,6 +95,9 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
     layout->addWidget(numCPU_Label,numRow,0);
 
     numCPU_LineEdit = new QLineEdit();
+    QIntValidator* theValidatorNumC = new QIntValidator(1, 512);
+    numCPU_LineEdit->setValidator(theValidatorNumC);
+    
     numCPU_LineEdit->setText("1");
     numCPU_LineEdit->setToolTip(tr("Total # of nodes to use (each node has many cores)"));
     layout->addWidget(numCPU_LineEdit,numRow,1);
@@ -106,8 +110,28 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
 
     numProcessorsLineEdit = new QLineEdit();
     numProcessorsLineEdit->setText(QString::number(maxProcPerNode));
-        numProcessorsLineEdit->setToolTip(tr("Total # of Processes to Start"));
+    numProcessorsLineEdit->setToolTip(tr("Total # of Processes to Start on each node"));
     layout->addWidget(numProcessorsLineEdit,numRow,1);
+
+    // hate the validator
+    //QIntValidator* theValidatorNumP = new QIntValidator(1, maxProcPerNode);
+    //numProcessorsLineEdit->setValidator(theValidatorNumP);    
+    connect(numProcessorsLineEdit, &QLineEdit::textChanged, this, [=](QString newText) {
+      bool ok;
+      int numP = newText.toInt(&ok);
+      if (!ok)
+	numP = 1;
+      else if (numP > maxProcPerNode) {
+	ok = false;
+	numP = maxProcPerNode;
+      } else if (numP < 1) {
+	ok = false;
+	numP = 1;
+      }
+      if (ok == false)
+	numProcessorsLineEdit->setText(QString::number(numP));
+    });
+
 
     QString appName = QCoreApplication::applicationName();
     if (appName == "R2D"){
@@ -142,26 +166,6 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
 
     this->setLayout(layout);
 
-    //
-    // set up connections
-    //
-
-    // on login from interface to set up homeDirPath
-    //    connect(theRemoteService,SIGNAL(loginReturn(bool)),this,SLOT(attemptLoginReturn(bool)));
-
-    /*
-    connect(this,SIGNAL(getHomeDirCall()),theRemoteService,SLOT(getHomeDirPathCall()));
-    connect(theRemoteService,SIGNAL(getHomeDirPathReturn(QString)), this, SLOT(getHomeDirReturned(QString)));
-    */
-
-    // to start job need to connect uploadDir and start job
-    /*
-    connect(this,SIGNAL(uploadDirCall(const QString &,const QString &)), theRemoteService, SLOT(uploadDirectoryCall(const QString &,const QString &)));
-    connect(theRemoteService, SIGNAL(uploadDirectoryReturn(bool)), this, SLOT(uploadDirReturn(bool)));
-    connect(this,SIGNAL(startJobCall(QJsonObject)),theRemoteService,SLOT(startJobCall(QJsonObject)));
-    connect(theRemoteService,SIGNAL(startJobReturn(QString)), this, SLOT(startJobReturn(QString)));
-    */
-    
     connect(pushButton,SIGNAL(clicked()), this, SLOT(onRunButtonPressed()));
 }
 
@@ -418,7 +422,11 @@ RemoteApplication::uploadDirReturn(bool result)
         queue = "normal";
       if (nodeCount > 512)
         queue = "large";
-	
+
+      QString appName = QCoreApplication::applicationName();      
+      if ((appName == QString("R2D")) || (appName == QString("quoFEM")) )
+	queue = "skx";
+
       job["appId"]=SimCenterPreferences::getInstance()->getRemoteAgaveApp();
       job["memoryPerNode"]= "1GB";
       job["archive"]=true;
@@ -426,8 +434,6 @@ RemoteApplication::uploadDirReturn(bool result)
       job["archivePath"]="";
       job["archiveSystem"]="designsafe.storage.default";
       
-
-      QString appName = QCoreApplication::applicationName();
       if (appName != "R2D"){
 
         QJsonObject parameters;
@@ -442,6 +448,11 @@ RemoteApplication::uploadDirReturn(bool result)
         for (auto parameterName : extraParameters.keys())
         {
             parameters[parameterName] = extraParameters[parameterName];
+
+            // --- Justin
+            // Below code checks that an app doesn't request more runtime than the whole job's maximum runtime (i.e. wall time requested by user in GUI)
+            // Apps are allowed to request a runtime in outputAppDataToJSON(), which they can calculate or estimate based on the job's parameters
+            // 
             if (parameterName == "maxRunTime") {
                 // if (appName == "HydroUQ" || appName == "Hydro-UQ" || appName == "Hydro" || appName == "MPM" || appName == "Digital Twin (MPM)" || appName == "ClaymoreUW") {
                 // Get hh:mm:ss QString, QTime from QString, convert to seconds
@@ -602,7 +613,7 @@ RemoteApplication::startJobReturn(QString result) {
 
 void
 RemoteApplication::setNumTasks(int numTasks) {
-    if (numTasks < 64)
+    if (numTasks < maxProcPerNode)
         numProcessorsLineEdit->setText(QString::number(numTasks));
 }
 

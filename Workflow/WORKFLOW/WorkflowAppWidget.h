@@ -63,7 +63,9 @@ public:
     virtual void onRemoteGetButtonClicked() =0;
     virtual void onExitButtonClicked() =0;
     virtual int getMaxNumParallelTasks() =0;
-    
+
+    virtual int createCitation(QJsonObject &citationToAddTo, QString citeFile);  
+  
     MainWindowWorkflowApp *getTheMainWindow() const;
 
     static ProgramOutputDialog *getProgressDialog();
