@@ -52,7 +52,8 @@ public:
   ~SIM_Selection();
 
   SimCenterAppWidget *getClone();
-  
+  bool outputCitation(QJsonObject &jsonObject);
+
 private:
     bool includeCentroid;
   

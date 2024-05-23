@@ -112,6 +112,10 @@ private:
     QLineEdit * varList;
     QString typeEVT;
 
+
+    // SimCenterAppWidget interface
+public:
+    bool outputCitation(QJsonObject &jsonObject);
 };
 
 #endif // SimCenterUQ_INPUT_SAMPLING_H

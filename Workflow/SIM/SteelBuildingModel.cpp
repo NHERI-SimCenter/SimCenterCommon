@@ -1479,3 +1479,12 @@ void SteelBuildingModel::setDefaultValues(void)
 
     return;
 }
+
+
+bool SteelBuildingModel::outputCitation(QJsonObject &jsonObject){
+
+    jsonObject.insert("citation","Guan, X., Burton, H., & Sabol, T. (2020). Python-based computational platform to automate seismic design, nonlinear structural model construction and analysis of steel moment resisting frames. Engineering Structures, 224, 111199.");
+    jsonObject.insert("description",QString("The Steel Building Model (AutoSDA) application creates a nonlinear structural model of a moment-resisting steel-framed building based on the user-provided building information such as number of stories, damping ratio, column cross section type, etc"));
+
+    return true;
+}

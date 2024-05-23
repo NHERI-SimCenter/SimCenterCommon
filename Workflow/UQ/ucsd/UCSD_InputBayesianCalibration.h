@@ -93,6 +93,10 @@ public:
     UCSD_UQ_Method *theTMCMC;
     UCSD_UQ_Method *theHierarchicalBayesian;
     UCSD_UQ_Method *theCurrentMethod;
+
+    // SimCenterAppWidget interface
+public:
+    bool outputCitation(QJsonObject &jsonObject);
 };
 
 #endif // UCSD_INPUTBAYESIANCALIBRATION_H

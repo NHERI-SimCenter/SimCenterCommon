@@ -101,3 +101,9 @@ void WorkflowAppWidget::runComplete()
     qDebug() << "Task Completed";
 }
 
+int
+WorkflowAppWidget::createCitation(QJsonObject &citationToAddTo, QString citeFile)
+{
+  // does nothing
+  return 0;
+}

@@ -173,7 +173,7 @@ void SimCenterIM::addGridField(void)
     // ToDO: Discuss the right range with Kuanshi and Adam and Frank!!!
     // ToDO: is spectral velocity = Sa/omega, spectral displacement = Sa/omega2 ?  <- in this case, they can select only one of these
     // ToDO: should we allow more than one unit???
-    // ToDo: is the unit if arias intensity correct?
+    // ToDo: is the unit of arias intensity correct?
     connect(myIM, &QComboBox::currentTextChanged, [this](QString newIM)
     {
         if (newIM.contains("Acceleration")&& newIM.contains("Spectral")) {
