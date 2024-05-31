@@ -1016,7 +1016,7 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
       remoteApp = QString("simcenter-rWhale-stampede3-1.0.0u1");
     if (appName == QString("WE-UQ"))
       remoteApp = QString("simcenter-openfoam-frontera-1.0.1u1");
-    if (appName == QString("appName == QString("HydroUQ"))
+    if (appName == QString("HydroUQ"))
       remoteApp = QString("simcenter-openfoam-frontera-1.0.0u8");    
     if (appName == QString("EE-UQ") || appName == QString("PBE"))
       remoteApp = QString("simcenter-uq-frontera-4.4.0u2");      
