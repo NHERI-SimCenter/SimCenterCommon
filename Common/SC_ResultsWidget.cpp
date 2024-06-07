@@ -70,3 +70,7 @@ void SC_ResultsWidget::restoreUI(void){
 void SC_ResultsWidget::setVisualizationWidget(QWidget *vizWidget){
   theVizWidget = vizWidget;
 }
+
+int SC_ResultsWidget::addResults(SC_ResultsWidget* resultsTab){
+  return 0;
+}

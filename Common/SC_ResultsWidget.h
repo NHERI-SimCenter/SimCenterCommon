@@ -40,6 +40,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written: fmckenna
 
 #include <SimCenterWidget.h>
+#include "SimCenterMapcanvasWidget.h"
+
+class QMainWindow;
+class QgsMapLayer;
+class QDockWidget;
+class QMenu;
 
 class SC_ResultsWidget : public SimCenterWidget
 {
@@ -50,8 +56,11 @@ public:
 
     virtual int processResults(QString &outputFile, QString &dirName, QString &assetType, QList<QString> typesInAssetType);
     virtual int processResults(QString &outputFile, QString &dirName);
+    virtual int addResults(SC_ResultsWidget* resultsTab);
     virtual void clear(void);
     void setVisualizationWidget(QWidget * vizWidget);
+    friend class ResidualDemandResults;
+    friend class Pelicun3PostProcessor;
 
 signals:
 
@@ -61,6 +70,12 @@ private slots:
     void restoreUI(void);
 protected:
     QWidget* theVizWidget;
+    QMainWindow* mainWindow;
+    QByteArray uiState;
+    QList<QDockWidget*> dockList;
+    std::shared_ptr<SimCenterMapcanvasWidget> mapViewSubWidget;
+    QMenu* viewMenu;
+    QList<QgsMapLayer*> neededLayers;
     void extractErrorMsg(QString workDir, QString errFileName, QString uqEngineName, QString &errMsg);
 };
 
