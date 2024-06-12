@@ -56,11 +56,20 @@ public:
 
     virtual int processResults(QString &outputFile, QString &dirName, QString &assetType, QList<QString> typesInAssetType);
     virtual int processResults(QString &outputFile, QString &dirName);
-    virtual int addResults(SC_ResultsWidget* resultsTab);
+    virtual int addResults(SC_ResultsWidget* resultsTab, QString &outputFile, QString &dirName,
+                           QString &assetType, QList<QString> typesInAssetType);
     virtual void clear(void);
     void setVisualizationWidget(QWidget * vizWidget);
-    friend class ResidualDemandResults;
-    friend class Pelicun3PostProcessor;
+
+    // Interface function used by subclasses in R2D
+    QWidget* getVizWidget();
+    QMainWindow* getMainWindow();
+    QByteArray getUiState();
+    void setUiState(QByteArray newState);
+    std::shared_ptr<QList<QDockWidget*>> getDockList();
+    std::shared_ptr<SimCenterMapcanvasWidget> getMapViewSubWidget();
+    QMenu* getViewMenu();
+    std::shared_ptr<QList<QgsMapLayer*>> getNeededLayers();
 
 signals:
 
@@ -72,10 +81,12 @@ protected:
     QWidget* theVizWidget;
     QMainWindow* mainWindow;
     QByteArray uiState;
-    QList<QDockWidget*> dockList;
+    std::shared_ptr<QList<QDockWidget*>> dockList = std::shared_ptr<QList<QDockWidget*>>(new QList<QDockWidget*>());
+//    QList<QDockWidget*>* dockList;
     std::shared_ptr<SimCenterMapcanvasWidget> mapViewSubWidget;
     QMenu* viewMenu;
-    QList<QgsMapLayer*> neededLayers;
+//    QList<QgsMapLayer*>* neededLayers =  ;
+    std::shared_ptr<QList<QgsMapLayer*>> neededLayers  = std::shared_ptr<QList<QgsMapLayer*>>(new QList<QgsMapLayer*>());
     void extractErrorMsg(QString workDir, QString errFileName, QString uqEngineName, QString &errMsg);
 };
 

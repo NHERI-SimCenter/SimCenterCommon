@@ -71,6 +71,35 @@ void SC_ResultsWidget::setVisualizationWidget(QWidget *vizWidget){
   theVizWidget = vizWidget;
 }
 
-int SC_ResultsWidget::addResults(SC_ResultsWidget* resultsTab){
+int SC_ResultsWidget::addResults(SC_ResultsWidget* resultsTab, QString &outputFile, QString &dirName,
+                                 QString &assetType, QList<QString> typesInAssetType){
   return 0;
 }
+
+// Interface function used by subclasses in R2D
+QWidget* SC_ResultsWidget::getVizWidget(){
+  return theVizWidget;
+}
+QMainWindow* SC_ResultsWidget::getMainWindow(){
+  return mainWindow;
+}
+QByteArray SC_ResultsWidget::getUiState(){
+  return uiState;
+}
+
+void SC_ResultsWidget::setUiState(QByteArray newState){
+  uiState = newState;
+}
+std::shared_ptr<QList<QDockWidget*>> SC_ResultsWidget::getDockList(){
+  return dockList;
+}
+std::shared_ptr<SimCenterMapcanvasWidget> SC_ResultsWidget::getMapViewSubWidget(){
+  return mapViewSubWidget;
+}
+QMenu* SC_ResultsWidget::getViewMenu(){
+  return viewMenu;
+}
+std::shared_ptr<QList<QgsMapLayer*>> SC_ResultsWidget::getNeededLayers(){
+  return neededLayers;
+}
+
