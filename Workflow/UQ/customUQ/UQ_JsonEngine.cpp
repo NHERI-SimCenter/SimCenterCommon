@@ -108,8 +108,8 @@ UQ_JsonEngine::inputFromJSON(QJsonObject &rvObject) {
 
 bool
 UQ_JsonEngine::outputAppDataToJSON(QJsonObject &jsonObject) {
-  //jsonObject["Application"] = theApplicationName->text();
-  jsonObject["Application"] = QString("CustomUQ");
+//  jsonObject["Application"] = theApplicationName->text();
+  jsonObject["Application"] = QString("Custom-UQ");
   QJsonObject dataObj;
   jsonObject["ApplicationData"] = dataObj;
 
