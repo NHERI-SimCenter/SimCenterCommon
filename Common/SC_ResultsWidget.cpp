@@ -52,19 +52,22 @@ SC_ResultsWidget::processResults(QString &outputFile, QString &dirName){
   return 0;
 }
 
-int
-SC_ResultsWidget::processResults(QString &outputFile, QString &dirName,
-                                     QString &assetType, QList<QString> typesInAssetType){
-  return 0;
-}
-
 void
 SC_ResultsWidget::clear(void) {
 
 }
 
-void SC_ResultsWidget::restoreUI(void){
 
+#ifdef _R2D
+
+int
+SC_ResultsWidget::processResults(QString &outputFile, QString &dirName,
+				 QString &assetType, QList<QString> typesInAssetType){
+  return 0;
+}
+
+
+void SC_ResultsWidget::restoreUI(void){
 }
 
 void SC_ResultsWidget::setVisualizationWidget(QWidget *vizWidget){
@@ -76,7 +79,6 @@ int SC_ResultsWidget::addResults(SC_ResultsWidget* resultsTab, QString &outputFi
   return 0;
 }
 
-// Interface function used by subclasses in R2D
 QWidget* SC_ResultsWidget::getVizWidget(){
   return theVizWidget;
 }
@@ -102,4 +104,5 @@ QMenu* SC_ResultsWidget::getViewMenu(){
 std::shared_ptr<QList<QgsMapLayer*>> SC_ResultsWidget::getNeededLayers(){
   return neededLayers;
 }
+#endif
 
