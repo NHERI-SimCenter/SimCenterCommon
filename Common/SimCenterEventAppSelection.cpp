@@ -64,8 +64,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // That method calls each SimCenterEventAppSelection with a show or a hide
 
 
-SimCenterEventAppSelection::SimCenterEventAppSelection(QString label, QString appName, QWidget *parent)
-    :SimCenterAppWidget(parent), currentIndex(-1), theCurrentSelection(NULL), jsonKeyword(appName), viewableStatus(false)
+SimCenterEventAppSelection::SimCenterEventAppSelection(QString label, QString appName, QString eventT, QWidget *parent)
+  :SimCenterAppWidget(parent), currentIndex(-1), theCurrentSelection(NULL), jsonKeyword(appName), eventType(eventT), viewableStatus(false)
 {
     this->initializeWidget(label);
 }
@@ -192,6 +192,8 @@ bool SimCenterEventAppSelection::outputAppDataToJSON(QJsonObject &jsonObject)
 	  if(data.isEmpty()) {
 	    data["Application"] = "None";
 	  }
+	  if (! data.contains("EventClassification"))
+	    data["EventClassification"]=eventType;
 	  eventArray.append(data);
 	  jsonObject[jsonKeyword] = eventArray;
 	  return true;

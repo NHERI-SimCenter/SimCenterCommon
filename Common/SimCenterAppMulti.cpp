@@ -161,10 +161,19 @@ bool SimCenterAppMulti::outputToJSON(QJsonObject &jsonObject)
        data.insert(QString("data"), val);
 
        theWidget->outputAppDataToJSON(appData);
+       
        // get the first item in the appData
        QJsonObject::const_iterator it = appData.constBegin();
        QJsonObject sourceObjAppData = it.value().toObject();
+       
+       // if Events do something different as they are in an array
+       if (it.value().isArray()) {
+	 QJsonArray array = it.value().toArray();
+	 sourceObjAppData = array[0].toObject();
+       }
+       
        // loop over the items in the first item of appData
+       
        QJsonObject::iterator iterAppData = sourceObjAppData.begin();
        while (iterAppData != sourceObjAppData.end()) {
            data.insert(iterAppData.key(), iterAppData.value());

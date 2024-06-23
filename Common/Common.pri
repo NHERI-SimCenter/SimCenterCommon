@@ -35,8 +35,9 @@ SOURCES += $$PWD/HeaderWidget.cpp \
     $$PWD/SimCenterAppWidget.cpp\
     $$PWD/NoArgSimCenterApp.cpp\
     $$PWD/SimCenterAppSelection.cpp \
+    $$PWD/SimCenterEventAppSelection.cpp \
+    $$PWD/SimCenterAppEventSelection.cpp \        
     $$PWD/SimCenterAppMulti.cpp \    
-    $$PWD/SimCenterAppEventSelection.cpp \
     $$PWD/SimCenterPreferences.cpp \
     $$PWD/SimCenterDirWatcher.cpp \    
     $$PWD/NoneWidget.cpp \    
@@ -65,7 +66,8 @@ HEADERS += $$PWD/HeaderWidget.h \
     $$PWD/NoArgSimCenterApp.h \
     $$PWD/SimCenterAppSelection.h \
     $$PWD/SimCenterAppMulti.h \    
-    $$PWD/SimCenterAppEventSelection.h \    
+    $$PWD/SimCenterEventAppSelection.h \
+    $$PWD/SimCenterAppEventSelection.h \        
     $$PWD/SimCenterAppWidget.h \
     $$PWD/SimCenterPreferences.h \
     $$PWD/SimCenterDirWatcher.h \        

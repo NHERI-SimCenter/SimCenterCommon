@@ -51,8 +51,8 @@ class SimCenterEventAppSelection : public  SimCenterAppWidget
     Q_OBJECT
 
 public:
-  explicit SimCenterEventAppSelection(QString label, QString jsonkeyword, QWidget *parent);
-  ~SimCenterEventAppSelection();
+   explicit SimCenterEventAppSelection(QString label, QString jsonkeyword, QString eventType, QWidget *parent);
+    ~SimCenterEventAppSelection();
 
     bool outputAppDataToJSON(QJsonObject &jsonObject);
     bool inputAppDataFromJSON(QJsonObject &jsonObject);
@@ -62,7 +62,8 @@ public:
 
     void clear(void);
     void clearSelections();
-  bool addComponent(QString comboBoxText, QString appNameText, SimCenterAppWidget *);
+    bool addComponent(QString comboBoxText, QString appNameText, SimCenterAppWidget *);
+  
     SimCenterAppWidget *getComponent(QString text);
     SimCenterAppWidget *getCurrentSelection(void);
     QString getCurrentSelectionName(void);
@@ -82,8 +83,9 @@ public slots:
     void setSelectionsActive(bool);
 
 signals:
-    void selectionChangedSignal(const QString &);
-
+  void selectionChangedSignal(const QString &);
+  void typeEVT(QString type);
+  
 protected:
 
 
@@ -104,6 +106,7 @@ private:
   
     QString jsonKeyword; // application type that appears in json
     QString assetType;
+    QString eventType;
 
     bool viewableStatus;
 
