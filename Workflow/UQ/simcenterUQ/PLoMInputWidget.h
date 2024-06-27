@@ -54,6 +54,10 @@ class QStackedWidget;
 class QComboBox;
 class QTabWidget;
 
+#include "SC_FileEdit.h"
+#include "SC_DoubleLineEdit.h"
+#include "SC_CheckBox.h"
+
 class PLoMInputWidget : public UQ_Method
 {
     Q_OBJECT
@@ -79,8 +83,14 @@ public slots:
 private:
     QLineEdit *ratioNewSamples;
     QLineEdit *epsilonPCA;
-    QLineEdit *smootherKDE;
-    QLineEdit *tolKDE;
+    SC_DoubleLineEdit *smootherKDE;
+    QLabel *smootherKDE_path_label;
+    SC_FileEdit *smootherKDE_path;
+    SC_CheckBox * smootherKDE_check;
+    SC_DoubleLineEdit *tolKDE;
+    SC_FileEdit *tolKDE_path;
+    SC_CheckBox *tolKDE_check;
+    QLabel *tolKDE_path_label;
     QLineEdit *randomSeed;
     QLineEdit *inpFileDir;
     QLineEdit *outFileDir;
