@@ -127,9 +127,7 @@ SimCenterAppMulti::addTab() {
     QString label = tabLabel + QString("-") + QString::number(theBeliefs.count());
     theTabs->addTab(newWidget,label);
 
-
     newLayout->setColumnStretch(3,1);
-
 
     connect(newBelief, &QLineEdit::textChanged, this, [=](){
         this->updateTotalBelief();
@@ -188,11 +186,13 @@ bool SimCenterAppMulti::outputToJSON(QJsonObject &jsonObject)
 
 bool SimCenterAppMulti::inputFromJSON(QJsonObject &jsonObject)
 {
+  
     if (jsonObject.contains("models")) {
         QJsonArray modelObjects = jsonObject["models"].toArray();
         int length = modelObjects.count();
-
+	
         for (int i=0; i<length; i++) {
+	  
             this->addTab();
 
             QJsonObject appDataObj;
@@ -200,12 +200,20 @@ bool SimCenterAppMulti::inputFromJSON(QJsonObject &jsonObject)
             appDataObj.insert(QString("ApplicationData"), modelObjects.at(i)["ApplicationData"]);
             QJsonObject appObj;
             appObj[tabLabel] = appDataObj;
+	    
             theModels.at(i)->inputAppDataFromJSON(appObj);
 
-            QJsonObject modelDataObj = modelObjects.at(i)["data"].toObject();
-
-            QJsonObject modelObj;
-            modelObj[tabLabel] = modelDataObj;
+	    QJsonObject modelObj;	    
+            QJsonObject modelDataObj;	    
+	    QJsonValue modelObjectValue = modelObjects.at(i)["data"];
+	    if (modelObjectValue.isArray()) {
+		QJsonArray array = modelObjectValue.toArray();
+		modelDataObj = array[0].toObject();
+	    } else {
+	      modelDataObj = modelObjectValue.toObject();
+	    }
+	    
+	    modelObj[tabLabel] = modelDataObj;	    
             theModels.at(i)->inputFromJSON(modelObj);
 
             double belief = modelObjects.at(i)["belief"].toDouble();

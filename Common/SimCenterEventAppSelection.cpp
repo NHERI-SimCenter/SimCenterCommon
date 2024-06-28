@@ -1,4 +1,4 @@
-/* *****************************************************************************
+xc/* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
 
@@ -147,15 +147,15 @@ bool SimCenterEventAppSelection::outputToJSON(QJsonObject &jsonObject)
 }
 
 
-bool SimCenterEventAppSelection::inputFromJSON(QJsonObject &jsonObject)
+bool SimCenterEventAppSelection::inputFromJSON(QJsonObject &jsonObject)  
 {
     if (theSelectionCombo->isEnabled() == false) {
         return true; // disabled
     }
-
+    
     if (theCurrentSelection == NULL) {
       errorMessage("SimCenter Logic Error - report bug - SimCenterEventAppSelection::inputFrom JSON .. no current app!");
-        return false; 
+      return false; 
     }
 
     QString key;
@@ -166,10 +166,13 @@ bool SimCenterEventAppSelection::inputFromJSON(QJsonObject &jsonObject)
       return false;
     }
 
-    QJsonObject theApplicationObject = jsonObject[key].toObject();
+    //QJsonObject theApplicationObject = jsonObject[key].toObject();    
+    QJsonValue theValue = jsonObject[key];
+    if (theValue.isArray()) {
+      QJsonArray theEvents = theValue.toArray();
+      theValue = theEvents.at(0);      
+    }
 
-    QJsonArray theEvents = jsonObject[key].toArray();
-    QJsonValue theValue = theEvents.at(0);
     if (theValue.isNull()) {
       this->errorMessage(QString("No Event in Array "));
       return false;
@@ -208,13 +211,14 @@ bool SimCenterEventAppSelection::outputAppDataToJSON(QJsonObject &jsonObject)
 bool SimCenterEventAppSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
 {
     // qDebug() << __PRETTY_FUNCTION__<< " " << jsonKeyword;
-
+  
     if (theSelectionCombo->isEnabled() == false) {
         return true; // disabled
     }
-
+    
     QString key;
     bool found = false;
+      
     if (jsonObject.contains(jsonKeyword)) {
         key = jsonKeyword;
         found = true;
@@ -223,20 +227,27 @@ bool SimCenterEventAppSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
 	return false;
     }
 
-    QJsonArray theEvents = jsonObject[key].toArray();
-    QJsonValue theValue = theEvents.at(0);
-    if (theValue.isNull()) {
-      return false;
-    }
+    // 2 cases: 1 it is an array
+    //          2 it is an object with just app name and app data
+
+
+    QJsonValue theValue = jsonObject[key];
+    if (theValue.isArray()) {
+      QJsonArray theEvents = theValue.toArray();
+      theValue = theEvents.at(0);
+      if (theValue.isNull()) {
+	return false;
+      }      
+    } 
     
-    QJsonObject theApplicationObject = theValue.toObject();	
+    QJsonObject theApplicationObject = theValue.toObject();
     
     if (theApplicationObject.contains("Application")) {
       QJsonValue theName = theApplicationObject["Application"];
       QString appName = theName.toString();
       
       // qDebug() << __PRETTY_FUNCTION__<< " " << jsonKeyword << " " << appName;
-      
+
       int index = theApplicationNames.indexOf(appName);
       
       if (index != -1) {
@@ -249,7 +260,7 @@ bool SimCenterEventAppSelection::inputAppDataFromJSON(QJsonObject &jsonObject)
       }
       
     } else {
-      errorMessage("InvalidInput - no Application section in Event Object data");
+      errorMessage("SimCenterEventAppSelection - InvalidInput - no Application section in Event Object data");
       return false;
     }
 
@@ -292,7 +303,6 @@ SimCenterEventAppSelection::addComponent(QString text, QString appName, SimCente
     if (theComboNames.indexOf(text) == -1) {
         theComboNames.append(text);
         theApplicationNames.append(appName);
-        // theOldApplicationNames.append(oldAppName);	
         theComponents.append(theComponent);
         theStackedWidget->addWidget(theComponent);
 
