@@ -56,6 +56,10 @@ class QComboBox;
 class SimCenterIntensityMeasureWidget;
 class QTabWidget;
 
+#include "SC_FileEdit.h"
+#include "SC_DoubleLineEdit.h"
+#include "SC_CheckBox.h"
+
 class PLoMSimuWidget : public UQ_Method
 {
     Q_OBJECT
@@ -90,8 +94,17 @@ signals:
 private:
     QLineEdit *ratioNewSamples;
     QLineEdit *epsilonPCA;
-    QLineEdit *smootherKDE;
-    QLineEdit *tolKDE;
+    SC_DoubleLineEdit *smootherKDE;
+    QLabel *smootherKDE_path_label;
+    SC_FileEdit *smootherKDE_path;
+    QLabel *smootherKDE_path_warning;
+    SC_CheckBox * smootherKDE_check;
+    SC_DoubleLineEdit *tolKDE;
+    SC_FileEdit *tolKDE_path;
+    QLabel *tolKDE_path_warning;
+    SC_CheckBox *tolKDE_check;
+    QLabel *tolKDE_path_label;
+
     QLineEdit *randomSeed;
     QLineEdit *inpFileDir;
     QLineEdit *outFileDir;
