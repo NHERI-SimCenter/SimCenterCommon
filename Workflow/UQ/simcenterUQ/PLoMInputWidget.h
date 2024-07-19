@@ -87,9 +87,11 @@ private:
     QLabel *smootherKDE_path_label;
     SC_FileEdit *smootherKDE_path;
     SC_CheckBox * smootherKDE_check;
+    QLabel *smootherKDE_path_warning;
     SC_DoubleLineEdit *tolKDE;
     SC_FileEdit *tolKDE_path;
     SC_CheckBox *tolKDE_check;
+    QLabel *tolKDE_path_warning;
     QLabel *tolKDE_path_label;
     QLineEdit *randomSeed;
     QLineEdit *inpFileDir;

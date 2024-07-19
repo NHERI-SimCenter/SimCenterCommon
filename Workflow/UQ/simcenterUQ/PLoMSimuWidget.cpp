@@ -258,7 +258,7 @@ PLoMSimuWidget::PLoMSimuWidget(QWidget *parent)
 
     // adv. opt. general widget
     advGeneralWidget = new QWidget();
-    advGeneralWidget->setMaximumWidth(800);
+    //advGeneralWidget->setMaximumWidth(800);
     advGeneralWidget->setMaximumHeight(150);
     QGridLayout* advGeneralLayout = new QGridLayout(advGeneralWidget);
     advGeneralWidget->setLayout(advGeneralLayout);
@@ -294,53 +294,91 @@ PLoMSimuWidget::PLoMSimuWidget(QWidget *parent)
     advGeneralLayout->addWidget(epsilonPCA, 2, 1);
     epsilonPCA->setVisible(false);
     newEpsilonPCA->setVisible(false);
+    advGeneralLayout->setColumnStretch(4,1);
     //
     advComboWidget->addTab(advGeneralWidget, "General");
 
+    //
     // adv. opt. kde widget
+    //
     advKDEWidget = new QWidget();
-    advKDEWidget->setMaximumWidth(800);
-    advKDEWidget->setMaximumHeight(150);
+    //advKDEWidget->setMaximumWidth(800);
     QGridLayout* advKDELayout = new QGridLayout(advKDEWidget);
     advKDEWidget->setLayout(advKDELayout);
+    advComboWidget->addTab(advKDEWidget, "Kernel Density Estimation");
+
     // kde smooth factor
-    smootherKDE = new QLineEdit();
-    smootherKDE->setText(tr("25"));
-    smootherKDE->setValidator(new QDoubleValidator);
-    smootherKDE->setToolTip("KDE Smooth Factor");
-    smootherKDE->setMaximumWidth(150);
+
+    smootherKDE = new SC_DoubleLineEdit("smootherKDE",25,"KDE Smooth Factor");
+    //smootherKDE->setMaximumWidth(150);
+    smootherKDE->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    smootherKDE->setMaximumWidth(100);
+    smootherKDE_check = new SC_CheckBox("smootherKDE_Customize","Customize",false);
+    smootherKDE_path_label = new QLabel("Python File Path");
+    smootherKDE_path = new SC_FileEdit("smootherKDE_path");
+    smootherKDE_path->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    smootherKDE_path_warning = new QLabel("Please upload the Constraint Files using the third tab");
+    smootherKDE_path_warning->setObjectName(QString::fromUtf8("info"));// get style sheet
+
     newSmootherKDE = new QLabel("KDE Smooth Factor");
     advKDELayout->addWidget(newSmootherKDE, 0, 0);
     advKDELayout->addWidget(smootherKDE, 0, 1);
-    smootherKDE->setVisible(false);
-    newSmootherKDE->setVisible(false);
+    advKDELayout->addWidget(smootherKDE_check, 0, 2);
+    advKDELayout->addWidget(smootherKDE_path_label, 0, 3);
+    advKDELayout->addWidget(smootherKDE_path, 0, 4);
+    //connect(smootherKDE_check, &QCheckBox::toggled, this, [=](bool tog){ smootherKDE_path_label->setVisible(tog); smootherKDE_path->setVisible(tog); smootherKDE->setDisabled(tog);});
+    advKDELayout->addWidget(smootherKDE_path_warning, 0, 5,1,-1);
+    connect(smootherKDE_check, &QCheckBox::toggled, this, [=](bool tog){ smootherKDE_path_label->setVisible(tog); smootherKDE_path->setVisible(tog); smootherKDE->setDisabled(tog);; smootherKDE_path_warning->setVisible(tog);});
+    smootherKDE_path_label->hide();
+    smootherKDE_path->hide();
+    smootherKDE_path_warning->hide();
+
     // diff. maps
+
     theDMLabel=new QLabel("Diffusion Maps");
     theDMCheckBox = new QCheckBox();
     advKDELayout->addWidget(theDMLabel, 1, 0);
     advKDELayout->addWidget(theDMCheckBox, 1, 1);
-    theDMLabel->setVisible(false);
-    theDMCheckBox->setVisible(false);
     theDMCheckBox->setChecked(true);
-    // diff. maps tolerance
-    tolKDE = new QLineEdit();
-    tolKDE->setText(tr("0.1"));
-    tolKDE->setValidator(new QDoubleValidator);
-    tolKDE->setToolTip("Diffusion Maps Tolerance: ratio between the cut-off eigenvalue and the first eigenvalue.");
-    tolKDE->setMaximumWidth(150);
-    newTolKDE = new QLabel("Diff. Maps Tolerance");
-    advKDELayout->addWidget(newTolKDE, 2, 0);
-    advKDELayout->addWidget(tolKDE, 2, 1);
-    tolKDE->setVisible(false);
-    newTolKDE->setVisible(false);
-    tolKDE->setDisabled(false);
-    connect(theDMCheckBox,SIGNAL(toggled(bool)),this,SLOT(setDiffMaps(bool)));
-    //
-    advComboWidget->addTab(advKDEWidget, "Kernel Density Estimation");
 
+    // diff. maps tolerance
+
+    tolKDE = new SC_DoubleLineEdit("kdeTolerance",0.1,"Diffusion Maps Tolerance: ratio between the cut-off eigenvalue and the first eigenvalue.");
+    //tolKDE->setMaximumWidth(150);
+    tolKDE->setMaximumWidth(100);
+    tolKDE->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    //newTolKDE = new QLabel("Diff. Maps Tolerance");
+    tolKDE_check = new SC_CheckBox("tolKDE_Customize","Customize",false);
+    tolKDE_path = new SC_FileEdit("tolKDE_path");
+    tolKDE_path->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    tolKDE_path_label = new QLabel("Python File Path");
+    tolKDE_path_warning = new QLabel("Please upload the Constraint Files using the third tab");
+    tolKDE_path_warning->setObjectName(QString::fromUtf8("info"));// get style sheet
+
+    advKDELayout->addWidget(new QLabel("Diff. Maps Tolerance"), 2, 0);
+    advKDELayout->addWidget(tolKDE, 2, 1);
+    advKDELayout->addWidget(tolKDE_check, 2, 2);
+    advKDELayout->addWidget(tolKDE_path_label, 2, 3);
+    advKDELayout->addWidget(tolKDE_path, 2, 4);
+    //connect(tolKDE_check, &QCheckBox::toggled, this, [=](bool tog){ tolKDE_path_label->setVisible(tog); tolKDE_path->setVisible(tog); tolKDE->setDisabled(tog);});
+    advKDELayout->addWidget(tolKDE_path_warning, 2, 5);
+    connect(tolKDE_check, &QCheckBox::toggled, this, [=](bool tog){ tolKDE_path_label->setVisible(tog); tolKDE_path->setVisible(tog); tolKDE->setDisabled(tog);tolKDE_path_warning->setVisible(tog);});
+    tolKDE_path_label->hide();
+    tolKDE_path->hide();
+    tolKDE->setDisabled(false);
+    tolKDE_check->setDisabled(false);
+    connect(theDMCheckBox,SIGNAL(toggled(bool)),this,SLOT(setDiffMaps(bool)));
+
+    advKDELayout->setColumnStretch(6,1);
+    tolKDE_path_warning->hide();
+    advKDELayout->setRowStretch(3,1);
+
+    //
     // adv. opt. constraints widget
+    //
+
     advConstraintsWidget = new QWidget();
-    advConstraintsWidget->setMaximumWidth(800);
+    //advConstraintsWidget->setMaximumWidth(800);
     advConstraintsWidget->setMaximumHeight(150);
     QGridLayout* advConstraintsLayout = new QGridLayout(advConstraintsWidget);
     advConstraintsWidget->setLayout(advConstraintsLayout);
@@ -362,6 +400,7 @@ PLoMSimuWidget::PLoMSimuWidget(QWidget *parent)
     advConstraintsLayout->addWidget(theConstraintsLabel1,1,0,Qt::AlignTop);
     advConstraintsLayout->addWidget(constraintsPath,1,1,1,2,Qt::AlignTop);
     advConstraintsLayout->addWidget(chooseConstraints,1,3,Qt::AlignTop);
+    advConstraintsLayout->setColumnStretch(4,1);
     constraintsPath->setVisible(false);
     theConstraintsLabel1->setVisible(false);
     theConstraintsLabel2->setVisible(false);
@@ -514,7 +553,7 @@ void PLoMSimuWidget::doAdvancedSetup(bool tog)
     smootherKDE->setVisible(tog);
     newSmootherKDE->setVisible(tog);
     tolKDE->setVisible(tog);
-    newTolKDE->setVisible(tog);
+    //newTolKDE->setVisible(tog);
     randomSeed->setVisible(tog);
     newRandomSeed->setVisible(tog);
     constraintsPath->setVisible(tog);
@@ -562,7 +601,7 @@ void PLoMSimuWidget::setConstraints(bool tog)
     if (tog) {
         constraintsPath->setDisabled(0);
         chooseConstraints->setDisabled(0);
-        constraintsPath->setStyleSheet("color: white");
+        constraintsPath->setStyleSheet("background-color: white");
         numIter->setStyleSheet("background-color: white");
         tolIter->setStyleSheet("background-color: white");
         numIter->setDisabled(0);
@@ -580,13 +619,21 @@ void PLoMSimuWidget::setConstraints(bool tog)
 
 void PLoMSimuWidget::setDiffMaps(bool tog)
 {
-    if (tog) {
-        tolKDE->setDisabled(0);
-        tolKDE->setStyleSheet("background-color: white");
-    } else {
-        tolKDE->setDisabled(1);
-        tolKDE->setStyleSheet("background-color: lightgrey;border-color:grey");
-    }
+        if (tog) {
+            tolKDE->setDisabled(0);
+            //tolKDE->setStyleSheet("background-color: white");
+            tolKDE_check->setDisabled(0);
+            tolKDE_check->setStyleSheet("font-color: white");
+        } else {
+            //tolKDE->setStyleSheet("background-color: lightgrey;border-color:grey");
+            tolKDE_check->setDisabled(1);
+            tolKDE_check->setStyleSheet("font-color: lightgrey;border-color:grey");
+            if (tolKDE_check->isChecked()) {
+                tolKDE_check->setChecked(false); // uncheck
+                //emit tolKDE_check->stateChanged(true); // uncheck
+            }
+            tolKDE->setDisabled(1);
+        }
 }
 
 bool
@@ -615,8 +662,14 @@ PLoMSimuWidget::outputToJSON(QJsonObject &jsonObj){
         jsonObj["diffusionMaps"] = theDMCheckBox->isChecked();
         jsonObj["randomSeed"] = randomSeed->text().toInt();
         jsonObj["epsilonPCA"] = epsilonPCA->text().toDouble();
-        jsonObj["smootherKDE"] = smootherKDE->text().toDouble();
-        jsonObj["kdeTolerance"] = tolKDE->text().toDouble();
+        //jsonObj["smootherKDE"] = smootherKDE->text().toDouble();
+        smootherKDE->outputToJSON(jsonObj);
+        smootherKDE_path->outputToJSON(jsonObj);
+        smootherKDE_check->outputToJSON(jsonObj);
+        //jsonObj["kdeTolerance"] = tolKDE->text().toDouble();
+        tolKDE->outputToJSON(jsonObj);
+        tolKDE_path->outputToJSON(jsonObj);
+        tolKDE_check->outputToJSON(jsonObj);
         jsonObj["constraints"]= theConstraintsButton->isChecked();
         if (theConstraintsButton->isChecked()) {
             jsonObj["constraintsFile"] = constraintsPath->text();
@@ -759,8 +812,8 @@ PLoMSimuWidget::inputFromJSON(QJsonObject &jsonObject){
         theLogtCheckBox->setChecked(jsonObject["logTransform"].toBool());
         theDMCheckBox->setChecked(jsonObject["diffusionMaps"].toBool());
         randomSeed->setText(QString::number(jsonObject["randomSeed"].toInt()));
-        smootherKDE->setText(QString::number(jsonObject["smootherKDE"].toDouble()));
-        tolKDE->setText(QString::number(jsonObject["kdeTolerance"].toDouble()));
+        //smootherKDE->setText(QString::number(jsonObject["smootherKDE"].toDouble()));
+        //tolKDE->setText(QString::number(jsonObject["kdeTolerance"].toDouble()));
         epsilonPCA->setText(QString::number(jsonObject["epsilonPCA"].toDouble()));
         theConstraintsButton->setChecked(jsonObject["constraints"].toBool());
         if (jsonObject["constraints"].toBool()) {
@@ -768,6 +821,16 @@ PLoMSimuWidget::inputFromJSON(QJsonObject &jsonObject){
             numIter->setText(QString::number(jsonObject["numIter"].toInt()));
             tolIter->setText(QString::number(jsonObject["tolIter"].toDouble()));
         }
+
+        smootherKDE->inputFromJSON(jsonObject);
+        tolKDE->inputFromJSON(jsonObject);
+
+        // if fails skip.
+        smootherKDE_path->inputFromJSON(jsonObject);
+        smootherKDE_check->inputFromJSON(jsonObject);
+        tolKDE_path->inputFromJSON(jsonObject);
+        tolKDE_check->inputFromJSON(jsonObject);
+
       }
       // sampling method
       QJsonObject samplingObj = jsonObject["samplingMethod"].toObject();
@@ -809,6 +872,14 @@ PLoMSimuWidget::copyFiles(QString &fileDir) {
     if (theConstraintsButton->isChecked()) {
         QFile::copy(constraintsPath->text(), fileDir + QDir::separator() + "plomConstraints.py");
     }
+
+    if (smootherKDE_check->isChecked()) {
+        smootherKDE_path->copyFile(fileDir);
+    }
+    if (tolKDE_check->isChecked()) {
+        tolKDE_path->copyFile(fileDir);
+    }
+
     return true;
 }
 
