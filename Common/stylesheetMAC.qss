@@ -73,6 +73,9 @@ QLabel#inTitle {
     font-weight: bold;
 }
 
+QLabel#info {
+    color: blue;
+}
 QLabel{
     font-size: 12px;
 }
