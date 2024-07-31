@@ -59,25 +59,43 @@ SC_ResultsWidget::clear(void) {
 
 
 #ifdef _R2D
+SC_ResultsWidget::SC_ResultsWidget(QWidget *parent, QWidget *resWidget, QMap<QString, QList<QString>> assetTypeToType)
+    :SimCenterWidget(parent)
+{
+  R2DresWidget = dynamic_cast<ResultsWidget*>(resWidget);
 
-int
-SC_ResultsWidget::processResults(QString &outputFile, QString &dirName,
-				 QString &assetType, QList<QString> typesInAssetType){
+  if (R2DresWidget)
+  {
+    theAssetTypeToType = assetTypeToType;
+    theVizWidget = R2DresWidget->getVisualizationWidget();
+  } else {
+    qDebug() << "Can not cast resWidet to ResultWidget";
+  }
+}
+
+int SC_ResultsWidget::addResultTab(QString tabName, QString &dirName){
   return 0;
 }
+
+
+int SC_ResultsWidget::addResultSubtab(QString name, QWidget* existTab, QString &dirName){
+  return 0;
+}
+
+
+
 
 
 void SC_ResultsWidget::restoreUI(void){
 }
 
-void SC_ResultsWidget::setVisualizationWidget(QWidget *vizWidget){
-  theVizWidget = vizWidget;
-}
 
 int SC_ResultsWidget::addResults(SC_ResultsWidget* resultsTab, QString &outputFile, QString &dirName,
                                  QString &assetType, QList<QString> typesInAssetType){
   return 0;
 }
+
+
 
 QWidget* SC_ResultsWidget::getVizWidget(){
   return theVizWidget;

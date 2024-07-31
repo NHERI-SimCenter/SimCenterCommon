@@ -52,6 +52,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SimCenterWidget.h>
 #include <QMainWindow>
 
+#ifdef _R2D
+#include <QMap>
+#endif
+
 class QJsonObject;
 class SC_ResultsWidget;
 
@@ -113,20 +117,28 @@ public:
         return nullptr;
     }
 
-  /*
-   *  @brief return a copy of itself
-   *  @return SimCenterAppWidget;
-   */
+    /**
+     *  @brief return a copy of itself
+     *  @return SimCenterAppWidget;
+     */
   
     virtual SimCenterAppWidget *getClone();
 
   
-  /*
+   /**
    *  @brief return a widget to present the results
    *  @return SC_ResultsWidget;
    */
   
     virtual SC_ResultsWidget *getResultsWidget(QWidget* parent = nullptr);
+
+    /**
+   *  @brief return a widget to present the results for R2D
+   *  @return SC_ResultsWidget;
+   */
+    #ifdef _R2D
+    virtual SC_ResultsWidget* getResultsWidget(QWidget *parent, QWidget *R2DresWidget, QMap<QString, QList<QString>> assetTypeToType);
+    #endif
 
 
 signals:
