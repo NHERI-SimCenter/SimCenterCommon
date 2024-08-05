@@ -42,6 +42,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //  - allow for refresh of status, deletion of submitted jobs, and download of results from finished job
 
 #include "RemoteApplication.h"
+#include "qjsondocument.h"
+#include "qvalidator.h"
 #include <RemoteService.h>
 
 #include <QHBoxLayout>
@@ -154,8 +156,9 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
     layout->addWidget(runtimeLabel,numRow,0);
 
     runtimeLineEdit = new QLineEdit();
-    runtimeLineEdit->setText("00:20:00");
-    runtimeLineEdit->setToolTip(tr("Run time Limit on running Job hours:Min:Sec. Job will be stopped if while running it exceeds this"));
+    runtimeLineEdit->setValidator(new QIntValidator());
+    runtimeLineEdit->setText("20");
+    runtimeLineEdit->setToolTip(tr("Run time Limit (in minutes) on running Job hours:Min:Sec. Job will be stopped if while running it exceeds this"));
     layout->addWidget(runtimeLineEdit,numRow,1);
 
     numRow++;
@@ -383,6 +386,7 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
       return -1;
     }
     QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
+    designsafeDirectory = remoteDirectory;
     pushButton->setEnabled(false);
 
     //connect(this,SIGNAL(uploadDirCall(const QString &,const QString &)), theRemoteService, SLOT(uploadDirectoryCall(const QString &,const QString &)));
@@ -414,6 +418,30 @@ RemoteApplication::uploadDirReturn(bool result)
       int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
       job["nodeCount"]=nodeCount;
       //job["processorsPerNode"]=nodeCount*numProcessorsPerNode; // DesignSafe has inconsistant documentation
+      /* START NOAM CONFLICT -1 */
+      job["coresPerNode"]=numProcessorsPerNode;
+
+      int maxMinutes = runtimeLineEdit->text().toInt();
+      job["maxMinutes"]=maxMinutes;
+
+//      QString queue = "small";
+//      if (nodeCount > 2)
+//	queue = "normal";
+//      if (nodeCount > 512)
+//    queue = "large";
+      QString queue = "skx";
+
+//     TODO: UNCOMMENT THIS AND FIX IT
+//      job["appId"]=SimCenterPreferences::getInstance()->getRemoteAgaveApp();
+      job["appId"] = "simcenter-uq-stampede3"; //TODO FIX THIS
+      job["appVersion"] = "1.0.0"; //temporary value
+      job["memoryMB"]= 1000;
+      job["archiveOnAppError"]=true;
+      job["execSystemLogicalQueue"]=queue;
+      job["archiveSystemDir"]="";
+      job["archiveSystemId"]="designsafe.storage.default";
+      
+  /* NOAM CONFLICT COMMENTED OUT
       job["processorsOnEachNode"]=numProcessorsPerNode;
       job["maxRunTime"]=runtimeLineEdit->text();
 
@@ -433,8 +461,49 @@ RemoteApplication::uploadDirReturn(bool result)
       job["batchQueue"]=queue;      
       job["archivePath"]="";
       job["archiveSystem"]="designsafe.storage.default";
+END COMMENT OUT NOAM CONFLICT **/
       
       if (appName != "R2D"){
+   /* START NORAM CONFLICT */
+            QJsonObject parameterSet;
+            QJsonArray envVariables;
+
+            QJsonObject inputFile;
+            inputFile["key"]="inputFile";
+            inputFile["value"]="scInput.json";
+
+            envVariables.append(inputFile);
+
+            if (appName == "quoFEM") {
+                QJsonObject driverFile;
+                driverFile["key"]="driverFile";
+                driverFile["value"]="driver";
+                envVariables.append(driverFile);
+            }
+            else {
+                QJsonObject driverFile;
+                driverFile["key"] = "driverFile";
+                driverFile["value"]="sc_driver";
+                envVariables.append(driverFile);
+            }
+          //parameters["modules"]="petsc,python3"; // figure out what this does
+            QJsonArray schedulerOptions;
+            QJsonObject schedulerOptionsObj;
+            schedulerOptionsObj["arg"]="-A DesignSafe-SimCenter";
+            schedulerOptions.append(schedulerOptionsObj);
+            parameterSet["schedulerOptions"]=schedulerOptions;
+          for (auto parameterName : extraParameters.keys())
+          {
+                QJsonObject param;
+                param["key"]=parameterName;
+                param["value"]=extraParameters[parameterName];
+          }
+          parameterSet["envVariables"]=envVariables;
+          job["parameterSet"]=parameterSet;
+          QDir theDirectory(tempDirectory);
+          QString dirName = theDirectory.dirName();
+        
+        /** COMMENTED OUT NOAM CONFLICT START
 
         QJsonObject parameters;
         parameters["inputFile"]="scInput.json";
@@ -525,9 +594,26 @@ RemoteApplication::uploadDirReturn(bool result)
 
         QDir theDirectory(tempDirectory);
         QString dirName = theDirectory.dirName();
+    END COMMENT OUT NOAM CONFLICT */
+        
 
         QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
 
+      /* NAOM CONFLICT */
+          QJsonArray fileInputs;
+          QJsonObject inputs;
+          inputs["envKey"]="inputDirectory";
+          inputs["targetPath"]="*";
+//          inputs["sourceUrl"]="tapis://designsafe.storage.default/tg457427/quoFEM/tmp.SimCenter8a45311e-6dc3-468b-88bb-9bc74fd87ee1";
+          inputs["sourceUrl"] = "tapis://" + designsafeDirectory;
+          designsafeDirectory = "";
+          for (auto inputName : extraInputs.keys())
+          {
+              inputs[inputName] = extraInputs[inputName];
+          }
+          fileInputs.append(inputs);
+          job["fileInputs"]=fileInputs;
+/* COMMENT OUT NOAM CONFLICT 
         QJsonObject inputs;
         inputs["inputDirectory"]=remoteDirectory;
         for (auto inputName : extraInputs.keys())
@@ -535,6 +621,7 @@ RemoteApplication::uploadDirReturn(bool result)
             inputs[inputName] = extraInputs[inputName];
         }
         job["inputs"]=inputs;
+END COMMENT OUT NOAM CONFLICT **/
 
         // now remove the tmp directory
         theDirectory.removeRecursively();
@@ -571,9 +658,19 @@ RemoteApplication::uploadDirReturn(bool result)
       // disable the button while the job is being uploaded and started
       pushButton->setEnabled(false);
 
-      qDebug() << "JOBS_SUBMIT: " << job;
+      QJsonDocument doc(job);
+      QString jsonString = doc.toJson(QJsonDocument::Indented);
 
-      qDebug() << "JOB: " << job;
+      qDebug() << "JOBS_SUBMIT: " << jsonString;
+
+      qDebug() << "JOB: " << jsonString;
+
+      QString filename = "C:/Users/noame/Desktop/job_submit_.json";
+      QFile file(filename);
+      if (file.open(QIODevice::ReadWrite)) {
+          QTextStream stream(&file);
+          stream << jsonString << endl;
+      }
 
       //
       // start the remote job
