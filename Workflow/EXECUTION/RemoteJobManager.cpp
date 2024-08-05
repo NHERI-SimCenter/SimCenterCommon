@@ -163,7 +163,7 @@ RemoteJobManager::jobsListReturn(QJsonObject theJobs){
 
         for (int i=0; i<numJobs; i++) {
             QJsonObject job=jobData.at(i).toObject();
-            QString jobID = job["id"].toString();
+            QString jobID = job["uuid"].toString();
             QString jobName = job["name"].toString();
             QString jobStatus = job["status"].toString();
             QString jobDate = job["created"].toString();
@@ -293,17 +293,17 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
         //   - request the deletion of archive and input directories along with the job
         //
         QStringList dirToRemove;
-        QJsonValue archivePath = job["archivePath"];
+        QJsonValue archivePath = job["archiveSystemDir"];
         if (archivePath.isString()) {
             QString archiveDir = archivePath.toString();
             dirToRemove << archiveDir;
         }
-        QJsonValue inputs = job["inputs"];
+        QJsonValue inputs = job["fileInputs"];
 
         if (inputs.isObject()) {
 
             QJsonObject inputObject = inputs.toObject();
-            QJsonValue inputPath = inputObject["inputDirectory"];
+            QJsonValue inputPath = inputObject["execSystemInputDir"];
             if (inputPath.isArray()) {
                 QString inputDir = inputPath.toArray().at(0).toString();
                 inputDir.remove(htmlInputDirectory);
@@ -327,15 +327,15 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 
          QString archiveDir;
          QString inputDir;
-         QJsonValue archivePath = job["archivePath"];
+         QJsonValue archivePath = job["archiveSystemDir"];
          if (archivePath.isString()) {
              archiveDir = archivePath.toString();
          }
-         QJsonValue inputs = job["inputs"];
+         QJsonValue inputs = job["fileInputs"];
          if (inputs.isObject()) {
 
              QJsonObject inputObject = inputs.toObject();
-             QJsonValue inputPath = inputObject["inputDirectory"];
+             QJsonValue inputPath = inputObject["execSystemInputDir"];
              if (inputPath.isArray()) {
                  inputDir = inputPath.toArray().at(0).toString();
                  inputDir.remove(htmlInputDirectory);
@@ -375,8 +375,8 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 	  
       archiveDir = archiveDir + QString("/") + inputDir.remove(QRegularExpression(".*\\/")); // regex to remove up till last /
 
-         QString inputJSON = archiveDir + QString("/templatedir.zip");
-         QString resultsZIP = archiveDir + QString("/results.zip");
+         QString inputJSON = archiveDir + QString("templatedir.zip");
+         QString resultsZIP = archiveDir + QString("results.zip");
 
 	 filesToDownload.append(inputJSON);
 	 filesToDownload.append(resultsZIP);
@@ -397,9 +397,9 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 
             archiveDir = archiveDir + QString("/") + inputDir.remove(QRegularExpression(".*\\/")); // regex to remove up till last /
 
-            QString rName1 = archiveDir + QString("/inputRWHALE.json");
-            QString rName2 = archiveDir + QString("/input_data.zip");
-            QString rName3 = archiveDir + QString("/Results.zip");
+            QString rName1 = archiveDir + QString("inputRWHALE.json");
+            QString rName2 = archiveDir + QString("input_data.zip");
+            QString rName3 = archiveDir + QString("Results.zip");
 
             // first download the input data & load it
 

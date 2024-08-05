@@ -109,6 +109,7 @@ private:
     QString tempDirectory;
     QString remoteHomeDirPath;
     QJsonObject theJob;
+    QString designsafeDirectory;
 
     QPushButton *pushButton;
 
