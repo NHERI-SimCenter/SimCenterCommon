@@ -103,6 +103,10 @@ private:
   InputWidgetParameters *theParameters;
   InputWidgetFEM *theFemWidget;
   InputWidgetEDP *theEdpWidget;
+
+  // SimCenterAppWidget interface
+public:
+  bool outputCitation(QJsonObject &jsonObject);
 };
 
 #endif // UCSD_ENGINE_H

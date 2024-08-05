@@ -45,6 +45,7 @@ class QLineEdit;
 class RandomVariablesContainer;
 class QComboBox;
 class QStackedWidget;
+class QLabel;
 
 class InputWidgetOpenSeesAnalysis : public  SimCenterAppWidget
 {
@@ -58,6 +59,7 @@ public:
     bool outputAppDataToJSON(QJsonObject &jsonObject) override;
     bool inputAppDataFromJSON(QJsonObject &jsonObject) override;
     bool copyFiles(QString &dirName) override;
+    bool outputCitation(QJsonObject &jsonObject);
 
 signals:
 
@@ -78,6 +80,7 @@ private:
     QComboBox   *theAlgorithm;
     QLineEdit   *theIntegration;
     QLineEdit   *theSolver;
+    QLabel *infoMsg;
 
     QLineEdit *file;
     RandomVariablesContainer *theRandomVariablesContainer;

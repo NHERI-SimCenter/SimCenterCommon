@@ -46,3 +46,8 @@ RemoteService::~RemoteService()
 {
 
 }
+
+QString
+RemoteService::getHomeDir(void) {
+  return homeDir;
+}

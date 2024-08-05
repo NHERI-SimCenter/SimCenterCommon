@@ -284,8 +284,6 @@ int SimCenterUQResultsSurrogate::processResults(QString &filenameResults, QStrin
     tabWidget->addTab(theDataTable, tr("Data Values"));
     tabWidget->adjustSize();
 
-    statusMessage(tr(""));
-
     return 0;
 }
 

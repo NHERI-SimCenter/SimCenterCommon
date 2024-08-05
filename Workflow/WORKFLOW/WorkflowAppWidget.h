@@ -52,7 +52,7 @@ public:
     WorkflowAppWidget(RemoteService *theService, QWidget *parent = 0);
     virtual ~WorkflowAppWidget();
 
-    void setMainWindow(MainWindowWorkflowApp* window);
+    virtual void setMainWindow(MainWindowWorkflowApp* window);
 
     virtual bool outputToJSON(QJsonObject &rvObject) =0;
     virtual bool inputFromJSON(QJsonObject &rvObject) =0;
@@ -63,7 +63,9 @@ public:
     virtual void onRemoteGetButtonClicked() =0;
     virtual void onExitButtonClicked() =0;
     virtual int getMaxNumParallelTasks() =0;
-    
+
+    virtual int createCitation(QJsonObject &citationToAddTo, QString citeFile);  
+  
     MainWindowWorkflowApp *getTheMainWindow() const;
 
     static ProgramOutputDialog *getProgressDialog();

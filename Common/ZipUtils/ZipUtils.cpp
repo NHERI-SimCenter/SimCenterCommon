@@ -29,10 +29,15 @@ bool ZipUtils::ZipFolder(QDir directoryToZip, QString zipFilePath)
         if(fileInfo.isDir())
             continue;
 
-        if(fileInfo.fileName() == "." || fileInfo.fileName() == "..")
+	// qDebug() << fileInfo.absoluteFilePath() << " " <<  zipFilePath;
+	
+        // if(fileInfo.fileName() == "." || fileInfo.fileName() == "..")
+	  
+	if(fileInfo.fileName() == "." || fileInfo.fileName() == ".." || fileInfo.absoluteFilePath() == zipFilePath)
             continue;
 
         QFile afile(fileInfo.filePath());
+
 
 
         if(afile.exists())

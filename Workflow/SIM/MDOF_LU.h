@@ -59,6 +59,7 @@ public:
     bool outputAppDataToJSON(QJsonObject &rvObject) override;
     bool inputAppDataFromJSON(QJsonObject &rvObject) override;
     bool copyFiles(QString &dirName) override;
+    bool outputCitation(QJsonObject &jsonObject) override;
 
      // copy main file to new filename ONLY if varNamesAndValues not empy
     void setFileName(QString filnema1);

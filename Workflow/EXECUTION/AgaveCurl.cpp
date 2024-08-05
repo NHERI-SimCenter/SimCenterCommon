@@ -165,6 +165,8 @@ AgaveCurl::loginCall(QString uname, QString upassword)
     if (!appDirName.isEmpty())
       result = result + "/" + appDirName;
 
+    this->homeDir = result;
+    
     emit getHomeDirPathReturn(result);
   }
 }
@@ -508,7 +510,7 @@ AgaveCurl::removeDirectory(const QString &remote)
     if (this->invokeCurl() == false) {
         return false;
     }
-
+    
     //
     // process the results
     //
@@ -1224,14 +1226,14 @@ AgaveCurl::deleteJob(const QString &jobID, const QStringList &dirToRemove)
     //
 
     foreach(QString item, dirToRemove) {
-        result = this->removeDirectory(item);
+      result = this->removeDirectory(item);
     }
     Q_UNUSED(result);
 
     //
     // invoke curl to delete the job
     //
-
+    
     QString message = QString("Contacting ") + tenant + QString(" to delete job");
     emit statusMessage(message);
 
@@ -1259,6 +1261,7 @@ AgaveCurl::deleteJob(const QString &jobID, const QStringList &dirToRemove)
     QString val;
     val=file.readAll();
     file.close();
+
     QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
     QJsonObject theObj = doc.object();
 

@@ -103,7 +103,7 @@ void PythonProcessHandler::handleProcessErrorOutput(void)
 
 void PythonProcessHandler::handleProcessStarted(void)
 {
-    this->statusMessage("Running python script " + processName + " in the background. This may take a while.");
+    this->statusMessage("Running " + processName + " (python script) in the background. This may take a while.");
     QApplication::processEvents();
 
     if(startButton != nullptr)

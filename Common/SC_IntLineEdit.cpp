@@ -40,10 +40,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 #include <QIntValidator>
 
-SC_IntLineEdit::SC_IntLineEdit(QString theKey, int initValue)
+SC_IntLineEdit::SC_IntLineEdit(QString theKey, int initValue, int min, int max)
   :QLineEdit()
 {
-  QIntValidator* theValidator = new QIntValidator();
+  QIntValidator* theValidator = new QIntValidator(min, max);
   this->setValidator(theValidator);
   
   key = theKey;
@@ -53,10 +53,10 @@ SC_IntLineEdit::SC_IntLineEdit(QString theKey, int initValue)
 }
 
 
-SC_IntLineEdit::SC_IntLineEdit(QString theKey, int initValue, QString toolTip)
+SC_IntLineEdit::SC_IntLineEdit(QString theKey, int initValue, QString toolTip, int min, int max)
   :QLineEdit()
 {
-  QIntValidator* theValidator = new QIntValidator();
+  QIntValidator* theValidator = new QIntValidator(min, max);
   this->setValidator(theValidator);
   
   key = theKey;

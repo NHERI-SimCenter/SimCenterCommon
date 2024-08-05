@@ -54,47 +54,56 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDir>
 
 ModularPython::ModularPython(QString workDir, QWidget *parent): Application(parent) {
+  
+  QDir workDirectory(workDir);
+  if (!workDirectory.exists()) {
+      this->errorMessage(QString("ModularPython::ModularPython no existant workdir: ")+workDir);
+      qDebug() <<"ModularPython::ModularPython no existant workdir: " << workDir;
 
-    //
-    // Create handler
-    //
+    } else {
+      
+      //
+      // Create handler
+      //
+      
+      theProcessHandler = std::make_unique<PythonProcessHandler>();
+      theProcessHandler->setWorkingDir(workDir);
+      connect(theProcessHandler.get(),&PythonProcessHandler::processFinished, this, &ModularPython::handleProcessFinished);
 
-    theProcessHandler = std::make_unique<PythonProcessHandler>();
-    theProcessHandler->setWorkingDir(workDir);
-    connect(theProcessHandler.get(),&PythonProcessHandler::processFinished, this, &ModularPython::handleProcessFinished);
 
+      //
+      // set Pathes
+      //
+      
+      auto procEnv = QProcessEnvironment::systemEnvironment();
+      QString pathEnv = procEnv.value("PATH");
+      QString pythonPathEnv = procEnv.value("PYTHONPATH");
 
-    //
-    // set Pathes
-    //
-
-    auto procEnv = QProcessEnvironment::systemEnvironment();
-    QString pathEnv = procEnv.value("PATH");
-    QString pythonPathEnv = procEnv.value("PYTHONPATH");
-
-    python = QString("python");
-    exportPath = QString("export PATH=");
-    bool colonYes = false;
-
-    SimCenterPreferences *preferences = SimCenterPreferences::getInstance();
-    python = preferences->getPython();
-
-    QFileInfo pythonFile(python);
-    if (pythonFile.exists()) {
+      python = QString("python");
+      exportPath = QString("export PATH=");
+      bool colonYes = false;
+      
+      SimCenterPreferences *preferences = SimCenterPreferences::getInstance();
+      python = preferences->getPython();
+      
+      QFileInfo pythonFile(python);
+      if (pythonFile.exists()) {
         QString pythonPath = pythonFile.absolutePath();
         colonYes=true;
         exportPath += pythonPath;
         pathEnv = pythonPath + ';' + pathEnv;
-    } else {
+      } else {
         this->errorMessage("Python exe does not exist at" + python);
+      }
+      
+      exportPath += "$PATH";
+      procEnv.insert("PATH", pathEnv);
+      procEnv.insert("PYTHONPATH", pythonPathEnv);
+      theProcessHandler->setProcessEnv(procEnv);
+
+      pythonWorkDir = workDir;
+      
     }
-
-    exportPath += "$PATH";
-    procEnv.insert("PATH", pathEnv);
-    procEnv.insert("PYTHONPATH", pythonPathEnv);
-    theProcessHandler->setProcessEnv(procEnv);
-
-    pythonWorkDir = workDir;
 }
 
 
@@ -105,7 +114,19 @@ ModularPython::~ModularPython()
 
 void ModularPython::run(QString pythonScriptPath, QStringList pythonArgs){
 
-    QString processName = "python module";
+  if (theProcessHandler == nullptr) {
+    this->errorMessage(QString("ModularPython::run no processHandler was created before run .. workdir!!"));    
+    return;
+  }
+
+  QFile pythonScriptFile(pythonScriptPath);
+  if (!pythonScriptFile.exists()) {
+    this->errorMessage(QString("ModularPython::run no pythonscript: ") + pythonScriptPath + QString("  exists to run run"));
+    qDebug() << "ModularPython::run no pythonscript: " <<  pythonScriptPath << "  exists to run run";;    
+    return;
+  }
+
+  QString processName = "python module";
     //
     // RUN
     //
@@ -173,7 +194,7 @@ void ModularPython::handleProcessFinished(int exitCode)
 
     if(exitCode == 0)
     {
-        this->statusMessage("Analysis complete");
+        this->statusMessage("Python script completed");
     } else {
 //        QString errText("An error occurred in the Python script, the exit code is " + QString::number(exitCode));
 

@@ -33,7 +33,7 @@ public:
     void setAbout(QString &, QString&);
     void setFeedbackURL(QString &feedback);
     void setCite(QString &cite);
-    void updateExamplesMenu(void);
+    void updateExamplesMenu(bool placeBeforeHelp = false);
 
     QString outputFilePath;
 
@@ -78,6 +78,7 @@ public:
     void attemptLoginReturn(bool);
     void logoutReturn(bool);
     void showExampleDownloader(void);
+    void showCitations(void);  
 
 
  private:
@@ -107,7 +108,7 @@ public:
     int numTries;
 
     QString currentFile;
-    WorkflowAppWidget *inputWidget;
+    WorkflowAppWidget *theWorkflowAppWidget;
     RemoteService *theRemoteInterface;
     //SimCenterWidget *currentWidget;
 

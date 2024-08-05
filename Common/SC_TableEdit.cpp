@@ -46,7 +46,53 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonArray>
 #include <QDebug>
 
-SC_TableEdit::SC_TableEdit(QString theKey, QStringList colHeadings, int numRows, QStringList dataValues)
+#include <QLabel>
+#include <QLineEdit>
+
+SpinBoxDelegate::SpinBoxDelegate(QObject *parent)
+    : QStyledItemDelegate(parent)
+{
+}
+
+QWidget *SpinBoxDelegate::createEditor(QWidget *parent,
+                                       const QStyleOptionViewItem &/* option */,
+                                       const QModelIndex &/* index */) const
+{
+    QLineEdit *editor = new QLineEdit(parent);
+    editor->setFrame(false);
+    editor->setValidator(new QDoubleValidator());
+    return editor;
+}
+
+void SpinBoxDelegate::setEditorData(QWidget *editor,
+                                    const QModelIndex &index) const
+{
+    QString value = index.model()->data(index, Qt::EditRole).toString();
+
+    QLineEdit *spinBox = static_cast<QLineEdit*>(editor);
+    spinBox->setText(value);
+}
+
+void SpinBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
+                                   const QModelIndex &index) const
+{
+    QLineEdit *spinBox = static_cast<QLineEdit*>(editor);
+    QString value = spinBox->text();
+
+    model->setData(index, value, Qt::EditRole);
+}
+
+void SpinBoxDelegate::updateEditorGeometry(QWidget *editor,
+                                           const QStyleOptionViewItem &option,
+                                           const QModelIndex &/* index */) const
+{
+    editor->setGeometry(option.rect);
+}
+
+
+
+SC_TableEdit::SC_TableEdit(QString theKey, QStringList colHeadings, int numRows, QStringList dataValues, QStringList *special,
+			   bool doubleVal, int startColumn, bool addRemove)			   
   :QWidget()
 {
   key = theKey;
@@ -55,15 +101,24 @@ SC_TableEdit::SC_TableEdit(QString theKey, QStringList colHeadings, int numRows,
   int numCols = 0;
   foreach (const QString &theHeading, colHeadings) {
     headings << theHeading;
+
     numCols++;
   }
 
   theTable = new QTableWidget();
+
   theTable->setColumnCount(numCols);
   theTable->setRowCount(numRows);
   theTable->setHorizontalHeaderLabels(headings);
   theTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
   theTable->verticalHeader()->setVisible(false);
+  
+  for (int i=0; i<numCols; i++){
+      if (doubleVal == true && numCols >= startColumn){
+        SpinBoxDelegate *delegate = new SpinBoxDelegate();
+        theTable->setItemDelegateForColumn(i, delegate);
+    }
+  }
 
   // fill in data
   for (int i=0; i<numRows; i++) {
@@ -75,29 +130,56 @@ SC_TableEdit::SC_TableEdit(QString theKey, QStringList colHeadings, int numRows,
     }
   }  
 
-  QPushButton *addB = new QPushButton("Add");    
-  QPushButton *delB = new QPushButton("Del");
- 
   QGridLayout *layout = new QGridLayout();
-  layout->addWidget(theTable, 0,0);
-  layout->addWidget(addB,0,1);
-  layout->addWidget(delB,0,2);  
+
+  if (addRemove == true){  
+    QPushButton *addB = nullptr;
+    QPushButton *delB = nullptr;
+
+    if (special == nullptr || special->size() != 3) {
+      
+      addB = new QPushButton("Add");    
+      delB = new QPushButton("Del");
+      
+      layout->addWidget(theTable, 0,0);
+      layout->addWidget(addB,0,1);
+      layout->addWidget(delB,0,2);
+      
+    } else {
+      
+      //
+      // if special
+      //   add label for table heading (special(0)), put buttons on top with special labels (specials(1) and (2))
+      //
+      
+      layout->addWidget(new QLabel(special->at(0)), 0,0);
+      addB = new QPushButton(special->at(1));
+      delB = new QPushButton(special->at(2));
+      layout->addWidget(addB,0,2);
+      layout->addWidget(delB,0,3);    
+      
+      layout->addWidget(theTable,1,0,1,4);
+      layout->setColumnStretch(1,1);
+      theTable->verticalHeader()->setVisible(true);    
+    }
+
+    connect(addB, &QPushButton::released, this, [=]() {
+      int row = theTable->currentRow();
+      if (row != -1)  // insert below selected
+	theTable->insertRow(row+1);
+      else            // if none selected, add to end
+	theTable->insertRow(theTable->rowCount());      
+    });
+    
+    connect(delB, &QPushButton::released, this, [=]() {
+      int row = theTable->currentRow();
+      if ((row != -1) && (theTable->rowCount() != 1)) // don't delete if only 1 row
+	theTable->removeRow(row);
+    });  
+  }
   
   this->setLayout(layout);
 
-  connect(addB, &QPushButton::released, this, [=]() {
-    int row = theTable->currentRow();
-    if (row != -1)  // insert below selected
-      theTable->insertRow(row+1);
-    else            // if none selected, add to end
-      theTable->insertRow(theTable->rowCount());      
-  });
-
-  connect(delB, &QPushButton::released, this, [=]() {
-    int row = theTable->currentRow();
-    if ((row != -1) && (theTable->rowCount() != 1)) // don't delete if only 1 row
-      theTable->removeRow(row);
-  });  
 }
 
 

@@ -41,27 +41,71 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <SimCenterWidget.h>
 
+#ifdef _R2D
+#include "SimCenterMapcanvasWidget.h"
+#endif
+
+class QMainWindow;
+class QgsMapLayer;
+class QDockWidget;
+class QMenu;
+
 class SC_ResultsWidget : public SimCenterWidget
 {
     Q_OBJECT
+  
 public:
     explicit SC_ResultsWidget(QWidget *parent = 0);
     virtual ~SC_ResultsWidget();
-
-    virtual int processResults(QString &outputFile, QString &dirName, QString &assetType, QList<QString> typesInAssetType);
     virtual int processResults(QString &outputFile, QString &dirName);
     virtual void clear(void);
-    void setVisualizationWidget(QWidget * vizWidget);
 
+#ifdef _R2D
+
+    void setVisualizationWidget(QWidget * vizWidget);  
+    virtual int processResults(QString &outputFile, QString &dirName, QString &assetType, QList<QString> typesInAssetType);
+    virtual int addResults(SC_ResultsWidget* resultsTab, QString &outputFile, QString &dirName,
+                           QString &assetType, QList<QString> typesInAssetType);
+
+
+  // Interface function used by subclasses in R2D
+    QWidget* getVizWidget();
+    QMainWindow* getMainWindow();
+    QByteArray getUiState();
+    void setUiState(QByteArray newState);
+    std::shared_ptr<QList<QDockWidget*>> getDockList();
+    std::shared_ptr<SimCenterMapcanvasWidget> getMapViewSubWidget();
+    QMenu* getViewMenu();
+    std::shared_ptr<QList<QgsMapLayer*>> getNeededLayers();
+#endif
+  
 signals:
 
 public slots:
 
 private slots:
+
+#ifdef _R2D  
     void restoreUI(void);
+#endif  
+
 protected:
+
+#ifdef _R2D    
     QWidget* theVizWidget;
+    QMainWindow* mainWindow;
+    QByteArray uiState;
+    std::shared_ptr<QList<QDockWidget*>> dockList = std::shared_ptr<QList<QDockWidget*>>(new QList<QDockWidget*>());
+//    QList<QDockWidget*>* dockList;
+    std::shared_ptr<SimCenterMapcanvasWidget> mapViewSubWidget;
+    QMenu* viewMenu;
+//    QList<QgsMapLayer*>* neededLayers =  ;
+    std::shared_ptr<QList<QgsMapLayer*>> neededLayers  = std::shared_ptr<QList<QgsMapLayer*>>(new QList<QgsMapLayer*>());
+#endif
+  
     void extractErrorMsg(QString workDir, QString errFileName, QString uqEngineName, QString &errMsg);
+
+  
 };
 
 #endif // SC_RESULTS_WIDGET

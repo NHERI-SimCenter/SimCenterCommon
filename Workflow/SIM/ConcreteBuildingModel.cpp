@@ -730,3 +730,11 @@ void ConcreteBuildingModel::onSpanLEChange(void)
     emit buildingDimensionsChanged(buildingWidth,buildingDepth,planArea);
 
 }
+
+bool ConcreteBuildingModel::outputCitation(QJsonObject &jsonObject){
+
+    jsonObject.insert("citation",QString("Ceballos, V., & Arteta, C. (2022). RC-FIAP (v1.0). Zenodo. https://doi.org/10.5281/zenodo.6501833"));
+    jsonObject.insert("description",QString("The Concrete Building Model (RC-FIAP) creates a nonlinear OpenSees structural model of a reinforced concrete building using the user-provided information such as width and depth of Column and Beam Sections and ASCE 7-16 design parameters."));
+
+    return true;
+}

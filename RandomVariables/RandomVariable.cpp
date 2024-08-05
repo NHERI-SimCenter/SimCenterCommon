@@ -182,14 +182,15 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
         distributionComboBox->addItem(tr("Weibull"));
         distributionComboBox->addItem(tr("Gumbel"));
         distributionComboBox->addItem(tr("Constant"));
+	distributionComboBox->addItem(tr("Exponential"));
+	distributionComboBox->addItem(tr("Discrete"));
+	distributionComboBox->addItem(tr("Gamma"));
+	distributionComboBox->addItem(tr("Chisquare"));
+	
         theDistribution = new NormalDistribution();
 
         if ((uqEngineName!=QString("Dakota")))
         {
-            distributionComboBox->addItem(tr("Exponential"));
-            distributionComboBox->addItem(tr("Discrete"));
-            distributionComboBox->addItem(tr("Gamma"));
-            distributionComboBox->addItem(tr("Chisquare"));
             distributionComboBox->addItem(tr("Truncated exponential"));
         }
         if ((uqEngineName==QString("Custom"))){

@@ -230,8 +230,20 @@ InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(QWidget *parent)
     file = new QLineEdit;
     file->setToolTip(tr("User provided analysis script, replaces OpenSees default"));
     file->setPlaceholderText("(Optional)");
+    infoMsg = new QLabel("The information above will be ignored");
     layout->addWidget(labelFile, row, 0);
     layout->addWidget(file, row, 1);
+    infoMsg->setVisible(false);
+    layout->addWidget(infoMsg, row, 3);
+
+    connect(file, &QLineEdit::textEdited, this, [=] (QString text) {
+      if (text!="") {
+          infoMsg->setVisible(true);
+      } else {
+          infoMsg->setVisible(false);
+      }
+    });
+
 
     QPushButton *chooseFile = new QPushButton();
     chooseFile->setText(tr("Choose"));
@@ -246,7 +258,7 @@ InputWidgetOpenSeesAnalysis::InputWidgetOpenSeesAnalysis(QWidget *parent)
     QWidget *dummy = new QWidget();
     layout->addWidget(dummy,8,0);
     layout->setRowStretch(row,1);
-    layout->setColumnStretch(3,2);
+    layout->setColumnStretch(4,2);
     layout->setColumnStretch(1,1);
 
     // set the widgets layout
@@ -548,4 +560,13 @@ void InputWidgetOpenSeesAnalysis::toleranceEditingFinished() {
             lastTolerance = text;
         }
     }
+}
+
+bool
+InputWidgetOpenSeesAnalysis::outputCitation(QJsonObject &jsonObject)
+{
+  jsonObject.insert("citation",QString("McKenna, F., Scott, M. H., and Fenves, G. L. (2010) “Nonlinear finite-element analysis software architecture using object composition.” Journal of Computing in Civil Engineering, 24(1):95-107.")); // https://portwooddigital.com/2019/09/22/how-to-cite-opensees/
+  jsonObject.insert("description",QString("A number of nonlinear time history analysis were performed in the generation of the results using the open-source software application OpenSees."));
+  
+  return true;
 }

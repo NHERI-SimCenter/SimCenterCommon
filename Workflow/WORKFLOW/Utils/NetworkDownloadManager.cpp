@@ -137,10 +137,14 @@ bool NetworkDownloadManager::saveToDisk(const QString &filename, QIODevice *data
 
 int NetworkDownloadManager::unzipFile(const QString pathZipFile)
 {
-    auto pathExamplesFolder = QCoreApplication::applicationDirPath() + QDir::separator() + "Examples";
+    QString pathToOutputDirectory;
+    if (downloadType.compare("examples")==0){
+        auto pathExamplesFolder = QCoreApplication::applicationDirPath() + QDir::separator() + "Examples";
 
-    auto pathToOutputDirectory = pathExamplesFolder + QDir::separator();
-
+        pathToOutputDirectory = pathExamplesFolder + QDir::separator();
+    } else {
+        pathToOutputDirectory = folderToSaveData;
+    }
     bool result =  ZipUtils::UnzipFile(pathZipFile, pathToOutputDirectory);
     if (result == false)
     {
@@ -168,8 +172,7 @@ void NetworkDownloadManager::downloadAllFiles(void)
         errorMessage(err);
         return;
     }
-
-    QString msg = "Starting download of "+ QString::number(fileDownloadUrls.size()) + " examples ";
+    QString msg = "Starting download of "+ QString::number(fileDownloadUrls.size()) + " " +  downloadType;
     statusMessage(msg);
 
     QApplication::processEvents();
@@ -185,16 +188,37 @@ void NetworkDownloadManager::downloadAllFiles(void)
 
         QUrl url = QUrl::fromEncoded(urlStr.toLocal8Bit());
 
-        QString msg = "Downloading example "+fileName;
+        QString msg = "Downloading "+fileName;
         statusMessage(msg);
 
         downloadSingleFile(url,fileName,fileHash);
     }
 }
 
+void NetworkDownloadManager::downloadData(const QStringList urls, const QStringList fileNames, QString type, QString saveFolder){
+    downloadType = type;
+    folderToSaveData = saveFolder;
+    if (urls.isEmpty() || urls.size() != fileNames.size())
+    {
+        QString err ="The download list is empty";
+        errorMessage(err);
+        return;
+    }
+    for(int i = 0; i <urls.size(); ++i)
+    {
+        auto urlStr = urls.at(i);
+        QUrl url = QUrl::fromEncoded(urlStr.toLocal8Bit());
+
+        auto fileName = fileNames.at(i);
+
+        this->downloadSingleFileInfo(url,fileName);
+    }
+}
+
 
 void NetworkDownloadManager::downloadExamples(const QStringList urls, const QStringList fileNames)
 {
+    downloadType = "examples";
     if (urls.isEmpty() || urls.size() != fileNames.size())
     {
         QString err ="The download list is empty";
@@ -312,15 +336,23 @@ void NetworkDownloadManager::fileDownloadFinished(QNetworkReply *reply)
         }
         else
         {
-            auto pathExamplesFolder = QCoreApplication::applicationDirPath() + QDir::separator() + "Examples";
+            QString pathToSaveFile;
+            if (downloadType.compare("examples")==0){
+                auto pathExamplesFolder = QCoreApplication::applicationDirPath() + QDir::separator() + "Examples";
 
-            auto pathToSaveFile = pathExamplesFolder + QDir::separator() + fNameVariant.toString() + ".zip";
+                pathToSaveFile = pathExamplesFolder + QDir::separator() + fNameVariant.toString() + ".zip";
 
-            QDir examplesDir(pathExamplesFolder);
+                QDir examplesDir(pathExamplesFolder);
 
-            if(!examplesDir.exists())
-                examplesDir.mkdir(".");
-
+                if(!examplesDir.exists())
+                    examplesDir.mkdir(".");
+            } else {
+                QDir saveDir(folderToSaveData);
+                if (!saveDir.exists()){
+                    saveDir.mkdir(".");
+                }
+                pathToSaveFile = folderToSaveData + QDir::separator() + fNameVariant.toString() + ".zip";
+            }
             if (saveToDisk(pathToSaveFile, reply,fileHash))
             {
                 QString msg = "Installation succeeded of  "+ fNameVariant.toString();
@@ -349,9 +381,15 @@ void NetworkDownloadManager::fileDownloadFinished(QNetworkReply *reply)
     if (currentFileDownloads.isEmpty())
     {
         // all downloads finished
-        QString msg = "All example downloads are finished.  Go to the 'Examples' menu to load an example.";
-        statusMessage(msg);
-        emit downloadSuccess(true);
+        if (downloadType.compare("examples")==0){
+            QString msg = "All example downloads are finished.  Go to the 'Examples' menu to load an example.";
+            statusMessage(msg);
+            emit downloadSuccess(true);
+        } else {
+            QString msg = "All downloads are finished. Analysis can be continued now.";
+            statusMessage(msg);
+        }
+
         this->cleanup();
         this->getProgressDialog()->hideProgressBar();
     }
@@ -510,6 +548,9 @@ void NetworkDownloadManager::cleanup(void)
     fileDownloadUrls.clear();
     fileDownloadNames.clear();
     fileHashes.clear();
+
+    downloadType.clear();
+    folderToSaveData.clear();
 
     //    this->getProgressDialog()->hideProgressBar();
 }
