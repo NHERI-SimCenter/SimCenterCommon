@@ -148,7 +148,7 @@ RemoteJobManager::jobsListReturn(QJsonObject theJobs){
 
         for (int i=0; i<numJobs; i++) {
             QJsonObject job=jobData.at(i).toObject();
-            QString jobID = job["uuid"].toString();
+            QString jobID = job["id"].toString();
             QString jobName = job["name"].toString();
             QString jobStatus = job["status"].toString();
             QString jobDate = job["created"].toString();
@@ -291,19 +291,17 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
         //
       
         QStringList dirToRemove;
-        QJsonValue archivePath = job["archiveSystemDir"];
+        QJsonValue archivePath = job["archivePath"];
         if (archivePath.isString()) {
             QString archiveDir = archivePath.toString();
             dirToRemove << archiveDir;
         }
-        
-        QJsonValue inputs = job["fileInputs"];
-        //NOAM QJsonValue inputs = job["inputs"];
+        QJsonValue inputs = job["inputs"];
 	
         if (inputs.isObject()) {
 
             QJsonObject inputObject = inputs.toObject();
-            QJsonValue inputPath = inputObject["execSystemInputDir"];
+            QJsonValue inputPath = inputObject["inputDirectory"];
             if (inputPath.isArray()) {
                 QString inputDir = inputPath.toArray().at(0).toString();
                 inputDir.remove(htmlInputDirectory);
@@ -330,15 +328,15 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 
          QString archiveDir;
          QString inputDir;
-         QJsonValue archivePath = job["archiveSystemDir"];
+         QJsonValue archivePath = job["archivePath"];
          if (archivePath.isString()) {
              archiveDir = archivePath.toString();
          }
-         QJsonValue inputs = job["fileInputs"];
+         QJsonValue inputs = job["inputs"];
          if (inputs.isObject()) {
 
              QJsonObject inputObject = inputs.toObject();
-             QJsonValue inputPath = inputObject["execSystemInputDir"];
+             QJsonValue inputPath = inputObject["inputDirectory"];
              if (inputPath.isArray()) {
                  inputDir = inputPath.toArray().at(0).toString();
                  inputDir.remove(htmlInputDirectory);
@@ -362,32 +360,6 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
         QStringList localFiles;
         QStringList remoteFiles;
         QString appName = QCoreApplication::applicationName();
-
-/* START NOAM CONFLICT  SECTION */
-        if (appName != "R2D"){
-
-	  name1 = localDir + QDir::separator() + QString("templatedir.zip");
-	  name2 = localDir + QDir::separator() + QString("results.zip");
-	  name3 = localDir;	  
-	  
-	  localFiles.append(name1);
-	  localFiles.append(name2);
-	  
-	  //
-	  // download data to temp files & then process them as normal
-	  //
-	  
-      archiveDir = archiveDir + QString("/") + inputDir.remove(QRegularExpression(".*\\/")); // regex to remove up till last /
-
-         QString inputJSON = archiveDir + QString("templatedir.zip");
-         QString resultsZIP = archiveDir + QString("results.zip");
-
-	 filesToDownload.append(inputJSON);
-	 filesToDownload.append(resultsZIP);
-
-        } else {
-
-/** NOAM CONFLICT .. ORIGINAL
 	
 	if (filesToDownload.size() == 0) {
 	  if (appName != "R2D"){
@@ -413,7 +385,6 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 
 	  } else {
 	    
-**/
             name1 = localDir + QDir::separator() + QString("inputRWHALE.json");
             name2 = localDir + QDir::separator() + QString("input_data.zip");
             name3 = localDir + QDir::separator() + QString("Results.zip");
@@ -428,10 +399,10 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 	    
             archiveDir = archiveDir + QString("/") + inputDir.remove(QRegularExpression(".*\\/")); // regex to remove up till last /
 
-            QString rName1 = archiveDir + QString("inputRWHALE.json");
-            QString rName2 = archiveDir + QString("input_data.zip");
-            QString rName3 = archiveDir + QString("Results.zip");
-
+            QString rName1 = archiveDir + QString("/inputRWHALE.json");
+            QString rName2 = archiveDir + QString("/input_data.zip");
+            QString rName3 = archiveDir + QString("/Results.zip");
+	    
             // first download the input data & load it
 	    
             remoteFiles.append(rName1);

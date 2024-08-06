@@ -34,7 +34,6 @@ INCLUDEPATH += $$PWD/TOOLS
 SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/ANALYSIS/CustomPySimulation.cpp \
     $$PWD/ANALYSIS/SurrogateSimulation.cpp \
-    $$PWD/EXECUTION/TapisV3.cpp \
     $$PWD/SIM/CustomPy.cpp \
     $$PWD/SIM/SurrogateGP.cpp \
     $$PWD/UQ/UQ_Results.cpp \
@@ -159,7 +158,6 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
 HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/ANALYSIS/CustomPySimulation.h \
     $$PWD/ANALYSIS/SurrogateSimulation.h \
-    $$PWD/EXECUTION/TapisV3.h \
     $$PWD/SIM/CustomPy.h \
     $$PWD/SIM/SurrogateGP.h \
     $$PWD/UQ/UQ_Results.h \
