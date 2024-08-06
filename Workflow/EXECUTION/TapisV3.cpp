@@ -402,7 +402,7 @@ TapisV3::removeDirectory(const QString &remote)
     emit statusMessage(message);
 
     // invoke curl to remove the file or directory
-    QString url = tenantURL + QString("v3/files/ops/stampede3/") + remote;
+    QString url = tenantURL + QString("v3/files/ops/") + storage + remote;
     curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
     curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "DELETE");
     if (this->invokeCurl() == false) {
@@ -476,9 +476,9 @@ TapisV3::mkdir(const QString &remoteName, const QString &remotePath) {
 
     bool result = false;
 
-    QString url = tenantURL + QString("v3/files/ops/") + remoteName;
+    QString url = tenantURL + QString("v3/files/ops/") + storage;
 
-    QString postField = QString("{\"path\":\"%1\"}").arg(remotePath);
+    QString postField = QString("{\"path\":\"%1\"}").arg(remotePath + "/" + remoteName);
     int postFieldLength = postField.length() ; // strlen(postFieldChar);
     char *pField = new char[postFieldLength+1]; // have to do new char as seems to miss ending string char when pass directcly
     strncpy(pField, postField.toStdString().c_str(),postFieldLength+1);
@@ -587,7 +587,7 @@ TapisV3::uploadFile(const QString &local, const QString &remote) {
     slist1 = NULL;
     slist1 = curl_slist_append(slist1, headerData.c_str());
 
-    QString url = tenantURL + QString("v3/files/ops/stampede3/") + remote;
+    QString url = tenantURL + QString("v3/files/ops/") + storage + remoteCleaned;
     curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
     curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "POST");
 
@@ -680,7 +680,7 @@ TapisV3::downloadFile(const QString &remoteFile, const QString &localFile)
 
 
     // set up the call
-    QString url = tenantURL + QString("v3/files/content/stampede3/") + remoteFile;
+    QString url = tenantURL + QString("v3/files/content/") + storage + remoteFile;
 
     std::string headerData = QString("X-Tapis-Token: %1").arg(accessToken).toStdString();
     slist1 = NULL;
@@ -741,7 +741,7 @@ TapisV3::remoteLS(const QString &remotePath)
     emit statusMessage(message);
 
     // set up the call
-    QString url = tenantURL + QString("v3/files/ops/stampede3/") + remotePath;
+    QString url = tenantURL + QString("v3/files/ops/") + storage + remotePath;
     if(remotePath.isEmpty())
         url.append(username);
 
@@ -845,14 +845,14 @@ TapisV3::startJobCall(const QJsonObject &theJob) {
 QString
 TapisV3::startJob(const QJsonObject &theJob)
 {
+
     QString result = "FAILURE";
 
-    slist2 = NULL;
-    slist2 = curl_slist_append(slist2, "Content-Type: application/json");
-    slist2 = curl_slist_append(slist2, bearer.toStdString().c_str());
+    slist1 = NULL;
+    slist1 = curl_slist_append(slist1, "Content-Type: application/json");
+    slist1 = curl_slist_append(slist1, bearer.toStdString().c_str());
 
     std::string headerData = QString("X-Tapis-Token: %1").arg(accessToken).toStdString();
-    slist1 = NULL;
     slist1 = curl_slist_append(slist1, headerData.c_str());
     curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, slist1);
 
@@ -907,8 +907,8 @@ TapisV3::startJob(const QJsonObject &theJob)
         } else if (status == "success") {
             if (theObj.contains("result")) {
                 QJsonObject resObj = theObj["result"].toObject();
-                if (resObj.contains("id")) {
-                    QString jobID =  resObj["id"].toString();
+                if (resObj.contains("uuid")) {
+                    QString jobID =  resObj["uuid"].toString();
                     QString message = QString("Successfully started job: ") + jobID;
                     emit statusMessage(message);
                     QString msg1("Press the \"Get from DesignSafe\" Button to see status and download results");
@@ -1165,10 +1165,14 @@ TapisV3::deleteJob(const QString &jobID, const QStringList &dirToRemove)
     QString message = QString("Contacting ") + tenant + QString(" to delete job");
     emit statusMessage(message);
 
-    QString url = tenantURL + QString("jobs/v2/") + jobID;
+    QString url = tenantURL + QString("v3/jobs/") + jobID + QString("/hide");
+    std::string headerData = QString("X-Tapis-Token: %1").arg(accessToken).toStdString();
+    slist1 = NULL;
+    slist1 = curl_slist_append(slist1, headerData.c_str());
+    curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, slist1);
 
     curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
-    curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "DELETE");
+    curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "POST");
 
     if (this->invokeCurl() == false) {
         return false;
