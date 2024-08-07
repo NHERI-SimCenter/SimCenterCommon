@@ -268,6 +268,7 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
         // check if file exists and if yes: Is it really a file and no directory?
         if (!check_script.exists() || !check_script.isFile()) {
             qDebug() << "NO SCRIPT FILE: " << pySCRIPT;
+            pushButton->setEnabled(true);
             return false;
         }
 
@@ -275,6 +276,7 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
         QFileInfo check_registry(registryFile);
         if (!check_registry.exists() || !check_registry.isFile()) {
             qDebug() << "NO REGISTRY FILE: " << registryFile;
+            pushButton->setEnabled(true);
             return false;
         }
 
@@ -396,7 +398,8 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
     remoteHomeDirPath = theRemoteService->getHomeDir();
     
     if (remoteHomeDirPath.isEmpty()) {
-      qDebug() << "RemoteApplication:: - remoteHomeDir is empty!!";
+      qDebug() << "RemoteApplication:: - remoteHomeDir is empty!!";      
+      pushButton->setEnabled(true);
       return -1;
     }
     QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
