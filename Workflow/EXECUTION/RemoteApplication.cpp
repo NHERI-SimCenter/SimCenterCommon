@@ -545,9 +545,6 @@ RemoteApplication::uploadDirReturn(bool result)
       // disable the button while the job is being uploaded and started
       pushButton->setEnabled(false);
 
-      qDebug() << "JOBS_SUBMIT: " << job;
-      qDebug() << "JOB: " << job;
-
       //
       // start the remote job
       //

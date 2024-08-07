@@ -82,8 +82,6 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     //
     // add row for python interpreter
     //
-
-
     
     python = new QLineEdit();
     QHBoxLayout *pythonLayout = new QHBoxLayout();
@@ -664,13 +662,10 @@ SimCenterPreferences::resetPreferences(bool) {
 void
 SimCenterPreferences::loadPreferences() {
 
-  qDebug() << " LOAD PREFERENCES";
-
   
     QString currentVersion = QCoreApplication::applicationVersion();
 
     QSettings settingsCommon("SimCenter", "Common");
-    qDebug() << "COMMON SETTINGS: "<< settingsCommon.fileName();
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
 
     //
@@ -1037,8 +1032,6 @@ SimCenterPreferences::getRemoteAgaveAppVersion(void) {
     //Default appDir is the location of the application
 
     QString appVersion = this->getDefaultAgaveAppVersion();
-
-    qDebug() << "Preferences: appVersion" << appVersion;
     
     //If custom is checked we will try to get the custom app dir defined
     if (customTapisAppVersionCheckBox->checkState() == Qt::CheckState::Checked)
@@ -1049,8 +1042,6 @@ SimCenterPreferences::getRemoteAgaveAppVersion(void) {
         // if valid use it, otherwise it remains the default
         if (customAppNameSetting.isValid())
             appVersion = customAppNameSetting.toString();
-
-	qDebug() << "Preferences: appVersion variant" << appVersion;	
     }
 
     return appVersion;    

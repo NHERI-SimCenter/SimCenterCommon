@@ -634,7 +634,6 @@ TapisV3::mkdir(const QString &remoteName, const QString &remotePath) {
     
     // Set Post Data
     QString postField = QString("{\"path\":\"%1\"}").arg(remotePath + "/" + remoteName);
-        qDebug() << "mkDir: " << postField;
     std::string postData = postField.toStdString();
     curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, postData.c_str());    
 
@@ -645,7 +644,6 @@ TapisV3::mkdir(const QString &remoteName, const QString &remotePath) {
     curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, pField);
     */
     
-
     /*
     curl_easy_setopt(hnd, CURLOPT_BUFFERSIZE, 102400L);
     curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L);
@@ -676,8 +674,6 @@ TapisV3::mkdir(const QString &remoteName, const QString &remotePath) {
     QString val;
     val=file.readAll();
     file.close();
-
-    qDebug() << val;
     
     // read into json object
     QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
@@ -1273,7 +1269,6 @@ TapisV3::getJobStatus(const QString &jobID){
             QString message("Job Not Found");
             if (theObj.contains("message"))
                 message = theObj["message"].toString();
-            qDebug() << "ERROR: " << message;
             emit errorMessage(message);
             return result;
 

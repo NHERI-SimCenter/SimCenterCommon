@@ -299,7 +299,7 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 
     disconnect(theService,SIGNAL(getJobDetailsReturn(QJsonObject)),this,SLOT(getJobDetailsReturn(QJsonObject)));
 
-    qDebug() << "RemoteJobManager::getJobDetails job: " << job;
+    //    qDebug() << "RemoteJobManager::getJobDetails job: " << job;
     
     if (getJobDetailsRequest == 1) {
 
@@ -395,16 +395,11 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 	    
 	    archiveDir = archiveDir + QString("/") + inputDir.remove(QRegularExpression(".*\\/")); // regex to remove up till last /
 
-	    qDebug() << "ARCHIVE DIR: " << archiveDir;
-	    
 	    QString inputJSON = archiveDir + QString("templatedir.zip");
 	    QString resultsZIP = archiveDir + QString("results.zip");
 	    
 	    remoteFiles.append(inputJSON);
 	    remoteFiles.append(resultsZIP);
-
-	    qDebug() << "LOCAL" << localFiles;
-	    qDebug() << "REMOTE" << remoteFiles;	    
 
 	  } else {
 	    
@@ -490,7 +485,7 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
 	    // unzip .. this places files in a new dir templatedir
 	    ZipUtils::UnzipFile(name1, QDir(name3));
 	    QString inputFile = templateDir + QDir::separator() + QString("scInput.json");
-	    qDebug() << "loadingFile after download .. " << inputFile;
+	    qDebug() << "LoadingFile after download .. " << inputFile;
 	    emit loadFile(inputFile);
 	    
 	    // remove results dir if exists
@@ -528,7 +523,7 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
 	    if (name.contains(".zip")) {
 	      QString filePath = localDir + QDir::separator() + name;	      
 	      ZipUtils::UnzipFile(filePath, localDir);
-	      qDebug() << "unipiing " << filePath << " in: " << localDir;
+	      qDebug() << "unzipiing " << filePath << " in: " << localDir;
 	    }
 	  }
 	  emit processResults(localDir);
