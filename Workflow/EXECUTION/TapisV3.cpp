@@ -128,6 +128,7 @@ void dump(const char *text,
     }
     fputc('\n', stream); /* newline */
   }
+  fputc('\n\n', stream); /* newline */  
   fflush(stream);
 }
 
@@ -174,7 +175,7 @@ int my_trace(CURL *handle, curl_infotype type,
   
   QByteArray byteArray = debugFilePath.toUtf8();
   const char* cString = byteArray.data();
-  theBlahFile++;
+  // theBlahFile++;
   //FILE *fileOut = fopen("Users/fmckenna/Documents/quoFEM/curl.txt","a");
   FILE *fileOut = fopen(cString,"a");  
   dump(text, fileOut, (unsigned char *)data, size, config->trace_ascii);
@@ -204,12 +205,14 @@ TapisV3::TapisV3(QString &_tenant, QString &_storage, QString *appDir, QObject *
     //
     // init curl variables
     //
-
+    
+    curl_global_init(CURL_GLOBAL_DEFAULT);
     hnd = curl_easy_init();
     slist1 = NULL;
     slist2 = NULL;
 
-    tenantURL="https://designsafe.tapis.io/";
+    //tenantURL="https://designsafe.staging.tapis.io/";
+    tenantURL="https://designsafe.tapis.io/";    
     appClient = QString("appClient");
 
     if (appDir != nullptr)
@@ -273,6 +276,8 @@ TapisV3::loginCall(QString uname, QString upassword)
         if (!appDirName.isEmpty())
             result = result + "/" + appDirName;
 
+	this->homeDir = result;
+	
         emit getHomeDirPathReturn(result);
     }
 }
@@ -289,7 +294,7 @@ TapisV3::login(QString uname, QString upassword)
 
     //TODO: update this
     //
-    // first try deleting old app, needed if program crashed or old not deleted
+    // first try deleting old , needed if program crashed or old not deleted
     // before thread was shutdown
     //
 
@@ -299,6 +304,14 @@ TapisV3::login(QString uname, QString upassword)
     QString url = tenantURL + QString("clients/v3/") + appClient;
     QString user_passwd = "{\"username\":\"" + username +"\", \"password\": \"" + password + "\", \"grant_type\": \"password\" }";
 
+    /* FMK - uncomment to debug SSL calls
+    struct data config;
+    config.trace_ascii = 1;
+    curl_easy_setopt(hnd, CURLOPT_DEBUGFUNCTION, my_trace);
+    curl_easy_setopt(hnd, CURLOPT_DEBUGDATA, &config);
+    curl_easy_setopt(hnd, CURLOPT_VERBOSE, 1L);
+    */
+
     curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
     curl_easy_setopt(hnd, CURLOPT_USERPWD, user_passwd.toStdString().c_str());
     curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "DELETE");
@@ -307,34 +320,39 @@ TapisV3::login(QString uname, QString upassword)
         return false;
     }
 
+    //
+    // now login & get auth token
+    //
+    
     username = uname;
     password = upassword;
 
-    //
-    // add debugging of curl calls
-    //
-    
-    struct data config;
-    config.trace_ascii = 1;
-    curl_easy_setopt(hnd, CURLOPT_DEBUGFUNCTION, my_trace);
-    curl_easy_setopt(hnd, CURLOPT_DEBUGDATA, &config);
-    curl_easy_setopt(hnd, CURLOPT_VERBOSE, 1L);
-    
+
+    // Set URL to fetch    
     url = tenantURL + QString("v3/oauth2/tokens");
-    user_passwd =QString("{\"username\": \"%1\", \"password\": \"%2\", \"grant_type\": \"password\" }").arg(username, password);
+    curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
+
+    // Set HTTP headers    
     slist1 = NULL;
     slist1 = curl_slist_append(slist1, "Content-type: application/json");
-    curl_easy_setopt(hnd, CURLOPT_BUFFERSIZE, 102400L);
-    curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
-    curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L);
+    curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, slist1);    
+
+    // Set POST data    
+    user_passwd =QString("{\"username\": \"%1\", \"password\": \"%2\", \"grant_type\": \"password\" }").arg(username, password);
     std::string postData = user_passwd.toStdString();
+
     curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, postData.c_str());
+
+    /* commented out to get working, never tested if needed
+    curl_easy_setopt(hnd, CURLOPT_BUFFERSIZE, 102400L);
+    curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L);
     curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, slist1);
     curl_easy_setopt(hnd, CURLOPT_USERAGENT, "curl/8.4.0");
     curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 50L);
     curl_easy_setopt(hnd, CURLOPT_FTP_SKIP_PASV_IP, 1L);
     curl_easy_setopt(hnd, CURLOPT_TCP_KEEPALIVE, 1L);
-
+    */
+      
     if (this->invokeCurl() == false) {
         return false;
     }
@@ -352,12 +370,16 @@ TapisV3::login(QString uname, QString upassword)
     if (val.contains("Invalid username/password combination.") || val.isEmpty()) {
         emit errorMessage("ERROR: Invalid Credentials in OAuth!");
         return false;
+	
     } else {
+      
         QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
         QJsonObject jsonObj = doc.object();
+	
         if (jsonObj.contains("result")) {
             QJsonObject resultObj = jsonObj["result"].toObject();
             if (resultObj.contains("access_token")) {
+	      
                 QJsonObject tokenObj = resultObj["access_token"].toObject();
                 accessToken = tokenObj["access_token"].toString();
                 bearer = QString("Authorization: Bearer ") + accessToken;
@@ -366,12 +388,14 @@ TapisV3::login(QString uname, QString upassword)
 
                 // now if appDir is specified make sure dir exists,
                 // creating it does delete existing one and one call as opposed to 2 if not there
+		
                 if (!appDirName.isEmpty()) {
+		  
                     QString home = storage + username;
                     bool ok = this->mkdir(appDirName, username);
                     if (ok != true) {
                         QString message = QString("WARNING - could not create " ) + appDirName
-                                          + QString("on login, using home dir instead");
+                                          + QString(" on login, using home dir instead");
                         appDirName = QString(""); // no erase function!
                         emit statusMessage(message);
                     } else {
@@ -391,18 +415,6 @@ TapisV3::login(QString uname, QString upassword)
     }
 
     return false;
-
-
-    /* *************************************************** to test aloe
-    consumerKey = QString("");
-    consumerSecret = QString("");
-    QString accessToken = QString("");
-    bearer = QString("Authorization: Bearer ") + accessToken;
-    slist1 = curl_slist_append(slist1, bearer.toStdString().c_str());
-    loggedInFlag = true;
-    emit statusMessage("SUCCESS fmk");
-    return true;
-    **************************************************************** */
 }
 
 void
@@ -594,29 +606,57 @@ TapisV3::mkdir(const QString &remoteName, const QString &remotePath) {
 
     bool result = false;
 
-    QString url = tenantURL + QString("v3/files/ops/") + storage;
+    /*
+    // Set POST data    
+    user_passwd =QString("{\"username\": \"%1\", \"password\": \"%2\", \"grant_type\": \"password\" }").arg(username, password);
+    std::string postData = user_passwd.toStdString();
 
+    curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, postData.c_str());      
+     */
+
+    /* FMK DEBUG */
+    struct data config;
+    config.trace_ascii = 1;
+    curl_easy_setopt(hnd, CURLOPT_DEBUGFUNCTION, my_trace);
+    curl_easy_setopt(hnd, CURLOPT_DEBUGDATA, &config);
+    curl_easy_setopt(hnd, CURLOPT_VERBOSE, 1L);
+    
+    // Set URL to fetch    
+    QString url = tenantURL + QString("v3/files/ops/") + storage;
+    curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
+
+    // Set HTTP headers    
+    slist1 = NULL;
+    std::string headerData = QString("x-tapis-token: %1").arg(accessToken).toStdString();    
+    slist1 = curl_slist_append(slist1, headerData.c_str());
+    slist1 = curl_slist_append(slist1, "content-type:application/json");
+    curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, slist1);
+    
+    // Set Post Data
     QString postField = QString("{\"path\":\"%1\"}").arg(remotePath + "/" + remoteName);
+        qDebug() << "mkDir: " << postField;
+    std::string postData = postField.toStdString();
+    curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, postData.c_str());    
+
+    /*
     int postFieldLength = postField.length() ; // strlen(postFieldChar);
     char *pField = new char[postFieldLength+1]; // have to do new char as seems to miss ending string char when pass directcly
     strncpy(pField, postField.toStdString().c_str(),postFieldLength+1);
+    curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, pField);
+    */
+    
 
-
-    std::string headerData = QString("X-Tapis-Token: %1").arg(accessToken).toStdString();
-    slist1 = NULL;
-    slist1 = curl_slist_append(slist1, headerData.c_str());
-    slist1 = curl_slist_append(slist1, "Content-Type:application/json");
+    /*
     curl_easy_setopt(hnd, CURLOPT_BUFFERSIZE, 102400L);
-    curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
     curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L);
     std::string postData = postField.toStdString();
     curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, postData.c_str());
-    curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, slist1);
     curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 50L);
     curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "POST");
     curl_easy_setopt(hnd, CURLOPT_FTP_SKIP_PASV_IP, 1L);
     curl_easy_setopt(hnd, CURLOPT_TCP_KEEPALIVE, 1L);
-
+    */
+    
     if (this->invokeCurl() == false) {
         return false;
     }
@@ -637,6 +677,8 @@ TapisV3::mkdir(const QString &remoteName, const QString &remotePath) {
     val=file.readAll();
     file.close();
 
+    qDebug() << val;
+    
     // read into json object
     QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
     QJsonObject theObj = doc.object();
@@ -810,7 +852,7 @@ TapisV3::downloadFile(const QString &remoteFile, const QString &localFile)
     curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 50L);
     curl_easy_setopt(hnd, CURLOPT_HTTP_VERSION, (long)CURL_HTTP_VERSION_2TLS);
     curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYPEER, 0L);
-    curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYHOST, 0L);
+    // curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYHOST, 0L);
     curl_easy_setopt(hnd, CURLOPT_TCP_KEEPALIVE, 1L);
     curl_easy_setopt(hnd, CURLOPT_FAILONERROR, true);
 
@@ -1362,10 +1404,11 @@ TapisV3::invokeCurl(void) {
     }
 
     curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 50L);
-    curl_easy_setopt(hnd, CURLOPT_HTTP_VERSION, (long)CURL_HTTP_VERSION_2TLS);
+    //curl_easy_setopt(hnd, CURLOPT_HTTP_VERSION, (long)CURL_HTTP_VERSION_2TLS);
     curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYPEER, 0L);
-    curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYHOST, 0L);
+    //curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYHOST, 0L); - not recomended and not working on the mac
     curl_easy_setopt(hnd, CURLOPT_TCP_KEEPALIVE, 1L);
+
     //  curl_easy_setopt(hnd, CURLOPT_VERBOSE, 1L);
 
     // we send the result of curl request to a file > uniqueFileName1
