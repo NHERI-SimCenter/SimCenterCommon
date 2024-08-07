@@ -124,6 +124,7 @@ private:
     QLineEdit *numProcessorsLineEdit;
     QLineEdit *runtimeLineEdit;
     QLineEdit *buildingsPerTask;
+    QLineEdit *allocation;
     QCheckBox *saveResultsBox;
 
     //    QLineEdit *appLineEdit;
@@ -139,6 +140,7 @@ private:
     QString shortDirName;
     QMap<QString, QString> extraInputs;
     QMap<QString, QString> extraParameters;
+    QString designsafeDirectory; 
 
 };
 

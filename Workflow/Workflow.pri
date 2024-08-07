@@ -128,6 +128,7 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/ANALYSIS/InputWidgetOpenSeesAnalysis.cpp \
     $$PWD/EXECUTION/RunLocalWidget.cpp \
     $$PWD/EXECUTION/AgaveCurl.cpp \
+    $$PWD/EXECUTION/TapisV3.cpp \    
     $$PWD/EXECUTION/Application.cpp \
     $$PWD/EXECUTION/LocalApplication.cpp \
     $$PWD/EXECUTION/RemoteApplication.cpp \
@@ -252,6 +253,7 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/ANALYSIS/InputWidgetOpenSeesAnalysis.h \
     $$PWD/EXECUTION/RunLocalWidget.h \
     $$PWD/EXECUTION/AgaveCurl.h \
+    $$PWD/EXECUTION/TapisV3.h \    
     $$PWD/EXECUTION/Application.h \
     $$PWD/EXECUTION/LocalApplication.h \
     $$PWD/EXECUTION/RemoteApplication.h \
