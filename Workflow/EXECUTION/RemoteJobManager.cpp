@@ -146,18 +146,34 @@ RemoteJobManager::jobsListReturn(QJsonObject theJobs){
         int numJobs = jobData.count();
         jobsTable->setRowCount(numJobs);
 
+	/* *************** INFO PER JOB ******************
+            {
+            "appId": "simcenter-uq-stampede3",
+            "appVersion": "1.0.0",
+            "archiveSystemId": "stampede3",
+            "condition": null,
+            "created": "2024-05-29T16:33:33.782933Z",
+            "ended": "2024-05-29T16:33:49.070294Z",
+            "execSystemId": "stampede3",
+            "lastUpdated": "2024-05-29T16:33:49.070294Z",
+            "name": "quoFEM: tapisv3-quofem",
+            "owner": "tg457427",
+            "remoteStarted": null,
+            "status": "FAILED",
+            "tenant": "designsafe",
+            "uuid": "dbe0230a-ab4b-4bba-b259-76037a9b24e9-007"
+        }
+	*******************************************************/
+	
         for (int i=0; i<numJobs; i++) {
             QJsonObject job=jobData.at(i).toObject();
-            QString jobID = job["id"].toString();
+            QString jobID = job["uuid"].toString();
             QString jobName = job["name"].toString();
             QString jobStatus = job["status"].toString();
             QString jobDate = job["created"].toString();
-
-            QString processorsPerNode  = job["processorsPerNode"].toString();
-            QString nodes  = job["nodeCount"].toString();
-            QString maxHour  = job["status"].toString();
             QString remoteStarted = job["remoteStarted"].toString();
-            QString lastUpdated = job["lastUpdated"].toString();
+            //QString lastUpdated = job["lastUpdated"].toString();
+	    
 
             jobsTable->setItem(i, 0, new QTableWidgetItem(jobName));
             jobsTable->setItem(i, 1, new QTableWidgetItem(jobStatus));
@@ -282,6 +298,8 @@ void
 RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 
     disconnect(theService,SIGNAL(getJobDetailsReturn(QJsonObject)),this,SLOT(getJobDetailsReturn(QJsonObject)));
+
+    qDebug() << "RemoteJobManager::getJobDetails job: " << job;
     
     if (getJobDetailsRequest == 1) {
 
@@ -318,7 +336,7 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
         // emit deleteJob(jobIDRequest, dirToRemove);
     }
 
-     if (getJobDetailsRequest == 2) {
+    if (getJobDetailsRequest == 2) {
 
          //
          // the request was a getJobData
@@ -328,7 +346,7 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 
          QString archiveDir;
          QString inputDir;
-         QJsonValue archivePath = job["archivePath"];
+         QJsonValue archivePath = job["archiveSystemDir"];
          if (archivePath.isString()) {
              archiveDir = archivePath.toString();
          }
@@ -346,7 +364,6 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
              }
          }
 	 
-
         QString localDir = SimCenterPreferences::getInstance()->getRemoteWorkDir();
         QDir localWork(localDir);
         localWork.removeRecursively();
@@ -362,6 +379,7 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
         QString appName = QCoreApplication::applicationName();
 	
 	if (filesToDownload.size() == 0) {
+	  
 	  if (appName != "R2D"){
 	    
 	    name1 = localDir + QDir::separator() + QString("templatedir.zip");
@@ -376,12 +394,17 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 	    //
 	    
 	    archiveDir = archiveDir + QString("/") + inputDir.remove(QRegularExpression(".*\\/")); // regex to remove up till last /
+
+	    qDebug() << "ARCHIVE DIR: " << archiveDir;
 	    
-	    QString inputJSON = archiveDir + QString("/templatedir.zip");
-	    QString resultsZIP = archiveDir + QString("/results.zip");
+	    QString inputJSON = archiveDir + QString("templatedir.zip");
+	    QString resultsZIP = archiveDir + QString("results.zip");
 	    
 	    remoteFiles.append(inputJSON);
 	    remoteFiles.append(resultsZIP);
+
+	    qDebug() << "LOCAL" << localFiles;
+	    qDebug() << "REMOTE" << remoteFiles;	    
 
 	  } else {
 	    
@@ -399,21 +422,22 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 	    
             archiveDir = archiveDir + QString("/") + inputDir.remove(QRegularExpression(".*\\/")); // regex to remove up till last /
 
-            QString rName1 = archiveDir + QString("/inputRWHALE.json");
-            QString rName2 = archiveDir + QString("/input_data.zip");
-            QString rName3 = archiveDir + QString("/Results.zip");
+            QString rName1 = archiveDir + QString("inputRWHALE.json");
+            QString rName2 = archiveDir + QString("input_data.zip");
+            QString rName3 = archiveDir + QString("Results.zip");
 	    
             // first download the input data & load it
 	    
             remoteFiles.append(rName1);
             remoteFiles.append(rName2);
             remoteFiles.append(rName3);
+
 	  }
 	  
 	} else {
 
 	  archiveDir = archiveDir + QString("/") + inputDir.remove(QRegularExpression(".*\\/")); // regex to remove up till last /
-	    
+
 	  for (int i=0; i<filesToDownload.size(); i++) {
 	    QString name = filesToDownload.at(i);
 	    QString localFilePath = localDir + QDir::separator() + name;
@@ -422,11 +446,11 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 	    remoteFiles.append(remoteFilePath);
 	  }
 	}
-
+	
 	connect(theService,SIGNAL(downloadFilesReturn(bool, QObject*)),this,SLOT(downloadFilesReturn(bool, QObject*)));
 	theService->downloadFilesCall(remoteFiles, localFiles, this);    
 	
-     }
+    }
 }
 
 void
