@@ -62,8 +62,10 @@ public:
     QString getAppDir(void);
     QString getRemoteAppDir(void);
     QString getRemoteAgaveApp(void);
+    QString getRemoteAgaveAppVersion(void);  
     QString getLocalWorkDir(void);
     QString getRemoteWorkDir(void);
+    QString getDefaultAllocation(void);				  
 
 public slots:
     void savePreferences(bool);
@@ -73,6 +75,7 @@ public slots:
 
 private:
     QString getDefaultAgaveApp(void);
+    QString getDefaultAgaveAppVersion(void);  
     QString getDefaultRemoteAppDir(void);  
     QString getDefaultOpenSees(void);
     QString getDefaultDakota(void);
@@ -85,13 +88,17 @@ private:
     QLineEdit *remoteWorkDir;
     QLineEdit *appDir;
     QLineEdit *remoteBackendDir;
+  
     QLineEdit *remoteTapisApp;
+    QLineEdit *remoteTapisAppVersion;
+    QLineEdit *allocation;    
 
     QCheckBox* customPythonCheckBox;  
     QCheckBox* customOpenSeesCheckBox;
     QCheckBox* customDakotaCheckBox;
     QCheckBox* customAppDirCheckBox;
     QCheckBox* customTapisAppCheckBox;
+    QCheckBox* customTapisAppVersionCheckBox;  
     QCheckBox* customRemoteAppDirCheckBox;  
 };
 
