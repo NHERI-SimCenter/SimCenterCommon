@@ -429,7 +429,7 @@ RemoteApplication::uploadDirReturn(bool result)
       job["coresPerNode"]=numProcessorsPerNode;
       job["maxMinutes"]=runtimeLineEdit->text().toInt();
 
-      QString queue = "small"; // Frontera default CPU queues, use rtx for GPU. For LS6, use vm-small or gpu-100  -  JustinBonus 
+      QString queue = "small"; 
       if (nodeCount > 2)
         queue = "normal";
       if (nodeCount > 512)
@@ -443,11 +443,16 @@ RemoteApplication::uploadDirReturn(bool result)
       job["appVersion"]=SimCenterPreferences::getInstance()->getRemoteAgaveAppVersion();      
       job["memoryMB"]= 1000;
       job["execSystemLogicalQueue"]=queue;      
+
+      QJsonObject parameterSet;
+      QJsonArray envVariables;
+
+
+      //
+      // app specific env variables go here
+      //
       
       if (appName != "R2D"){
-
-	QJsonObject parameterSet;
-	QJsonArray envVariables;
 
 	QJsonObject inputFile;
 	inputFile["key"]="inputFile";
@@ -477,74 +482,62 @@ RemoteApplication::uploadDirReturn(bool result)
 	    // JUST NOW MINUTES REQUESTED FROMUSER
 	  } 
         }
-	
-        //job["parameters"]=parameters;
-        //qDebug () << "RemoteApplication::uploadDirReturn - INFO: job[parameters] maxRunTime: " << job["parameters"].toObject()["maxRunTime"];
 
+      } else { // R2D env variables
 
-	QJsonArray schedulerOptions;
-	QJsonObject schedulerOptionsObj;
-	QString allocationText = QString("-A " ) + allocation->text();
-	schedulerOptionsObj["arg"]=allocationText;
-	
-	schedulerOptions.append(schedulerOptionsObj);
-	parameterSet["schedulerOptions"]=schedulerOptions;
-	parameterSet["envVariables"]=envVariables;
-	job["parameterSet"]=parameterSet;
-
-        QDir theDirectory(tempDirectory);
-        QString dirName = theDirectory.dirName();
-
-        QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
-
-	QJsonArray fileInputs;
-	QJsonObject inputs;
-	inputs["envKey"]="inputDirectory";
-	inputs["targetPath"]="*";
-	inputs["sourceUrl"] = "tapis://" + designsafeDirectory;
-	designsafeDirectory = "";
-	for (auto inputName : extraInputs.keys())
-          {
-	    inputs[inputName] = extraInputs[inputName];
-          }
-	fileInputs.append(inputs);
-	job["fileInputs"]=fileInputs;
+	  QJsonObject inputFileObj;
+	  inputFileObj["key"]="inputFile";
+	  inputFileObj["value"]="inputRWHALE.json";	  
+	  envVariables.append(inputFileObj);
+	  QJsonObject inputDataObj;
+	  inputDataObj["key"]="inputDir";
+	  inputDataObj["value"]="input_data";	  
+	  envVariables.append(inputDataObj);	  
 	  
-        // now remove the tmp directory
-        theDirectory.removeRecursively();
-
-      } else {
-
-          QDir theDirectory(tempDirectory);
-          QString dirName = theDirectory.dirName();
-
-          QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
-          QString inputFile = remoteDirectory + "/inputRWHALE.json";
-          QString inputData = remoteDirectory + "/input_data.zip";
-
-          QJsonObject inputs;
-          inputs["inputFile"]=inputFile;
-          inputs["compressedInputDir"]=inputData;
-          job["inputs"]=inputs;
-
-          QJsonObject parameters;
-
-
-          int numBldg = buildingsPerTask->text().toInt();
-          if (numBldg != 0 ) {
-	    // parameters["buildingsPerTask"]=QString::number(numBldg);
-            parameters["saveResults"]=saveResultsBox->isChecked();
-          }
-          // job["parameters"]=parameters;
-
-          // now remove the tmp directory
-          theDirectory.removeRecursively();
-
       }
 
+      //
+      // add allocation, env variables, and inputDir info to the job
+      //
+      
+      QJsonArray schedulerOptions;
+      QJsonObject schedulerOptionsObj;
+      QString allocationText = QString("-A " ) + allocation->text();
+      schedulerOptionsObj["arg"]=allocationText;
+      
+      schedulerOptions.append(schedulerOptionsObj);
+      parameterSet["schedulerOptions"]=schedulerOptions;
+      parameterSet["envVariables"]=envVariables;
+      job["parameterSet"]=parameterSet;
+      
+      QJsonArray fileInputs;
+      QJsonObject inputs;
+      inputs["envKey"]="inputDirectory";
+      inputs["targetPath"]="*";
+      inputs["sourceUrl"] = "tapis://" + designsafeDirectory;
+	designsafeDirectory = "";
+      for (auto inputName : extraInputs.keys())
+	{
+	  inputs[inputName] = extraInputs[inputName];
+	}
+      fileInputs.append(inputs);
+      job["fileInputs"]=fileInputs;
+      
       // disable the button while the job is being uploaded and started
       pushButton->setEnabled(false);
 
+
+      //
+      // now remove the tmp directory
+      //
+      
+      QDir theDirectory(tempDirectory);
+
+      //QString dirName = theDirectory.dirName();
+      //QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
+      
+      theDirectory.removeRecursively();
+      
       //
       // start the remote job
       //
