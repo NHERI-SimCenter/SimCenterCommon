@@ -1062,13 +1062,13 @@ TapisV3::startJob(const QJsonObject &theJob)
 	      if (message.contains("SYSTEMS_MISSING_CREDENTIALS")) {
 		if (message.contains("stampede3")) {
 		  QDesktopServices::openUrl(QUrl(QString("https://www.designsafe-ci.org/rw/workspace/stampede3-credential"), QUrl::TolerantMode));
-		  message = QString("ERROR: You need machine credentials, log-in to Designsafe & click on 'Submit' button on webpage");
+		  message = QString("ERROR: You need TACC machine credentials, log-in to DesignSafe & click on green 'Submit Job' button on webpage");
 		} else if (message.contains("frontera")) {
 		  QDesktopServices::openUrl(QUrl(QString("https://www.designsafe-ci.org/rw/workspace/frontera-credential"), QUrl::TolerantMode));
-		 message = QString("ERROR: You need machine credentials, log-in to Designsafe & click on 'Submit' button on webpage");
+		 message = QString("ERROR: You need TACC machine credentials, log-in to DesignSafe & click on green 'Submit Job' button on webpage");
 		} else if (message.contains("ls6")) {
 		  QDesktopServices::openUrl(QUrl(QString("https://www.designsafe-ci.org/rw/workspace/ls6-credential"), QUrl::TolerantMode));
-		 message = QString("ERROR: You need machine credentials, log-in to Designsafe & click on 'Submit' button on webpage");
+		 message = QString("ERROR: You need TACC machine credentials, log-in to DesignSafe & click on green 'Submit Job' button on webpage");
 		} else {
 		  message = QString("ERROR: Credentials have not been set, go to tool home page for instruction");
 		}
