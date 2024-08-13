@@ -444,20 +444,6 @@ RemoteApplication::uploadDirReturn(bool result)
       
       int ramPerNodeMB = 1000; // 1 GB
 
-      // Frontera
-      QString queue = "small"; // Frontera default CPU queues, use rtx for GPU. For LS6, use vm-small or gpu-100  -  JustinBonus 
-      if (nodeCount > 2) {
-        queue = "normal";
-      }
-      if (nodeCount > 512) {
-        queue = "large";
-      }
-
-      // Stampede
-      QString appName = QCoreApplication::applicationName();      
-      if ((appName == QString("R2D")) || (appName == QString("quoFEM")) || (appName == QString("quoFEM_TEST")) ) {
-	        queue = "skx";
-      }
 
 
       // NVIDIA GPU queues
