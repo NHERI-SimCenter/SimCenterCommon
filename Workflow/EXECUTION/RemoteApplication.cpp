@@ -429,8 +429,6 @@ RemoteApplication::uploadDirReturn(bool result)
       job["coresPerNode"]=numProcessorsPerNode;
       job["maxMinutes"]=runtimeLineEdit->text().toInt();
 
-<<<<<<< HEAD
-=======
       QString queue = "small"; 
       if (nodeCount > 2)
         queue = "normal";
@@ -441,7 +439,6 @@ RemoteApplication::uploadDirReturn(bool result)
       if ((appName == QString("R2D")) || (appName == QString("quoFEM")) || (appName == QString("quoFEM_TEST")) )
 	queue = "skx";
 
->>>>>>> d5e420f5eff49529e501e6d313abbbc8bb9c6ceb
       job["appId"]=SimCenterPreferences::getInstance()->getRemoteAgaveApp();
       job["appVersion"]=SimCenterPreferences::getInstance()->getRemoteAgaveAppVersion();      
       
@@ -495,20 +492,11 @@ RemoteApplication::uploadDirReturn(bool result)
       
       if (appName != "R2D") {
 
-<<<<<<< HEAD
-        QJsonObject parameterSet;
-        QJsonArray envVariables;
-
-        QJsonObject inputFile;
-        inputFile["key"]="inputFile";
-        inputFile["value"]="scInput.json";
-        envVariables.append(inputFile);
-=======
 	QJsonObject inputFile;
 	inputFile["key"]="inputFile";
 	inputFile["value"]="scInput.json";
 	envVariables.append(inputFile);
->>>>>>> d5e420f5eff49529e501e6d313abbbc8bb9c6ceb
+
 
         if (appName == "quoFEM") {
             QJsonObject driverFile;
@@ -530,75 +518,10 @@ RemoteApplication::uploadDirReturn(bool result)
             envVariables.append(paramObj);
         
         }
-<<<<<<< HEAD
-        
-        //job["parameters"]=parameters;
-        //qDebug () << "RemoteApplication::uploadDirReturn - INFO: job[parameters] maxRunTime: " << job["parameters"].toObject()["maxRunTime"];
-=======
->>>>>>> d5e420f5eff49529e501e6d313abbbc8bb9c6ceb
+
 
       } else { // R2D env variables
 
-<<<<<<< HEAD
-        QJsonArray schedulerOptions;
-        QJsonObject schedulerOptionsObj;
-        QString allocationText = QString("-A " ) + allocation->text();
-        schedulerOptionsObj["arg"]=allocationText;
-        
-        schedulerOptions.append(schedulerOptionsObj);
-        parameterSet["schedulerOptions"]=schedulerOptions;
-        parameterSet["envVariables"]=envVariables;
-        job["parameterSet"]=parameterSet;
-
-        QDir theDirectory(tempDirectory);
-        QString dirName = theDirectory.dirName();
-
-        QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
-
-        QJsonArray fileInputs;
-        QJsonObject inputs;
-        inputs["envKey"]="inputDirectory";
-        inputs["targetPath"]="*";
-        inputs["sourceUrl"] = "tapis://" + designsafeDirectory;
-        designsafeDirectory = "";
-        for (auto inputName : extraInputs.keys())
-            {
-            inputs[inputName] = extraInputs[inputName];
-            }
-        fileInputs.append(inputs);
-        job["fileInputs"]=fileInputs;
-        
-        // now remove the tmp directory
-        theDirectory.removeRecursively();
-
-    } else {
-
-          QDir theDirectory(tempDirectory);
-          QString dirName = theDirectory.dirName();
-
-          QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
-          QString inputFile = remoteDirectory + "/inputRWHALE.json";
-          QString inputData = remoteDirectory + "/input_data.zip";
-
-          QJsonObject inputs;
-          inputs["inputFile"]=inputFile;
-          inputs["compressedInputDir"]=inputData;
-          job["inputs"]=inputs;
-
-          QJsonObject parameters;
-
-
-          int numBldg = buildingsPerTask->text().toInt();
-          if (numBldg != 0 ) {
-	    // parameters["buildingsPerTask"]=QString::number(numBldg);
-            parameters["saveResults"]=saveResultsBox->isChecked();
-          }
-          // job["parameters"]=parameters;
-
-          // now remove the tmp directory
-          theDirectory.removeRecursively();
-
-=======
 	  QJsonObject inputFileObj;
 	  inputFileObj["key"]="inputFile";
 	  inputFileObj["value"]="inputRWHALE.json";	  
@@ -608,7 +531,6 @@ RemoteApplication::uploadDirReturn(bool result)
 	  inputDataObj["value"]="input_data";	  
 	  envVariables.append(inputDataObj);	  
 	  
->>>>>>> d5e420f5eff49529e501e6d313abbbc8bb9c6ceb
       }
 
       //
