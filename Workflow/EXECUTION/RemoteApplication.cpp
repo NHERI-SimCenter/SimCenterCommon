@@ -429,6 +429,19 @@ RemoteApplication::uploadDirReturn(bool result)
       job["coresPerNode"]=numProcessorsPerNode;
       job["maxMinutes"]=runtimeLineEdit->text().toInt();
 
+<<<<<<< HEAD
+=======
+      QString queue = "small"; 
+      if (nodeCount > 2)
+        queue = "normal";
+      if (nodeCount > 512)
+        queue = "large";
+
+      QString appName = QCoreApplication::applicationName();      
+      if ((appName == QString("R2D")) || (appName == QString("quoFEM")) || (appName == QString("quoFEM_TEST")) )
+	queue = "skx";
+
+>>>>>>> d5e420f5eff49529e501e6d313abbbc8bb9c6ceb
       job["appId"]=SimCenterPreferences::getInstance()->getRemoteAgaveApp();
       job["appVersion"]=SimCenterPreferences::getInstance()->getRemoteAgaveAppVersion();      
       
@@ -470,10 +483,19 @@ RemoteApplication::uploadDirReturn(bool result)
 
       job["memoryMB"]= ramPerNodeMB;
       job["execSystemLogicalQueue"]=queue;      
+
+      QJsonObject parameterSet;
+      QJsonArray envVariables;
+
+
+      //
+      // app specific env variables go here
+      //
       
       
       if (appName != "R2D") {
 
+<<<<<<< HEAD
         QJsonObject parameterSet;
         QJsonArray envVariables;
 
@@ -481,6 +503,12 @@ RemoteApplication::uploadDirReturn(bool result)
         inputFile["key"]="inputFile";
         inputFile["value"]="scInput.json";
         envVariables.append(inputFile);
+=======
+	QJsonObject inputFile;
+	inputFile["key"]="inputFile";
+	inputFile["value"]="scInput.json";
+	envVariables.append(inputFile);
+>>>>>>> d5e420f5eff49529e501e6d313abbbc8bb9c6ceb
 
         if (appName == "quoFEM") {
             QJsonObject driverFile;
@@ -502,11 +530,16 @@ RemoteApplication::uploadDirReturn(bool result)
             envVariables.append(paramObj);
         
         }
+<<<<<<< HEAD
         
         //job["parameters"]=parameters;
         //qDebug () << "RemoteApplication::uploadDirReturn - INFO: job[parameters] maxRunTime: " << job["parameters"].toObject()["maxRunTime"];
+=======
+>>>>>>> d5e420f5eff49529e501e6d313abbbc8bb9c6ceb
 
+      } else { // R2D env variables
 
+<<<<<<< HEAD
         QJsonArray schedulerOptions;
         QJsonObject schedulerOptionsObj;
         QString allocationText = QString("-A " ) + allocation->text();
@@ -565,11 +598,61 @@ RemoteApplication::uploadDirReturn(bool result)
           // now remove the tmp directory
           theDirectory.removeRecursively();
 
+=======
+	  QJsonObject inputFileObj;
+	  inputFileObj["key"]="inputFile";
+	  inputFileObj["value"]="inputRWHALE.json";	  
+	  envVariables.append(inputFileObj);
+	  QJsonObject inputDataObj;
+	  inputDataObj["key"]="inputDir";
+	  inputDataObj["value"]="input_data";	  
+	  envVariables.append(inputDataObj);	  
+	  
+>>>>>>> d5e420f5eff49529e501e6d313abbbc8bb9c6ceb
       }
 
+      //
+      // add allocation, env variables, and inputDir info to the job
+      //
+      
+      QJsonArray schedulerOptions;
+      QJsonObject schedulerOptionsObj;
+      QString allocationText = QString("-A " ) + allocation->text();
+      schedulerOptionsObj["arg"]=allocationText;
+      
+      schedulerOptions.append(schedulerOptionsObj);
+      parameterSet["schedulerOptions"]=schedulerOptions;
+      parameterSet["envVariables"]=envVariables;
+      job["parameterSet"]=parameterSet;
+      
+      QJsonArray fileInputs;
+      QJsonObject inputs;
+      inputs["envKey"]="inputDirectory";
+      inputs["targetPath"]="*";
+      inputs["sourceUrl"] = "tapis://" + designsafeDirectory;
+	designsafeDirectory = "";
+      for (auto inputName : extraInputs.keys())
+	{
+	  inputs[inputName] = extraInputs[inputName];
+	}
+      fileInputs.append(inputs);
+      job["fileInputs"]=fileInputs;
+      
       // disable the button while the job is being uploaded and started
       pushButton->setEnabled(false);
 
+
+      //
+      // now remove the tmp directory
+      //
+      
+      QDir theDirectory(tempDirectory);
+
+      //QString dirName = theDirectory.dirName();
+      //QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
+      
+      theDirectory.removeRecursively();
+      
       //
       // start the remote job
       //
