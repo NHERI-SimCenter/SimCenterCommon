@@ -154,7 +154,7 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
     layout->addWidget(runtimeLabel,numRow,0);
 
     runtimeLineEdit = new QLineEdit();
-    runtimeLineEdit->setText("20");
+    runtimeLineEdit->setText("30");
     runtimeLineEdit->setToolTip(tr("Run time Limit on running Job hours:Min. Job will be stopped if while running it exceeds this"));
     int maxMinutes = 60*48;
     QIntValidator* theValidatorMinutes = new QIntValidator(1, maxMinutes);
@@ -346,7 +346,7 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
         if (tmpDir.exists("input_data")) {
             QDir inputDataDir(tmpDir.absoluteFilePath("input_data"));
             inputDataDir.removeRecursively();
-	} 
+	    } 
 
         QDir dirToRemove(templateDIR);
         templateDir.cd("templatedir");
@@ -362,7 +362,7 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
             ZipUtils::ZipFolder(inputDataDir, zipFile);
             inputDataDir.removeRecursively();
         } else {
-            qDebug() << "Remote App : no inpout_data dir";
+            qDebug() << "Remote App : no input_data dir";
         }
     }
   
@@ -429,91 +429,116 @@ RemoteApplication::uploadDirReturn(bool result)
       job["coresPerNode"]=numProcessorsPerNode;
       job["maxMinutes"]=runtimeLineEdit->text().toInt();
 
-      QString queue = "small"; // Frontera default CPU queues, use rtx for GPU. For LS6, use vm-small or gpu-100  -  JustinBonus 
-      if (nodeCount > 2)
-        queue = "normal";
-      if (nodeCount > 512)
-        queue = "large";
-
-      QString appName = QCoreApplication::applicationName();      
-      if ((appName == QString("R2D")) || (appName == QString("quoFEM")) || (appName == QString("quoFEM_TEST")) )
-	queue = "skx";
-
       job["appId"]=SimCenterPreferences::getInstance()->getRemoteAgaveApp();
       job["appVersion"]=SimCenterPreferences::getInstance()->getRemoteAgaveAppVersion();      
-      job["memoryMB"]= 1000;
+      
+      int ramPerNodeMB = 1000; // 1 GB
+
+      // Frontera
+      QString queue = "small"; // Frontera default CPU queues, use rtx for GPU. For LS6, use vm-small or gpu-100  -  JustinBonus 
+      if (nodeCount > 2) {
+        queue = "normal";
+      }
+      if (nodeCount > 512) {
+        queue = "large";
+      }
+
+      // Stampede
+      QString appName = QCoreApplication::applicationName();      
+      if ((appName == QString("R2D")) || (appName == QString("quoFEM")) || (appName == QString("quoFEM_TEST")) ) {
+	        queue = "skx";
+      }
+
+
+      // NVIDIA GPU queues
+      if ((appName == QString("HydroUQ")) || (appName == "Hydro-UQ") || (appName == "HydroUQ_TEST")) {
+            if (nodeCount > 1) {
+                // not allowed until Multi-Node Multi-GPU update, so set to 1
+                nodeCount = 1;
+                job["nodeCount"] = nodeCount;
+            }
+            const bool USE_FRONTERA_FOR_HYDROUQ = false;
+            if (USE_FRONTERA_FOR_HYDROUQ) {
+                queue = "rtx"; // Frontera
+                ramPerNodeMB = 128000; // 128 GB
+            }
+            else {
+                queue = "gpu-a100"; // Lonestar6
+                ramPerNodeMB = 256000; // 256 GB
+            }
+      }
+
+      job["memoryMB"]= ramPerNodeMB;
       job["execSystemLogicalQueue"]=queue;      
       
-      if (appName != "R2D"){
+      
+      if (appName != "R2D") {
 
-	QJsonObject parameterSet;
-	QJsonArray envVariables;
+        QJsonObject parameterSet;
+        QJsonArray envVariables;
 
-	QJsonObject inputFile;
-	inputFile["key"]="inputFile";
-	inputFile["value"]="scInput.json";
-	envVariables.append(inputFile);
+        QJsonObject inputFile;
+        inputFile["key"]="inputFile";
+        inputFile["value"]="scInput.json";
+        envVariables.append(inputFile);
 
-	if (appName == "quoFEM") {
-	  QJsonObject driverFile;
-	  driverFile["key"]="driverFile";
-	  driverFile["value"]="driver";
-	  envVariables.append(driverFile);
-	} else {
-	  QJsonObject driverFile;
-	  driverFile["key"]="driverFile";
-	  driverFile["value"]="sc_driver";
-	  envVariables.append(driverFile);
-	}
-	    
+        if (appName == "quoFEM") {
+            QJsonObject driverFile;
+            driverFile["key"]="driverFile";
+            driverFile["value"]="driver";
+            envVariables.append(driverFile);
+        } else {
+            QJsonObject driverFile;
+            driverFile["key"]="driverFile";
+            driverFile["value"]="sc_driver";
+            envVariables.append(driverFile);
+        }
+            
         for (auto parameterName : extraParameters.keys()) {
 
-	  QJsonObject paramObj;
-	  paramObj["key"]=parameterName;
-	  paramObj["value"]=extraParameters[parameterName];
-	  envVariables.append(paramObj);
-	  
-	  if (parameterName == "maxRunTime_JUSTIN_TO_FIX") {
-	    // JUST NOW MINUTES REQUESTED FROMUSER
-	  } 
+            QJsonObject paramObj;
+            paramObj["key"]=parameterName;
+            paramObj["value"]=extraParameters[parameterName];
+            envVariables.append(paramObj);
+        
         }
-	
+        
         //job["parameters"]=parameters;
         //qDebug () << "RemoteApplication::uploadDirReturn - INFO: job[parameters] maxRunTime: " << job["parameters"].toObject()["maxRunTime"];
 
 
-	QJsonArray schedulerOptions;
-	QJsonObject schedulerOptionsObj;
-	QString allocationText = QString("-A " ) + allocation->text();
-	schedulerOptionsObj["arg"]=allocationText;
-	
-	schedulerOptions.append(schedulerOptionsObj);
-	parameterSet["schedulerOptions"]=schedulerOptions;
-	parameterSet["envVariables"]=envVariables;
-	job["parameterSet"]=parameterSet;
+        QJsonArray schedulerOptions;
+        QJsonObject schedulerOptionsObj;
+        QString allocationText = QString("-A " ) + allocation->text();
+        schedulerOptionsObj["arg"]=allocationText;
+        
+        schedulerOptions.append(schedulerOptionsObj);
+        parameterSet["schedulerOptions"]=schedulerOptions;
+        parameterSet["envVariables"]=envVariables;
+        job["parameterSet"]=parameterSet;
 
         QDir theDirectory(tempDirectory);
         QString dirName = theDirectory.dirName();
 
         QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
 
-	QJsonArray fileInputs;
-	QJsonObject inputs;
-	inputs["envKey"]="inputDirectory";
-	inputs["targetPath"]="*";
-	inputs["sourceUrl"] = "tapis://" + designsafeDirectory;
-	designsafeDirectory = "";
-	for (auto inputName : extraInputs.keys())
-          {
-	    inputs[inputName] = extraInputs[inputName];
-          }
-	fileInputs.append(inputs);
-	job["fileInputs"]=fileInputs;
-	  
+        QJsonArray fileInputs;
+        QJsonObject inputs;
+        inputs["envKey"]="inputDirectory";
+        inputs["targetPath"]="*";
+        inputs["sourceUrl"] = "tapis://" + designsafeDirectory;
+        designsafeDirectory = "";
+        for (auto inputName : extraInputs.keys())
+            {
+            inputs[inputName] = extraInputs[inputName];
+            }
+        fileInputs.append(inputs);
+        job["fileInputs"]=fileInputs;
+        
         // now remove the tmp directory
         theDirectory.removeRecursively();
 
-      } else {
+    } else {
 
           QDir theDirectory(tempDirectory);
           QString dirName = theDirectory.dirName();
