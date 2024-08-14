@@ -802,7 +802,7 @@ void MainWindowWorkflowApp::createActions() {
     helpMenu->addAction(tr("&Manual"), this, &MainWindowWorkflowApp::manual);
     helpMenu->addAction(tr("&Submit Bug/Feature Request"), this, &MainWindowWorkflowApp::submitFeedback);
     // QAction *submitFeature = helpMenu->addAction(tr("&Submit Bug/Feature Request"), this, &MainWindowWorkflowApp::submitFeatureRequest);
-    helpMenu->addAction(tr("&How to Cite"), this, &MainWindowWorkflowApp::cite);
+    // helpMenu->addAction(tr("&How to Cite"), this, &MainWindowWorkflowApp::cite);
     helpMenu->addAction(tr("&License"), this, &MainWindowWorkflowApp::copyright);
 }
 
