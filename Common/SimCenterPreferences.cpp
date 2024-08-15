@@ -553,15 +553,16 @@ SimCenterPreferences::savePreferences(bool) {
 
     settingsCommon.setValue("allocation", allocation->text());
     settingsCommon.setValue("BLESSED", allocation->text());    
-   
+
+    QSettings settingsApp("SimCenter", QCoreApplication::applicationName());
+    
 #ifdef USE_SIMCENTER_PYTHON
     settingsApp.setValue("pythonExePath", python->text());
 #else
     settingsCommon.setValue("pythonExePath", python->text());
     qDebug() << "reset: pythonExePath: " << python->text();
 #endif
-    
-    QSettings settingsApp("SimCenter", QCoreApplication::applicationName());
+
     settingsApp.setValue("version", currentVersion);
     settingsApp.setValue("appDir", appDir->text());
 
