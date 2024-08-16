@@ -193,25 +193,33 @@ int UCSD_ResultsTMCMC::processResults(QString &filenameTab, QString &filenameTab
     //
     // check it actually ran with no errors
     //
-
     QFileInfo filenameTabInfo(filenameTab);
-    if (!filenameTabInfo.exists()) {
-        errorMessage("ERROR: No dakotaTab.out file - TMCMC failed .. possibly no QoI");
+    QDir fileDirTab = filenameTabInfo.absoluteDir();
+    QString errMsg("");
+    this->extractErrorMsg( fileDirTab.absolutePath(),"UCSD_UQ.err", "UCSD_UQ", errMsg);
+    if (errMsg.length() != 0) {
+        errorMessage(errMsg);
         return 0;
     }
-    QDir fileDirTab = filenameTabInfo.absoluteDir();
+
+//    QFileInfo filenameTabInfo(filenameTab);
+    if (!filenameTabInfo.exists()) {
+        errorMessage("ERROR: No dakotaTab.out file - TMCMC failed");
+        return 0;
+    }
+
 
     QFileInfo priorFileInfo(filenameTabPrior);
 //    QString filenameTabPrior = priorFileInfo.absoluteFilePath();
     if (!priorFileInfo.exists()) {
-        errorMessage("ERROR: No dakotaTabPrior.out file - TMCMC failed .. possibly no QoI");
+        errorMessage("ERROR: No dakotaTabPrior.out file - TMCMC failed");
         return 0;
     }
 
     QString logFileName = "logFileTMCMC.txt";
     QFileInfo logFileInfo(fileDirTab.absolutePath() + "/" + logFileName);
     if (!logFileInfo.exists()) {
-        errorMessage("ERROR: No logFileTMCMC.txt file - TMCMC failed .. possibly no QoI");
+        errorMessage("ERROR: No logFileTMCMC.txt file - TMCMC failed");
         return 0;
     }
 

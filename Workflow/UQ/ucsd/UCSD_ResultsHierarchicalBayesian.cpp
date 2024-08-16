@@ -188,6 +188,17 @@ int UCSD_ResultsHierarchicalBayesian::postprocessResults(QFileInfo &posteriorPre
     this->clear();
 
     //
+    // check it actually ran with no errors
+    //
+    QDir fileDirTab = posteriorPredictiveSamplesTabFileInfo.absoluteDir();
+    QString errMsg("");
+    this->extractErrorMsg( fileDirTab.absolutePath(),"UCSD_UQ.err", "UCSD_UQ", errMsg);
+    if (errMsg.length() != 0) {
+        errorMessage(errMsg);
+        return 0;
+    }
+
+    //
     // check if posterior samples table file exists
     //
     if (!posteriorPredictiveSamplesTabFileInfo.exists()) {
