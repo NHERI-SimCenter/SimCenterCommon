@@ -220,6 +220,7 @@ RemoteApplication::onRunButtonPressed(void)
     if (!dirWork.exists())
         if (!dirWork.mkpath(workingDir)) {
             emit sendErrorMessage(QString("Could not create Working Dir: ") + workingDir + QString(" . Try using an existing directory or make sure you have permission to create the working directory."));
+            pushButton->setEnabled(true);
             return;
         }
 
@@ -228,6 +229,7 @@ RemoteApplication::onRunButtonPressed(void)
     QDir dirApp(appDir);
     if (!dirApp.exists()) {
       emit sendErrorMessage(QString("The application directory, ") + appDir +QString(" specified does not exist!"));
+      pushButton->setEnabled(true);
       return;
     }
 
@@ -266,6 +268,7 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
         // check if file exists and if yes: Is it really a file and no directory?
         if (!check_script.exists() || !check_script.isFile()) {
             qDebug() << "NO SCRIPT FILE: " << pySCRIPT;
+            pushButton->setEnabled(true);
             return false;
         }
 
@@ -273,6 +276,7 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
         QFileInfo check_registry(registryFile);
         if (!check_registry.exists() || !check_registry.isFile()) {
             qDebug() << "NO REGISTRY FILE: " << registryFile;
+            pushButton->setEnabled(true);
             return false;
         }
 
@@ -300,6 +304,7 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
         QFileInfo pythonFile(python);
         if (!pythonFile.exists()) {
             emit sendErrorMessage("NO VALID PYTHON - Read the Manual & Check your Preferences");
+            pushButton->setEnabled(true);
             return false;
         }
 
@@ -327,6 +332,7 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
         if (!check_workflow.exists() || !check_workflow.isFile()) {
             emit sendErrorMessage(("Local Failure Setting up Dakota"));
             qDebug() << "Local Failure Setting Up Dakota ";
+            pushButton->setEnabled(true);
             return false;
         }
         templateDir.cdUp();
@@ -380,6 +386,7 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
     theDirectory.cdUp();
     if (theDirectory.rename("tmp.SimCenter",newName) != true) {
         emit sendErrorMessage(QString("Could not rename directory to ") + newName);
+        pushButton->setEnabled(true);
         return false;
     }
 
@@ -391,7 +398,8 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
     remoteHomeDirPath = theRemoteService->getHomeDir();
     
     if (remoteHomeDirPath.isEmpty()) {
-      qDebug() << "RemoteApplication:: - remoteHomeDir is empty!!";
+      qDebug() << "RemoteApplication:: - remoteHomeDir is empty!!";      
+      pushButton->setEnabled(true);
       return -1;
     }
     QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;

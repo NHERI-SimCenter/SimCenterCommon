@@ -130,7 +130,7 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
     mainLayout->addWidget(typeLabel,0,2);
     mainLayout->addWidget(typeComboBox,1,2);
 
-    //if (uqengin!=QString("SimCenterUQ")){
+    //if (uqEngineName!=QString("SimCenterUQ")){
         typeComboBox->addItem(tr("Parameters"));
         typeComboBox->addItem(tr("Moments"));
         typeComboBox->addItem(tr("Dataset"));
@@ -182,16 +182,16 @@ RandomVariable::RandomVariable(const QString &type, QString uqengin, QWidget *pa
         distributionComboBox->addItem(tr("Weibull"));
         distributionComboBox->addItem(tr("Gumbel"));
         distributionComboBox->addItem(tr("Constant"));
-	distributionComboBox->addItem(tr("Exponential"));
-	distributionComboBox->addItem(tr("Discrete"));
-	distributionComboBox->addItem(tr("Gamma"));
-	distributionComboBox->addItem(tr("Chisquare"));
-	
+
         theDistribution = new NormalDistribution();
 
         if ((uqEngineName!=QString("Dakota")))
         {
             distributionComboBox->addItem(tr("Truncated exponential"));
+            distributionComboBox->addItem(tr("Exponential"));
+            distributionComboBox->addItem(tr("Discrete"));
+            distributionComboBox->addItem(tr("Gamma"));
+            distributionComboBox->addItem(tr("Chisquare"));
         }
         if ((uqEngineName==QString("Custom"))){
             distributionComboBox->addItem(tr("User Defined"));
