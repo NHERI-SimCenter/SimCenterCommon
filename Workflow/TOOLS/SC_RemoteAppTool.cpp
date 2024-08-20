@@ -351,10 +351,10 @@ SC_RemoteAppTool::submitButtonPressed() {
   submitButton->setEnabled(false);
   
   connect(theService, SIGNAL(uploadDirectoryReturn(bool)), this, SLOT(uploadDirReturn(bool)));
-  qDebug() << "localDIR: " << tempDirectory;
-  qDebug() << "remoteDIR: " << remoteHomeDirPath;
+  // qDebug() << "localDIR: "  << tempDirectory;
+  // qDebug() << "remoteDIR: " << remoteHomeDirPath;
   
-  theService->uploadDirectoryCall(tempDirectory, designsafeDirectory);         
+  theService->uploadDirectoryCall(tempDirectory, remoteHomeDirPath);         
 }  
 
 
@@ -437,7 +437,7 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     // envVariables: we set the inputFile as scInput.json
     QJsonObject inputFileObj;
     inputFileObj["key"]="inputFile";
-    inputFileObj["value"]="scINput.json";
+    inputFileObj["value"]="scInput.json";
     envVariables.append(inputFileObj);
     
     // any additional envVariables variables are app dependent
@@ -502,12 +502,9 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     //
     // now remove the tmp directory
     //
-
-    qDebug() << "theDIR_TO REMOVE_REC" << theDirectory.absolutePath();
+    theDirectory.removeRecursively();
     
-    //theDirectory.removeRecursively();
-    
-    qDebug() << job;
+    qDebug() << "SUBMIT.json:  " << job;
 
     connect(theService,SIGNAL(startJobReturn(QString)), this, SLOT(startJobReturn(QString)));      
     theService->startJobCall(job);
