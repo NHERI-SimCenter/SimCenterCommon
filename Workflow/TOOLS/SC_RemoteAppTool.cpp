@@ -23,20 +23,19 @@
 #include <QFileDialog>
 #include <QJsonObject>
 
-enum class TapisVersion : int { V2, v2=V2, V3, v3=V3 };
-constexpr TapisVersion tapisVersion = TapisVersion::V3;
-  
-
 SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
+				   QString appVersion,
+				   QString hpcMachine, 
 				   QList<QString> theQueus,
 				   RemoteService *theRemoteService,
 				   SimCenterAppWidget* theEnclosedApp,
 				   QDialog *enclosingDialog)
-:SimCenterAppWidget(), theApp(theEnclosedApp), theService(theRemoteService), tapisAppName(appName), queus(theQueus)
+  :SimCenterAppWidget(), theApp(theEnclosedApp), theService(theRemoteService),
+   tapisAppName(appName), tapisAppVersion(appVersion), machine(hpcMachine),
+   queus(theQueus)
 {
   QVBoxLayout *theMainLayout = new QVBoxLayout(this);
   theMainLayout->addWidget(theApp);
-  
 
   QGridLayout *theButtonLayout = new QGridLayout();
   QPushButton *fileLoadButton = new QPushButton("LOAD File");
@@ -50,7 +49,7 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   theButtonLayout->addWidget(getRemoteButton,0,3);
   
   theMainLayout->addLayout(theButtonLayout);
-
+  
   // now create the Dialog for the Remote Applications
 
   QDialog *theRemoteDialog = new QDialog(this);
@@ -73,6 +72,8 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 
   int numNode = 1;
   int maxProcPerNode = 56; //theApp->getMaxNumProcessors(56);
+  if (machine == "stampede3")
+    maxProcPerNode =48;
   
   numRow++;
   numCPU_LineEdit = new QLineEdit();
@@ -80,7 +81,6 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   remoteLayout->addWidget(numCPU_LineEdit,numRow,1);
   numCPU_LineEdit->setText("1");
     
-
   if (queus.first() == "gpu-a100" || queus.first() == "gpu-a100-dev") {
     numRow++;
     
@@ -100,7 +100,6 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
     numGPU_LineEdit = NULL;
   }
 
-
   numRow++;
   remoteLayout->addWidget(new QLabel("Num Processors Per Node:"),numRow,0);    
   numProcessorsLineEdit = new QLineEdit();
@@ -118,6 +117,7 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   else {
     runtimeLineEdit->setText("120");
   }
+  
   runtimeLineEdit->setToolTip(tr("Run time limit on running Job (minutes). Job will be stopped if while running it exceeds this"));
   remoteLayout->addWidget(runtimeLineEdit,numRow,1);
 
@@ -275,56 +275,29 @@ SC_RemoteAppTool::submitButtonPressed() {
   QString strUnique = uniqueName.toString();
   strUnique = strUnique.mid(1,36);
   tmpDirName = QString("tmp.SimCenter") + strUnique;
-  QString newName = QString("tmp.SimCenter") + strUnique; // From RemoteApplication
 
-  //QString tmpDirName = QString("tmp.SimCenter");  
-  QString tmpDirectory = workDir.absoluteFilePath(tmpDirName);
-  // QString tmpDirectory = tempDirectory;
-
-  // tempDirectory = tmpDirectory; // From RemoteApplication
-
-  QDir theDirectory(tmpDirectory);
-  theDirectory.cdUp();
-  if (theDirectory.rename("tmp.SimCenter",newName) != true) {
-      qDebug() << "Could not rename directory to " << newName;
-      qDebug() << "Current Directory: " << theDirectory.absolutePath();
-      // return;
-  }
-
-  tempDirectory = theDirectory.absoluteFilePath(newName); // From RemoteApplication
-
-  theDirectory.cd(newName);
-  QString dirName = theDirectory.dirName();
+  workDir.mkdir(tmpDirName);
+  tempDirectory = workDir.absoluteFilePath(tmpDirName);
 
   remoteHomeDirPath = theService->getHomeDir();
-
   if (remoteHomeDirPath.isEmpty()) {
-      qDebug() << "SC_RemoteAppTool:: - remoteHomeDir is empty!!";
-      // return;
+    qDebug() << "RemoteApplication:: - remoteHomeDir is empty!!";
+    return;
   }
-  QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
-
+  
+  QString remoteDirectory = remoteHomeDirPath + QString("/") + tmpDirName;
   designsafeDirectory = remoteDirectory;
-
-  //QString tmpDirName = QString("tmp.SimCenter");  
-  tmpDirectory = workDir.absoluteFilePath(tmpDirName);
-  QDir destinationDirectory(tmpDirectory);
-
-  // 
-  if (destinationDirectory.exists()) {
-    destinationDirectory.removeRecursively();
-  } else
-    destinationDirectory.mkpath(tmpDirectory);
 
   //
   // in tmpDir, create another "inputs" in which we will place all the files needed by the app & then zip it up
   //
-  
-  QString inputsDirectory  = destinationDirectory.absoluteFilePath("inputData");
-  destinationDirectory.mkpath(inputsDirectory);
 
-  QString zipFile(destinationDirectory.absoluteFilePath("inputData.zip"));
-  QDir inputDataDir(destinationDirectory.absoluteFilePath("inputData"));  
+  QDir destinationDir(tempDirectory);  
+  QString inputsDirectory  = destinationDir.absoluteFilePath("inputData");
+  destinationDir.mkpath(inputsDirectory);
+
+  QString zipFile(destinationDir.absoluteFilePath("inputData.zip"));
+  QDir inputDataDir(destinationDir.absoluteFilePath("inputData"));  
   
   theApp->copyFiles(inputsDirectory);  
   
@@ -337,7 +310,7 @@ SC_RemoteAppTool::submitButtonPressed() {
   // in tmpDir create the input file
   //
 
-  QString inputFile = destinationDirectory.absoluteFilePath("scInput.json");
+  QString inputFile = destinationDir.absoluteFilePath("scInput.json");
   
   QFile file(inputFile);
   if (!file.open(QFile::WriteOnly | QFile::Text)) {
@@ -354,7 +327,7 @@ SC_RemoteAppTool::submitButtonPressed() {
   theApp->outputToJSON(json);
 
   json["workingDir"]=SimCenterPreferences::getInstance()->getRemoteWorkDir(); 
-  json["runDir"]=tmpDirectory;
+  json["runDir"]=tempDirectory;
   json["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();    
   json["runType"]=QString("runningRemote");
   int nodeCount = numCPU_LineEdit->text().toInt();
@@ -362,9 +335,6 @@ SC_RemoteAppTool::submitButtonPressed() {
   json["nodeCount"]=nodeCount;
   json["numP"]=nodeCount*numProcessorsPerNode; 
 
-  if constexpr (tapisVersion == TapisVersion::V2) {
-    json["processorsOnEachNode"]=numProcessorsPerNode;
-  }
   if (numGPU_LineEdit != NULL) {
     int gpuCount = numGPU_LineEdit->text().toInt();
     json["gpus"]=gpuCount;
@@ -373,25 +343,18 @@ SC_RemoteAppTool::submitButtonPressed() {
   QJsonDocument doc(json);
   file.write(doc.toJson());
   file.close();
-
+  
   //
   // now send directory containing inputFile and inputData.zip across
   //
 
-  dirName = destinationDirectory.dirName();
-  
-  // QString remoteHomeDirPath = theService->getHomeDir();
-  if (remoteHomeDirPath.isEmpty()) {
-    qDebug() << "RemoteApplication:: - remoteHomeDir is empty!!";
-    return;
-  }
-  remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
   submitButton->setEnabled(false);
   
   connect(theService, SIGNAL(uploadDirectoryReturn(bool)), this, SLOT(uploadDirReturn(bool)));
-  theService->uploadDirectoryCall(tmpDirectory, remoteHomeDirPath);         
-  // theService->uploadDirectoryCall(tempDirectory, remoteHomeDirPath);       // From RemoteApplication 
-
+  qDebug() << "localDIR: " << tempDirectory;
+  qDebug() << "remoteDIR: " << remoteHomeDirPath;
+  
+  theService->uploadDirectoryCall(tempDirectory, designsafeDirectory);         
 }  
 
 
@@ -414,239 +377,135 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     QJsonObject job;
     
     //submitButton->setDisabled(true);
+
+    //
+    // file in the json job object to invoke app with
+    //
+    
     int nodeCount = numCPU_LineEdit->text().toInt();
     int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
+    QString shortDirName = QCoreApplication::applicationName() + ": ";
+    
+    job["appId"]=tapisAppName;
+    job["appVersion"]=tapisAppVersion;         
+    job["name"]=shortDirName + nameLineEdit->text();
+    job["nodeCount"]=nodeCount;
+    job["coresPerNode"]=numProcessorsPerNode;
+    job["maxMinutes"]=runtimeLineEdit->text().toInt();
+    
+    int ramPerNodeMB = 128000;    
+    job["memoryMB"]= ramPerNodeMB;
+
+    //
+    // figure out queue
+    //
     
     QString queue; // queuu to send job to
     QString firstQueue = queus.first();
-    if (firstQueue == "gpu-a100" || firstQueue == "gpu-a100-dev" || firstQueue == "gpu-h100" || firstQueue == "rtx" || firstQueue == "rtx-dev" || firstQueue == "gpu-a100-small") { 
-      queue = firstQueue;
-
-    } else { // Frontera
-
+    if (firstQueue == "gpu-a100" ||
+	firstQueue == "gpu-a100-dev" ||
+	firstQueue == "gpu-h100" ||
+	firstQueue == "rtx" ||
+	firstQueue == "rtx-dev" ||
+	firstQueue == "gpu-a100-small") {
+  queue = firstQueue;
+      
+    } else if (machine == "frontera") 
+    {
+      
       queue = "small";
-//      queue = "simcenter";
-//          queue = "icx";
-      //QString queue = "development";
       if (nodeCount > 2)
-        queue = "normal";
+	      queue = "normal";
       if (nodeCount > 512)
         queue = "large";
+      
+    } else if (machine == "stampede3") {
+      queue = "icx";
     }
     
-    // From RemoteApplication tapisV3, to be better integrated in later
-    QString shortDirName = QCoreApplication::applicationName() + ": "; 
-    if constexpr (tapisVersion == TapisVersion::V3) {
-      job["name"]=shortDirName + nameLineEdit->text();
-      int nodeCount = numCPU_LineEdit->text().toInt();
-      int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
-      job["nodeCount"]=nodeCount;
-      job["coresPerNode"]=numProcessorsPerNode;
-      job["maxMinutes"]=runtimeLineEdit->text().toInt();
-
-      job["appId"]=SimCenterPreferences::getInstance()->getRemoteAgaveApp();
-      job["appVersion"]=SimCenterPreferences::getInstance()->getRemoteAgaveAppVersion();     
-
-      int ramPerNodeMB = 128000;
-      job["memoryMB"]= ramPerNodeMB;
-      job["execSystemLogicalQueue"]=queue;  
-
-  
-      QString appName = QCoreApplication::applicationName();
-      if (appName != "R2D") {
-
-        QJsonObject parameterSet;
-        QJsonArray envVariables;
-
-        QJsonObject inputFile;
-        inputFile["key"]="inputFile";
-        inputFile["value"]="scInput.json";
-        envVariables.append(inputFile);
-
-        if (appName == "quoFEM") {
-            QJsonObject driverFile;
-            driverFile["key"]="driverFile";
-            driverFile["value"]="driver";
-            envVariables.append(driverFile);
-        } else {
-            QJsonObject driverFile;
-            driverFile["key"]="driverFile";
-            driverFile["value"]="sc_driver";
-            envVariables.append(driverFile);
-        }
-
-        // QMap<QString, QString> extraParameters;
-        QJsonObject extraParameters;
-        theApp->outputAppDataToJSON(extraParameters); //< sets maxRunTime in parameters
-        for (auto parameterName : extraParameters.keys()) {
-            QJsonObject paramObj;
-            if (parameterName == "ApplicationData") {
-                continue;
-            }
-            if (parameterName == "EventClassification") {
-                continue;
-            }
-            if (parameterName == "Application") {
-                continue;
-            }
-            if (parameterName == "maxRunTime") {
-                paramObj["key"]="maxRunTime";
-                paramObj["value"]=runtimeLineEdit->text();//.toInt();
-                envVariables.append(paramObj);
-                continue;
-            }
-            paramObj["key"]=parameterName;
-            paramObj["value"]=extraParameters[parameterName];
-            envVariables.append(paramObj);
-        }
-
-        // Remove duplicate parameters from envVariables
-        QSet<QString> keys;
-        QJsonArray newEnvVariables;
-        for (auto envVar : envVariables) {
-            QJsonObject envVarObj = envVar.toObject();
-            QString key = envVarObj["key"].toString();
-            if (!keys.contains(key)) {
-                keys.insert(key);
-                newEnvVariables.append(envVarObj);
-            }
-        }
-        envVariables = newEnvVariables;
-
-        QJsonArray schedulerOptions;
-        QJsonObject schedulerOptionsObj;
-        QString allocationText = QString("-A " ) + allocation->text();
-        schedulerOptionsObj["arg"]=allocationText;
-        
-        schedulerOptions.append(schedulerOptionsObj);
-        parameterSet["schedulerOptions"]=schedulerOptions;
-        parameterSet["envVariables"]=envVariables;
-        job["parameterSet"]=parameterSet;
-
-        QDir theDirectory(tempDirectory);
-        QString dirName = theDirectory.dirName();
-
-        // TODO: I wrote bad hard-coded lines below, ill need to refactor for better reuse - jb
-        QJsonArray fileInputs;
-        QJsonObject inputs;
-        QJsonObject data;
-        inputs["envKey"]="inputDirectory";
-        data["envKey"]="dataDirectory";
-  
-        inputs["targetPath"]="*";
-        if (tapisAppName == "simcenter-claymore-lonestar6") {
-          inputs["sourceUrl"] = "tapis://" + QString("designsafe.storage.default/") + QString("bonusj/HydroUQ/") + tmpDirName;           
-          data["sourceUrl"]   = "tapis://" + QString("designsafe.storage.default/") + QString("bonusj/mpm-public-ls6");
-        }
-        else {
-          inputs["sourceUrl"] = "tapis://" + designsafeDirectory; //storage;
-          data["sourceUrl"] = "tapis://" + designsafeDirectory; //storage;
-        }
-
-        designsafeDirectory = "";
-        for (auto inputName : extraInputs.keys())
-        {
-          inputs[inputName] = extraInputs[inputName];
-        }
-        fileInputs.append(inputs);
-        fileInputs.append(data);
-        job["fileInputs"]=fileInputs;
-        
-        // now remove the tmp directory
-        theDirectory.removeRecursively();
-      } 
-
-    }
-    // ***/
     
-    job["name"]=shortDirName + nameLineEdit->text();
-    job["nodeCount"]=nodeCount;
-    //job["processorsPerNode"]=nodeCount*numProcessorsPerNode; // DesignSafe has inconsistant documentation
+    job["execSystemLogicalQueue"]=queue;  
+
 
     //
-    // hard code the queue stuff for this release, wil; need more info on cores, min counts
+    // Job Parameters (envVariables & allocation)
     //
 
+    QJsonObject parameterSet;    
+    QJsonArray envVariables;
+
+    // envVariables: we set the inputFile as scInput.json
+    QJsonObject inputFileObj;
+    inputFileObj["key"]="inputFile";
+    inputFileObj["value"]="scINput.json";
+    envVariables.append(inputFileObj);
     
-    job["appId"]=tapisAppName;
-    if constexpr (tapisVersion == TapisVersion::V2) {
-      job["batchQueue"]=queue;      
-      job["maxRunTime"]=runtimeLineEdit->text();
-      job["processorsOnEachNode"]=numProcessorsPerNode;
-      job["memoryPerNode"]= "1GB";
-      job["archive"]=true;
-      job["archivePath"]="";
-      job["archiveSystem"]="designsafe.storage.default";
+    // any additional envVariables variables are app dependent
+    QJsonObject extraParameters;
+    theApp->outputAppDataToJSON(extraParameters); //< sets maxRunTime in parameters
+    for (auto parameterName : extraParameters.keys()) {
+      QJsonObject paramObj;
+      paramObj["key"]=parameterName;
+      paramObj["value"]=extraParameters[parameterName];
+      envVariables.append(paramObj);
     }
-
-    QJsonObject parameters;    
-    parameters["inputFile"]="scInput.json";
-    parameters["modules"]="petsc,python3";
-    theApp->outputAppDataToJSON(parameters); //< sets maxRunTime in parameters
     
-    // Check if maxRunTime is set in job["parameters"] already and if it is not null
-    // Trying not to overwrite any correctly set maxRunTime param
-    if constexpr (tapisVersion == TapisVersion::V2) {
-      if (parameters.contains("maxRunTime") && parameters["maxRunTime"].isString()) {
-        QString parameterName = "maxRunTime";
-        QString paramTimeQString = parameters[parameterName].toString();
-        QString jobTimeQString = job[parameterName].toString();
-        auto secToHHMMSS = [](int totalNumberOfSeconds) {
-            if (totalNumberOfSeconds < 0) {
-                totalNumberOfSeconds = 0;
-            } else if (totalNumberOfSeconds > 99 * 60 * 60 + 59 * 60 + 59) {
-                totalNumberOfSeconds = 99 * 60 * 60 + 59 * 60 + 59;
-            }
-            int seconds = totalNumberOfSeconds % 60;
-            int minutes = (totalNumberOfSeconds / 60) % 60;
-            int hours = (totalNumberOfSeconds / 60 / 60);
-            return QString("%1:%2:%3")
-                .arg(hours, 2, 10, QChar('0'))
-                .arg(minutes, 2, 10, QChar('0'))
-                .arg(seconds, 2, 10, QChar('0'));
-        };
-        QTime jobTime = QTime::fromString(jobTimeQString, "hh:mm:ss");
-        QTime paramTime = QTime::fromString(paramTimeQString, "hh:mm:ss");
-
-        // Works for 99:59:59 maxRunTime I believe
-        // Does not guarantee that the specific Tapis wrapper script's time arithmetic supports that high (i.e. may only go to one or two days)
-        // TODO: Allow for different max times based on queue and system
-        int job_sec = jobTime.hour() * 60 * 60 + jobTime.minute() * 60 + jobTime.second();
-        int param_sec = paramTime.hour() * 60 * 60 + paramTime.minute() * 60 + paramTime.second();
-
-        int MIN_SEC = 5 * 60; // 5 minutes
-        int MAX_SEC = 1 * 24 * 60 * 60; // 1 day
-        // Job maxRunTime lower and upper bound
-        if (job_sec < MIN_SEC) {
-          job_sec = MIN_SEC; // Don't fall below minimum time, needed for file transfers / zipping
-          jobTimeQString = secToHHMMSS(job_sec);
-          qDebug() << "RemoteApplication::uploadDirReturn - WARN: maxRunTime in tapis job['maxRunTime'] requested by user is below minimum request, setting to 00:05:00 hh:mm:ss...";
-        } else if (job_sec > MAX_SEC) {
-          job_sec = MAX_SEC; // For now, don't exceed 24 hours (GPU queues do go to 2 days though)
-          jobTimeQString = secToHHMMSS(job_sec);
-          qDebug() << "RemoteApplication::uploadDirReturn - WARN: maxRunTime in tapis job['maxRunTime'] requested by user is above 24 hours, setting to 24:00:00 hh:mm:ss...";
-        }
-
-        // Application's maxRunTime lower and upper bound
-        if (param_sec < MIN_SEC) {
-          param_sec = MIN_SEC; // Don't fall below minimum time, needed for file transfers / zipping
-          paramTimeQString = secToHHMMSS(param_sec);
-          // extraParameters[parameterName] = secToHHMMSS(param_sec); 
-          qDebug() << "RemoteApplication::uploadDirReturn - WARN: maxRunTime in tapis job['parameters']['maxRunTime'] is below minimum request, setting to 00:05:00 hh:mm:ss...";
-        } else if (param_sec > job_sec) {
-          param_sec = job_sec; // Don't exceed total job wall time
-          paramTimeQString = secToHHMMSS(param_sec);
-          qDebug() << "RemoteApplication::uploadDirReturn - WARN: maxRunTime in tapis job['parameters']['maxRunTime'] is above job['maxRunTime'], setting to job['maxRunTime']...";
-        }
-        job[parameterName] = jobTimeQString; // Fixed version of maxRunTime in job
-        parameters[parameterName] = paramTimeQString; // Fixed version of maxRunTime in wrapper parameters
+    // Remove duplicate parameters from envVariables
+    QSet<QString> keys;
+    QJsonArray newEnvVariables;
+    for (auto envVar : envVariables) {
+      QJsonObject envVarObj = envVar.toObject();
+      QString key = envVarObj["key"].toString();
+      if (!keys.contains(key)) {
+	keys.insert(key);
+	newEnvVariables.append(envVarObj);
       }
-      job["parameters"]=parameters;
-
-      QJsonObject inputs;
-      inputs["inputDirectory"]=remoteDirectory;
-      job["inputs"]=inputs;
     }
+    envVariables = newEnvVariables;
+
+    // allocation to use
+    QJsonArray schedulerOptions;
+    QJsonObject schedulerOptionsObj;
+    QString allocationText = QString("-A " ) + allocation->text();
+    schedulerOptionsObj["arg"]=allocationText;
+    
+    schedulerOptions.append(schedulerOptionsObj);
+    parameterSet["schedulerOptions"]=schedulerOptions;
+    parameterSet["envVariables"]=envVariables;
+    job["parameterSet"]=parameterSet;
+
+    //
+    // file inputs
+    //
+    
+    QDir theDirectory(tempDirectory);
+    QString dirName = theDirectory.dirName();
+    
+    QJsonArray fileInputs;
+    QJsonObject inputs;
+    
+    inputs["envKey"]="inputDirectory";    
+    inputs["targetPath"]="*";
+    inputs["sourceUrl"] = "tapis://" + designsafeDirectory; //storage;
+    
+    /* NO JUSTIN THIS ONLY WORKS FOR YOU
+       if (tapisAppName == "simcenter-claymore-lonestar6") {
+       inputs["sourceUrl"] = "tapis://" + QString("designsafe.storage.default/") + QString("bonusj/HydroUQ/") + tmpDirName;           
+       data["sourceUrl"]   = "tapis://" + QString("designsafe.storage.default/") + QString("bonusj/mpm-public-ls6");
+       }
+    */
+    
+    
+    fileInputs.append(inputs);
+    job["fileInputs"]=fileInputs;          
+
+    //
+    // now remove the tmp directory
+    //
+
+    qDebug() << "theDIR_TO REMOVE_REC" << theDirectory.absolutePath();
+    
+    //theDirectory.removeRecursively();
     
     qDebug() << job;
 
