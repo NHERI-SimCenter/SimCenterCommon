@@ -23,6 +23,8 @@ class SC_RemoteAppTool : public SimCenterAppWidget
   
 public:
   SC_RemoteAppTool(QString tapisAppName,
+		   QString tapisAppVersion,
+		   QString machine,   		   
 		   QList<QString> queueNames,
 		   RemoteService *theRemoteService,
 		   SimCenterAppWidget* theEnclosedApp,
@@ -47,6 +49,8 @@ private:
   SimCenterAppWidget *theApp;
   RemoteService *theService;  
   QString tapisAppName;
+  QString tapisAppVersion;
+  QString machine;  
   QStringList queus;
   
   QLineEdit *nameLineEdit;
