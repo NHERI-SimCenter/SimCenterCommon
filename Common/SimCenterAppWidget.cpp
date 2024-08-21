@@ -208,3 +208,12 @@ SimCenterAppWidget::getResultsWidget(QWidget* parent)
   Q_UNUSED(parent);
   return NULL;
 }
+
+#ifdef _R2D
+SC_ResultsWidget *
+SimCenterAppWidget::getResultsWidget(QWidget *parent, QWidget *R2DresWidget, QMap<QString, QList<QString>> assetTypeToType)
+{
+  Q_UNUSED(parent);
+  return NULL;
+}
+#endif
