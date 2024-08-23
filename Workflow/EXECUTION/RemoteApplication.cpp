@@ -65,11 +65,24 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QCoreApplication>
 #include <QIntValidator>
 
+
+// Support multiple remote HPC systems, but default to Frontera - 
+
+static int maxProcPerNode = 56;
+
 RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QWidget *parent)
 : Application(parent), theRemoteService(theService)
 {
+
+
+    QString appName = QCoreApplication::applicationName();
+    
+  
     workflowScriptName = name;
-    shortDirName = QCoreApplication::applicationName() + QString(": ");
+    shortDirName = appName + QString(": ");
+
+    if (appName == "R2D" || appName == "quoFEM")
+      maxProcPerNode = 48;
 
     //    shortDirName = workflowScriptName;
     //shortDirName = name.chopped(3); // remove .py
@@ -133,7 +146,6 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
     });
 
 
-    QString appName = QCoreApplication::applicationName();
     if (appName == "R2D"){
         numRow++;
         layout->addWidget(new QLabel("# Buildings Per Task:"), numRow, 0);
