@@ -445,14 +445,12 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     envVariables.append(inputFileObj);
     
 
-    QJsonObject extraInputs;
 
 
     // any additional envVariables variables are app dependent
     QJsonObject extraParameters;
-    // extraParametersMap = 
-
     theApp->outputAppDataToJSON(extraParameters); //< sets maxRunTime in parameters
+
     for (auto parameterName : extraParameters.keys()) {
       QJsonObject paramObj;
 
@@ -549,6 +547,45 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     inputs["sourceUrl"] = "tapis://" + designsafeDirectory; //storage;
     fileInputs.append(inputs);
     
+    // for (auto extraInput : extraInputs.keys()) {
+    //   QJsonObject data;
+    //   data["sourceUrl"]   = "tapis://" + QString("designsafe.storage.default/") + extraInputs[extraInput];
+    //   data["targetPath"]  = "*";
+    //   data["envKey"]      = extraInput;
+    //   fileInputs.append(data);
+    // }
+
+    // QJsonArray extraInputs;
+    // if (extraParameters.contains("fileInputs")) {
+    //   if (extraParameters["fileInputs"].isArray()) {
+    //     extraInputs = extraParameters["fileInputs"].toArray();
+    //     for (auto extraInput : extraInputs) {
+    //       if (extraInput.isObject()) {
+    //         if (extraInput.toObject().contains("envKey") && extraInput.toObject().contains("sourceUrl") && extraInput.toObject().contains("targetPath")) {
+    //           // QString envKey = extraInput.toObject()["envKey"].toString();
+    //           // QString sourceUrl = extraInput.toObject()["sourceUrl"].toString();
+    //           // QString targetPath = extraInput.toObject()["targetPath"].toString();
+    //           fileInputs.append(extraInput);
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
+
+    // Currently, extraInputs supports just one extra fileInputs object as it is a QMap<QString, QString>
+    // Can be vectorized, etc.,   if needed
+    // QJsonObject extraInput;
+    // if (extraInputs.contains("envKey")) {
+    //   extraInput["envKey"]=extraInputs["envKey"];
+    // }
+    // if (extraInputs.contains("targetPath")) {
+    //   extraInput["targetPath"]=extraInputs["targetPath"];
+    // }
+    // if (extraInputs.contains("sourceUrl")) {
+    //   extraInput["sourceUrl"]=extraInputs["sourceUrl"];
+    // }
+    // fileInputs.append(extraInput);
+
     // // Refashion for use with qmap<qstring, qstring>     
     // for (auto extraInput : extraInputs.keys()) {
     //   QJsonObject data;
@@ -558,6 +595,7 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     //   fileInputs.append(data);
     // }
 
+    // /* 
     // Temporary hardcoding for the MPM app
     QJsonObject data;
     if (tapisAppName == "simcenter-claymore-lonestar6") {       
@@ -619,7 +657,7 @@ SC_RemoteAppTool::onGetRemoteButtonPressed() {
 
     } else {
         errorMessage("ERROR - You Need to Login");
-    }  
+    }
 }
 
 void
