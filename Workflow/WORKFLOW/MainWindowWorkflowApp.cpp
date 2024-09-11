@@ -31,6 +31,7 @@
 #include <QHBoxLayout>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenu>
@@ -40,11 +41,78 @@
 #include <QScreen>
 #include <QSettings>
 #include <QCoreApplication>
+#include <QGridLayout>
+#include <QDialog>
+#include <QTextEdit>
 
 #include <SectionTitle.h>
 
 #include <GoogleAnalytics.h>
 
+static void writeJustCitations(QJsonObject &object, QStringList &citation) {
+
+  QStringList keys = object.keys();
+
+  //
+  // put app citations first
+  //
+  
+  QString appName = QCoreApplication::applicationName();
+  QJsonValue json_value = object.value(appName);
+  if (json_value != QJsonValue::Undefined) {
+    QJsonObject appObject =json_value.toObject();
+    QJsonValue json_value2 = appObject.value("citations");
+    if (json_value2 != QJsonValue::Undefined && json_value2.isArray()) {
+      QJsonArray jsonArray =  json_value2.toArray();
+      for (int i = 0; i < jsonArray.size(); ++i) {
+	// Get the value at index i
+	QJsonValue value = jsonArray.at(i);
+	if (value.isObject()) {
+	  QJsonObject obj = value.toObject();
+	  writeJustCitations(obj, citation);
+	}
+      }
+    }
+  }
+  
+  foreach(const QString& key, keys) {
+
+    if (key != appName) {
+      if (key == "citation" || key == "Citation") {
+	QJsonValue json_value = object.value("citation");
+	if (json_value == QJsonValue::Undefined)
+	  json_value = object.value("Citation");	  	
+	QString value_as_string = json_value.toString();
+	citation << value_as_string;
+	return;
+      } else
+	if (key == "citations" || key == "Citations") {
+	QJsonValue json_value = object.value("citations");
+	if (json_value == QJsonValue::Undefined)
+	  json_value = object.value("Citations");	  
+	if (json_value.isArray()) {
+	  QJsonArray jsonArray =  json_value.toArray();
+	  for (int i = 0; i < jsonArray.size(); ++i) {
+	    // Get the value at index i
+	    QJsonValue value = jsonArray.at(i);
+	    if (value.isObject()) {
+	      QJsonObject obj = value.toObject();
+	      writeJustCitations(obj, citation);
+	    }
+	  }
+	  return;
+	}
+      } else {
+	QJsonValue objectValue =  object.value(key);
+	if (objectValue.isObject()) {
+	  QJsonObject obj = objectValue.toObject();
+	  writeJustCitations(obj, citation);
+	}
+      }
+    }
+  }
+}
+  
 MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget *theApp, RemoteService *theService, QWidget *parent, bool exampleDownloader)
     : QMainWindow(parent), loggedIn(false), theWorkflowAppWidget(theApp),   theRemoteInterface(theService), isAutoLogin(false)
 {
@@ -98,10 +166,18 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     QHBoxLayout *layoutLogin = new QHBoxLayout();
     QLabel *name = new QLabel();
     //name->setText("");
-    
-    loginButton = new QPushButton();
-    loginButton->setText("Login");
+
+
+    QPushButton *citeButton = new QPushButton("Cite");
+    connect(citeButton, &QPushButton::clicked, this, [this](){
+        this->showCitations();
+    });
+
+
+    loginButton = new QPushButton("Login");
     layoutLogin->addWidget(name);
+    
+    layoutLogin->addWidget(citeButton);    
     layoutLogin->addWidget(loginButton);
 
     layoutLogin->setAlignment(Qt::AlignLeft);
@@ -109,7 +185,6 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
 
     layout->addWidget(theWorkflowAppWidget);
 
-    
     //
     // add run, run-DesignSafe and exit buttons into a new widget for buttons
     //
@@ -727,7 +802,7 @@ void MainWindowWorkflowApp::createActions() {
     helpMenu->addAction(tr("&Manual"), this, &MainWindowWorkflowApp::manual);
     helpMenu->addAction(tr("&Submit Bug/Feature Request"), this, &MainWindowWorkflowApp::submitFeedback);
     // QAction *submitFeature = helpMenu->addAction(tr("&Submit Bug/Feature Request"), this, &MainWindowWorkflowApp::submitFeatureRequest);
-    helpMenu->addAction(tr("&How to Cite"), this, &MainWindowWorkflowApp::cite);
+    // helpMenu->addAction(tr("&How to Cite"), this, &MainWindowWorkflowApp::cite);
     helpMenu->addAction(tr("&License"), this, &MainWindowWorkflowApp::copyright);
 }
 
@@ -1037,8 +1112,104 @@ MainWindowWorkflowApp::clear()
 }
 
 
-void MainWindowWorkflowApp::showExampleDownloader(void)
+void
+MainWindowWorkflowApp::showExampleDownloader(void)
 {
     theExampleDownloader->show();
+}
+
+void
+MainWindowWorkflowApp::showCitations(void)
+{
+
+  //
+  // create a citation
+  //
+  
+  QJsonObject citation;
+  theWorkflowAppWidget->createCitation(citation,"");
+
+  if (citation.size() == 0) {
+    sendStatusMessage("No Citations provided!");
+    return;
+  }
+
+  //
+  // now display in QMessageBox
+  //
+
+  /*
+  QJsonDocument doc(citation);
+  QString strJson(doc.toJson(QJsonDocument::Indented));
+  QMessageBox *msgBox = new QMessageBox();
+  //QString strJson = citation.dumps(json_obj, 4);
+  msgBox->setText(strJson);
+  msgBox->exec();
+  */
+
+  //
+  // display in a QQDialog
+  //
+  
+  QDialog *dialog = new QDialog();
+  dialog->setAttribute (Qt::WA_DeleteOnClose);
+  dialog->setWindowTitle("Citations for Current Selected Workflow");
+
+  // Create a QVBoxLayout to hold the widgets
+  QGridLayout *layout = new QGridLayout(dialog);
+  // simple just show the QJson!
+  QJsonDocument json_doc(citation);
+  QString json_string = json_doc.toJson();
+  QTextEdit *textEdit = new QTextEdit(this);
+  textEdit->setPlainText(json_string);
+  textEdit->setReadOnly(true);
+  layout->addWidget(textEdit, 0, 0, 1, 5);
+  for (int i=0; i<5; i++)
+    layout->setColumnStretch(i,1);
+  
+  dialog->show();
+
+  QStringList justCitationStringList;
+  writeJustCitations(citation, justCitationStringList);
+  
+  QString justText; int counter = 1;
+  for (const QString& str : justCitationStringList) {
+    justText.append(QString::number(counter)); justText.append(".  "); justText.append(str); justText.append("\n\n");
+    counter++;
+  }  
+
+  QPushButton *json = new QPushButton("JSON");
+  layout->addWidget(json,1,1);
+  connect(json, &QPushButton::clicked, this, [textEdit, json_string](){
+    textEdit->setPlainText(json_string);
+  });
+
+  
+  QPushButton *justCitations = new QPushButton("Citations Only");
+  layout->addWidget(justCitations,1,2);
+  connect(justCitations, &QPushButton::clicked, this, [textEdit, justText](){
+    textEdit->setPlainText(justText);
+  });
+
+
+  QPushButton *close = new QPushButton("Close");
+  layout->addWidget(close,1,3);
+  connect(close, &QPushButton::clicked, this, [dialog](){
+    dialog->close();
+  });  
+
+  
+  //
+  // adjust size of application window to the available display
+  //
+  
+  QScreen *screen = QGuiApplication::primaryScreen();
+  QRect  rec = screen->geometry();
+  
+  int height = 0.70*rec.height();
+  int width  = 0.50*rec.width();
+  dialog->resize(width, height);
+
+
 }
 

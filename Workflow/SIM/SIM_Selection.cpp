@@ -78,6 +78,17 @@ SIM_Selection::SIM_Selection(bool includeC,
   }
 
 
+  if (appName == "HydroUQ" || appName == "Hydro-UQ") {
+    SimCenterAppWidget *autosda = new SteelBuildingModel(theRVs);
+    SimCenterAppWidget *concrete = new ConcreteBuildingModel(theRVs);    
+    SimCenterAppWidget *sur = new surrogateGP(theRVs);
+    this->addComponent(QString("Steel Building Model"), QString("SteelBuildingModel"), autosda);
+    this->addComponent(QString("Concrete Building Model"), QString("ConcreteBuildingModel"), concrete);
+    this->addComponent(QString("Surrogate (GP)"), QString("SurrogateGPBuildingModel"), sur);
+  }
+
+
+
   SimCenterAppWidget *mdof_lu = new MDOF_LU();
   this->addComponent(QString("MDOF-LU"), QString("MDOF-LU"), mdof_lu);
     
@@ -102,4 +113,18 @@ SIM_Selection::getClone()
 {
   SIM_Selection *newSelection = new SIM_Selection(includeCentroid, false);
   return newSelection;
+}
+
+
+
+
+bool
+SIM_Selection::outputCitation(QJsonObject &jsonObject) {
+  QJsonObject appSpecificCitation;
+  auto currentApp = this->getCurrentSelection();
+  currentApp->outputCitation(appSpecificCitation);
+  if (!appSpecificCitation.isEmpty()) {
+    jsonObject.insert(this->getCurrentSelectionName(), appSpecificCitation);
+  }
+  return true;
 }

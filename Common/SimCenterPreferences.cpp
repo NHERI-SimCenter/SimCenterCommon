@@ -82,8 +82,6 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     //
     // add row for python interpreter
     //
-
-
     
     python = new QLineEdit();
     QHBoxLayout *pythonLayout = new QHBoxLayout();
@@ -212,7 +210,7 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     externalApplicationsLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
     // connect the pushbutton with code to open file selection and update dakota preferences with selected file
     connect(dakotaButton, &QPushButton::clicked, this, [this](){
-        QSettings settings("SimCenter", QCoreApplication::applicationName()); 
+      QSettings settings("SimCenter", QCoreApplication::applicationName()); 
         QVariant  dakotaPathVariant = settings.value("dakotaPath");
         QString existingDir = QCoreApplication::applicationDirPath();
         if (dakotaPathVariant.isValid()) {
@@ -377,7 +375,6 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     // entry for appDir location .. basically as before
     //
 
-
     QHBoxLayout *appDirLayout = new QHBoxLayout();
 
     appDir = new QLineEdit();
@@ -451,6 +448,10 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
 
     remoteSettingsLayout->addRow(tr("Remote Applications Directory:"), remoteBackendDirLayout);
 
+
+    //
+    // App name
+    //
     
     QHBoxLayout *remoteAppLayout = new QHBoxLayout();
 
@@ -472,6 +473,48 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     remoteSettingsLayout->setAlignment(Qt::AlignLeft);
     remoteSettingsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     remoteSettingsLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
+
+    //
+    // App version
+    //
+    
+    QHBoxLayout *remoteAppVersionLayout = new QHBoxLayout();
+
+    remoteTapisAppVersion = new QLineEdit();
+    customTapisAppVersionCheckBox = new QCheckBox("Custom:");
+    customTapisAppVersionCheckBox->setChecked(false);
+    remoteTapisAppVersion->setEnabled(false);
+
+    connect(customTapisAppVersionCheckBox, &QCheckBox::toggled, this, [this](bool checked)
+    {
+        this->remoteTapisAppVersion->setEnabled(checked);
+        this->remoteTapisAppVersion->setText(this->getRemoteAgaveAppVersion());
+    });
+
+    remoteAppVersionLayout->addWidget(customTapisAppVersionCheckBox);
+    remoteAppVersionLayout->addWidget(remoteTapisAppVersion);
+
+    remoteSettingsLayout->addRow("Tapis App Version:", remoteAppVersionLayout);
+
+
+    //
+    // Allocation
+    //
+    
+    // QHBoxLayout *allocationLayout = new QHBoxLayout();
+
+    allocation = new QLineEdit();
+    remoteSettingsLayout->addRow("TACC Allocation:", allocation);    
+
+
+    //
+    // common remoteAppSettings stuff
+    // 
+    
+    remoteSettingsLayout->setAlignment(Qt::AlignLeft);
+    remoteSettingsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    remoteSettingsLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);    
+    
 
     //
     // push buttons at bottom of Widget, save & whatever else
@@ -555,8 +598,12 @@ SimCenterPreferences::savePreferences(bool) {
     QString currentVersion = QCoreApplication::applicationVersion();
 
     QSettings settingsCommon("SimCenter", "Common");
-    QSettings settingsApp("SimCenter", QCoreApplication::applicationName());
 
+    settingsCommon.setValue("allocation", allocation->text());
+    settingsCommon.setValue("BLESSED", allocation->text());    
+
+    QSettings settingsApp("SimCenter", QCoreApplication::applicationName());
+    
 #ifdef USE_SIMCENTER_PYTHON
     settingsApp.setValue("pythonExePath", python->text());
 #else
@@ -573,10 +620,12 @@ SimCenterPreferences::savePreferences(bool) {
     settingsApp.setValue("customAppDir", customAppDirCheckBox->isChecked());
     settingsApp.setValue("customOpenSees", customOpenSeesCheckBox->isChecked());
     settingsApp.setValue("customDakota", customDakotaCheckBox->isChecked());
-    settingsApp.setValue("customTapis", customTapisAppCheckBox->isChecked());
+    settingsApp.setValue("customTapisApp", customTapisAppCheckBox->isChecked());
+    settingsApp.setValue("customTapisAppVersion", customTapisAppVersionCheckBox->isChecked());    
     settingsApp.setValue("customRemoteAppDir", customRemoteAppDirCheckBox->isChecked());    
     settingsApp.setValue("remoteBackendDir", remoteBackendDir->text());
     settingsApp.setValue("remoteTapisApp", remoteTapisApp->text());
+    settingsApp.setValue("remoteTapisAppVersion", remoteTapisAppVersion->text());    
 
     settingsApp.setValue("localWorkDir", localWorkDir->text());
     settingsApp.setValue("remoteWorkDir", remoteWorkDir->text());
@@ -589,6 +638,7 @@ SimCenterPreferences::savePreferences(bool) {
         settingsApp.setValue("customOpenSRA", customOpenSRACheckBox->isChecked());
         settingsApp.setValue("openSRAPath", openSRA->text());
     }
+
     
     this->close();
 }
@@ -633,7 +683,6 @@ SimCenterPreferences::resetPreferences(bool) {
     QString appDirLocation = getAppDir();
     settingsApplication.setValue("appDir", appDirLocation);
     appDir->setText(appDirLocation);
-
     
     QString remoteBackendDirLocation = getDefaultRemoteAppDir();
     remoteBackendDir->setText(remoteBackendDirLocation);
@@ -641,6 +690,10 @@ SimCenterPreferences::resetPreferences(bool) {
     QString remoteAppName = this->getDefaultAgaveApp();
     settingsApplication.setValue("remoteTapisApp", remoteAppName);
     remoteTapisApp->setText(remoteAppName);
+
+    QString remoteAppVersion = this->getDefaultAgaveAppVersion();
+    settingsApplication.setValue("remoteTapisAppVersion", remoteAppVersion);
+    remoteTapisAppVersion->setText(remoteAppVersion);    
 
     QString openseesPath=this->getDefaultOpenSees();
     settingsApplication.setValue("openseesPath", openseesPath);
@@ -654,7 +707,6 @@ SimCenterPreferences::resetPreferences(bool) {
     customDakotaCheckBox->setChecked(false);
     customOpenSeesCheckBox->setChecked(false);
     customTapisAppCheckBox->setChecked(false);
-    customRemoteAppDirCheckBox->setChecked(false);
 
     QString appName = QCoreApplication::applicationName();
     if (appName == QString("R2D"))
@@ -665,7 +717,8 @@ SimCenterPreferences::resetPreferences(bool) {
         customOpenSRACheckBox->setChecked(false);
     }
 
-
+    customTapisAppVersionCheckBox->setChecked(false);
+    customRemoteAppDirCheckBox->setChecked(false);
 
     // finally save them to make sure all saved
     //    this->savePreferences(true);
@@ -675,9 +728,10 @@ SimCenterPreferences::resetPreferences(bool) {
 void
 SimCenterPreferences::loadPreferences() {
 
+  
     QString currentVersion = QCoreApplication::applicationVersion();
 
-    QSettings settingsCommon("SimCenter", "Common");    
+    QSettings settingsCommon("SimCenter", "Common");
     QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
 
     //
@@ -727,6 +781,13 @@ SimCenterPreferences::loadPreferences() {
         python->setText(pythonPathVariant.toString());
     }
 #endif
+
+
+    //allocation
+    auto defaultAllocation = settingsCommon.value("allocation");
+    if (defaultAllocation.isValid()) {
+      allocation->setText(defaultAllocation.toString());
+    } 
     
     //
     // now app specific settings
@@ -785,7 +846,7 @@ SimCenterPreferences::loadPreferences() {
     }
 
     //remoteApp
-    auto customTapisApp = settingsApplication.value("customTapis", false);
+    auto customTapisApp = settingsApplication.value("customTapisApp", false);
     if (customTapisApp.isValid() && customTapisApp.toBool() == true) {
         QVariant  tapisAppVariant = settingsApplication.value("remoteTapisApp");
         if (!tapisAppVariant.isValid()) {
@@ -801,6 +862,24 @@ SimCenterPreferences::loadPreferences() {
         QString tapisApp=this->getDefaultAgaveApp();
         remoteTapisApp->setText(tapisApp);
     }
+
+    //remoteAppVersion
+    auto customTapisAppVersion = settingsApplication.value("customTapisVersion", false);
+    if (customTapisAppVersion.isValid() && customTapisAppVersion.toBool() == true) {
+        QVariant  tapisAppVariant = settingsApplication.value("remoteTapisAppVersion");
+        if (!tapisAppVariant.isValid()) {
+            customTapisAppVersionCheckBox->setChecked(false);
+            QString tapisAppVersion=this->getDefaultAgaveAppVersion();
+            settingsApplication.setValue("remoteTapisAppVersion", tapisAppVersion);
+            remoteTapisAppVersion->setText(tapisAppVersion);
+        } else {
+            customTapisAppVersionCheckBox->setChecked(true);
+            remoteTapisAppVersion->setText(tapisAppVariant.toString());
+        }
+    } else {
+        QString tapisAppVersion=this->getDefaultAgaveAppVersion();
+        remoteTapisAppVersion->setText(tapisAppVersion);
+    }    
 
     
     // opensees
@@ -1006,12 +1085,12 @@ SimCenterPreferences::getRemoteAppDir(void) {
 	
 	// if not set, use default & set default as application directory
 	if (!remoteBackendDirVariant.isValid()) {
-	  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v4.5.0");
+	  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v4.5.0");
 
 	  QString appName = QCoreApplication::applicationName();
-	  /*	  if (appName == QString("quoFEM"))
-	    remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v4.0.0");      
-	  */
+	  if (appName == QString("WE-UQ") || appName == QString("HydroUQ") || appName == QString("EE-UQ") || appName == QString("PBE"))
+	    remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v4.5.0");
+
 	  settingsApplication.setValue("remoteBackendDir", remoteBackendDirLocation);
 	  return remoteBackendDirLocation;
 	}
@@ -1019,6 +1098,12 @@ SimCenterPreferences::getRemoteAppDir(void) {
     }
 
     return remoteDir;        
+}
+
+
+QString
+SimCenterPreferences::getDefaultAllocation(void) {
+  return allocation->text();        
 }
 
 
@@ -1042,6 +1127,28 @@ SimCenterPreferences::getRemoteAgaveApp(void) {
     }
 
     return remoteApp;    
+}
+
+
+QString
+SimCenterPreferences::getRemoteAgaveAppVersion(void) {
+
+    //Default appDir is the location of the application
+
+    QString appVersion = this->getDefaultAgaveAppVersion();
+    
+    //If custom is checked we will try to get the custom app dir defined
+    if (customTapisAppVersionCheckBox->checkState() == Qt::CheckState::Checked)
+    {
+        QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
+        QVariant  customAppNameSetting = settingsApplication.value("remoteTapisAppVersion");
+
+        // if valid use it, otherwise it remains the default
+        if (customAppNameSetting.isValid())
+            appVersion = customAppNameSetting.toString();
+    }
+
+    return appVersion;    
 }
 
 
@@ -1114,24 +1221,42 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
 
     //Default appDir is the location of the application
     QString appName = QCoreApplication::applicationName();
-    QString remoteApp = QString("simcenter-uq-frontera-4.4.0u2");
+    QString remoteApp = QString("simcenter-uq-stampede3");
 
-    if (appName == QString("R2D"))
-      remoteApp = QString("simcenter-rWHale-frontera-4.4.0.u1");
-    if (appName == QString("WE-UQ") || appName == QString("HydroUQ"))
-      remoteApp = QString("simcenter-openfoam-frontera-1.0.0u6");
+    if (appName == QString("R2D")) {
+      remoteApp = QString("simcenter-rWhale-stampede3");
+    } else if (appName == QString("WE-UQ")) {
+      remoteApp = QString("simcenter-openfoam-frontera");
+    } else if (appName == QString("HydroUQ")) {
+      remoteApp = QString("simcenter-openfoam-frontera");    
+    } else if (appName == QString("EE-UQ") || appName == QString("PBE"))
+      remoteApp = QString("simcenter-uq-frontera");      
 
     return remoteApp;
 }
 
+
+QString
+SimCenterPreferences::getDefaultAgaveAppVersion(void) {
+
+    //Default appDir is the location of the application
+    QString remoteVersion = QString("1.0.0");
+    
+    return remoteVersion;
+}
+
+
 QString
 SimCenterPreferences::getDefaultRemoteAppDir(void) {
 
-  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v4.5.0");
+  QString appName = QCoreApplication::applicationName();  
+  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v4.5.0");
+  if (appName == QString("WE-UQ") || appName == QString("HydroUQ") || appName == QString("EE-UQ") || appName == QString("PBE"))
+      remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v4.5.0");  
 
-  QString appName = QCoreApplication::applicationName();
   return remoteBackendDirLocation;
 }
+
 
 
 QString
@@ -1236,22 +1361,16 @@ SimCenterPreferences::getDefaultPython(void) {
 #else
     
     QString pythonPath; //  = QStandardPaths::findExecutable("python3");
-    //    QFileInfo pythonPathFileInfo(pythonPath);
-
-    //if (!pythonPathFileInfo.exists()) {
-      
-    // this is where python.org installer puts it .. documented installer
+    QFileInfo installedPython39("/Library/Frameworks/Python.framework/Versions/3.9/bin/python3");
     QFileInfo installedPython310("/Library/Frameworks/Python.framework/Versions/3.10/bin/python3");
-    QFileInfo installedPython38("/Library/Frameworks/Python.framework/Versions/3.8/bin/python3");
     
-    if (installedPython38.exists()) {
-      pythonPath = installedPython38.filePath();
+    if (installedPython39.exists()) {
+      pythonPath = installedPython39.filePath();
     } else if (installedPython310.exists()) {
       pythonPath = installedPython310.filePath();	
     } else {
       pythonPath = QStandardPaths::findExecutable("python3");
     }
-    //}
     
 #endif
     

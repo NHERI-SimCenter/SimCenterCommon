@@ -66,7 +66,7 @@ SC_FileEdit::SC_FileEdit(QString theKey)
         theFile->setText(fileName);
         emit fileNameChanged(fileName);
      });
-
+    theLayout->setMargin(0);
   //connect(chooseFile, SIGNAL(clicked(bool)), this, SLOT(chooseFileName(bool)));
   //connect(chooseFile, SIGNAL(clicked(bool)), this, SLOT(chooseFileName(bool)));
 }

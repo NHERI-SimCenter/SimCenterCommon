@@ -217,8 +217,8 @@ int SimCenterUQResultsPLoM::processResults(QString &filenameResults, QString &fi
         return 0;
     }
 
-//    QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
-//    workingDir=fileTabInfo.absolutePath()+ QDir::separator();
+   // QString filenameErrorString = fileTabInfo.absolutePath() + QDir::separator() + QString("dakota.err");
+    workingDir=fileTabInfo.absolutePath()+ QDir::separator();
 //    qDebug() << "filenameErrorString: " << filenameErrorString;
 
 //    QFileInfo filenameErrorInfo(filenameErrorString);
@@ -320,8 +320,6 @@ int SimCenterUQResultsPLoM::processResults(QString &filenameResults, QString &fi
     tabWidget->addTab(sa,tr("Summary"));
     tabWidget->addTab(theDataTable, tr("Data Values"));
     tabWidget->adjustSize();
-
-    statusMessage(tr(""));
 
     return 0;
 }

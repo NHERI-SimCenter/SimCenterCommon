@@ -174,7 +174,7 @@ AgaveCurl::loginCall(QString uname, QString upassword)
 bool
 AgaveCurl::login(QString uname, QString upassword)
 {
-   username = uname;
+   username = uname.toLower(); // sy - Designsafe username allows only lowercase and filesystem is case sensitive
    password = upassword;
 
    QString consumerSecret;

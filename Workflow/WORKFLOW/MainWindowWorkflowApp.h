@@ -78,6 +78,7 @@ public:
     void attemptLoginReturn(bool);
     void logoutReturn(bool);
     void showExampleDownloader(void);
+    void showCitations(void);  
 
 
  private:

@@ -259,8 +259,6 @@ int SimCenterUQResultsMFSampling::processResults(QString &filenameResults, QStri
     tabWidget->addTab(theDataTable, tr("Data Values"));
     tabWidget->adjustSize();
 
-    statusMessage(tr(""));
-
     return 0;
 }
 

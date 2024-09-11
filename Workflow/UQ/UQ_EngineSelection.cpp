@@ -230,7 +230,7 @@ void UQ_EngineSelection::engineSelectionChanged(QString arg1)
         theCurrentEngine = theDakotaEngine;
     } else if (arg1 == "SimCenterUQ" || arg1 == "SimCenterUQ-UQ") {
         theCurrentEngine = theSimCenterUQEngine;
-    } else if (arg1 == "CustomUQ") {
+    } else if (arg1 == "CustomUQ" || arg1 == "Custom-UQ") {
       theCurrentEngine = theCustomEngine;      
     } else if (arg1 == "UCSD-UQ") {
       theCurrentEngine = theUCSD_Engine;

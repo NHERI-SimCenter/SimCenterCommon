@@ -45,6 +45,7 @@ class QLineEdit;
 class RandomVariablesContainer;
 class QComboBox;
 class QStackedWidget;
+class QLabel;
 
 class InputWidgetOpenSeesAnalysis : public  SimCenterAppWidget
 {
@@ -79,6 +80,7 @@ private:
     QComboBox   *theAlgorithm;
     QLineEdit   *theIntegration;
     QLineEdit   *theSolver;
+    QLabel *infoMsg;
 
     QLineEdit *file;
     RandomVariablesContainer *theRandomVariablesContainer;

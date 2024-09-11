@@ -1,5 +1,5 @@
-#ifndef SimCenterUQ_INPUT_PLOM_H
-#define SimCenterUQ_INPUT_PLOM_H
+﻿#ifndef SimCenterEventAppSelection_H
+#define SimCenterEventAppSelection_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -37,81 +37,80 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-#include <UQ_Engine.h>
+// Written by: fmk
 
-#include <QGroupBox>
-#include <QVector>
-#include <QVBoxLayout>
-#include <QComboBox>
-#include <QPushButton>
+#include "SimCenterAppWidget.h"
+#include <QList>
+#include "SectionTitle.h"
 
-class SimCenterUQSurrogateResults;
-class SimCenterUQResults;
-class QCheckBox;
-class RandomVariablesContainer;
 class QStackedWidget;
-class UQ_MethodInputWidget;
-class InputWidgetParameters;
-class InputWidgetEDP;
-class InputWidgetFEM;
+class QComboBox;
 
-class SimCenterUQInputPLoM : public UQ_Engine
+class SimCenterEventAppSelection : public  SimCenterAppWidget
 {
     Q_OBJECT
-public:
-    explicit SimCenterUQInputPLoM(QWidget *parent = 0);
-    ~SimCenterUQInputPLoM();
 
-    bool outputToJSON(QJsonObject &jsonObject);
-    bool inputFromJSON(QJsonObject &jsonObject);
+public:
+   explicit SimCenterEventAppSelection(QString label, QString jsonkeyword, QString eventType, QWidget *parent);
+    ~SimCenterEventAppSelection();
+
     bool outputAppDataToJSON(QJsonObject &jsonObject);
     bool inputAppDataFromJSON(QJsonObject &jsonObject);
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+    bool copyFiles(QString &destName);
 
-    int processResults(QString &filenameResults, QString &filenameTab);
+    void clear(void);
+    void clearSelections();
+    bool addComponent(QString comboBoxText, QString appNameText, SimCenterAppWidget *);
+  
+    SimCenterAppWidget *getComponent(QString text);
+    SimCenterAppWidget *getCurrentSelection(void);
+    QString getCurrentSelectionName(void);
+    bool selectComponent(const QString text);
+    bool outputCitation(QJsonObject &jsonObject);
 
-    UQ_Results *getResults(void);
-    void setRV_Defaults(void);
-    //RandomVariablesContainer  *getParameters();
+    void removeItem(QString itemName);
+    QString getComboName(int index);
+    QString getCurrentComboName(void);
+    int count();
+    void hideHeader();
 
-    int getMaxNumParallelTasks(void);
-    QString getMethodName();
-    bool copyFiles(QString &fileDir);
-    QVBoxLayout *mLayout;
-
-    // KZ set event type
-    void setEventType(QString type);
-
+		     
 public slots:
-   void clear(void);
-   void onIndexChanged(const QString &arg1);
-   void numModelsChanged(int numModels);
+    void selectionChangedSlot(const QString &);
+    void setCurrentlyViewable(bool);
+    void setSelectionsActive(bool);
+
+signals:
+  void selectionChangedSignal(const QString &);
+  void typeEVT(QString type);
+  
+protected:
+
 
 private:
-    QVBoxLayout *layout;
-    QWidget     *methodSpecific;
-    QComboBox   *inpMethod;
-    QLineEdit   *numSamples;
-    QLineEdit   *randomSeed;
-
-    QComboBox   *uqSelection;
-    QWidget     *uqSpecific;
-
-    RandomVariablesContainer *theRandomVariables;
-    SimCenterUQSurrogateResults *results;
-
-    QStackedWidget *theStackedWidget;
-    UQ_Method *theInpCurrentMethod;
-    UQ_Method *theSimu, *theData, *theMultiFidelity;
-
-    //InputWidgetParameters *theParameters;
-    //InputWidgetEDP *theEdpWidget;
-    //InputWidgetFEM *theFemWidget;
-    QString typeEVT;
+    virtual bool displayComponent(QString text);
+    void initializeWidget(QString label);
 
 
-    // SimCenterAppWidget interface
-public:
-    bool outputCitation(QJsonObject &jsonObject);
+    QStackedWidget* theStackedWidget;
+    QComboBox* theSelectionCombo;
+
+    int currentIndex;
+    SimCenterAppWidget *theCurrentSelection;
+
+    QList<QString> theComboNames;
+    QList<QString> theApplicationNames;
+    QList<SimCenterAppWidget *> theComponents;
+  
+    QString jsonKeyword; // application type that appears in json
+    QString assetType;
+    QString eventType;
+
+    bool viewableStatus;
+
+    SectionTitle *selectionText;
 };
 
-#endif // SimCenterUQ_INPUT_PLOM_H
+#endif // SimCenterEventAppSelection_H

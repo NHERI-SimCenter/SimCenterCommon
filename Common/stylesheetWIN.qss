@@ -108,6 +108,10 @@ QLabel#helpMsg {
     color: grey;
 }
 
+QLabel#info {
+    color: blue;
+}
+
 QLabel{
     font-size: 10pt;
 }
