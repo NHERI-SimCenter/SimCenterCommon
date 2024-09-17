@@ -551,20 +551,19 @@ SimCenterPreferences::savePreferences(bool) {
 
     QSettings settingsCommon("SimCenter", "Common");
 
-    settingsCommon.setValue("allocation", allocation->text());
-    settingsCommon.setValue("BLESSED", allocation->text());    
+    settingsCommon.setValue("allocation", allocation->text().trimmed());
 
     QSettings settingsApp("SimCenter", QCoreApplication::applicationName());
     
 #ifdef USE_SIMCENTER_PYTHON
-    settingsApp.setValue("pythonExePath", python->text());
+    settingsApp.setValue("pythonExePath", python->text().trimmed());
 #else
-    settingsCommon.setValue("pythonExePath", python->text());
-    qDebug() << "reset: pythonExePath: " << python->text();
+    settingsCommon.setValue("pythonExePath", python->text().trimmed());
+    qDebug() << "reset: pythonExePath: " << python->text().trimmed();
 #endif
 
     settingsApp.setValue("version", currentVersion);
-    settingsApp.setValue("appDir", appDir->text());
+    settingsApp.setValue("appDir", appDir->text().trimmed());
 
 #ifdef USE_SIMCENTER_PYTHON
     settingsApp.setValue("customPython", customPythonCheckBox->isChecked());
@@ -575,15 +574,15 @@ SimCenterPreferences::savePreferences(bool) {
     settingsApp.setValue("customTapisApp", customTapisAppCheckBox->isChecked());
     settingsApp.setValue("customTapisAppVersion", customTapisAppVersionCheckBox->isChecked());    
     settingsApp.setValue("customRemoteAppDir", customRemoteAppDirCheckBox->isChecked());    
-    settingsApp.setValue("remoteBackendDir", remoteBackendDir->text());
-    settingsApp.setValue("remoteTapisApp", remoteTapisApp->text());
-    settingsApp.setValue("remoteTapisAppVersion", remoteTapisAppVersion->text());    
 
-    settingsApp.setValue("localWorkDir", localWorkDir->text());
-    settingsApp.setValue("remoteWorkDir", remoteWorkDir->text());
-    settingsApp.setValue("openseesPath", opensees->text());
-    settingsApp.setValue("dakotaPath", dakota->text());
-
+    
+    settingsApp.setValue("remoteBackendDir", remoteBackendDir->text().trimmed());
+    settingsApp.setValue("remoteTapisApp", remoteTapisApp->text().trimmed());
+    settingsApp.setValue("remoteTapisAppVersion", remoteTapisAppVersion->text().trimmed());    
+    settingsApp.setValue("localWorkDir", localWorkDir->text().trimmed());
+    settingsApp.setValue("remoteWorkDir", remoteWorkDir->text().trimmed());
+    settingsApp.setValue("openseesPath", opensees->text().trimmed());
+    settingsApp.setValue("dakotaPath", dakota->text().trimmed());
     
     this->close();
 }
@@ -895,7 +894,7 @@ SimCenterPreferences::getOpenSees(void) {
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();    
     QString scOpenSees = env.value("SIMCENTER_OPENSEES","None");
     if (scOpenSees != "None") {
-      return scOpenSees;
+      return scOpenSees.trimmed();
     }
     
     QSettings settingsCommon("SimCenter", "Common");
@@ -906,10 +905,10 @@ SimCenterPreferences::getOpenSees(void) {
     if (!theVariant.isValid()) {
       thePath = this->getDefaultOpenSees();
       settingsCommon.setValue("openseesPath", thePath);
-      return thePath;
+      return thePath.trimmed();
     }
 
-    return theVariant.toString();
+    return theVariant.toString().trimmed();
 }
 
 QString

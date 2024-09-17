@@ -11,6 +11,9 @@
 #include <QRecursiveMutex>
 #include <QElapsedTimer>
 
+#include <QApplication>
+#include <QMessageBox>
+
 ProgramOutputDialog *ProgramOutputDialog::theInstance = 0;
 
 ProgramOutputDialog *
@@ -160,6 +163,21 @@ void ProgramOutputDialog::appendErrorMessage(const QString text)
     mutex->unlock();
 }
 
+
+void ProgramOutputDialog::fatalMessage(const QString text) {
+  this->appendErrorMessage(text);
+
+  QMessageBox msgBox;
+  msgBox.setIcon(QMessageBox::Critical);
+  msgBox.setText("A FATAL ERROR has OCCURED .. You need to \"Quit\" the Application");
+  QString msg(" The following is the reported error: ");
+  msg = msg + text + QString("\n Please report this as a bug to SimCenter.");
+  msgBox.setInformativeText(text);
+  msgBox.setWindowTitle("Fatal Error");
+  QPushButton *exitButton = msgBox.addButton(QMessageBox::Ok);
+  QObject::connect(exitButton, &QPushButton::clicked, qApp, &QApplication::quit);
+  msgBox.exec();
+}
 
 void ProgramOutputDialog::appendInfoMessage(const QString text)
 {

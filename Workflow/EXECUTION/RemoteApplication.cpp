@@ -70,6 +70,35 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 static int maxProcPerNode = 56;
 
+// new function to be called before removeRecusivility
+
+bool isSafeToRemoveRecursivily(const QString &directoryPath) {
+
+    // Get information about the directory
+    QFileInfo dirInfo(directoryPath);
+    
+    // Check if the directory exists
+    if (!dirInfo.exists() || !dirInfo.isDir()) {
+        qWarning() << "The directory does not exist or is not a directory.";
+        return false;
+    }
+
+    // Get the owner of the directory
+    QString owner = dirInfo.owner();
+    
+    // Get the name of the current user
+    QString currentUser = QDir::home().dirName();  // This gives the user's home directory name
+    
+    // Alternative method to get the username directly
+    QString userName = qgetenv("USER"); // On UNIX-like systems
+    if (userName.isEmpty())
+        userName = qgetenv("USERNAME"); // On Windows
+
+    // Compare the owner with the current user
+    return owner == currentUser || owner == userName;
+}
+
+
 RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QWidget *parent)
 : Application(parent), theRemoteService(theService)
 {
@@ -342,8 +371,8 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
 
         QFileInfo check_workflow(templateDir.absoluteFilePath("driver"));
         if (!check_workflow.exists() || !check_workflow.isFile()) {
-            emit sendErrorMessage(("Local Failure Setting up Dakota"));
-            qDebug() << "Local Failure Setting Up Dakota ";
+            emit sendErrorMessage(("No Driver file exists, local failure in setting up driver or problem not HPC ready"));
+            qDebug() << "Local Failure: No Driver file found, Either Problem will not run on HPC or Setup failure";
             pushButton->setEnabled(true);
             return false;
         }
@@ -364,11 +393,11 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
         if (tmpDir.exists("input_data")) {
             QDir inputDataDir(tmpDir.absoluteFilePath("input_data"));
             inputDataDir.removeRecursively();
-	    } 
+	} 
 
         QDir dirToRemove(templateDIR);
         templateDir.cd("templatedir");
-        templateDir.removeRecursively();
+	templateDir.removeRecursively();
 	
     } else {
 
@@ -578,8 +607,9 @@ RemoteApplication::uploadDirReturn(bool result)
 
       //QString dirName = theDirectory.dirName();
       //QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
-      
-      theDirectory.removeRecursively();
+
+      if (isSafeToRemoveRecursivily(tempDirectory))
+	theDirectory.removeRecursively();
       
       //
       // start the remote job
