@@ -50,32 +50,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 #include <QMap>
 
-// Support multiple remote HPC systems, but default to Frontera - 
-#define HPC_FRONTERA 0 
-#define HPC_ACES 1
-#define HPC_JETSTREAM2 2
-#define HPC_STAMPEDE3 3
-#define HPC_KLONE 4
-#define HPC_FASTER 5
-#define HPC_LONESTAR6 6
-#define HPC_AURORA 7
-#define DEFAULT_HPC_SYSTEM HPC_STAMPEDE3
-
-//Maximum number of processors per node
-#if DEFAULT_HPC_SYSTEM == HPC_FRONTERA
-    //Based on the number of processors pernode in Frontera
-    const int maxProcPerNode = 56;
-#elif DEFAULT_HPC_SYSTEM == HPC_LONESTAR6
-    // Based on Lonestar6 hardware threads. Drops to 96 on gpu-h100 node, but gpu-a100 / compute are 128
-    const int maxProcPerNode = 128;
-#elif DEFAULT_HPC_SYSTEM == HPC_STAMPEDE3
-    // Based on the number of processors pernode in Stampede3 SKX nodes
-    const int maxProcPerNode = 48;
-#else
-    // Default to Frontera
-    const int maxProcPerNode = 56;
-#endif
-
 class RemoteService;
 
 class QLineEdit;

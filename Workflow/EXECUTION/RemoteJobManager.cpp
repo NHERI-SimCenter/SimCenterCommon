@@ -42,31 +42,30 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 #include "RemoteJobManager.h"
+#include <SimCenterPreferences.h>
+#include <ZipUtils/ZipUtils.h>
 #include <RemoteService.h>
-#include <QJsonDocument>
 
+#include <QJsonDocument>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QGridLayout>
-
 #include <QJsonArray>
 #include <QTableWidget>
 #include <QTemporaryFile>
 #include <QHeaderView>
 #include <QRect>
 #include <QApplication>
+#include <QCoreApplication>
 //#include <QDesktopWidget>
 #include <QScreen>
-#include <SimCenterPreferences.h>
 #include <QSettings>
 #include <QLabel>
 #include <QRegularExpression>
-
 #include <QMenu>
 #include <QDir>
-
 #include  <QDebug>
-#include <ZipUtils/ZipUtils.h>
+
 class RemoteService;
 
 RemoteJobManager::RemoteJobManager(RemoteService *theRemoteService, QWidget *parent)
@@ -141,10 +140,12 @@ RemoteJobManager::jobsListReturn(QJsonObject theJobs){
     disconnect(theService, SIGNAL(uploadDirectoryReturn(bool)), this, SLOT(uploadDirReturn(bool)));  
     jobs = theJobs;
 
+    jobsTable->setRowCount(0);    
     if (jobs.contains("jobs")) {
+      
         QJsonArray jobData=jobs["jobs"].toArray();
         int numJobs = jobData.count();
-        jobsTable->setRowCount(numJobs);
+        // jobsTable->setRowCount(numJobs);
 
 	/* *************** INFO PER JOB ******************
             {
@@ -164,29 +165,40 @@ RemoteJobManager::jobsListReturn(QJsonObject theJobs){
             "uuid": "dbe0230a-ab4b-4bba-b259-76037a9b24e9-007"
         }
 	*******************************************************/
-	
+
+	QString appName = QCoreApplication::applicationName();
+	int count = 0;
         for (int i=0; i<numJobs; i++) {
+	  
             QJsonObject job=jobData.at(i).toObject();
-            QString jobID = job["uuid"].toString();
             QString jobName = job["name"].toString();
-            QString jobStatus = job["status"].toString();
-            QString jobDate = job["created"].toString();
-            QString remoteStarted = job["remoteStarted"].toString();
-            //QString lastUpdated = job["lastUpdated"].toString();
-	    
 
-            jobsTable->setItem(i, 0, new QTableWidgetItem(jobName));
-            jobsTable->setItem(i, 1, new QTableWidgetItem(jobStatus));
-            jobsTable->setItem(i, 2, new QTableWidgetItem(jobID));
-            jobsTable->setItem(i, 3, new QTableWidgetItem(jobDate));
+	    if (jobName.contains(appName)) {
 
-            //Added by Abiy
-            jobsTable->setItem(i, 4, new QTableWidgetItem(remoteStarted));
-//            jobsTable->setItem(i, 4, new QTableWidgetItem(QString::number(processorsPerNode.toInt()*nodes.toInt())));
-//            jobsTable->setItem(i, 5, new QTableWidgetItem(maxHour));
+	      jobsTable->insertRow(count);    	      
+	      QString jobID = job["uuid"].toString();
+	      QString jobStatus = job["status"].toString();
+	      QString jobDate = job["created"].toString();
+	      QString remoteStarted = job["remoteStarted"].toString();
+	      //QString lastUpdated = job["lastUpdated"].toString();
+	      
+	      
+	      jobsTable->setItem(count, 0, new QTableWidgetItem(jobName));
+	      jobsTable->setItem(count, 1, new QTableWidgetItem(jobStatus));
+	      jobsTable->setItem(count, 2, new QTableWidgetItem(jobID));
+	      jobsTable->setItem(count, 3, new QTableWidgetItem(jobDate));
+	      
+	      //Added by Abiy
+	      jobsTable->setItem(count, 4, new QTableWidgetItem(remoteStarted));
+	      //            jobsTable->setItem(i, 4, new QTableWidgetItem(QString::number(processorsPerNode.toInt()*nodes.toInt())));
+	      //            jobsTable->setItem(i, 5, new QTableWidgetItem(maxHour));
 //            jobsTable->setItem(i, 6, new QTableWidgetItem(maxHour));
-
+	      
 //            getJobRunTime(remoteStarted, lastUpdated);
+
+	      count++;
+	    }
+	    
         }
     }
      //jobsTable->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);

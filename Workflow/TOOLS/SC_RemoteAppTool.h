@@ -5,6 +5,8 @@
 #include <QList>
 #include <QString>
 #include <QStringList>
+#include <QJsonObject>
+#include <QMap>
 
 class QStackedWidget;
 class SimCenterAppWidget;
@@ -21,6 +23,8 @@ class SC_RemoteAppTool : public SimCenterAppWidget
   
 public:
   SC_RemoteAppTool(QString tapisAppName,
+		   QString tapisAppVersion,
+		   QString machine,   		   
 		   QList<QString> queueNames,
 		   RemoteService *theRemoteService,
 		   SimCenterAppWidget* theEnclosedApp,
@@ -45,6 +49,8 @@ private:
   SimCenterAppWidget *theApp;
   RemoteService *theService;  
   QString tapisAppName;
+  QString tapisAppVersion;
+  QString machine;  
   QStringList queus;
   
   QLineEdit *nameLineEdit;
@@ -53,11 +59,23 @@ private:
   QLineEdit *numGPU_LineEdit;
   QLineEdit *numProcessorsLineEdit;
   QLineEdit *runtimeLineEdit;  
-  
   QPushButton *submitButton;
+
 
   QString tmpDirName;
   QString remoteDirectory;
+
+  // From RemoteApplication
+  // TODO: Condense and make more consistent the approach to SC_RemoteAppTool and RemoteApplication
+  QLineEdit *allocation; 
+  QString shortDirName;
+  QMap<QString, QString> extraInputs;
+  QMap<QString, QString> extraParameters;
+  QString designsafeDirectory; 
+  QString tempDirectory;
+  QString remoteHomeDirPath;
+  QJsonObject theJob;
+
 
   RemoteJobManager *theJobManager;
 };
