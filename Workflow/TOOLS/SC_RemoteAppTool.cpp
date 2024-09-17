@@ -22,6 +22,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QJsonObject>
+#include <QJsonArray>
 
 SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 				   QString appVersion,
@@ -61,7 +62,7 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   //shortDirName.chop(3);
   
   QGridLayout *remoteLayout = new QGridLayout();
-  QLabel *nameLabel = new QLabel();
+  // QLabel *nameLabel = new QLabel();
   
   int numRow = 0;
 
@@ -72,32 +73,33 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 
   int numNode = 1;
   int maxProcPerNode = 56; //theApp->getMaxNumProcessors(56);
-  if (machine == "stampede3")
-    maxProcPerNode =48;
-  
+  if (machine == "stampede3") {
+    maxProcPerNode = 48;
+  }
+
   numRow++;
   numCPU_LineEdit = new QLineEdit();
   remoteLayout->addWidget(new QLabel("Num Nodes:"),numRow,0);  
   remoteLayout->addWidget(numCPU_LineEdit,numRow,1);
   numCPU_LineEdit->setText("1");
     
-  if (queus.first() == "gpu-a100" || queus.first() == "gpu-a100-dev") {
+  numGPU_LineEdit = NULL;
+  if (queus.first() == "gpu-a100" || queus.first() == "gpu-a100-dev" || queus.first() == "gpu-a100-small") {
+    numGPU_LineEdit = new QLineEdit();
     numRow++;
     
     // lonestar 6 .. only set up for gpu-a100
-    maxProcPerNode = 128; //theApp->getMaxNumProcessors(56);
-
-    QLabel *numGPU_Label = new QLabel();
     remoteLayout->addWidget(new QLabel("Num GPUs:"),numRow,0);
     
-    numGPU_LineEdit = new QLineEdit();
-    numGPU_LineEdit->setText("3");
-    numGPU_LineEdit->setToolTip(tr("Total # of GPUs to use (across all nodes)"));
-    remoteLayout->addWidget(numGPU_LineEdit,numRow,1);
-    
-    
-  } else {
-    numGPU_LineEdit = NULL;
+    if (queus.first() == "gpu-a100-small") {
+      numGPU_LineEdit->setText("1"); // Special queue using just 1 NVIDIA A100
+      maxProcPerNode = 32;
+    } else {
+      numGPU_LineEdit->setText("3"); // 3 NVIDIA A100s
+      maxProcPerNode = 128;
+    }
+    numGPU_LineEdit->setToolTip(tr("# of GPUs requested per node"));
+    remoteLayout->addWidget(numGPU_LineEdit, numRow, 1);
   }
 
   numRow++;
@@ -125,6 +127,7 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   remoteLayout->addWidget(new QLabel("TACC Allocation"), numRow, 0);
   allocation = new QLineEdit();
   allocation->setText(SimCenterPreferences::getInstance()->getDefaultAllocation());
+  allocation->setToolTip(tr("Specify which of your TACC allocations to use when running the job."));
   remoteLayout->addWidget(allocation,numRow,1);
 
   numRow++;
@@ -143,7 +146,7 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 	    QFile file(fileName);
 	    if (!file.open(QFile::ReadOnly | QFile::Text)) {
 	      emit errorMessage(QString("Could Not Open File: ") + fileName);
-	      return -1;
+	      return -1; // Double-check if it makes sense to use -1 here, might be implicitly cast to bool for Qt connect()?
 	    }
 
 	    //
@@ -168,6 +171,7 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 	    
 	    theApp->clear();	    
 	    theApp->inputFromJSON(jsonObj);
+      return 0; // implicit return for Qt connect()?
   });
 
 
@@ -201,7 +205,7 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 	    
 	    // close file
 	    file.close();	    
-	    
+	    return true;
   });
   
   connect(getRemoteButton,&QPushButton::clicked, this, [=](){
@@ -415,7 +419,7 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
       
       queue = "small";
       if (nodeCount > 2)
-	queue = "normal";
+	      queue = "normal";
       if (nodeCount > 512)
         queue = "large";
       
@@ -440,25 +444,80 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     inputFileObj["value"]="scInput.json";
     envVariables.append(inputFileObj);
     
+
+
+
     // any additional envVariables variables are app dependent
     QJsonObject extraParameters;
     theApp->outputAppDataToJSON(extraParameters); //< sets maxRunTime in parameters
+
     for (auto parameterName : extraParameters.keys()) {
       QJsonObject paramObj;
-      paramObj["key"]=parameterName;
-      paramObj["value"]=extraParameters[parameterName];
-      envVariables.append(paramObj);
+
+      constexpr bool TAPISV3_PARAMETERS_STRICTLY_STRINGS = true; // All extra parameters are required to be strings
+      if constexpr (TAPISV3_PARAMETERS_STRICTLY_STRINGS) {
+        constexpr bool TAPISV3_PARAMETERS_ALLOW_NULL_CONVERSION   = false; // Convert nulls to strings for the submit json
+        constexpr bool TAPISV3_PARAMETERS_ALLOW_NUMBER_CONVERSION = true; // Convert numbers to strings for the submit json
+        constexpr bool TAPISV3_PARAMETERS_ALLOW_BOOL_CONVERSION   = true; // Convert booleans to strings for the submit json
+        constexpr bool TAPISV3_PARAMETERS_ALLOW_OBJECT_CONVERSION = false; // Allow objects (i.e. their contents) to be converted to strings for the submit json
+        constexpr bool TAPISV3_PARAMETERS_ALLOW_ARRAY_CONVERSION  = false; // Allow arrays (i.e. their contents) to be converted to strings for the submit json
+        
+        if (extraParameters[parameterName].isNull() || extraParameters[parameterName].isUndefined()) { 
+          if constexpr (TAPISV3_PARAMETERS_ALLOW_NULL_CONVERSION) {
+            paramObj["key"]   = parameterName;
+            paramObj["value"] = QString(""); // or maybe use "None", "Null", etc
+            envVariables.append(paramObj);
+          }
+        } else if (extraParameters[parameterName].isString()) {
+          paramObj["key"]   = parameterName;
+          if (extraParameters[parameterName].toString().isEmpty()) {
+            paramObj["value"] = QString(""); // or maybe use "None", "Null", etc
+          } else {
+            paramObj["value"] = extraParameters[parameterName];
+          }
+          envVariables.append(paramObj);
+        } else if (extraParameters[parameterName].isDouble()) {
+          if constexpr (TAPISV3_PARAMETERS_ALLOW_NUMBER_CONVERSION) {
+            paramObj["key"]   = parameterName;
+            paramObj["value"] = QString::number(extraParameters[parameterName].toDouble());
+            envVariables.append(paramObj);
+          }
+        } else if (extraParameters[parameterName].isBool()) {
+          if constexpr (TAPISV3_PARAMETERS_ALLOW_BOOL_CONVERSION) {
+            paramObj["key"]   = parameterName;
+            paramObj["value"] = extraParameters[parameterName].toBool() ? "true" : "false";
+            envVariables.append(paramObj);
+          }
+        } else if (extraParameters[parameterName].isArray()) {
+            if constexpr (TAPISV3_PARAMETERS_ALLOW_ARRAY_CONVERSION) {
+              // Not yet implemented, but convert the array to a single string with brackets and commas
+            }
+        } else if (extraParameters[parameterName].isObject()) {
+          if constexpr (TAPISV3_PARAMETERS_ALLOW_OBJECT_CONVERSION) {
+            // Not yet implemented, but enter the object and convert its contents to key-value pairs (recursively?)  
+          }
+        }
+      } else {
+        paramObj["key"]=parameterName;
+        paramObj["value"]=extraParameters[parameterName];
+        envVariables.append(paramObj);
+      }
     }
     
     // Remove duplicate parameters from envVariables
     QSet<QString> keys;
     QJsonArray newEnvVariables;
     for (auto envVar : envVariables) {
+      if (!envVar.isObject()) continue;
+      if (!envVar.toObject().contains("key") || !envVar.toObject().contains("value")) continue;
+      if (!envVar.toObject()["key"].isString()) continue;
+      // if (!envVar.toObject()["value"].isString()) continue; // Only if all extra parameters are required to be strings 
+      
       QJsonObject envVarObj = envVar.toObject();
       QString key = envVarObj["key"].toString();
       if (!keys.contains(key)) {
-	keys.insert(key);
-	newEnvVariables.append(envVarObj);
+        keys.insert(key);
+        newEnvVariables.append(envVarObj);
       }
     }
     envVariables = newEnvVariables;
@@ -483,20 +542,76 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     
     QJsonArray fileInputs;
     QJsonObject inputs;
-    
     inputs["envKey"]="inputDirectory";    
     inputs["targetPath"]="*";
     inputs["sourceUrl"] = "tapis://" + designsafeDirectory; //storage;
-    
-    /* NO JUSTIN THIS ONLY WORKS FOR YOU
-       if (tapisAppName == "simcenter-claymore-lonestar6") {
-       inputs["sourceUrl"] = "tapis://" + QString("designsafe.storage.default/") + QString("bonusj/HydroUQ/") + tmpDirName;           
-       data["sourceUrl"]   = "tapis://" + QString("designsafe.storage.default/") + QString("bonusj/mpm-public-ls6");
-       }
-    */
-    
-    
     fileInputs.append(inputs);
+    
+    // for (auto extraInput : extraInputs.keys()) {
+    //   QJsonObject data;
+    //   data["sourceUrl"]   = "tapis://" + QString("designsafe.storage.default/") + extraInputs[extraInput];
+    //   data["targetPath"]  = "*";
+    //   data["envKey"]      = extraInput;
+    //   fileInputs.append(data);
+    // }
+
+    // QJsonArray extraInputs;
+    // if (extraParameters.contains("fileInputs")) {
+    //   if (extraParameters["fileInputs"].isArray()) {
+    //     extraInputs = extraParameters["fileInputs"].toArray();
+    //     for (auto extraInput : extraInputs) {
+    //       if (extraInput.isObject()) {
+    //         if (extraInput.toObject().contains("envKey") && extraInput.toObject().contains("sourceUrl") && extraInput.toObject().contains("targetPath")) {
+    //           // QString envKey = extraInput.toObject()["envKey"].toString();
+    //           // QString sourceUrl = extraInput.toObject()["sourceUrl"].toString();
+    //           // QString targetPath = extraInput.toObject()["targetPath"].toString();
+    //           fileInputs.append(extraInput);
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
+
+    // Currently, extraInputs supports just one extra fileInputs object as it is a QMap<QString, QString>
+    // Can be vectorized, etc.,   if needed
+    // QJsonObject extraInput;
+    // if (extraInputs.contains("envKey")) {
+    //   extraInput["envKey"]=extraInputs["envKey"];
+    // }
+    // if (extraInputs.contains("targetPath")) {
+    //   extraInput["targetPath"]=extraInputs["targetPath"];
+    // }
+    // if (extraInputs.contains("sourceUrl")) {
+    //   extraInput["sourceUrl"]=extraInputs["sourceUrl"];
+    // }
+    // fileInputs.append(extraInput);
+
+    // // Refashion for use with qmap<qstring, qstring>     
+    // for (auto extraInput : extraInputs.keys()) {
+    //   QJsonObject data;
+    //   data["sourceUrl"]   = "tapis://" + QString("designsafe.storage.default/") + extraInputs[extraInput];
+    //   data["targetPath"]  = "*";
+    //   data["envKey"]      = extraInput;
+    //   fileInputs.append(data);
+    // }
+
+    // /* 
+    // Temporary hardcoding for the MPM app
+    QJsonObject data;
+    if (tapisAppName == "simcenter-claymore-lonestar6") {       
+      data["sourceUrl"]   = "tapis://" + QString("designsafe.storage.default/") + QString("bonusj/mpm-public-ls6");
+      data["targetPath"]  = "*";
+      data["envKey"]      = "dataDirectory";
+      fileInputs.append(data);
+    } else if (tapisAppName == "simcenter-claymore-frontera") {       
+      data["sourceUrl"]   = "tapis://" + QString("designsafe.storage.default/") + QString("bonusj/mpm-public-frontera");
+      data["targetPath"]  = "*";
+      data["envKey"]      = "dataDirectory";
+      fileInputs.append(data);
+    }
+    // */
+    
+    
     job["fileInputs"]=fileInputs;          
 
     //
@@ -542,7 +657,7 @@ SC_RemoteAppTool::onGetRemoteButtonPressed() {
 
     } else {
         errorMessage("ERROR - You Need to Login");
-    }  
+    }
 }
 
 void
@@ -571,6 +686,16 @@ SC_RemoteAppTool::processResults(QString &dirName){
   QString blankFileName("scInput.json");
   theResults->processResults(blankFileName,dirName);
 
+}
+
+void SC_RemoteAppTool::setExtraInputs(QMap<QString, QString> extraInputs)
+{
+    this->extraInputs = extraInputs;
+}
+
+void SC_RemoteAppTool::setExtraParameters(QMap<QString, QString> extraParameters)
+{
+    this->extraParameters = extraParameters;
 }
 
 bool SC_RemoteAppTool::outputCitation(QJsonObject &jsonObject) {
