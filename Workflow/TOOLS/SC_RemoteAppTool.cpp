@@ -562,7 +562,7 @@ SC_RemoteAppTool::processResults(QString &dirName){
     }
   
     
-  SC_ResultsWidget *theResults=theApp->getResultsWidget();
+  SC_ResultsWidget *theResults = theApp->getResultsWidget();
   if (theResults == NULL) {
     this->errorMessage("FATAL - SC_RemoteAppTool received NULL pointer theResults from theApp->getResultsWidget()... skipping theResults->processResults()");
     return;
