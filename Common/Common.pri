@@ -31,7 +31,9 @@ SOURCES += $$PWD/HeaderWidget.cpp \
     $$PWD/SC_TableEdit.cpp \
     $$PWD/SC_FileEdit.cpp \
     $$PWD/SC_DirEdit.cpp \    
-    $$PWD/SC_ResultsWidget.cpp \                        
+    $$PWD/SC_ResultsWidget.cpp \
+	$$PWD/SC_Chart.cpp \	
+	$$PWD/SC_TimeSeriesResultChart.cpp \	
     $$PWD/SimCenterAppWidget.cpp\
     $$PWD/NoArgSimCenterApp.cpp\
     $$PWD/SimCenterAppSelection.cpp \
@@ -62,7 +64,9 @@ HEADERS += $$PWD/HeaderWidget.h \
     $$PWD/SC_TableEdit.h \
     $$PWD/SC_FileEdit.h \
     $$PWD/SC_DirEdit.h \    
-    $$PWD/SC_ResultsWidget.h \    
+    $$PWD/SC_ResultsWidget.h \
+	$$PWD/SC_Chart.h \    
+	$$PWD/SC_TimeSeriesResultChart.h \
     $$PWD/NoArgSimCenterApp.h \
     $$PWD/SimCenterAppSelection.h \
     $$PWD/SimCenterAppMulti.h \    
