@@ -128,7 +128,8 @@ void dump(const char *text,
     }
     fputc('\n', stream); /* newline */
   }
-  fputc('\n\n', stream); /* newline */  
+  fputc('\n', stream); /* newline */
+  fputc('\n', stream); /* newline */    
   fflush(stream);
 }
 

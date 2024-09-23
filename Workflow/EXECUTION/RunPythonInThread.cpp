@@ -111,15 +111,18 @@ RunPython::processScript() {
 
   QDir workDirectory(workDir);
   if (!workDirectory.exists()) {
-    emit errorMessage(QString("ModularPythonInThread::ModularPythonInThread no existant workdir: ")+workDir);
     //pythonProcessDone("Process failed to launch due to non-existant working dir.");
-    emit processFinished(-1);
-    return;
+    workDirectory.mkdir(workDir);
+    if (!workDirectory.exists()) {
+      emit errorMessage(QString("RunPythonInThread::RuPythonInThread no existant workdir: ")+workDir);
+      emit processFinished(-1);
+      return;
+    }
   }
 
   QFile pythonScript(script);
   if (!pythonScript.exists()) {
-    emit errorMessage(QString("ModularPythonInThread::ModularPythonInThread no script exists: ")+script);
+    emit errorMessage(QString("RunPythonInThread::RuPythonInThread no script exists: ")+script);
     //pythonProcessDone("Process failed to launch due to missing script.");
     emit processFinished(-1);    
     return;

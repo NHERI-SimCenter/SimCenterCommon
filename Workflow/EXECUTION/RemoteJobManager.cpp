@@ -68,6 +68,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class RemoteService;
 
+// new function to be called before removeRecusivility
+
+extern bool isSafeToRemoveRecursivily(const QString &directoryPath);
+
 RemoteJobManager::RemoteJobManager(RemoteService *theRemoteService, QWidget *parent)
   : QWidget(parent), triggeredRow(-1), theService(theRemoteService), callProcessResultsOnApp(true)
 {
@@ -378,13 +382,18 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 	 
         QString localDir = SimCenterPreferences::getInstance()->getRemoteWorkDir();
         QDir localWork(localDir);
-        localWork.removeRecursively();
-        if (!localWork.exists()) {
-            if (!localWork.mkpath(localDir)) {
-                emit sendErrorMessage(QString("Could not create Working Dir: ") + localDir + QString(" . Try using an existing directory or make sure you have permission to create the working directory."));
-                return;
-            }
-        }
+
+	// remove RemoteWorkDir
+	if (localWork.exists()) 
+	  if (isSafeToRemoveRecursivily(localDir))
+	    localWork.removeRecursively();
+	  else
+	    emit sendFatalMessage("App needs user to own RemoteWorkDir in Preferences, Change it and start again");
+	
+	if (!localWork.mkpath(localDir)) {
+	  emit sendFatalMessage(QString("Could not create Remote Working Dir: ") + localDir + QString(" . Try using an existing directory or make sure you have permission to create the working directory."));
+	  return;
+	}
 
         QStringList localFiles;
         QStringList remoteFiles;
@@ -440,7 +449,7 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
             remoteFiles.append(rName3);
 
 	  }
-	  
+
 	} else {
 
 	  archiveDir = archiveDir + QString("/") + inputDir.remove(QRegularExpression(".*\\/")); // regex to remove up till last /
@@ -491,8 +500,11 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
 	    
 	    QString templateDir = name3 + QDir::separator() + QString("templatedir");
 	    QDir templateD(templateDir);
-	    if (templateD.exists())
-	      templateD.removeRecursively();
+
+	    if (templateD.exists())	    
+	      if (isSafeToRemoveRecursivily(templateDir))
+		templateD.removeRecursively();
+
 	    
 	    // unzip .. this places files in a new dir templatedir
 	    ZipUtils::UnzipFile(name1, QDir(name3));
@@ -505,7 +517,8 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
 	    
 	    QDir resultsD(resultsDir);
 	    if (resultsD.exists())
-	      resultsD.removeRecursively();
+	      if (isSafeToRemoveRecursivily(resultsDir))	      
+		resultsD.removeRecursively();
 	    
 	    // unzip .. this places files in a new dir results
 	    ZipUtils::UnzipFile(name2, QDir(name3));
