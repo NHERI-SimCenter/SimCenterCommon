@@ -34,7 +34,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: Amin Pakzad
 
 #include "ShakerMaker.h"
 #include <SC_DoubleLineEdit.h>
