@@ -123,10 +123,7 @@ QString getConfigOptionString(QString option) {
   qDebug() << "getConfigString: " << option << *inputOptions;
   
   if (inputOptions->contains(option)) {
-    qDebug() << "HELLO ";    
     QJsonValue value = (*inputOptions)[option];
-    qDebug() << "HELLO1";        
-    qDebug() << "option:value = " << option << ":"  << value;
     if (value.isString())
       return value.toString();
   }
