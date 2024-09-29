@@ -32,7 +32,7 @@ for:
 
        # build SimCenterCommon
        - cd SimCenterCommon
-       - python build.py
+       - python3 build.py
 
     test_script:
        - qmake --version
@@ -67,7 +67,7 @@ for:
     build_script:
        # build SimCenterCommon
        - cd SimCenterCommon
-       - python build.py
+       - python3 build.py
 
     test_script:
        - qmake --version
