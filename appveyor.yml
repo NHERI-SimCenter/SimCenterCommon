@@ -1,0 +1,113 @@
+version: 24.9.{build}
+
+image:
+  - Visual Studio 2019
+  - macOS
+  - Ubuntu1804
+
+stack: python 3.8
+
+for:
+  # macOS 
+  -
+    matrix:
+      only:
+        - image: macOS
+
+    clone_folder: ~/SimCenter
+
+    init:
+       - export PATH="$HOME/Qt/5.15.2/clang_64/bin:$HOME/venv3.8/bin:$PATH"
+       - python3 -m pip install --upgrade pip
+       - pip install conan==1.60.1
+       - conan user
+       - conan remote add simcenter https://nherisimcenter.jfrog.io/artifactory/api/conan/simcenter
+       
+    install:
+       - uname
+       - rm -rf SimCenterCommon
+       - git clone https://github.com/JustinBonus/SimCenterCommon.git
+
+    build_script:
+
+       # build SimCenterCommon
+       - cd SimCenterCommon
+       - python build.py
+
+    test_script:
+       - qmake --version
+       - gcc --version
+       - python --version
+       - python3 --version
+
+  # Ubuntu1804 
+  -
+    matrix:
+      only:
+        - image: Ubuntu1804
+
+    clone_folder: ~/SimCenter
+
+    init:
+       - export PATH="$HOME/Qt/5.15.2/gcc_64/bin:$HOME/venv3.8.6/bin:$PATH"
+       - export PATH="/home/appveyor/.local/bin:$PATH"       
+       
+    install:
+       - uname
+       - rm -rf SimCenterCommon
+       - sudo update-alternatives --set gcc /usr/bin/gcc-8
+       - sudo apt-get update       
+       - sudo apt-get -y install libglu1-mesa-dev freeglut3-dev mesa-common-dev libblas-dev liblapack-dev
+       - python3 -m pip install --upgrade pip
+       - pip install conan==1.60.1
+       - conan user
+       - conan remote add simcenter https://nherisimcenter.jfrog.io/artifactory/api/conan/simcenter
+       - git clone https://github.com/JustinBonus/SimCenterCommon.git
+       
+    build_script:
+       # build SimCenterCommon
+       - cd SimCenterCommon
+       - python build.py
+
+    test_script:
+       - qmake --version
+       - gcc --version
+       - python3 --version
+       - python --version
+
+  # Visual Studio 2019
+  -
+    matrix:
+      only:
+        - image: Visual Studio 2019
+
+    clone_folder: c:\projects\SimCenter
+
+    init:
+       - cmd: set PYTHON=C:\PYTHON38-x64
+       - cmd: set PYTHONNET_PYDLL=%PYTHON%\python3.8.dll
+       - cmd: set QT=C:\Qt\5.15.2\msvc2019_64\bin
+       - cmd: set PATH=%PYTHON%;%PYTHON%\Scripts;%QT%;%PATH%
+       - cmd: call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+       - cmd: pip.exe install conan==1.60.1
+       - cmd: conan user
+       - cmd: conan profile new default --detect
+       - cmd: conan profile show default
+       - cmd: conan profile update settings.compiler="Visual Studio" default
+       - cmd: conan profile update settings.compiler.version="16" default
+       - cmd: conan remote add simcenter https://nherisimcenter.jfrog.io/artifactory/api/conan/simcenter                     
+       - cmd: echo %PATH%
+
+    install:
+       - cmd: rm -rf SimCenterCommon
+       - cmd: git clone https://github.com/JustinBonus/SimCenterCommon.git
+       - cmd: dir
+
+    build_script:
+      # build simcenter backend
+      - cmd: dir
+      - cmd: cd SimCenterCommon
+      - cmd: python build.py
+
+    test_script:
+      - cmd: python --version
