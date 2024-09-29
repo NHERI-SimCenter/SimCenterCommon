@@ -7,6 +7,7 @@
 #include <RemoteJobManager.h>
 #include <SC_ResultsWidget.h>
 #include <Utils/RelativePathResolver.h>
+#include <TapisMachine.h>
 
 #include <QDebug>
 #include <QStackedWidget>
@@ -24,6 +25,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+
 SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 				   QString appVersion,
 				   QString hpcMachine, 
@@ -33,8 +35,28 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 				   QDialog *enclosingDialog)
   :SimCenterAppWidget(), theApp(theEnclosedApp), theService(theRemoteService),
    tapisAppName(appName), tapisAppVersion(appVersion), machine(hpcMachine),
-   queus(theQueus)
+   queus(theQueus), theMachine(0)
 {
+
+  this->initialize(enclosingDialog);
+
+}
+
+SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
+				   QString appVersion,
+				   TapisMachine *machine, 
+				   RemoteService *theRemoteService,
+				   SimCenterAppWidget* theEnclosedApp,
+				   QDialog *enclosingDialog)
+  :SimCenterAppWidget(), theApp(theEnclosedApp), theService(theRemoteService),
+   tapisAppName(appName), tapisAppVersion(appVersion), theMachine(machine)
+{
+  this->initialize(enclosingDialog);
+}
+
+void
+SC_RemoteAppTool::initialize(QDialog *enclosingDialog) {
+
   QVBoxLayout *theMainLayout = new QVBoxLayout(this);
   theMainLayout->addWidget(theApp);
 
@@ -71,57 +93,67 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   nameLineEdit->setToolTip(tr("A meaningful name to provide for you to remember run later (days and weeks from now)"));
   remoteLayout->addWidget(nameLineEdit,numRow,1);
 
-  int numNode = 1;
-  int maxProcPerNode = 56; //theApp->getMaxNumProcessors(56);
-  if (machine == "stampede3") {
-    maxProcPerNode = 48;
-  }
 
-  numRow++;
-  numCPU_LineEdit = new QLineEdit();
-  remoteLayout->addWidget(new QLabel("Num Nodes:"),numRow,0);  
-  remoteLayout->addWidget(numCPU_LineEdit,numRow,1);
-  numCPU_LineEdit->setText("1");
+  if (theMachine ==  0) {
     
-  numGPU_LineEdit = NULL;
-  if (queus.first() == "gpu-a100" || queus.first() == "gpu-a100-dev" || queus.first() == "gpu-a100-small") {
-    numGPU_LineEdit = new QLineEdit();
-    numRow++;
-    
-    // lonestar 6 .. only set up for gpu-a100
-    remoteLayout->addWidget(new QLabel("Num GPUs:"),numRow,0);
-    
-    if (queus.first() == "gpu-a100-small") {
-      numGPU_LineEdit->setText("1"); // Special queue using just 1 NVIDIA A100
-      maxProcPerNode = 32;
-    } else {
-      numGPU_LineEdit->setText("3"); // 3 NVIDIA A100s
-      maxProcPerNode = 128;
+    int numNode = 1;
+    int maxProcPerNode = 56; //theApp->getMaxNumProcessors(56);
+    if (machine == "stampede3") {
+      maxProcPerNode = 48;
     }
-    numGPU_LineEdit->setToolTip(tr("# of GPUs requested per node"));
-    remoteLayout->addWidget(numGPU_LineEdit, numRow, 1);
-  }
 
-  numRow++;
-  remoteLayout->addWidget(new QLabel("Num Processors Per Node:"),numRow,0);    
-  numProcessorsLineEdit = new QLineEdit();
-  numProcessorsLineEdit->setText(QString::number(maxProcPerNode));
-  numProcessorsLineEdit->setToolTip(tr("Total # of Processes to Start"));
-
-  remoteLayout->addWidget(numProcessorsLineEdit,numRow,1);
-
-  numRow++;
-  remoteLayout->addWidget(new QLabel("Max Run Time (minutes):"),numRow,0);
-  runtimeLineEdit = new QLineEdit();
-  if (queus.first() == "gpu-a100" || queus.first() == "gpu-a100-dev") { 
+    numRow++;
+    numCPU_LineEdit = new QLineEdit();
+    remoteLayout->addWidget(new QLabel("Num Nodes:"),numRow,0);  
+    remoteLayout->addWidget(numCPU_LineEdit,numRow,1);
+    numCPU_LineEdit->setText("1");
+    
+    numGPU_LineEdit = NULL;
+    if (queus.first() == "gpu-a100" || queus.first() == "gpu-a100-dev" || queus.first() == "gpu-a100-small") {
+      numGPU_LineEdit = new QLineEdit();
+      numRow++;
+      
+      // lonestar 6 .. only set up for gpu-a100
+      remoteLayout->addWidget(new QLabel("Num GPUs:"),numRow,0);
+      
+      if (queus.first() == "gpu-a100-small") {
+	numGPU_LineEdit->setText("1"); // Special queue using just 1 NVIDIA A100
+	maxProcPerNode = 32;
+      } else {
+	numGPU_LineEdit->setText("3"); // 3 NVIDIA A100s
+	maxProcPerNode = 128;
+      }
+      numGPU_LineEdit->setToolTip(tr("# of GPUs requested per node"));
+      remoteLayout->addWidget(numGPU_LineEdit, numRow, 1);
+    }
+    
+    numRow++;
+    remoteLayout->addWidget(new QLabel("Num Processors Per Node:"),numRow,0);    
+    numProcessorsLineEdit = new QLineEdit();
+    numProcessorsLineEdit->setText(QString::number(maxProcPerNode));
+    numProcessorsLineEdit->setToolTip(tr("Total # of Processes to Start"));
+    
+    remoteLayout->addWidget(numProcessorsLineEdit,numRow,1);
+    
+    numRow++;
+    remoteLayout->addWidget(new QLabel("Max Run Time (minutes):"),numRow,0);
+    runtimeLineEdit = new QLineEdit();
+    if (queus.first() == "gpu-a100" || queus.first() == "gpu-a100-dev") { 
     runtimeLineEdit->setText("120");
-  }
-  else {
-    runtimeLineEdit->setText("120");
-  }
+    }
+    else {
+      runtimeLineEdit->setText("120");
+    }
   
-  runtimeLineEdit->setToolTip(tr("Run time limit on running Job (minutes). Job will be stopped if while running it exceeds this"));
-  remoteLayout->addWidget(runtimeLineEdit,numRow,1);
+    runtimeLineEdit->setToolTip(tr("Run time limit on running Job (minutes). Job will be stopped if while running it exceeds this"));
+    remoteLayout->addWidget(runtimeLineEdit,numRow,1);
+
+  } else {
+
+    numRow++;
+    remoteLayout->addWidget(theMachine,numRow,0, 2, 3);
+    numRow += 2;
+  }
 
   numRow++;
   remoteLayout->addWidget(new QLabel("TACC Allocation"), numRow, 0);
@@ -230,8 +262,6 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
       theJobManager->hide();
     });
   }
-
-
   
   QStringList filesToDownload; filesToDownload << "scInput.json" << "results.zip" << "inputData.zip";
   theJobManager = new RemoteJobManager(theService);
@@ -239,6 +269,7 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   theJobManager->hide();
   connect(theJobManager,SIGNAL(processResults(QString&)), this, SLOT(processResults(QString&)));
 }
+
 
 SC_RemoteAppTool::~SC_RemoteAppTool()
 {
@@ -336,14 +367,19 @@ SC_RemoteAppTool::submitButtonPressed() {
   json["runType"]=QString("runningRemote");
   int nodeCount = numCPU_LineEdit->text().toInt();
   int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
-  json["nodeCount"]=nodeCount;
-  json["numP"]=nodeCount*numProcessorsPerNode; 
 
-  if (numGPU_LineEdit != NULL) {
-    int gpuCount = numGPU_LineEdit->text().toInt();
-    json["gpus"]=gpuCount;
+  if (theMachine == 0) {
+    json["nodeCount"]=nodeCount;
+    json["numP"]=nodeCount*numProcessorsPerNode; 
+
+    if (numGPU_LineEdit != NULL) {
+      int gpuCount = numGPU_LineEdit->text().toInt();
+      json["gpus"]=gpuCount;
+    }
+  } else {
+    theMachine->outputToJSON(json);
   }
-
+  
   QJsonDocument doc(json);
   file.write(doc.toJson());
   file.close();
@@ -393,42 +429,51 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     job["appId"]=tapisAppName;
     job["appVersion"]=tapisAppVersion;         
     job["name"]=shortDirName + nameLineEdit->text();
-    job["nodeCount"]=nodeCount;
-    job["coresPerNode"]=numProcessorsPerNode;
-    job["maxMinutes"]=runtimeLineEdit->text().toInt();
-    
     int ramPerNodeMB = 128000;    
     job["memoryMB"]= ramPerNodeMB;
 
-    //
-    // figure out queue
-    //
-    
-    QString queue; // queuu to send job to
-    QString firstQueue = queus.first();
-    if (firstQueue == "gpu-a100" ||
-	firstQueue == "gpu-a100-dev" ||
-	firstQueue == "gpu-h100" ||
-	firstQueue == "rtx" ||
-	firstQueue == "rtx-dev" ||
-	firstQueue == "gpu-a100-small") {
+    if (theMachine == 0) {
       
-      queue = firstQueue;
+      job["nodeCount"]=nodeCount;
+      job["coresPerNode"]=numProcessorsPerNode;
+      job["maxMinutes"]=runtimeLineEdit->text().toInt();
       
-    } else if (machine == "frontera") {
+      //
+      // figure out queue
+      //
       
-      queue = "small";
-      if (nodeCount > 2)
-	      queue = "normal";
-      if (nodeCount > 512)
-        queue = "large";
+      QString queue; // queuu to send job to
+      QString firstQueue = queus.first();
+      if (firstQueue == "gpu-a100" ||
+	  firstQueue == "gpu-a100-dev" ||
+	  firstQueue == "gpu-h100" ||
+	  firstQueue == "rtx" ||
+	  firstQueue == "rtx-dev" ||
+	  firstQueue == "gpu-a100-small") {
+	
+	queue = firstQueue;
+	
+      } else if (machine == "frontera") {
+	
+	queue = "small";
+	if (nodeCount > 2)
+	  queue = "normal";
+	if (nodeCount > 512)
+	  queue = "large";
+	
+      } else if (machine == "stampede3") {
+	queue = "icx";
+      }
       
-    } else if (machine == "stampede3") {
-      queue = "icx";
+      
+      job["execSystemLogicalQueue"]=queue;
+
+    } else {
+      
+      theMachine->outputToJSON(job);
+
     }
     
-    
-    job["execSystemLogicalQueue"]=queue;  
 
 
     //
