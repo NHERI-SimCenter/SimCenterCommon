@@ -145,8 +145,10 @@ bool RemoteOpenSeesApp::copyFiles(QString &destDirectory)
     QString sourcePath = fileDir.absolutePath();
     QString destPath = destDir.absoluteFilePath(dirName);
 
-    SimCenterAppWidget::copyPath(sourcePath, destDirectory, true);    
+    SimCenterAppWidget::copyPath(sourcePath, destDirectory, true);
+    return true;
   }
+  return false; // Temp. fix no-return-value error on VS 2019 appveyor
 }    
 
 
