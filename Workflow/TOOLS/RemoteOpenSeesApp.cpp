@@ -148,7 +148,7 @@ bool RemoteOpenSeesApp::copyFiles(QString &destDirectory)
     SimCenterAppWidget::copyPath(sourcePath, destDirectory, true);
     return true;
   }
-  return false; // Temp. fix no-return-value error on VS 2019 appveyor
+  return true;
 }    
 
 
