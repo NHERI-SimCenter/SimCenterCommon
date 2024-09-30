@@ -147,6 +147,7 @@ bool RemoteOpenSeesApp::copyFiles(QString &destDirectory)
 
     SimCenterAppWidget::copyPath(sourcePath, destDirectory, true);    
   }
+  return true;
 }    
 
 
