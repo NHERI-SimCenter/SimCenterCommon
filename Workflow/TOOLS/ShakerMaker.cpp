@@ -717,7 +717,8 @@ ShakerMaker::ShakerMaker(): SimCenterAppWidget()
     tabWidget->addTab(plotTab, "Plot");
     tabWidget->addTab(mapTab, "Map");
 
-    // // simulation layout is a web view to load html file in the plot tab
+
+    // simulation layout is a web view to load html file in the plot tab
     simulationWebView = new QWebEngineView();
     simulationWebView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     plotTab->setLayout(new QVBoxLayout());
@@ -733,6 +734,7 @@ ShakerMaker::ShakerMaker(): SimCenterAppWidget()
 
 
     simulationWebView->setUrl(QUrl("about:blank"));
+    mapWebView->setUrl(QUrl("about:blank"));
 
 
 
@@ -1139,7 +1141,7 @@ void ShakerMaker::Visualize() {
 
 
     // // delete the centerStation.png if it exists
-    QFile file2(destDir + QDir::separator() + "faults.html");
+    QFile file2(destDir + QDir::separator() + "faults_map.html");
     if (file2.exists()) {
         file2.remove();
     }
@@ -1164,14 +1166,17 @@ void ShakerMaker::Visualize() {
     // Now the process is finished, check if the file exists
     if (file2.exists()) {
         // load the file in the web view
+        // enable webgl for the web view
+        simulationWebView->settings()->setAttribute(QWebEngineSettings::WebGLEnabled, true);
         simulationWebView->load(QUrl::fromLocalFile(destDir + QDir::separator() + "faults.html"));
         simulationWebView->show();
         mapWebView->load(QUrl::fromLocalFile(destDir + QDir::separator() + "faults_map.html"));
         mapWebView->show();
-
     } else {
-        errorMessage("Error: Faults.html file not found");
+        errorMessage("Error: Faults_map.html file not found");
     }
+
+    errorMessage("Faults visualization is done");
 
 }
 
