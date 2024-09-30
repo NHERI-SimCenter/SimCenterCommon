@@ -62,7 +62,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QListView>
 #include <QStringListModel>
 #include <QScreen>
-
+#include <QScrollArea>
 
 DRM_Model::DRM_Model(QWidget *parent)
     : SimCenterAppWidget(parent)
@@ -71,8 +71,25 @@ DRM_Model::DRM_Model(QWidget *parent)
     QString storage("designsafe.storage.default/"); 
     the_DesignSafe_Storage = new TapisV3(tenant, storage);
     
+    // Create a main layout
+    QWidget *theWidget = new QWidget();
     QVBoxLayout *mainLayout = new QVBoxLayout();
-    this->setLayout(mainLayout);
+    theWidget->setLayout(mainLayout);
+
+
+    // scroll area
+    QVBoxLayout *layoutWithScroll = new QVBoxLayout();
+    QScrollArea *sa = new QScrollArea;
+    sa->setWidgetResizable(true);
+    sa->setLineWidth(0);
+    sa->setFrameShape(QFrame::NoFrame);
+    sa->setWidget(theWidget);
+    layoutWithScroll->addWidget(sa);
+    this->setLayout(layoutWithScroll);
+
+
+
+
 
     // Create a QSplitter
     QSplitter *mainSplitter = new QSplitter();
