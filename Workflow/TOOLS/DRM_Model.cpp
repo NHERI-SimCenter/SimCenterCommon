@@ -37,7 +37,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: Amin Pakzad
 #include <SimCenterAppWidget.h>
-#include <DRMModel.h>
+#include <DRM_Model.h>
 #include <TapisV3.h>
 #include <SC_DoubleLineEdit.h>
 #include <SC_IntLineEdit.h>
@@ -64,7 +64,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QScreen>
 
 
-DRMModel::DRMModel(QWidget *parent)
+DRM_Model::DRM_Model(QWidget *parent)
     : SimCenterAppWidget(parent)
 {
     QString tenant("designsafe");
@@ -783,36 +783,36 @@ DRMModel::DRMModel(QWidget *parent)
 
 }
 
-DRMModel::~DRMModel()
+DRM_Model::~DRM_Model()
 {
 }
 
-bool DRMModel::outputToJSON(QJsonObject &rvObject)
-{
-    return true;
-}
-
-bool DRMModel::inputFromJSON(QJsonObject &rvObject)
+bool DRM_Model::outputToJSON(QJsonObject &rvObject)
 {
     return true;
 }
 
-bool DRMModel::outputAppDataToJSON(QJsonObject &jsonObject)
+bool DRM_Model::inputFromJSON(QJsonObject &rvObject)
 {
     return true;
 }
 
-bool DRMModel::inputAppDataFromJSON(QJsonObject &jsonObject)
+bool DRM_Model::outputAppDataToJSON(QJsonObject &jsonObject)
 {
     return true;
 }
 
-bool DRMModel::copyFiles(QString &dirName)
+bool DRM_Model::inputAppDataFromJSON(QJsonObject &jsonObject)
 {
     return true;
 }
 
-void DRMModel::createModel() {
+bool DRM_Model::copyFiles(QString &dirName)
+{
+    return true;
+}
+
+void DRM_Model::createModel() {
     // creating the args to pass to the python script
     QStringList args;
 
@@ -1001,7 +1001,7 @@ void DRMModel::createModel() {
 
 
 
-void DRMModel::get_credentials(QString &username, QString &password) {
+void DRM_Model::get_credentials(QString &username, QString &password) {
     // pop up a window to ask for username and password
     QDialog *dialog = new QDialog();
     dialog->setWindowTitle("Login to Tapis");
@@ -1039,7 +1039,7 @@ void DRMModel::get_credentials(QString &username, QString &password) {
     password = passwordEdit->text();
 }
 
-QStringList DRMModel::getfilelist(QString &rootDir) {
+QStringList DRM_Model::getfilelist(QString &rootDir) {
     if (tapisUsername.isEmpty() || tapisPassword.isEmpty()) {
         this->get_credentials(tapisUsername, tapisPassword);
     }
@@ -1063,7 +1063,7 @@ QStringList DRMModel::getfilelist(QString &rootDir) {
 
 
 void 
-DRMModel::submitJob() {
+DRM_Model::submitJob() {
     bool status;
     if (!loggedIn) {
         this->get_credentials(tapisUsername, tapisPassword);
@@ -1119,7 +1119,7 @@ DRMModel::submitJob() {
     }
 
     // job = {
-    //     "name":"DRMModel-frontera",
+    //     "name":"DRM_Model-frontera",
     //     "appId":"simcenter-opensees-drm-frontera_amnp95",
     //     "appVersion":"1.0.0",
     //     "execSystemLogicalQueue":"development",

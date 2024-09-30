@@ -48,12 +48,12 @@ class SC_IntLineEdit;
 class SC_DirEdit;
 class SC_CheckBox;
 
-class DRMModel : public SimCenterAppWidget
+class DRM_Model : public SimCenterAppWidget
 {
     Q_OBJECT
 public:
-    explicit DRMModel(QWidget *parent = 0);
-    ~DRMModel();
+    explicit DRM_Model(QWidget *parent = 0);
+    ~DRM_Model();
 
     bool outputToJSON(QJsonObject &rvObject) override;
     bool inputFromJSON(QJsonObject &rvObject) override;
