@@ -128,7 +128,8 @@ void dump(const char *text,
     }
     fputc('\n', stream); /* newline */
   }
-  fputc('\n\n', stream); /* newline */  
+  fputc('\n', stream); /* newline */
+  fputc('\n', stream); /* newline */    
   fflush(stream);
 }
 
@@ -1176,6 +1177,70 @@ TapisV3::getJobList(const QString &matchingName, QString appIdFilter)
 
     return result;
 }
+
+QJsonObject 
+TapisV3::getFilesList(const QString &remotePath)
+{
+    QJsonObject result;
+
+    QString message = QString("Contacting ") + tenant + QString(" to Get File Listing of ") + remotePath;
+    emit statusMessage(message);
+
+    QString url = tenantURL + QString("v3/files/ops/") + storage + remotePath;
+    
+    std::string headerData = QString("X-Tapis-Token: %1").arg(accessToken).toStdString();
+
+    slist1 = NULL;
+    slist1 = curl_slist_append(slist1, headerData.c_str());
+    curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, slist1);
+    curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
+    this->invokeCurl();
+
+    // 
+    // process the results
+    //
+
+    // open results file
+    QFile file(uniqueFileName1);
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        emit errorMessage("ERROR: COULD NOT OPEN RESULT");
+        return result;
+    }
+
+    // read results file & check for errors
+    QString val;
+    val=file.readAll();
+    file.close();
+
+    if ((val.contains("Missing Credentals")) || (val.contains("Invalid Credentals"))){
+        emit errorMessage("ERROR: Trouble LOGGING IN .. try Logout and Login Again");
+        return result;
+    } else if ((val.contains("Service Unavailable"))){
+        QString message = QString("ERROR ") + tenant + QString(" Jobs Service Unavailable .. contact DesignSafe-ci");
+        emit errorMessage(message);
+        return result;
+    }
+
+    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+
+    QJsonObject theObj = doc.object();
+    if (theObj.contains("result")){
+        QJsonArray files = theObj["result"].toArray();
+        result["files"] = files;
+        emit statusMessage("Successfully obtained list of files");
+    }
+
+    return result;
+
+
+}
+
+
+
+
+
+
+
 
 void
 TapisV3::getJobDetailsCall(const QString &jobID)

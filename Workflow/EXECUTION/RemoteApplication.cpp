@@ -65,12 +65,54 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QCoreApplication>
 #include <QIntValidator>
 
+
+// Support multiple remote HPC systems, but default to Frontera - 
+
+static int maxProcPerNode = 56; // Frontera clx nodes: 56 cores, 56 threads, Frontera rtx nodes: 16 cores, 32 threads
+
+// new function to be called before removeRecusivility
+
+bool isSafeToRemoveRecursivily(const QString &directoryPath) {
+
+    // Get information about the directory
+    QFileInfo dirInfo(directoryPath);
+    
+    // Check if the directory exists
+    if (!dirInfo.exists() || !dirInfo.isDir()) {
+        qWarning() << "The directory does not exist or is not a directory.";
+        return false;
+    }
+
+    // Get the owner of the directory
+    QString owner = dirInfo.owner();
+    
+    // Get the name of the current user
+    QString currentUser = QDir::home().dirName();  // This gives the user's home directory name
+    
+    // Alternative method to get the username directly
+    QString userName = qgetenv("USER"); // On UNIX-like systems
+    if (userName.isEmpty())
+        userName = qgetenv("USERNAME"); // On Windows
+
+    // Compare the owner with the current user
+    return owner == currentUser || owner == userName;
+}
+
+
 RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QWidget *parent)
 : Application(parent), theRemoteService(theService)
 {
-    workflowScriptName = name;
-    shortDirName = QCoreApplication::applicationName() + QString(": ");
 
+
+    QString appName = QCoreApplication::applicationName();
+    
+  
+    workflowScriptName = name;
+    shortDirName = appName + QString(": ");
+
+    if (appName == "R2D" || appName == "quoFEM") {
+      maxProcPerNode = 48;
+    }
     //    shortDirName = workflowScriptName;
     //shortDirName = name.chopped(3); // remove .py
     //shortDirName.chop(3);
@@ -81,11 +123,11 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
     int numRow = 0;
 
     nameLabel->setText(QString("Job Name:"));
-    layout->addWidget(nameLabel, numRow,0);
+    layout->addWidget(nameLabel, numRow, 0);
 
     nameLineEdit = new QLineEdit();
     nameLineEdit->setToolTip(tr("A meaningful name to provide for you to remember run later (days and weeks from now)"));
-    layout->addWidget(nameLineEdit,numRow,1);
+    layout->addWidget(nameLineEdit, numRow, 1);
 
     numRow++;
     QLabel *numCPU_Label = new QLabel();
@@ -117,24 +159,32 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
     //numProcessorsLineEdit->setValidator(theValidatorNumP);
     
     connect(numProcessorsLineEdit, &QLineEdit::textChanged, this, [=](QString newText) {
-      bool ok;
-      int numP = newText.toInt(&ok);
-      if (!ok)
-	numP = 1;
-      else if (numP > maxProcPerNode) {
-	ok = false;
-	numP = maxProcPerNode;
-      } else if (numP < 1) {
-	ok = false;
-	numP = 1;
-      }
-      if (ok == false)
-	numProcessorsLineEdit->setText(QString::number(numP));
+        bool ok;
+        int numP = newText.toInt(&ok);
+        if (ok == false) 
+        {
+	        numP = 1;
+        }
+        else if (ok && numP > maxProcPerNode) 
+        {
+	        ok = false;
+	        numP = maxProcPerNode;
+        } 
+        else if (ok && numP < 1) 
+        {
+	        ok = false;
+	        numP = 1;
+        }
+        
+        if (ok == false) 
+        {
+	        numProcessorsLineEdit->setText(QString::number(numP));
+        }
+        
     });
 
 
-    QString appName = QCoreApplication::applicationName();
-    if (appName == "R2D"){
+    if (appName == "R2D") {
         numRow++;
         layout->addWidget(new QLabel("# Buildings Per Task:"), numRow, 0);
         buildingsPerTask=new QLineEdit("10");
@@ -156,23 +206,22 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
     runtimeLineEdit = new QLineEdit();
     runtimeLineEdit->setText("30");
     runtimeLineEdit->setToolTip(tr("Run time Limit on running Job hours:Min. Job will be stopped if while running it exceeds this"));
-    int maxMinutes = 60*48;
+    int maxMinutes = 60*48; // WARNING: Some Stampede3 queues only allow 60*24 minute run-times
     QIntValidator* theValidatorMinutes = new QIntValidator(1, maxMinutes);
-    numCPU_LineEdit->setValidator(theValidatorMinutes);
+    runtimeLineEdit->setValidator(theValidatorMinutes);
     runtimeLineEdit->setToolTip(tr("Run time Limit on running Job hours:Min. Job will be stopped if while running it exceeds this"));        
     layout->addWidget(runtimeLineEdit,numRow,1);
 
     numRow++;
-
     layout->addWidget(new QLabel("TACC Allocation"), numRow, 0);
     allocation = new QLineEdit();
     allocation->setText(SimCenterPreferences::getInstance()->getDefaultAllocation());
     layout->addWidget(allocation,numRow,1);
-    numRow++;
 
+    numRow++;
     pushButton = new QPushButton();
     pushButton->setText("Submit");
-    pushButton->setToolTip(tr("Press to launch job on remote machine. After pressing, window closes when Job Starts"));
+    pushButton->setToolTip(tr("Press Submit to launch your job on a remote computer system. This window will close once the job starts."));
     layout->addWidget(pushButton,numRow,1);
 
     this->setLayout(layout);
@@ -217,18 +266,18 @@ RemoteApplication::onRunButtonPressed(void)
     QString workingDir = SimCenterPreferences::getInstance()->getRemoteWorkDir();
 
     QDir dirWork(workingDir);
-    if (!dirWork.exists())
+    if (!dirWork.exists()) {
         if (!dirWork.mkpath(workingDir)) {
             emit sendErrorMessage(QString("Could not create Working Dir: ") + workingDir + QString(" . Try using an existing directory or make sure you have permission to create the working directory."));
             pushButton->setEnabled(true);
             return;
         }
-
+    }
     QString appDir = SimCenterPreferences::getInstance()->getAppDir();
     //   QString appDir = localAppDirName->text();
     QDir dirApp(appDir);
     if (!dirApp.exists()) {
-      emit sendErrorMessage(QString("The application directory, ") + appDir +QString(" specified does not exist!"));
+      emit sendErrorMessage(QString("The application directory, ") + appDir + QString(" specified does not exist!"));
       pushButton->setEnabled(true);
       return;
     }
@@ -308,13 +357,13 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
             return false;
         }
 
-	qDebug() << "RUNNING: " << python << " " << args;
+	    qDebug() << "RUNNING: " << python << " " << args;
 	
         proc->execute(python,args);
         proc->waitForStarted();
 
-	// qDebug() << python;
-	// qDebug() << args;
+        // qDebug() << python;
+        // qDebug() << args;
 
         //
         // in tmpDirectory we will zip up current template dir and then remove before sending (doone to reduce number of sends)
@@ -330,8 +379,8 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
 
         QFileInfo check_workflow(templateDir.absoluteFilePath("driver"));
         if (!check_workflow.exists() || !check_workflow.isFile()) {
-            emit sendErrorMessage(("Local Failure Setting up Dakota"));
-            qDebug() << "Local Failure Setting Up Dakota ";
+            emit sendErrorMessage(("No Driver file exists, local failure in setting up driver or problem not HPC ready"));
+            qDebug() << "Local Failure: No Driver file found, Either Problem will not run on HPC or Setup failure";
             pushButton->setEnabled(true);
             return false;
         }
@@ -352,11 +401,11 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
         if (tmpDir.exists("input_data")) {
             QDir inputDataDir(tmpDir.absoluteFilePath("input_data"));
             inputDataDir.removeRecursively();
-	    } 
+	} 
 
         QDir dirToRemove(templateDIR);
         templateDir.cd("templatedir");
-        templateDir.removeRecursively();
+	templateDir.removeRecursively();
 	
     } else {
 
@@ -433,47 +482,79 @@ RemoteApplication::uploadDirReturn(bool result)
       job["name"]=shortDirName + nameLineEdit->text();
       int nodeCount = numCPU_LineEdit->text().toInt();
       int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
+      int ramPerNodeMB = 1000; // 1 GB
       job["nodeCount"]=nodeCount;
       job["coresPerNode"]=numProcessorsPerNode;
+      job["memoryMB"]=ramPerNodeMB;
       job["maxMinutes"]=runtimeLineEdit->text().toInt();
 
-      QString queue = "small"; 
-      if (nodeCount > 2)
+
+
+      // --- CPU queues on Frontera, TODO: implement for frontera/stampede3/lonestar6 + GPU queues
+      QString queue = "small";
+      if (nodeCount > 2) {
         queue = "normal";
-      if (nodeCount > 512)
+      } else if (nodeCount > 512 && nodeCount <= 2048) {
         queue = "large";
+      } else {
+        // Only applicable to Texa-scale days
+      }
+      // ---
 
-      QString appName = QCoreApplication::applicationName();      
-      if ((appName == QString("R2D")) || (appName == QString("quoFEM")) || (appName == QString("quoFEM_TEST")) )
-	queue = "skx";
+      QString appName = QCoreApplication::applicationName(); 
 
-      job["appId"]=SimCenterPreferences::getInstance()->getRemoteAgaveApp();
-      job["appVersion"]=SimCenterPreferences::getInstance()->getRemoteAgaveAppVersion();      
-      
-      int ramPerNodeMB = 1000; // 1 GB
-
-
-
-      // NVIDIA GPU queues
-      if ((appName == QString("HydroUQ")) || (appName == "Hydro-UQ") || (appName == "HydroUQ_TEST")) {
-            if (nodeCount > 1) {
-                // not allowed until Multi-Node Multi-GPU update, so set to 1
-                nodeCount = 1;
-                job["nodeCount"] = nodeCount;
-            }
-            const bool USE_FRONTERA_FOR_HYDROUQ = false;
-            if (USE_FRONTERA_FOR_HYDROUQ) {
-                queue = "rtx"; // Frontera
-                ramPerNodeMB = 128000; // 128 GB
-            }
-            else {
-                queue = "gpu-a100"; // Lonestar6
-                ramPerNodeMB = 256000; // 256 GB
-            }
+      if ((appName == QString("R2D")) || (appName == QString("quoFEM")) || (appName == QString("quoFEM_TEST")) ) 
+      {
+        queue = "skx"; // Stampede3 Skylake node queue, upto 60*24 minutes run-time
       }
 
-      job["memoryMB"]= ramPerNodeMB;
-      job["execSystemLogicalQueue"]=queue;      
+    
+      if ((appName == QString("HydroUQ")) || (appName == QString("Hydro-UQ")) || (appName == QString("HydroUQ_TEST"))) 
+      {
+            // NVIDIA GPU queues currently HydroUQ's default, as they include CPUs as well
+            int numProcessorsPerNodeInGpuQueu = numProcessorsPerNode;
+            int nodeCountInGpuQueue = nodeCount;
+            const bool USE_FRONTERA_GPU = true;
+            const bool USE_LONESTAR6_GPU = false;
+            if constexpr (USE_FRONTERA_GPU) 
+            {
+                queue = "rtx"; // Frontera. 4 NVIDIA Quadro RTX 5000 GPU 16GB
+                numProcessorsPerNodeInGpuQueu = 16; // 2 Intel Xeon E5-2620 v4 (“Broadwell”), 2*8 cores, or 2*8*2 threads (may not be enabled on Frontera)
+                ramPerNodeMB = 128000; // 128 GB
+                nodeCountInGpuQueue = (nodeCount < 22) ? nodeCount : 22; // Frontera, 22 nodes per job on rtx queue
+            } 
+            else if constexpr (USE_LONESTAR6_GPU) 
+            {
+                queue = "gpu-a100"; // Lonestar6, 3 NVIDIA A100 GPU 80 GB
+                numProcessorsPerNodeInGpuQueu = 128; // 2x AMD EPYC 7763 64-Core Processor ("Milan"), 2*64 cores, or 2*64*1 threads
+                ramPerNodeMB = 256000; // 256 GB
+                nodeCountInGpuQueue = (nodeCount < 4) ? nodeCount : 4; // Lonestar6, 4 nodes per job on gpu-a100 queue
+            }
+            job["coresPerNode"] = numProcessorsPerNodeInGpuQueu;
+            job["nodeCount"] = nodeCountInGpuQueue;
+      }
+
+      job["memoryMB"]               = ramPerNodeMB;
+      job["execSystemLogicalQueue"] = queue;
+
+
+      // Grab the tapis App information from the preferences dialog
+      // To get the true Tapis App name, the version is appeneded to the app id, e.g. "simcenter-openfoam-frontera-1.0.0"
+      // TODO : split the <machine> field from the tapisId, so thats its more easily swapped out and updated at run-time
+
+      // Format for Tapis Apps (as of Aug 31, 2024): "<affiliation>-<exectutable>-<machine>""
+      // Affiliation is by default "simcenter" for all our simcenter public apps
+      // The executable is the name of the primary workflow / program, e.g. "uq", "claymore", "openfoam" / "weuq-openfoam"
+      // The machine is the name of the HPC system, e.g. "frontera", "stampede3, "lonestar6" / "ls6".
+      QString tapisAppId      = SimCenterPreferences::getInstance()->getRemoteAgaveApp();
+      
+      // The tapis version, <X.Y.Z>, is the iteration of the public app, e.g. "1.0.0". 
+      // DOUBLE-CHECK: [Tapisv3 removes the "uX" field, (i.e. 1.0.0u2), so ignore prior Tapisv2 versioning.]
+      QString tapisAppVersion = SimCenterPreferences::getInstance()->getRemoteAgaveAppVersion(); 
+      job["appId"]            = tapisAppId;
+      job["appVersion"]       = tapisAppVersion;      
+      
+
 
       QJsonObject parameterSet;
       QJsonArray envVariables;
@@ -486,11 +567,10 @@ RemoteApplication::uploadDirReturn(bool result)
       
       if (appName != "R2D") {
 
-	QJsonObject inputFile;
-	inputFile["key"]="inputFile";
-	inputFile["value"]="scInput.json";
-	envVariables.append(inputFile);
-
+        QJsonObject inputFile;
+        inputFile["key"]="inputFile";
+        inputFile["value"]="scInput.json";
+        envVariables.append(inputFile);
 
         if (appName == "quoFEM") {
             QJsonObject driverFile;
@@ -513,17 +593,16 @@ RemoteApplication::uploadDirReturn(bool result)
         
         }
 
-
       } else { // R2D env variables
 
-	  QJsonObject inputFileObj;
-	  inputFileObj["key"]="inputFile";
-	  inputFileObj["value"]="inputRWHALE.json";	  
-	  envVariables.append(inputFileObj);
-	  QJsonObject inputDataObj;
-	  inputDataObj["key"]="inputDir";
-	  inputDataObj["value"]="input_data";	  
-	  envVariables.append(inputDataObj);	  
+        QJsonObject inputFileObj;
+        inputFileObj["key"]="inputFile";
+        inputFileObj["value"]="inputRWHALE.json";	  
+        envVariables.append(inputFileObj);
+        QJsonObject inputDataObj;
+        inputDataObj["key"]="inputDir";
+        inputDataObj["value"]="input_data";	  
+        envVariables.append(inputDataObj);	  
 	  
       }
 
@@ -534,7 +613,7 @@ RemoteApplication::uploadDirReturn(bool result)
       QJsonArray schedulerOptions;
       QJsonObject schedulerOptionsObj;
       QString allocationText = QString("-A " ) + allocation->text();
-      schedulerOptionsObj["arg"]=allocationText;
+      schedulerOptionsObj["arg"] = allocationText;
       
       schedulerOptions.append(schedulerOptionsObj);
       parameterSet["schedulerOptions"]=schedulerOptions;
@@ -546,11 +625,11 @@ RemoteApplication::uploadDirReturn(bool result)
       inputs["envKey"]="inputDirectory";
       inputs["targetPath"]="*";
       inputs["sourceUrl"] = "tapis://" + designsafeDirectory;
-	designsafeDirectory = "";
+      designsafeDirectory = "";
       for (auto inputName : extraInputs.keys())
-	{
-	  inputs[inputName] = extraInputs[inputName];
-	}
+      {
+	    inputs[inputName] = extraInputs[inputName];
+      }
       fileInputs.append(inputs);
       job["fileInputs"]=fileInputs;
       
@@ -566,8 +645,9 @@ RemoteApplication::uploadDirReturn(bool result)
 
       //QString dirName = theDirectory.dirName();
       //QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
-      
-      theDirectory.removeRecursively();
+
+      if (isSafeToRemoveRecursivily(tempDirectory))
+	theDirectory.removeRecursively();
       
       //
       // start the remote job

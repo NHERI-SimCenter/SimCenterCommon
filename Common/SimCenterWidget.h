@@ -90,16 +90,6 @@ public:
     void blankLineMessage(void);
   
 
-signals:
-
-    /**
-     *   @brief sendFatalMessage signal to be emitted when object needs to shut program down
-     *   @param message to be passed
-     *   @return void
-     */
-    void sendFatalMessage(QString message);
-
-    // Declare the message functions as slots to allow communication between threads
 public slots:
 
     /**
@@ -124,6 +114,12 @@ public slots:
      */
     void infoMessage(const QString& message);
 
+    /**
+     *   @brief send error message to dialog, brings up window telling user to quit
+     *   @param message to be passed
+     *   @return void
+     */  
+    void fatalMessage(const QString& message);
 
 private:
 

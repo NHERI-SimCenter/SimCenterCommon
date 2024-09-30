@@ -281,7 +281,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
       numPixels = 500;
     }  
 
-    QJsonObject outputOptions = getConfigOptionJSON("helpLocation");
+    QJsonObject outputOptions = getConfigOptionJSON("outputLocation");
     if (outputOptions.contains("position")) {
       QJsonValue value = outputOptions["position"];
       if (value.isString()) {

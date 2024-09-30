@@ -43,6 +43,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #ifdef _R2D
 #include "SimCenterMapcanvasWidget.h"
+#include "ResultsWidget.h"
+#include "VisualizationWidget.h"
 #endif
 
 class QMainWindow;
@@ -61,9 +63,10 @@ public:
     virtual void clear(void);
 
 #ifdef _R2D
+    explicit SC_ResultsWidget(QWidget *parent, QWidget *resWidget, QMap<QString, QList<QString>> assetTypeToType);
+    virtual int addResultTab(QString tabName, QString &dirName);
+    virtual int addResultSubtab(QString name, QWidget* existTab, QString &dirName);
 
-    void setVisualizationWidget(QWidget * vizWidget);  
-    virtual int processResults(QString &outputFile, QString &dirName, QString &assetType, QList<QString> typesInAssetType);
     virtual int addResults(SC_ResultsWidget* resultsTab, QString &outputFile, QString &dirName,
                            QString &assetType, QList<QString> typesInAssetType);
 
@@ -92,7 +95,10 @@ private slots:
 protected:
 
 #ifdef _R2D    
-    QWidget* theVizWidget;
+    VisualizationWidget* theVizWidget;
+    ResultsWidget* R2DresWidget;
+    QMap<QString, QList<QString>> theAssetTypeToType;
+
     QMainWindow* mainWindow;
     QByteArray uiState;
     std::shared_ptr<QList<QDockWidget*>> dockList = std::shared_ptr<QList<QDockWidget*>>(new QList<QDockWidget*>());
@@ -107,5 +113,6 @@ protected:
 
   
 };
+
 
 #endif // SC_RESULTS_WIDGET

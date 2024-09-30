@@ -1,5 +1,5 @@
-#ifndef SIMCENTER_PREFERENCES_H
-#define SIMCENTER_PREFERENCES_H
+#ifndef SIMCENTER_PREFERENCES_ALT_H
+#define SIMCENTER_PREFERENCES_ALT_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -84,4 +84,4 @@ private:
 };
 
 
-#endif // SIMCENTER_PREFERENCES_H
+#endif // SIMCENTER_PREFERENCES_ALT_H

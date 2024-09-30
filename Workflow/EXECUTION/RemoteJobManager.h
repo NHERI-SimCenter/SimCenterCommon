@@ -71,6 +71,7 @@ public:
 signals:
     void sendStatusMessage(QString);
     void sendErrorMessage(QString);
+    void sendFatalMessage(QString);  
 
     void getJobsList(QString);
     void getJobStatus(QString);
