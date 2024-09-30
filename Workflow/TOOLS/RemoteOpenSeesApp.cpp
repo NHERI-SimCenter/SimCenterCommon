@@ -76,7 +76,7 @@ RemoteOpenSeesApp::RemoteOpenSeesApp()
   theApplication = new SC_ComboBox("openSeesExecutable", theExe);
   theVersion = new SC_ComboBox("openSeesVersion", theVersions);    
 
-  theLayout->addWidget(new QLabel("scripitFile"),0,0);
+  theLayout->addWidget(new QLabel("scriptFile"),0,0);
   theLayout->addWidget(new QLabel("OpenSees Application"),1,0);
   theLayout->addWidget(new QLabel("OpenSees Version"),2,0);    
   theLayout->addWidget(theScriptFile,0,1);
