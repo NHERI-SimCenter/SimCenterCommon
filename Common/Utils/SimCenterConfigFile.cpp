@@ -91,6 +91,8 @@ int parseInputOptions(void) {
 
   inputOptions = new QJsonObject(jsonObj);
   parsedInputOptions = true;
+
+  return 0;
 }
 
 
