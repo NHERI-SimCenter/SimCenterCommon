@@ -32,6 +32,8 @@ bool recursiveCopy(const QString &sourcePath, const QString &destPath)
                 return false;
         }
     } else {
+        if (QFile::exists(destPath))
+            return true;
         if (!QFile::copy(sourcePath, destPath))
             return false;
     }
