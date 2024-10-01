@@ -739,13 +739,211 @@ DRM_Model::DRM_Model(QWidget *parent)
     JobBoxLayout->addWidget(Job_maxRunTime, 0, 5);
 
     QPushButton *Submitjob = new QPushButton("Submit Job");
-    JobBoxLayout->addWidget(Submitjob, 2, 0, 1, 6);
+    JobBoxLayout->addWidget(Submitjob, 2, 3, 1, 3);
 
     // connect the qpushbutton to a create model function
     connect(Submitjob, &QPushButton::clicked, [=]() {
         // create the model
         this->submitJob();
     });
+
+    JobUUID = new QLineEdit();
+    JobBoxLayout->addWidget(new QLabel("Job UUID"), 3, 0);
+    JobBoxLayout->addWidget(JobUUID, 3, 1, 1, 2);
+
+    QPushButton *GetResults = new QPushButton("Get Results");
+    JobBoxLayout->addWidget(GetResults, 3, 3, 1, 3);
+
+    // connect the qpushbutton to a create model function
+    connect(GetResults, &QPushButton::clicked, [=]() {
+        // check that the user is logged in
+        if (!loggedIn) {
+            this->get_credentials(tapisUsername, tapisPassword);
+            bool status =the_DesignSafe_Storage->login(tapisUsername, tapisPassword);
+            if (!status) {
+                errorMessage("Login Failed!");
+                loggedIn = false;
+                return;
+            } else {
+                loggedIn = true;
+            }
+        }
+
+        // get the job results
+        statusMessage("Getting the job results");
+        QString jobUUID = JobUUID->text();
+        QJsonObject res = the_DesignSafe_Storage->getJobDetails(jobUUID);
+        if (res.isEmpty()) {
+            errorMessage("Job UUID is not correct");
+            return;
+        }
+        QString savedir = res["archiveSystemDir"].toString();
+        if (res["status"].toString() != "FINISHED") {
+            errorMessage("Job Failed or not finished yet");
+            errorMessage("Please check the job status");
+            return;
+        }
+        bool ACCfound = false;
+        bool VELfound = false;
+        bool DISPfound = false;
+        // list the files in the directory
+        QStringList files = getfilelist(savedir);
+        for (int i = 0; i < files.size(); i++) {
+            // split the file name and get the last element
+            QStringList parts = files[i].split("/");
+            QString fileName = parts[parts.size() - 1];
+            // Check if the file starts with Accel*
+            if (fileName.startsWith("Accel") && ACCfound == false) {
+                // download the file
+                QString localdir = outputDir->getDirName() + QDir::separator() + "Results/ACC.txt";
+                the_DesignSafe_Storage->downloadFile(files[i], localdir);
+                ACCfound = true;
+            }
+            if (fileName.startsWith("Vel") && VELfound == false) {
+                // download the file
+                QString localdir = outputDir->getDirName() + QDir::separator() + "Results/VEL.txt";
+                the_DesignSafe_Storage->downloadFile(files[i], localdir);
+                VELfound = true;
+            }
+            if (fileName.startsWith("Disp") && DISPfound == false) {
+                // download the file
+                QString localdir = outputDir->getDirName() + QDir::separator() + "Results/DISP.txt";
+                the_DesignSafe_Storage->downloadFile(files[i], localdir);
+                DISPfound = true;
+            }
+        }
+
+        //  read the downloaded files which is has 4 columns time accx accy accz and make it a json file
+        QFile file(outputDir->getDirName() + QDir::separator() + "Results/ACC.txt");
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            errorMessage("Could not open the file");
+            return;
+        }
+        QTextStream in(&file);
+        QJsonArray acc_x;
+        QJsonArray acc_y;
+        QJsonArray acc_z;
+        QJsonArray time;
+        while (!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList parts = line.split(" ");
+            time.append(parts[0].toDouble()/9.81);
+            acc_x.append(parts[1].toDouble()/9.81);
+            acc_y.append(parts[2].toDouble()/9.81);
+            acc_z.append(parts[3].toDouble()/9.81);
+        }
+        QJsonObject accObject;
+        accObject["unit"] = "g";
+        accObject["type"] = "acceleration";
+        accObject["data"] = "Time histroy of the acceleration from DRM model";
+        accObject["name"] = "DRM Model Acceleration";
+        accObject["time"] = time;
+        accObject["acc_x"] = acc_x;
+        accObject["acc_y"] = acc_y;
+        accObject["acc_z"] = acc_z;
+
+        // write the json object to a file
+        QFile jsonfile(outputDir->getDirName() + QDir::separator() + "Results/Acceleration.json");
+        if (!jsonfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            errorMessage("Could not open the file");
+            return;
+        }
+        QTextStream out(&jsonfile);
+        out << QJsonDocument(accObject).toJson();
+        jsonfile.close();
+        // delete the txt file
+        file.remove();
+        file.close();
+
+        // do the same for the velocity and displacement
+        QFile file2(outputDir->getDirName() + QDir::separator() + "Results/VEL.txt");
+        if (!file2.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            errorMessage("Could not open the file");
+            return;
+        }
+        QTextStream in2(&file2);
+        QJsonArray vel_x;
+        QJsonArray vel_y;
+        QJsonArray vel_z;
+        while (!in2.atEnd()) {
+            QString line = in2.readLine();
+            QStringList parts = line.split(" ");
+            vel_x.append(parts[1].toDouble());
+            vel_y.append(parts[2].toDouble());
+            vel_z.append(parts[3].toDouble());
+        }
+        QJsonObject velObject;
+        velObject["unit"] = "m/s";
+        velObject["type"] = "velocity";
+        velObject["data"] = "Time histroy of the velocity from DRM model";
+        velObject["name"] = "DRM Model Velocity";
+        velObject["time"] = time;
+        velObject["vel_x"] = vel_x;
+        velObject["vel_y"] = vel_y;
+        velObject["vel_z"] = vel_z;
+
+        // write the json object to a file
+        QFile jsonfile2(outputDir->getDirName() + QDir::separator() + "Results/Velocity.json");
+        if (!jsonfile2.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            errorMessage("Could not open the file");
+            return;
+        }
+        QTextStream out2(&jsonfile2);
+        out2 << QJsonDocument(velObject).toJson();
+        jsonfile2.close();
+        // delete the txt file
+        file2.remove();
+        file2.close();
+
+        // do the same for the displacement
+        QFile file3(outputDir->getDirName() + QDir::separator() + "Results/DISP.txt");
+        if (!file3.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            errorMessage("Could not open the file");
+            return;
+        }
+        QTextStream in3(&file3);
+        QJsonArray disp_x;
+        QJsonArray disp_y;
+        QJsonArray disp_z;
+        while (!in3.atEnd()) {
+            QString line = in3.readLine();
+            QStringList parts = line.split(" ");
+            disp_x.append(parts[1].toDouble());
+            disp_y.append(parts[2].toDouble());
+            disp_z.append(parts[3].toDouble());
+        }
+        QJsonObject dispObject;
+        dispObject["unit"] = "m";
+        dispObject["type"] = "displacement";
+        dispObject["data"] = "Time histroy of the displacement from DRM model";
+        dispObject["name"] = "DRM Model Displacement";
+        dispObject["time"] = time;
+        dispObject["disp_x"] = disp_x;
+        dispObject["disp_y"] = disp_y;
+        dispObject["disp_z"] = disp_z;
+
+        // write the json object to a file
+        QFile jsonfile3(outputDir->getDirName() + QDir::separator() + "Results/Displacement.json");
+        if (!jsonfile3.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            errorMessage("Could not open the file");
+            return;
+        }
+        QTextStream out3(&jsonfile3);
+        out3 << QJsonDocument(dispObject).toJson();
+        jsonfile3.close();
+        // delete the txt file
+        file3.remove();
+        file3.close();
+
+        statusMessage("Job Results are downloaded");
+        statusMessage("Please check the Results folder in the choosen output directory");
+
+
+
+        
+        // get the job results
+    });
+
 
     
 
@@ -1188,7 +1386,7 @@ DRM_Model::submitJob() {
     QString day = QDateTime::currentDateTime().toString("yyyy_MM_dd");
     QString time = QDateTime::currentDateTime().toString("HH_mm_ss");
     QString jobname = "EEUQ_DRMModel_" + tapisUsername + "_" + day + "_" + time;
-    QString archivepath = tapisUsername + "/tapis-jobs-archive/" + jobname; 
+    QString archivepath = tapisUsername + "/tapis-jobs-archive/" + jobname +"/${JobUUID}"; 
 
 
 
@@ -1197,8 +1395,8 @@ DRM_Model::submitJob() {
     jobObject["appId"] = "simcenter-opensees-frontera";
     jobObject["appVersion"] = "1.0.0";
     jobObject["execSystemLogicalQueue"] = Job_Queue->currentText();
-    jobObject["execSystemExecDir"] = "${JobWorkingDir}/Mesh";
-    jobObject["execSystemInputDir"] = "${JobWorkingDir}/Mesh";
+    jobObject["execSystemExecDir"] = "${JobWorkingDir}";
+    jobObject["execSystemInputDir"] = "${JobWorkingDir}";
     jobObject["execSystemOutputDir"] = "${JobWorkingDir}/Results/";
     jobObject["archiveSystemDir"] = archivepath;
     
@@ -1269,5 +1467,5 @@ DRM_Model::submitJob() {
     QString res = the_DesignSafe_Storage->startJob(jobObject);
     statusMessage("Job is submitted");
     statusMessage("The job id is: " + res);
-
+    JobUUID->setText(res);
 }

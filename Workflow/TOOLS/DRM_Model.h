@@ -147,6 +147,7 @@ private:
     QComboBox *Job_System;
     QComboBox *Job_Queue;
     QTimeEdit* Job_maxRunTime;
+    QLineEdit *JobUUID;
 
 
 
