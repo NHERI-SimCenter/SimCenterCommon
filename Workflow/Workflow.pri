@@ -118,6 +118,7 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/TOOLS/RemoteAppTest.cpp \    
     $$PWD/SIM/OpenSeesBuildingModel.cpp \
     $$PWD/SIM/MDOF_BuildingModel.cpp \
+    $$PWD/SIM/MultiFidelityBuildingModel.cpp \
     $$PWD/SIM/MDOF_LU.cpp \    
     $$PWD/SIM/SteelBuildingModel.cpp \
     $$PWD/SIM/ConcreteBuildingModel.cpp \
@@ -242,6 +243,7 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/TOOLS/RemoteAppTest.h \
     $$PWD/SIM/OpenSeesBuildingModel.h \
     $$PWD/SIM/MDOF_BuildingModel.h \
+    $$PWD/SIM/MultiFidelityBuildingModel.h \
     $$PWD/SIM/MDOF_LU.h \    
     $$PWD/SIM/ReadWriteRVJSON.h \
     $$PWD/SIM/SteelBuildingModel.h \
