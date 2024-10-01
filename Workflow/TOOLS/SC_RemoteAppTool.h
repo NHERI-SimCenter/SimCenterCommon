@@ -14,6 +14,7 @@ class WorkflowAppWidget;
 class QPushButton;
 class RemoteService;
 class QLineEdit;
+class TapisMachine;
 class RemoteJobManager;
 class QJsonObject;
 
@@ -29,12 +30,23 @@ public:
 		   RemoteService *theRemoteService,
 		   SimCenterAppWidget* theEnclosedApp,
 		   QDialog *enclosingDialog = nullptr);
+
+  SC_RemoteAppTool(QString tapisAppName,
+		   QString tapisAppVersion,
+		   TapisMachine *theMachine,
+		   RemoteService *theRemoteService,
+		   SimCenterAppWidget* theEnclosedApp,
+		   QDialog *enclosingDialog = nullptr);  
   
   ~SC_RemoteAppTool();
-  
+
+  void initialize(QDialog *enclosingDialog);
   void clear(void);
   bool outputCitation(QJsonObject &jsonObject) override;
 		    
+  void setExtraInputs(QMap<QString, QString> extraInputs);
+  void setExtraParameters(QMap<QString, QString> extraParameters);
+
 public slots:
   //  void onRunRemoteButtonPressed();
   void submitButtonPressed();
@@ -51,7 +63,7 @@ private:
   QString tapisAppName;
   QString tapisAppVersion;
   QString machine;  
-  QStringList queus;
+  QStringList queus; 
   
   QLineEdit *nameLineEdit;
   // QLineEdit *systemLineEdit;
@@ -59,6 +71,7 @@ private:
   QLineEdit *numGPU_LineEdit;
   QLineEdit *numProcessorsLineEdit;
   QLineEdit *runtimeLineEdit;  
+  QLineEdit *allocation; 
   QPushButton *submitButton;
 
 
@@ -67,7 +80,6 @@ private:
 
   // From RemoteApplication
   // TODO: Condense and make more consistent the approach to SC_RemoteAppTool and RemoteApplication
-  QLineEdit *allocation; 
   QString shortDirName;
   QMap<QString, QString> extraInputs;
   QMap<QString, QString> extraParameters;
@@ -76,7 +88,7 @@ private:
   QString remoteHomeDirPath;
   QJsonObject theJob;
 
-
+  TapisMachine *theMachine;
   RemoteJobManager *theJobManager;
 };
 

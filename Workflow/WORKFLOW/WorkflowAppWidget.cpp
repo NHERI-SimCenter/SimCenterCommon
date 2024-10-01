@@ -80,8 +80,7 @@ WorkflowAppWidget::errorMessage(const QString msg){
 
 void
 WorkflowAppWidget::fatalMessage(const QString msg){
-    progressDialog->appendErrorMessage(msg);
-    emit sendFatalMessage(msg);
+    progressDialog->fatalMessage(msg);
 }
 
 MainWindowWorkflowApp *WorkflowAppWidget::getTheMainWindow() const

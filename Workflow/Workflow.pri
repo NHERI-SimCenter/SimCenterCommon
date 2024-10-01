@@ -113,9 +113,15 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/WORKFLOW/ModelViewItems/TreeViewStyle.cpp \
     $$PWD/WORKFLOW/ModelViewItems/LayerTreeModel.cpp \
     $$PWD/WORKFLOW/ModelViewItems/LayerTreeItem.cpp \
-    $$PWD/TOOLS/SC_ToolDialog.cpp \ 
+    $$PWD/TOOLS/SC_ToolDialog.cpp \
+    $$PWD/TOOLS/TapisMachine.cpp \    
+    $$PWD/TOOLS/Stampede3Machine.cpp \
+    $$PWD/TOOLS/FronteraMachine.cpp \         
     $$PWD/TOOLS/SC_RemoteAppTool.cpp \
-    $$PWD/TOOLS/RemoteAppTest.cpp \    
+    $$PWD/TOOLS/RemoteOpenSeesApp.cpp \        
+    $$PWD/TOOLS/RemoteAppTest.cpp \ 
+    $$PWD/TOOLS/ShakerMaker.cpp \
+    $$PWD/TOOLS/DRM_Model.cpp \
     $$PWD/SIM/OpenSeesBuildingModel.cpp \
     $$PWD/SIM/MDOF_BuildingModel.cpp \
     $$PWD/SIM/MultiFidelityBuildingModel.cpp \
@@ -238,9 +244,15 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/WORKFLOW/ModelViewItems/TreeViewStyle.h \ 
     $$PWD/WORKFLOW/ModelViewItems/LayerTreeModel.h \
     $$PWD/WORKFLOW/ModelViewItems/LayerTreeItem.h \
+    $$PWD/TOOLS/TapisMachine.h \    
+    $$PWD/TOOLS/Stampede3Machine.h \
+    $$PWD/TOOLS/FronteraMachine.h \             
     $$PWD/TOOLS/SC_ToolDialog.h \
     $$PWD/TOOLS/SC_RemoteAppTool.h \
     $$PWD/TOOLS/RemoteAppTest.h \
+    $$PWD/TOOLS/RemoteOpenSeesApp.h \    
+    $$PWD/TOOLS/ShakerMaker.h \
+    $$PWD/TOOLS/DRM_Model.h \
     $$PWD/SIM/OpenSeesBuildingModel.h \
     $$PWD/SIM/MDOF_BuildingModel.h \
     $$PWD/SIM/MultiFidelityBuildingModel.h \

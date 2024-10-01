@@ -102,7 +102,7 @@ EDP_Selection::EDP_Selection(QWidget *parent)
 
     layout->addWidget(theStackedWidget);
     this->setLayout(layout);
-    theCurrentEDP=theStandardEDPs;
+    theCurrentEDP = theStandardEDPs;
 
     connect(edpSelection, SIGNAL(currentIndexChanged(int)), this,
             SLOT(edpSelectionChanged(int)));

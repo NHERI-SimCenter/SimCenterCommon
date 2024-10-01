@@ -92,7 +92,8 @@ int parseInputOptions(void) {
   inputOptions = new QJsonObject(jsonObj);
   parsedInputOptions = true;
 
-  return 0;
+  return 0; // Return int as stated by function header. Void function if desired. Noted on VSCode 2019 in appveyor. We can quiet this error with pragma warning if needed
+  // C:\projects\SimCenter\SimCenterCommon\Common\Utils\SimCenterConfigFile.cpp(94) : error C4716: 'parseInputOptions': must return a value
 }
 
 
@@ -123,10 +124,7 @@ QString getConfigOptionString(QString option) {
   qDebug() << "getConfigString: " << option << *inputOptions;
   
   if (inputOptions->contains(option)) {
-    qDebug() << "HELLO ";    
     QJsonValue value = (*inputOptions)[option];
-    qDebug() << "HELLO1";        
-    qDebug() << "option:value = " << option << ":"  << value;
     if (value.isString())
       return value.toString();
   }
