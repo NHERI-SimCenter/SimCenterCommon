@@ -432,38 +432,28 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     int ramPerNodeMB = 128000;    
     job["memoryMB"]= ramPerNodeMB;
 
-    if (theMachine == 0) {
+    //
+    // figure out queue
+    //
+    
+    QString queue; // queuu to send job to
+    QString firstQueue = queus.first();
+    if (firstQueue == "gpu-a100" ||
+	firstQueue == "gpu-a100-dev" ||
+	firstQueue == "gpu-h100" ||
+	firstQueue == "rtx" ||
+	firstQueue == "rtx-dev" ||
+	firstQueue == "gpu-a100-small") {
+  queue = firstQueue;
       
-      job["nodeCount"]=nodeCount;
-      job["coresPerNode"]=numProcessorsPerNode;
-      job["maxMinutes"]=runtimeLineEdit->text().toInt();
+    } else if (machine == "frontera") 
+    {
       
-      //
-      // figure out queue
-      //
-      
-      QString queue; // queuu to send job to
-      QString firstQueue = queus.first();
-      if (firstQueue == "gpu-a100" ||
-	  firstQueue == "gpu-a100-dev" ||
-	  firstQueue == "gpu-h100" ||
-	  firstQueue == "rtx" ||
-	  firstQueue == "rtx-dev" ||
-	  firstQueue == "gpu-a100-small") {
-	
-	queue = firstQueue;
-	
-      } else if (machine == "frontera") {
-	
-	queue = "small";
-	if (nodeCount > 2)
-	  queue = "normal";
-	if (nodeCount > 512)
-	  queue = "large";
-	
-      } else if (machine == "stampede3") {
-	queue = "icx";
-      }
+      queue = "small";
+      if (nodeCount > 2)
+	      queue = "normal";
+      if (nodeCount > 512)
+        queue = "large";
       
       
       job["execSystemLogicalQueue"]=queue;
@@ -722,7 +712,7 @@ SC_RemoteAppTool::processResults(QString &dirName){
     }
   
     
-  SC_ResultsWidget *theResults=theApp->getResultsWidget();
+  SC_ResultsWidget *theResults = theApp->getResultsWidget();
   if (theResults == NULL) {
     this->errorMessage("FATAL - SC_RemoteAppTool received NULL pointer theResults from theApp->getResultsWidget()... skipping theResults->processResults()");
     return;
