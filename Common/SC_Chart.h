@@ -40,14 +40,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written by: Sina Naeimi
 
 
-#include "ComponentDatabase.h"
-#include "SC_ResultsWidget.h"
-#include "SimCenterMapcanvasWidget.h"
+//#include "ComponentDatabase.h"
+//#include "SC_ResultsWidget.h"
+//#include "SimCenterMapcanvasWidget.h"
 
 #include <QString>
-#include <QMainWindow>
+//#include <QMainWindow>
 #include <QJsonArray>
-#include <RewetResults.h>
+//#include <RewetResults.h>
 #include <QJsonObject>
 #include <QChart>
 

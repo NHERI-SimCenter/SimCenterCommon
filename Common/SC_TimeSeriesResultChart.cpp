@@ -37,20 +37,20 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written by: Sina Naeimi
 
 
-#include "RewetResults.h"
-#include "VisualizationWidget.h"
-#include "QGISVisualizationWidget.h"
-#include "SimCenterMapcanvasWidget.h"
+//#include "RewetResults.h"
+//#include "VisualizationWidget.h"
+//#include "QGISVisualizationWidget.h"
+//#include "SimCenterMapcanvasWidget.h"
 
-#include "CSVReaderWriter.h"
-#include "ComponentDatabaseManager.h"
-#include "GeneralInformationWidgetR2D.h"
-#include "MainWindowWorkflowApp.h"
-#include "REmpiricalProbabilityDistribution.h"
-#include "TablePrinter.h"
-#include "TableNumberItem.h"
-#include "VisualizationWidget.h"
-#include "WorkflowAppR2D.h"
+//#include "CSVReaderWriter.h"
+//#include "ComponentDatabaseManager.h"
+//#include "GeneralInformationWidgetR2D.h"
+//#include "MainWindowWorkflowApp.h"
+//#include "REmpiricalProbabilityDistribution.h"
+//#include "TablePrinter.h"
+//#include "TableNumberItem.h"
+//#include "VisualizationWidget.h"
+//#include "WorkflowAppR2D.h"
 #include "Utils/ProgramOutputDialog.h"
 
 #include <QBarCategoryAxis>

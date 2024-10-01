@@ -40,9 +40,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Written by: Sina Naeimi
 
 
-#include "ComponentDatabase.h"
-#include "SC_ResultsWidget.h"
-#include "SimCenterMapcanvasWidget.h"
+//#include "ComponentDatabase.h"
+//#include "SC_ResultsWidget.h"
+//#include "SimCenterMapcanvasWidget.h"
 
 #include <QString>
 #include <QMainWindow>
@@ -50,6 +50,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 #include <QChart>
 #include <QWidget>
+#include <QComboBox>
 
 class QVBoxLayout;
 class QGISVisualizationWidget;
