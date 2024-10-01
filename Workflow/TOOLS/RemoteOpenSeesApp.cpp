@@ -3,7 +3,8 @@
 #include <SC_FileEdit.h>
 #include <SC_DirEdit.h>
 #include <SC_ComboBox.h>
-
+#include <QGroupBox>
+#include <QPushButton>
 #include <QGridLayout>
 #include <QLineEdit>
 #include <QWidget>
@@ -15,26 +16,36 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QJsonObject>
+#include <QApplication>
+#include <QStandardPaths>
+#include <QMessageBox>
+#include <ZipUtils.h>
+#include <QFileDialog>
+#include <QLineEdit>
 
 RemoteOpenSeesAppResult::RemoteOpenSeesAppResult()
   :SC_ResultsWidget()
 {
-  QGridLayout *theLayout = new QGridLayout();
-  this->setLayout(theLayout);
+  QString pathToFolder = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
+    + QDir::separator() + QCoreApplication::applicationName() + QDir::separator() +
+    "DesignSafeFiles";
 
-  /*
-  QStringList theExe; theExe << "OpenSees" << "OpenSeesMP" << "OpenSeesSP";
-  QStringList theVersions; theExe << "v3.6.0";  
-  theScriptFile = new SC_FileEdit("inputScript");
-  theApplication = new SC_ComboBox("openSeesExecutable", theExe);
-  theVersion = new SC_ComboBox("openSeesVersion", theVersions);    
+  QDir resDir(pathToFolder);
+  if (!resDir.exists())
+    if (!resDir.mkpath(pathToFolder)) {
+      QString msg("PEER_NGA_Records could not create local work dir: "); msg += pathToFolder;
+      errorMessage(msg);
+    }
 
-  theLayout->addWidget(theScriptFile,0,0);
-  theLayout->addWidget(theApplication,0,0);
-  theLayout->addWidget(theVersion,0,0);    
-  */
+  resultsFolder = new SC_DirEdit("outputDir");
+  resultsFolder->setDirName(pathToFolder);
   
+  QGridLayout *layout = new QGridLayout();
+  layout->addWidget(new QLabel("Output Folder"),0,0);
+  layout->addWidget(resultsFolder,0,1);
+  this->setLayout(layout);
 }
+  
 
 RemoteOpenSeesAppResult::~RemoteOpenSeesAppResult()
 {
@@ -44,21 +55,40 @@ RemoteOpenSeesAppResult::~RemoteOpenSeesAppResult()
 int
 RemoteOpenSeesAppResult::processResults(QString &inputFile, QString &resultsDir)
 {
-  if (resultsDir != theOutputDir->getDirName()) {
-    // move files
+
+  QString directoryToUnzipIn = resultsFolder->getDirName();
+  QDir theFolder(directoryToUnzipIn);
+
+  // create folder
+  if (!theFolder.exists())
+    if (theFolder.mkpath(directoryToUnzipIn))
+      if (!theFolder.exists())
+	errorMessage("Could not create a Folder to place results in");
+
+  
+  QString resultsFile = resultsDir + QDir::separator() + QString("results.zip");
+  QString moveFile = directoryToUnzipIn + QDir::separator() + QString("results.zip");  
+
+  /*********** just copy don't unzip
+  if (QFile::rename(resultsFile, moveFile)) {
+    QMessageBox msgBox;
+    QString msg("The Files have been downloaded from DesignSafe into ");
+    msg+=moveFile;
+    msgBox.setText(msg);
+    msgBox.exec();
   }
-  /*
-  QString resultsFile = resultsDir + QDir::separator() + QString("results") + QDir::separator() + QString("results.out");
-
-  QFile file(resultsFile);
-
-  if ( !file.exists() ){
-    theOutputLine->setPlainText("SOME PROBLEM With JOB as results.out file non-existant");    
+  *************************************/
+  
+  if (ZipUtils::UnzipFile(resultsFile, directoryToUnzipIn)) {
+    QMessageBox msgBox;
+    QString msg("The Files have been downloaded from DesignSafe into ");
+    msg+=directoryToUnzipIn;
+    msgBox.setText(msg);
+    msgBox.exec();
   } else {
-    file.open(QFile::ReadOnly | QFile::Text);
-    theOutputLine->setPlainText(file.readAll());
+    errorMessage("Unzipping failed");
   }
-  */
+
   return 0;
 }
 
@@ -66,10 +96,12 @@ RemoteOpenSeesAppResult::processResults(QString &inputFile, QString &resultsDir)
 RemoteOpenSeesApp::RemoteOpenSeesApp()
   :SimCenterAppWidget()
 {
-  QGridLayout *theLayout = new QGridLayout();
-  this->setLayout(theLayout);
 
-  QStringList theExe; theExe << "OpenSees" << "OpenSeesMP" << "OpenSeesSP";
+  QGroupBox *theInputs = new QGroupBox("Input Information");
+  QGridLayout *theLayout = new QGridLayout();
+  theInputs->setLayout(theLayout);
+
+  QStringList theExe; theExe << "OpenSees" << "OpenSeesMP" << "OpenSeesSP" << "OpenSeesPy";
   QStringList theVersions; theVersions << "v3.6.0";
   
   theScriptFile = new SC_FileEdit("inputScript");
@@ -83,37 +115,15 @@ RemoteOpenSeesApp::RemoteOpenSeesApp()
   theLayout->addWidget(theApplication,1,1);
   theLayout->addWidget(theVersion,2,1);    
 
-  /*
-  theScriptFile = new QLineEdit("");
-  QPushButton *chooseFile = new QPushButton("Browse");
-
-  connect(chooseFile, &QPushButton::clicked, this,
-	  [=]() {
-	    //QString fileName=QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)");
-	    QString fileName=QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"); // sy - to continue from the previously visited directory
-	    theScriptFile->setText(fileName);
-	  });  
-  theResult = new RemoteOpenSeesAppResult();
-  
-  theLayout->addWidget(new QLabel("Input Script"),0,0);      
-  theLayout->addWidget(theScriptFile, 0,1,1,2);
-  theLayout->addWidget(chooseFile,0,3);
-  //theLayout->setColStretch(2,1);  
-  
-  QStringList applications; applications<< "OpenSees" << "OpenSeesSP" << "OpenSeesMP" << "OpenSees Py";
-  QStringList versions; versions<< "Current" << "v3.6.0" << "v3.5.1";
-  theApplication = new SC_ComboBox("application", applications);
-  theApplication = new SC_ComboBox("version", versions);
-  theLayout->addWidget(theApplication,1,1,1,1);
-  theLayout->addWidget(theVersion,2,1,1,1);
-
+  QGroupBox *theOutputs = new QGroupBox("Result Download");
+  QGridLayout *theOutputsLayout = new QGridLayout(theOutputs);
   theResult = new RemoteOpenSeesAppResult();  
-  theLayout->addWidget(theResult, 3,1,1,4);
-  */
+  theOutputsLayout->addWidget(theResult,0,0,1,4);
   
-  theResult = new RemoteOpenSeesAppResult();  
-  theLayout->addWidget(theResult, 3,1,1,4);  
-  theLayout->setRowStretch(4,1);  
+  QVBoxLayout *theMainLayout = new QVBoxLayout(this);
+  theMainLayout->addWidget(theInputs);
+  theMainLayout->addWidget(theOutputs);
+  theMainLayout->addStretch();    
 }
 
 RemoteOpenSeesApp::~RemoteOpenSeesApp()
@@ -136,15 +146,8 @@ bool RemoteOpenSeesApp::copyFiles(QString &destDirectory)
   QFileInfo fileInfo(theScriptFile->getFilename());
   if (fileInfo.exists()) {
     QDir fileDir(fileInfo.dir());
-    QString dirName = fileDir.dirName();
     
-    // mkdir
-    destDir.mkdir(dirName);
-
-    // copy files
     QString sourcePath = fileDir.absolutePath();
-    QString destPath = destDir.absoluteFilePath(dirName);
-
     SimCenterAppWidget::copyPath(sourcePath, destDirectory, true);    
   }
   return true;
@@ -164,10 +167,11 @@ RemoteOpenSeesApp::outputAppDataToJSON(QJsonObject &json)
   QFileInfo fileInfo(theScriptFile->getFilename());
   if (fileInfo.exists()) {
     QDir fileDir(fileInfo.dir());  
-    json["scriptFile"]= fileInfo.fileName();
-    json["scriptDir"]= fileDir.dirName();
+    json["inputScript"]= fileInfo.fileName();
+    json["scriptDir"]= fileDir.absolutePath();
+    json["remoteAPP"]= "true";    
     return true;
-  }
+  }  
   return false;
 }
 

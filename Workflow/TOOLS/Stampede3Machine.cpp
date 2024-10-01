@@ -18,7 +18,7 @@ Stampede3Machine::Stampede3Machine()
   numCPU->setText("1");
 
   numProcessors = new SC_IntLineEdit(QString("coresPerNode"),1, 48);
-  numProcessors->setText("56");
+  numProcessors->setText("48");
 
   runTime = new SC_IntLineEdit(QString("maxMinutes"),1, 1440);
   runTime->setText("20");
@@ -58,12 +58,7 @@ Stampede3Machine::outputToJSON(QJsonObject &job)
 
     // figure out queue
     int nodeCount = numCPU->text().toInt();
-    QString queue = "small";
-    if (nodeCount > 2) {
-      queue = "normal";
-    } else if (nodeCount > 512) {
-      queue = "large";
-    }
+    QString queue = "simcenter";
 
     job["execSystemId"]=QString("stampede3-simcenter");    
     job["execSystemLogicalQueue"]=queue;
