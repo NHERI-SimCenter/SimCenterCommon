@@ -61,7 +61,7 @@ FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
   this->addComponent(QString("CustomPy-Simulation"), QString("CustomPy-Simulation"), custom_py_simulation);
 
   QString appName = QCoreApplication::applicationName();
-  if (appName == "EE-UQ") {
+  if ((appName == "EE-UQ" || appName =="WE-UQ")|| appName =="PBE") {
      SimCenterAppWidget *surrogate = new SurrogateSimulation();
       this->addComponent(QString("None (only for surrogate)"), QString("SurrogateSimulation"), surrogate);
   }

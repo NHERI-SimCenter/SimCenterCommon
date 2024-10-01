@@ -13,6 +13,7 @@ INCLUDEPATH += "../Utils"
 include($$PWD/ZipUtils/ZipUtils.pri)
 
 SOURCES += $$PWD/HeaderWidget.cpp \
+    $$PWD/Utils/JsonFunctions.cpp \
     $$PWD/Utils/RelativePathResolver.cpp \
     $$PWD/Utils/FileOperations.cpp \
     $$PWD/Utils/SimCenterConfigFile.cpp \    
@@ -48,10 +49,11 @@ SOURCES += $$PWD/HeaderWidget.cpp \
 HEADERS += $$PWD/HeaderWidget.h \
     $$PWD/Utils/RelativePathResolver.h \
     $$PWD/Utils/FileOperations.h \
+    $$PWD/Utils/JsonFunctions.h \
     $$PWD/Utils/dialogabout.h \
     $$PWD/Utils/ProgramOutputDialog.h \
     $$PWD/Utils/SimCenterConfigFile.h \        
-    $$PWD/Utils/PythonProcessHandler.h \
+    $$PWD/Utils/PythonProcessHandler.h \      
     $$PWD/SectionTitle.h \
     $$PWD/FooterWidget.h \
     $$PWD/SimCenterWidget.h \
