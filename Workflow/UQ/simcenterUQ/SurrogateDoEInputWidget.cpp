@@ -852,9 +852,13 @@ SurrogateDoEInputWidget::onEventTypeChanged(QString typeEVT) {
         // an earthquake event type
         theGpAdvancedCheckBoxEE->setVisible(true);
         theLogtCheckBox->setChecked(true);
-        theNuggetSelection->setCurrentIndex(4);
+        theNuggetSelection->setCurrentIndex(4); //heteroskedasticity
         numSampToBeRepl->setText("1");
         numRepl->setText("1");
+    } else if (typeEVT.compare("WE") ==0 ) {
+            theGpAdvancedCheckBoxEE->setVisible(false);
+            theLogtCheckBox->setChecked(true);
+            theNuggetSelection->setCurrentIndex(0); //small noise level
     } else {
         // not an earthquake event, inactivate ground motion intensity widget
         theGpAdvancedCheckBoxEE->setVisible(false);

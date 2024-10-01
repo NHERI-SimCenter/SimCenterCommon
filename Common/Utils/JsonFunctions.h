@@ -1,5 +1,5 @@
-#ifndef UQ_ENGINE_H
-#define UQ_ENGINE_H
+#ifndef JSON_FUNCTIONS_H
+#define JSON_FUNCTIONS_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -20,7 +20,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -37,41 +37,21 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+/**
+ *  @author  sangri
+ *  @date    9/2024
+ *  @version 1.0
+ *
+ *  @section DESCRIPTION
+ *
+ *  This is to make it easy to create a json file
+ */
 
-#include <SimCenterAppWidget.h>
+#include <QString>
+#include <QJsonObject>
 
-class UQ_Results;
-class RandomVariablesContainer;
-class UQ_Method;
+// sy - do we need a namespace?
+bool parseJsonFile(QString filePath, QJsonValue &jsonVal, QString &errorMsg);
+bool validateJson(const QJsonValue &jsonValue, const QJsonObject &schema, QString &errorMsg, QString key, bool integerAllowedForArray=true);
 
-enum UQ_EngineType {All, ForwardOnly, ForwardSurrogate, ForwardReliabilitySensitivity, ForwardReliabilitySensitivitySurrogate};
-
-class UQ_Engine : public SimCenterAppWidget
-{
-    Q_OBJECT
-public:
-    explicit UQ_Engine(QWidget *parent = 0);
-    virtual ~UQ_Engine();
-
-    virtual int getMaxNumParallelTasks(void) =0;
-    virtual void setRV_Defaults(void) =0;
-  
-    virtual UQ_Results *getResults(void) = 0;
-    virtual QString getProcessingScript();
-    virtual QString getMethodName();
-    virtual bool fixMethod(QString);
-    // virtual void setMethod(QString &methodName);
-    virtual void setEventType(QString type);
-
-signals:
-    void onNumModelsChanged(int numModels);
-    void onUQ_MethodUpdated(QString);
-    void onUQ_EngineChanged(QString);
-public slots:
-
-private:
-
-};
-
-#endif // UQ_ENGINE_H
+#endif // JSON_FUNCTIONS_H

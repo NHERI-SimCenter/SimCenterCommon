@@ -430,6 +430,7 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     int ramPerNodeMB = 128000;    
     job["memoryMB"]= ramPerNodeMB;
 
+
     if (theMachine == 0) {
 
       int nodeCount = numCPU_LineEdit->text().QString::toInt();
@@ -451,23 +452,24 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
 	  firstQueue == "rtx" ||
 	  firstQueue == "rtx-dev" ||
 	  firstQueue == "gpu-a100-small") {
-	
 	queue = firstQueue;
 	
       } else if (machine == "frontera") {
-	
+      
 	queue = "small";
 	if (nodeCount > 2)
 	  queue = "normal";
 	if (nodeCount > 512)
 	  queue = "large";
 	
+	
+	job["execSystemLogicalQueue"]=queue;
+
       } else if (machine == "stampede3") {
+	
 	queue = "icx";
+	
       }
-      
-      
-      job["execSystemLogicalQueue"]=queue;
 
     } else {
       
@@ -475,7 +477,6 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
 
     }
     
-
 
     //
     // Job Parameters (envVariables & allocation)
@@ -489,9 +490,6 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     inputFileObj["key"]="inputFile";
     inputFileObj["value"]="scInput.json";
     envVariables.append(inputFileObj);
-    
-
-
 
     // any additional envVariables variables are app dependent
     QJsonObject extraParameters;
@@ -722,7 +720,7 @@ SC_RemoteAppTool::processResults(QString &dirName){
     }
   
     
-  SC_ResultsWidget *theResults=theApp->getResultsWidget();
+  SC_ResultsWidget *theResults = theApp->getResultsWidget();
   if (theResults == NULL) {
     this->errorMessage("FATAL - SC_RemoteAppTool received NULL pointer theResults from theApp->getResultsWidget()... skipping theResults->processResults()");
     return;

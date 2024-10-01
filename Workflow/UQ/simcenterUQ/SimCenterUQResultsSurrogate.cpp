@@ -643,7 +643,7 @@ void SimCenterUQResultsSurrogate::summarySurrogate(QScrollArea *&sa)
     int numnugget_vars = 0;
     for (int nq=0; nq<nQoI; nq++){
         double nugget = valNugget[QoInames[nq]].toDouble();
-        if (nugget/statisticsVector[jsonObj["xdim"].toInt()+1+nq][0]<1.e-5) {
+        if (nugget/abs(statisticsVector[jsonObj["xdim"].toInt()+1+nq][0])<1.e-5) {
             nugget_idx[nq] = false;
         } else {
             nugget_idx[nq] = true;

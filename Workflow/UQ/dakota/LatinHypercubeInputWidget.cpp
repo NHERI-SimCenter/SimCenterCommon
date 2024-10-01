@@ -71,6 +71,12 @@ LatinHypercubeInputWidget::LatinHypercubeInputWidget(QWidget *parent)
     layout->setRowStretch(2, 1);
     layout->setColumnStretch(2, 1);
     this->setLayout(layout);
+
+    connect(numSamples, &QLineEdit::textChanged, this, [=](QString txt) {
+        if (txt.toInt()>500) {
+            infoMessage(QString("Sample size is big. To speed up the analysis and save memory space, please uncheck 'Save Working dirs'. Always test the workflow with smaller number of samples before running a big simulation."));
+        }
+    });
 }
 
 LatinHypercubeInputWidget::~LatinHypercubeInputWidget()
