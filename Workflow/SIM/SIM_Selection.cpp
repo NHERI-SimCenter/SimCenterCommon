@@ -72,7 +72,7 @@ SIM_Selection::SIM_Selection(bool includeC,
     this->addComponent(QString("Concrete Building Model"), QString("ConcreteBuildingModel"), concrete);
   }
 
-  if (appName == "EE-UQ") {
+  if ((appName == "EE-UQ" || appName =="WE-UQ") || (appName == "PBE"))  {
     SimCenterAppWidget *sur = new surrogateGP(theRVs);
     this->addComponent(QString("Surrogate (GP)"), QString("SurrogateGPBuildingModel"), sur);
   }
@@ -115,6 +115,11 @@ SIM_Selection::getClone()
   return newSelection;
 }
 
+QString
+SIM_Selection::getCurrentSIM()
+{
+    return this->getCurrentSelectionName();
+}
 
 
 
