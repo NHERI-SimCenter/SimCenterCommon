@@ -5,8 +5,9 @@
 
 namespace SCUtils {
 
-bool recursiveCopy(const QString &sourcePath, const QString &destPath);
-
+  bool recursiveCopy(const QString &sourcePath, const QString &destPath);
+  bool isSafeToRemoveRecursivily(const QString &directoryPath);
+  
 }
 
 

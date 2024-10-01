@@ -226,7 +226,8 @@ SC_RemoteAppTool::initialize(QDialog *enclosingDialog) {
 	    //
 	    
 	    QJsonObject json;
-	    theApp->outputToJSON(json);
+	    theApp->outputAppDataToJSON(json);
+	    //theApp->outputToJSON(json);	    
 	    
 	    //Resolve relative paths before saving
 	    QFileInfo fileInfo(fileName);
@@ -345,6 +346,7 @@ SC_RemoteAppTool::submitButtonPressed() {
   // in tmpDir create the input file
   //
 
+  
   QString inputFile = destinationDir.absoluteFilePath("scInput.json");
   
   QFile file(inputFile);
@@ -352,28 +354,26 @@ SC_RemoteAppTool::submitButtonPressed() {
     //errorMessage();
     return;
   }
-  
+
   QJsonObject json;
 
   QJsonObject appData;
   theApp->outputAppDataToJSON(json);
   json["ApplicationData"]=appData;
-  
   theApp->outputToJSON(json);
-
-  json["workingDir"]=SimCenterPreferences::getInstance()->getRemoteWorkDir(); 
+  json["workingDir"]=SimCenterPreferences::getInstance()->getRemoteWorkDir();
   json["runDir"]=tempDirectory;
-  json["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();    
+  json["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();
   json["runType"]=QString("runningRemote");
-  int nodeCount = numCPU_LineEdit->text().toInt();
-  int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
 
   if (theMachine == 0) {
+    int numProcessorsPerNode = numProcessorsLineEdit->text().QString::toInt();
+    int nodeCount = numCPU_LineEdit->text().QString::toInt();
     json["nodeCount"]=nodeCount;
     json["numP"]=nodeCount*numProcessorsPerNode; 
 
     if (numGPU_LineEdit != NULL) {
-      int gpuCount = numGPU_LineEdit->text().toInt();
+      int gpuCount = numGPU_LineEdit->text().QString::toInt();
       json["gpus"]=gpuCount;
     }
   } else {
@@ -387,12 +387,11 @@ SC_RemoteAppTool::submitButtonPressed() {
   //
   // now send directory containing inputFile and inputData.zip across
   //
-
+  
   submitButton->setEnabled(false);
   
   connect(theService, SIGNAL(uploadDirectoryReturn(bool)), this, SLOT(uploadDirReturn(bool)));
-  // qDebug() << "localDIR: "  << tempDirectory;
-  // qDebug() << "remoteDIR: " << remoteHomeDirPath;
+
   
   theService->uploadDirectoryCall(tempDirectory, remoteHomeDirPath);         
 }  
@@ -401,6 +400,7 @@ SC_RemoteAppTool::submitButtonPressed() {
 void
 SC_RemoteAppTool::uploadDirReturn(bool result)
 {
+  qDebug() << "UPLOAD DIR RETURN";
   disconnect(theService, SIGNAL(uploadDirectoryReturn(bool)), this, SLOT(uploadDirReturn(bool)));
     
 
@@ -422,8 +422,6 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     // file in the json job object to invoke app with
     //
     
-    int nodeCount = numCPU_LineEdit->text().toInt();
-    int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
     QString shortDirName = QCoreApplication::applicationName() + ": ";
     
     job["appId"]=tapisAppName;
@@ -433,10 +431,13 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     job["memoryMB"]= ramPerNodeMB;
 
     if (theMachine == 0) {
+
+      int nodeCount = numCPU_LineEdit->text().QString::toInt();
+      int numProcessorsPerNode = numProcessorsLineEdit->text().QString::toInt();
       
       job["nodeCount"]=nodeCount;
       job["coresPerNode"]=numProcessorsPerNode;
-      job["maxMinutes"]=runtimeLineEdit->text().toInt();
+      job["maxMinutes"]=runtimeLineEdit->text().QString::toInt();
       
       //
       // figure out queue
@@ -662,10 +663,9 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     //
     // now remove the tmp directory
     //
+    
     theDirectory.removeRecursively();
     
-    qDebug() << "SUBMIT.json:  " << job;
-
     connect(theService,SIGNAL(startJobReturn(QString)), this, SLOT(startJobReturn(QString)));      
     theService->startJobCall(job);
     
@@ -745,6 +745,11 @@ void SC_RemoteAppTool::setExtraParameters(QMap<QString, QString> extraParameters
 
 bool SC_RemoteAppTool::outputCitation(QJsonObject &jsonObject) {
   return theApp->outputCitation(jsonObject);
+}
+
+void
+SC_RemoteAppTool::setFilesToDownload(QStringList filesToDownload, bool unzipZip) {
+  theJobManager->setFilesToDownload(filesToDownload, unzipZip);
 }
 
 	     

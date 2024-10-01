@@ -43,7 +43,8 @@ public:
   void initialize(QDialog *enclosingDialog);
   void clear(void);
   bool outputCitation(QJsonObject &jsonObject) override;
-		    
+
+  void setFilesToDownload(QStringList, bool unzipZip = true);
   void setExtraInputs(QMap<QString, QString> extraInputs);
   void setExtraParameters(QMap<QString, QString> extraParameters);
 

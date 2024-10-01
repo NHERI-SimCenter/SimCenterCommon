@@ -427,6 +427,9 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     // check for bashrc or bash profile
     QDir homeDir(QDir::homePath());
     QString sourceBash("");
+
+    QString tclLibrary = QCoreApplication::applicationDirPath().append("/../Resources/opensees");    
+    
     if (homeDir.exists(".bash_profile")) {
         sourceBash = QString("source $HOME/.bash_profile; ");
     } else if (homeDir.exists(".bashrc")) {

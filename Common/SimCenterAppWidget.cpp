@@ -43,6 +43,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 
 #include <SC_ResultsWidget.h>
+#include <Utils/FileOperations.h>
 
 SimCenterAppWidget::SimCenterAppWidget(QWidget *parent)
     :SimCenterWidget(parent)
@@ -104,43 +105,25 @@ SimCenterAppWidget::copyPath(QString sourceDir, QString destinationDir, bool ove
 
    QDir sourceDirectory(sourceDir);
 
-    if (! sourceDirectory.exists()) {
+    if (!sourceDirectory.exists()) {
         qDebug() << "Source Directory: " << sourceDir << " Does not exist";
         return false;
     }
 
     QDir destinationDirectory(destinationDir);
 
+    // remove if existing
     if(destinationDirectory.exists() && overWriteDirectory) {
+      if (SCUtils::isSafeToRemoveRecursivily(destinationDir))
         destinationDirectory.removeRecursively();
     }
+
+    // now create
     if(!destinationDirectory.exists()) {
         destinationDirectory.mkdir(".");
     }
 
-    foreach (QString directoryName, sourceDirectory.entryList(QDir::Dirs | \
-                                                              QDir::NoDotAndDotDot))
-    {
-        if (directoryName != QString("tmp.SimCenter")) {
-	  QString destinationPath = destinationDir + "/" + directoryName;
-	  sourceDirectory.mkpath(destinationPath);
-	  copyPath(sourceDir + "/" + directoryName, destinationPath, overWriteDirectory);
-        }
-    }
-
-    foreach (QString fileName, sourceDirectory.entryList(QDir::Files)) {
-        QFile::copy(sourceDir + "/" + fileName, destinationDir + "/" + fileName);
-    }
-
-    /*! Possible race-condition mitigation? */
-
-    QDir finalDestination(destinationDir);
-    finalDestination.refresh();
-
-    if(finalDestination.exists()) {
-        return true;
-    }
-    return false;
+    SCUtils::recursiveCopy(sourceDir, destinationDir);
 }
 
 

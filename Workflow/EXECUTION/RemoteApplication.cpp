@@ -42,6 +42,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "RemoteApplication.h"
 #include <RemoteService.h>
+#include <Utils/FileOperations.h>
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -71,32 +72,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 static int maxProcPerNode = 56; // Frontera clx nodes: 56 cores, 56 threads, Frontera rtx nodes: 16 cores, 32 threads
 
 // new function to be called before removeRecusivility
-
-bool isSafeToRemoveRecursivily(const QString &directoryPath) {
-
-    // Get information about the directory
-    QFileInfo dirInfo(directoryPath);
-    
-    // Check if the directory exists
-    if (!dirInfo.exists() || !dirInfo.isDir()) {
-        qWarning() << "The directory does not exist or is not a directory.";
-        return false;
-    }
-
-    // Get the owner of the directory
-    QString owner = dirInfo.owner();
-    
-    // Get the name of the current user
-    QString currentUser = QDir::home().dirName();  // This gives the user's home directory name
-    
-    // Alternative method to get the username directly
-    QString userName = qgetenv("USER"); // On UNIX-like systems
-    if (userName.isEmpty())
-        userName = qgetenv("USERNAME"); // On Windows
-
-    // Compare the owner with the current user
-    return owner == currentUser || owner == userName;
-}
 
 
 RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QWidget *parent)
@@ -646,7 +621,7 @@ RemoteApplication::uploadDirReturn(bool result)
       //QString dirName = theDirectory.dirName();
       //QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
 
-      if (isSafeToRemoveRecursivily(tempDirectory))
+      if (SCUtils::isSafeToRemoveRecursivily(tempDirectory))
 	theDirectory.removeRecursively();
       
       //

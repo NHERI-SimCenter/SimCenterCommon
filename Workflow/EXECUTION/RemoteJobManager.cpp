@@ -65,15 +65,16 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QMenu>
 #include <QDir>
 #include  <QDebug>
+#include <Utils/FileOperations.h>
 
 class RemoteService;
 
 // new function to be called before removeRecusivility
 
-extern bool isSafeToRemoveRecursivily(const QString &directoryPath);
 
 RemoteJobManager::RemoteJobManager(RemoteService *theRemoteService, QWidget *parent)
-  : QWidget(parent), triggeredRow(-1), theService(theRemoteService), callProcessResultsOnApp(true)
+  : QWidget(parent), triggeredRow(-1), theService(theRemoteService),
+    callProcessResultsOnApp(true), unzipZip(true)
 {
     QVBoxLayout *layout = new QVBoxLayout();
 
@@ -123,7 +124,8 @@ RemoteJobManager::clearTable(void){
 }
 
 void
-RemoteJobManager::setFilesToDownload(QStringList fileList){
+RemoteJobManager::setFilesToDownload(QStringList fileList, bool unzipZipFiles){
+  unzipZip = unzipZipFiles;
   filesToDownload = fileList;
 }
 
@@ -385,7 +387,7 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 
 	// remove RemoteWorkDir
 	if (localWork.exists()) 
-	  if (isSafeToRemoveRecursivily(localDir))
+	  if (SCUtils::isSafeToRemoveRecursivily(localDir))
 	    localWork.removeRecursively();
 	  else
 	    emit sendFatalMessage("App needs user to own RemoteWorkDir in Preferences, Change it and start again");
@@ -502,7 +504,7 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
 	    QDir templateD(templateDir);
 
 	    if (templateD.exists())	    
-	      if (isSafeToRemoveRecursivily(templateDir))
+	      if (SCUtils::isSafeToRemoveRecursivily(templateDir))
 		templateD.removeRecursively();
 
 	    
@@ -517,7 +519,7 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
 	    
 	    QDir resultsD(resultsDir);
 	    if (resultsD.exists())
-	      if (isSafeToRemoveRecursivily(resultsDir))	      
+	      if (SCUtils::isSafeToRemoveRecursivily(resultsDir))	      
 		resultsD.removeRecursively();
 	    
 	    // unzip .. this places files in a new dir results
@@ -544,11 +546,10 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
 
 	  for (int i=0; i<filesToDownload.size(); i++) {
 	    QString name = filesToDownload.at(i);
-	    qDebug() << "name: " << name;
-	    if (name.contains(".zip")) {
+	    if (unzipZip == true && name.contains(".zip")) {
 	      QString filePath = localDir + QDir::separator() + name;	      
 	      ZipUtils::UnzipFile(filePath, localDir);
-	      qDebug() << "unzipiing " << filePath << " in: " << localDir;
+	      qDebug() << "unziping " << filePath << " in: " << localDir;
 	    }
 	  }
 	  emit processResults(localDir);

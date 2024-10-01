@@ -2,6 +2,8 @@
 #include <QJsonArray>
 #include <QFileInfo>
 #include <QDir>
+#include <QStandardPaths>
+#include <QFileInfo>
 
 
 namespace SCUtils {
@@ -37,4 +39,42 @@ bool recursiveCopy(const QString &sourcePath, const QString &destPath)
     return true;
 }
 
+bool isSafeToRemoveRecursivily(const QString &directoryPath) {
+  
+    // Get information about the directory
+    QFileInfo dirInfo(directoryPath);
+    
+    // Check if the directory exists
+    if (!dirInfo.exists() || !dirInfo.isDir()) {
+        qWarning() << "The directory does not exist or is not a directory.";
+        return false;
+    }
+
+    // make sure not one of users main dir
+    QString homeDir = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+    QString documentsDir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    QString desktopDir = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+    QString downloadDir = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
+    QString appDir = QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation);    
+    if (directoryPath == homeDir ||
+	directoryPath == documentsDir ||
+	directoryPath == desktopDir ||
+	directoryPath == downloadDir ||
+	directoryPath == appDir) {
+        qWarning() << "The directory is one of users main directories and is not removable.";
+        return false;
+    }
+    
+    // ensure user is owner of dir
+    QString owner = dirInfo.owner();
+    QString currentUser = QDir::home().dirName();  // This gives the user's home directory name
+    QString userName = qgetenv("USER"); // On UNIX-like systems
+    if (userName.isEmpty())
+        userName = qgetenv("USERNAME"); // On Windows
+
+    return owner == currentUser || owner == userName;
+}
+
+
+  
 }

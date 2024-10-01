@@ -440,7 +440,7 @@ ShakerMaker::ShakerMaker(): SimCenterAppWidget()
     file.close();
 
     // get the countries from the json file which is a list
-    QJsonArray contries = databaseMetadata["Contries"].toArray();
+    QJsonArray contries = databaseMetadata["Countries"].toArray();
 
     // add the countries to the combo box
     countryComboBox = new QComboBox();
