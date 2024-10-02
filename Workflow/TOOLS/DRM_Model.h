@@ -144,14 +144,11 @@ private:
 
 
     // job information
+    QLineEdit *allocation;
     QComboBox *Job_System;
-    QComboBox *Job_Queue;
+    // QComboBox *Job_Queue;
     QTimeEdit* Job_maxRunTime;
     QLineEdit *JobUUID;
-
-
-
-
 
 };
 #endif // DRM_MODEL_H

@@ -716,18 +716,21 @@ DRM_Model::DRM_Model(QWidget *parent)
     JobBoxLayout->addWidget(new QLabel("System"), 0, 0);
     Job_System = new QComboBox();
     Job_System->addItem("frontera");
-    Job_System->addItem("stampede3");
+    // Job_System->addItem("stampede3");
     JobBoxLayout->addWidget(Job_System, 0, 1);
 
-    JobBoxLayout->addWidget(new QLabel("Queue"), 0, 2);
+    //JobBoxLayout->addWidget(new QLabel("Queue"), 0, 2);
+    JobBoxLayout->addWidget(new QLabel("Allocation"), 0, 2);    
 
-    Job_Queue = new QComboBox();
-    Job_Queue->addItem("development");
-    Job_Queue->addItem("small");
-    Job_Queue->addItem("normal");
-    Job_Queue->addItem("large");
+    //Job_Queue = new QComboBox();
+    //Job_Queue->addItem("development");
+    //Job_Queue->addItem("small");
+    //Job_Queue->addItem("normal");
+    //Job_Queue->addItem("large");
+    //JobBoxLayout->addWidget(Job_Queue, 0, 3);
 
-    JobBoxLayout->addWidget(Job_Queue, 0, 3);
+    allocation = new QLineEdit();
+    JobBoxLayout->addWidget(allocation, 0, 3);    
 
     JobBoxLayout->addWidget(new QLabel("Maximum Run Time (hh:mm:ss)") , 0, 4);
 
@@ -1274,9 +1277,6 @@ QStringList DRM_Model::getfilelist(QString &rootDir) {
 }
 
 
-
-
-
 void 
 DRM_Model::submitJob() {
     bool status;
@@ -1381,20 +1381,16 @@ DRM_Model::submitJob() {
 
     // create QJsonObject to hold the job information
 
- 
-
     QString day = QDateTime::currentDateTime().toString("yyyy_MM_dd");
     QString time = QDateTime::currentDateTime().toString("HH_mm_ss");
     QString jobname = "EEUQ_DRMModel_" + tapisUsername + "_" + day + "_" + time;
     QString archivepath = tapisUsername + "/tapis-jobs-archive/" + jobname +"/${JobUUID}"; 
 
-
-
     QJsonObject jobObject;
     jobObject["name"] = jobname;
     jobObject["appId"] = "simcenter-opensees-frontera";
     jobObject["appVersion"] = "1.0.0";
-    jobObject["execSystemLogicalQueue"] = Job_Queue->currentText();
+    //    jobObject["execSystemLogicalQueue"] = Job_Queue->currentText();
     jobObject["execSystemExecDir"] = "${JobWorkingDir}";
     jobObject["execSystemInputDir"] = "${JobWorkingDir}";
     jobObject["execSystemOutputDir"] = "${JobWorkingDir}/Results/";
@@ -1424,7 +1420,7 @@ DRM_Model::submitJob() {
     QJsonObject parameterSet;
     QJsonArray schedulerOptions;
     QJsonObject schedulerOption;
-    schedulerOption["arg"] = "-A DesignSafe-SimCenter";
+    schedulerOption["arg"] = QString("-A ") + allocation->text(); // DesignSafe-SimCenter";
     schedulerOptions.append(schedulerOption);
     parameterSet["schedulerOptions"] = schedulerOptions;
 
@@ -1447,20 +1443,34 @@ DRM_Model::submitJob() {
     parameterSet["envVariables"] = envVariables;
     jobObject["parameterSet"] = parameterSet;
 
-    jobObject["nodeCount"] = 1;
+    int numnodes = 1;
+    int coresPerNode = 1;
     
     if (Absorb_HaveAbsorbingElements->isChecked()) {
         int totalCores = numSoilPartitions->text().toInt() + numDRMPartitions->text().toInt() + numAbsorbingPartitions->text().toInt();
         if (Job_System->currentText() == "frontera") {
-            int numnodes = totalCores / 56;
-            int coresPerNode = totalCores / (numnodes + 1);
-            jobObject["nodeCount"] = numnodes;
-            jobObject["coresPerNode"] = coresPerNode;
+            numnodes = totalCores / 56;
+            coresPerNode = totalCores / (numnodes + 1);
         } 
         if (Job_System->currentText() == "stampede3") {
             errorMessage("stampede3 is not supported yet");
         }
     }
+
+    jobObject["nodeCount"] = numnodes;
+    jobObject["coresPerNode"] = coresPerNode;
+
+    QString queue = "normal";
+    if (numnodes <= 2) {
+      if (maxMinutes > 20)
+	queue = "small";
+      else
+	queue = "development";
+    } else if (numnodes > 512) {
+      queue = "large";
+    }	   
+    jobObject["execSystemLogicalQueue"] = queue;	    
+    
 
     // submit the job
     statusMessage("Submitting the job ...");
