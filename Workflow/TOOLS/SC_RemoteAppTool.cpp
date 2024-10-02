@@ -24,6 +24,7 @@
 #include <QFileDialog>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <GoogleAnalytics.h>
 
 
 SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
@@ -34,7 +35,7 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 				   SimCenterAppWidget* theEnclosedApp,
 				   QDialog *enclosingDialog)
   :SimCenterAppWidget(), theApp(theEnclosedApp), theService(theRemoteService),
-   tapisAppName(appName), tapisAppVersion(appVersion), machine(hpcMachine),
+   tapisAppName(appName), tapisAppVersion(appVersion), appNameReport(appName), machine(hpcMachine),
    queus(theQueus), theMachine(0)
 {
 
@@ -52,6 +53,12 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
    tapisAppName(appName), tapisAppVersion(appVersion), theMachine(machine)
 {
   this->initialize(enclosingDialog);
+}
+
+
+void
+SC_RemoteAppTool::setAppNameReport(QString text) {
+  appNameReport = text;
 }
 
 void
@@ -287,6 +294,9 @@ void SC_RemoteAppTool::clear()
 void
 SC_RemoteAppTool::submitButtonPressed() {
 
+  GoogleAnalytics::ReportDesignSafeRun();
+  GoogleAnalytics::ReportAppUsage(appNameReport);  
+    
   //
   // first check if logged in
   //
@@ -461,7 +471,6 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
 	  queue = "normal";
 	if (nodeCount > 512)
 	  queue = "large";
-	
 	
 	job["execSystemLogicalQueue"]=queue;
 

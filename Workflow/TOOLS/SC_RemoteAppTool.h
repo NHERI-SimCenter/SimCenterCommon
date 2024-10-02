@@ -56,15 +56,18 @@ public slots:
 
   void onGetRemoteButtonPressed();
   void processResults(QString &);
-    
+  void setAppNameReport(QString text);
+  
 private:
 
   SimCenterAppWidget *theApp;
   RemoteService *theService;  
   QString tapisAppName;
   QString tapisAppVersion;
+  QString appNameReport;  
   QString machine;  
-  QStringList queus; 
+  QStringList queus;
+
   
   QLineEdit *nameLineEdit;
   // QLineEdit *systemLineEdit;
