@@ -8,40 +8,93 @@
 
 namespace SCUtils {
 
-bool recursiveCopy(const QString &sourcePath, const QString &destPath)
-{
-    QFileInfo srcFileInfo(sourcePath);
+  bool
+  compareFiles(const QString &sourcePath, const QString &destPath) {
 
-    if (srcFileInfo.isDir())
-    {
-        QDir targetDir(destPath);
+    // open up files and bytewise compare or create checksunms & compare .. needed before a file copy
+    //   -- try bytewise compare as probably quicjest as checksum requires same thing
+    //       -- of course the built in method for checksum might be better optimized than mine!
 
-        if (!targetDir.mkpath(destPath))
+    // function assuming files exist!
+    QFile sourceFile(sourcePath);
+    QFile destFile(destPath);
+
+    int bufferSize = 4096;
+    while (!sourceFile.atEnd() && !destFile.atEnd()) {
+
+      // read chunks ar a time and compare
+      QByteArray bufferSource = sourceFile.read(bufferSize);
+      QByteArray bufferDest = destFile.read(bufferSize);
+      if (bufferSource != bufferDest) {
+	// qDebug() << "FileOperations::compareFile: " << sourcePath << " " << destPath << " DIFFERENT";	
+	return false;  
+      }
+    }
+
+    //    qDebug() << "FileOperations::compareFile: " << sourcePath << " " << destPath << " SAME";
+    return true;
+  }
+
+  bool
+  recursiveCopy(const QString &sourcePath, const QString &destPath) {
+    
+    QDir sourceDir(sourcePath);
+    
+    // check source dir exists .. otherwise nothing to be copied, so quick return .. probably an error!
+    if (!sourceDir.exists()) {
+        qDebug() << "FileApplications::recursiveCopy() source directory does not exist:" << sourcePath;
+        return false;
+    }
+
+    QDir destDir(destPath);
+
+    // if destination directory does not exist, create it
+    if (!destDir.exists()) {
+        destDir.mkpath(destPath);
+	if (!destDir.exists()) { // .. check again
+	  qDebug() << "FileApplications::recursiveCopy() dest directory did not exist and unable to create it:" << destDir;
+	}
+    }
+
+    // Get the list of files in the source directory & copy
+    //  - by copy if file already exists compare and make sure they are the same .. if not there straight copy
+    foreach (QString fileName, sourceDir.entryList(QDir::Files)) {
+        QString srcFilePath = sourceDir.filePath(fileName);
+        QString destFilePath = destDir.filePath(fileName);
+	  
+	if (QFile::exists(destFilePath)) {
+
+	  // code to see if files are the same
+	  if (!SCUtils::compareFiles(srcFilePath, destFilePath)) {
+	    qDebug() << "FileOperations::recursiveCopy() dest File : " << destFilePath << " already exists and is different from source file:" << srcFilePath;
+	    return false;	    
+	  }
+	  
+	} else {
+	  // Copy the file from source to destination
+	  if (!QFile::copy(srcFilePath, destFilePath)) {
+            qDebug() << "FileOperations::recursiveCopy() Failed to copy file:" << srcFilePath;
             return false;
+	  }
+	}
+    }
 
-        QDir sourceDir(sourcePath);
-
-        QStringList fileNames = sourceDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System);
-
-        foreach (const QString &fileName, fileNames)
-        {
-            const QString newSrcFilePath = sourcePath + QDir::separator() + fileName;
-            const QString newDestFilePath = destPath  + QDir::separator() + fileName;
-
-            if (!recursiveCopy(newSrcFilePath, newDestFilePath))
-                return false;
+    // recursively copy subdirectories
+    foreach (QString dirName, sourceDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+      
+        QString srcDirPath = sourceDir.filePath(dirName);
+        QString destDirPath = destDir.filePath(dirName); // destDir does not need to exist, check at start of this function
+	  
+        if (!recursiveCopy(srcDirPath, destDirPath)) {
+            return false;
         }
-    } else {
-        if (QFile::exists(destPath))
-            return true;
-        if (!QFile::copy(sourcePath, destPath))
-            return false;
     }
 
     return true;
-}
-
-bool isSafeToRemoveRecursivily(const QString &directoryPath) {
+  }
+  
+  bool
+  isSafeToRemoveRecursivily(const QString &directoryPath) {
   
     // Get information about the directory
     QFileInfo dirInfo(directoryPath);
@@ -75,7 +128,7 @@ bool isSafeToRemoveRecursivily(const QString &directoryPath) {
         userName = qgetenv("USERNAME"); // On Windows
 
     return owner == currentUser || owner == userName;
-}
+  }
 
 
   
