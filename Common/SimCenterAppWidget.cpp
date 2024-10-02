@@ -123,7 +123,7 @@ SimCenterAppWidget::copyPath(QString sourceDir, QString destinationDir, bool ove
         destinationDirectory.mkdir(".");
     }
 
-    SCUtils::recursiveCopy(sourceDir, destinationDir);
+    return SCUtils::recursiveCopy(sourceDir, destinationDir);
 }
 
 
