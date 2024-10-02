@@ -39,6 +39,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SimCenterAppWidget.h>
 #include <DRM_Model.h>
 #include <TapisV3.h>
+#include <GoogleAnalytics.h>
 #include <SC_DoubleLineEdit.h>
 #include <SC_IntLineEdit.h>
 #include <QGroupBox>
@@ -1279,6 +1280,10 @@ QStringList DRM_Model::getfilelist(QString &rootDir) {
 
 void 
 DRM_Model::submitJob() {
+
+    GoogleAnalytics::ReportDesignSafeRun();
+    GoogleAnalytics::ReportAppUsage(QString("DRM"));
+    
     bool status;
     if (!loggedIn) {
         this->get_credentials(tapisUsername, tapisPassword);
@@ -1443,22 +1448,24 @@ DRM_Model::submitJob() {
     parameterSet["envVariables"] = envVariables;
     jobObject["parameterSet"] = parameterSet;
 
+    int totalCores = numSoilPartitions->text().toInt() + numDRMPartitions->text().toInt();
     int numnodes = 1;
     int coresPerNode = 1;
     
     if (Absorb_HaveAbsorbingElements->isChecked()) {
-        int totalCores = numSoilPartitions->text().toInt() + numDRMPartitions->text().toInt() + numAbsorbingPartitions->text().toInt();
-        if (Job_System->currentText() == "frontera") {
-            numnodes = totalCores / 56;
-            coresPerNode = totalCores / (numnodes + 1);
-        } 
-        if (Job_System->currentText() == "stampede3") {
-            errorMessage("stampede3 is not supported yet");
-        }
+        totalCores += numAbsorbingPartitions->text().toInt();
     }
 
+    if (Job_System->currentText() == "frontera") {
+      numnodes = totalCores / 56;
+      coresPerNode = totalCores / (numnodes + 1);
+    } 
+    if (Job_System->currentText() == "stampede3") {
+      errorMessage("stampede3 is not supported yet");
+    }
+      
     jobObject["nodeCount"] = numnodes;
-    jobObject["coresPerNode"] = coresPerNode;
+    jobObject["coresPerNode"] = coresPerNode;	
 
     QString queue = "normal";
     if (numnodes <= 2) {
@@ -1469,8 +1476,7 @@ DRM_Model::submitJob() {
     } else if (numnodes > 512) {
       queue = "large";
     }	   
-    jobObject["execSystemLogicalQueue"] = queue;	    
-    
+    jobObject["execSystemLogicalQueue"] = queue;    
 
     // submit the job
     statusMessage("Submitting the job ...");

@@ -42,6 +42,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SC_DirEdit.h>
 #include <SC_ComboBox.h>
 #include <SC_CheckBox.h>
+#include <GoogleAnalytics.h>
+
 #include <QTableWidget>
 #include <QEventLoop>
 #include <QJsonObject>
@@ -247,23 +249,25 @@ ShakerMaker::ShakerMaker(): SimCenterAppWidget()
     submitJobLayout->setColumnStretch(2, 1);
     submitJobLayout->setColumnStretch(3, 1);
 
-
-
     //  system selection could be frontera or stampede3
     system = new QComboBox();
     system->addItem("Frontera");
-    system->addItem("Stampede3");
+    // system->addItem("Stampede3");
     submitJobLayout->addWidget(new QLabel("System"), 0, 0);
     submitJobLayout->addWidget(system, 0, 1, 1, 3);
 
     // Queue selection could be developmnet, small, normal, large
-    queue = new QComboBox();
-    queue->addItem("development");
-    queue->addItem("small");
-    queue->addItem("normal");
-    queue->addItem("large");
-    submitJobLayout->addWidget(new QLabel("Queue"), 1, 0);
-    submitJobLayout->addWidget(queue, 1, 1, 1, 3);
+    //queue = new QComboBox();
+    //queue->addItem("development");
+    //queue->addItem("small");
+    //queue->addItem("normal");
+    //queue->addItem("large");
+    //submitJobLayout->addWidget(new QLabel("Queue"), 1, 0);
+    //submitJobLayout->addWidget(queue, 1, 1, 1, 3);
+
+    submitJobLayout->addWidget(new QLabel("Allocation"), 1, 0);
+    allocation = new QLineEdit();
+    submitJobLayout->addWidget(allocation, 1, 1, 1, 3);    
 
     // number of nodes
     submitJobLayout->addWidget(new QLabel("Number of Nodes"), 2, 0);
@@ -1689,13 +1693,29 @@ int ShakerMaker::createMetaData() {
     // add the fault info to the metadata
     metadata["faultdata"] = faultInfo;
 
-
-
     // add the jobdata 
     QJsonObject jobData;
     jobData["system"] = system->currentText();
-    jobData["queue"] = queue->currentText();
-    jobData["numNodes"] = numNodes->getInt();
+    //    jobData["queue"] = queue->currentText();
+
+    //maxRunTime->time().toString("hh:mm:ss");    
+    int maxMinutes = maxRunTime->time().hour() * 60 + maxRunTime->time().minute();
+
+    int numnodes = numNodes->getInt();    
+    QString queue = "normal";
+    if (numnodes <= 2) {
+      if (maxMinutes > 20)
+	queue = "small";
+      else
+	queue = "development";
+    } else if (numnodes > 512) {
+      queue = "large";
+    }
+    
+    jobData["queue"] = queue;
+    jobData["allocation"] = allocation->text();	        
+    
+    jobData["numNodes"] = numnodes;
     jobData["numCores"] = coresPerNode->getInt();
     if (maxRunTime != nullptr) {
         jobData["maxruntime"] = maxRunTime->time().toString("hh:mm:ss");
@@ -1717,6 +1737,9 @@ int ShakerMaker::createMetaData() {
 
 void ShakerMaker::runJob(void) {
 
+    GoogleAnalytics::ReportDesignSafeRun();
+    GoogleAnalytics::ReportAppUsage(QString("ShakerMaker"));
+    
     // pop up window to get the username and password in one dialog
     // create a new dialog
     QDialog *dialog = new QDialog(this);
@@ -1784,6 +1807,7 @@ void ShakerMaker::runJob(void) {
 
 
 void ShakerMaker::loadModel(QString modelPath) {
+  
     // load the model from the given path
     QFile file(modelPath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -1849,6 +1873,7 @@ void ShakerMaker::loadModel(QString modelPath) {
         return;
     } 
 
+    /*
     find = false;
     for (int i = 0; i < queue->count(); i++) {
         if (queue->itemText(i) == model["Queue"].toString()) {
@@ -1861,7 +1886,8 @@ void ShakerMaker::loadModel(QString modelPath) {
         errorMessage("Error: Queue not supported");
         return;
     }
-
+    */
+    
     numNodes->setText(QString::number(model["Number of Nodes"].toInt()));
     coresPerNode->setText(QString::number(model["Cores per Node"].toInt()));
     if (model.contains("Max Run Time")) {
