@@ -457,7 +457,7 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
 
     allocation = new QLineEdit();
     remoteSettingsLayout->addRow("TACC Allocation:", allocation);    
-
+    allocation->setPlaceholderText("Submit a ticket to DesignSafe to obtain your allocation.");
 
     //
     // common remoteAppSettings stuff
