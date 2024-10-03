@@ -190,6 +190,7 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
     numRow++;
     layout->addWidget(new QLabel("TACC Allocation"), numRow, 0);
     allocation = new QLineEdit();
+    allocation->setPlaceholderText("Submit a ticket to DesignSafe to obtain your allocation.");
     allocation->setText(SimCenterPreferences::getInstance()->getDefaultAllocation());
     layout->addWidget(allocation,numRow,1);
 
