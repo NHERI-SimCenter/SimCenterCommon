@@ -61,21 +61,30 @@ class QPen;
 class QHBoxLayout;
 class SC_Chart;
 
-namespace QtCharts
-{
-    class QChartView;
-    class QBarSet;
-    class QChart;
-    class QLineSeries;
-    class PenStyle;
-}
+#include <QtCharts>
+#include <QtCharts/QChartView>
+#include <QtCharts/QBarSet>
+#include <QtCharts/QChart>
+#include <QtCharts/QLineSeries>
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+using namespace QtCharts;
+#endif
+//namespace QtCharts
+//{
+//    class QChartView;
+//    class QBarSet;
+//    class QChart;
+//    class QLineSeries;
+//    class PenStyle;
+//}
 
 class SC_TimeSeriesResultChart : public QWidget
 {
     Q_OBJECT
   
 public:
-    SC_TimeSeriesResultChart(QMap<QString, QMap<QString, QtCharts::QLineSeries *>> *allSeiries, QWidget *parent);
+    SC_TimeSeriesResultChart(QMap<QString, QMap<QString, QLineSeries *>> *allSeiries, QWidget *parent);
     SC_TimeSeriesResultChart(QWidget *parent);
     void addMean(QString name=QString("Mean"), QColor color=Qt::red, Qt::PenStyle style=Qt::SolidLine, float width=1.5);
     void addPercentile(QString name, qreal percentile, QColor color=Qt::red, Qt::PenStyle style=Qt::CustomDashLine, float width=1.5);
@@ -83,10 +92,10 @@ public:
 private:
     SC_Chart *chart;
     QComboBox *metricComboBox;
-    QtCharts::QChartView *chartView;
+    QChartView *chartView;
     QHBoxLayout *layout;
     QString metricName;
-    QMap<QString, QMap<QString, QtCharts::QLineSeries *>> *allSeries;
+    QMap<QString, QMap<QString, QLineSeries *>> *allSeries;
     QMap<QString, QList<QString> *> *chartOptions;
     // mean memory
     bool addMeanFlag=false;
@@ -105,9 +114,9 @@ private:
 
     void drawChart(const QString &metricName);
     void populatemetricComboBox();
-    QMap<QString, QtCharts::QLineSeries *> *curSeriesMap;
+    QMap<QString, QLineSeries *> *curSeriesMap;
     qreal calculatePercentile(QVector<qreal> &values, qreal percentile);
-    //QMap<QString, QMap<QString, QtCharts::QLineSeries *>> *seriesMap;
+    //QMap<QString, QMap<QString, QLineSeries *>> *seriesMap;
 
 public slots:
     void updateChart(const QString &metricName);

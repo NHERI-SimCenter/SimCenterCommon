@@ -91,12 +91,12 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //#include <qgsmapcanvas.h>
 
 
-SC_Chart::SC_Chart() : QtCharts::QChart()
+SC_Chart::SC_Chart() : QChart()
 {
     qDebug() << "Constructor of SC_Chart";
 }
 
-SC_Chart::SC_Chart(QMap<QString, QtCharts::QLineSeries *> &seriesMap, QString title, QString hAxis, QString vAxis, QMap<QString, QColor*> colorMap, QMap<QString, Qt::PenStyle> penStyleMap, QMap<QString, QList<QString> *> *options) : QtCharts::QChart()
+SC_Chart::SC_Chart(QMap<QString, QLineSeries *> &seriesMap, QString title, QString hAxis, QString vAxis, QMap<QString, QColor*> colorMap, QMap<QString, Qt::PenStyle> penStyleMap, QMap<QString, QList<QString> *> *options) : QChart()
 {
     toolTipBox = nullptr;
 
@@ -111,7 +111,7 @@ SC_Chart::SC_Chart(QMap<QString, QtCharts::QLineSeries *> &seriesMap, QString ti
 }
 
 
-SC_Chart::SC_Chart(QMap<QString, QtCharts::QLineSeries *> &seriesMap, QString title, QString hAxis, QString vAxis, QMap<QString, QString> color, QMap<QString, QString> lineStyle, QMap<QString, QList<QString> *> *options) : QtCharts::QChart()
+SC_Chart::SC_Chart(QMap<QString, QLineSeries *> &seriesMap, QString title, QString hAxis, QString vAxis, QMap<QString, QString> color, QMap<QString, QString> lineStyle, QMap<QString, QList<QString> *> *options) : QChart()
 {
     toolTipBox = nullptr;
 
@@ -155,11 +155,11 @@ void SC_Chart::tooltip(QPointF point, bool state)
 }
 
 
-void SC_Chart::readQSeriesMap(const QMap<QString, QtCharts::QLineSeries *> &seriesMap, QString hAxis, QString vAxis, QMap<QString, QColor*> colorMap, QMap<QString, Qt::PenStyle> penStyleMap){
+void SC_Chart::readQSeriesMap(const QMap<QString, QLineSeries *> &seriesMap, QString hAxis, QString vAxis, QMap<QString, QColor*> colorMap, QMap<QString, Qt::PenStyle> penStyleMap){
     // Read the each Series and set axis titke for it
     for(auto seriesIT = seriesMap.begin(); seriesIT != seriesMap.end(); ++seriesIT){
 
-        QtCharts::QLineSeries *series = seriesIT.value();
+        QLineSeries *series = seriesIT.value();
         series->setName(QString(seriesIT.key()));
         addSeries(series);
         seriesNames.append(QString(seriesIT.key()));
@@ -168,38 +168,38 @@ void SC_Chart::readQSeriesMap(const QMap<QString, QtCharts::QLineSeries *> &seri
 
 }
 
-void SC_Chart::setToolTip(const QMap<QString, QtCharts::QLineSeries *> &seriesMap){
+void SC_Chart::setToolTip(const QMap<QString, QLineSeries *> &seriesMap){
     // Set tooltip for each series
     for(auto seriesIT = seriesMap.begin(); seriesIT != seriesMap.end(); ++seriesIT){
-        QtCharts::QLineSeries *series = seriesIT.value();
+        QLineSeries *series = seriesIT.value();
 
-        connect(series, &QtCharts::QLineSeries::hovered, this, [&](const QPointF &point, bool state) {
+        connect(series, &QLineSeries::hovered, this, [&](const QPointF &point, bool state) {
         SC_Chart::tooltip(point, state);});
     }
 }
 
 
-void SC_Chart::addAxisTitle(QMap<QString, QtCharts::QLineSeries *> &seriesMap, QString hAxis, QString vAxis){
+void SC_Chart::addAxisTitle(QMap<QString, QLineSeries *> &seriesMap, QString hAxis, QString vAxis){
 
     if (!hAxis.isEmpty()) {
 
-        QtCharts::QValueAxis *axisX = new QtCharts::QValueAxis();
+        QValueAxis *axisX = new QValueAxis();
         axisX->setTitleText(hAxis);
         addAxis(axisX, Qt::AlignBottom);
 
         for (auto seriesIT = seriesMap.begin(); seriesIT != seriesMap.end(); ++seriesIT){
-            QtCharts::QLineSeries *series = seriesIT.value();
+            QLineSeries *series = seriesIT.value();
             series->attachAxis(axisX);
         }
     }
 
     if (!vAxis.isEmpty()) {
-        QtCharts::QValueAxis *axisY = new QtCharts::QValueAxis();
+        QValueAxis *axisY = new QValueAxis();
         axisY->setTitleText(vAxis);
         addAxis(axisY, Qt::AlignLeft);
 
         for (auto seriesIT = seriesMap.begin(); seriesIT != seriesMap.end(); ++seriesIT){
-            QtCharts::QLineSeries *series = seriesIT.value();
+            QLineSeries *series = seriesIT.value();
             series->attachAxis(axisY);
         }
         
@@ -216,14 +216,14 @@ void SC_Chart::insertTitle(QString title){
 }
 
 
-void SC_Chart::setCollorAndPenStyle(QMap<QString, QtCharts::QLineSeries *> &seriesMap, QMap<QString, QColor*> colorMap, QMap<QString, Qt::PenStyle> penStyleMap){
+void SC_Chart::setCollorAndPenStyle(QMap<QString, QLineSeries *> &seriesMap, QMap<QString, QColor*> colorMap, QMap<QString, Qt::PenStyle> penStyleMap){
 
     if (colorMap.isEmpty()){
 
         int i = 0;
         for (auto seriesIT = seriesMap.begin(); seriesIT != seriesMap.end(); ++seriesIT){
             
-            QtCharts::QLineSeries *series = seriesIT.value();
+            QLineSeries *series = seriesIT.value();
 
             QColor *color = new QColor();
             color->setHsv(i*360/seriesMap.size(), 255, 255);
@@ -234,7 +234,7 @@ void SC_Chart::setCollorAndPenStyle(QMap<QString, QtCharts::QLineSeries *> &seri
     else{
         for (auto seriesIT = seriesMap.begin(); seriesIT != seriesMap.end(); ++seriesIT){
             int i = 0;
-            QtCharts::QLineSeries *series = seriesIT.value();
+            QLineSeries *series = seriesIT.value();
 
             if (!colorMap.contains(seriesIT.key())){
                 QColor *color = new QColor();
@@ -255,7 +255,7 @@ void SC_Chart::setCollorAndPenStyle(QMap<QString, QtCharts::QLineSeries *> &seri
     else{
         for (auto seriesIT = seriesMap.begin(); seriesIT != seriesMap.end(); ++seriesIT){
             int i = 0;
-            QtCharts::QLineSeries *series = seriesIT.value();
+            QLineSeries *series = seriesIT.value();
 
             if (!penStyleMap.contains(seriesIT.key())){
                 penStyleMap[seriesIT.key()] = Qt::SolidLine;
@@ -273,7 +273,7 @@ void SC_Chart::setCollorAndPenStyle(QMap<QString, QtCharts::QLineSeries *> &seri
     }
 }
 
-QMap<QString, QColor*> SC_Chart::convertStringMapToColorMap(QMap<QString, QString> color, QMap<QString, QtCharts::QLineSeries *> seriesMap){
+QMap<QString, QColor*> SC_Chart::convertStringMapToColorMap(QMap<QString, QString> color, QMap<QString, QLineSeries *> seriesMap){
     
     QMap<QString, QColor*> colorMap;
     for (auto seriesIT = seriesMap.begin(); seriesIT != seriesMap.end(); ++seriesIT){
@@ -371,7 +371,7 @@ QColor* SC_Chart::getColorFromString(QString colorString){
 
 }
 
-QMap<QString, Qt::PenStyle> SC_Chart::convertStringlineStyleMapToPenStyleMap(QMap<QString, QString> lineStyle, QMap<QString, QtCharts::QLineSeries *> seriesMap){
+QMap<QString, Qt::PenStyle> SC_Chart::convertStringlineStyleMapToPenStyleMap(QMap<QString, QString> lineStyle, QMap<QString, QLineSeries *> seriesMap){
     QMap<QString, Qt::PenStyle> penStyleMap;
     for (auto seriesIT = seriesMap.begin(); seriesIT != seriesMap.end(); ++seriesIT){
         QString key = QString(seriesIT.key());
@@ -403,7 +403,7 @@ QMap<QString, Qt::PenStyle> SC_Chart::convertStringlineStyleMapToPenStyleMap(QMa
     return penStyleMap;
 }
 
-void SC_Chart::setOptions(QMap<QString, QtCharts::QLineSeries *> &seriesMap, QMap<QString, QList<QString> *> *options){
+void SC_Chart::setOptions(QMap<QString, QLineSeries *> &seriesMap, QMap<QString, QList<QString> *> *options){
 
     if (!options){
         return;
@@ -425,7 +425,7 @@ void SC_Chart::setOptions(QMap<QString, QtCharts::QLineSeries *> &seriesMap, QMa
             }
             if (seriesMap.contains(groupName)){
                 toGroupLegends->append(groupName);
-                QtCharts::QLineSeries *series = seriesMap[groupName];
+                QLineSeries *series = seriesMap[groupName];
                 series->setColor(*color);
             }
         }
@@ -435,7 +435,7 @@ void SC_Chart::setOptions(QMap<QString, QtCharts::QLineSeries *> &seriesMap, QMa
 }
 
 
-void SC_Chart::groupChartLegend(QMap<QString, QtCharts::QLineSeries *> &seriesMap){
+void SC_Chart::groupChartLegend(QMap<QString, QLineSeries *> &seriesMap){
     
     // Hide all legend markers initially
     int i = 0;
@@ -446,7 +446,7 @@ void SC_Chart::groupChartLegend(QMap<QString, QtCharts::QLineSeries *> &seriesMa
         return;
     }
 
-    for (QtCharts::QLegendMarker* marker : legend()->markers()) {
+    for (QLegendMarker* marker : legend()->markers()) {
         if (marker)
             marker->setVisible(false);
         else
@@ -458,7 +458,7 @@ void SC_Chart::groupChartLegend(QMap<QString, QtCharts::QLineSeries *> &seriesMa
     for (auto listIT = legendGroup.begin(); listIT != legendGroup.end(); ++listIT){
         QString groupName = listIT.key();
         QList<QString> *groupList = listIT.value();
-        QtCharts::QLegendMarker* marker = legend()->markers(seriesMap[groupList->first()]).first();
+        QLegendMarker* marker = legend()->markers(seriesMap[groupList->first()]).first();
         marker->setVisible(true);
         marker->setLabel(groupName);
     }
