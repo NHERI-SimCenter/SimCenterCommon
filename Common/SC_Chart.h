@@ -58,24 +58,34 @@ class QGraphicsSimpleTextItem;
 class QColor;
 class QPen;
 
-namespace QtCharts
-{
-    class QChartView;
-    class QBarSet;
-    class QChart;
-    class QLineSeries;
-    class QLegendMarker;
-}
+#include <QtCharts>
+#include <QtCharts/QChart>
+#include <QtCharts/QLineSeries>
+#include <QtCharts/QChartView>
+#include <QtCharts/QBarSet>
+#include <QtCharts/QLegendMarker>
 
-class SC_Chart : public QtCharts::QChart
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+using namespace QtCharts;
+#endif
+
+//namespace QtCharts
+//{
+//    class QChartView;
+//    class QBarSet;
+//    class QChart;
+//    class QLineSeries;
+//    class QLegendMarker;
+//}
+class SC_Chart : public QChart
 {
     Q_OBJECT
   
 public:
 
   SC_Chart();
-  SC_Chart(QMap<QString, QtCharts::QLineSeries *> &seriesMap, QString title=QString(), QString hAxis=QString(), QString vAxis=QString(), QMap<QString, QColor*> colorMap=QMap<QString, QColor*>(), QMap<QString, Qt::PenStyle> penStyleMap=QMap<QString, Qt::PenStyle>(), QMap<QString, QList<QString> *> *options=nullptr);
-  SC_Chart(QMap<QString, QtCharts::QLineSeries *> &seriesMap, QString title          , QString hAxis          , QString vAxis          , QMap<QString, QString> color                            , QMap<QString, QString> lineStyle                                     , QMap<QString, QList<QString> *> *options=nullptr);
+  SC_Chart(QMap<QString, QLineSeries *> &seriesMap, QString title=QString(), QString hAxis=QString(), QString vAxis=QString(), QMap<QString, QColor*> colorMap=QMap<QString, QColor*>(), QMap<QString, Qt::PenStyle> penStyleMap=QMap<QString, Qt::PenStyle>(), QMap<QString, QList<QString> *> *options=nullptr);
+  SC_Chart(QMap<QString, QLineSeries *> &seriesMap, QString title          , QString hAxis          , QString vAxis          , QMap<QString, QString> color                            , QMap<QString, QString> lineStyle                                     , QMap<QString, QList<QString> *> *options=nullptr);
   ~SC_Chart();
   
 signals:
@@ -89,17 +99,17 @@ private:
   QMap<QString, QList<QString> *> legendGroup;
   QGraphicsSimpleTextItem *toolTipBox;
   
-  void addAxisTitle(QMap<QString, QtCharts::QLineSeries *> &seriesMap, QString hAxis, QString vAxis);
+  void addAxisTitle(QMap<QString, QLineSeries *> &seriesMap, QString hAxis, QString vAxis);
   void insertTitle(QString title);
-  void readQSeriesMap(const QMap<QString, QtCharts::QLineSeries *> &seriesMap, QString hAxis, QString vAxis, QMap<QString, QColor*> colorMap, QMap<QString, Qt::PenStyle> penStyleMap);
-  void setToolTip(const QMap<QString, QtCharts::QLineSeries *> &seriesMap);
+  void readQSeriesMap(const QMap<QString, QLineSeries *> &seriesMap, QString hAxis, QString vAxis, QMap<QString, QColor*> colorMap, QMap<QString, Qt::PenStyle> penStyleMap);
+  void setToolTip(const QMap<QString, QLineSeries *> &seriesMap);
   void addChartTitle(QString title);
-  void setCollorAndPenStyle(QMap<QString, QtCharts::QLineSeries *> &seriesMap, QMap<QString, QColor*> colorMap, QMap<QString, Qt::PenStyle> penStyleMap);
-  QMap<QString, QColor*> convertStringMapToColorMap(QMap<QString, QString> color, QMap<QString, QtCharts::QLineSeries *> seriesMap);
-  QMap<QString, Qt::PenStyle> convertStringlineStyleMapToPenStyleMap(QMap<QString, QString> lineStyle, QMap<QString, QtCharts::QLineSeries *> seriesMap);
+  void setCollorAndPenStyle(QMap<QString, QLineSeries *> &seriesMap, QMap<QString, QColor*> colorMap, QMap<QString, Qt::PenStyle> penStyleMap);
+  QMap<QString, QColor*> convertStringMapToColorMap(QMap<QString, QString> color, QMap<QString, QLineSeries *> seriesMap);
+  QMap<QString, Qt::PenStyle> convertStringlineStyleMapToPenStyleMap(QMap<QString, QString> lineStyle, QMap<QString, QLineSeries *> seriesMap);
   QColor* getColorFromString(QString colorString);
-  void setOptions(QMap<QString, QtCharts::QLineSeries *> &seriesMap, QMap<QString, QList<QString> *> *options);
-  void groupChartLegend(QMap<QString, QtCharts::QLineSeries *> &seriesMap);
+  void setOptions(QMap<QString, QLineSeries *> &seriesMap, QMap<QString, QList<QString> *> *options);
+  void groupChartLegend(QMap<QString, QLineSeries *> &seriesMap);
 
 };
 

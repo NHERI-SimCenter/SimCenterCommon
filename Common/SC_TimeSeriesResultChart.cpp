@@ -91,7 +91,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SC_Chart.h>
 #include <SC_TimeSeriesResultChart.h> 
 
-using namespace QtCharts;
 
 /*
 SC_TimeSeriesResutlChart is meant to facilitate the creation of time series charts.
