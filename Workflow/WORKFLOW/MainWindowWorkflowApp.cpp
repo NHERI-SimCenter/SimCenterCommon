@@ -204,7 +204,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     QPushButton *runDesignSafeButton = new QPushButton();
     runDesignSafeButton->setText(tr("RUN at DesignSafe"));
     pushButtonLayout->addWidget(runDesignSafeButton);
-
+    
     QPushButton *getDesignSafeButton = new QPushButton();
     getDesignSafeButton->setText(tr("GET from DesignSafe"));
     pushButtonLayout->addWidget(getDesignSafeButton);
@@ -287,7 +287,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
       QJsonValue value = outputOptions["position"];
       if (value.isString()) {
 	QString placement = value.toString();
-	qDebug() << "POSITION " << placement;	
+	qDebug() << "Output Widget Position: " << placement;	
 	if (placement == "right")
 	  placementArea = Qt::RightDockWidgetArea;
 	else if (placement == "left")
@@ -302,7 +302,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     if (outputOptions.contains("numPixels")) {
       QJsonValue value = outputOptions["numPixels"];      
       numPixels = value.toInt();
-      qDebug() << " numPixels: " << numPixels;
+      qDebug() << " Output Window numPixels: " << numPixels;
     }
 
     // add dock widget & resize
@@ -454,12 +454,14 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     
     QFile appInitFile(appInitScript);
     if (appInitFile.exists()) {
+
       runButton->setEnabled(false);
       runDesignSafeButton->setEnabled(false);
       QStringList args;
       // runs appInit.py with 0 args using the applications own dir as working dir
       RunPythonInThread *thePythonProcess = new RunPythonInThread(appInitScript, args, QCoreApplication::applicationDirPath()); 
       connect(thePythonProcess, &RunPythonInThread::processFinished, this, [=](){
+
 	runButton->setEnabled(true);
 	runDesignSafeButton->setEnabled(true);
       });
@@ -731,8 +733,10 @@ void MainWindowWorkflowApp::updateExamplesMenu(bool placeBeforeHelp)
                 }
             }
         }
-    } else
-        qDebug() << "No Examples" << pathToExamplesJson;
+    } else {
+        qDebug() << "No Examples File Found" << pathToExamplesJson;
+        emit sendStatusMessage("No Examples FIle Found "+ pathToExamplesJson);
+    }
 
     if (_exampleDownloader) {
         theExampleDownloader->updateTree();
@@ -909,6 +913,7 @@ MainWindowWorkflowApp::onRunButtonClicked() {
 
 void
 MainWindowWorkflowApp::onRemoteRunButtonClicked(){
+  
     if (loggedIn == true) {
         theWorkflowAppWidget->onRemoteRunButtonClicked();
     } else {
