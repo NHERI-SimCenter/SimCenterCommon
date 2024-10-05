@@ -1058,6 +1058,8 @@ TapisV3::startJob(const QJsonObject &theJob)
         if (status == "error") {
             QString message("Job Not Found");
             if (theObj.contains("message")) {
+
+	      qDebug() << "TapisV3 ERROR Message: " << message;
 	      
 	      message = theObj["message"].toString();
 	      if (message.contains("SYSTEMS_MISSING_CREDENTIALS")) {

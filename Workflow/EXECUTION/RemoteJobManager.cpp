@@ -1,3 +1,4 @@
+
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -362,6 +363,42 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
          //    note: the processing done after files have downloaded
          //
 
+
+         // check for a job FAILURE
+         QJsonValue theObj = job["condition"];
+	 if (theObj.toString() != "NORMAL_COMPLETION") {
+	   QString reason(theObj.toString()); reason += ":  ";
+	   if (job.contains("lastMessage")) {
+	     QString lastMessage = job["lastMessage"].toString();
+	     qDebug() << lastMessage;
+	     QString startMarker("ERROR:");
+	     QString endMarker("Please report");
+	     int startPos = lastMessage.indexOf(startMarker);
+	     if (startPos != -1) {
+	       startPos += startMarker.length();
+	       int endPos = lastMessage.indexOf(endMarker, startPos);
+	       if (endPos != -1) {	
+		 QString errorMsg = reason + lastMessage.mid(startPos+1, endPos - startPos-5);
+		 emit sendErrorMessage(errorMsg);
+		 return;
+	       } else { // no finish
+		 QString errorMsg = reason + lastMessage;
+		 emit sendErrorMessage(errorMsg);		 
+		 return;
+	       }
+	     } else { // no start
+	       QString errorMsg = reason + lastMessage;	       
+	       emit sendErrorMessage(errorMsg);
+	       return;
+	     }
+	   } 
+	   emit sendErrorMessage("Job Did Not Finish SUCESSFULLY");
+	   qDebug() << theObj;
+	   return;
+	 }
+
+
+      
          QString archiveDir;
          QString inputDir;
          QJsonValue archivePath = job["archiveSystemDir"];
