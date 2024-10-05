@@ -13,8 +13,10 @@ class TapisMachine : public SimCenterWidget
   
 public:
   TapisMachine();
-  ~TapisMachine();
+  virtual ~TapisMachine();
 
+  virtual int setNumTasks(int numP) =0;
+				  
 public slots:
     
 private:

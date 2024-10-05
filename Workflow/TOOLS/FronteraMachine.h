@@ -10,9 +10,12 @@ class FronteraMachine : public TapisMachine
   
 public:
   FronteraMachine();
-  ~FronteraMachine();
-  
+  ~FronteraMachine(); 
+  int setNumTasks(int numP);
+
   bool outputToJSON(QJsonObject &jsonObject);
+					    
+					    
 
 public slots:
     

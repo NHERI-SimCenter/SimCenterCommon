@@ -66,6 +66,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QCoreApplication>
 #include <QIntValidator>
 
+#include <TapisMachine.h>
 
 // Support multiple remote HPC systems, but default to Frontera - 
 
@@ -74,10 +75,9 @@ static int maxProcPerNode = 56; // Frontera clx nodes: 56 cores, 56 threads, Fro
 // new function to be called before removeRecusivility
 
 
-RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QWidget *parent)
-: Application(parent), theRemoteService(theService)
+RemoteApplication::RemoteApplication(QString name, RemoteService *service, TapisMachine *machine, QWidget *parent)
+  : Application(parent), theRemoteService(service), theMachine(machine)
 {
-
 
     QString appName = QCoreApplication::applicationName();
     
@@ -85,9 +85,6 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
     workflowScriptName = name;
     shortDirName = appName + QString(": ");
 
-    if (appName == "R2D" || appName == "quoFEM") {
-      maxProcPerNode = 48;
-    }
     //    shortDirName = workflowScriptName;
     //shortDirName = name.chopped(3); // remove .py
     //shortDirName.chop(3);
@@ -103,105 +100,107 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
     nameLineEdit = new QLineEdit();
     nameLineEdit->setToolTip(tr("A meaningful name to provide for you to remember run later (days and weeks from now)"));
     layout->addWidget(nameLineEdit, numRow, 1);
-
     numRow++;
-    QLabel *numCPU_Label = new QLabel();
-    numCPU_Label->setText(QString("Num Nodes:"));
+        
+    if (theMachine == 0)  {
+      QLabel *numCPU_Label = new QLabel();
+      numCPU_Label->setText(QString("Num Nodes:"));
+      layout->addWidget(numCPU_Label,numRow,0);
+      
+      numCPU_LineEdit = new QLineEdit();
+      QIntValidator* theValidatorNumC = new QIntValidator(1, 512);
+      numCPU_LineEdit->setValidator(theValidatorNumC);
+      
+      numCPU_LineEdit->setText("1");
+      numCPU_LineEdit->setToolTip(tr("Total # of nodes to use (each node has many cores)"));
+      layout->addWidget(numCPU_LineEdit,numRow,1);
+      numRow++;
+      
+      QLabel *numProcessorsLabel = new QLabel();
+      numProcessorsLabel->setText(QString("# Cores Per Node:"));
+      
+      layout->addWidget(numProcessorsLabel,numRow,0);
+      
+      numProcessorsLineEdit = new QLineEdit();
+      numProcessorsLineEdit->setText(QString::number(maxProcPerNode));
+      numProcessorsLineEdit->setToolTip(tr("Total # of Processes to Start on each node"));
+      layout->addWidget(numProcessorsLineEdit,numRow,1);
+      numRow++;
 
-    layout->addWidget(numCPU_Label,numRow,0);
-
-    numCPU_LineEdit = new QLineEdit();
-    QIntValidator* theValidatorNumC = new QIntValidator(1, 512);
-    numCPU_LineEdit->setValidator(theValidatorNumC);
-    
-    numCPU_LineEdit->setText("1");
-    numCPU_LineEdit->setToolTip(tr("Total # of nodes to use (each node has many cores)"));
-    layout->addWidget(numCPU_LineEdit,numRow,1);
-
-    numRow++;
-    QLabel *numProcessorsLabel = new QLabel();
-    numProcessorsLabel->setText(QString("# Cores Per Node:"));
-
-    layout->addWidget(numProcessorsLabel,numRow,0);
-
-    numProcessorsLineEdit = new QLineEdit();
-    numProcessorsLineEdit->setText(QString::number(maxProcPerNode));
-    numProcessorsLineEdit->setToolTip(tr("Total # of Processes to Start on each node"));
-    layout->addWidget(numProcessorsLineEdit,numRow,1);
-
-    // hate the validator
-    //QIntValidator* theValidatorNumP = new QIntValidator(1, maxProcPerNode);
-    //numProcessorsLineEdit->setValidator(theValidatorNumP);
-    
-    connect(numProcessorsLineEdit, &QLineEdit::textChanged, this, [=](QString newText) {
+      connect(numProcessorsLineEdit, &QLineEdit::textChanged, this, [=](QString newText) {
         bool ok;
         int numP = newText.toInt(&ok);
         if (ok == false) 
-        {
-	        numP = 1;
-        }
+	  {
+	    numP = 1;
+	  }
         else if (ok && numP > maxProcPerNode) 
-        {
-	        ok = false;
-	        numP = maxProcPerNode;
-        } 
+	  {
+	    ok = false;
+	    numP = maxProcPerNode;
+	  } 
         else if (ok && numP < 1) 
-        {
-	        ok = false;
-	        numP = 1;
-        }
+	  {
+	    ok = false;
+	    numP = 1;
+	  }
         
         if (ok == false) 
-        {
-	        numProcessorsLineEdit->setText(QString::number(numP));
-        }
+	  {
+	    numProcessorsLineEdit->setText(QString::number(numP));
+	  }
         
-    });
+      });
 
-
-    if (appName == "R2D") {
-        numRow++;
+      if (appName == "R2D") {
         layout->addWidget(new QLabel("# Buildings Per Task:"), numRow, 0);
         buildingsPerTask=new QLineEdit("10");
         buildingsPerTask->setToolTip("Number of buildings per task when running in parallel");
         layout->addWidget(buildingsPerTask, numRow, 1);
-
         numRow++;
+	
         layout->addWidget(new QLabel("Save Inter. Results:"), numRow, 0);
         saveResultsBox=new QCheckBox(); saveResultsBox->setChecked(false);
         saveResultsBox->setToolTip("Save Intermediary results to compressed folder. You typically do not want this.");
         layout->addWidget(saveResultsBox, numRow, 1);
+	numRow++;	
+      }
+      
+      QLabel *runtimeLabel = new QLabel();
+      runtimeLabel->setText(QString("Max Run Time (minutes):"));
+      layout->addWidget(runtimeLabel,numRow,0);
+    
+      runtimeLineEdit = new QLineEdit();
+      runtimeLineEdit->setText("30");
+      runtimeLineEdit->setToolTip(tr("Run time Limit on running Job hours:Min. Job will be stopped if while running it exceeds this"));
+      int maxMinutes = 60*48; // WARNING: Some Stampede3 queues only allow 60*24 minute run-times
+      QIntValidator* theValidatorMinutes = new QIntValidator(1, maxMinutes);
+      runtimeLineEdit->setValidator(theValidatorMinutes);
+      runtimeLineEdit->setToolTip(tr("Run time Limit on running Job hours:Min. Job will be stopped if while running it exceeds this"));        
+      layout->addWidget(runtimeLineEdit,numRow,1);
+      numRow++;
+      
+    } else {
+      
+      layout->addWidget(theMachine, numRow, 0, 4, 2);
+      numRow+=4;
+      
     }
-
-    numRow++;
-    QLabel *runtimeLabel = new QLabel();
-    runtimeLabel->setText(QString("Max Run Time (minutes):"));
-    layout->addWidget(runtimeLabel,numRow,0);
-
-    runtimeLineEdit = new QLineEdit();
-    runtimeLineEdit->setText("30");
-    runtimeLineEdit->setToolTip(tr("Run time Limit on running Job hours:Min. Job will be stopped if while running it exceeds this"));
-    int maxMinutes = 60*48; // WARNING: Some Stampede3 queues only allow 60*24 minute run-times
-    QIntValidator* theValidatorMinutes = new QIntValidator(1, maxMinutes);
-    runtimeLineEdit->setValidator(theValidatorMinutes);
-    runtimeLineEdit->setToolTip(tr("Run time Limit on running Job hours:Min. Job will be stopped if while running it exceeds this"));        
-    layout->addWidget(runtimeLineEdit,numRow,1);
-
-    numRow++;
+    
     layout->addWidget(new QLabel("TACC Allocation"), numRow, 0);
     allocation = new QLineEdit();
     allocation->setPlaceholderText("Submit a ticket to DesignSafe to obtain your allocation.");
     allocation->setText(SimCenterPreferences::getInstance()->getDefaultAllocation());
     layout->addWidget(allocation,numRow,1);
-
     numRow++;
+    
     pushButton = new QPushButton();
     pushButton->setText("Submit");
     pushButton->setToolTip(tr("Press Submit to launch your job on a remote computer system. This window will close once the job starts."));
     layout->addWidget(pushButton,numRow,1);
-
+    numRow++;
+    
     this->setLayout(layout);
-
     connect(pushButton,SIGNAL(clicked()), this, SLOT(onRunButtonPressed()));
 }
 
@@ -219,12 +218,16 @@ RemoteApplication::outputToJSON(QJsonObject &jsonObject)
 
     jsonObject["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();    
     jsonObject["runType"]=QString("runningRemote");
-    int nodeCount = numCPU_LineEdit->text().toInt();
-    int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
-    jsonObject["nodeCount"]=nodeCount;
-    jsonObject["numP"]=nodeCount*numProcessorsPerNode;    
-    jsonObject["coresPerNode"]=numProcessorsPerNode;    
 
+    if (theMachine == 0) {
+      int nodeCount = numCPU_LineEdit->text().toInt();
+      int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
+      jsonObject["nodeCount"]=nodeCount;
+      jsonObject["numP"]=nodeCount*numProcessorsPerNode;    
+      jsonObject["coresPerNode"]=numProcessorsPerNode;    
+    } else
+      theMachine->outputToJSON(jsonObject);
+    
     return true;
 }
 
@@ -239,6 +242,9 @@ RemoteApplication::inputFromJSON(QJsonObject &dataObject) {
 void
 RemoteApplication::onRunButtonPressed(void)
 {
+     emit sendErrorMessage("RemoteApplication::runBttonPressed");
+     qDebug() << "RemoteApplication::runBttonPressed";    
+  
     QString workingDir = SimCenterPreferences::getInstance()->getRemoteWorkDir();
 
     QDir dirWork(workingDir);
@@ -456,63 +462,68 @@ RemoteApplication::uploadDirReturn(bool result)
       pushButton->setDisabled(true);
       
       job["name"]=shortDirName + nameLineEdit->text();
-      int nodeCount = numCPU_LineEdit->text().toInt();
-      int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
-      int ramPerNodeMB = 1000; // 1 GB
-      job["nodeCount"]=nodeCount;
-      job["coresPerNode"]=numProcessorsPerNode;
-      job["memoryMB"]=ramPerNodeMB;
-      job["maxMinutes"]=runtimeLineEdit->text().toInt();
-
-
-
-      // --- CPU queues on Frontera, TODO: implement for frontera/stampede3/lonestar6 + GPU queues
-      QString queue = "small";
-      if (nodeCount > 2) {
-        queue = "normal";
-      } else if (nodeCount > 512 && nodeCount <= 2048) {
-        queue = "large";
-      } else {
-        // Only applicable to Texa-scale days
-      }
-      // ---
-
       QString appName = QCoreApplication::applicationName(); 
 
-      if ((appName == QString("R2D")) || (appName == QString("quoFEM")) || (appName == QString("quoFEM_TEST")) ) 
-      {
-        queue = "skx"; // Stampede3 Skylake node queue, upto 60*24 minutes run-time
-      }
+      if (theMachine == 0) {
+	
+	int nodeCount = numCPU_LineEdit->text().toInt();
+	int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
+	int ramPerNodeMB = 1000; // 1 GB
+	
+	job["nodeCount"]=nodeCount;
+	job["coresPerNode"]=numProcessorsPerNode;
+	job["maxMinutes"]=runtimeLineEdit->text().toInt();
 
-    
-      if ((appName == QString("HydroUQ")) || (appName == QString("Hydro-UQ")) || (appName == QString("HydroUQ_TEST"))) 
-      {
+	
+	// --- CPU queues on Frontera, TODO: implement for frontera/stampede3/lonestar6 + GPU queues
+	QString queue = "small";
+	if (nodeCount > 2) {
+	  queue = "normal";
+	} else if (nodeCount > 512 && nodeCount <= 2048) {
+	  queue = "large";
+	} else {
+	  // Only applicable to Texa-scale days
+	}
+	
+	if ((appName == QString("R2D")) || (appName == QString("quoFEM")) || (appName == QString("quoFEM_TEST")) ) {
+	    queue = "skx"; // Stampede3 Skylake node queue, upto 60*24 minutes run-time
+	    
+	  }
+	
+	
+	if ((appName == QString("HydroUQ")) || (appName == QString("Hydro-UQ")) || (appName == QString("HydroUQ_TEST")))  {
+	  
             // NVIDIA GPU queues currently HydroUQ's default, as they include CPUs as well
             int numProcessorsPerNodeInGpuQueu = numProcessorsPerNode;
             int nodeCountInGpuQueue = nodeCount;
             const bool USE_FRONTERA_GPU = true;
             const bool USE_LONESTAR6_GPU = false;
             if constexpr (USE_FRONTERA_GPU) 
-            {
+	      {
                 queue = "rtx"; // Frontera. 4 NVIDIA Quadro RTX 5000 GPU 16GB
                 numProcessorsPerNodeInGpuQueu = 16; // 2 Intel Xeon E5-2620 v4 (“Broadwell”), 2*8 cores, or 2*8*2 threads (may not be enabled on Frontera)
                 ramPerNodeMB = 128000; // 128 GB
                 nodeCountInGpuQueue = (nodeCount < 22) ? nodeCount : 22; // Frontera, 22 nodes per job on rtx queue
-            } 
+	      } 
             else if constexpr (USE_LONESTAR6_GPU) 
-            {
+	      {
                 queue = "gpu-a100"; // Lonestar6, 3 NVIDIA A100 GPU 80 GB
                 numProcessorsPerNodeInGpuQueu = 128; // 2x AMD EPYC 7763 64-Core Processor ("Milan"), 2*64 cores, or 2*64*1 threads
                 ramPerNodeMB = 256000; // 256 GB
                 nodeCountInGpuQueue = (nodeCount < 4) ? nodeCount : 4; // Lonestar6, 4 nodes per job on gpu-a100 queue
-            }
+	      }
             job["coresPerNode"] = numProcessorsPerNodeInGpuQueu;
             job["nodeCount"] = nodeCountInGpuQueue;
+	  }
+
+	job["memoryMB"]               = ramPerNodeMB;
+	job["execSystemLogicalQueue"] = queue;
+	
+      } else {
+	
+	theMachine->outputToJSON(job);
+	
       }
-
-      job["memoryMB"]               = ramPerNodeMB;
-      job["execSystemLogicalQueue"] = queue;
-
 
       // Grab the tapis App information from the preferences dialog
       // To get the true Tapis App name, the version is appeneded to the app id, e.g. "simcenter-openfoam-frontera-1.0.0"
@@ -529,17 +540,13 @@ RemoteApplication::uploadDirReturn(bool result)
       QString tapisAppVersion = SimCenterPreferences::getInstance()->getRemoteAgaveAppVersion(); 
       job["appId"]            = tapisAppId;
       job["appVersion"]       = tapisAppVersion;      
-      
-
 
       QJsonObject parameterSet;
       QJsonArray envVariables;
 
-
       //
       // app specific env variables go here
       //
-      
       
       if (appName != "R2D") {
 
@@ -608,6 +615,8 @@ RemoteApplication::uploadDirReturn(bool result)
       }
       fileInputs.append(inputs);
       job["fileInputs"]=fileInputs;
+
+      qDebug() << job;
       
       // disable the button while the job is being uploaded and started
       pushButton->setEnabled(false);
@@ -621,7 +630,7 @@ RemoteApplication::uploadDirReturn(bool result)
 
       //QString dirName = theDirectory.dirName();
       //QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
-
+      
       if (SCUtils::isSafeToRemoveRecursivily(tempDirectory))
 	theDirectory.removeRecursively();
       
@@ -663,8 +672,12 @@ RemoteApplication::startJobReturn(QString result) {
 
 void
 RemoteApplication::setNumTasks(int numTasks) {
+  if (theMachine == 0) {
     if (numTasks < maxProcPerNode)
-        numProcessorsLineEdit->setText(QString::number(numTasks));
+      numProcessorsLineEdit->setText(QString::number(numTasks));
+  } else {
+    theMachine->setNumTasks(numTasks);
+  }
 }
 
 void RemoteApplication::setExtraInputs(QMap<QString, QString> extraInputs)

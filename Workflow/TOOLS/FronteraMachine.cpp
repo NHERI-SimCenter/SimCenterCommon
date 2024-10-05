@@ -15,13 +15,13 @@ FronteraMachine::FronteraMachine()
   // create widgets, setting min and max values
   //
 
-  numCPU = new SC_IntLineEdit(QString("nodeCount"), 1, 2048);
+  numCPU = new SC_IntLineEdit(QString("nodeCount"), 1, 1, 2048);
   numCPU->setText("1");
 
-  numProcessors = new SC_IntLineEdit(QString("coresPerNode"),1, 56);
+  numProcessors = new SC_IntLineEdit(QString("coresPerNode"),1, 1, 56);
   numProcessors->setText("56");
 
-  runTime = new SC_IntLineEdit(QString("maxMinutes"),1,1440);
+  runTime = new SC_IntLineEdit(QString("maxMinutes"),20, 1,1440);
   runTime->setText("20");
 
   //  runtimeLineEdit->setToolTip(tr("Run time limit on running Job (minutes). Job will be stopped if while running it exceeds this"));
@@ -71,3 +71,15 @@ FronteraMachine::outputToJSON(QJsonObject &job)
     return true;
 }
 
+int FronteraMachine::setNumTasks(int numTasks) {
+  int cpuCount = numCPU->getInt();
+  int numP = numProcessors->getInt();
+  int minTasks = cpuCount * numP;
+
+  if (minTasks > numTasks) {
+    numP = numTasks/cpuCount;
+    if (numP > 56)
+      numP = 56;
+    numProcessors->setText(QString::number(numP));
+  }
+}

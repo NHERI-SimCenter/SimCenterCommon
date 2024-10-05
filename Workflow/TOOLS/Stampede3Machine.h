@@ -13,9 +13,8 @@ public:
   ~Stampede3Machine();
   
   bool outputToJSON(QJsonObject &jsonObject);
+  int setNumTasks(int numP);
 
-public slots:
-    
 private:
   
   SC_IntLineEdit *numCPU;

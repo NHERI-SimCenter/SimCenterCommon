@@ -51,14 +51,15 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QMap>
 
 class RemoteService;
-
+class RemoteMachine;
 class QLineEdit;
+class TapisMachine;
 
 class RemoteApplication : public Application
 {
     Q_OBJECT
 public:  
-    RemoteApplication(QString name, RemoteService *theRemoteService, QWidget *parent = nullptr);
+    RemoteApplication(QString name, RemoteService *theRemoteService, TapisMachine *theMachine, QWidget *parent = nullptr);
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
     bool setupDoneRunApplication(QString &tmpDirectory, QString &inputFile);
@@ -114,7 +115,9 @@ private:
     QString shortDirName;
     QMap<QString, QString> extraInputs;
     QMap<QString, QString> extraParameters;
-    QString designsafeDirectory; 
+    QString designsafeDirectory;
+
+  TapisMachine *theMachine;
 
 };
 
