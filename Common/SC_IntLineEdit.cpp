@@ -41,10 +41,36 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QIntValidator>
 
 SC_IntLineEdit::SC_IntLineEdit(QString theKey, int initValue, int min, int max)
-  :QLineEdit()
+  :QLineEdit(), currentNumber(initValue)
 {
+  /*
   QIntValidator* theValidator = new QIntValidator(min, max);
   this->setValidator(theValidator);
+  */
+
+  //  connect(this, &QLineEdit::textChanged, this, [=](QString newText) {
+  connect(this, &QLineEdit::editingFinished, this, [=]() {  
+    bool ok;
+    QString newText = this->text();
+    int  enteredNumber = newText.toInt(&ok);
+    qDebug() << "entered, min, max " << enteredNumber << " " << min << " " << max;
+    if (ok == false) {
+      // reset with current
+      ;
+    } else if (ok && enteredNumber > max) {
+      ok = false;
+      currentNumber = max;
+    } else if (ok && enteredNumber < min) {
+      ok = false;
+      currentNumber = min;
+    }
+    if (ok == false) { // reset the text
+      this->setText(QString::number(currentNumber));
+    } else {
+      currentNumber = enteredNumber;
+    }
+  });  
+  
   
   key = theKey;
   this->setText(QString::number(initValue));
@@ -54,13 +80,10 @@ SC_IntLineEdit::SC_IntLineEdit(QString theKey, int initValue, int min, int max)
 
 
 SC_IntLineEdit::SC_IntLineEdit(QString theKey, int initValue, QString toolTip, int min, int max)
-  :QLineEdit()
+  :SC_IntLineEdit(theKey, initValue, min, max)
 {
-  QIntValidator* theValidator = new QIntValidator(min, max);
-  this->setValidator(theValidator);
-  
-  key = theKey;
-  this->setText(QString::number(initValue));
+  // do something with toolTip!
+  qDebug() << "TOOL TIP: " << theKey;
 }
 
 SC_IntLineEdit::~SC_IntLineEdit()
