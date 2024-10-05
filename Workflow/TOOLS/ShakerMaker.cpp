@@ -1794,6 +1794,7 @@ void ShakerMaker::runJob(void) {
     args << "--tapisfolder" << tapisfolder;
     args << "--username" << user;
     args << "--password" << pass;
+    args << "--allocation" << allocation->text();
 
     // create a new process to run the job
     ModularPython *thePythonApp = new ModularPython(tmpLocation->getDirName());
