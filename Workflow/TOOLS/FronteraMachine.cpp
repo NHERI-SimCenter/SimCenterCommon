@@ -82,4 +82,5 @@ int FronteraMachine::setNumTasks(int numTasks) {
       numP = 56;
     numProcessors->setText(QString::number(numP));
   }
+  return 0;
 }

@@ -75,4 +75,5 @@ int Stampede3Machine::setNumTasks(int numTasks) {
       numP = 48;    
     numProcessors->setText(QString::number(numP));
   }
+  return 0;
 }  
