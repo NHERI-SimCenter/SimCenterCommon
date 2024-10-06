@@ -119,7 +119,7 @@ namespace SCUtils {
         qWarning() << "The directory is one of users main directories and is not removable.";
         return false;
     }
-    
+#ifndef Q_OS_WIN    
     // ensure user is owner of dir
     QString owner = dirInfo.owner();
     QString currentUser = QDir::home().dirName();  // This gives the user's home directory name
@@ -129,7 +129,7 @@ namespace SCUtils {
 
     return owner == currentUser || owner == userName;
   }
-
-
+#endif
+  return true;
   
 }
