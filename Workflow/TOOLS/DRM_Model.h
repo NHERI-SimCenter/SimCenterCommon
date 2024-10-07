@@ -38,11 +38,19 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 *************************************************************************** */
 
 // Written: Amin Pakzad
+
 #include <SimCenterAppWidget.h>
-#include <TapisV3.h>
-#include <QComboBox>
-#include <QWebEngineView>
-#include <QTimeEdit>
+
+//#include <TapisV3.h>
+//#include <QComboBox>
+//#include <QWebEngineView>
+//#include <QTimeEdit>
+class TapisV3;
+class QLineEdit;
+class QComboBox;
+class QWebEngineView;
+class QTimeEdit;
+
 class SC_DoubleLineEdit;
 class SC_IntLineEdit;
 class SC_DirEdit;
@@ -102,16 +110,12 @@ private:
     SC_CheckBox *DRM_CoordinateTransformation;
     QComboBox *DRM_Location;
 
-
-
     // absorbing layer
     SC_CheckBox *Absorb_HaveAbsorbingElements;
     SC_DoubleLineEdit *Absorb_NumAbsorbingElements;
     SC_DoubleLineEdit *Absorb_rayleighAlpha;
     SC_DoubleLineEdit *Absorb_rayleighBeta;
     QComboBox *Absorb_type;
-
-
 
     // analysis information
     SC_DoubleLineEdit *dt;
@@ -126,8 +130,6 @@ private:
     SC_IntLineEdit *numAbsorbingPartitions;
     SC_IntLineEdit *numDRMPartitions;
     
-
-
     // web views
     QWebEngineView *DRMLayerView;
     QWebEngineView *SoilLayerView;

@@ -46,6 +46,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QGridLayout>
 #include <QApplication>
 #include <QLabel>
+#include <QLineEdit>
+#include <QTimeEdit>
 #include <QComboBox>
 #include <QSplitter>
 #include <SC_DirEdit.h>
