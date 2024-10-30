@@ -1059,9 +1059,9 @@ TapisV3::startJob(const QJsonObject &theJob)
             QString message("Job Not Found");
             if (theObj.contains("message")) {
 
+	      message = theObj["message"].toString();	      
 	      qDebug() << "TapisV3 ERROR Message: " << message;
-	      
-	      message = theObj["message"].toString();
+
 	      if (message.contains("SYSTEMS_MISSING_CREDENTIALS")) {
 		if (message.contains("stampede3")) {
 		  QDesktopServices::openUrl(QUrl(QString("https://www.designsafe-ci.org/rw/workspace/stampede3-credential"), QUrl::TolerantMode));
@@ -1075,6 +1075,11 @@ TapisV3::startJob(const QJsonObject &theJob)
 		} else {
 		  message = QString("ERROR: Credentials have not been set, go to tool home page for instruction");
 		}
+	      } else if (message.contains("No more authentication methods available")) {
+
+		message = QString("ERROR: TACC System unavailable at this time, see https://tacc.utexas.edu/test/system-status/ ");
+
+		
 	      } else {
 		message = QString("ERROR: " ) + theObj["message"].toString();
 	      }
