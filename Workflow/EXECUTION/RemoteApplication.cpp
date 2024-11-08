@@ -242,9 +242,6 @@ RemoteApplication::inputFromJSON(QJsonObject &dataObject) {
 void
 RemoteApplication::onRunButtonPressed(void)
 {
-     emit sendErrorMessage("RemoteApplication::runBttonPressed");
-     qDebug() << "RemoteApplication::runBttonPressed";    
-  
     QString workingDir = SimCenterPreferences::getInstance()->getRemoteWorkDir();
 
     QDir dirWork(workingDir);
@@ -339,7 +336,7 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
             return false;
         }
 
-	    qDebug() << "RUNNING: " << python << " " << args;
+	qDebug() << "RUNNING: " << python << " " << args;
 	
         proc->execute(python,args);
         proc->waitForStarted();

@@ -13,6 +13,7 @@ INCLUDEPATH += "../Utils"
 include($$PWD/ZipUtils/ZipUtils.pri)
 
 SOURCES += $$PWD/HeaderWidget.cpp \
+    $$PWD/SC_MovieWidget.cpp \
     $$PWD/Utils/JsonFunctions.cpp \
     $$PWD/Utils/RelativePathResolver.cpp \
     $$PWD/Utils/FileOperations.cpp \
@@ -47,6 +48,7 @@ SOURCES += $$PWD/HeaderWidget.cpp \
     $$PWD/GoogleAnalytics.cpp
 
 HEADERS += $$PWD/HeaderWidget.h \
+    $$PWD/SC_MovieWidget.h \
     $$PWD/Utils/RelativePathResolver.h \
     $$PWD/Utils/FileOperations.h \
     $$PWD/Utils/JsonFunctions.h \
