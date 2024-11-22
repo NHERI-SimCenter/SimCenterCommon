@@ -45,7 +45,7 @@ class UQ_Results;
 class RandomVariablesContainer;
 class UQ_Method;
 
-enum UQ_EngineType {All, ForwardOnly, ForwardReliabilitySensitivity, ForwardReliabilitySensitivitySurrogate};
+enum UQ_EngineType {All, ForwardOnly, ForwardSurrogate, ForwardReliabilitySensitivity, ForwardReliabilitySensitivitySurrogate};
 
 class UQ_Engine : public SimCenterAppWidget
 {

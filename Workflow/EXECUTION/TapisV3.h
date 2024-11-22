@@ -100,6 +100,9 @@ public:
     QString getJobStatus(const QString &jobID);
     bool deleteJob(const QString &jobID, const QStringList &dirToRemove);
 
+    // method for getting files list
+    QJsonObject getFilesList(const QString &remotePath);
+
 signals:
 
 public slots:

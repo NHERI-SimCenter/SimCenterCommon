@@ -65,6 +65,11 @@ LineEditRV::outputToJSON(QJsonObject &jsonObject, QString key)
     QString valueText = this->text();
     bool ok;
 
+    if (valueText.isEmpty()) {
+        qDebug() << "ERROR: LineRV: no key: " << key << " in JSON object";
+        return false;
+    }
+
     double valueDouble = valueText.QString::toDouble(&ok);
     if (ok == true)
         jsonObject[key]=valueDouble;

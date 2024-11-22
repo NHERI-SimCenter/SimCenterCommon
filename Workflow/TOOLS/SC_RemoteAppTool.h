@@ -43,7 +43,8 @@ public:
   void initialize(QDialog *enclosingDialog);
   void clear(void);
   bool outputCitation(QJsonObject &jsonObject) override;
-		    
+
+  void setFilesToDownload(QStringList, bool unzipZip = true);
   void setExtraInputs(QMap<QString, QString> extraInputs);
   void setExtraParameters(QMap<QString, QString> extraParameters);
 
@@ -55,15 +56,18 @@ public slots:
 
   void onGetRemoteButtonPressed();
   void processResults(QString &);
-    
+  void setAppNameReport(QString text);
+  
 private:
 
   SimCenterAppWidget *theApp;
   RemoteService *theService;  
   QString tapisAppName;
   QString tapisAppVersion;
+  QString appNameReport;  
   QString machine;  
-  QStringList queus; 
+  QStringList queus;
+
   
   QLineEdit *nameLineEdit;
   // QLineEdit *systemLineEdit;

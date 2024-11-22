@@ -58,8 +58,8 @@ class SC_FileEdit : public QWidget
   Q_OBJECT
 public:
   
-  SC_FileEdit(QString key);
-  SC_FileEdit(QString key, QString toolTip);
+  SC_FileEdit(QString key,  QStringList fileType={});
+  SC_FileEdit(QString key, QString toolTip, QStringList fileType={});
   ~SC_FileEdit();
   
   bool outputToJSON(QJsonObject &jsonObject);

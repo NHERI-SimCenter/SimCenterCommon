@@ -1,3 +1,4 @@
+
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -65,15 +66,16 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QMenu>
 #include <QDir>
 #include  <QDebug>
+#include <Utils/FileOperations.h>
 
 class RemoteService;
 
 // new function to be called before removeRecusivility
 
-extern bool isSafeToRemoveRecursivily(const QString &directoryPath);
 
 RemoteJobManager::RemoteJobManager(RemoteService *theRemoteService, QWidget *parent)
-  : QWidget(parent), triggeredRow(-1), theService(theRemoteService), callProcessResultsOnApp(true)
+  : QWidget(parent), triggeredRow(-1), theService(theRemoteService),
+    callProcessResultsOnApp(true), unzipZip(true)
 {
     QVBoxLayout *layout = new QVBoxLayout();
 
@@ -123,7 +125,8 @@ RemoteJobManager::clearTable(void){
 }
 
 void
-RemoteJobManager::setFilesToDownload(QStringList fileList){
+RemoteJobManager::setFilesToDownload(QStringList fileList, bool unzipZipFiles){
+  unzipZip = unzipZipFiles;
   filesToDownload = fileList;
 }
 
@@ -360,6 +363,42 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
          //    note: the processing done after files have downloaded
          //
 
+
+         // check for a job FAILURE
+         QJsonValue theObj = job["condition"];
+	 if (theObj.toString() != "NORMAL_COMPLETION") {
+	   QString reason(theObj.toString()); reason += ":  ";
+	   if (job.contains("lastMessage")) {
+	     QString lastMessage = job["lastMessage"].toString();
+	     qDebug() << lastMessage;
+	     QString startMarker("ERROR:");
+	     QString endMarker("Please report");
+	     int startPos = lastMessage.indexOf(startMarker);
+	     if (startPos != -1) {
+	       startPos += startMarker.length();
+	       int endPos = lastMessage.indexOf(endMarker, startPos);
+	       if (endPos != -1) {	
+		 QString errorMsg = reason + lastMessage.mid(startPos+1, endPos - startPos-5);
+		 emit sendErrorMessage(errorMsg);
+		 return;
+	       } else { // no finish
+		 QString errorMsg = reason + lastMessage;
+		 emit sendErrorMessage(errorMsg);		 
+		 return;
+	       }
+	     } else { // no start
+	       QString errorMsg = reason + lastMessage;	       
+	       emit sendErrorMessage(errorMsg);
+	       return;
+	     }
+	   } 
+	   emit sendErrorMessage("Job Did Not Finish SUCESSFULLY");
+	   qDebug() << theObj;
+	   return;
+	 }
+
+
+      
          QString archiveDir;
          QString inputDir;
          QJsonValue archivePath = job["archiveSystemDir"];
@@ -385,7 +424,7 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 
 	// remove RemoteWorkDir
 	if (localWork.exists()) 
-	  if (isSafeToRemoveRecursivily(localDir))
+	  if (SCUtils::isSafeToRemoveRecursivily(localDir))
 	    localWork.removeRecursively();
 	  else
 	    emit sendFatalMessage("App needs user to own RemoteWorkDir in Preferences, Change it and start again");
@@ -502,7 +541,7 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
 	    QDir templateD(templateDir);
 
 	    if (templateD.exists())	    
-	      if (isSafeToRemoveRecursivily(templateDir))
+	      if (SCUtils::isSafeToRemoveRecursivily(templateDir))
 		templateD.removeRecursively();
 
 	    
@@ -517,7 +556,7 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
 	    
 	    QDir resultsD(resultsDir);
 	    if (resultsD.exists())
-	      if (isSafeToRemoveRecursivily(resultsDir))	      
+	      if (SCUtils::isSafeToRemoveRecursivily(resultsDir))	      
 		resultsD.removeRecursively();
 	    
 	    // unzip .. this places files in a new dir results
@@ -544,11 +583,10 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
 
 	  for (int i=0; i<filesToDownload.size(); i++) {
 	    QString name = filesToDownload.at(i);
-	    qDebug() << "name: " << name;
-	    if (name.contains(".zip")) {
+	    if (unzipZip == true && name.contains(".zip")) {
 	      QString filePath = localDir + QDir::separator() + name;	      
 	      ZipUtils::UnzipFile(filePath, localDir);
-	      qDebug() << "unzipiing " << filePath << " in: " << localDir;
+	      qDebug() << "unziping " << filePath << " in: " << localDir;
 	    }
 	  }
 	  emit processResults(localDir);

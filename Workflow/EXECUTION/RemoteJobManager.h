@@ -66,7 +66,7 @@ public:
     explicit RemoteJobManager(RemoteService *theService, QWidget *parent = nullptr);
     bool addJob(QString &jobID);
     void clearTable(void);
-    void setFilesToDownload(QStringList filesToDownload);
+    void setFilesToDownload(QStringList filesToDownload, bool unzipZip = true);
 
 signals:
     void sendStatusMessage(QString);
@@ -136,6 +136,7 @@ private:
     RemoteService *theService;
     bool callProcessResultsOnApp;
     QStringList filesToDownload;
+    bool unzipZip;
 };
 
 #endif // REMOTEJOBMANAGER_H

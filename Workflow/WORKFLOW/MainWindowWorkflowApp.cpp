@@ -12,6 +12,7 @@
 #include "Utils/RelativePathResolver.h"
 #include "Utils/SimCenterConfigFile.h"
 #include "Utils/dialogabout.h"
+#include "Utils/FileOperations.h"
 #include "WorkflowAppWidget.h"
 #include <ZipUtils.h>
 #include <RunPythonInThread.h>
@@ -203,7 +204,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     QPushButton *runDesignSafeButton = new QPushButton();
     runDesignSafeButton->setText(tr("RUN at DesignSafe"));
     pushButtonLayout->addWidget(runDesignSafeButton);
-
+    
     QPushButton *getDesignSafeButton = new QPushButton();
     getDesignSafeButton->setText(tr("GET from DesignSafe"));
     pushButtonLayout->addWidget(getDesignSafeButton);
@@ -286,7 +287,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
       QJsonValue value = outputOptions["position"];
       if (value.isString()) {
 	QString placement = value.toString();
-	qDebug() << "POSITION " << placement;	
+	qDebug() << "Output Widget Position: " << placement;	
 	if (placement == "right")
 	  placementArea = Qt::RightDockWidgetArea;
 	else if (placement == "left")
@@ -301,7 +302,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     if (outputOptions.contains("numPixels")) {
       QJsonValue value = outputOptions["numPixels"];      
       numPixels = value.toInt();
-      qDebug() << " numPixels: " << numPixels;
+      qDebug() << " Output Window numPixels: " << numPixels;
     }
 
     // add dock widget & resize
@@ -453,12 +454,14 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     
     QFile appInitFile(appInitScript);
     if (appInitFile.exists()) {
+
       runButton->setEnabled(false);
       runDesignSafeButton->setEnabled(false);
       QStringList args;
       // runs appInit.py with 0 args using the applications own dir as working dir
       RunPythonInThread *thePythonProcess = new RunPythonInThread(appInitScript, args, QCoreApplication::applicationDirPath()); 
       connect(thePythonProcess, &RunPythonInThread::processFinished, this, [=](){
+
 	runButton->setEnabled(true);
 	runDesignSafeButton->setEnabled(true);
       });
@@ -477,57 +480,66 @@ MainWindowWorkflowApp::~MainWindowWorkflowApp()
     //
     
     QString dirToZip = thePreferences->getLocalWorkDir();
-    QDir theLocalDir(dirToZip);
-    if (theLocalDir.exists()) {
-
-      // zip it .. give zip file same name with .zip extension
-      QDir parentDir = theLocalDir;
-      parentDir.cdUp();      
-      QString dirName = theLocalDir.dirName();
-      QString zipFile=parentDir.absoluteFilePath(dirName+QString(".zip"));
-      ZipUtils::ZipFolder(theLocalDir, zipFile);
-
-      // now remove
-      theLocalDir.removeRecursively();
+    if (SCUtils::isSafeToRemoveRecursivily(dirToZip)) {
+      
+      QDir theLocalDir(dirToZip);
+      if (theLocalDir.exists()) {
+	
+	// zip it .. give zip file same name with .zip extension
+	QDir parentDir = theLocalDir;
+	parentDir.cdUp();      
+	QString dirName = theLocalDir.dirName();
+	QString zipFile=parentDir.absoluteFilePath(dirName+QString(".zip"));
+	ZipUtils::ZipFolder(theLocalDir, zipFile);
+	
+	// now remove
+	theLocalDir.removeRecursively();
+      }
     }
-
+    
     //
     // lastly remote dir
     //
-
+    
     dirToZip = thePreferences->getRemoteWorkDir();
-    QDir theRemoteDir(dirToZip);
-    if (theRemoteDir.exists()) {
-
-      // zip it .. give zip file same name with .zip extension
-      QDir parentDir = theRemoteDir;
-      parentDir.cdUp();      
-      QString dirName = theRemoteDir.dirName();
-      QString zipFile=parentDir.absoluteFilePath(dirName+QString(".zip"));
-      ZipUtils::ZipFolder(theRemoteDir, zipFile);
-
-      // now remove
-      theRemoteDir.removeRecursively();
-    }    
-    
-    dirToZip = thePreferences->getLocalWorkDir();      
+    if (SCUtils::isSafeToRemoveRecursivily(dirToZip)) {      
+      QDir theRemoteDir(dirToZip);
+      if (theRemoteDir.exists()) {
+	
+	// zip it .. give zip file same name with .zip extension
+	QDir parentDir = theRemoteDir;
+	parentDir.cdUp();      
+	QString dirName = theRemoteDir.dirName();
+	QString zipFile=parentDir.absoluteFilePath(dirName+QString(".zip"));
+	ZipUtils::ZipFolder(theRemoteDir, zipFile);
+	
+	// now remove
+	theRemoteDir.removeRecursively();
+      }    
+      
+      dirToZip = thePreferences->getLocalWorkDir();      
+    }
   }
-    
+  
   if (getConfigOptionString("handleWorkDirsOnExit") == "removeThem")  {
     
     QString dirToRemove = thePreferences->getLocalWorkDir();
-    QDir theLocalDir(dirToRemove);    
-    if (theLocalDir.exists()) {
-      theLocalDir.removeRecursively();
+    if (SCUtils::isSafeToRemoveRecursivily(dirToRemove)) {      
+      
+      QDir theLocalDir(dirToRemove);    
+      if (theLocalDir.exists()) {
+	theLocalDir.removeRecursively();
+      }
     }
-
-    dirToRemove = thePreferences->getRemoteWorkDir();
-    QDir theRemoteDir(dirToRemove);    
-    if (theRemoteDir.exists()) {
-      theRemoteDir.removeRecursively();
-    }    
     
-  }
+    dirToRemove = thePreferences->getRemoteWorkDir();
+      if (SCUtils::isSafeToRemoveRecursivily(dirToRemove)) {            
+	QDir theRemoteDir(dirToRemove);    
+	if (theRemoteDir.exists()) {
+	  theRemoteDir.removeRecursively();
+	}
+      }
+  } 
 }
 
 
@@ -721,8 +733,10 @@ void MainWindowWorkflowApp::updateExamplesMenu(bool placeBeforeHelp)
                 }
             }
         }
-    } else
-        qDebug() << "No Examples" << pathToExamplesJson;
+    } else {
+        qDebug() << "No Examples File Found" << pathToExamplesJson;
+        emit sendStatusMessage("No Examples FIle Found "+ pathToExamplesJson);
+    }
 
     if (_exampleDownloader) {
         theExampleDownloader->updateTree();
@@ -899,6 +913,7 @@ MainWindowWorkflowApp::onRunButtonClicked() {
 
 void
 MainWindowWorkflowApp::onRemoteRunButtonClicked(){
+  
     if (loggedIn == true) {
         theWorkflowAppWidget->onRemoteRunButtonClicked();
     } else {

@@ -139,7 +139,8 @@ private:
   SC_CheckBox *viewCrustLayers;
   QLineEdit *crustfileName;
   QComboBox* system;
-  QComboBox* queue;
+  //QComboBox* queue;
+  QLineEdit *allocation;
   SC_IntLineEdit* numNodes;
   SC_IntLineEdit* coresPerNode;
   QTimeEdit* maxRunTime;

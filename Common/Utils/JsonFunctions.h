@@ -1,3 +1,6 @@
+#ifndef JSON_FUNCTIONS_H
+#define JSON_FUNCTIONS_H
+
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -34,89 +37,21 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+/**
+ *  @author  sangri
+ *  @date    9/2024
+ *  @version 1.0
+ *
+ *  @section DESCRIPTION
+ *
+ *  This is to make it easy to create a json file
+ */
 
-#include <SC_IntLineEdit.h>
+#include <QString>
 #include <QJsonObject>
-#include <QIntValidator>
 
-SC_IntLineEdit::SC_IntLineEdit(QString theKey, int initValue, int min, int max)
-  :QLineEdit(), currentNumber(initValue)
-{
-  /*
-  QIntValidator* theValidator = new QIntValidator(min, max);
-  this->setValidator(theValidator);
-  */
+// sy - do we need a namespace?
+bool parseJsonFile(QString filePath, QJsonValue &jsonVal, QString &errorMsg);
+bool validateJson(const QJsonValue &jsonValue, const QJsonObject &schema, QString &errorMsg, QString key, bool integerAllowedForArray=true);
 
-  //  connect(this, &QLineEdit::textChanged, this, [=](QString newText) {
-  connect(this, &QLineEdit::editingFinished, this, [=]() {  
-    bool ok;
-    QString newText = this->text();
-    int  enteredNumber = newText.toInt(&ok);
-    qDebug() << "entered, min, max " << enteredNumber << " " << min << " " << max;
-    if (ok == false) {
-      // reset with current
-      ;
-    } else if (ok && enteredNumber > max) {
-      ok = false;
-      currentNumber = max;
-    } else if (ok && enteredNumber < min) {
-      ok = false;
-      currentNumber = min;
-    }
-    if (ok == false) { // reset the text
-      this->setText(QString::number(currentNumber));
-    } else {
-      currentNumber = enteredNumber;
-    }
-  });  
-  
-  
-  key = theKey;
-  this->setText(QString::number(initValue));
-
-  this->setMaximumWidth(200);
-}
-
-
-SC_IntLineEdit::SC_IntLineEdit(QString theKey, int initValue, QString toolTip, int min, int max)
-  :SC_IntLineEdit(theKey, initValue, min, max)
-{
-  // do something with toolTip!
-  qDebug() << "TOOL TIP: " << theKey;
-}
-
-SC_IntLineEdit::~SC_IntLineEdit()
-{
-
-}
-
-
-bool
-SC_IntLineEdit::outputToJSON(QJsonObject &jsonObject)
-{
-  jsonObject[key]=this->text().QString::toInt();
-  return true;
-}
-
-bool
-SC_IntLineEdit::inputFromJSON(QJsonObject &jsonObject)
-{
-  if (jsonObject.contains(key)) {
-    QJsonValue theValue = jsonObject[key];
-    if (theValue.isDouble())
-      this->setText(QString::number(theValue.toInt()));
-    return true;
-  }
-  return false;  
-}
-
-QString &
-SC_IntLineEdit::getKey() {  
-  return key;
-}
-
-int
-SC_IntLineEdit::getInt() {  
-  return this->text().toInt();
-}
+#endif // JSON_FUNCTIONS_H

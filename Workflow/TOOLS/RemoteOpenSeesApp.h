@@ -4,6 +4,7 @@
 #include <SimCenterAppWidget.h>
 #include <SC_ResultsWidget.h>
 
+class QDir;
 class SC_DirEdit;
 class SC_FileEdit;
 class SC_ComboBox;
@@ -20,7 +21,7 @@ public:
 public slots:
 
 private:
-  SC_DirEdit *theOutputDir;
+  SC_DirEdit *resultsFolder;  
 };
 
 class RemoteOpenSeesApp : public SimCenterAppWidget

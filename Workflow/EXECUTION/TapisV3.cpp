@@ -1058,8 +1058,10 @@ TapisV3::startJob(const QJsonObject &theJob)
         if (status == "error") {
             QString message("Job Not Found");
             if (theObj.contains("message")) {
-	      
-	      message = theObj["message"].toString();
+
+	      message = theObj["message"].toString();	      
+	      qDebug() << "TapisV3 ERROR Message: " << message;
+
 	      if (message.contains("SYSTEMS_MISSING_CREDENTIALS")) {
 		if (message.contains("stampede3")) {
 		  QDesktopServices::openUrl(QUrl(QString("https://www.designsafe-ci.org/rw/workspace/stampede3-credential"), QUrl::TolerantMode));
@@ -1073,6 +1075,11 @@ TapisV3::startJob(const QJsonObject &theJob)
 		} else {
 		  message = QString("ERROR: Credentials have not been set, go to tool home page for instruction");
 		}
+	      } else if (message.contains("No more authentication methods available")) {
+
+		message = QString("ERROR: TACC System unavailable at this time, see https://tacc.utexas.edu/test/system-status/ ");
+
+		
 	      } else {
 		message = QString("ERROR: " ) + theObj["message"].toString();
 	      }
@@ -1177,6 +1184,70 @@ TapisV3::getJobList(const QString &matchingName, QString appIdFilter)
 
     return result;
 }
+
+QJsonObject 
+TapisV3::getFilesList(const QString &remotePath)
+{
+    QJsonObject result;
+
+    QString message = QString("Contacting ") + tenant + QString(" to Get File Listing of ") + remotePath;
+    emit statusMessage(message);
+
+    QString url = tenantURL + QString("v3/files/ops/") + storage + remotePath;
+    
+    std::string headerData = QString("X-Tapis-Token: %1").arg(accessToken).toStdString();
+
+    slist1 = NULL;
+    slist1 = curl_slist_append(slist1, headerData.c_str());
+    curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, slist1);
+    curl_easy_setopt(hnd, CURLOPT_URL, url.toStdString().c_str());
+    this->invokeCurl();
+
+    // 
+    // process the results
+    //
+
+    // open results file
+    QFile file(uniqueFileName1);
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        emit errorMessage("ERROR: COULD NOT OPEN RESULT");
+        return result;
+    }
+
+    // read results file & check for errors
+    QString val;
+    val=file.readAll();
+    file.close();
+
+    if ((val.contains("Missing Credentals")) || (val.contains("Invalid Credentals"))){
+        emit errorMessage("ERROR: Trouble LOGGING IN .. try Logout and Login Again");
+        return result;
+    } else if ((val.contains("Service Unavailable"))){
+        QString message = QString("ERROR ") + tenant + QString(" Jobs Service Unavailable .. contact DesignSafe-ci");
+        emit errorMessage(message);
+        return result;
+    }
+
+    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+
+    QJsonObject theObj = doc.object();
+    if (theObj.contains("result")){
+        QJsonArray files = theObj["result"].toArray();
+        result["files"] = files;
+        emit statusMessage("Successfully obtained list of files");
+    }
+
+    return result;
+
+
+}
+
+
+
+
+
+
+
 
 void
 TapisV3::getJobDetailsCall(const QString &jobID)

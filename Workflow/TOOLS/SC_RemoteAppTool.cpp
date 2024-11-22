@@ -24,6 +24,7 @@
 #include <QFileDialog>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <GoogleAnalytics.h>
 
 
 SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
@@ -34,7 +35,7 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 				   SimCenterAppWidget* theEnclosedApp,
 				   QDialog *enclosingDialog)
   :SimCenterAppWidget(), theApp(theEnclosedApp), theService(theRemoteService),
-   tapisAppName(appName), tapisAppVersion(appVersion), machine(hpcMachine),
+   tapisAppName(appName), tapisAppVersion(appVersion), appNameReport(appName), machine(hpcMachine),
    queus(theQueus), theMachine(0)
 {
 
@@ -52,6 +53,12 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
    tapisAppName(appName), tapisAppVersion(appVersion), theMachine(machine)
 {
   this->initialize(enclosingDialog);
+}
+
+
+void
+SC_RemoteAppTool::setAppNameReport(QString text) {
+  appNameReport = text;
 }
 
 void
@@ -226,7 +233,8 @@ SC_RemoteAppTool::initialize(QDialog *enclosingDialog) {
 	    //
 	    
 	    QJsonObject json;
-	    theApp->outputToJSON(json);
+	    theApp->outputAppDataToJSON(json);
+	    //theApp->outputToJSON(json);	    
 	    
 	    //Resolve relative paths before saving
 	    QFileInfo fileInfo(fileName);
@@ -286,6 +294,9 @@ void SC_RemoteAppTool::clear()
 void
 SC_RemoteAppTool::submitButtonPressed() {
 
+  GoogleAnalytics::ReportDesignSafeRun();
+  GoogleAnalytics::ReportAppUsage(appNameReport);  
+    
   //
   // first check if logged in
   //
@@ -345,6 +356,7 @@ SC_RemoteAppTool::submitButtonPressed() {
   // in tmpDir create the input file
   //
 
+  
   QString inputFile = destinationDir.absoluteFilePath("scInput.json");
   
   QFile file(inputFile);
@@ -352,28 +364,26 @@ SC_RemoteAppTool::submitButtonPressed() {
     //errorMessage();
     return;
   }
-  
+
   QJsonObject json;
 
   QJsonObject appData;
   theApp->outputAppDataToJSON(json);
   json["ApplicationData"]=appData;
-  
   theApp->outputToJSON(json);
-
-  json["workingDir"]=SimCenterPreferences::getInstance()->getRemoteWorkDir(); 
+  json["workingDir"]=SimCenterPreferences::getInstance()->getRemoteWorkDir();
   json["runDir"]=tempDirectory;
-  json["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();    
+  json["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();
   json["runType"]=QString("runningRemote");
-  int nodeCount = numCPU_LineEdit->text().toInt();
-  int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
 
   if (theMachine == 0) {
+    int numProcessorsPerNode = numProcessorsLineEdit->text().QString::toInt();
+    int nodeCount = numCPU_LineEdit->text().QString::toInt();
     json["nodeCount"]=nodeCount;
     json["numP"]=nodeCount*numProcessorsPerNode; 
 
     if (numGPU_LineEdit != NULL) {
-      int gpuCount = numGPU_LineEdit->text().toInt();
+      int gpuCount = numGPU_LineEdit->text().QString::toInt();
       json["gpus"]=gpuCount;
     }
   } else {
@@ -387,12 +397,11 @@ SC_RemoteAppTool::submitButtonPressed() {
   //
   // now send directory containing inputFile and inputData.zip across
   //
-
+  
   submitButton->setEnabled(false);
   
   connect(theService, SIGNAL(uploadDirectoryReturn(bool)), this, SLOT(uploadDirReturn(bool)));
-  // qDebug() << "localDIR: "  << tempDirectory;
-  // qDebug() << "remoteDIR: " << remoteHomeDirPath;
+
   
   theService->uploadDirectoryCall(tempDirectory, remoteHomeDirPath);         
 }  
@@ -401,6 +410,7 @@ SC_RemoteAppTool::submitButtonPressed() {
 void
 SC_RemoteAppTool::uploadDirReturn(bool result)
 {
+  qDebug() << "UPLOAD DIR RETURN";
   disconnect(theService, SIGNAL(uploadDirectoryReturn(bool)), this, SLOT(uploadDirReturn(bool)));
     
 
@@ -422,8 +432,6 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     // file in the json job object to invoke app with
     //
     
-    int nodeCount = numCPU_LineEdit->text().toInt();
-    int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
     QString shortDirName = QCoreApplication::applicationName() + ": ";
     
     job["appId"]=tapisAppName;
@@ -432,11 +440,15 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     int ramPerNodeMB = 128000;    
     job["memoryMB"]= ramPerNodeMB;
 
+
     if (theMachine == 0) {
+
+      int nodeCount = numCPU_LineEdit->text().QString::toInt();
+      int numProcessorsPerNode = numProcessorsLineEdit->text().QString::toInt();
       
       job["nodeCount"]=nodeCount;
       job["coresPerNode"]=numProcessorsPerNode;
-      job["maxMinutes"]=runtimeLineEdit->text().toInt();
+      job["maxMinutes"]=runtimeLineEdit->text().QString::toInt();
       
       //
       // figure out queue
@@ -450,23 +462,23 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
 	  firstQueue == "rtx" ||
 	  firstQueue == "rtx-dev" ||
 	  firstQueue == "gpu-a100-small") {
-	
 	queue = firstQueue;
 	
       } else if (machine == "frontera") {
-	
+      
 	queue = "small";
 	if (nodeCount > 2)
 	  queue = "normal";
 	if (nodeCount > 512)
 	  queue = "large";
 	
+	job["execSystemLogicalQueue"]=queue;
+
       } else if (machine == "stampede3") {
+	
 	queue = "icx";
+	
       }
-      
-      
-      job["execSystemLogicalQueue"]=queue;
 
     } else {
       
@@ -474,7 +486,6 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
 
     }
     
-
 
     //
     // Job Parameters (envVariables & allocation)
@@ -488,9 +499,6 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     inputFileObj["key"]="inputFile";
     inputFileObj["value"]="scInput.json";
     envVariables.append(inputFileObj);
-    
-
-
 
     // any additional envVariables variables are app dependent
     QJsonObject extraParameters;
@@ -662,10 +670,9 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     //
     // now remove the tmp directory
     //
+    
     theDirectory.removeRecursively();
     
-    qDebug() << "SUBMIT.json:  " << job;
-
     connect(theService,SIGNAL(startJobReturn(QString)), this, SLOT(startJobReturn(QString)));      
     theService->startJobCall(job);
     
@@ -722,7 +729,7 @@ SC_RemoteAppTool::processResults(QString &dirName){
     }
   
     
-  SC_ResultsWidget *theResults=theApp->getResultsWidget();
+  SC_ResultsWidget *theResults = theApp->getResultsWidget();
   if (theResults == NULL) {
     this->errorMessage("FATAL - SC_RemoteAppTool received NULL pointer theResults from theApp->getResultsWidget()... skipping theResults->processResults()");
     return;
@@ -745,6 +752,11 @@ void SC_RemoteAppTool::setExtraParameters(QMap<QString, QString> extraParameters
 
 bool SC_RemoteAppTool::outputCitation(QJsonObject &jsonObject) {
   return theApp->outputCitation(jsonObject);
+}
+
+void
+SC_RemoteAppTool::setFilesToDownload(QStringList filesToDownload, bool unzipZip) {
+  theJobManager->setFilesToDownload(filesToDownload, unzipZip);
 }
 
 	     

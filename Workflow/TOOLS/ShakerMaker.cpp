@@ -42,6 +42,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SC_DirEdit.h>
 #include <SC_ComboBox.h>
 #include <SC_CheckBox.h>
+#include <GoogleAnalytics.h>
+
 #include <QTableWidget>
 #include <QEventLoop>
 #include <QJsonObject>
@@ -247,23 +249,25 @@ ShakerMaker::ShakerMaker(): SimCenterAppWidget()
     submitJobLayout->setColumnStretch(2, 1);
     submitJobLayout->setColumnStretch(3, 1);
 
-
-
     //  system selection could be frontera or stampede3
     system = new QComboBox();
     system->addItem("Frontera");
-    system->addItem("Stampede3");
+    // system->addItem("Stampede3");
     submitJobLayout->addWidget(new QLabel("System"), 0, 0);
     submitJobLayout->addWidget(system, 0, 1, 1, 3);
 
     // Queue selection could be developmnet, small, normal, large
-    queue = new QComboBox();
-    queue->addItem("development");
-    queue->addItem("small");
-    queue->addItem("normal");
-    queue->addItem("large");
-    submitJobLayout->addWidget(new QLabel("Queue"), 1, 0);
-    submitJobLayout->addWidget(queue, 1, 1, 1, 3);
+    //queue = new QComboBox();
+    //queue->addItem("development");
+    //queue->addItem("small");
+    //queue->addItem("normal");
+    //queue->addItem("large");
+    //submitJobLayout->addWidget(new QLabel("Queue"), 1, 0);
+    //submitJobLayout->addWidget(queue, 1, 1, 1, 3);
+
+    submitJobLayout->addWidget(new QLabel("Allocation"), 1, 0);
+    allocation = new QLineEdit();
+    submitJobLayout->addWidget(allocation, 1, 1, 1, 3);    
 
     // number of nodes
     submitJobLayout->addWidget(new QLabel("Number of Nodes"), 2, 0);
@@ -440,7 +444,7 @@ ShakerMaker::ShakerMaker(): SimCenterAppWidget()
     file.close();
 
     // get the countries from the json file which is a list
-    QJsonArray contries = databaseMetadata["Contries"].toArray();
+    QJsonArray contries = databaseMetadata["Countries"].toArray();
 
     // add the countries to the combo box
     countryComboBox = new QComboBox();
@@ -717,7 +721,8 @@ ShakerMaker::ShakerMaker(): SimCenterAppWidget()
     tabWidget->addTab(plotTab, "Plot");
     tabWidget->addTab(mapTab, "Map");
 
-    // // simulation layout is a web view to load html file in the plot tab
+
+    // simulation layout is a web view to load html file in the plot tab
     simulationWebView = new QWebEngineView();
     simulationWebView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     plotTab->setLayout(new QVBoxLayout());
@@ -733,6 +738,7 @@ ShakerMaker::ShakerMaker(): SimCenterAppWidget()
 
 
     simulationWebView->setUrl(QUrl("about:blank"));
+    mapWebView->setUrl(QUrl("about:blank"));
 
 
 
@@ -1139,7 +1145,7 @@ void ShakerMaker::Visualize() {
 
 
     // // delete the centerStation.png if it exists
-    QFile file2(destDir + QDir::separator() + "faults.html");
+    QFile file2(destDir + QDir::separator() + "faults_map.html");
     if (file2.exists()) {
         file2.remove();
     }
@@ -1164,14 +1170,17 @@ void ShakerMaker::Visualize() {
     // Now the process is finished, check if the file exists
     if (file2.exists()) {
         // load the file in the web view
+        // enable webgl for the web view
+        simulationWebView->settings()->setAttribute(QWebEngineSettings::WebGLEnabled, true);
         simulationWebView->load(QUrl::fromLocalFile(destDir + QDir::separator() + "faults.html"));
         simulationWebView->show();
         mapWebView->load(QUrl::fromLocalFile(destDir + QDir::separator() + "faults_map.html"));
         mapWebView->show();
-
     } else {
-        errorMessage("Error: Faults.html file not found");
+        errorMessage("Error: Faults_map.html file not found");
     }
+
+    errorMessage("Faults visualization is done");
 
 }
 
@@ -1684,13 +1693,29 @@ int ShakerMaker::createMetaData() {
     // add the fault info to the metadata
     metadata["faultdata"] = faultInfo;
 
-
-
     // add the jobdata 
     QJsonObject jobData;
     jobData["system"] = system->currentText();
-    jobData["queue"] = queue->currentText();
-    jobData["numNodes"] = numNodes->getInt();
+    //    jobData["queue"] = queue->currentText();
+
+    //maxRunTime->time().toString("hh:mm:ss");    
+    int maxMinutes = maxRunTime->time().hour() * 60 + maxRunTime->time().minute();
+
+    int numnodes = numNodes->getInt();    
+    QString queue = "normal";
+    if (numnodes <= 2) {
+      if (maxMinutes > 20)
+	queue = "small";
+      else
+	queue = "development";
+    } else if (numnodes > 512) {
+      queue = "large";
+    }
+    
+    jobData["queue"] = queue;
+    jobData["allocation"] = allocation->text();	        
+    
+    jobData["numNodes"] = numnodes;
     jobData["numCores"] = coresPerNode->getInt();
     if (maxRunTime != nullptr) {
         jobData["maxruntime"] = maxRunTime->time().toString("hh:mm:ss");
@@ -1712,6 +1737,9 @@ int ShakerMaker::createMetaData() {
 
 void ShakerMaker::runJob(void) {
 
+    GoogleAnalytics::ReportDesignSafeRun();
+    GoogleAnalytics::ReportAppUsage(QString("ShakerMaker"));
+    
     // pop up window to get the username and password in one dialog
     // create a new dialog
     QDialog *dialog = new QDialog(this);
@@ -1766,6 +1794,7 @@ void ShakerMaker::runJob(void) {
     args << "--tapisfolder" << tapisfolder;
     args << "--username" << user;
     args << "--password" << pass;
+    args << "--allocation" << allocation->text();
 
     // create a new process to run the job
     ModularPython *thePythonApp = new ModularPython(tmpLocation->getDirName());
@@ -1779,6 +1808,7 @@ void ShakerMaker::runJob(void) {
 
 
 void ShakerMaker::loadModel(QString modelPath) {
+  
     // load the model from the given path
     QFile file(modelPath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -1844,6 +1874,7 @@ void ShakerMaker::loadModel(QString modelPath) {
         return;
     } 
 
+    /*
     find = false;
     for (int i = 0; i < queue->count(); i++) {
         if (queue->itemText(i) == model["Queue"].toString()) {
@@ -1856,7 +1887,8 @@ void ShakerMaker::loadModel(QString modelPath) {
         errorMessage("Error: Queue not supported");
         return;
     }
-
+    */
+    
     numNodes->setText(QString::number(model["Number of Nodes"].toInt()));
     coresPerNode->setText(QString::number(model["Cores per Node"].toInt()));
     if (model.contains("Max Run Time")) {

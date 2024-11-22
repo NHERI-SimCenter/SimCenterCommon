@@ -1,11 +1,10 @@
-#ifndef SC_INT_LINEEDIT_H
-#define SC_INT_LINEEDIT_H
-
+#ifndef MULTI_FIDELITY_BUILD_MODEL
+#define MULTI_FIDELITY_BUILD_MODEL
 /* *****************************************************************************
-Copyright (c) 2016-2017, The Regents of the University of California (Regents).
+Copyright (c) 2016-2021, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -29,50 +28,58 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-/**
- *  @author  fmckenna
- *  @date    2/2017
- *  @version 1.0
- *
- *  @section DESCRIPTION
- *
- *  This is a combo box for SimCenter, implements input/output To JSON
- */
+// Written by: Frank McKenna
 
-#include <QLineEdit>
-#include <QString>
+#include "SimCenterAppWidget.h"
 
-class QJsonObject;
+#include <QGroupBox>
+#include <QVector>
+#include <QGridLayout>
+#include <QComboBox>
+#include <QJsonArray>
+#include "SC_FileEdit.h"
+#include "SimCenterAppSelection.h"
 
-class SC_IntLineEdit : public QLineEdit
+class InputWidgetParameters;
+
+class MultiFidelityBuildingModel : public SimCenterAppWidget
 {
-  
+    Q_OBJECT
 public:
-  
-  SC_IntLineEdit(QString key, int initValue, int min=-2147483647, int max=2147483647);
-  SC_IntLineEdit(QString key, int initValue, QString toolTip, int min=-2147483647, int max=2147483647);
-  ~SC_IntLineEdit();
-  
-  bool outputToJSON(QJsonObject &jsonObject);
-  bool inputFromJSON(QJsonObject &jsonObject);
-  QString &getKey(void);
-  int getInt(void);  
-  
-signals:
+    explicit MultiFidelityBuildingModel(QWidget *parent = 0);
+    ~MultiFidelityBuildingModel();
+
+    bool outputToJSON(QJsonObject &rvObject) override;
+    bool inputFromJSON(QJsonObject &rvObject) override;
+    bool outputAppDataToJSON(QJsonObject &rvObject) override;
+    bool inputAppDataFromJSON(QJsonObject &rvObject) override;
+    bool copyFiles(QString &dirName) override;
+    bool outputCitation(QJsonObject &jsonObject) override;
+
+
+     // copy main file to new filename ONLY if varNamesAndValues not empy
+    void setFileName(QString filnema1);
 
 public slots:
+   void clear(void) override;
+   void parseDatabase(QString fileName);
 
 private:
-  QString key;
-  int currentNumber;
+    SC_FileEdit *model_database;
+    SimCenterAppWidget *mdofLU ;
+    QJsonObject getDatabaseSchema();
+    QVBoxLayout *model_details;
+    void clearModelDetails();
+    QStringList directoriesToBeCopied;
+    QJsonArray newJsonArr;
 };
 
-#endif // SC_INT_LINEEDIT_H
+#endif // MULTI_FIDELITY_BUILD_MODEL
