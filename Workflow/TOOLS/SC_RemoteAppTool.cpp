@@ -651,16 +651,22 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     // /* 
     // Temporary hardcoding for the MPM app
     QJsonObject data;
-    if (tapisAppName == "simcenter-claymore-lonestar6") {       
-      data["sourceUrl"]   = "tapis://" + QString("designsafe.storage.default/") + QString("bonusj/mpm-public-ls6");
+    if (tapisAppName == "simcenter-claymore-lonestar6" || tapisAppName == "simcenter-claymore-ls6") {       
+      data["sourceUrl"]   = "tapis://" + QString("designsafe.storage.default/") + QString("tg457427/mpm-public-ls6");
       data["targetPath"]  = "*";
       data["envKey"]      = "dataDirectory";
       fileInputs.append(data);
     } else if (tapisAppName == "simcenter-claymore-frontera") {       
-      data["sourceUrl"]   = "tapis://" + QString("designsafe.storage.default/") + QString("bonusj/mpm-public-frontera");
+      data["sourceUrl"]   = "tapis://" + QString("designsafe.storage.default/") + QString("tg457427/mpm-public-frontera");
       data["targetPath"]  = "*";
       data["envKey"]      = "dataDirectory";
       fileInputs.append(data);
+    } else if (tapisAppName == "simcenter-claymore-lonestar6-dev" || tapisAppName == "simcenter-claymore-ls6-dev") {
+      data["sourceUrl"]   = "tapis://" + QString("designsafe.storage.default/") + QString("bonusj/mpm-public-ls6");
+      data["targetPath"]  = "*";
+      data["envKey"]      = "dataDirectory";
+    } else {
+      // Empty on purpose, above clauses only for the claymore MPM app
     }
     // */
     
