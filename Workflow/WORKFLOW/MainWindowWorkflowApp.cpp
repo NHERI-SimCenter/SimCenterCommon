@@ -171,8 +171,12 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
 
     QPushButton *citeButton = new QPushButton("Cite");
     connect(citeButton, &QPushButton::clicked, this, [this](){
+        GoogleAnalytics::Report("Citation", "Cite-Button");
         this->showCitations();
+
     });
+
+
 
 
     loginButton = new QPushButton("Login");
@@ -1197,6 +1201,7 @@ MainWindowWorkflowApp::showCitations(void)
   layout->addWidget(json,1,1);
   connect(json, &QPushButton::clicked, this, [textEdit, json_string](){
     textEdit->setPlainText(json_string);
+    GoogleAnalytics::Report("Citation", "JSON");
   });
 
   
@@ -1204,6 +1209,7 @@ MainWindowWorkflowApp::showCitations(void)
   layout->addWidget(justCitations,1,2);
   connect(justCitations, &QPushButton::clicked, this, [textEdit, justText](){
     textEdit->setPlainText(justText);
+    GoogleAnalytics::Report("Citation", "Citations-Only");
   });
 
 
