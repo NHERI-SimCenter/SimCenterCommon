@@ -33,7 +33,7 @@ FronteraMachine::FronteraMachine()
   QGridLayout *theLayout = new QGridLayout(this);
 
   theLayout->addWidget(new QLabel("Num Node:"), 0,0);
-  theLayout->addWidget(numCPU, 1,1);          
+  theLayout->addWidget(numCPU, 0,1);          
   theLayout->addWidget(new QLabel("Num Processors Per Node:"), 1,0);
   theLayout->addWidget(numProcessors, 1,1);        
   theLayout->addWidget(new QLabel("Max Run Time (minutes):"),2,0);
