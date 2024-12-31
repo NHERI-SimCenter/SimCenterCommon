@@ -439,7 +439,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     } else if (homeDir.exists(".zshrc")) {
         sourceBash = QString("source $HOME/.zshrc; ");
     } else
-        this->errorMessage( "No .bash_profile, .bashrc, .zprofile or .zshrc file found. This may not find Dakota or OpenSees");
+        this->statusMessage( "No .bash_profile, .bashrc, .zprofile or .zshrc file found. Users env not being used");
 
     // note the above not working under linux because bash_profile not being called so no env variables!!
     QString command;
