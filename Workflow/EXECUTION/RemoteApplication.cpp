@@ -225,8 +225,14 @@ RemoteApplication::outputToJSON(QJsonObject &jsonObject)
       jsonObject["nodeCount"]=nodeCount;
       jsonObject["numP"]=nodeCount*numProcessorsPerNode;    
       jsonObject["coresPerNode"]=numProcessorsPerNode;    
-    } else
+    } else {
       theMachine->outputToJSON(jsonObject);
+      if (appName == "HydroUQ" || appName == "Hydro-UQ") {
+        int nodeCount = jsonObject["nodeCount"].toInt();
+        int numProcessorsPerNode = jsonObject["coresPerNode"].toInt();
+        jsonObject["numP"]=nodeCount*numProcessorsPerNode; // not set in outputToJSON as thats called in uploadDirReturn as well for the remote app json, so can't add extra keys
+      }
+    }
     
     return true;
 }
@@ -275,18 +281,18 @@ RemoteApplication::onRunButtonPressed(void)
 bool
 RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile) {
 
-  //Q_UNUSED(runType);
-  //    QString appDir = localAppDirName->text();
-  QString runType("runningRemote");
-  
-  QString appDir = SimCenterPreferences::getInstance()->getAppDir();
-  QString pySCRIPT;
-  
-  QString appName = QCoreApplication::applicationName();
-  
-  // R2D does not have a local setup run
-  
-  if (appName != "R2D"){
+    //Q_UNUSED(runType);
+    //    QString appDir = localAppDirName->text();
+    QString runType("runningRemote");
+    
+    QString appDir = SimCenterPreferences::getInstance()->getAppDir();
+    QString pySCRIPT;
+    
+    QString appName = QCoreApplication::applicationName();
+    
+    // R2D does not have a local setup run
+    
+    if (appName != "R2D"){
     
         QDir scriptDir(appDir);
         scriptDir.cd("applications");
@@ -336,7 +342,7 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
             return false;
         }
 
-	qDebug() << "RUNNING: " << python << " " << args;
+	      qDebug() << "RUNNING: " << python << " " << args;
 	
         proc->execute(python,args);
         proc->waitForStarted();
@@ -373,18 +379,18 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
 	
         ZipUtils::ZipFolder(tmpDir, zipFile);
 
-	//
-	// remove input_data & templatedir directories before we send tmp directory across (they are now in zip file)
-	//
+        //
+        // remove input_data & templatedir directories before we send tmp directory across (they are now in zip file)
+        //
 	
         if (tmpDir.exists("input_data")) {
             QDir inputDataDir(tmpDir.absoluteFilePath("input_data"));
             inputDataDir.removeRecursively();
-	} 
+	      } 
 
         QDir dirToRemove(templateDIR);
         templateDir.cd("templatedir");
-	templateDir.removeRecursively();
+	      templateDir.removeRecursively();
 	
     } else {
 
@@ -462,63 +468,60 @@ RemoteApplication::uploadDirReturn(bool result)
       QString appName = QCoreApplication::applicationName(); 
 
       if (theMachine == 0) {
-	
-	int nodeCount = numCPU_LineEdit->text().toInt();
-	int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
-	int ramPerNodeMB = 1000; // 1 GB
-	
-	job["nodeCount"]=nodeCount;
-	job["coresPerNode"]=numProcessorsPerNode;
-	job["maxMinutes"]=runtimeLineEdit->text().toInt();
+    
+        int nodeCount = numCPU_LineEdit->text().toInt();
+        int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
+        int ramPerNodeMB = 1000; // 1 GB
+        
+        job["nodeCount"]=nodeCount;
+        job["coresPerNode"]=numProcessorsPerNode;
+        job["maxMinutes"]=runtimeLineEdit->text().toInt();
 
-	
-	// --- CPU queues on Frontera, TODO: implement for frontera/stampede3/lonestar6 + GPU queues
-	QString queue = "small";
-	if (nodeCount > 2) {
-	  queue = "normal";
-	} else if (nodeCount > 512 && nodeCount <= 2048) {
-	  queue = "large";
-	} else {
-	  // Only applicable to Texa-scale days
-	}
-	
-	if ((appName == QString("R2D")) || (appName == QString("quoFEM")) || (appName == QString("quoFEM_TEST")) ) {
-	    queue = "skx"; // Stampede3 Skylake node queue, upto 60*24 minutes run-time
-	    
-	  }
-	
-	
-	if ((appName == QString("HydroUQ")) || (appName == QString("Hydro-UQ")) || (appName == QString("HydroUQ_TEST")))  {
-	  
-            // NVIDIA GPU queues currently HydroUQ's default, as they include CPUs as well
-            int numProcessorsPerNodeInGpuQueu = numProcessorsPerNode;
-            int nodeCountInGpuQueue = nodeCount;
-            const bool USE_FRONTERA_GPU = true;
-            const bool USE_LONESTAR6_GPU = false;
-            if constexpr (USE_FRONTERA_GPU) 
-	      {
-                queue = "rtx"; // Frontera. 4 NVIDIA Quadro RTX 5000 GPU 16GB
-                numProcessorsPerNodeInGpuQueu = 16; // 2 Intel Xeon E5-2620 v4 (“Broadwell”), 2*8 cores, or 2*8*2 threads (may not be enabled on Frontera)
-                ramPerNodeMB = 128000; // 128 GB
-                nodeCountInGpuQueue = (nodeCount < 22) ? nodeCount : 22; // Frontera, 22 nodes per job on rtx queue
-	      } 
-            else if constexpr (USE_LONESTAR6_GPU) 
-	      {
-                queue = "gpu-a100"; // Lonestar6, 3 NVIDIA A100 GPU 80 GB
-                numProcessorsPerNodeInGpuQueu = 128; // 2x AMD EPYC 7763 64-Core Processor ("Milan"), 2*64 cores, or 2*64*1 threads
-                ramPerNodeMB = 256000; // 256 GB
-                nodeCountInGpuQueue = (nodeCount < 4) ? nodeCount : 4; // Lonestar6, 4 nodes per job on gpu-a100 queue
-	      }
-            job["coresPerNode"] = numProcessorsPerNodeInGpuQueu;
-            job["nodeCount"] = nodeCountInGpuQueue;
-	  }
+        
+        // --- CPU queues on Frontera, TODO: implement for frontera/stampede3/lonestar6 + GPU queues
+        QString queue = "small";
+        if (nodeCount > 2) {
+          queue = "normal";
+        } else if (nodeCount > 512 && nodeCount <= 2048) {
+          queue = "large";
+        } else {
+          // Only applicable to Texa-scale days
+        }
+        
+        if ((appName == QString("R2D")) || (appName == QString("quoFEM")) || (appName == QString("quoFEM_TEST")) ) {
+            queue = "skx"; // Stampede3 Skylake node queue, upto 60*24 minutes run-time
+            
+          }
+        
+        
+        if ((appName == QString("HydroUQ")) || (appName == QString("Hydro-UQ")) || (appName == QString("HydroUQ_TEST")))  {
+          
+          // NVIDIA GPU queues currently HydroUQ's default, as they include CPUs as well
+          int numProcessorsPerNodeInGpuQueu = numProcessorsPerNode;
+          int nodeCountInGpuQueue = nodeCount;
+          const bool USE_FRONTERA_GPU = true;
+          const bool USE_LONESTAR6_GPU = false;
+          if constexpr (USE_FRONTERA_GPU) {
+                      queue = "rtx"; // Frontera. 4 NVIDIA Quadro RTX 5000 GPU 16GB
+                      numProcessorsPerNodeInGpuQueu = 8; // 2 Intel Xeon E5-2620 v4 (“Broadwell”), 2*8 cores, or 2*8*2 threads (may not be enabled on Frontera)
+                      ramPerNodeMB = 128000; // 128 GB
+                      nodeCountInGpuQueue = (nodeCount < 22) ? nodeCount : 22; // Frontera, 22 nodes per job on rtx queue
+          } else if constexpr (USE_LONESTAR6_GPU) {
+                      queue = "gpu-a100"; // Lonestar6, 3 NVIDIA A100 GPU 80 GB
+                      numProcessorsPerNodeInGpuQueu = 1; // 2x AMD EPYC 7763 64-Core Processor ("Milan"), 2*64 cores, or 2*64*1 threads
+                      ramPerNodeMB = 256000; // 256 GB
+                      nodeCountInGpuQueue = (nodeCount < 4) ? nodeCount : 4; // Lonestar6, 4 nodes per job on gpu-a100 queue
+          }
+          job["coresPerNode"] = numProcessorsPerNodeInGpuQueu;
+          job["nodeCount"] = nodeCountInGpuQueue;
+        }
 
-	job["memoryMB"]               = ramPerNodeMB;
-	job["execSystemLogicalQueue"] = queue;
-	
+        job["memoryMB"]               = ramPerNodeMB;
+        job["execSystemLogicalQueue"] = queue;
+    
       } else {
 	
-	theMachine->outputToJSON(job);
+	      theMachine->outputToJSON(job);
 	
       }
 
@@ -628,9 +631,10 @@ RemoteApplication::uploadDirReturn(bool result)
       //QString dirName = theDirectory.dirName();
       //QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
       
-      if (SCUtils::isSafeToRemoveRecursivily(tempDirectory))
-	theDirectory.removeRecursively();
-      
+      if (SCUtils::isSafeToRemoveRecursivily(tempDirectory)) {
+	      theDirectory.removeRecursively();
+      }
+
       //
       // start the remote job
       //
