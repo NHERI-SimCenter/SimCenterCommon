@@ -47,6 +47,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDir>
 #include <RandomVariablesContainer.h>
 #include <QFileInfo>
+#include <QCoreApplication>
 //#include <filesystem>
 
 UQ_Results::UQ_Results(QWidget *parent)
@@ -133,6 +134,24 @@ UQ_Results::extractErrorMsg(QString workDir, QString errFileName, QString uqEngi
     //
     // 1. First check if "dakota.err" is created.
     //
+    QString appName = QCoreApplication::applicationName();
+    if ((appName == "HydroUQ") || (appName == "Hydro-UQ")) {
+        // Check if workDir exists. .../RemoteWorkDir/Results sometimes, othertimes .../RemoteWorkDir/LocalWorkDir/results
+        QFileInfo workDirectory(workDir);
+        qDebug() << "Checking if " << workDir << " exists";
+        if (!workDirectory.exists()) {
+            // Make last folder lowercase and check if it exists
+            qDebug() << "No " << workDir << " directory - " << uqEngineName << " did not run - problem with the setup or the applications failed with inputs provided";
+            qDebug() << "Try last directory as lowercase..., " << workDirectory.fileName() << " --> " << workDirectory.fileName().toLower();
+            workDir = workDirectory.absolutePath() + QDir::separator() + workDirectory.fileName().toLower();
+            qDebug() << "Checking if " << workDir << " exists";
+            workDirectory.setFile(workDir);
+            QFileInfo workDirectoryLower(workDir);
+            if (!workDirectoryLower.exists()) {
+                qDebug() << "No " << workDir << " directory - " + uqEngineName + " did not run - problem with the setup or the applications failed with inputs provided";
+            }    
+        }
+    }
 
     QString filenameErrorString = workDir + QDir::separator() + errFileName;
     QFileInfo filenameErrorInfo(filenameErrorString);
