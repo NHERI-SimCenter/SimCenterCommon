@@ -45,6 +45,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QCoreApplication>
 #include <SurrogateSimulation.h>
 #include <QCoreApplication>
+#include <CapacitySpectrumWidget.h>
 
 FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
   : SimCenterAppSelection(QString("FE Application"), QString("Simulation"), parent)
@@ -64,6 +65,9 @@ FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
   if ((appName == "EE-UQ" || appName =="WE-UQ") || appName =="PBE") {
      SimCenterAppWidget *surrogate = new SurrogateSimulation();
       this->addComponent(QString("None (only for surrogate)"), QString("SurrogateSimulation"), surrogate);
+
+      CapacitySpectrumWidget* capacitySpectrum = new CapacitySpectrumWidget(false, this);
+      this->addComponent(QString("Capacity Spectrum Method"), QString("CapacitySpectrumMethod2"), capacitySpectrum);
   }
   else if ((appName == "Hydro-UQ" || appName =="HydroUQ") || appName =="Hydro") {
      SimCenterAppWidget *surrogate = new SurrogateSimulation();
