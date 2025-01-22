@@ -130,6 +130,8 @@ SimCenterAppWidget::copyPath(QString sourceDir, QString destinationDir, bool ove
 bool
 SimCenterAppWidget::copyFile(QString filename, QString destinationDir)
 {
+    qDebug() << "SimCentAppWidget: " << filename << " " << destinationDir;
+    
     QFileInfo originalFileInfo(filename);
     
     if (filename.size() < 1){
@@ -148,6 +150,8 @@ SimCenterAppWidget::copyFile(QString filename, QString destinationDir)
     QString thePath = originalFileInfo.path();
     QString pathNewFile = QString(destinationDir + QDir::separator() + theFile);
 
+    qDebug() << "SimCentAppWidget: " <<theFile << " " << thePath << " " << pathNewFile;
+    
     QFile originalFile(filename);    
     QFile newFile(pathNewFile);
     QFileInfo newFileInfo(pathNewFile);
@@ -169,6 +173,8 @@ SimCenterAppWidget::copyFile(QString filename, QString destinationDir)
       return true;
     }
 
+    qDebug() << "SimCentAppWidget: " <<theFile << " " << thePath << " " << pathNewFile;;
+    
     return originalFile.copy(pathNewFile);
 }
 

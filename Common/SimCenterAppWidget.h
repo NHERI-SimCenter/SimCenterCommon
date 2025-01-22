@@ -49,6 +49,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  * that are used in workflow applicaions.
  */
 
+#include <QJsonObject>
 #include <SimCenterWidget.h>
 #include <QMainWindow>
 
