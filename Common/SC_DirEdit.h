@@ -67,7 +67,7 @@ public:
   QString getDirName(void);  
   void setDirName(QString &fileName);
   
-  bool copyFile(QString &destDir);
+  bool copyFile(QString &destDir, bool intoSubDirOfSameName = false);
   
 signals:
   void dirNameChanged(QString filename);
