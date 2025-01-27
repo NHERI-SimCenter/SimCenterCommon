@@ -56,7 +56,7 @@ class SC_MovieWidget : public QLabel
     Q_OBJECT
   
 public:
-    explicit SC_MovieWidget(QWidget *parent, QString pathToMovie);
+  explicit SC_MovieWidget(QWidget *parent, QString pathToMovie, bool showControls = false);
     bool updateGif(QString newPath);
 
 protected:
