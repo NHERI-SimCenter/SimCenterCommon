@@ -97,13 +97,32 @@ public:
   int setData(SC_MLC_ChartData *);
 
 public slots:
-  void pointInfo(QPointF point, bool state);
   
 private:
   SC_MLC_ChartData *chartData;
   QChart *chart;
-  QGraphicsSimpleTextItem *pointLocationText;
+  QGraphicsSimpleTextItem *chartPointText;
 }; 
+
+
+// utility class to spit out series name and coords when hovered over
+
+class ChartHandler : public QObject {
+
+  Q_OBJECT
+  
+public:
+  ChartHandler(QLineSeries *series, QGraphicsSimpleTextItem *output, QChart *chart, QObject *parent = nullptr);
+
+public slots:
+  void onPointHovered(const QPointF &point, bool state);
+
+private:
+  QLineSeries *lineSeries;
+  QChart      *chart;
+  QGraphicsSimpleTextItem *chartTextItem;    
+};
+
 
 //
 // SC_MLC_ChartData : the data structure used to keep info on what is to be plotted

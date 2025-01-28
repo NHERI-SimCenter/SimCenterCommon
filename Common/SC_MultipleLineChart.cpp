@@ -91,7 +91,9 @@ SC_MLC_Chart::SC_MLC_Chart(QWidget *parent)
   
   QVBoxLayout *layout = new QVBoxLayout(this);
   layout->addWidget(chartView);
-  this->setLayout(layout);  
+  this->setLayout(layout);
+
+  chartPointText =  new QGraphicsSimpleTextItem("", chart);
 }
 
 SC_MLC_Chart::~SC_MLC_Chart()
@@ -120,11 +122,6 @@ SC_MLC_Chart::setData(SC_MLC_ChartData *theNewData)
   // add the Lines
   //   - note get maxY for setting Y axis limits
 
-  // Label to display point coordinates
-  QLabel *pointInfoLabel = new QLabel(this);
-  pointInfoLabel->setAlignment(Qt::AlignCenter);
-  pointInfoLabel->setText("");
-
   double maxY = 0;
   
   for (int i = 0; i < theNewData->theLines.size(); ++i) {
@@ -139,9 +136,6 @@ SC_MLC_Chart::setData(SC_MLC_ChartData *theNewData)
     
       // add QLineSeries to chart
       chart->addSeries(theSeries);
-    
-      // connect hovering over a point on to displaying the point values
-      connect(theSeries, &QLineSeries::hovered, this, &SC_MLC_Chart::pointInfo);
 
       // check pionts against maxY
       for (const QPointF &point : theSeries->points()) {
@@ -170,7 +164,7 @@ SC_MLC_Chart::setData(SC_MLC_ChartData *theNewData)
   chart->addAxis(axisY, Qt::AlignLeft);
  
   QPen axisPen(Qt::black); // Black axis line
-  axisPen.setWidth(3);     // Thicker width
+  axisPen.setWidth(2);     // Thicker width
   axisX->setLinePen(axisPen);
   axisY->setLinePen(axisPen);
 
@@ -179,29 +173,33 @@ SC_MLC_Chart::setData(SC_MLC_ChartData *theNewData)
     if (!theSeries->points().isEmpty()) {    
       theSeries->attachAxis(axisX);
       theSeries->attachAxis(axisY);
+      ChartHandler *newHandler = new ChartHandler(theSeries, chartPointText, chart, this);
     }
   }
 }
 
-// code from MC_Chart class developed by Sina
-void SC_MLC_Chart::pointInfo(QPointF point, bool state)
-{
-  if (state) {
-    if (!pointLocationText){
-      pointLocationText = new QGraphicsSimpleTextItem("", chart);
-    }
-    
-    QString m_text = QString("X: %1 \nY: %2 ").arg(point.x()).arg(point.y());
-    
-    pointLocationText->setText(m_text);
-    pointLocationText->setPos((chart->mapToPosition(point))+ QPoint(15, -30));
-    pointLocationText->show();
-  } else {
-    if (pointLocationText){
-      pointLocationText->hide();
-    }
-  }
+ChartHandler:: ChartHandler(QLineSeries *theLineSeries, QGraphicsSimpleTextItem *theTextItem, QChart *theChart, QObject *parent)
+  : QObject(parent), lineSeries(theLineSeries), chartTextItem(theTextItem), chart(theChart)  {
+
+  connect(theLineSeries, &QLineSeries::hovered, this, &ChartHandler::onPointHovered);
 }
+
+void
+ChartHandler::onPointHovered(const QPointF &point, bool state) {
+
+  if (state) {
+    QString text = lineSeries->name();
+    text += QString(" X: %1 \nY: %2 ").arg(point.x()).arg(point.y());
+    
+    chartTextItem->setText(text);
+    chartTextItem->setPos((chart->mapToPosition(point))+ QPoint(15, -30));
+    chartTextItem->show();
+  } else {
+    chartTextItem->hide();
+  }
+}      
+
+
 
 
 SC_MultipleLineChart::SC_MultipleLineChart(QWidget *parent)
