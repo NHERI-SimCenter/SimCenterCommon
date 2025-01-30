@@ -1,5 +1,5 @@
-#ifndef SC_MOVIEWIDGET_H
-#define SC_MOVIEWIDGET_H
+#ifndef SC_ASSET_INPUT_DELEGATE_H
+#define SC_ASSET_INPUT_DELEGATE_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2021, The Regents of the University of California (Regents).
@@ -37,39 +37,44 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written by: Jinyan Zhao
+// Written by: Stevan Gavrilovic, fmk
 
-
-//#include "ComponentDatabase.h"
-//#include "SC_ResultsWidget.h"
-//#include "SimCenterMapcanvasWidget.h"
-
+#include <QLineEdit>
 #include <QString>
-#include <QWidget>
-#include <QMovie>
-#include <QLabel>
+#include <QJsonObject>
+#include <set>
 
 
-
-class SC_MovieWidget : public QLabel
+class SC_AssetInputDelegate : public QLineEdit
 {
     Q_OBJECT
-  
-public:
-  explicit SC_MovieWidget(QWidget *parent, QString pathToMovie, bool showControls = false);
-  bool updateGif(QString newPath);
 
+public:
+  SC_AssetInputDelegate(QString key);
+  SC_AssetInputDelegate(QString key, double initValue, QString toolTip);  
+  std::set<int> getSelectedComponentIDs() const;
+
+  void insertSelectedComponent(const int id);
+  void insertSelectedComponents(const QVector<int>& ids);
+  void clear();
+  int size();
+  QString getComponentAnalysisList();
+
+  bool outputToJSON(QJsonObject &jsonObject);
+  bool inputFromJSON(QJsonObject &jsonObject);
+  QString &getKey(void);				    
+				    
 public slots:
-  void updateGifSize();
-  
-protected:
-  void resizeEvent(QResizeEvent *event) override;
+    void selectComponents(void);
+
+signals:
+    void componentSelectionComplete(void);
 
 private:
-  QSize  initialSize;
-  QMovie * movie;
-  QLabel *movieLabel;
-  QSize  origMovieSize;
+
+    std::set<int> selectedComponentIDs;
+    QString prevText;
+    QString key;  
 };
 
-#endif // SC_MOVIEWIDGET_H
+#endif // SC_ASSET_INPUT_DELEGATE_H

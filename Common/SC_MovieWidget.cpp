@@ -44,7 +44,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLabel>
 
 SC_MovieWidget::SC_MovieWidget(QWidget *parent, QString pathToMovie, bool showControls)
-  :movie(0)
+  :movie(0), movieLabel(0)
 {
 
   QFile file(pathToMovie);
@@ -53,12 +53,13 @@ SC_MovieWidget::SC_MovieWidget(QWidget *parent, QString pathToMovie, bool showCo
       delete movie;
       movie=nullptr;
     }
+    
     movie = new QMovie(pathToMovie);
-    movie->setScaledSize(this->size());
-    this->setMovie(movie);
-    this->setScaledContents(true);
-    movie->start();
-    this->setParent(parent);
+
+    if (showControls == false) {
+      this->setMovie(movie);
+      this->setScaledContents(true);
+    }
   }
   
   //
@@ -66,6 +67,7 @@ SC_MovieWidget::SC_MovieWidget(QWidget *parent, QString pathToMovie, bool showCo
   //
   
   if (showControls == true) {
+    
     QGridLayout *layout = new QGridLayout();
     
     QPushButton *startButton = new QPushButton();
@@ -77,6 +79,8 @@ SC_MovieWidget::SC_MovieWidget(QWidget *parent, QString pathToMovie, bool showCo
     stopButton->setText("Stop");
     
     connect(startButton, &QPushButton::clicked, [=]() {
+      initialSize = size();
+      setFixedSize(initialSize);
       if (movie != 0)
 	movie->start();
     });
@@ -84,39 +88,141 @@ SC_MovieWidget::SC_MovieWidget(QWidget *parent, QString pathToMovie, bool showCo
     connect(stopButton, &QPushButton::clicked, [=](){
       if (movie != 0)
 	movie->stop();
+      setMinimumSize(100, 100); // Reset minimum size to allow resizing
+      setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
     });    
     
-    QLabel *movieWidget = new QLabel;
-    movieWidget->setMovie(movie);
-    layout->addWidget(movieWidget,0,0,4,1);
+    movieLabel = new QLabel;
+    movieLabel->setMovie(movie);
+    //movieLabel->setStyleSheet("background: lightgreen; padding: 10px;");
+    movieLabel->setScaledContents(true);
+    
+    layout->addWidget(movieLabel,0,0,2,1);
     layout->setRowStretch(0,1);
+    QSpacerItem *spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    layout->addItem(spacer, 0,2);
+      
+    layout->setColumnStretch(3,1);    
     layout->addWidget(startButton,1,1);
     layout->addWidget(stopButton,1,2);
     this->setLayout(layout);
+    initialSize = size();
   }
+
+  if (movie != 0) 
+    movie->start();
+    
+  this->setParent(parent);
 }
 
 void SC_MovieWidget::resizeEvent(QResizeEvent *event){
-    QLabel::resizeEvent(event);
+    
     if (movie) {
-        movie->setScaledSize(event->size());
+
+      if (movieLabel != 0) {
+	
+	QSize thisSize = event->size();
+	double widthRatio = static_cast<double>(thisSize.width()) / origMovieSize.width();
+	double heightRatio = static_cast<double>(thisSize.height()) / origMovieSize.height();
+	
+	// Select the minimum ratio
+	double minRatio = qMin(widthRatio, heightRatio);
+      
+	// Compute new scaled size
+	QSize newSize(origMovieSize.width() * minRatio, origMovieSize.height() * minRatio);
+	qDebug() << "in resize : origSIZE: " <<origMovieSize;			
+	qDebug() << "in resize : thisSIZE: " << thisSize;		
+	qDebug() << "in resize : newSIZE: " << newSize;
+
+	movie->setScaledSize(newSize);	
+	movieLabel->setFixedSize(newSize);	
+	movieLabel->setScaledContents(true);
+	movieLabel->update();	
+	
+      } else {
+	
+	movie->setScaledSize(event->size());
+	
+      }
     }
 }
 
 bool SC_MovieWidget::updateGif(QString newPath){
+  
     QFile file(newPath);
+    
     if (file.exists()){
         if (movie){
             delete movie;
             movie = nullptr;
         }
+	
         movie = new QMovie(newPath);
-        movie->setScaledSize(this->size());
-        this->setMovie(movie);
-        this->setScaledContents(true);
+
+	if (movieLabel != 0) {
+	  connect(movie, &QMovie::frameChanged, this, &SC_MovieWidget::updateGifSize);
+	}
+	
+	if (movieLabel != 0) {
+
+	  // Try to scale movie keeping same aspect ratio
+	  QMovie *movie2 = new QMovie(newPath);	  
+	  movie2->jumpToFrame(0);
+	  origMovieSize = movie2->frameRect().size();
+	  QSize thisSize = this->size();
+	  double widthRatio = static_cast<double>(thisSize.width()) / origMovieSize.width();
+	  double heightRatio = static_cast<double>(thisSize.height()) / origMovieSize.height();
+
+	  // Select the minimum ratio
+	  double minRatio = qMin(widthRatio, heightRatio);
+
+	  // Compute new scaled size
+	  QSize newSize(origMovieSize.width() * minRatio, origMovieSize.height() * minRatio);
+	  qDebug() << "gifSIZE: " << origMovieSize;
+	  qDebug() << "widgetSIZE: " << thisSize;	  
+	  qDebug() << "newSIZE: " << newSize;
+	  delete movie2;
+	  movie->setScaledSize(newSize);
+	  movieLabel->setFixedSize(newSize);
+	  movieLabel->setScaledContents(true);
+	  movieLabel->setMovie(movie);
+	  // origMovieSize = newSize;
+	  
+	} else {
+
+	  movie->setScaledSize(this->size());
+	  this->setScaledContents(true);
+	  this->setMovie(movie);
+	  
+	}
+
+
         movie->start();
+	
         return true;
+	
     } else {
         return false;
     }
+}
+
+void
+SC_MovieWidget::updateGifSize() {
+
+  if (movie->isValid()) {
+    
+    QSize movieSize = movie->currentImage().size(); // Get GIF frame size
+    QSize maxSize = QSize(width(), height());       // Use widget size as boundary
+    // Scale while keeping aspect ratio, but **limit it within the window size**
+    //    QSize scaledSize = movieSize.scaled(maxSize, Qt::KeepAspectRatioByExpanding).boundedTo(maxSize);
+
+    qDebug() << "movieSize: " << movieSize;
+    qDebug() << "movieSLabelize: " << movieLabel->size();    
+    qDebug() << "thisSize: " << maxSize;
+    
+    //    qDebug() << "scaledSize: " << scaledSize;
+    
+    //movie->setScalesSize(scaledSize); // Apply new size while keeping ratio    
+    //movieLabel->setFixedSize(scaledSize); // Apply new size while keeping ratio
+  }
 }
