@@ -43,6 +43,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 #include <QGridLayout>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <SimCenterAppWidget.h>
 
 SC_FileEdit::SC_FileEdit(QString theKey, QStringList fileTypes)
@@ -141,6 +142,13 @@ SC_FileEdit::copyFile(QString &destDir) {
 QString
 SC_FileEdit::getFilename(void) {
   return theFile->text();
+}
+
+QString
+SC_FileEdit::getName(void) {
+  QFileInfo fileInfo(theFile->text());
+  
+  return fileInfo.fileName();
 }
 
 void

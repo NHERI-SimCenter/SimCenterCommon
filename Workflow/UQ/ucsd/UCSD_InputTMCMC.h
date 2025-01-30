@@ -79,6 +79,9 @@ public:
 public slots:
      void advancedOptionsSlotFunction(bool tog);
 
+private slots:
+     void onUseApproximationCheckBoxSateChanged(int state);
+
 private:
   QLineEdit *numParticles;
   QLineEdit *logLikelihoodScript;
@@ -95,6 +98,8 @@ private:
   QLabel *numSamplesError;
   QLabel *numSamplesWarning;
   QLineEdit *maxRunTime;
+  QCheckBox *useApproximationCheckBox;
+  QLabel *useApproximationMessageLabel;
 };
 
 #endif // UCSD_INPUTTMCMC_H

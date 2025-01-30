@@ -1,11 +1,11 @@
-#ifndef SC_DIR_EDIT_H
-#define SC_DIR_EDIT_H
+#ifndef HAZUSDemandWidget_H
+#define HAZUSDemandWidget_H
 
 /* *****************************************************************************
-Copyright (c) 2016-2017, The Regents of the University of California (Regents).
+Copyright (c) 2016-2021, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -29,53 +29,52 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-/**
- *  @author  fmckenna
- *  @date    2/2017
- *  @version 1.0
- *
- *  @section DESCRIPTION
- *
- *  This is a combo box for SimCenter, implements input/output To JSON
- */
+// Written by: Jinyan Zhao
 
-#include <QWidget>
-#include <QString>
-class QLineEdit;
-class QJsonObject;
+#include "SimCenterAppWidget.h"
+#include <QMainWindow>
 
-class SC_DirEdit : public QWidget
+class SC_DoubleLineEdit;
+class QGridLayout;
+class QLabel;
+class SimCenterAppSelection;
+class QDoubleValidator;
+
+class HAZUSDemandWidget : public SimCenterAppWidget
 {
-  Q_OBJECT
+    Q_OBJECT
+
 public:
-  
-  SC_DirEdit(QString key, bool copyFiles=true);
-  SC_DirEdit(QString key, QString toolTip, bool copyFiles=true);
-  ~SC_DirEdit();
-  
-  bool outputToJSON(QJsonObject &jsonObject);
-  bool inputFromJSON(QJsonObject &jsonObject);
-  
-  QString getDirName(void);  
-  void setDirName(QString &fileName);
-  
-  bool copyFile(QString &destDir, bool intoSubDirOfSameName = false);
-  
-signals:
-  void dirNameChanged(QString filename);
+    explicit HAZUSDemandWidget(QWidget *parent = nullptr);
+
+    bool outputAppDataToJSON(QJsonObject &jsonObject);
+
+    bool inputAppDataFromJSON(QJsonObject &jsonObject);
+
+    void clear(void);
+
+    bool copyFiles(QString &destName);
+
+    bool outputCitation(QJsonObject &jsonObject);
+
+public slots:
+
 
 private:
-  QString key;
-  QLineEdit *theDirectory;
-  bool copyFilesWhenCalled;
+    QGridLayout* layout;
+    QLabel* magnitudeLable;
+    SC_DoubleLineEdit* magnitudeLineEdit;
+    QDoubleValidator* magnitudeValidator;
+
+
 };
 
-#endif // SC_DIR_EDIT_H
+#endif // HAZUSDemandWidget_H

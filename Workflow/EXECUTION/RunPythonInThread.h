@@ -44,8 +44,7 @@ public:
   RunPythonInThread(const QString &script, const QStringList &args, const QString &);
   virtual ~RunPythonInThread();
   void runProcess(void);
-			      
-			      
+			      			      
 
 public slots:
   void handleFinished(int errorCode);

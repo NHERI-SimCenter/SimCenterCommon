@@ -38,22 +38,62 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include  "SC_MovieWidget.h"
 #include <QResizeEvent>
 #include <QFile>
+#include <QGridLayout>
+#include <QPushButton>
+#include <QIcon>
+#include <QLabel>
 
-SC_MovieWidget::SC_MovieWidget(QWidget *parent, QString pathToMovie){
-    QFile file(pathToMovie);
-    if (file.exists()){
-        if (movie){
-            delete movie;
-            movie=nullptr;
-        }
-        movie = new QMovie(pathToMovie);
-        movie->setScaledSize(this->size());
-        this->setMovie(movie);
-        this->setScaledContents(true);
-        movie->start();
-        this->setParent(parent);
+SC_MovieWidget::SC_MovieWidget(QWidget *parent, QString pathToMovie, bool showControls)
+  :movie(0)
+{
+
+  QFile file(pathToMovie);
+  if (file.exists()){
+    if (movie){
+      delete movie;
+      movie=nullptr;
     }
-
+    movie = new QMovie(pathToMovie);
+    movie->setScaledSize(this->size());
+    this->setMovie(movie);
+    this->setScaledContents(true);
+    movie->start();
+    this->setParent(parent);
+  }
+  
+  //
+  // adding stop and start control QPushButtons
+  //
+  
+  if (showControls == true) {
+    QGridLayout *layout = new QGridLayout();
+    
+    QPushButton *startButton = new QPushButton();
+    startButton->setIcon(QIcon::fromTheme("media-playback-start")); // Typical play icon
+    startButton->setText("Start");
+    
+    QPushButton *stopButton = new QPushButton();
+    stopButton->setIcon(QIcon::fromTheme("media-playback-stop")); // Typical stop icon
+    stopButton->setText("Stop");
+    
+    connect(startButton, &QPushButton::clicked, [=]() {
+      if (movie != 0)
+	movie->start();
+    });
+    
+    connect(stopButton, &QPushButton::clicked, [=](){
+      if (movie != 0)
+	movie->stop();
+    });    
+    
+    QLabel *movieWidget = new QLabel;
+    movieWidget->setMovie(movie);
+    layout->addWidget(movieWidget,0,0,4,1);
+    layout->setRowStretch(0,1);
+    layout->addWidget(startButton,1,1);
+    layout->addWidget(stopButton,1,2);
+    this->setLayout(layout);
+  }
 }
 
 void SC_MovieWidget::resizeEvent(QResizeEvent *event){

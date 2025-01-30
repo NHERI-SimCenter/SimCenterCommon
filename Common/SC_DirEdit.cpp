@@ -108,9 +108,28 @@ SC_DirEdit::inputFromJSON(QJsonObject &jsonObject)
 }
 
 bool
-SC_DirEdit::copyFile(QString &destDir) {
-  if (copyFilesWhenCalled == true)
-    return SimCenterAppWidget::copyPath(theDirectory->text(), destDir, true);
+SC_DirEdit::copyFile(QString &destDir, bool intoSubDirOfSameName) {
+
+  QString dest = destDir;
+  QDir destDirectory(destDir);
+  
+  if (copyFilesWhenCalled == true) {
+    if (intoSubDirOfSameName == true) {
+      
+      //
+      // before copyingg make dir of same name and set dest so copy into that new dir
+      //
+      
+      QDir theOrigDir(theDirectory->text());
+      QString dirName = theOrigDir.dirName();
+      destDirectory.mkdir(dirName);
+      dest = destDirectory.filePath(dirName);
+    }
+    
+    return SimCenterAppWidget::copyPath(theDirectory->text(), dest, true);
+    
+  }
+  
   else
     return true;
 }
