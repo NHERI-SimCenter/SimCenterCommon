@@ -2,7 +2,7 @@
 // Written fmk 04/24
 
 #include <QApplication>
-//#include <QProcess>
+#include <QProcess>
 #include <QProcessEnvironment>
 #include <QDebug>
 #include <QFile>
@@ -127,36 +127,60 @@ RunPython::processScript() {
     emit processFinished(-1);    
     return;
   }
-  
+
   SimCenterPreferences *preferences = SimCenterPreferences::getInstance();
   QString python = preferences->getPython();
-  
+
   QFileInfo pythonFile(python);
+  
   if (!pythonFile.exists()) {
     emit errorMessage("NO VALID PYTHON - Read the Manual & Check your Preferences");
     emit processFinished(-1);
+    return;
   }
 
+  QString pythonDir = pythonFile.path();  // using path as opposed to abs path in case puthon_env being used
+  QDir thePythonDir(pythonDir);
+  thePythonDir.cdUp(); // base dir of python
+  
   //
   // set up a QProcess in which to run our command
   //
 
+  auto procEnv = QProcessEnvironment::systemEnvironment();
+  QString pathEnv = procEnv.value("PATH");
+  QString pythonPathEnv = procEnv.value("PYTHONPATH");
+
+#ifdef Q_OS_WIN
+  pathEnv = pythonDir + ';' + pathEnv;
+#else
+  pathEnv = pythonDir + ':' + pathEnv;
+#endif  
+
+  QString site_packages_path;
+#ifdef _WIN32
+  thePythonDir.cd("Lib");
+  site_packages_path = thePythonDir.absoluteFilePath("site-packages");
+#else
+  site_packages_path = thePythonDir.absoluteFilePath("lib/python3.9/site-packages");  
+#endif
+
+  if (QFile::exists(site_packages_path)) {
+    pythonPathEnv = site_packages_path;
+  } else {
+    qDebug() << "RunPythonInThread - no site-packages folder in " << site_packages_path;
+  }	  
+  
   process = new QProcess(this);
   process->setWorkingDirectory(workDir);
   process->setProcessChannelMode(QProcess::MergedChannels);
+  procEnv.insert("PATH", pathEnv);
+  procEnv.insert("PYTHONPATH", pythonPathEnv);
+  
+  process->setProcessEnvironment(procEnv);  
 
-#ifdef _WIN32
-  QDir pythonDir = pythonFile.dir();
-  pythonDir.cd("Lib");
-  QString site_packages_path = pythonDir.absoluteFilePath("site-packages");
-  if (QFile::exists(site_packages_path)) {
-      QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-      env.insert("PYTHONPATH", site_packages_path);
-	qDebug() << "RunPythonInThread::runPython - FOUND site-packages path: " << site_packages_path;
-    } else
-	qDebug() << "RunPythonInThread::runPython - no site-packages path: " << site_packages_path;
-#endif
-
+  qDebug() << "PATH:" << pathEnv;
+  qDebug() << "PYTHONPATH:" << pythonPathEnv;  
   //
   // do connections to capture outputs and exit
   //

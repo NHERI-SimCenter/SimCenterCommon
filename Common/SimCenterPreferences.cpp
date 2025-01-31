@@ -117,7 +117,7 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
         QString selectedFile = QFileDialog::getOpenFileName(this,
                                                             tr("Select Python Interpreter"),
                                                             existingDir,
-                                                            "All files (*.*)");
+                                                            "All files (*)");
 
         if(!selectedFile.isEmpty()) {
             python->setText(selectedFile);
