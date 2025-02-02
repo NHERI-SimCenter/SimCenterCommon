@@ -59,17 +59,15 @@ public:
   explicit SC_MovieWidget(QWidget *parent, QString pathToMovie, bool showControls = false);
   bool updateGif(QString newPath);
 
-public slots:
-  void updateGifSize();
-  
 protected:
   void resizeEvent(QResizeEvent *event) override;
 
 private:
-  QSize  initialSize;
-  QMovie * movie;
+  
+  QMovie *movie;
   QLabel *movieLabel;
-  QSize  origMovieSize;
+  QSize  movieSize;      // keep around so cab reset when done running
+  QSize  origMovieSize;  // keep around for scaling movie by
 };
 
 #endif // SC_MOVIEWIDGET_H

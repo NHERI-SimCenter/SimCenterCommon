@@ -74,6 +74,7 @@ SC_MLC_ChartData::SC_MLC_ChartData()
   title = "";
   xLabel = "x-axis";
   yLabel = "y-axis";
+  showLegend = false;
 }
 
 SC_MLC_ChartData::~SC_MLC_ChartData()
@@ -117,7 +118,8 @@ SC_MLC_Chart::setData(SC_MLC_ChartData *theNewData)
   //
   
   chart->setTitle(theNewData->title);
-  chart->legend()->setVisible(false);
+  if (theNewData->showLegend == false)
+    chart->legend()->setVisible(false);
 
   // add the Lines
   //   - note get maxY for setting Y axis limits
@@ -129,11 +131,6 @@ SC_MLC_Chart::setData(SC_MLC_ChartData *theNewData)
     QLineSeries *theSeries = theNewData->theLines[i];
     if (!theSeries->points().isEmpty()) {
 
-      qDebug() << "Points in series:";
-      for (const QPointF &point : theSeries->points()) {
-        qDebug() << "Point:" << point.x() << " " << point.y();
-      }
-    
       // add QLineSeries to chart
       chart->addSeries(theSeries);
 
@@ -176,6 +173,8 @@ SC_MLC_Chart::setData(SC_MLC_ChartData *theNewData)
       ChartHandler *newHandler = new ChartHandler(theSeries, chartPointText, chart, this);
     }
   }
+
+  return 0;
 }
 
 ChartHandler:: ChartHandler(QLineSeries *theLineSeries, QGraphicsSimpleTextItem *theTextItem, QChart *theChart, QObject *parent)
@@ -253,4 +252,6 @@ SC_MultipleLineChart::setData(QMap<QString, SC_MLC_ChartData *> *newData)
     theStackedWidget->addWidget(newChart);
     theSelection->addItem(key);
   }
+
+  return 0;
 }
