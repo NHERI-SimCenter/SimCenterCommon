@@ -150,12 +150,16 @@ SC_MLC_Chart::setData(SC_MLC_ChartData *theNewData)
   axisX->setTickCount(11);  
   chart->addAxis(axisX, Qt::AlignBottom);
 
-  // compute a nice value for maxY for display purposes
-  double niceY = niceMaxY(maxY, 10);
-  
   QValueAxis *axisY = new QValueAxis();
+
+  // compute a nice value for maxY for display purposes
+  double niceY = maxY;
+  if (maxY > 10.000001) {
+    niceY = niceMaxY(maxY, 10);
+    axisY->setLabelFormat("%.0f");
+  } 
+  
   axisY->setTitleText(theNewData->yLabel);
-  axisY->setLabelFormat("%.0f");
   axisY->setRange(0, niceY);
   axisY->setTickCount(11);  
   chart->addAxis(axisY, Qt::AlignLeft);
