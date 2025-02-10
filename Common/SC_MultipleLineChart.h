@@ -79,6 +79,7 @@ public:
   QString title;                   // plot title
   QString xLabel;                  // xaxis label
   QString yLabel;                  // y axis label
+  bool showLegend;
 };
 
 

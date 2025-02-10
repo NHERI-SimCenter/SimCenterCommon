@@ -981,7 +981,7 @@ SimCenterPreferences::getRemoteAppDir(void) {
 	
 	// if not set, use default & set default as application directory
 	if (!remoteBackendDirVariant.isValid()) {
-	  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v4.6.0");
+	  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v25.02.03");
 
 	  QString appName = QCoreApplication::applicationName();
 	  if (appName == QString("WE-UQ") || appName == QString("HydroUQ"))
@@ -1136,8 +1136,14 @@ QString
 SimCenterPreferences::getDefaultAgaveAppVersion(void) {
 
     //Default appDir is the location of the application
-    QString remoteVersion = QString("1.0.0");
-    
+    QString appName = QCoreApplication::applicationName();
+    QString remoteApp = QString("simcenter-uq-stampede3");
+
+    QString remoteVersion = QString("1.0.0");    
+    if (appName == QString("R2D")) {
+      remoteVersion = QString("1.1.0");
+    }
+        
     return remoteVersion;
 }
 
@@ -1146,7 +1152,7 @@ QString
 SimCenterPreferences::getDefaultRemoteAppDir(void) {
 
   QString appName = QCoreApplication::applicationName();  
-  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v4.6.0");
+  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v25.02.03");
   if (appName == QString("WE-UQ") || appName == QString("HydroUQ"))
     remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v4.6.0");  
 
@@ -1257,10 +1263,14 @@ SimCenterPreferences::getDefaultPython(void) {
 #else
     
     QString pythonPath; //  = QStandardPaths::findExecutable("python3");
+    QString pyAppPath = QCoreApplication::applicationDirPath() + QDir::separator() + QString("python3.9");
+    QFileInfo packagedPython39(pyAppPath);    
     QFileInfo installedPython39("/Library/Frameworks/Python.framework/Versions/3.9/bin/python3");
     QFileInfo installedPython310("/Library/Frameworks/Python.framework/Versions/3.10/bin/python3");
-    
-    if (installedPython39.exists()) {
+
+    if (packagedPython39.exists()) {
+      pythonPath = packagedPython39.filePath();
+    } else if (installedPython39.exists()) {
       pythonPath = installedPython39.filePath();
     } else if (installedPython310.exists()) {
       pythonPath = installedPython310.filePath();	
