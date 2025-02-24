@@ -44,10 +44,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QComboBox>
 #include <QDebug>
 #include <QList>
-
 #include <QLabel>
 #include <QLineEdit>
-
 #include <QMetaEnum>
 
 GeneralInformationWidget *
@@ -56,7 +54,7 @@ GeneralInformationWidget::getInstance() {
     theInstance = new GeneralInformationWidget();
 
   return theInstance;
- }
+}
 
 GeneralInformationWidget *GeneralInformationWidget::theInstance = 0;
 

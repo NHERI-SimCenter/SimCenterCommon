@@ -54,10 +54,10 @@ void SC_ToolDialog::showTool(QString text) {
   if (index != -1) {
     
     theStackedWidget->setCurrentIndex(index);
+    this->setWindowFlags(Qt::Window);
     this->show();
     this->activateWindow();
     this->raise();
-
   }
 }  
 
