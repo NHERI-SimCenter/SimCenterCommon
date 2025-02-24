@@ -1,5 +1,5 @@
-#ifndef SC_MOVIEWIDGET_H
-#define SC_MOVIEWIDGET_H
+#ifndef CapacitySpectrumWidget_H
+#define CapacitySpectrumWidget_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2021, The Regents of the University of California (Regents).
@@ -39,35 +39,54 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written by: Jinyan Zhao
 
+#include "SimCenterAppWidget.h"
+#include <QMainWindow>
+#include <QMap>
 
-//#include "ComponentDatabase.h"
-//#include "SC_ResultsWidget.h"
-//#include "SimCenterMapcanvasWidget.h"
-
-#include <QString>
-#include <QWidget>
-#include <QMovie>
-#include <QLabel>
+class QComboBox;
+class QCheckBox;
+class QLineEdit;
+class QHBoxLayout;
+class QWidget;
+class SimCenterAppSelection;
 
 
-
-class SC_MovieWidget : public QLabel
+class CapacitySpectrumWidget : public SimCenterAppWidget
 {
     Q_OBJECT
-  
-public:
-  explicit SC_MovieWidget(QWidget *parent, QString pathToMovie, bool showControls = false);
-  bool updateGif(QString newPath);
 
-protected:
-  void resizeEvent(QResizeEvent *event) override;
+public:
+  explicit CapacitySpectrumWidget(bool regional = true, QWidget *parent = nullptr);
+
+    bool outputAppDataToJSON(QJsonObject &jsonObject);
+
+    bool inputAppDataFromJSON(QJsonObject &jsonObject);
+
+    void clear(void);
+
+    bool copyFiles(QString &destName);
+
+    bool outputCitation(QJsonObject &jsonObject);
+
+public slots:
+
 
 private:
-  
-  QMovie *movie;
-  QLabel *movieLabel;
-  QSize  movieSize;      // keep around so cab reset when done running
-  QSize  origMovieSize;  // keep around for scaling movie by
+
+//    QComboBox* DemandComboBox;
+//    QComboBox* CapacityComboBox;
+//    QComboBox* DampingComboBox;
+
+    SimCenterAppSelection* DemandSelection;
+    SimCenterAppSelection* CapacitySelection;
+    SimCenterAppSelection* DampingSelection;
+
+    QMap<QString, QString>* DemandAppNameToDisplayText;
+    QMap<QString, QString>* CapacityAppNameToDisplayText;
+    QMap<QString, QString>* DampingAppNameToDisplayText;
+
+  bool regional;
+
 };
 
-#endif // SC_MOVIEWIDGET_H
+#endif // CapacitySpectrumWidget_H

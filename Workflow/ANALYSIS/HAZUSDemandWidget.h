@@ -1,5 +1,5 @@
-#ifndef SC_MOVIEWIDGET_H
-#define SC_MOVIEWIDGET_H
+#ifndef HAZUSDemandWidget_H
+#define HAZUSDemandWidget_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2021, The Regents of the University of California (Regents).
@@ -39,35 +39,42 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written by: Jinyan Zhao
 
+#include "SimCenterAppWidget.h"
+#include <QMainWindow>
 
-//#include "ComponentDatabase.h"
-//#include "SC_ResultsWidget.h"
-//#include "SimCenterMapcanvasWidget.h"
+class SC_DoubleLineEdit;
+class QGridLayout;
+class QLabel;
+class SimCenterAppSelection;
+class QDoubleValidator;
 
-#include <QString>
-#include <QWidget>
-#include <QMovie>
-#include <QLabel>
-
-
-
-class SC_MovieWidget : public QLabel
+class HAZUSDemandWidget : public SimCenterAppWidget
 {
     Q_OBJECT
-  
-public:
-  explicit SC_MovieWidget(QWidget *parent, QString pathToMovie, bool showControls = false);
-  bool updateGif(QString newPath);
 
-protected:
-  void resizeEvent(QResizeEvent *event) override;
+public:
+    explicit HAZUSDemandWidget(QWidget *parent = nullptr);
+
+    bool outputAppDataToJSON(QJsonObject &jsonObject);
+
+    bool inputAppDataFromJSON(QJsonObject &jsonObject);
+
+    void clear(void);
+
+    bool copyFiles(QString &destName);
+
+    bool outputCitation(QJsonObject &jsonObject);
+
+public slots:
+
 
 private:
-  
-  QMovie *movie;
-  QLabel *movieLabel;
-  QSize  movieSize;      // keep around so cab reset when done running
-  QSize  origMovieSize;  // keep around for scaling movie by
+    QGridLayout* layout;
+    QLabel* magnitudeLable;
+    SC_DoubleLineEdit* magnitudeLineEdit;
+    QDoubleValidator* magnitudeValidator;
+
+
 };
 
-#endif // SC_MOVIEWIDGET_H
+#endif // HAZUSDemandWidget_H
