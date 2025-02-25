@@ -123,6 +123,7 @@ private:
     QLineEdit *nameEdit;
 
     QComboBox *structType;
+    QComboBox *designLevel;
     QLineEdit *yearBuilt;
   
     QLineEdit *storiesEdit;

@@ -233,8 +233,8 @@ SC_RemoteAppTool::initialize(QDialog *enclosingDialog) {
 	    //
 	    
 	    QJsonObject json;
-	    theApp->outputAppDataToJSON(json);
-	    //theApp->outputToJSON(json);	    
+//	    theApp->outputAppDataToJSON(json);
+        theApp->outputToJSON(json);
 	    
 	    //Resolve relative paths before saving
 	    QFileInfo fileInfo(fileName);
