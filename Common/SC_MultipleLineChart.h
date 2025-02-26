@@ -94,7 +94,7 @@ public:
   
   SC_MLC_Chart(QWidget *parent = 0);
   ~SC_MLC_Chart();  
-  int setData(SC_MLC_ChartData *);
+  void setData(SC_MLC_ChartData *);
 
 public slots:
   
@@ -135,7 +135,7 @@ class SC_MultipleLineChart : public QWidget {
 public:
   SC_MultipleLineChart(QWidget *parent = 0);
   ~SC_MultipleLineChart();  
-  int setData(QMap<QString, SC_MLC_ChartData *> *newData);
+  void setData(QMap<QString, SC_MLC_ChartData *> *newData);
 									   
 public slots:
   
