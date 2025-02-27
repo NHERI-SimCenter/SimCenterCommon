@@ -178,7 +178,7 @@ SC_MLC_Chart::setData(SC_MLC_ChartData *theNewData)
     }
   }
 
-  return 0;
+  // return 0;
 }
 
 ChartHandler:: ChartHandler(QLineSeries *theLineSeries, QGraphicsSimpleTextItem *theTextItem, QChart *theChart, QObject *parent)
@@ -257,5 +257,5 @@ SC_MultipleLineChart::setData(QMap<QString, SC_MLC_ChartData *> *newData)
     theSelection->addItem(key);
   }
 
-  return 0;
+  // return 0;
 }
