@@ -666,7 +666,7 @@ SC_RemoteAppTool::processResults(QString &dirName){
   SC_ResultsWidget *theResults = theApp->getResultsWidget();
   if (theResults == NULL) {
     this->infoMessage("NOTE - SC_RemoteAppTool received NULL pointer theResults from theApp->getResultsWidget()... skipping theResults->processResults()");
-    // return; // get rid of early return, remote app tools don't always need to have a dedicated results tab - JB
+    return; 
   }
 
   QString blankFileName("scInput.json");
