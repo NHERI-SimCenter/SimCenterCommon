@@ -2,12 +2,42 @@
 #include <QJsonArray>
 #include <QFileInfo>
 #include <QDir>
+#include <QApplication>
 #include <QStandardPaths>
 #include <QFileInfo>
 
 
 namespace SCUtils {
 
+  QString getAppWorkDir(bool &pathExists) {
+
+    QString standardDocPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+
+    // Check if the path contains 'OneDrive' and if so use $HOME/Documents or $HOME if no Documents
+    if (standardDocPath.contains("OneDrive", Qt::CaseInsensitive)) {
+        QString userProfilePath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+        QDir userDocumentsDir(userProfilePath + QDir::separator() + "Documents");
+        // Verify that the local Documents directory exists
+        if (userDocumentsDir.exists()) 
+            standardDocPath = userDocumentsDir.absolutePath();
+        else
+	  // use users home dir	  
+	  standardDocPath = userProfilePath;
+    }
+	
+    QString workDirPath = standardDocPath + QDir::separator() + QCoreApplication::applicationName();
+    
+    QDir workDir(workDirPath);
+    if (!workDir.exists())
+        if (!workDir.mkpath(workDirPath)) {
+            qDebug() << QString("Could not create Working Dir: ") << workDirPath;
+	    pathExists = false;
+        }
+    
+    pathExists = true;
+    return workDirPath;
+  }
+  
   bool
   compareFiles(const QString &sourcePath, const QString &destPath) {
 

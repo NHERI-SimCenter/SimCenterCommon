@@ -22,13 +22,14 @@
 #include <ZipUtils.h>
 #include <QFileDialog>
 #include <QLineEdit>
+#include <Utils/FileOperations.h>
 
 RemoteOpenSeesAppResult::RemoteOpenSeesAppResult()
   :SC_ResultsWidget()
 {
-  QString pathToFolder = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
-    + QDir::separator() + QCoreApplication::applicationName() + QDir::separator() +
-    "DesignSafeFiles";
+  bool pathExists = true;
+  QString workDirPath = SCUtils::getAppWorkDir(pathExists);    
+  QString pathToFolder = workDirPath + QDir::separator() + "DesignSafeFiles";
 
   QDir resDir(pathToFolder);
   if (!resDir.exists())
