@@ -171,8 +171,7 @@ int my_trace(CURL *handle, curl_infotype type,
     return 0;
   }
 
-  bool pathExists = true;
-  QString workDirPath = SCUtils::getAppWorkDir(pathExists);  
+  QString workDirPath = SCUtils::getAppWorkDir();  
   QString debugFilePath = workDirPath + QDir::separator() + QString(theBlahFile) + QString(".txt");
   
   QByteArray byteArray = debugFilePath.toUtf8();
