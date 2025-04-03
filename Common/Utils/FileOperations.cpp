@@ -7,22 +7,23 @@
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QProcessEnvironment>
 
 
 namespace SCUtils {
 
   QString getAppWorkDir() {
 
-
-
     //
     // appWorkDir is typically in ~/Documents/appName
     //   -- if no Documents place in ~/appName
     //   -- don't want OneDrive or similar!
-    //
+    //   -- use an env variable if set
 
-    // find directory where appName filder to be: standardDocPath
     
+    // find directory where appName filder to be: standardDocPath
+
+    // check Documents folder
     QString standardDocPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation); 
     if (standardDocPath.contains("OneDrive", Qt::CaseInsensitive)) {
         QString userProfilePath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
@@ -34,7 +35,18 @@ namespace SCUtils {
 	  // use users home dir	  
 	  standardDocPath = userProfilePath;
     }
-	
+
+    //
+    // check if an env variable is set .. overrides above of course
+    //
+    
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();        
+    QString workDirEnv = env.value("SIMCENTER_WORKDIR","None");
+    if (workDirEnv != "None") {
+      standardDocPath = workDirEnv;
+      qDebug() << "FileOperations: using ENV variable SIMCENTER_WORKDIR: " << workDirEnv;
+    }
+    
     QString workDirPath = standardDocPath + QDir::separator() + QCoreApplication::applicationName();
 
     // if the appName dir does not exist, create it
@@ -54,7 +66,6 @@ namespace SCUtils {
 	    msgBox.exec();	    
 	}	    
 
-    
     return workDirPath;
   }
   
