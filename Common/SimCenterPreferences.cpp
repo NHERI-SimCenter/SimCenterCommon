@@ -611,8 +611,7 @@ SimCenterPreferences::resetPreferences(bool) {
     QString currentVersion = QCoreApplication::applicationVersion();
     settingsApplication.setValue("version", currentVersion);
 
-    bool pathExists = true;
-    QString workingDirPath = SCUtils::getAppWorkDir(pathExists);
+    QString workingDirPath = SCUtils::getAppWorkDir();
     
     QString remoteWorkDirLocation = workingDirPath + QDir::separator() + "RemoteWorkDir";
     settingsApplication.setValue("remoteWorkDir", remoteWorkDirLocation);
@@ -1064,8 +1063,7 @@ SimCenterPreferences::getLocalWorkDir(void) {
 
     // if not set, use default & set default as application directory
     if (!localWorkDirVariant.isValid()) {
-      bool pathExists = true;      
-      QString workingDirPath = SCUtils::getAppWorkDir(pathExists);
+      QString workingDirPath = SCUtils::getAppWorkDir();
 
       QString localWorkDirLocation = workingDirPath + QDir::separator() + "LocalWorkDir";
     
@@ -1097,8 +1095,7 @@ SimCenterPreferences::getRemoteWorkDir(void) {
     // if not set, use default & set default as application directory
     if (!remoteWorkDirVariant.isValid()) {
 
-      bool pathExists = true;
-      QString workingDirPath = SCUtils::getAppWorkDir(pathExists);      
+      QString workingDirPath = SCUtils::getAppWorkDir();      
       QString remoteWorkDirLocation = workingDirPath + QDir::separator() + "RemoteWorkDir";
       settingsApplication.setValue("remoteWorkDir", remoteWorkDirLocation);
       remoteWorkDir->setText(remoteWorkDirLocation);

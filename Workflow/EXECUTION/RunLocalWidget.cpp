@@ -68,8 +68,7 @@ RunLocalWidget::RunLocalWidget(SimCenterWidget *theUQ, QWidget *parent)
     runLayout->addWidget(workingDirLabel,1,0);
 
     workingDirName = new QLineEdit();
-    bool pathExists = true;
-    QString workingDirPath = SCUtils::getAppWorkDir(pathExists);    
+    QString workingDirPath = SCUtils::getAppWorkDir();    
     workingDirName->setText(workingDirPath);
     runLayout->addWidget(workingDirName,1,1);
 

@@ -27,8 +27,7 @@
 RemoteOpenSeesAppResult::RemoteOpenSeesAppResult()
   :SC_ResultsWidget()
 {
-  bool pathExists = true;
-  QString workDirPath = SCUtils::getAppWorkDir(pathExists);    
+  QString workDirPath = SCUtils::getAppWorkDir();    
   QString pathToFolder = workDirPath + QDir::separator() + "DesignSafeFiles";
 
   QDir resDir(pathToFolder);

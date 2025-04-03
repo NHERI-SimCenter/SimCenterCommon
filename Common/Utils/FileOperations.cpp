@@ -5,15 +5,25 @@
 #include <QApplication>
 #include <QStandardPaths>
 #include <QFileInfo>
+#include <QMessageBox>
+#include <QPushButton>
 
 
 namespace SCUtils {
 
-  QString getAppWorkDir(bool &pathExists) {
+  QString getAppWorkDir() {
 
-    QString standardDocPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
 
-    // Check if the path contains 'OneDrive' and if so use $HOME/Documents or $HOME if no Documents
+
+    //
+    // appWorkDir is typically in ~/Documents/appName
+    //   -- if no Documents place in ~/appName
+    //   -- don't want OneDrive or similar!
+    //
+
+    // find directory where appName filder to be: standardDocPath
+    
+    QString standardDocPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation); 
     if (standardDocPath.contains("OneDrive", Qt::CaseInsensitive)) {
         QString userProfilePath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
         QDir userDocumentsDir(userProfilePath + QDir::separator() + "Documents");
@@ -26,15 +36,25 @@ namespace SCUtils {
     }
 	
     QString workDirPath = standardDocPath + QDir::separator() + QCoreApplication::applicationName();
-    
+
+    // if the appName dir does not exist, create it
     QDir workDir(workDirPath);
     if (!workDir.exists())
         if (!workDir.mkpath(workDirPath)) {
+	  
             qDebug() << QString("Could not create Working Dir: ") << workDirPath;
-	    pathExists = false;
-        }
+
+	    QMessageBox msgBox;
+	    msgBox.setIcon(QMessageBox::Critical);
+	    QString text = QString("FATAL: The application could not create a folder/directory necessary to run the application. Try creating the following folder on your machine and start again. ") + workDirPath; 
+	    msgBox.setText(text);
+	    msgBox.setWindowTitle("Fatal Error");
+	    QPushButton *exitButton = msgBox.addButton(QMessageBox::Ok);
+	    QObject::connect(exitButton, &QPushButton::clicked, qApp, &QApplication::quit);
+	    msgBox.exec();	    
+	}	    
+
     
-    pathExists = true;
     return workDirPath;
   }
   
