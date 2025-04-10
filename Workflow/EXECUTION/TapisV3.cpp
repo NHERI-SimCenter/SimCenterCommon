@@ -66,6 +66,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDialog>
 #include <QStandardPaths>
 #include <QDir>
+#include <Utils/FileOperations.h>
 
 using namespace std;
 
@@ -170,9 +171,8 @@ int my_trace(CURL *handle, curl_infotype type,
     return 0;
   }
 
-  QString debugFilePath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
-    + QDir::separator() + QCoreApplication::applicationName() + QDir::separator()
-    + QString(theBlahFile) + QString(".txt");
+  QString workDirPath = SCUtils::getAppWorkDir();  
+  QString debugFilePath = workDirPath + QDir::separator() + QString(theBlahFile) + QString(".txt");
   
   QByteArray byteArray = debugFilePath.toUtf8();
   const char* cString = byteArray.data();

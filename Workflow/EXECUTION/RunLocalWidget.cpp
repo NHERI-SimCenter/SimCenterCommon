@@ -50,6 +50,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 #include <QStandardPaths>
 #include <QCoreApplication>
+#include <Utils/FileOperations.h>
 
 //#include <AgaveInterface.h>
 #include <QDebug>
@@ -67,7 +68,8 @@ RunLocalWidget::RunLocalWidget(SimCenterWidget *theUQ, QWidget *parent)
     runLayout->addWidget(workingDirLabel,1,0);
 
     workingDirName = new QLineEdit();
-    workingDirName->setText(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
+    QString workingDirPath = SCUtils::getAppWorkDir();    
+    workingDirName->setText(workingDirPath);
     runLayout->addWidget(workingDirName,1,1);
 
     QLabel *appDirLabel = new QLabel();
