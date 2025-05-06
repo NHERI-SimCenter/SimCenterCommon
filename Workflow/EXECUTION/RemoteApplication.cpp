@@ -193,6 +193,24 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *service, Tapis
     allocation->setText(SimCenterPreferences::getInstance()->getDefaultAllocation());
     layout->addWidget(allocation,numRow,1);
     numRow++;
+
+
+    // job["archiveSystemId"] = "project-6281135954102775315-242ac117-0001-012"
+    // job["archiveSystemDir"]
+    layout->addWidget(new QLabel("Archive System ID"), numRow, 0);
+    systemID = new QLineEdit();
+    systemID->setText("Default");
+    layout->addWidget(systemID,numRow,1);
+    numRow++;
+
+    layout->addWidget(new QLabel("Archive System Dir"), numRow, 0);
+    systemDir = new QLineEdit();
+    systemDir->setText("Default");
+    layout->addWidget(systemDir,numRow,1);
+    numRow++;        
+    
+      
+
     
     pushButton = new QPushButton();
     pushButton->setText("Submit");
@@ -602,6 +620,17 @@ RemoteApplication::uploadDirReturn(bool result)
       parameterSet["schedulerOptions"]=schedulerOptions;
       parameterSet["envVariables"]=envVariables;
       job["parameterSet"]=parameterSet;
+
+
+      // FMK
+      // job["archiveSystemId"] = "project-6281135954102775315-242ac117-0001-012"
+      // job["archiveSystemDir"]
+      if (systemID->text() != QString("Default"))
+	job["archiveSystemId"] = systemID->text();
+      
+      if (systemDir->text() != QString("Default"))
+	job["archiveSystemDir"] = systemID->text();	  
+      
       
       QJsonArray fileInputs;
       QJsonObject inputs;
