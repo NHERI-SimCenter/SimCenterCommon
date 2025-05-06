@@ -629,7 +629,7 @@ RemoteApplication::uploadDirReturn(bool result)
 	job["archiveSystemId"] = systemID->text();
       
       if (systemDir->text() != QString("Default"))
-	job["archiveSystemDir"] = systemID->text();	  
+	job["archiveSystemDir"] = systemDir->text();	  
       
       
       QJsonArray fileInputs;
