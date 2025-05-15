@@ -100,6 +100,8 @@ private:
     QLineEdit *runtimeLineEdit;
     QLineEdit *buildingsPerTask;
     QLineEdit *allocation;
+    QLineEdit *systemID;
+    QLineEdit *systemDir;  
     QCheckBox *saveResultsBox;
 
     //    QLineEdit *appLineEdit;
