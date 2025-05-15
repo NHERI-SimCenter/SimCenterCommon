@@ -199,6 +199,38 @@ namespace SCUtils {
 #endif
     
   }
+
+  bool
+  copyAndOverwrite(const QString &source, const QString &destination, bool overwrite) {
+
+    //
+    // if file exists
+    //    - remove if overwrite is true, otherwise just return as leaving well alone
+    //
+
+    if (QFile::exists(destination)) {
+      if (overwrite == true) {
+        if (!QFile::remove(destination)) {
+	  qDebug() << "Failed to remove existing file:" << destination;
+	  return false;
+        }
+	
+      } else {
+	return true;
+      }
+    }
+    
+    //
+    // now safe to copy file, return fail if fails
+    //
+    
+    if (!QFile::copy(source, destination)) {
+      qDebug() << "Failed to copy file from" << source << "to" << destination;
+      return false;
+    }
+    
+    return true;
+  }
   
 }
   
