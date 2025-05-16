@@ -102,7 +102,7 @@ SC_MLC_Chart::~SC_MLC_Chart()
   qDebug() << "SC_MLC_Chart Destructor";
 }
 
-int
+void
 SC_MLC_Chart::setData(SC_MLC_ChartData *theNewData)
 {
   chartData = theNewData;
@@ -178,7 +178,7 @@ SC_MLC_Chart::setData(SC_MLC_ChartData *theNewData)
     }
   }
 
-  return 0;
+  // return 0;
 }
 
 ChartHandler:: ChartHandler(QLineSeries *theLineSeries, QGraphicsSimpleTextItem *theTextItem, QChart *theChart, QObject *parent)
@@ -230,7 +230,7 @@ SC_MultipleLineChart::~SC_MultipleLineChart()
   }
 }
 
-int
+void
 SC_MultipleLineChart::setData(QMap<QString, SC_MLC_ChartData *> *newData)
 {
   //
@@ -257,5 +257,5 @@ SC_MultipleLineChart::setData(QMap<QString, SC_MLC_ChartData *> *newData)
     theSelection->addItem(key);
   }
 
-  return 0;
+  // return 0;
 }
