@@ -979,7 +979,7 @@ SimCenterPreferences::getRemoteAppDir(void) {
 	
 	// if not set, use default & set default as application directory
 	if (!remoteBackendDirVariant.isValid()) {
-	  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v25.02.03");
+	  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v25.05.14");
 
 	  QString appName = QCoreApplication::applicationName();
 	  if (appName == QString("WE-UQ") || appName == QString("HydroUQ"))
@@ -1134,7 +1134,7 @@ SimCenterPreferences::getDefaultAgaveAppVersion(void) {
 
     QString remoteVersion = QString("1.0.0");    
     if (appName == QString("R2D")) {
-      remoteVersion = QString("1.1.0");
+      remoteVersion = QString("1.2.0");
     }
         
     return remoteVersion;
