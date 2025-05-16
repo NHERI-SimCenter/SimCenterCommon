@@ -1134,7 +1134,7 @@ SimCenterPreferences::getDefaultAgaveAppVersion(void) {
 
     QString remoteVersion = QString("1.0.0");    
     if (appName == QString("R2D")) {
-      remoteVersion = QString("1.1.0");
+      remoteVersion = QString("1.2.0");
     }
         
     return remoteVersion;
