@@ -210,9 +210,10 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
         exportPath += pythonPath;
         pathEnv = pythonPath + ';' + pathEnv;
     } else {
-        this->errorMessage("NO VALID PYTHON - Read the Manual & Check your Preferences");
-        emit runComplete();
-        return false;
+      emit sendErrorMessage(QString("NO VALID PYTHON found - Read the Manual & Update Preferences - currently set as: ") + python);
+      qDebug() << "INVALID PYTHON: " << python;      
+      emit runComplete();
+      return false;
     }
 
     /* ****************************************** removing python checks ********************
