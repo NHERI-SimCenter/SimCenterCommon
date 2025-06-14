@@ -158,8 +158,11 @@ SC_RemoteAppTool::initialize(QDialog *enclosingDialog) {
   } else {
 
     numRow++;
-    remoteLayout->addWidget(theMachine,numRow,0, 2, 3);
-    numRow += 2;
+    //remoteLayout->addWidget(theMachine,numRow,0, 2, 3);
+    //numRow += 2;    
+
+    remoteLayout->addWidget(theMachine,numRow,0, 4, 2);
+    numRow += 4;    
   }
 
   numRow++;
@@ -168,12 +171,29 @@ SC_RemoteAppTool::initialize(QDialog *enclosingDialog) {
   allocation->setText(SimCenterPreferences::getInstance()->getDefaultAllocation());
   allocation->setToolTip(tr("Specify which of your TACC allocations to use when running the job."));
   remoteLayout->addWidget(allocation,numRow,1);
-
   numRow++;
+
+  // job["archiveSystemId"] = "project-6281135954102775315-242ac117-0001-012"
+  // job["archiveSystemDir"]
+  remoteLayout->addWidget(new QLabel("Archive System ID"), numRow, 0);
+  systemID = new QLineEdit();
+  systemID->setText("Default");
+  remoteLayout->addWidget(systemID,numRow,1);
+  numRow++;
+
+  remoteLayout->addWidget(new QLabel("Archive System Dir"), numRow, 0);
+  systemDir = new QLineEdit();
+  systemDir->setText("Default");
+  remoteLayout->addWidget(systemDir,numRow,1);
+  numRow++;        
+
+  //numRow++;
   submitButton = new QPushButton();
   submitButton->setText("Submit");
   submitButton->setToolTip(tr("Press to launch job on remote machine. After pressing, window closes when Job Starts"));
   remoteLayout->addWidget(submitButton,numRow,1);
+  numRow++;
+
   
   theRemoteDialog->setLayout(remoteLayout);
   theRemoteDialog->hide();
@@ -585,6 +605,16 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     parameterSet["schedulerOptions"]=schedulerOptions;
     parameterSet["envVariables"]=envVariables;
     job["parameterSet"]=parameterSet;
+
+
+    // PA
+    // job["archiveSystemId"] = "project-6281135954102775315-242ac117-0001-012"
+    // job["archiveSystemDir"]
+    if (systemID->text() != QString("Default"))
+	    job["archiveSystemId"] = systemID->text();
+      
+    if (systemDir->text() != QString("Default"))
+	    job["archiveSystemDir"] = systemDir->text();	  
 
     //
     // file inputs
