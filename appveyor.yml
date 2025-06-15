@@ -22,7 +22,6 @@ for:
        - pip install conan==1.60.1
        - pip install conan_package_tools
        - conan user
-       - conan profile update settings.compiler.libcxx=libstdc++11 default
        - conan profile update settings.compiler.cppstd=14 default
        - conan remote add simcenter https://nherisimcenter.jfrog.io/artifactory/api/conan/simcenter
        
