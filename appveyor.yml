@@ -23,7 +23,7 @@ for:
        - pip install conan_package_tools
        - conan user
        - conan profile update settings.compiler.libcxx=libstdc++11 default
-       - conan profile update settings.compiler.cppstd=11 default
+       - conan profile update settings.compiler.cppstd=14 default
        - conan remote add simcenter https://nherisimcenter.jfrog.io/artifactory/api/conan/simcenter
        
     install:
@@ -67,7 +67,7 @@ for:
        - pip install conan_package_tools
        - conan user
        - conan profile update settings.compiler.libcxx=libstdc++11 default
-       - conan profile update settings.compiler.cppstd=11 default
+       - conan profile update settings.compiler.cppstd=14 default
        - conan remote add simcenter https://nherisimcenter.jfrog.io/artifactory/api/conan/simcenter
        - git clone https://github.com/JustinBonus/SimCenterCommon.git
        
@@ -102,7 +102,7 @@ for:
        - cmd: conan profile new default --detect
        - cmd: conan profile show default
        - cmd: conan profile update settings.compiler.libcxx=libstdc++11 default
-       - cmd: conan profile update settings.compiler.cppstd=11 default
+       - cmd: conan profile update settings.compiler.cppstd=14 default
        - cmd: conan profile update settings.compiler="Visual Studio" default
        - cmd: conan profile update settings.compiler.version="16" default
        - cmd: conan remote add simcenter https://nherisimcenter.jfrog.io/artifactory/api/conan/simcenter                     
