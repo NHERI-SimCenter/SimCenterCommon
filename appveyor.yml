@@ -20,6 +20,7 @@ for:
        - export PATH="$HOME/Qt/5.15.2/clang_64/bin:$HOME/venv3.8/bin:$PATH"
        - python3 -m pip install --upgrade pip
        - pip install conan==1.60.1
+       - pip install conan_package_tools
        - conan user
        - conan remote add simcenter https://nherisimcenter.jfrog.io/artifactory/api/conan/simcenter
        
@@ -61,6 +62,7 @@ for:
        - sudo apt-get -y install libglu1-mesa-dev freeglut3-dev mesa-common-dev libblas-dev liblapack-dev
        - python3 -m pip install --upgrade pip
        - pip install conan==1.60.1
+       - pip install conan_package_tools
        - conan user
        - conan remote add simcenter https://nherisimcenter.jfrog.io/artifactory/api/conan/simcenter
        - git clone https://github.com/JustinBonus/SimCenterCommon.git
@@ -91,6 +93,7 @@ for:
        - cmd: set PATH=%PYTHON%;%PYTHON%\Scripts;%QT%;%PATH%
        - cmd: call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
        - cmd: pip.exe install conan==1.60.1
+       - cmd: pip install conan_package_tools
        - cmd: conan user
        - cmd: conan profile new default --detect
        - cmd: conan profile show default
