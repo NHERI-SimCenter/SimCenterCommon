@@ -65,6 +65,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <ZipUtils.h>
 #include <QCoreApplication>
 #include <QIntValidator>
+#include <QMessageBox>
 
 #include <TapisMachine.h>
 
@@ -266,6 +267,25 @@ RemoteApplication::inputFromJSON(QJsonObject &dataObject) {
 void
 RemoteApplication::onRunButtonPressed(void)
 {
+
+  if ( allocation->text() == "") {
+
+      errorMessage(QString("No TACC Allocation has been provided"));      
+      switch( QMessageBox::warning( 
+            nullptr, 
+            tr("No TACC Allocation Provided"), 
+            tr("No TACC Allocation has been specified in your input form. Please enter your existing allocation in the in the TACC Allocation field. If you do not have one, submit a ticket to DesignSafe requesting access to HPC resources."),
+            QMessageBox::Close))
+	{
+	case QMessageBox::Close:
+	  return;
+	default:
+	  return;
+	}
+      
+      return;
+  }
+  
     QString workingDir = SimCenterPreferences::getInstance()->getRemoteWorkDir();
 
     QDir dirWork(workingDir);
