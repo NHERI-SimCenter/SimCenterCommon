@@ -76,8 +76,9 @@ private:
   QLineEdit *numProcessorsLineEdit;
   QLineEdit *runtimeLineEdit;  
   QLineEdit *allocation; 
+  QLineEdit *systemID;
+  QLineEdit *systemDir;    
   QPushButton *submitButton;
-
 
   QString tmpDirName;
   QString remoteDirectory;

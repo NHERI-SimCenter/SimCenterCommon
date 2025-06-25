@@ -114,7 +114,7 @@ RunPython::processScript() {
     //pythonProcessDone("Process failed to launch due to non-existant working dir.");
     workDirectory.mkdir(workDir);
     if (!workDirectory.exists()) {
-      emit errorMessage(QString("RunPythonInThread::RuPythonInThread no existant workdir: ")+workDir);
+      emit errorMessage(QString("RunPythonInThread::RunPythonInThread no existant workdir: ")+workDir);
       emit processFinished(-1);
       return;
     }
@@ -134,7 +134,8 @@ RunPython::processScript() {
   QFileInfo pythonFile(python);
   
   if (!pythonFile.exists()) {
-    emit errorMessage("NO VALID PYTHON - Read the Manual & Check your Preferences");
+    this->errorMessage(QString("NO VALID PYTHON found - Read the Manual & Update Preferences - currently set as: ") + python);
+    qDebug() << "INVALID PYTHON: " << python;
     emit processFinished(-1);
     return;
   }
