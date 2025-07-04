@@ -163,7 +163,8 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/EDP/StandardEDP.cpp \
     $$PWD/EDP/UserDefinedEDP.cpp \
     $$PWD/EDP/SurrogateEDP.cpp \
-    $$PWD/EDP/EDP.cpp
+    $$PWD/EDP/EDP.cpp \
+    $$PWD/SIM/Femora.cpp
 
 HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/ANALYSIS/CustomPySimulation.h \
@@ -297,4 +298,5 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/EDP/EDP_Selection.h \
     $$PWD/EDP/StandardEDP.h \    
     $$PWD/EDP/SurrogateEDP.h \
-    $$PWD/EDP/EDP.h
+    $$PWD/EDP/EDP.h \
+    $$PWD/SIM/Femora.h
