@@ -121,6 +121,7 @@ private:
 
   TapisMachine *theMachine;
 
+    QJsonObject inputObj;
 };
 
 #endif // REMOTE_APPLICATION_H
