@@ -42,8 +42,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "GeneralInformationWidget.h"
 #include "RandomVariablesContainer.h"
 #include <LineEditRV.h>
+#include <LineEditRV.h>
 #include <ReadWriteRVJSON.h>
-
+#include "LineEditRV.h"
 #include <QMessageBox>
 #include <QTableWidget>
 #include <QGridLayout>
@@ -76,14 +77,21 @@ ConcreteBuildingModel::ConcreteBuildingModel(RandomVariablesContainer *theRandom
     QLabel* extLabel = new QLabel("Exterior");
     extLabel->setStyleSheet("font-weight: bold");
 
+
     QLabel* extWidthLabel = new QLabel("Width (m)");
+    /*
     extWidthLE = new QLineEdit();
     extWidthLE->setValidator(new QDoubleValidator);
+    */
+    extWidthLE = new LineEditRV("ExtColWidth",randomVariables);
 
     QLabel* extDepthLabel = new QLabel("Depth (m)");
+    /*
     extDepthLE = new QLineEdit();
     extDepthLE->setValidator(new QDoubleValidator);
-
+    */
+    extDepthLE = new LineEditRV("ExtColDepth",randomVariables);
+    
     columnSectionsGrid->addWidget(extLabel,0,0,1,2,Qt::AlignCenter);
     columnSectionsGrid->addWidget(extWidthLabel,1,0,1,1);
     columnSectionsGrid->addWidget(extWidthLE,1,1,1,1);
@@ -95,13 +103,20 @@ ConcreteBuildingModel::ConcreteBuildingModel(RandomVariablesContainer *theRandom
     intLabel->setStyleSheet("font-weight: bold");
 
     QLabel* intWidthLabel = new QLabel("Width (m)");
+    
+    /*
     intWidthLE = new QLineEdit();
     intWidthLE->setValidator(new QDoubleValidator);
-
+    */
+    intWidthLE = new LineEditRV("IntColWidth",randomVariables);
+    
     QLabel* intDepthLabel = new QLabel("Depth (m)");
+    /*
     intDepthLE = new QLineEdit();
     intDepthLE->setValidator(new QDoubleValidator);
-
+    */
+    intDepthLE = new LineEditRV("IntColDepth",randomVariables);   
+    
     columnSectionsGrid->addWidget(intLabel,0,2,1,2,Qt::AlignCenter);
     columnSectionsGrid->addWidget(intWidthLabel,1,2,1,1);
     columnSectionsGrid->addWidget(intWidthLE,1,3,1,1);
@@ -114,12 +129,16 @@ ConcreteBuildingModel::ConcreteBuildingModel(RandomVariablesContainer *theRandom
     QGridLayout *beamSectionsGrid = new QGridLayout(beamSectionsBox);
 
     QLabel* beamWidthhLabel = new QLabel("Width (m)");
-    beamWidthLE = new QLineEdit();
-    beamWidthLE->setValidator(new QDoubleValidator);
+    
+    //beamWidthLE = new QLineEdit();
+    //beamWidthLE->setValidator(new QDoubleValidator);
+    beamWidthLE = new LineEditRV("BeamWidth",randomVariables);    
+    beamWidthLE->setText("0.4");
 
     QLabel* beamDepthLabel = new QLabel("Depth (m)");
-    beamDepthLE = new QLineEdit();
-    beamDepthLE->setValidator(new QDoubleValidator);
+    //beamDepthLE = new QLineEdit();
+    //beamDepthLE->setValidator(new QDoubleValidator);
+    beamDepthLE = new LineEditRV("BeamDepth",randomVariables);
 
     beamSectionsGrid->addWidget(beamWidthhLabel,0,0);
     beamSectionsGrid->addWidget(beamWidthLE,0,1);
@@ -389,13 +408,22 @@ bool ConcreteBuildingModel::outputToJSON(QJsonObject &jsonObject)
     jsonObject["type"]="ConcreteBuildingModel";
 
     writeLineEditRV(jsonObject,"dampingRatio", dampingRatio);
-    
+
+    /*
     jsonObject["ExtColWidth"] = extWidthLE->text();
     jsonObject["ExtColDepth"] = extDepthLE->text();
     jsonObject["IntColWidth"] = intWidthLE->text();
     jsonObject["IntColDepth"] = intDepthLE->text();
     jsonObject["BeamWidth"] = beamWidthLE->text();
     jsonObject["BeamDepth"] = beamDepthLE->text();
+    */
+    extWidthLE->outputToJSON(jsonObject);
+    extDepthLE->outputToJSON(jsonObject);
+    intWidthLE->outputToJSON(jsonObject);
+    intDepthLE->outputToJSON(jsonObject);
+    beamWidthLE->outputToJSON(jsonObject);
+    beamDepthLE->outputToJSON(jsonObject);    
+    
     jsonObject["VecStoryHeights"] = vecStoryLE->text();
     jsonObject["VecSpans"] = vecSpansLE->text();
 
@@ -450,12 +478,20 @@ bool ConcreteBuildingModel::inputFromJSON(QJsonObject &jsonObject)
 {
     // The application type
     readLineEditRV(jsonObject,"dampingRatio", dampingRatio);
-    extWidthLE->setText(jsonObject["ExtColWidth"].toString());
-    extDepthLE->setText(jsonObject["ExtColDepth"].toString());
-    intWidthLE->setText(jsonObject["IntColWidth"].toString());
-    intDepthLE->setText(jsonObject["IntColDepth"].toString());
-    beamWidthLE->setText(jsonObject["BeamWidth"].toString());
-    beamDepthLE->setText(jsonObject["BeamDepth"].toString());
+    extWidthLE->outputToJSON(jsonObject);
+    extDepthLE->inputFromJSON(jsonObject);
+    intWidthLE->inputFromJSON(jsonObject);
+    intDepthLE->inputFromJSON(jsonObject);
+    beamWidthLE->inputFromJSON(jsonObject);
+    beamDepthLE->inputFromJSON(jsonObject);
+    
+    //extWidthLE->setText(jsonObject["ExtColWidth"].toString());
+    //extDepthLE->setText(jsonObject["ExtColDepth"].toString());
+    //intWidthLE->setText(jsonObject["IntColWidth"].toString());
+    //intDepthLE->setText(jsonObject["IntColDepth"].toString());
+    //beamWidthLE->setText(jsonObject["BeamWidth"].toString());
+    //beamDepthLE->setText(jsonObject["BeamDepth"].toString());
+    
     vecStoryLE->setText(jsonObject["VecStoryHeights"].toString());
     vecSpansLE->setText(jsonObject["VecSpans"].toString());
     RLE->setText(jsonObject["RParam"].toString());
