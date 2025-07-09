@@ -156,7 +156,8 @@ UQ_Results::extractErrorMsg(QString workDir, QString errFileName, QString uqEngi
     QString filenameErrorString = workDir + QDir::separator() + errFileName;
     QFileInfo filenameErrorInfo(filenameErrorString);
     if (!filenameErrorInfo.exists()) {
-        errMsg = "No " + errFileName + " file - " + uqEngineName + " did not run - problem with the setup or the applications failed with inputs provided";
+      //        errMsg = "No " + errFileName + " file - " + uqEngineName + " did not run - problem with the setup or the applications failed with inputs provided";
+        errMsg = "No " + filenameErrorString + " file - " + uqEngineName + " did not run - problem with the setup or the applications failed with inputs provided";      
         return;
     }
 
