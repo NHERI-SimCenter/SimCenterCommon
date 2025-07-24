@@ -51,6 +51,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QLineEdit>
 #include <QPushButton>
 #include <QJsonObject>
+#include <QJsonDocument>
 #include <QStandardPaths>
 #include <QCoreApplication>
 #include <QProcess>
@@ -318,7 +319,21 @@ RemoteApplication::onRunButtonPressed(void)
 
 bool
 RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile) {
+  
 
+    // Read the file contents
+    QFile file(inputFile);
+    if (file.open(QIODevice::ReadOnly)) {
+        QByteArray fileData = file.readAll();
+        QJsonDocument inputDoc = QJsonDocument::fromJson(fileData);
+        inputObj = inputDoc.object();
+        file.close();
+    } else {
+        errorMessage(QString("Failed to open input file: ") + inputFile);
+        pushButton->setEnabled(true);
+        return false;
+    }
+    
     //Q_UNUSED(runType);
     //    QString appDir = localAppDirName->text();
     QString runType("runningRemote");
@@ -638,20 +653,17 @@ RemoteApplication::uploadDirReturn(bool result)
       
       schedulerOptions.append(schedulerOptionsObj);
       parameterSet["schedulerOptions"]=schedulerOptions;
-      parameterSet["envVariables"]=envVariables;
-      job["parameterSet"]=parameterSet;
-
 
       // FMK
       // job["archiveSystemId"] = "project-6281135954102775315-242ac117-0001-012"
       // job["archiveSystemDir"]
       if (systemID->text() != QString("Default"))
-	job["archiveSystemId"] = systemID->text();
-      
+        job["archiveSystemId"] = systemID->text();
+    
       if (systemDir->text() != QString("Default"))
-	job["archiveSystemDir"] = systemDir->text();	  
-      
-      
+        job["archiveSystemDir"] = systemDir->text();	  
+  
+  
       QJsonArray fileInputs;
       QJsonObject inputs;
       inputs["envKey"]="inputDirectory";
@@ -663,7 +675,89 @@ RemoteApplication::uploadDirReturn(bool result)
 	    inputs[inputName] = extraInputs[inputName];
       }
       fileInputs.append(inputs);
-      job["fileInputs"]=fileInputs;
+    
+    
+      // add the drm files paths for the EE-UQ app
+      if (appName == "EE-UQ" || appName == "EE-UQ_TEST" || appName == "EEUQ") 
+      {
+        
+        // add the drm files paths for the EE-UQ app
+        QStringList drmFilePaths;
+        if (inputObj.contains("Events")) 
+        {
+          QJsonArray eventsArray = inputObj["Events"].toArray();
+          QJsonDocument eventsDoc(eventsArray);
+          
+              // Loop through each event to check for DRM with predefined DesignSafe
+              for (const auto& eventValue : eventsArray) 
+              {
+                QJsonObject eventObj = eventValue.toObject();
+                // Check if this event has type "DRM" and system "predefined-designsafe"
+                if (eventObj.contains("type") && eventObj.contains("system")) 
+                {
+                  QString eventType = eventObj["type"].toString();
+                  QString eventSystem = eventObj["system"].toString();
+                  if (eventType == "DRM" && eventSystem == "predefined-designsafe") {
+                    QJsonArray eventsArray2 = eventObj["Events"].toArray();
+                    // for each DRM event in the array
+                    for (const auto& drmEventValue : eventsArray2) {
+                      QJsonObject drmEventObj = drmEventValue.toObject();
+                      QString path = drmEventObj["filePath"].toString();
+                      if (!path.isEmpty()) {
+                        drmFilePaths.append(path);
+                        QJsonObject inputs;
+                        QString name = drmEventObj["name"].toString();
+                        inputs["envKey"] = name;
+                        inputs["targetPath"] = "*";
+                        inputs["sourceUrl"] = path;
+                        fileInputs.append(inputs);
+                      }
+                    }
+                  }
+                }
+              }
+            } else {
+              errorMessage(QString("No Events section found in input JSON"));
+            }  
+            
+            
+            // add som environment variables for EE-UQ
+            QJsonObject isEEUQ_var;
+            isEEUQ_var["key"] = "_eeuqIs";
+            isEEUQ_var["value"] = "true";
+            envVariables.append(isEEUQ_var);
+            
+            QJsonObject corePerModel_var;
+            corePerModel_var["key"] = "_eeuqCoresPerModel";
+            if (inputObj.contains("Modeling") && inputObj["Modeling"].isObject()) {
+              QJsonObject modelingObj = inputObj["Modeling"].toObject();
+              if (modelingObj.contains("numCores")) {
+                corePerModel_var["value"] = QString::number(modelingObj["numCores"].toInt());
+              }
+            }
+            else {
+              corePerModel_var["value"] = "1"; // Default value if not specified
+            }
+            envVariables.append(corePerModel_var);
+            
+            QJsonObject samples_var;
+            samples_var["key"] = "_eeuqNumSamples";
+            if (inputObj.contains("UQ") && inputObj["UQ"].isObject()) {
+              QJsonObject uqObj = inputObj["UQ"].toObject();
+              if (uqObj.contains("samplingMethodData") && uqObj["samplingMethodData"].isObject()) {
+                QJsonObject samplingMethodData = uqObj["samplingMethodData"].toObject();
+                if (samplingMethodData.contains("samples")) {
+                  samples_var["value"] = QString::number(samplingMethodData["samples"].toInt());
+                  envVariables.append(samples_var);
+                }
+              }
+            }
+            
+            
+          } 
+          job["fileInputs"]=fileInputs;
+          parameterSet["envVariables"]=envVariables;
+          job["parameterSet"]=parameterSet;
 
       qDebug() << job;
       
