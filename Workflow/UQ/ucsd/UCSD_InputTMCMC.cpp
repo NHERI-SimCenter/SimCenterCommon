@@ -347,6 +347,9 @@ UCSD_InputTMCMC::inputFromJSON(QJsonObject &jsonObject){
     if (jsonObject.contains("useApproximation")) {
         bool useApproximation = jsonObject["useApproximation"].toBool(); // Convert the JSON value to a bool
         useApproximationCheckBox->setChecked(useApproximation); // Set the checkbox state
+    } 
+    else {
+        useApproximationCheckBox->setChecked(false); // Default to unchecked
     }
 
   }
