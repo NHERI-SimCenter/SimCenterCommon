@@ -148,12 +148,13 @@ MonteCarloInputSimWidget::inputFromJSON(QJsonObject &jsonObject){
     result = theMC->inputFromJSON(jsonObject);
 
     if (jsonObject.contains("RVdataGroup")) {
-       RVdataList->setText(jsonObject["RVdataGroup"].toString());
-       if ((RVdataList->text()).isEmpty()) {
+        QString datasubset = jsonObject["RVdataGroup"].toString();
+       if ((datasubset).isEmpty()) {
            pairedRVCheckBox->setChecked(false);
        } else {
            pairedRVCheckBox->setChecked(true);
        }
+       RVdataList->setText(datasubset);
    }
     return result;
 }

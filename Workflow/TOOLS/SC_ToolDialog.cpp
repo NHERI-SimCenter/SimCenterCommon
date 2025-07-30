@@ -37,7 +37,7 @@ SC_ToolDialog::~SC_ToolDialog()
 
 void SC_ToolDialog::clear()
 {
-  qDebug() << "SC_ToolDialog::clear - method yest to be implemented";
+  qDebug() << "SC_ToolDialog::clear - method clear yet to be implemented";
 }
 
 void SC_ToolDialog::addTool(SimCenterAppWidget *theAppWidget, QString text) {
@@ -54,10 +54,10 @@ void SC_ToolDialog::showTool(QString text) {
   if (index != -1) {
     
     theStackedWidget->setCurrentIndex(index);
+    this->setWindowFlags(Qt::Window);
     this->show();
     this->activateWindow();
     this->raise();
-
   }
 }  
 

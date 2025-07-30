@@ -34,6 +34,8 @@ INCLUDEPATH += $$PWD/TOOLS
 SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/ANALYSIS/CustomPySimulation.cpp \
     $$PWD/ANALYSIS/SurrogateSimulation.cpp \
+    $$PWD/ANALYSIS/CapacitySpectrumWidget.cpp \
+    $$PWD/ANALYSIS/HAZUSDemandWidget.cpp \    
     $$PWD/SIM/CustomPy.cpp \
     $$PWD/SIM/SurrogateGP.cpp \
     $$PWD/UQ/UQ_Results.cpp \
@@ -161,11 +163,14 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/EDP/StandardEDP.cpp \
     $$PWD/EDP/UserDefinedEDP.cpp \
     $$PWD/EDP/SurrogateEDP.cpp \
-    $$PWD/EDP/EDP.cpp
+    $$PWD/EDP/EDP.cpp \
+    $$PWD/SIM/Femora.cpp
 
 HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/ANALYSIS/CustomPySimulation.h \
     $$PWD/ANALYSIS/SurrogateSimulation.h \
+    $$PWD/ANALYSIS/CapacitySpectrumWidget.h \
+    $$PWD/ANALYSIS/HAZUSDemandWidget.h \    
     $$PWD/SIM/CustomPy.h \
     $$PWD/SIM/SurrogateGP.h \
     $$PWD/UQ/UQ_Results.h \
@@ -293,4 +298,5 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/EDP/EDP_Selection.h \
     $$PWD/EDP/StandardEDP.h \    
     $$PWD/EDP/SurrogateEDP.h \
-    $$PWD/EDP/EDP.h
+    $$PWD/EDP/EDP.h \
+    $$PWD/SIM/Femora.h

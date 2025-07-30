@@ -53,6 +53,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QFileInfo>
 #include <QProcessEnvironment>
 #include <QGridLayout>
+#include <Utils/FileOperations.h>
 
 SimCenterPreferences *
 SimCenterPreferences::getInstance(QWidget *parent) {
@@ -117,7 +118,7 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
         QString selectedFile = QFileDialog::getOpenFileName(this,
                                                             tr("Select Python Interpreter"),
                                                             existingDir,
-                                                            "All files (*.*)");
+                                                            "All files (*)");
 
         if(!selectedFile.isEmpty()) {
             python->setText(selectedFile);
@@ -610,16 +611,13 @@ SimCenterPreferences::resetPreferences(bool) {
     QString currentVersion = QCoreApplication::applicationVersion();
     settingsApplication.setValue("version", currentVersion);
 
-    QDir workingDir(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
-
-    if (!workingDir.exists())
-      workingDir.mkpath(".");   
+    QString workingDirPath = SCUtils::getAppWorkDir();
     
-    QString remoteWorkDirLocation = workingDir.filePath(QCoreApplication::applicationName() + "/RemoteWorkDir");
+    QString remoteWorkDirLocation = workingDirPath + QDir::separator() + "RemoteWorkDir";
     settingsApplication.setValue("remoteWorkDir", remoteWorkDirLocation);
     remoteWorkDir->setText(remoteWorkDirLocation);
 
-    QString localWorkDirLocation = workingDir.filePath(QCoreApplication::applicationName() + "/LocalWorkDir");
+    QString localWorkDirLocation = workingDirPath + QDir::separator() + "LocalWorkDir";
     settingsApplication.setValue("localWorkDir", localWorkDirLocation);
     localWorkDir->setText(localWorkDirLocation);
 
@@ -981,7 +979,7 @@ SimCenterPreferences::getRemoteAppDir(void) {
 	
 	// if not set, use default & set default as application directory
 	if (!remoteBackendDirVariant.isValid()) {
-	  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v4.6.0");
+	  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v25.05.14");
 
 	  QString appName = QCoreApplication::applicationName();
 	  if (appName == QString("WE-UQ") || appName == QString("HydroUQ"))
@@ -1065,12 +1063,10 @@ SimCenterPreferences::getLocalWorkDir(void) {
 
     // if not set, use default & set default as application directory
     if (!localWorkDirVariant.isValid()) {
-      QDir workingDir(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
+      QString workingDirPath = SCUtils::getAppWorkDir();
 
-      if (!workingDir.exists())
-	workingDir.mkpath(".");
-      
-      QString localWorkDirLocation = workingDir.filePath(QCoreApplication::applicationName() + "/LocalWorkDir");
+      QString localWorkDirLocation = workingDirPath + QDir::separator() + "LocalWorkDir";
+    
       settingsApplication.setValue("localWorkDir", localWorkDirLocation);
       localWorkDir->setText(localWorkDirLocation);
       return localWorkDirLocation;
@@ -1098,12 +1094,9 @@ SimCenterPreferences::getRemoteWorkDir(void) {
 
     // if not set, use default & set default as application directory
     if (!remoteWorkDirVariant.isValid()) {
-      QDir workingDir(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
-      
-      if (!workingDir.exists())
-	workingDir.mkpath(".");
-      
-      QString remoteWorkDirLocation = workingDir.filePath(QCoreApplication::applicationName() + "/RemoteWorkDir");
+
+      QString workingDirPath = SCUtils::getAppWorkDir();      
+      QString remoteWorkDirLocation = workingDirPath + QDir::separator() + "RemoteWorkDir";
       settingsApplication.setValue("remoteWorkDir", remoteWorkDirLocation);
       remoteWorkDir->setText(remoteWorkDirLocation);
       return remoteWorkDirLocation;
@@ -1124,7 +1117,7 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
     } else if (appName == QString("WE-UQ")) {
       remoteApp = QString("simcenter-openfoam-frontera");
     } else if (appName == QString("HydroUQ")) {
-      remoteApp = QString("simcenter-openfoam-frontera");    
+      remoteApp = QString("simcenter-hydrouq-frontera");    
     } else if (appName == QString("EE-UQ") || appName == QString("PBE"))
       remoteApp = QString("simcenter-uq-stampede3");      
 
@@ -1136,8 +1129,14 @@ QString
 SimCenterPreferences::getDefaultAgaveAppVersion(void) {
 
     //Default appDir is the location of the application
-    QString remoteVersion = QString("1.0.0");
-    
+    QString appName = QCoreApplication::applicationName();
+    QString remoteApp = QString("simcenter-uq-stampede3");
+
+    QString remoteVersion = QString("1.0.0");    
+    if (appName == QString("R2D")) {
+      remoteVersion = QString("1.2.0");
+    }
+        
     return remoteVersion;
 }
 
@@ -1146,7 +1145,7 @@ QString
 SimCenterPreferences::getDefaultRemoteAppDir(void) {
 
   QString appName = QCoreApplication::applicationName();  
-  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v4.6.0");
+  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v25.02.03");
   if (appName == QString("WE-UQ") || appName == QString("HydroUQ"))
     remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v4.6.0");  
 
@@ -1257,10 +1256,14 @@ SimCenterPreferences::getDefaultPython(void) {
 #else
     
     QString pythonPath; //  = QStandardPaths::findExecutable("python3");
+    QString pyAppPath = QCoreApplication::applicationDirPath() + QDir::separator() + QString("python3.9");
+    QFileInfo packagedPython39(pyAppPath);    
     QFileInfo installedPython39("/Library/Frameworks/Python.framework/Versions/3.9/bin/python3");
     QFileInfo installedPython310("/Library/Frameworks/Python.framework/Versions/3.10/bin/python3");
-    
-    if (installedPython39.exists()) {
+
+    if (packagedPython39.exists()) {
+      pythonPath = packagedPython39.filePath();
+    } else if (installedPython39.exists()) {
       pythonPath = installedPython39.filePath();
     } else if (installedPython310.exists()) {
       pythonPath = installedPython310.filePath();	

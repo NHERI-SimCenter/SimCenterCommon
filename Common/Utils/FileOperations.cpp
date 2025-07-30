@@ -2,12 +2,73 @@
 #include <QJsonArray>
 #include <QFileInfo>
 #include <QDir>
+#include <QApplication>
 #include <QStandardPaths>
 #include <QFileInfo>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QProcessEnvironment>
 
 
 namespace SCUtils {
 
+  QString getAppWorkDir() {
+
+    //
+    // appWorkDir is typically in ~/Documents/appName
+    //   -- if no Documents place in ~/appName
+    //   -- don't want OneDrive or similar!
+    //   -- use an env variable if set
+
+    
+    // find directory where appName filder to be: standardDocPath
+
+    // check Documents folder
+    QString standardDocPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation); 
+    if (standardDocPath.contains("OneDrive", Qt::CaseInsensitive)) {
+        QString userProfilePath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+        QDir userDocumentsDir(userProfilePath + QDir::separator() + "Documents");
+        // Verify that the local Documents directory exists
+        if (userDocumentsDir.exists()) 
+            standardDocPath = userDocumentsDir.absolutePath();
+        else
+	  // use users home dir	  
+	  standardDocPath = userProfilePath;
+    }
+
+    //
+    // check if an env variable is set .. overrides above of course
+    //
+    
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();        
+    QString workDirEnv = env.value("SIMCENTER_WORKDIR","None");
+    if (workDirEnv != "None") {
+      standardDocPath = workDirEnv;
+      qDebug() << "FileOperations: using ENV variable SIMCENTER_WORKDIR: " << workDirEnv;
+    }
+    
+    QString workDirPath = standardDocPath + QDir::separator() + QCoreApplication::applicationName();
+
+    // if the appName dir does not exist, create it
+    QDir workDir(workDirPath);
+    if (!workDir.exists())
+        if (!workDir.mkpath(workDirPath)) {
+	  
+            qDebug() << QString("Could not create Working Dir: ") << workDirPath;
+
+	    QMessageBox msgBox;
+	    msgBox.setIcon(QMessageBox::Critical);
+	    QString text = QString("FATAL: The application could not create a folder/directory necessary to run the application. Try creating the following folder on your machine and start again. ") + workDirPath; 
+	    msgBox.setText(text);
+	    msgBox.setWindowTitle("Fatal Error");
+	    QPushButton *exitButton = msgBox.addButton(QMessageBox::Ok);
+	    QObject::connect(exitButton, &QPushButton::clicked, qApp, &QApplication::quit);
+	    msgBox.exec();	    
+	}	    
+
+    return workDirPath;
+  }
+  
   bool
   compareFiles(const QString &sourcePath, const QString &destPath) {
 
@@ -137,6 +198,38 @@ namespace SCUtils {
     
 #endif
     
+  }
+
+  bool
+  copyAndOverwrite(const QString &source, const QString &destination, bool overwrite) {
+
+    //
+    // if file exists
+    //    - remove if overwrite is true, otherwise just return as leaving well alone
+    //
+
+    if (QFile::exists(destination)) {
+      if (overwrite == true) {
+        if (!QFile::remove(destination)) {
+	  qDebug() << "Failed to remove existing file:" << destination;
+	  return false;
+        }
+	
+      } else {
+	return true;
+      }
+    }
+    
+    //
+    // now safe to copy file, return fail if fails
+    //
+    
+    if (!QFile::copy(source, destination)) {
+      qDebug() << "Failed to copy file from" << source << "to" << destination;
+      return false;
+    }
+    
+    return true;
   }
   
 }
