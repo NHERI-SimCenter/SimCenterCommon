@@ -721,22 +721,21 @@ RemoteApplication::uploadDirReturn(bool result)
             }  
             
             
-            // add som environment variables for EE-UQ
+            // add some environment variables for EE-UQ
             QJsonObject isEEUQ_var;
             isEEUQ_var["key"] = "_eeuqIs";
             isEEUQ_var["value"] = "true";
             envVariables.append(isEEUQ_var);
             
+            // Set _eeuqCoresPerModel with default value first, then override if specified
             QJsonObject corePerModel_var;
             corePerModel_var["key"] = "_eeuqCoresPerModel";
+            corePerModel_var["value"] = "1"; // Default value if not specified
             if (inputObj.contains("Modeling") && inputObj["Modeling"].isObject()) {
               QJsonObject modelingObj = inputObj["Modeling"].toObject();
               if (modelingObj.contains("numCores")) {
                 corePerModel_var["value"] = QString::number(modelingObj["numCores"].toInt());
               }
-            }
-            else {
-              corePerModel_var["value"] = "1"; // Default value if not specified
             }
             envVariables.append(corePerModel_var);
             
