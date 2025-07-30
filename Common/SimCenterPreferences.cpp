@@ -1145,7 +1145,7 @@ QString
 SimCenterPreferences::getDefaultRemoteAppDir(void) {
 
   QString appName = QCoreApplication::applicationName();  
-  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v25.02.03");
+  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v25.05.14");
   if (appName == QString("WE-UQ") || appName == QString("HydroUQ"))
     remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v4.6.0");  
 
