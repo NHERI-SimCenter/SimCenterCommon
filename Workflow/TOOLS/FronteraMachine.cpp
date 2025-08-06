@@ -21,7 +21,7 @@ FronteraMachine::FronteraMachine()
   numProcessors = new SC_IntLineEdit(QString("coresPerNode"),1, 1, 56);
   numProcessors->setText("56");
 
-  runTime = new SC_IntLineEdit(QString("maxMinutes"),20, 1,1440);
+  runTime = new SC_IntLineEdit(QString("maxMinutes"),20, 1,2880);
   runTime->setText("20");
 
   QString appName = QCoreApplication::applicationName();
