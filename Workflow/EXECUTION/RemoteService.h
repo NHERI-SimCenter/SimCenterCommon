@@ -74,7 +74,7 @@ public slots:
     // file system
     virtual void mkdirCall(const QString &remoteName, const QString &remotePath) =0;
     virtual void uploadFileCall(const QString &local, const QString &remote) =0;
-    virtual void downloadFilesCall(const QStringList &remote, const QStringList &local, QObject* sender=nullptr) =0;
+    virtual void downloadFilesCall(const QStringList &remote, const QStringList &local, QObject* sender=nullptr, const QString &archiveSystemID = QString("designsafe.storage.default")) =0;
     virtual void uploadDirectoryCall(const QString &local, const QString &remote) =0;
     // void downloaDirectoryCall(const QString &remote, const QString &local) =0;
     virtual void removeDirectoryCall(const QString &remote) =0;
