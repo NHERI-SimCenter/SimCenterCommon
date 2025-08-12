@@ -83,7 +83,7 @@ public:
     QJsonArray remoteLS(const QString &remotePath);
     bool mkdir(const QString &remoteName, const     QString &remotePath);
     bool uploadFile(const QString &local, const QString &remote);
-    bool downloadFile(const QString &remote, const QString &local);
+    bool downloadFile(const QString &remote, const QString &local, const QString &archiveSystemID = QString("designsafe.storage.default"));
     bool uploadDirectory(const QString &local, const QString &remote);
     //  bool downloaDirectory(const QString &remote, const QString &local);
     bool removeDirectory(const QString &remote);
@@ -115,7 +115,7 @@ public slots:
     // file system
     void mkdirCall(const QString &remoteName, const QString &remotePath);
     void uploadFileCall(const QString &local, const QString &remote);
-    void downloadFilesCall(const QStringList &remote, const QStringList &local, QObject* sender=nullptr);
+    void downloadFilesCall(const QStringList &remote, const QStringList &local, QObject* sender=nullptr, const QString &archiveSystemID = QString("designsafe.storage.default"));
     void uploadDirectoryCall(const QString &local, const QString &remote);
     // void downloaDirectoryCall(const QString &remote, const QString &local);
     void removeDirectoryCall(const QString &remote);

@@ -502,9 +502,15 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 	  }
 	}
 	
+  QJsonValue archiveSystemIdValue = job["archiveSystemId"];
+  QString archiveSystemId = "designsafe.storage.default"; // default value
+  if (archiveSystemIdValue.isString()) {
+      archiveSystemId = archiveSystemIdValue.toString();
+  }
+
 	connect(theService,SIGNAL(downloadFilesReturn(bool, QObject*)),this,SLOT(downloadFilesReturn(bool, QObject*)));
-	theService->downloadFilesCall(remoteFiles, localFiles, this);    
-	
+	theService->downloadFilesCall(remoteFiles, localFiles, this, archiveSystemId);
+
     }
 }
 
