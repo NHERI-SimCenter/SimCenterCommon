@@ -554,6 +554,7 @@ RemoteApplication::uploadDirReturn(bool result)
           int nodeCountInGpuQueue = nodeCount;
           const bool USE_FRONTERA_GPU = true;
           const bool USE_LONESTAR6_GPU = false;
+          const bool USE_STAMPEDE3_GPU = false;
           if constexpr (USE_FRONTERA_GPU) {
                       queue = "rtx"; // Frontera. 4 NVIDIA Quadro RTX 5000 GPU 16GB
                       numProcessorsPerNodeInGpuQueu = 8; // 2 Intel Xeon E5-2620 v4 (“Broadwell”), 2*8 cores, or 2*8*2 threads (may not be enabled on Frontera)
@@ -564,6 +565,13 @@ RemoteApplication::uploadDirReturn(bool result)
                       numProcessorsPerNodeInGpuQueu = 1; // 2x AMD EPYC 7763 64-Core Processor ("Milan"), 2*64 cores, or 2*64*1 threads
                       ramPerNodeMB = 256000; // 256 GB
                       nodeCountInGpuQueue = (nodeCount < 4) ? nodeCount : 4; // Lonestar6, 4 nodes per job on gpu-a100 queue
+          } else if constexpr (USE_STAMPEDE3_GPU) {
+                      queue = "h100"; // Stampede3, 4 NVIDIA H100 GPU 96GB
+                      numProcessorsPerNodeInGpuQueu = 96; // 2 Intel Xeon Platinum 8468 ("Sapphire Rapids"), 96 cores on two sockets (2 x 48 cores)
+                      ramPerNodeMB = 1000000; // 1 TB
+                      nodeCountInGpuQueue = (nodeCount < 4) ? nodeCount : 4; // Stampede3, 4 nodes per job on gpu queue
+          } else {
+            qDebug() << "ERROR: RemoteApplication::uploadDirReturn - No GPU queue selected for HydroUQ";
           }
           job["coresPerNode"] = numProcessorsPerNodeInGpuQueu;
           job["nodeCount"] = nodeCountInGpuQueue;

@@ -807,13 +807,13 @@ TapisV3::uploadFile(const QString &local, const QString &remote) {
 
 
 void
-TapisV3::downloadFilesCall(const QStringList &remoteFiles, const QStringList &localFiles, QObject* sender) {
+TapisV3::downloadFilesCall(const QStringList &remoteFiles, const QStringList &localFiles, QObject* sender, const QString &archiveSystemID) {
     bool result = true;
     for (int i=0; i<remoteFiles.size(); i++) {
         QString remote = remoteFiles.at(i);
         QString local = localFiles.at(i);
 
-        result = this->downloadFile(remote, local);
+        result = this->downloadFile(remote, local, archiveSystemID);
         if (result == false) {
             emit downloadFilesReturn(result, sender);
         }
@@ -823,7 +823,7 @@ TapisV3::downloadFilesCall(const QStringList &remoteFiles, const QStringList &lo
 }
 
 bool
-TapisV3::downloadFile(const QString &remoteFile, const QString &localFile)
+TapisV3::downloadFile(const QString &remoteFile, const QString &localFile, const QString &archiveSystemID)
 {
     // this method does not invoke the invokeCurl() as want to write to local file directtly
 
@@ -835,10 +835,21 @@ TapisV3::downloadFile(const QString &remoteFile, const QString &localFile)
 
     QString message = QString("Contacting ") + tenant + QString(" to download remote file ") + remoteName; // + QString( " to ") + localFile;
 
-
+    // check if 2 qstrings are the same
+    QString url;
+    if (archiveSystemID != QString("designsafe.storage.default")) {
+        url = tenantURL + QString("v3/files/content/") + archiveSystemID + remoteFile;
+    } else {
+        url = tenantURL + QString("v3/files/content/") + storage + remoteFile;
+    }
     // set up the call
-    QString url = tenantURL + QString("v3/files/content/") + storage + remoteFile;
-
+    qDebug() << "TapisV3 Debug: Message:" << message;
+    qDebug() << "TapisV3 Debug: Downloading file from:" << url;
+    qDebug() << "TapisV3 Debug: tenantURL:" << tenantURL;
+    qDebug() << "TapisV3 Debug: storage:" << storage;
+    qDebug() << "TapisV3 Debug: archiveSystemID:" << archiveSystemID;
+    qDebug() << "TapisV3 Debug: remoteFile:" << remoteFile;
+    qDebug() << "TapisV3 Debug: accessToken:" << accessToken;
     std::string headerData = QString("X-Tapis-Token: %1").arg(accessToken).toStdString();
     slist1 = NULL;
     slist1 = curl_slist_append(slist1, headerData.c_str());
