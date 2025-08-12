@@ -294,9 +294,9 @@ int UCSD_ResultsTMCMC::processResults(QString &filenameTab, QString &filenameTab
         }
     QString calFileName = calFileInfo.absoluteFilePath();
 
-    theDataTableCalData = new ResultsDataChart(calFileName);
-    QVector<QVector<double>> statisticsVectorCalData = theDataTableCalData->getStatistics();
-    QVector<QString> namesVectorCalData = theDataTablePrior->getNames();
+//    theDataTableCalData = new ResultsDataChart(calFileName);
+//    QVector<QVector<double>> statisticsVectorCalData = theDataTableCalData->getStatistics();
+//    QVector<QString> namesVectorCalData = theDataTablePrior->getNames();
 
     // Get the range of the predictions
     QVector<QVector<double>> minMaxVector = theDataTable->getMinMax();
@@ -305,8 +305,8 @@ int UCSD_ResultsTMCMC::processResults(QString &filenameTab, QString &filenameTab
     QString xLabel = "Component";
     QString yLabel = "Value";
 
-    BayesPlots *thePlot = new BayesPlots(edpNames, edpLengths);
-    thePlot->plotPosterior(minMaxVector, minMaxVectorPrior, statisticsVector, statisticsVectorPrior, statisticsVectorCalData);
+//    BayesPlots *thePlot = new BayesPlots(edpNames, edpLengths);
+//    thePlot->plotPosterior(minMaxVector, minMaxVectorPrior, statisticsVector, statisticsVectorPrior, statisticsVectorCalData);
 
     // Create a tab for the TMCMC logfile
     QScrollArea *logFileTMCMC = new QScrollArea;
