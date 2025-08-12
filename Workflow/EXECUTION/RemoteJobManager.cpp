@@ -433,7 +433,14 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 	  emit sendFatalMessage(QString("Could not create Remote Working Dir: ") + localDir + QString(" . Try using an existing directory or make sure you have permission to create the working directory."));
 	  return;
 	}
+	
+	//
+	// place in tmp.SimCenter, similar to how sent
+	//
+	localDir = localDir + QDir::separator() + "tmp.SimCenter";	
+	localWork.mkpath(localDir);
 
+	
         QStringList localFiles;
         QStringList remoteFiles;
         QString appName = QCoreApplication::applicationName();
