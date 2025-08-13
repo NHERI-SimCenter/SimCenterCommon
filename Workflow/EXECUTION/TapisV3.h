@@ -99,7 +99,8 @@ public:
     QJsonObject getJobDetails(const QString &jobID);
     QString getJobStatus(const QString &jobID);
     bool deleteJob(const QString &jobID, const QStringList &dirToRemove);
-
+    bool shareJob(const QString &jobID, const QString &username);
+    
     // method for getting files list
     QJsonObject getFilesList(const QString &remotePath);
 
@@ -127,11 +128,12 @@ public slots:
     void getJobDetailsCall(const QString &jobID);
     void getJobStatusCall(const QString &jobID);
     void deleteJobCall(const QString &jobID, const QStringList &dirToRemove);
+    void shareJobCall(const QString &jobID, const QString &username);
     void remoteLSCall(const QString& remotePath);
 
 private:
     // private methods
-    bool invokeCurl(void);
+    bool invokeCurl(const int index = 0);
 
     // variable thet are Agave specific
     QString tenant;
@@ -140,6 +142,7 @@ private:
     // need two unique file names, use these for temp storage while running
     QString uniqueFileName1;
     QString uniqueFileName2;
+    QString uniqueFileName3;
 
     // variables for login & login widget
     bool loggedInFlag;
