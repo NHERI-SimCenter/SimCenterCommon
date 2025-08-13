@@ -86,6 +86,7 @@ public slots:
     virtual void getJobDetailsCall(const QString &jobID) =0;
     virtual void getJobStatusCall(const QString &jobID) =0;
     virtual void deleteJobCall(const QString &jobID, const QStringList &dirToRemove) =0;
+    virtual void shareJobCall(const QString &jobID, const QString &username) =0;
     virtual void remoteLSCall(const QString &remotePath)=0;
 
 signals:
@@ -112,6 +113,7 @@ signals:
     void getJobDetailsReturn(QJsonObject) ;
     void getJobStatusReturn(QString) ;
     void deleteJobReturn(bool) ;
+    void shareJobReturn(bool) ;
     void remoteLSReturn(QJsonArray dirList);
 
 protected:

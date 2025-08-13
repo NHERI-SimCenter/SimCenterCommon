@@ -89,6 +89,7 @@ public slots:
     void jobsListReturn(QJsonObject);
     void jobStatusReturn(QString);
     void deleteJobReturn(bool);
+    void shareJobReturn(bool);
     void getJobDetailsReturn(QJsonObject);
 
     // void deleteDirectoryReturn(bool);
@@ -99,6 +100,7 @@ public slots:
     void bringUpJobActionMenu(int row, int col);
     void updateJobStatus(void);
     void deleteJob(void);
+    void shareJob(void);
     void deleteJobAndData(void);
     void getJobData(void);
 
