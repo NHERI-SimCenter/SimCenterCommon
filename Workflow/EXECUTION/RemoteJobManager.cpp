@@ -47,6 +47,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <ZipUtils/ZipUtils.h>
 #include <RemoteService.h>
 
+#include <QInputDialog>
+#include <QMessageBox>
 #include <QJsonDocument>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -85,7 +87,7 @@ RemoteJobManager::RemoteJobManager(RemoteService *theRemoteService, QWidget *par
     
     jobsTable = 0;
     htmlInputDirectory = QString("agave://designsafe.storage.default/");
-    headers << "Name" << "STATUS" << "ID" << "Date Created" << "Remote Started";
+    headers << "Name" << "STATUS" << "ID" << "Date Created" << "Remote Started" << "Archive System ID" << "Owner";
     jobsTable=new QTableWidget(this);
     jobsTable->setColumnCount(headers.size());
     jobsTable->setHorizontalHeaderLabels(headers);
@@ -187,7 +189,9 @@ RemoteJobManager::jobsListReturn(QJsonObject theJobs){
 	      QString jobStatus = job["status"].toString();
 	      QString jobDate = job["created"].toString();
 	      QString remoteStarted = job["remoteStarted"].toString();
-	      //QString lastUpdated = job["lastUpdated"].toString();
+	      // QString lastUpdated = job["lastUpdated"].toString();
+        QString archiveSystemId = job["archiveSystemId"].toString();
+        QString owner = job["owner"].toString();
 	      
 	      
 	      jobsTable->setItem(count, 0, new QTableWidgetItem(jobName));
@@ -195,13 +199,17 @@ RemoteJobManager::jobsListReturn(QJsonObject theJobs){
 	      jobsTable->setItem(count, 2, new QTableWidgetItem(jobID));
 	      jobsTable->setItem(count, 3, new QTableWidgetItem(jobDate));
 	      
-	      //Added by Abiy
+	      // Added by Abiy
 	      jobsTable->setItem(count, 4, new QTableWidgetItem(remoteStarted));
 	      //            jobsTable->setItem(i, 4, new QTableWidgetItem(QString::number(processorsPerNode.toInt()*nodes.toInt())));
 	      //            jobsTable->setItem(i, 5, new QTableWidgetItem(maxHour));
-//            jobsTable->setItem(i, 6, new QTableWidgetItem(maxHour));
-	      
-//            getJobRunTime(remoteStarted, lastUpdated);
+        //            jobsTable->setItem(i, 6, new QTableWidgetItem(maxHour));
+
+        // Added by Justin
+        jobsTable->setItem(count, 5, new QTableWidgetItem(archiveSystemId));
+        jobsTable->setItem(count, 6, new QTableWidgetItem(owner));
+
+        //            getJobRunTime(remoteStarted, lastUpdated);
 
 	      count++;
 	    }
@@ -231,6 +239,8 @@ RemoteJobManager::bringUpJobActionMenu(int row, int col){
 
     jobMenu.addAction("Refresh Job", this, SLOT(updateJobStatus()));
     jobMenu.addAction("Retrieve Data", this, SLOT(getJobData()));
+    jobMenu.addSeparator();
+    jobMenu.addAction("Share Job", this, SLOT(shareJob()));
     jobMenu.addSeparator();
     jobMenu.addAction("Delete Job", this, SLOT(deleteJob()));
     //    jobMenu.addAction("Delete Job And Data", this, SLOT(deleteJobAndData()));
@@ -288,6 +298,32 @@ RemoteJobManager::deleteJobReturn(bool result) {
   triggeredRow = -1;
 }
 
+void
+RemoteJobManager::shareJob(void)
+{
+    if (triggeredRow != -1) {
+        QTableWidgetItem *itemID = jobsTable->item(triggeredRow,2);
+        QString jobID = itemID->text();
+        bool ok;
+        QString username = QInputDialog::getText(this, "Share Job", "Enter username to share job with:", QLineEdit::Normal, "", &ok);
+        if (ok && !username.isEmpty()) {
+            // connect(this,SIGNAL(shareJob(QString,QString)), theService,SLOT(shareJobCall(QString,QString)));
+            connect(theService,SIGNAL(shareJobReturn(bool)), this,SLOT(shareJobReturn(bool)));
+            theService->shareJobCall(jobID, username);
+            // emit shareJob(jobID, username);
+        }
+    }
+}
+
+void
+RemoteJobManager::shareJobReturn(bool result) {
+    disconnect(theService,SIGNAL(shareJobReturn(bool)),this,SLOT(shareJobReturn(bool)));
+    if (result == true) {
+        QMessageBox::information(this, "Share Job", "Job shared successfully. NOTE: Archive System ID must NOT be 'designsafe.storage.default' for the shared user to access the job.");
+    } else {
+        QMessageBox::warning(this, "Share Job", "Failed to share job. Are you the job's Owner and is the Archive System ID not 'designsafe.storage.default'?");
+    }
+}
 
 void
 RemoteJobManager::deleteJobAndData(void){
@@ -502,9 +538,15 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 	  }
 	}
 	
+  QJsonValue archiveSystemIdValue = job["archiveSystemId"];
+  QString archiveSystemId = "designsafe.storage.default"; // default value
+  if (archiveSystemIdValue.isString()) {
+      archiveSystemId = archiveSystemIdValue.toString();
+  }
+
 	connect(theService,SIGNAL(downloadFilesReturn(bool, QObject*)),this,SLOT(downloadFilesReturn(bool, QObject*)));
-	theService->downloadFilesCall(remoteFiles, localFiles, this);    
-	
+	theService->downloadFilesCall(remoteFiles, localFiles, this, archiveSystemId);
+
     }
 }
 

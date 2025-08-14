@@ -20,7 +20,7 @@ Stampede3Machine::Stampede3Machine()
   numProcessors = new SC_IntLineEdit(QString("coresPerNode"),1, 1, 48);
   numProcessors->setText("48");
 
-  runTime = new SC_IntLineEdit(QString("maxMinutes"),20, 1, 1440);
+  runTime = new SC_IntLineEdit(QString("maxMinutes"),20, 1, 2880);
   runTime->setText("20");
 
   //  runtimeLineEdit->setToolTip(tr("Run time limit on running Job (minutes). Job will be stopped if while running it exceeds this"));
