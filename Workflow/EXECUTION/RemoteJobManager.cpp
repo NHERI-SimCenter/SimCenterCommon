@@ -473,6 +473,7 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 	//
 	// place in tmp.SimCenter, similar to how sent
 	//
+
 	localDir = localDir + QDir::separator() + "tmp.SimCenter";	
 	localWork.mkpath(localDir);
 
@@ -571,6 +572,11 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
       disconnect(theService,SIGNAL(downloadFilesReturn(bool, QObject*)),this,SLOT(downloadFilesReturn(bool, QObject*)));
       
       QString localDir = SimCenterPreferences::getInstance()->getRemoteWorkDir();
+
+      // into tmp.SimCenter as for LocalWorkDir
+      
+      localDir = localDir + QDir::separator() + "tmp.SimCenter";	
+
       QDir localWork(localDir);
       
       if (!localWork.exists())
