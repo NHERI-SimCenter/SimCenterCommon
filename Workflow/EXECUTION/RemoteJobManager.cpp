@@ -241,7 +241,8 @@ RemoteJobManager::bringUpJobActionMenu(int row, int col){
     jobMenu.addAction("Refresh Job", this, SLOT(updateJobStatus()));
     jobMenu.addAction("Retrieve Data", this, SLOT(getJobData()));
     jobMenu.addSeparator();
-    jobMenu.addAction("Open Job URL", this, SLOT(urlJob()));
+    jobMenu.addAction("Open Job Folder", this, SLOT(urlJob()));
+    jobMenu.addAction("View Job Metadata", this, SLOT(metadataJob()));
     jobMenu.addSeparator();
     jobMenu.addAction("Share Job", this, SLOT(shareJob()));
     jobMenu.addSeparator();
@@ -327,6 +328,23 @@ RemoteJobManager::shareJobReturn(bool result) {
         QMessageBox::warning(this, "Share Job", "Failed to share job. Are you the job's Owner and is the Archive System ID not 'designsafe.storage.default'?");
     }
 }
+
+void
+RemoteJobManager::metadataJob(void) {
+  // This function just takes the jobID / uuid and sends you to the designsafe job status metadata page for simplicity
+  // https://www.designsafe-ci.org/workspace/history/{jobID}
+  // Ideally this would be implemented in the RemoteService class for TapisV3, etc., but I wanted to avoid a bunch of function parameters that vary and it seems like AWS / other services are unlikely to happen - Justin
+  QString url = QString("https://www.designsafe-ci.org/workspace/history/");
+  if (triggeredRow != -1) {
+      QString jobID = jobsTable->item(triggeredRow,2)->text();
+      url = QString("https://www.designsafe-ci.org/workspace/history/%1").arg(jobID);
+      QDesktopServices::openUrl(QUrl(url));
+  }
+  triggeredRow = -1;
+  emit sendStatusMessage(QString("Job Metadata URL: %1").arg(url));
+  return;
+}
+
 
 void
 RemoteJobManager::urlJob(void) {

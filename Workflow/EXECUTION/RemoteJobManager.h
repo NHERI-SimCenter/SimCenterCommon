@@ -102,6 +102,7 @@ public slots:
     void deleteJob(void);
     void shareJob(void);
     void urlJob(void);
+    void metadataJob(void);
     void deleteJobAndData(void);
     void getJobData(void);
 
