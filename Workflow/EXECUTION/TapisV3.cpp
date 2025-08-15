@@ -205,9 +205,11 @@ TapisV3::TapisV3(QString &_tenant, QString &_storage, QString *appDir, QObject *
     uniqueFileName2 = writableDir.filePath("SimCenter.thing2");
     uniqueFileName3 = writableDir.filePath("SimCenter.thing3");
 
+    /*
     qDebug() << "TapisV3: uniqueFileName1: " << uniqueFileName1;
     qDebug() << "TapisV3: uniqueFileName2: " << uniqueFileName2;
     qDebug() << "TapisV3: uniqueFileName3: " << uniqueFileName3;
+    */
 
     //
     // init curl variables
@@ -857,6 +859,7 @@ TapisV3::downloadFile(const QString &remoteFile, const QString &localFile, const
         url = tenantURL + QString("v3/files/content/") + storage + remoteFile;
     }
     // set up the call
+    /* ********************************************************************
     qDebug() << "TapisV3 Debug: Message:" << message;
     qDebug() << "TapisV3 Debug: Downloading file from:" << url;
     qDebug() << "TapisV3 Debug: tenantURL:" << tenantURL;
@@ -864,6 +867,7 @@ TapisV3::downloadFile(const QString &remoteFile, const QString &localFile, const
     qDebug() << "TapisV3 Debug: archiveSystemID:" << archiveSystemID;
     qDebug() << "TapisV3 Debug: remoteFile:" << remoteFile;
     qDebug() << "TapisV3 Debug: accessToken:" << accessToken;
+    ********************************************************************* */
     std::string headerData = QString("X-Tapis-Token: %1").arg(accessToken).toStdString();
     slist1 = NULL;
     slist1 = curl_slist_append(slist1, headerData.c_str());
