@@ -205,9 +205,11 @@ TapisV3::TapisV3(QString &_tenant, QString &_storage, QString *appDir, QObject *
     uniqueFileName2 = writableDir.filePath("SimCenter.thing2");
     uniqueFileName3 = writableDir.filePath("SimCenter.thing3");
 
+    /*
     qDebug() << "TapisV3: uniqueFileName1: " << uniqueFileName1;
     qDebug() << "TapisV3: uniqueFileName2: " << uniqueFileName2;
     qDebug() << "TapisV3: uniqueFileName3: " << uniqueFileName3;
+    */
 
     //
     // init curl variables
