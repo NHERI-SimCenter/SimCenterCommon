@@ -47,6 +47,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <ZipUtils/ZipUtils.h>
 #include <RemoteService.h>
 
+#include <QDesktopServices>
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QJsonDocument>
@@ -240,6 +241,8 @@ RemoteJobManager::bringUpJobActionMenu(int row, int col){
     jobMenu.addAction("Refresh Job", this, SLOT(updateJobStatus()));
     jobMenu.addAction("Retrieve Data", this, SLOT(getJobData()));
     jobMenu.addSeparator();
+    jobMenu.addAction("Open Job URL", this, SLOT(urlJob()));
+    jobMenu.addSeparator();
     jobMenu.addAction("Share Job", this, SLOT(shareJob()));
     jobMenu.addSeparator();
     jobMenu.addAction("Delete Job", this, SLOT(deleteJob()));
@@ -324,6 +327,57 @@ RemoteJobManager::shareJobReturn(bool result) {
         QMessageBox::warning(this, "Share Job", "Failed to share job. Are you the job's Owner and is the Archive System ID not 'designsafe.storage.default'?");
     }
 }
+
+void
+RemoteJobManager::urlJob(void) {
+    QString status;
+    QString jobID;
+    QString date;
+    QString archiveSystemId;
+    QString owner;
+    if (triggeredRow != -1) {
+        status = jobsTable->item(triggeredRow,1)->text();
+        if (status != "FAILED" && status != "FINISHED") {
+            QMessageBox::warning(this, "Job Status Error", "Job is not completed. Please wait for the job to finish before trying to access the URL.");
+            return;
+        }
+        jobID = jobsTable->item(triggeredRow,2)->text();
+        date = jobsTable->item(triggeredRow,3)->text();
+        archiveSystemId = jobsTable->item(triggeredRow,5)->text();
+        owner = jobsTable->item(triggeredRow,6)->text();
+        
+        // Only want part of the date before the letter 'T'
+        // append letter 'Z' to the date
+        date = date.left(date.indexOf("T"));
+        date.append("Z");
+    } else {
+        QMessageBox::warning(this, "Job ID Error", "No job selected. Please select a job from the table.");
+        return;
+    }
+
+    QString url;
+    // TODO: Ideally, TapisV3 and other services would handle the url assembly. However, I wanted to avoid a bunch of function parameters that vary and it seems like AWS / other services are unlikely to happen - Justin 
+    // url = theService->getJobURL(jobID);
+    if (archiveSystemId != "designsafe.storage.default") {
+      url = QString("https://www.designsafe-ci.org/data/browser/projects");
+    } else {
+      url = QString("https://www.designsafe-ci.org/data/browser/tapis/%1/%2/tapis-jobs-archive/%3/%4").arg(archiveSystemId, owner, date, jobID);
+    }
+    qDebug() << "RemoteJobManager:: Job URL: " << url;
+    if (!url.isEmpty() && jobID != "null" && jobID != "" && archiveSystemId != "" && owner != "" && date != "") {
+        QDesktopServices::openUrl(QUrl(url));
+    } else {
+        QMessageBox::warning(this, "URL Error", "Failed to retrieve URL for the job.");
+        qDebug() << "RemoteJobManager::urlJob - Error: jobID, archiveSystemId, owner, or date is empty." << " jobID: " << jobID
+                 << " archiveSystemId: " << archiveSystemId
+                 << " owner: " << owner
+                 << " date: " << date;
+    }
+    triggeredRow = -1;
+    emit sendStatusMessage(QString("Job URL: %1").arg(url));
+    return;
+}
+
 
 void
 RemoteJobManager::deleteJobAndData(void){
