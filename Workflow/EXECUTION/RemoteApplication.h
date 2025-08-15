@@ -49,6 +49,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QCheckBox>
 #include <QJsonObject>
 #include <QMap>
+#include <QComboBox>
+#include <QStringList>
+#include <curl/curl.h>
 
 class RemoteService;
 class RemoteMachine;
@@ -100,7 +103,9 @@ private:
     QLineEdit *runtimeLineEdit;
     QLineEdit *buildingsPerTask;
     QLineEdit *allocation;
-    QLineEdit *systemID;
+    QStringList uuids, projectIds, titles;
+    // QLineEdit *systemID;
+    QComboBox *systemID;
     QLineEdit *systemDir;  
     QCheckBox *saveResultsBox;
 
@@ -119,7 +124,7 @@ private:
     QMap<QString, QString> extraParameters;
     QString designsafeDirectory;
 
-  TapisMachine *theMachine;
+    TapisMachine *theMachine;
 
     QJsonObject inputObj;
 };

@@ -24,7 +24,7 @@ Stampede3Machine::Stampede3Machine()
   runTime->setText("20");
 
   QString appName = QCoreApplication::applicationName();
-  if ((appName == QString("HydroUQ")) || (appName == QString("Hydro-UQ")) || (appName == QString("HydroUQ_TEST")))  {
+  if ((appName == QString("HydroUQ")) || (appName == QString("Hydro-UQ")))  {
     constexpr bool USE_GPU = true;
     {
       numCPU->setText("1");
@@ -68,7 +68,7 @@ Stampede3Machine::outputToJSON(QJsonObject &job)
   QString queue = "skx";
   
   QString appName = QCoreApplication::applicationName(); 
-  if ((appName == QString("HydroUQ")) || (appName == QString("Hydro-UQ")) || (appName == QString("HydroUQ_TEST")))  {
+  if ((appName == QString("HydroUQ")) || (appName == QString("Hydro-UQ")))  {
     constexpr bool USE_GPU = true;
     if constexpr (USE_GPU) 
     {

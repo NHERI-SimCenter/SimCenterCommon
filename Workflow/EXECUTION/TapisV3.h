@@ -89,6 +89,7 @@ public:
     bool removeDirectory(const QString &remote);
 
     virtual QString getHomeDirPath(void);
+    QString getAccessToken(void);
 
     // methods needed to start a job
     QString startJob(const QString &jobDescription);
