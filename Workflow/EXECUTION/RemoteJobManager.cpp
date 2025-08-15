@@ -330,13 +330,18 @@ RemoteJobManager::shareJobReturn(bool result) {
 
 void
 RemoteJobManager::urlJob(void) {
+    QString status;
     QString jobID;
     QString date;
     QString archiveSystemId;
     QString owner;
     if (triggeredRow != -1) {
-        QTableWidgetItem *itemID = jobsTable->item(triggeredRow,2);
-        jobID = itemID->text();
+        status = jobsTable->item(triggeredRow,1)->text();
+        if (status != "FAILED" && status != "FINISHED") {
+            QMessageBox::warning(this, "Job Status Error", "Job is not completed. Please wait for the job to finish before trying to access the URL.");
+            return;
+        }
+        jobID = jobsTable->item(triggeredRow,2)->text();
         date = jobsTable->item(triggeredRow,3)->text();
         archiveSystemId = jobsTable->item(triggeredRow,5)->text();
         owner = jobsTable->item(triggeredRow,6)->text();
