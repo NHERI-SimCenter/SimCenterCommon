@@ -464,6 +464,11 @@ TapisV3::getHomeDirPath(void) {
     return result;
 }
 
+QString
+TapisV3::getAccessToken(void) {
+    return accessToken;
+}
+
 
 void
 TapisV3::uploadDirectoryCall(const QString &local, const QString &remote)
