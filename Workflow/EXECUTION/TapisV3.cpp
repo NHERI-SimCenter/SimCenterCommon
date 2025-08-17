@@ -1168,7 +1168,7 @@ QString
 TapisV3::getArchiveSystemDir(const QString &JOB_UUID)
 {
     // Given a jobUuid (e.g. aaaa-bbbbb-ccccc-123), this function retrieves the archiveSystemDir (e.g., bonusj/tapis-jobs-archive/2025-08-16Z/my-job) from the tapisV3 API.
-    curl_global_init(CURL_GLOBAL_DEFAULT);
+    // curl_global_init(CURL_GLOBAL_DEFAULT);
 
     // Small write callback kept inside main (no extra functions/types).
     auto write_cb = +[](char* ptr, size_t size, size_t nmemb, void* userdata)->size_t {
@@ -1181,7 +1181,7 @@ TapisV3::getArchiveSystemDir(const QString &JOB_UUID)
     QByteArray body1;
     long code1 = 0;
     {
-        CURL* curl = curl_easy_init();
+        auto curl = hnd;
         if (!curl) { 
         qDebug() << "curl_easy_init failed\n"; 
         // return 2; 
@@ -1242,7 +1242,7 @@ QString
 TapisV3::getProjectId(const QString &archiveSystemId)
 {
     // Given archiveSystemId (e.g., "project-12345-67890"), this function retrieves the projectId (e.g., "PRJ-3948"), using a tapisV2 API call.
-    curl_global_init(CURL_GLOBAL_DEFAULT);
+    // curl_global_init(CURL_GLOBAL_DEFAULT);
 
     // Small write callback kept inside main (no extra functions/types).
     auto write_cb = +[](char* ptr, size_t size, size_t nmemb, void* userdata)->size_t {
@@ -1264,7 +1264,7 @@ TapisV3::getProjectId(const QString &archiveSystemId)
     long code2 = 0;
     QString PROJECT_ID;
     {
-        CURL* curl = curl_easy_init();
+        auto curl = hnd;
         if (!curl) { 
         qDebug() << "curl_easy_init failed\n"; 
         // return 6; 
