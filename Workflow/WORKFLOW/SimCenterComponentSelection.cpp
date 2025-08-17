@@ -105,7 +105,7 @@ SimCenterComponentSelection::SimCenterComponentSelection(QWidget *parent)
   horizontalLayout->addWidget(treeView);
 
   theStackedWidget = new AnimatedStackedWidget(); // this instead of new QStackedWidget() for animated
-  static_cast<AnimatedStackedWidget*>(theStackedWidget)->setDuration(250);
+  static_cast<AnimatedStackedWidget*>(theStackedWidget)->setDuration(300);
   static_cast<AnimatedStackedWidget*>(theStackedWidget)->setEasing(QEasingCurve::OutCubic);
   horizontalLayout->addWidget(theStackedWidget);
 
