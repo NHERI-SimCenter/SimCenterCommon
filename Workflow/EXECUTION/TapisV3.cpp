@@ -1164,6 +1164,158 @@ inline void swap(QJsonValueRef v1, QJsonValueRef v2)
     v2 = temp;
 }
 
+QString
+TapisV3::getArchiveSystemDir(const QString &JOB_UUID)
+{
+    // Given a jobUuid (e.g. aaaa-bbbbb-ccccc-123), this function retrieves the archiveSystemDir (e.g., bonusj/tapis-jobs-archive/2025-08-16Z/my-job) from the tapisV3 API.
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+
+    // Small write callback kept inside main (no extra functions/types).
+    auto write_cb = +[](char* ptr, size_t size, size_t nmemb, void* userdata)->size_t {
+        const size_t total = size * nmemb;
+        reinterpret_cast<QByteArray*>(userdata)->append(ptr, static_cast<int>(total));
+        return total;
+    };
+
+    // ---------- 1) GET /v3/jobs/<JOB_UUID>?listType=ALL_JOBS → archiveSystemDir ----------
+    QByteArray body1;
+    long code1 = 0;
+    {
+        CURL* curl = curl_easy_init();
+        if (!curl) { 
+        qDebug() << "curl_easy_init failed\n"; 
+        // return 2; 
+        }
+
+        struct curl_slist* headers = nullptr;
+        QByteArray auth = "X-Tapis-Token: " + accessToken.toUtf8();
+        headers = curl_slist_append(headers, auth.constData());
+        headers = curl_slist_append(headers, "Accept: application/json");
+
+        const QString curl_url = QString("https://designsafe.tapis.io/v3/jobs/%1?listType=ALL_JOBS").arg(JOB_UUID);
+        curl_easy_setopt(curl, CURLOPT_URL, curl_url.toUtf8().constData());
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_cb);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &body1);
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+
+        CURLcode rc = curl_easy_perform(curl);
+        if (rc != CURLE_OK) {
+            qDebug() << "curl perform (jobs v3) failed: " << curl_easy_strerror(rc);
+            curl_slist_free_all(headers);
+            curl_easy_cleanup(curl);
+            // return 2;
+        }
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &code1);
+        curl_slist_free_all(headers);
+        curl_easy_cleanup(curl);
+    }
+    if (code1 != 200) {
+        qDebug() << "HTTP " << code1 << " from /v3/jobs\n";
+        // return 3;
+    }
+
+    QJsonParseError pe1{};
+    QJsonDocument doc1 = QJsonDocument::fromJson(body1, &pe1);
+    if (pe1.error != QJsonParseError::NoError || !doc1.isObject()) {
+        qDebug() << "Invalid JSON from /v3/jobs: " << pe1.errorString();
+        // return 4;
+    }
+    const QJsonObject result1 = doc1.object().value("result").toObject();
+    
+    QString archiveSystemDir = result1.value("archiveSystemDir").toString();
+    if (archiveSystemDir.isEmpty()) {
+        qDebug() << "archiveSystemDir not found in job JSON\n";
+        // return 5;
+    }
+    // strip any leading '/' from archiveSystemDir
+    if (archiveSystemDir.startsWith('/')) {
+        archiveSystemDir.remove(0, 1);
+    }
+    // replace '/' with '%2F' for URL encoding
+    archiveSystemDir.replace('/', "%2F"); 
+    return archiveSystemDir;
+}
+
+
+QString
+TapisV3::getProjectId(const QString &archiveSystemId)
+{
+    // Given archiveSystemId (e.g., "project-12345-67890"), this function retrieves the projectId (e.g., "PRJ-3948"), using a tapisV2 API call.
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+
+    // Small write callback kept inside main (no extra functions/types).
+    auto write_cb = +[](char* ptr, size_t size, size_t nmemb, void* userdata)->size_t {
+        const size_t total = size * nmemb;
+        reinterpret_cast<QByteArray*>(userdata)->append(ptr, static_cast<int>(total));
+        return total;
+    };
+
+    // ---------- 1) archiveSystemId → PROJECT_UUID (strip leading 'project-' on last token) ----------
+    QString lastToken = archiveSystemId.section('.', -1, -1);
+    QString PROJECT_UUID = lastToken.startsWith("project-")
+                        ? lastToken.mid(QString("project-").size())
+                        : (archiveSystemId.startsWith("project-")
+                            ? archiveSystemId.mid(QString("project-").size())
+                            : lastToken);
+
+    // ---------- 2) GET /api/projects/v2/<PROJECT_UUID> → baseProject.value.projectId ----------
+    QByteArray body2;
+    long code2 = 0;
+    QString PROJECT_ID;
+    {
+        CURL* curl = curl_easy_init();
+        if (!curl) { 
+        qDebug() << "curl_easy_init failed\n"; 
+        // return 6; 
+        }
+
+        struct curl_slist* headers = nullptr;
+        QByteArray auth = "X-Tapis-Token: " + accessToken.toUtf8();
+        headers = curl_slist_append(headers, auth.constData());
+        headers = curl_slist_append(headers, "Accept: application/json");
+
+        const QString curl_url = QString("https://designsafe-ci.org/api/projects/v2/%1").arg(PROJECT_UUID);
+        curl_easy_setopt(curl, CURLOPT_URL, curl_url.toUtf8().constData());
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_cb);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &body2);
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+
+        CURLcode rc = curl_easy_perform(curl);
+        if (rc != CURLE_OK) {
+            qDebug() << "curl perform (projects v2) failed: " << curl_easy_strerror(rc) << "\n";
+            curl_slist_free_all(headers);
+            curl_easy_cleanup(curl);
+            // return 7;
+        }
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &code2);
+        curl_slist_free_all(headers);
+        curl_easy_cleanup(curl);
+    }
+    if (code2 != 200) {
+        qDebug() << "HTTP " << code2 << " from /api/projects/v2/\n";
+        // return 8;
+    }
+
+    QJsonParseError pe2{};
+    QJsonDocument doc2 = QJsonDocument::fromJson(body2, &pe2);
+    if (pe2.error != QJsonParseError::NoError || !doc2.isObject()) {
+        qDebug() << "Invalid JSON from /api/projects/v2/: " << pe2.errorString();
+        // return 9;
+    }
+    {
+        const QJsonObject baseProject = doc2.object().value("baseProject").toObject();
+        const QJsonObject value = baseProject.value("value").toObject();
+        PROJECT_ID = value.value("projectId").toString();
+        if (PROJECT_ID.isEmpty()) {
+            qDebug() << "projectId not found under baseProject.value.projectId\n";
+            // return 10;
+        }
+    }
+
+    return PROJECT_ID;
+}
 
 QJsonObject
 TapisV3::getJobList(const QString &matchingName, QString appIdFilter)

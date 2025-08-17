@@ -66,6 +66,8 @@ public:
     virtual bool isLoggedIn() =0;
     QString getHomeDir(void);
     virtual QString getAccessToken(void) =0;
+    virtual QString getArchiveSystemDir(const QString &jobUuid) =0;
+    virtual QString getProjectId(const QString &archiveSystemId) =0;
 
 public slots:
     // login

@@ -90,7 +90,9 @@ public:
 
     virtual QString getHomeDirPath(void);
     QString getAccessToken(void);
-
+    QString getArchiveSystemDir(const QString &jobUuid);
+    QString getProjectId(const QString &archiveSystemId);
+    
     // methods needed to start a job
     QString startJob(const QString &jobDescription);
     QString startJob(const QJsonObject &theJob);
