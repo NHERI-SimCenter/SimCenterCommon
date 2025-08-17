@@ -281,17 +281,27 @@ RemoteJobManager::jobStatusReturn(QString status) {
 void
 RemoteJobManager::deleteJob(void){
 
-    if (triggeredRow != -1) {
-        QStringList noDirToRemove;
-        QTableWidgetItem *itemID=jobsTable->item(triggeredRow,2);
-        QString jobID = itemID->text();
-//        bool result = theInterface->deleteJob(jobID);
-	// delete job
-	//connect(this,SIGNAL(deleteJob(QString,QStringList)),theService,SLOT(deleteJobCall(QString,QStringList)));
-	connect(theService,SIGNAL(deleteJobReturn(bool)), this,SLOT(deleteJobReturn(bool)));
-	theService->deleteJobCall(jobID, noDirToRemove);
-        //emit deleteJob(jobID, noDirToRemove);
+  if (triggeredRow != -1) {
+    QStringList noDirToRemove;
+    QTableWidgetItem *itemID=jobsTable->item(triggeredRow,2);
+    QString jobID = itemID->text();
+    // bool result = theInterface->deleteJob(jobID);
+    // delete job
+    // connect(this,SIGNAL(deleteJob(QString,QStringList)),theService,SLOT(deleteJobCall(QString,QStringList)));
+    
+    // Before continuing, ask the user to confirm deletion
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Delete Job", "Are you sure you want to delete this job? While it won't be fully erased, it will be hidden and difficult to retrieve.",
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::No) {
+        return; // User chose not to delete the job
     }
+
+    // Proceed with deletion
+    connect(theService,SIGNAL(deleteJobReturn(bool)), this,SLOT(deleteJobReturn(bool)));
+    theService->deleteJobCall(jobID, noDirToRemove);
+      //emit deleteJob(jobID, noDirToRemove);
+  }
 }
 
 void
