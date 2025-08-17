@@ -75,14 +75,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 static int maxProcPerNode = 56; // Frontera clx nodes: 56 cores, 56 threads, Frontera rtx nodes: 16 cores, 32 threads
 
-// Used by a curl command for finding projects for sharing jobs in
-static size_t write_to_string(void* ptr, size_t size, size_t nmemb, void* userdata) {
-    size_t total = size * nmemb;
-    auto* out = static_cast<std::string*>(userdata);
-    out->append(static_cast<const char*>(ptr), total);
-    return total;
-}
-
 // new function to be called before removeRecusivility
 
 
@@ -237,87 +229,10 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *service, Tapis
         // populateProjects();
     
         if (systemID->count() == 1) {
-    
-            QString accessToken = theRemoteService->getAccessToken(); 
-            if (accessToken.isEmpty()) {
-                qCritical() << "ACCESS_TOKEN environment variable is not set.";
-                // return 1;
-            }
-            qDebug() << "RemoteApplication::accessToken: " << accessToken;
-    
             // QStringList uuids, projectIds, titles;
             QStringList titlesWithProjectIds;
     
-            const QString endpoint = "https://designsafe-ci.org/api/projects/v2/";
-    
-            CURL* curl = curl_easy_init();
-            if (!curl) {
-                qWarning() << "Failed to initialize libcurl.";
-                // return false;
-            }
-    
-            std::string response;
-            struct curl_slist* headers = nullptr;
-            const QByteArray tokenHdr = "X-Tapis-Token: " + accessToken.toUtf8();
-            headers = curl_slist_append(headers, tokenHdr.constData());
-    
-            curl_easy_setopt(curl, CURLOPT_URL, endpoint.toUtf8().constData());
-            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_to_string);
-            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-            curl_easy_setopt(curl, CURLOPT_USERAGENT, "curl/Qt-json");
-            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-            curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, ""); // enable compression if supported
-    
-            CURLcode rc = curl_easy_perform(curl);
-            long http_code = 0;
-            curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
-    
-            curl_slist_free_all(headers);
-            curl_easy_cleanup(curl);
-    
-            if (rc != CURLE_OK) {
-                qWarning() << "HTTP error:" << curl_easy_strerror(rc);
-                // return false;
-            }
-            if (http_code / 100 != 2) {
-                qWarning() << "Non-2xx HTTP code:" << http_code;
-                // return false;
-            }
-    
-            QJsonParseError jerr{};
-            const QJsonDocument doc = QJsonDocument::fromJson(QByteArray::fromStdString(response), &jerr);
-            if (jerr.error != QJsonParseError::NoError || !doc.isObject()) {
-                qWarning() << "JSON parse error:" << jerr.errorString();
-                // return false;
-            }
-    
-            // Prefer "result"; tolerate "projects" if present
-            QJsonArray arr = doc.object().value("result").toArray();
-            if (arr.isEmpty())
-                arr = doc.object().value("projects").toArray();
-    
-            for (const QJsonValue& v : arr) {
-                const QJsonObject obj = v.toObject();
-                const QString uuid = obj.value("uuid").toString();
-    
-                // projectId and title live under "value"
-                const QJsonObject val = obj.value("value").toObject();
-                const QString projectId = val.value("projectId").toString();
-                const QString title     = val.value("title").toString();
-    
-                // Only append rows that have at least a uuid (match your jq intent)
-                if (!uuid.isEmpty()) {
-                    uuids      << uuid;
-                    projectIds << projectId;
-                    titles     << title;
-                }
-            }
-    
-            qDebug() << "RemoteApplication::uuids: " << uuids;
-            qDebug() << "RemoteApplication::projectIds: " << projectIds;
-            qDebug() << "RemoteApplication::titles: " << titles;
-    
+            theRemoteService->getUuidProjectIdTitleLists(uuids, projectIds, titles);
     
             titlesWithProjectIds = titles;
             for (int i = 0; i < titles.size(); ++i) {
