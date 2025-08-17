@@ -45,9 +45,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QItemSelectionModel>
 #include <CustomizedItemModel.h>
 #include <QModelIndex>
-#include <QStackedWidget>
+#include "AnimatedStackedWidget.h"
 #include <QDebug>
 #include <SimCenterAppWidget.h>
+#include <QApplication>
 
 SimCenterComponentSelection::SimCenterComponentSelection(QWidget *parent)
     :SimCenterAppWidget(parent)
@@ -81,16 +82,31 @@ SimCenterComponentSelection::SimCenterComponentSelection(QWidget *parent)
   treeView->setIndentation(0);
   treeView->setWordWrap(true);
 
+  treeView->setSelectionMode(QAbstractItemView::SingleSelection);
+  treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
+  treeView->setDragEnabled(false);
+  treeView->setDragDropMode(QAbstractItemView::NoDragDrop);
+  
+  // react to current index changes (fires while mouse moves with button pressed)
   QItemSelectionModel *selectionModel= treeView->selectionModel();
-  connect(selectionModel,
-	  SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
-	  this,
-	  SLOT(selectionChangedSlot(const QItemSelection &, const QItemSelection &)));
+  connect(selectionModel, &QItemSelectionModel::currentChanged, 
+    this, &SimCenterComponentSelection::currentChangedSlot);
+
+  // preview/select as the mouse *enters* items. previously it was bugging when clicking and dragging on side-bar
+  treeView->setMouseTracking(true);
+  connect(treeView, &QTreeView::entered, this, [this](const QModelIndex& idx){
+  if (!idx.isValid()) return;
+  if (!(QApplication::mouseButtons() & Qt::LeftButton)) return; // <-- require mouse1
+  treeView->selectionModel()->setCurrentIndex(
+    idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+  });
 
   // Add the TreeView widget to the layout
   horizontalLayout->addWidget(treeView);
 
-  theStackedWidget = new QStackedWidget();
+  theStackedWidget = new AnimatedStackedWidget(); // this instead of new QStackedWidget() for animated
+  static_cast<AnimatedStackedWidget*>(theStackedWidget)->setDuration(300);
+  static_cast<AnimatedStackedWidget*>(theStackedWidget)->setEasing(QEasingCurve::OutCubic);
   horizontalLayout->addWidget(theStackedWidget);
 
   this->setLayout(horizontalLayout);
@@ -122,6 +138,34 @@ SimCenterComponentSelection::addComponent(QString text, QWidget *theWidget)
     return false;
 }
 
+void SimCenterComponentSelection::currentChangedSlot(const QModelIndex &current,
+                                                     const QModelIndex & /*previous*/)
+{
+    // Only transition if left mouse button is currently pressed.
+    // (ignores hover, keyboard navigation, and programmatic changes)
+    if (!(QApplication::mouseButtons() & Qt::LeftButton))
+        return;
+
+    if (!current.isValid()) return;
+
+    const QString selectedText = current.data(Qt::DisplayRole).toString();
+    const int stackIndex = textIndices.lastIndexOf(selectedText);
+    if (stackIndex == -1) return;
+
+    if (auto *currW = qobject_cast<SimCenterAppWidget*>(theStackedWidget->currentWidget()))
+        currW->setCurrentlyViewable(false);
+
+    if (auto *anim = qobject_cast<AnimatedStackedWidget*>(theStackedWidget)) {
+        const int dir = (stackIndex > anim->currentIndex()) ? -1 : +1;
+        anim->setCurrentIndexAnimated(stackIndex, dir);
+    } else {
+        theStackedWidget->setCurrentIndex(stackIndex);
+    }
+
+    if (auto *newW = qobject_cast<SimCenterAppWidget*>(theStackedWidget->currentWidget()))
+        newW->setCurrentlyViewable(true);
+}
+
 void
 SimCenterComponentSelection::selectionChangedSlot(const QItemSelection &, const QItemSelection &)
 {
@@ -143,23 +187,26 @@ SimCenterComponentSelection::selectionChangedSlot(const QItemSelection &, const 
     //
 
     if (stackIndex != -1) {
+        if (auto *animStack = qobject_cast<AnimatedStackedWidget*>(theStackedWidget)) {
+            // determine slide direction by comparing indices
+            int dir = (stackIndex > theStackedWidget->currentIndex()) ? -1 : +1;
 
-        QWidget *theCurrentWidget = theStackedWidget->currentWidget();
-        if (theCurrentWidget != 0) {
-            SimCenterAppWidget *simCenterWidget = dynamic_cast<SimCenterAppWidget*>(theCurrentWidget);
-            if (simCenterWidget)
-                simCenterWidget->setCurrentlyViewable(false);
+            // mark old widget not viewable
+            if (auto *curr = qobject_cast<SimCenterAppWidget*>(theStackedWidget->currentWidget()))
+                curr->setCurrentlyViewable(false);
+
+            animStack->setCurrentIndexAnimated(stackIndex, dir);
+
+            // mark new widget viewable after slide animation completes
+            // (use a single-shot to ensure it's after currentIndex changes)
+            QTimer::singleShot(animStack->property("durationMs").toInt(), this, [=](){
+                if (auto *nw = qobject_cast<SimCenterAppWidget*>(theStackedWidget->currentWidget()))
+                    nw->setCurrentlyViewable(true);
+            });
+        } else {
+            // fallback (shouldn’t happen)
+            theStackedWidget->setCurrentIndex(stackIndex);
         }
-
-        theStackedWidget->setCurrentIndex(stackIndex);
-
-        theCurrentWidget = theStackedWidget->currentWidget();
-        if (theCurrentWidget != 0) {
-            SimCenterAppWidget *simCenterWidget = dynamic_cast<SimCenterAppWidget*>(theCurrentWidget);
-            if (simCenterWidget)
-                simCenterWidget->setCurrentlyViewable(true);
-        }
-
     }
 }
 
