@@ -49,6 +49,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDebug>
 #include <SimCenterAppWidget.h>
 #include <QApplication>
+#include <QTimer>
 
 SimCenterComponentSelection::SimCenterComponentSelection(QWidget *parent)
     :SimCenterAppWidget(parent)
