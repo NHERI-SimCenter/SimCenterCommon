@@ -233,6 +233,7 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/WORKFLOW/MainWindowWorkflowApp.h \
     $$PWD/WORKFLOW/WorkflowAppWidget.h \
     $$PWD/WORKFLOW/SimCenterComponentSelection.h \
+    $$PWD/WORKFLOW/AnimatedStackedWidget.h \
     $$PWD/WORKFLOW/CustomizedItemModel.h \
     $$PWD/WORKFLOW/JsonConfiguredWidget.h \
     $$PWD/WORKFLOW/SimCenterComboBox.h \

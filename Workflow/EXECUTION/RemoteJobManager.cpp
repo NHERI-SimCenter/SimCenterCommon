@@ -90,6 +90,7 @@ RemoteJobManager::RemoteJobManager(RemoteService *theRemoteService, QWidget *par
     htmlInputDirectory = QString("agave://designsafe.storage.default/");
     headers << "Name" << "STATUS" << "ID" << "Date Created" << "Remote Started" << "Archive System ID" << "Owner";
     jobsTable=new QTableWidget(this);
+    jobsTable->setSortingEnabled(true); // allows sorting by clicking on header of columns
     jobsTable->setColumnCount(headers.size());
     jobsTable->setHorizontalHeaderLabels(headers);
     jobsTable->setRowCount(0);
@@ -281,17 +282,27 @@ RemoteJobManager::jobStatusReturn(QString status) {
 void
 RemoteJobManager::deleteJob(void){
 
-    if (triggeredRow != -1) {
-        QStringList noDirToRemove;
-        QTableWidgetItem *itemID=jobsTable->item(triggeredRow,2);
-        QString jobID = itemID->text();
-//        bool result = theInterface->deleteJob(jobID);
-	// delete job
-	//connect(this,SIGNAL(deleteJob(QString,QStringList)),theService,SLOT(deleteJobCall(QString,QStringList)));
-	connect(theService,SIGNAL(deleteJobReturn(bool)), this,SLOT(deleteJobReturn(bool)));
-	theService->deleteJobCall(jobID, noDirToRemove);
-        //emit deleteJob(jobID, noDirToRemove);
+  if (triggeredRow != -1) {
+    QStringList noDirToRemove;
+    QTableWidgetItem *itemID=jobsTable->item(triggeredRow,2);
+    QString jobID = itemID->text();
+    // bool result = theInterface->deleteJob(jobID);
+    // delete job
+    // connect(this,SIGNAL(deleteJob(QString,QStringList)),theService,SLOT(deleteJobCall(QString,QStringList)));
+    
+    // Before continuing, ask the user to confirm deletion
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Delete Job", "Are you sure you want to delete this job? While it won't be fully erased, it will be hidden and difficult to retrieve.",
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::No) {
+        return; // User chose not to delete the job
     }
+
+    // Proceed with deletion
+    connect(theService,SIGNAL(deleteJobReturn(bool)), this,SLOT(deleteJobReturn(bool)));
+    theService->deleteJobCall(jobID, noDirToRemove);
+      //emit deleteJob(jobID, noDirToRemove);
+  }
 }
 
 void
@@ -364,8 +375,7 @@ RemoteJobManager::urlJob(void) {
         archiveSystemId = jobsTable->item(triggeredRow,5)->text();
         owner = jobsTable->item(triggeredRow,6)->text();
         
-        // Only want part of the date before the letter 'T'
-        // append letter 'Z' to the date
+        // Only want part of the date before the letter 'T'. Append letter 'Z' to the date due to standard
         date = date.left(date.indexOf("T"));
         date.append("Z");
     } else {
@@ -373,11 +383,14 @@ RemoteJobManager::urlJob(void) {
         return;
     }
 
+    // TODO: Ideally, TapisV3 and other services would handle the entire url assembly. However, I wanted to avoid a bunch of function parameters that vary and it seems like AWS / other services are unlikely to happen - Justin 
+    // QString url = theService->getJobURL(jobID);
     QString url;
-    // TODO: Ideally, TapisV3 and other services would handle the url assembly. However, I wanted to avoid a bunch of function parameters that vary and it seems like AWS / other services are unlikely to happen - Justin 
-    // url = theService->getJobURL(jobID);
     if (archiveSystemId != "designsafe.storage.default") {
-      url = QString("https://www.designsafe-ci.org/data/browser/projects");
+      QString archiveSystemDir = theService->getArchiveSystemDir(jobID);
+      QString projectId = theService->getProjectId(archiveSystemId);
+      QString accessToken = theService->getAccessToken();
+      url = QString("https://www.designsafe-ci.org/data/browser/projects/%1/workdir/%2").arg(projectId, archiveSystemDir);
     } else {
       url = QString("https://www.designsafe-ci.org/data/browser/tapis/%1/%2/tapis-jobs-archive/%3/%4").arg(archiveSystemId, owner, date, jobID);
     }

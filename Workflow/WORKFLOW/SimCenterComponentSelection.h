@@ -56,7 +56,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QString>
 
 class QTreeView;
-class QStackedWidget;
+class AnimatedStackedWidget;
 class QItemSelection;
 class QStandardItemModel;
 class QStandardItem;
@@ -140,12 +140,13 @@ public slots:
      *   @param QItemSelection new item selected
      */  
     void selectionChangedSlot(const QItemSelection &, const QItemSelection &);
+    void currentChangedSlot(const QModelIndex &current, const QModelIndex &previous);
 private:
 
     QTreeView *treeView;
     QStandardItemModel *standardModel;
     QStandardItem *rootNode;
-    QStackedWidget *theStackedWidget;
+    AnimatedStackedWidget *theStackedWidget;
     QModelIndex infoItemIdx;
     QList<QString> textIndices;
     QList<QModelIndex> modelIndices;

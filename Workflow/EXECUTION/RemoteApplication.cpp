@@ -49,6 +49,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QComboBox>
 #include <QPushButton>
 #include <QJsonObject>
 #include <QJsonDocument>
@@ -196,21 +197,71 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *service, Tapis
     layout->addWidget(allocation,numRow,1);
     numRow++;
 
-
+    // ------------------------------- Sharing Jobs through Archive Systems --------------------------------
+    
     // job["archiveSystemId"] = "project-6281135954102775315-242ac117-0001-012"
-    // job["archiveSystemDir"]
+    // job["archiveSystemDir"] = "HydroUQ/sharedJobs/{input_your_user_name}/{input_your_job_name}"
     layout->addWidget(new QLabel("Archive System ID"), numRow, 0);
-    systemID = new QLineEdit();
-    systemID->setText("Default");
+
+    // -----------------------------------------------------------------------------------------------------
+    // // Simple approach to archiveSystemId that requires manual user input of project uuid
+    // systemID = new QLineEdit();
+    // systemID->setText("Default");
+
+    // -----------------------------------------------------------------------------------------------------
+    // Complex curl approach to archiveSystemId that provides a list of projects users are a member of
+    systemID = new QComboBox();
+    systemID->setToolTip("Select the archive system ID. This is the parent project folder the completed job will save files to.");
+    systemID->addItem("designsafe.storage.default");
+
+
+    QPushButton *refreshButton = new QPushButton("Refresh Projects");
+    connect(refreshButton, &QPushButton::clicked, this, [this]() {
+        // Clear the current items in the combo box
+        systemID->clear();
+        uuids.clear();
+        projectIds.clear();
+        titles.clear();
+
+        systemID->addItem("designsafe.storage.default"); // Always add the default item first
+
+        // Call the function to populate the projects
+        // populateProjects();
+    
+        if (systemID->count() == 1) {
+            // QStringList uuids, projectIds, titles;
+            QStringList titlesWithProjectIds;
+    
+            theRemoteService->getUuidProjectIdTitleLists(uuids, projectIds, titles);
+    
+            titlesWithProjectIds = titles;
+            for (int i = 0; i < titles.size(); ++i) {
+                titlesWithProjectIds[i] = titles[i] + " (" + projectIds[i] + ")";
+            }
+            qDebug() << "RemoteApplication::titlesWithProjectIds: " << titlesWithProjectIds;
+    
+            systemID->addItems(titlesWithProjectIds);
+          }
+          
+        systemID->setCurrentIndex(0); // Default to the first item, which is "designsafe.storage.default"
+    });
+    layout->addWidget(refreshButton, numRow, 1);
+    numRow++;
+
     layout->addWidget(systemID,numRow,1);
     numRow++;
+
+    // -----------------------------------------------------------------------------------------------------
+    // Basic approach to archiveSystemDir that requires manual user input of the desired output directory
 
     layout->addWidget(new QLabel("Archive System Dir"), numRow, 0);
     systemDir = new QLineEdit();
     systemDir->setText("Default");
     layout->addWidget(systemDir,numRow,1);
     numRow++;        
-    
+
+    // -----------------------------------------------------------------------------------------------------
+
       
 
     
@@ -665,13 +716,32 @@ RemoteApplication::uploadDirReturn(bool result)
       // FMK
       // job["archiveSystemId"] = "project-6281135954102775315-242ac117-0001-012"
       // job["archiveSystemDir"]
-      if (systemID->text() != QString("Default"))
-        job["archiveSystemId"] = systemID->text();
-    
-      if (systemDir->text() != QString("Default"))
-        job["archiveSystemDir"] = systemDir->text();	  
-  
-  
+      // check size of systemID combo box
+
+      if (systemID->currentText() != QString("designsafe.storage.default")) {
+        // match the text in the combo box to the titlesAndProjectIds 
+        // We want to end up with the uuid
+        QString selectedText = systemID->currentText();
+        QStringList parts = selectedText.split(" (");
+        if (parts.size() > 1) {
+          // Extract the project ID from the text
+          QString projectId = parts[1];
+          projectId.chop(1); // Remove the trailing ')'
+          QString uuid = uuids[projectIds.indexOf(projectId)];
+          qDebug() << "Selected UUID:" << uuid << "for project ID:" << projectId << "and text:" << selectedText;
+          QString projectUuid = QString("project-") + uuid;
+          job["archiveSystemId"] = projectUuid;
+        } else { 
+          job["archiveSystemId"] = systemID->currentText(); // in-case later someone adds a default item to the combo box similar to designsafe.storage.default
+        }
+      } else {
+        job["archiveSystemId"] = systemID->currentText(); // designsafe.storage.default
+      }
+
+      if (systemDir->text() != QString("Default")) {
+        job["archiveSystemDir"] = systemDir->text();
+      }
+
       QJsonArray fileInputs;
       QJsonObject inputs;
       inputs["envKey"]="inputDirectory";

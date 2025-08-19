@@ -466,6 +466,11 @@ TapisV3::getHomeDirPath(void) {
     return result;
 }
 
+QString
+TapisV3::getAccessToken(void) {
+    return accessToken;
+}
+
 
 void
 TapisV3::uploadDirectoryCall(const QString &local, const QString &remote)
@@ -1159,6 +1164,150 @@ inline void swap(QJsonValueRef v1, QJsonValueRef v2)
     v2 = temp;
 }
 
+// Used by a curl command for finding projects for sharing jobs in
+static size_t write_to_string(void* ptr, size_t size, size_t nmemb, void* userdata) {
+    size_t total = size * nmemb;
+    auto* out = static_cast<std::string*>(userdata);
+    out->append(static_cast<const char*>(ptr), total);
+    return total;
+}
+
+void TapisV3::getUuidProjectIdTitleLists(QStringList &uuids, QStringList &projectIds, QStringList &titles)
+{
+    uuids.clear(); projectIds.clear(); titles.clear();
+    if (accessToken.isEmpty()) { qWarning() << "empty token"; return; }
+    if (!hnd) { hnd = curl_easy_init(); if (!hnd) { qWarning() << "curl init failed"; return; } }
+
+    uniqueFileName2 = QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation))
+                        .filePath(QString("tapis_proj_list_%1.json").arg(QUuid::createUuid().toString(QUuid::WithoutBraces)));
+
+    if (slist2) { curl_slist_free_all(slist2); slist2 = nullptr; }
+    const QByteArray token = "X-Tapis-Token: " + accessToken.trimmed().toUtf8();
+    slist2 = curl_slist_append(slist2, token.constData());
+    slist2 = curl_slist_append(slist2, "Accept: application/json");
+
+    const QByteArray urlBytes = QByteArray("https://designsafe-ci.org/api/projects/v2/");
+
+    curl_easy_setopt(hnd, CURLOPT_URL, urlBytes.constData());
+    curl_easy_setopt(hnd, CURLOPT_HTTPGET, 1L);
+    curl_easy_setopt(hnd, CURLOPT_NOBODY, 0L);
+    curl_easy_setopt(hnd, CURLOPT_UPLOAD, 0L);
+    curl_easy_setopt(hnd, CURLOPT_FOLLOWLOCATION, 1L);
+    curl_easy_setopt(hnd, CURLOPT_ACCEPT_ENCODING, ""); // allow gzip/deflate if available
+
+    if (!invokeCurl(/*index=*/1)) return;
+
+    QFile f(uniqueFileName2);
+    if (!f.open(QFile::ReadOnly | QFile::Text)) { emit errorMessage("open result failed"); return; }
+    const QByteArray raw = f.readAll(); f.close();
+
+    QJsonParseError pe{};
+    const QJsonDocument doc = QJsonDocument::fromJson(raw, &pe);
+    if (pe.error != QJsonParseError::NoError || !doc.isObject()) { qWarning() << "JSON error:" << pe.errorString(); return; }
+
+    QJsonArray arr = doc.object().value("result").toArray();
+    if (arr.isEmpty()) arr = doc.object().value("projects").toArray();
+
+    for (const QJsonValue &v : arr) {
+        const QJsonObject obj = v.toObject();
+        const QString uuid = obj.value("uuid").toString();
+        const QJsonObject val = obj.value("value").toObject();
+        const QString pid = val.value("projectId").toString();
+        const QString title = val.value("title").toString();
+        if (!uuid.isEmpty()) { uuids << uuid; projectIds << pid; titles << title; }
+    }
+
+    qDebug() << "RemoteApplication::uuids:" << uuids;
+    qDebug() << "RemoteApplication::projectIds:" << projectIds;
+    qDebug() << "RemoteApplication::titles:" << titles;
+}
+
+QString TapisV3::getArchiveSystemDir(const QString& JOB_UUID)
+{
+    if (!hnd) { hnd = curl_easy_init(); if (!hnd) { emit errorMessage("curl init failed"); return {}; } }
+
+    // temp file for this call
+    uniqueFileName1 = QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation))
+                        .filePath(QString("tapis_jobs_v3_%1.json").arg(QUuid::createUuid().toString(QUuid::WithoutBraces)));
+
+    // headers (use slist2 so they are auto-freed in invokeCurl)
+    if (slist2) { curl_slist_free_all(slist2); slist2 = nullptr; }
+    const QByteArray token = "X-Tapis-Token: " + accessToken.trimmed().toUtf8();
+    slist2 = curl_slist_append(slist2, token.constData());
+    slist2 = curl_slist_append(slist2, "Accept: application/json");
+
+    // URL (keep bytes alive)
+    const QByteArray urlBytes =
+        QString("https://designsafe.tapis.io/v3/jobs/%1?listType=ALL_JOBS")
+        .arg(JOB_UUID.trimmed()).toUtf8();
+
+    curl_easy_setopt(hnd, CURLOPT_URL, urlBytes.constData());
+    curl_easy_setopt(hnd, CURLOPT_HTTPGET, 1L);
+    curl_easy_setopt(hnd, CURLOPT_NOBODY, 0L);
+    curl_easy_setopt(hnd, CURLOPT_UPLOAD, 0L);
+    curl_easy_setopt(hnd, CURLOPT_FOLLOWLOCATION, 1L);
+
+    if (!invokeCurl(/*index=*/0)) return {};
+
+    QFile f(uniqueFileName1);
+    if (!f.open(QFile::ReadOnly | QFile::Text)) { emit errorMessage("open result failed"); return {}; }
+    const QByteArray raw = f.readAll(); f.close();
+
+    QJsonParseError pe{};
+    const QJsonDocument doc = QJsonDocument::fromJson(raw, &pe);
+    if (pe.error != QJsonParseError::NoError || !doc.isObject()) { emit errorMessage("bad JSON"); return {}; }
+
+    QString dir = doc.object().value("result").toObject().value("archiveSystemDir").toString();
+    if (dir.isEmpty()) { emit errorMessage("archiveSystemDir missing"); return {}; }
+
+    if (dir.startsWith('/')) dir.remove(0, 1);
+    dir.replace('/', "%2F");
+    return dir;
+}
+
+QString TapisV3::getProjectId(const QString &archiveSystemId)
+{
+    if (!hnd) { hnd = curl_easy_init(); if (!hnd) { emit errorMessage("curl init failed"); return {}; } }
+
+    uniqueFileName3 = QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation))
+                        .filePath(QString("tapis_proj_v2_%1.json").arg(QUuid::createUuid().toString(QUuid::WithoutBraces)));
+
+    QString last = archiveSystemId.section('.', -1, -1);
+    if (last.isEmpty()) last = archiveSystemId;
+    QString uuid = last.startsWith("project-") ? last.mid(8)
+                : (archiveSystemId.startsWith("project-") ? archiveSystemId.mid(8) : last);
+    uuid = uuid.trimmed();
+
+    if (slist2) { curl_slist_free_all(slist2); slist2 = nullptr; }
+    const QByteArray token = "X-Tapis-Token: " + accessToken.trimmed().toUtf8();
+    slist2 = curl_slist_append(slist2, token.constData());
+    slist2 = curl_slist_append(slist2, "Accept: application/json");
+
+    const QByteArray urlBytes =
+        QString("https://designsafe-ci.org/api/projects/v2/%1").arg(uuid).toUtf8();
+
+    curl_easy_setopt(hnd, CURLOPT_URL, urlBytes.constData());
+    curl_easy_setopt(hnd, CURLOPT_HTTPGET, 1L);
+    curl_easy_setopt(hnd, CURLOPT_NOBODY, 0L);
+    curl_easy_setopt(hnd, CURLOPT_UPLOAD, 0L);
+    curl_easy_setopt(hnd, CURLOPT_FOLLOWLOCATION, 1L);
+
+    if (!invokeCurl(/*index=*/2)) return {};
+
+    QFile f(uniqueFileName3);
+    if (!f.open(QFile::ReadOnly | QFile::Text)) { emit errorMessage("open result failed"); return {}; }
+    const QByteArray raw = f.readAll(); f.close();
+
+    QJsonParseError pe{};
+    const QJsonDocument doc = QJsonDocument::fromJson(raw, &pe);
+    if (pe.error != QJsonParseError::NoError || !doc.isObject()) { emit errorMessage("bad JSON"); return {}; }
+
+    const QJsonObject base = doc.object().value("baseProject").toObject();
+    const QJsonObject val  = base.value("value").toObject();
+    const QString pid      = val.value("projectId").toString();
+    if (pid.isEmpty()) { emit errorMessage("projectId missing"); return {}; }
+    return pid;
+}
 
 QJsonObject
 TapisV3::getJobList(const QString &matchingName, QString appIdFilter)
@@ -1679,10 +1828,8 @@ bool TapisV3::shareJob(const QString &jobID, const QString &username)
     }
 }
 
-
-bool
-TapisV3::invokeCurl(const int index) {
-
+bool TapisV3::invokeCurl(const int index) {
+    
     CURLcode ret;
 
     //
@@ -1695,72 +1842,68 @@ TapisV3::invokeCurl(const int index) {
     curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L);
     curl_easy_setopt(hnd, CURLOPT_USERAGENT, "curl/7.54.0");
 
-    if (slist2 != NULL) {
-        curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, slist2);
-    }
-    else if (slist1 != NULL) {
-        curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, slist1);
-    }
+    if (slist2)      curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, slist2);
+    else if (slist1) curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, slist1);
 
     curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 50L);
-    //curl_easy_setopt(hnd, CURLOPT_HTTP_VERSION, (long)CURL_HTTP_VERSION_2TLS);
-    curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYPEER, 0L);
-    //curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYHOST, 0L); - not recomended and not working on the mac
+    curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYPEER, 0L);      // you had this disabled
+#ifdef _WIN32
+    curl_easy_setopt(hnd, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2); // Win8 hint
+#endif
     curl_easy_setopt(hnd, CURLOPT_TCP_KEEPALIVE, 1L);
+    // curl_easy_setopt(hnd, CURLOPT_VERBOSE, 1L);
 
-    //  curl_easy_setopt(hnd, CURLOPT_VERBOSE, 1L);
+    // pick target file
+    QString target;
+    if (index == 0)      target = uniqueFileName1;
+    else if (index == 1) target = uniqueFileName2;
+    else if (index == 2) target = uniqueFileName3;
+    else                 target = uniqueFileName1;
 
     // we send the result of curl request to a file > uniqueFileName1
-    FILE *pagefile = NULL;
-    if (index == 0) {
-        pagefile = fopen(uniqueFileName1.toStdString().c_str(), "wb");
-        qDebug() << "TapisV3 Debug: invokeCurl(): Writing to file: " << uniqueFileName1;
-    } else if (index == 1) {
-        pagefile = fopen(uniqueFileName2.toStdString().c_str(), "wb");
-        qDebug() << "TapisV3 Debug: invokeCurl(): Writing to file: " << uniqueFileName2;
-    } else if (index == 2) {
-        pagefile = fopen(uniqueFileName3.toStdString().c_str(), "wb");
-        qDebug() << "TapisV3 Debug: invokeCurl(): Writing to file: " << uniqueFileName3;
+    FILE* pagefile = nullptr;
+
+#ifdef _WIN32
+    // Robust unicode handling on Windows
+    const std::wstring wpath = QDir::toNativeSeparators(target).toStdWString();
+    pagefile = _wfopen(wpath.c_str(), L"wb");
+#else
+    pagefile = fopen(target.toLocal8Bit().constData(), "wb");
+#endif
+
+    if (!pagefile) {
+        emit errorMessage(QString("TapisV3 ERROR: cannot open file for write: %1").arg(target));
+        // Don't set WRITEFUNCTION/WRITEDATA if no file
     } else {
-        pagefile = fopen(uniqueFileName1.toStdString().c_str(), "wb");
-        qDebug() << "TapisV3 Debug: invokeCurl(): Writing to file: " << uniqueFileName1;
-    }
-    if (pagefile) {
         curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, write_data);
         curl_easy_setopt(hnd, CURLOPT_WRITEDATA, pagefile);
     }
 
     // perform the curl operation that has been set up
     ret = curl_easy_perform(hnd);
-    fclose(pagefile);
+
+    if (pagefile) fclose(pagefile);
 
     // reset the handle so methods can fill in the different options before next call
     curl_easy_reset(hnd);
-    if (slist2 != NULL) {
-        curl_slist_free_all(slist2);
-        slist2 = NULL;
-    }
+    if (slist2) { curl_slist_free_all(slist2); slist2 = nullptr; }
 
     /* ************************************************
-  // spit out to error the return data
-  QFile file(uniqueFileName1);
-  if (!file.open(QFile::ReadOnly | QFile::Text)) {
-    emit errorMessage("ERROR: COULD NOT OPEN RESULT");
-  }
-  QString val;
-  val=file.readAll();
-  file.close();
-  errorMessage(val);
-  *************************************************** */
+    // spit out to error the return data
+    QFile file(uniqueFileName1);
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        emit errorMessage("ERROR: COULD NOT OPEN RESULT");
+    }
+    QString val;
+    val=file.readAll();
+    file.close();
+    errorMessage(val);
+    *************************************************** */
 
     // check for success
-    if (ret == CURLE_OK)
-        return true;
+    if (ret == CURLE_OK) return true;
 
     // if failure, go get message, emit signal and return false;
-    const char *str = curl_easy_strerror(ret);
-    QString errorString(str);
-    emit errorMessage(QString("TapisV3 ERROR: " ) + QString(errorString));
-
+    emit errorMessage(QString("TapisV3 ERROR: %1").arg(curl_easy_strerror(ret)));
     return false;
 }
