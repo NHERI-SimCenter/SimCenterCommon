@@ -90,6 +90,7 @@ RemoteJobManager::RemoteJobManager(RemoteService *theRemoteService, QWidget *par
     htmlInputDirectory = QString("agave://designsafe.storage.default/");
     headers << "Name" << "STATUS" << "ID" << "Date Created" << "Remote Started" << "Archive System ID" << "Owner";
     jobsTable=new QTableWidget(this);
+    jobsTable->setSortingEnabled(true); // allows sorting by clicking on header of columns
     jobsTable->setColumnCount(headers.size());
     jobsTable->setHorizontalHeaderLabels(headers);
     jobsTable->setRowCount(0);
