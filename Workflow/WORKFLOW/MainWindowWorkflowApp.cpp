@@ -2,6 +2,7 @@
 // Written: fmckenna
 // Purpose: to test the INputWidgetSheetBM widget
 
+#include "WaveBackgroundWidget.h"
 #include "ExampleDownloader.h"
 #include "FooterWidget.h"
 #include "HeaderWidget.h"
@@ -17,6 +18,8 @@
 #include <ZipUtils.h>
 #include <RunPythonInThread.h>
 
+#include <QCoreApplication>
+#include <QStackedLayout>
 #include <QAction>
 #include <QApplication>
 #include <QDebug>
@@ -122,10 +125,44 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     //  to this widget we will add a header, selection, button and footer widgets
     //
 
-    QWidget *centralWidget = new QWidget();
-    QVBoxLayout *layout = new QVBoxLayout();
-    centralWidget->setLayout(layout);
-    centralWidget->setContentsMargins(0,0,0,0);
+    QVBoxLayout *layout;
+
+    // HydroUQ app has a toggle button for wave decals
+    QPushButton *toggleWaves = new QPushButton("Waves");
+    if (appName.contains("HydroUQ") || appName.contains("Hydro-UQ")) {
+        // --- central container with layers ---
+        QWidget* centralContainer = new QWidget(this);
+        auto* stacked = new QStackedLayout(centralContainer);
+        stacked->setStackingMode(QStackedLayout::StackAll);
+
+        // bottom layer: animated waves
+        WaveBackgroundWidget* bg = new WaveBackgroundWidget(centralContainer);
+        bg->setAttribute(Qt::WA_TransparentForMouseEvents, true); // don't block clicks
+        stacked->addWidget(bg);
+
+        // make a QPushButton to toggle the visibility of the waves
+        toggleWaves->setCheckable(true);
+        connect(toggleWaves, &QPushButton::toggled, bg, &WaveBackgroundWidget::setVisible);
+        bg->setVisible(true); // show waves by default
+        // set qss for when the button is unchecked to be a white background with cornflowerblue text
+        toggleWaves->setStyleSheet("QPushButton:unchecked { background-color: white; color: cornflowerblue; }");
+
+        // top layer: real content
+        content = new QWidget(centralContainer);
+        content->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        layout = new QVBoxLayout(content);
+        layout->setContentsMargins(0,0,0,0);
+        layout->setSpacing(0);
+        stacked->addWidget(content);
+        stacked->setCurrentWidget(content); // always on top of waves
+        this->setCentralWidget(centralContainer);
+    } else {
+        layout = new QVBoxLayout();
+        QWidget *centralWidget = new QWidget();
+        centralWidget->setLayout(layout);
+        centralWidget->setContentsMargins(0,0,0,0);
+        this->setCentralWidget(centralWidget);
+    }
 
     exampleMenu = nullptr;
 
@@ -182,7 +219,11 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     loginButton = new QPushButton("Login");
     layoutLogin->addWidget(name);
     
-    layoutLogin->addWidget(citeButton);    
+    // HydroUQ app has a toggle button for wave decals
+    if (appName.contains("HydroUQ") || appName.contains("Hydro-UQ")) {
+        layoutLogin->addWidget(toggleWaves); // add the toggle button for waves
+    }
+    layoutLogin->addWidget(citeButton);
     layoutLogin->addWidget(loginButton);
 
     layoutLogin->setAlignment(Qt::AlignLeft);
@@ -258,7 +299,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     //layout->addWidget(footer);
     layout->setSpacing(0);
 
-    this->setCentralWidget(centralWidget);
+    // this->setCentralWidget(centralWidget);
 
     //
     // Example Downloader

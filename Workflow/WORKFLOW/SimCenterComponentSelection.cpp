@@ -51,6 +51,27 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QApplication>
 #include <QTimer>
 
+#include <QFile>
+#include <QTextEdit>
+#include <QPlainTextEdit>
+#include <QOpenGLWidget>
+#include <QTableView>
+#include <QTableWidget>
+#include <QTreeView>
+#include <QComboBox>
+#include <QListView>
+#include <QLineEdit>
+#include <QScrollArea>
+#include <QPushButton>
+#include <QCoreApplication>
+#include <QTableView>
+#include <QTabWidget>
+#include <QTabBar>
+#include <QTreeView>
+#include <QListView>
+#include <QTableWidget>
+#include "SectionTitle.h"
+
 SimCenterComponentSelection::SimCenterComponentSelection(QWidget *parent)
     :SimCenterAppWidget(parent)
 {
@@ -112,6 +133,60 @@ SimCenterComponentSelection::SimCenterComponentSelection(QWidget *parent)
 
   this->setLayout(horizontalLayout);
 }
+
+// Used for showing background decal in the apps. E.g., waves in HydroUQ
+// Called from the workflowapp file for HydroUQ after creating the component selection
+void SimCenterComponentSelection::makeChildrenTransparent()
+{
+    Q_ASSERT(theStackedWidget);
+
+    // // 1) stacked widget viewport must be transparent (the scrolled content sits inside it)
+    theStackedWidget->setAttribute(Qt::WA_StyledBackground, true);
+    theStackedWidget->setAutoFillBackground(false);
+    theStackedWidget->setObjectName("myStackedWidget");
+    theStackedWidget->setStyleSheet("#myStackedWidget {background: transparent;}");
+
+    // The content root:
+    QWidget* root = theStackedWidget; // same as theStackedWidget
+
+    auto makeContainerTransparent = [](QWidget* w, QWidget* root = nullptr) {
+        // Don’t touch inputs/item-views; we only want containers
+        if (qobject_cast<QAbstractItemView*>(w) ||  // QTableView/QTreeView/QListView/QTableWidget...
+        qobject_cast<QComboBox*>(w) ||
+        qobject_cast<QLineEdit*>(w) ||
+        qobject_cast<QTextEdit*>(w) ||
+        qobject_cast<QPlainTextEdit*>(w) ||
+        qobject_cast<QOpenGLWidget*>(w) ||
+        qobject_cast<QPushButton*>(w) ||
+        qobject_cast<QTabBar*>(w)) {
+            return;
+        }
+        w->setObjectName("rootWidget");
+        w->setAttribute(Qt::WA_StyledBackground, true);
+        w->setAutoFillBackground(false);
+        w->setStyleSheet(
+            "#rootWidget {background: transparent;}"
+        );
+    };
+    
+    // 2) Make the stacked widget itself transparent
+    if (root) makeContainerTransparent(root);
+
+    // 3) go down into some descendants
+    for (auto *w : root->findChildren<QWidget*>()) {
+        if (w->parent() == root 
+        || w->parent()->parent() == root
+        || w->parent()->parent()->parent() == root
+        || w->parent()->parent()->parent()->parent() == root
+        || w->parent()->parent()->parent()->parent()->parent() == root
+    ) {
+            // allow great-great-grandchildren
+            // anymore and you get a lot of transparent widgets
+            makeContainerTransparent(w, root);
+        }
+    }
+}
+
 
 SimCenterComponentSelection::~SimCenterComponentSelection()
 {
