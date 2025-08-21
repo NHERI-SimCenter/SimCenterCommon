@@ -120,19 +120,40 @@ SimCenterUQResultsPLoM::~SimCenterUQResultsPLoM()
 }
 
 
-void SimCenterUQResultsPLoM::clear(void)
-{
-    // delete any existing widgets
-    int count = tabWidget->count();
-    if (count > 0) {
-        for (int i=0; i<count; i++) {
-            QWidget *theWidget = tabWidget->widget(count);
-            delete theWidget;
-        }
-    }
-    tabWidget->clear();
-    theDataTable = NULL;
+//void SimCenterUQResultsPLoM::clear(void)
+//{
+//    // delete any existing widgets
+//    int count = tabWidget->count();
+//    if (count > 0) {
+//        for (int i=0; i<count; i++) {
+//            QWidget *theWidget = tabWidget->widget(count);
+//            delete theWidget;
+//        }
+//    }
+//    tabWidget->clear();
+//    theDataTable = NULL;
 
+//}
+void SimCenterUQResultsPLoM::clear()
+{
+    if (!tabWidget) return;
+
+    // Remove and delete all tab pages safely
+    while (tabWidget->count() > 0) {
+        QWidget* w = tabWidget->widget(0);
+        tabWidget->removeTab(0);
+        if (w) delete w;
+    }
+
+    // QPointer auto-nulls when their QObject is deleted; clear anyway for readability
+    theDataTable.clear();
+    saveModelButton.clear();
+    saveResultButton.clear();
+    saveXButton.clear();
+    saveYButton.clear();
+    save_spreadheet.clear();
+    label.clear();
+    best_fit_instructions.clear();
 }
 
 
@@ -428,64 +449,98 @@ SimCenterUQResultsPLoM::outputToJSON(QJsonObject &jsonObject)
 
 
 // if you already have a json data file then you can populate the UI with the entries from json.
-
-bool
-SimCenterUQResultsPLoM::inputFromJSON(QJsonObject &jsonObject)
+bool SimCenterUQResultsPLoM::inputFromJSON(QJsonObject& jsonObject)
 {
-    bool result = true;
+    clear();
 
-    this->clear();
-
-    QJsonValue spreadsheetValue = jsonObject["spreadsheet"];
+    const QJsonValue spreadsheetValue = jsonObject["spreadsheet"];
     if (spreadsheetValue.isNull())
-        return true;
-
-    //
-    // create a summary widget in which place basic output (name, mean, stdDev)
-    //
+        return true; // nothing to do; keep UI empty
 
     jsonObj = jsonObject["summary"].toObject();
 
-    //
-    // into a spreadsheet place all the data returned
-    //
+    // Parent new widgets to tabWidget so Qt manages their lifetime
+    theDataTable = new ResultsDataChart(spreadsheetValue.toObject(), tabWidget);
+    QScrollArea* sa = new QScrollArea(tabWidget);
+    summarySurrogate(sa);
 
-    //isSurrogate=jsonObject["isSurrogate"].toBool();
+    auto safeDisable = [](QWidget* w){
+        if (!w) return;
+        w->setDisabled(true);
+        w->setStyleSheet("background-color: lightgrey; border: none;");
+    };
 
-//    if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
-//        isSurrogate=jsonObject["isSurrogate"].toBool();
-//    } else {
-//        isSurrogate=false;
-//    }
+    safeDisable(saveModelButton);
+    safeDisable(saveResultButton);
+    safeDisable(saveXButton);
+    safeDisable(saveYButton);
 
-    theDataTable = new ResultsDataChart(spreadsheetValue.toObject());
-
-    QScrollArea *sa = new QScrollArea;
-    summarySurrogate(*&sa);
-    if (saveModelButton!=NULL)  {
-        saveModelButton ->setDisabled(true);
-        saveResultButton ->setDisabled(true);
-        saveXButton->setDisabled(true);
-        saveYButton->setDisabled(true);
-        saveModelButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
-        saveResultButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
-        saveXButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
-        saveYButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
+    if (tabWidget) {
+        tabWidget->addTab(sa, tr("Summary"));
+        tabWidget->addTab(theDataTable, tr("Data Values"));
+        tabWidget->adjustSize();
     }
 
-
-
-    //
-    // add summary, detained info and spreadsheet with chart to the tabed widget
-    //
-
-    tabWidget->addTab(sa,tr("Summary"));
-    tabWidget->addTab(theDataTable, tr("Data Values"));
-    tabWidget->adjustSize();
-    //qDebug()<<"\n debugging the values: result is  \n"<<result<<"\n";
-
-    return result;
+    return true;
 }
+
+//bool
+//SimCenterUQResultsPLoM::inputFromJSON(QJsonObject &jsonObject)
+//{
+//    bool result = true;
+
+//    this->clear();
+
+//    QJsonValue spreadsheetValue = jsonObject["spreadsheet"];
+//    if (spreadsheetValue.isNull())
+//        return true;
+
+//    //
+//    // create a summary widget in which place basic output (name, mean, stdDev)
+//    //
+
+//    jsonObj = jsonObject["summary"].toObject();
+
+//    //
+//    // into a spreadsheet place all the data returned
+//    //
+
+//    //isSurrogate=jsonObject["isSurrogate"].toBool();
+
+////    if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
+////        isSurrogate=jsonObject["isSurrogate"].toBool();
+////    } else {
+////        isSurrogate=false;
+////    }
+
+//    theDataTable = new ResultsDataChart(spreadsheetValue.toObject());
+
+//    QScrollArea *sa = new QScrollArea;
+//    summarySurrogate(*&sa);
+//    if (saveModelButton!=NULL)  {
+//        saveModelButton ->setDisabled(true);
+//        saveResultButton ->setDisabled(true);
+//        saveXButton->setDisabled(true);
+//        saveYButton->setDisabled(true);
+//        saveModelButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
+//        saveResultButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
+//        saveXButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
+//        saveYButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
+//    }
+
+
+
+//    //
+//    // add summary, detained info and spreadsheet with chart to the tabed widget
+//    //
+
+//    tabWidget->addTab(sa,tr("Summary"));
+//    tabWidget->addTab(theDataTable, tr("Data Values"));
+//    tabWidget->adjustSize();
+//    //qDebug()<<"\n debugging the values: result is  \n"<<result<<"\n";
+
+//    return result;
+//}
 
 
 extern QWidget *addLabeledLineEdit(QString theLabelName, QLineEdit **theLineEdit);
@@ -537,7 +592,7 @@ bool SimCenterUQResultsPLoM::copyPath(QString sourceDir, QString destinationDir,
     return false;
 }
 
-void SimCenterUQResultsPLoM::summarySurrogate(QScrollArea *&sa)
+void SimCenterUQResultsPLoM::summarySurrogate(QScrollArea *sa)
 {
 
     sa->setWidgetResizable(true);
