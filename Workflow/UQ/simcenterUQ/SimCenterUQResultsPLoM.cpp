@@ -119,21 +119,6 @@ SimCenterUQResultsPLoM::~SimCenterUQResultsPLoM()
 
 }
 
-
-//void SimCenterUQResultsPLoM::clear(void)
-//{
-//    // delete any existing widgets
-//    int count = tabWidget->count();
-//    if (count > 0) {
-//        for (int i=0; i<count; i++) {
-//            QWidget *theWidget = tabWidget->widget(count);
-//            delete theWidget;
-//        }
-//    }
-//    tabWidget->clear();
-//    theDataTable = NULL;
-
-//}
 void SimCenterUQResultsPLoM::clear()
 {
     if (!tabWidget) return;
@@ -483,65 +468,6 @@ bool SimCenterUQResultsPLoM::inputFromJSON(QJsonObject& jsonObject)
 
     return true;
 }
-
-//bool
-//SimCenterUQResultsPLoM::inputFromJSON(QJsonObject &jsonObject)
-//{
-//    bool result = true;
-
-//    this->clear();
-
-//    QJsonValue spreadsheetValue = jsonObject["spreadsheet"];
-//    if (spreadsheetValue.isNull())
-//        return true;
-
-//    //
-//    // create a summary widget in which place basic output (name, mean, stdDev)
-//    //
-
-//    jsonObj = jsonObject["summary"].toObject();
-
-//    //
-//    // into a spreadsheet place all the data returned
-//    //
-
-//    //isSurrogate=jsonObject["isSurrogate"].toBool();
-
-////    if (jsonObject.contains("isSurrogate")) { // no saving of analysis data
-////        isSurrogate=jsonObject["isSurrogate"].toBool();
-////    } else {
-////        isSurrogate=false;
-////    }
-
-//    theDataTable = new ResultsDataChart(spreadsheetValue.toObject());
-
-//    QScrollArea *sa = new QScrollArea;
-//    summarySurrogate(*&sa);
-//    if (saveModelButton!=NULL)  {
-//        saveModelButton ->setDisabled(true);
-//        saveResultButton ->setDisabled(true);
-//        saveXButton->setDisabled(true);
-//        saveYButton->setDisabled(true);
-//        saveModelButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
-//        saveResultButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
-//        saveXButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
-//        saveYButton ->setStyleSheet({ "background-color: lightgrey; border: none;" });
-//    }
-
-
-
-//    //
-//    // add summary, detained info and spreadsheet with chart to the tabed widget
-//    //
-
-//    tabWidget->addTab(sa,tr("Summary"));
-//    tabWidget->addTab(theDataTable, tr("Data Values"));
-//    tabWidget->adjustSize();
-//    //qDebug()<<"\n debugging the values: result is  \n"<<result<<"\n";
-
-//    return result;
-//}
-
 
 extern QWidget *addLabeledLineEdit(QString theLabelName, QLineEdit **theLineEdit);
 
