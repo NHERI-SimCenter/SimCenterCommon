@@ -5,7 +5,7 @@
 #include <QLabel>
 #include <QJsonObject>
 #include <QDebug>
-
+#include <QCoreApplication>
 
 Stampede3Machine::Stampede3Machine()
   :TapisMachine()
@@ -22,6 +22,16 @@ Stampede3Machine::Stampede3Machine()
 
   runTime = new SC_IntLineEdit(QString("maxMinutes"),20, 1, 2880);
   runTime->setText("20");
+
+  QString appName = QCoreApplication::applicationName();
+  if ((appName == QString("HydroUQ")) || (appName == QString("Hydro-UQ")))  {
+    constexpr bool USE_GPU = true;
+    {
+      numCPU->setText("1");
+      numProcessors->setText("1");
+      runTime->setText("30");
+    }
+  }
 
   //  runtimeLineEdit->setToolTip(tr("Run time limit on running Job (minutes). Job will be stopped if while running it exceeds this"));
   
@@ -49,19 +59,38 @@ Stampede3Machine::~Stampede3Machine()
 bool
 Stampede3Machine::outputToJSON(QJsonObject &job)
 {
-    numCPU->outputToJSON(job);
-    numProcessors->outputToJSON(job);
-    runTime->outputToJSON(job);
-    
-    int ramPerNodeMB = 128000;    
-    job["memoryMB"]= ramPerNodeMB;
+  
+  int ramPerNodeMB = 128000;    
+  job["memoryMB"]= ramPerNodeMB;
+  int nodeCount = numCPU->text().toInt();
 
-    // figure out queue
-    QString queue = "skx";
-    
-    job["execSystemId"]=QString("stampede3");    
-    job["execSystemLogicalQueue"]=queue;
-    return true;
+  // figure out queue
+  QString queue = "skx";
+  
+  QString appName = QCoreApplication::applicationName(); 
+  if ((appName == QString("HydroUQ")) || (appName == QString("Hydro-UQ")))  {
+    constexpr bool USE_GPU = true;
+    if constexpr (USE_GPU) 
+    {
+      queue = "h100"; // Stampede3. 4 NVIDIA H100 GPU
+      int nodeCountInGpuQueue = 1;
+      nodeCountInGpuQueue = (nodeCount < 4) ? nodeCount : 4; // Stampede3, 4 nodes per job on h100 queue
+      numCPU->setText(QString::number(nodeCountInGpuQueue));
+      int numProcessorsPerNodeInGpuQueue = 1; //Intel Xeon Platinum 8468 ("Sapphire Rapids"), 96 cores on two sockets (2 x 48 cores)
+      numProcessors->setText(QString::number(numProcessorsPerNodeInGpuQueue));
+      job["nodeCount"] = nodeCountInGpuQueue;
+      job["coresPerNode"] = numProcessorsPerNodeInGpuQueue;
+      // job["numP"] = nodeCountInGpuQueue*numProcessorsPerNodeInGpuQueue; // clutters the remote app json if called in uploaddirreturn of remoteapplication.cpp
+      // ramPerNodeMB = 1000000; // 1 TB
+    } 
+  }
+
+  numCPU->outputToJSON(job);
+  numProcessors->outputToJSON(job);
+  runTime->outputToJSON(job);
+  job["execSystemId"]=QString("stampede3");    
+  job["execSystemLogicalQueue"]=queue;
+  return true;
 }
 
 int Stampede3Machine::setNumTasks(int numTasks) {

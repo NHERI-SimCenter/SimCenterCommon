@@ -85,12 +85,12 @@ FronteraMachine::outputToJSON(QJsonObject &job)
                 nodeCountInGpuQueue = (nodeCount < 22) ? nodeCount : 22; // Frontera, 22 nodes per job on rtx queue
                 numCPU->setText(QString::number(nodeCountInGpuQueue));
 
-                int numProcessorsPerNodeInGpuQueu = 8; // 2 Intel Xeon E5-2620 v4 (“Broadwell”), 2*8 cores, or 2*8*2 threads (may not be enabled on Frontera)
-                numProcessors->setText(QString::number(numProcessorsPerNodeInGpuQueu));
+                int numProcessorsPerNodeInGpuQueue = 8; // 2 Intel Xeon E5-2620 v4 (“Broadwell”), 2*8 cores, or 2*8*2 threads (may not be enabled on Frontera)
+                numProcessors->setText(QString::number(numProcessorsPerNodeInGpuQueue));
                 
                 job["nodeCount"] = nodeCountInGpuQueue;
-                job["coresPerNode"] = numProcessorsPerNodeInGpuQueu;
-                // job["numP"] = nodeCountInGpuQueue*numProcessorsPerNodeInGpuQueu; // clutters the remote app json if called in uploaddirreturn of remoteapplication.cpp
+                job["coresPerNode"] = numProcessorsPerNodeInGpuQueue;
+                // job["numP"] = nodeCountInGpuQueue*numProcessorsPerNodeInGpuQueue; // clutters the remote app json if called in uploaddirreturn of remoteapplication.cpp
                 // ramPerNodeMB = 128000; // 128 GB
 	          } 
 	  }

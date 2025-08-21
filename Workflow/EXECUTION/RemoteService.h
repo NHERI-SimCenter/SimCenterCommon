@@ -65,6 +65,10 @@ public:
 
     virtual bool isLoggedIn() =0;
     QString getHomeDir(void);
+    virtual QString getAccessToken(void) =0;
+    virtual void getUuidProjectIdTitleLists(QStringList &uuids, QStringList &projectIds, QStringList &titles) =0;
+    virtual QString getArchiveSystemDir(const QString &jobUuid) =0;
+    virtual QString getProjectId(const QString &archiveSystemId) =0;
 
 public slots:
     // login
@@ -117,7 +121,8 @@ signals:
     void remoteLSReturn(QJsonArray dirList);
 
 protected:
-     QString homeDir;
+    QString homeDir;
+    QString accessToken;
   
 private:
 

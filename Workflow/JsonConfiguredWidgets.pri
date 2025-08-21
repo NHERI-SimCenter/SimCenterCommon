@@ -25,4 +25,5 @@ HEADERS += $$PWD/WORKFLOW/JsonConfiguredWidget.h \
     $$PWD/WORKFLOW/SimCenterRVLineEdit.h \
     $$PWD/WORKFLOW/SimCenterLineEdit.h \
     $$PWD/WORKFLOW/SimCenterDoubleSpinBox.h \
-    $$PWD/WORKFLOW/SimCenterSpinBox.h    
+    $$PWD/WORKFLOW/SimCenterSpinBox.h \
+    $$PWD/WORKFLOW/AnimatedStackedWidget.h
