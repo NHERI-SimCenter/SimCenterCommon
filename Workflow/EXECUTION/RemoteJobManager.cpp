@@ -693,15 +693,30 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
 	    
 	    // remove results dir if exists
 	    QString resultsDir = name3 + QDir::separator() + QString("Results");
-	    
+
 	    QDir resultsD(resultsDir);
-	    if (resultsD.exists())
-	      if (SCUtils::isSafeToRemoveRecursivily(resultsDir))	      
-		resultsD.removeRecursively();
+	    if (resultsD.exists()) {
+	      if (SCUtils::isSafeToRemoveRecursivily(resultsDir))	{      
+		      resultsD.removeRecursively();
+        }
+      }
 	    
 	    // unzip .. this places files in a new dir results
 	    ZipUtils::UnzipFile(name2, QDir(name3));
-	    emit processResults(resultsDir);		
+      
+      // check if results dir exists, if not replace Results with results and check again
+      // we are inconsistent with use of "results" and "Results" in the code and tapis apps
+      QFileInfo resultsDirInfo(resultsDir);
+      if (!resultsDirInfo.exists()) {
+        qDebug() << "Results directory " << resultsDir << " does not exist, replacing Results with results.";
+        resultsDir.replace("Results", "results");
+        resultsDirInfo.setFile(resultsDir);
+        if (!resultsDirInfo.exists()) {
+          qDebug() << "Results directory " << resultsDir << " still does not exist after replacement.";
+        }
+      }
+	    
+      emit processResults(resultsDir);		
 	    this->close();
 	    
 	  } else {

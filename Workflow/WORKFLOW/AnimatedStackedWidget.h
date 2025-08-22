@@ -90,7 +90,7 @@ public slots:
         currPix->show();                     // IMPORTANT
 
         auto* nextPix = new Pix(overlay); nextPix->pm = snapNext;
-        nextPix->setGeometry(QRect(area.topLeft() + offset(dir * delta), area.size()));
+        nextPix->setGeometry(QRect(area.topLeft() + offset(-dir * delta), area.size()));
         nextPix->show();                     // IMPORTANT
 
         // Hide real pages to avoid any double painting underneath
@@ -102,7 +102,7 @@ public slots:
         animOut->setDuration(durationMs);
         animOut->setEasingCurve(easing);
         animOut->setStartValue(currPix->geometry());
-        animOut->setEndValue(QRect(area.topLeft() + offset(-dir * delta), area.size()));
+        animOut->setEndValue(QRect(area.topLeft() + offset(dir * delta), area.size()));
 
         auto* animIn  = new QPropertyAnimation(nextPix, "geometry");
         animIn->setDuration(durationMs);

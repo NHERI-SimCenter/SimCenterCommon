@@ -98,6 +98,7 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/WORKFLOW/MainWindowWorkflowApp.cpp \
     $$PWD/WORKFLOW/WorkflowAppWidget.cpp \
     $$PWD/WORKFLOW/SimCenterComponentSelection.cpp \
+    $$PWD/WORKFLOW/WaveBackgroundWidget.cpp \
     $$PWD/WORKFLOW/CustomizedItemModel.cpp \
     $$PWD/WORKFLOW/JsonConfiguredWidget.cpp \
     $$PWD/WORKFLOW/SimCenterComboBox.cpp \
@@ -234,6 +235,7 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/WORKFLOW/WorkflowAppWidget.h \
     $$PWD/WORKFLOW/SimCenterComponentSelection.h \
     $$PWD/WORKFLOW/AnimatedStackedWidget.h \
+    $$PWD/WORKFLOW/WaveBackgroundWidget.h \
     $$PWD/WORKFLOW/CustomizedItemModel.h \
     $$PWD/WORKFLOW/JsonConfiguredWidget.h \
     $$PWD/WORKFLOW/SimCenterComboBox.h \

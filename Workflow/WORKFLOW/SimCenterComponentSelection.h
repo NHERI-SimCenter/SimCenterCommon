@@ -131,6 +131,11 @@ public:
      */
     QString selectedComponentText(void);
 
+    /**
+     *   @brief Function used to make many widgets transparent so we can see animated background decals (e.g., waves in HydroUQ)
+     */
+    void makeChildrenTransparent(void);
+
 signals:
 
 public slots:

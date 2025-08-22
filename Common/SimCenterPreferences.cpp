@@ -1117,7 +1117,7 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
     } else if (appName == QString("WE-UQ")) {
       remoteApp = QString("simcenter-openfoam-frontera");
     } else if (appName == QString("HydroUQ")) {
-      remoteApp = QString("simcenter-hydrouq-frontera");    
+      remoteApp = QString("simcenter-hydrouq-stampede3");    
     } else if (appName == QString("EE-UQ") || appName == QString("PBE"))
       remoteApp = QString("simcenter-uq-stampede3");      
 
@@ -1146,7 +1146,7 @@ SimCenterPreferences::getDefaultRemoteAppDir(void) {
 
   QString appName = QCoreApplication::applicationName();  
   QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v25.05.16");
-  if (appName == QString("WE-UQ") || appName == QString("HydroUQ"))
+  if (appName == QString("WE-UQ"))
     remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v4.6.0");  
 
   return remoteBackendDirLocation;
