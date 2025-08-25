@@ -91,6 +91,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <SC_Chart.h>
 #include <SC_TimeSeriesResultChart.h> 
 
+#include <algorithm>
 
 /*
 SC_TimeSeriesResutlChart is meant to facilitate the creation of time series charts.
@@ -442,7 +443,7 @@ qreal SC_TimeSeriesResultChart::calculatePercentile(QVector<qreal> &values, qrea
     if (values.isEmpty()) {
         return 0;
     }
-    qSort(values.begin(), values.end());  // Sorting the QVector
+    std::sort(values.begin(), values.end());  // Sorting the QVector
     int index = static_cast<int>(percentile * (values.size() - 1));
     return values[index];
 }
