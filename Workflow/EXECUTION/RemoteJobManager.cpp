@@ -320,11 +320,19 @@ RemoteJobManager::shareJob(void)
         QTableWidgetItem *itemID = jobsTable->item(triggeredRow,2);
         QString jobID = itemID->text();
         bool ok;
-        QString username = QInputDialog::getText(this, "Share Job", "Enter username to share job with:", QLineEdit::Normal, "", &ok);
+        QString username = QInputDialog::getText(this, "Share Job", "Enter username or usernames (comma-separated) to share job with:", QLineEdit::Normal, "", &ok);
         if (ok && !username.isEmpty()) {
-            // connect(this,SIGNAL(shareJob(QString,QString)), theService,SLOT(shareJobCall(QString,QString)));
-            connect(theService,SIGNAL(shareJobReturn(bool)), this,SLOT(shareJobReturn(bool)));
-            theService->shareJobCall(jobID, username);
+            // Check if username is comma delimited, if so split it and loop over usernames
+            QStringList usernames = username.split(",", QString::SkipEmptyParts);
+            for (const QString &user : usernames) {
+                // Trim whitespace from each username
+                QString trimmedUser = user.trimmed();
+                if (!trimmedUser.isEmpty()) {
+                    // Connect and call the service for each valid username
+                    connect(theService,SIGNAL(shareJobReturn(bool)), this,SLOT(shareJobReturn(bool)));
+                    theService->shareJobCall(jobID, trimmedUser);
+                }
+            }
             // emit shareJob(jobID, username);
         }
     }
