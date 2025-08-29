@@ -1167,10 +1167,15 @@ void ShakerMaker::Visualize() {
     // Start the event loop and wait for the process to finish
     loop.exec();
 
+    
+    
     // Now the process is finished, check if the file exists
     if (file2.exists()) {
         // load the file in the web view
         // enable webgl for the web view
+	QWebEngineSettings::globalSettings()->setAttribute(QWebEngineSettings::LocalContentCanAccessFileUrls, true);
+        QWebEngineSettings::globalSettings()->setAttribute(QWebEngineSettings::JavascriptEnabled, true);
+	// QWebEngineSettings::globalSettings()->setAttribute(QWebEngineSettings::DeveloperExtrasEnabled, true);
         simulationWebView->settings()->setAttribute(QWebEngineSettings::WebGLEnabled, true);
         simulationWebView->load(QUrl::fromLocalFile(destDir + QDir::separator() + "faults.html"));
         simulationWebView->show();
