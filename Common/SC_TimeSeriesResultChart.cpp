@@ -135,8 +135,6 @@ SC_TimeSeriesResultChart::SC_TimeSeriesResultChart(QMap<QString, QMap<QString, Q
 
     QLabel *metricLabel = new QLabel("Metric:");
     
-    
-    
     layout = new QHBoxLayout;
     QVBoxLayout *vLayout = new QVBoxLayout;
     setLayout(vLayout);
@@ -147,6 +145,16 @@ SC_TimeSeriesResultChart::SC_TimeSeriesResultChart(QMap<QString, QMap<QString, Q
 
     connect(metricComboBox, &QComboBox::currentTextChanged, this, &SC_TimeSeriesResultChart::updateChart);
 
+}
+
+void SC_TimeSeriesResultChart::seriesUpdated() {
+    if (!allSeries->isEmpty()) {
+        curSeriesMap = &(allSeries->first());
+        metricName = allSeries->firstKey();
+        drawChart(metricName);
+        populatemetricComboBox();
+        metricComboBox->setCurrentText(metricName);
+    }    
 }
 
 void SC_TimeSeriesResultChart::updateChart(const QString &metricName) {
