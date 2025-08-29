@@ -7,6 +7,7 @@
 #include <RemoteJobManager.h>
 #include <SC_ResultsWidget.h>
 #include <Utils/RelativePathResolver.h>
+#include <TapisMachine.h>
 
 #include <QDebug>
 #include <QStackedWidget>
@@ -23,6 +24,8 @@
 #include <QFileDialog>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <GoogleAnalytics.h>
+
 
 SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 				   QString appVersion,
@@ -32,9 +35,35 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 				   SimCenterAppWidget* theEnclosedApp,
 				   QDialog *enclosingDialog)
   :SimCenterAppWidget(), theApp(theEnclosedApp), theService(theRemoteService),
-   tapisAppName(appName), tapisAppVersion(appVersion), machine(hpcMachine),
-   queus(theQueus)
+   tapisAppName(appName), tapisAppVersion(appVersion), appNameReport(appName), machine(hpcMachine),
+   queus(theQueus), theMachine(0)
 {
+
+  this->initialize(enclosingDialog);
+
+}
+
+SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
+				   QString appVersion,
+				   TapisMachine *machine, 
+				   RemoteService *theRemoteService,
+				   SimCenterAppWidget* theEnclosedApp,
+				   QDialog *enclosingDialog)
+  :SimCenterAppWidget(), theApp(theEnclosedApp), theService(theRemoteService),
+   tapisAppName(appName), tapisAppVersion(appVersion), theMachine(machine)
+{
+  this->initialize(enclosingDialog);
+}
+
+
+void
+SC_RemoteAppTool::setAppNameReport(QString text) {
+  appNameReport = text;
+}
+
+void
+SC_RemoteAppTool::initialize(QDialog *enclosingDialog) {
+
   QVBoxLayout *theMainLayout = new QVBoxLayout(this);
   theMainLayout->addWidget(theApp);
 
@@ -71,57 +100,70 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   nameLineEdit->setToolTip(tr("A meaningful name to provide for you to remember run later (days and weeks from now)"));
   remoteLayout->addWidget(nameLineEdit,numRow,1);
 
-  int numNode = 1;
-  int maxProcPerNode = 56; //theApp->getMaxNumProcessors(56);
-  if (machine == "stampede3") {
-    maxProcPerNode = 48;
-  }
 
-  numRow++;
-  numCPU_LineEdit = new QLineEdit();
-  remoteLayout->addWidget(new QLabel("Num Nodes:"),numRow,0);  
-  remoteLayout->addWidget(numCPU_LineEdit,numRow,1);
-  numCPU_LineEdit->setText("1");
+  if (theMachine ==  0) {
     
-  numGPU_LineEdit = NULL;
-  if (queus.first() == "gpu-a100" || queus.first() == "gpu-a100-dev" || queus.first() == "gpu-a100-small") {
-    numGPU_LineEdit = new QLineEdit();
-    numRow++;
-    
-    // lonestar 6 .. only set up for gpu-a100
-    remoteLayout->addWidget(new QLabel("Num GPUs:"),numRow,0);
-    
-    if (queus.first() == "gpu-a100-small") {
-      numGPU_LineEdit->setText("1"); // Special queue using just 1 NVIDIA A100
-      maxProcPerNode = 32;
-    } else {
-      numGPU_LineEdit->setText("3"); // 3 NVIDIA A100s
-      maxProcPerNode = 128;
+    int numNode = 1;
+    int maxProcPerNode = 56; //theApp->getMaxNumProcessors(56);
+    if (machine == "stampede3") {
+      maxProcPerNode = 48;
     }
-    numGPU_LineEdit->setToolTip(tr("# of GPUs requested per node"));
-    remoteLayout->addWidget(numGPU_LineEdit, numRow, 1);
-  }
 
-  numRow++;
-  remoteLayout->addWidget(new QLabel("Num Processors Per Node:"),numRow,0);    
-  numProcessorsLineEdit = new QLineEdit();
-  numProcessorsLineEdit->setText(QString::number(maxProcPerNode));
-  numProcessorsLineEdit->setToolTip(tr("Total # of Processes to Start"));
-
-  remoteLayout->addWidget(numProcessorsLineEdit,numRow,1);
-
-  numRow++;
-  remoteLayout->addWidget(new QLabel("Max Run Time (minutes):"),numRow,0);
-  runtimeLineEdit = new QLineEdit();
-  if (queus.first() == "gpu-a100" || queus.first() == "gpu-a100-dev") { 
+    numRow++;
+    numCPU_LineEdit = new QLineEdit();
+    remoteLayout->addWidget(new QLabel("Num Nodes:"),numRow,0);  
+    remoteLayout->addWidget(numCPU_LineEdit,numRow,1);
+    numCPU_LineEdit->setText("1");
+    
+    numGPU_LineEdit = NULL;
+    if (queus.first() == "gpu-a100" || queus.first() == "gpu-a100-dev" || queus.first() == "gpu-a100-small") {
+      numGPU_LineEdit = new QLineEdit();
+      numRow++;
+      
+      // lonestar 6 .. only set up for gpu-a100
+      remoteLayout->addWidget(new QLabel("Num GPUs:"),numRow,0);
+      
+      if (queus.first() == "gpu-a100-small") {
+	numGPU_LineEdit->setText("1"); // Special queue using just 1 NVIDIA A100
+	maxProcPerNode = 32;
+      } else {
+	numGPU_LineEdit->setText("3"); // 3 NVIDIA A100s
+	maxProcPerNode = 128;
+      }
+      numGPU_LineEdit->setToolTip(tr("# of GPUs requested per node"));
+      remoteLayout->addWidget(numGPU_LineEdit, numRow, 1);
+    }
+    
+    numRow++;
+    remoteLayout->addWidget(new QLabel("Num Processors Per Node:"),numRow,0);    
+    numProcessorsLineEdit = new QLineEdit();
+    numProcessorsLineEdit->setText(QString::number(maxProcPerNode));
+    numProcessorsLineEdit->setToolTip(tr("Total # of Processes to Start"));
+    
+    remoteLayout->addWidget(numProcessorsLineEdit,numRow,1);
+    
+    numRow++;
+    remoteLayout->addWidget(new QLabel("Max Run Time (minutes):"),numRow,0);
+    runtimeLineEdit = new QLineEdit();
+    if (queus.first() == "gpu-a100" || queus.first() == "gpu-a100-dev") { 
     runtimeLineEdit->setText("120");
-  }
-  else {
-    runtimeLineEdit->setText("120");
-  }
+    }
+    else {
+      runtimeLineEdit->setText("120");
+    }
   
-  runtimeLineEdit->setToolTip(tr("Run time limit on running Job (minutes). Job will be stopped if while running it exceeds this"));
-  remoteLayout->addWidget(runtimeLineEdit,numRow,1);
+    runtimeLineEdit->setToolTip(tr("Run time limit on running Job (minutes). Job will be stopped if while running it exceeds this"));
+    remoteLayout->addWidget(runtimeLineEdit,numRow,1);
+
+  } else {
+
+    numRow++;
+    //remoteLayout->addWidget(theMachine,numRow,0, 2, 3);
+    //numRow += 2;    
+
+    remoteLayout->addWidget(theMachine,numRow,0, 4, 2);
+    numRow += 4;    
+  }
 
   numRow++;
   remoteLayout->addWidget(new QLabel("TACC Allocation"), numRow, 0);
@@ -129,12 +171,29 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   allocation->setText(SimCenterPreferences::getInstance()->getDefaultAllocation());
   allocation->setToolTip(tr("Specify which of your TACC allocations to use when running the job."));
   remoteLayout->addWidget(allocation,numRow,1);
-
   numRow++;
+
+  // job["archiveSystemId"] = "project-6281135954102775315-242ac117-0001-012"
+  // job["archiveSystemDir"]
+  remoteLayout->addWidget(new QLabel("Archive System ID"), numRow, 0);
+  systemID = new QLineEdit();
+  systemID->setText("Default");
+  remoteLayout->addWidget(systemID,numRow,1);
+  numRow++;
+
+  remoteLayout->addWidget(new QLabel("Archive System Dir"), numRow, 0);
+  systemDir = new QLineEdit();
+  systemDir->setText("Default");
+  remoteLayout->addWidget(systemDir,numRow,1);
+  numRow++;        
+
+  //numRow++;
   submitButton = new QPushButton();
   submitButton->setText("Submit");
   submitButton->setToolTip(tr("Press to launch job on remote machine. After pressing, window closes when Job Starts"));
   remoteLayout->addWidget(submitButton,numRow,1);
+  numRow++;
+
   
   theRemoteDialog->setLayout(remoteLayout);
   theRemoteDialog->hide();
@@ -194,7 +253,8 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 	    //
 	    
 	    QJsonObject json;
-	    theApp->outputToJSON(json);
+//	    theApp->outputAppDataToJSON(json);
+        theApp->outputToJSON(json);
 	    
 	    //Resolve relative paths before saving
 	    QFileInfo fileInfo(fileName);
@@ -230,8 +290,6 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
       theJobManager->hide();
     });
   }
-
-
   
   QStringList filesToDownload; filesToDownload << "scInput.json" << "results.zip" << "inputData.zip";
   theJobManager = new RemoteJobManager(theService);
@@ -239,6 +297,7 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
   theJobManager->hide();
   connect(theJobManager,SIGNAL(processResults(QString&)), this, SLOT(processResults(QString&)));
 }
+
 
 SC_RemoteAppTool::~SC_RemoteAppTool()
 {
@@ -255,6 +314,9 @@ void SC_RemoteAppTool::clear()
 void
 SC_RemoteAppTool::submitButtonPressed() {
 
+  GoogleAnalytics::ReportDesignSafeRun();
+  GoogleAnalytics::ReportAppUsage(appNameReport);  
+    
   //
   // first check if logged in
   //
@@ -314,6 +376,7 @@ SC_RemoteAppTool::submitButtonPressed() {
   // in tmpDir create the input file
   //
 
+  
   QString inputFile = destinationDir.absoluteFilePath("scInput.json");
   
   QFile file(inputFile);
@@ -321,29 +384,32 @@ SC_RemoteAppTool::submitButtonPressed() {
     //errorMessage();
     return;
   }
-  
+
   QJsonObject json;
 
   QJsonObject appData;
   theApp->outputAppDataToJSON(json);
   json["ApplicationData"]=appData;
-  
   theApp->outputToJSON(json);
-
-  json["workingDir"]=SimCenterPreferences::getInstance()->getRemoteWorkDir(); 
+  json["workingDir"]=SimCenterPreferences::getInstance()->getRemoteWorkDir();
   json["runDir"]=tempDirectory;
-  json["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();    
+  json["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();
   json["runType"]=QString("runningRemote");
-  int nodeCount = numCPU_LineEdit->text().toInt();
-  int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
-  json["nodeCount"]=nodeCount;
-  json["numP"]=nodeCount*numProcessorsPerNode; 
 
-  if (numGPU_LineEdit != NULL) {
-    int gpuCount = numGPU_LineEdit->text().toInt();
-    json["gpus"]=gpuCount;
+  if (theMachine == 0) {
+    int numProcessorsPerNode = numProcessorsLineEdit->text().QString::toInt();
+    int nodeCount = numCPU_LineEdit->text().QString::toInt();
+    json["nodeCount"]=nodeCount;
+    json["numP"]=nodeCount*numProcessorsPerNode; 
+
+    if (numGPU_LineEdit != NULL) {
+      int gpuCount = numGPU_LineEdit->text().QString::toInt();
+      json["gpus"]=gpuCount;
+    }
+  } else {
+    theMachine->outputToJSON(json);
   }
-
+  
   QJsonDocument doc(json);
   file.write(doc.toJson());
   file.close();
@@ -351,12 +417,11 @@ SC_RemoteAppTool::submitButtonPressed() {
   //
   // now send directory containing inputFile and inputData.zip across
   //
-
+  
   submitButton->setEnabled(false);
   
   connect(theService, SIGNAL(uploadDirectoryReturn(bool)), this, SLOT(uploadDirReturn(bool)));
-  // qDebug() << "localDIR: "  << tempDirectory;
-  // qDebug() << "remoteDIR: " << remoteHomeDirPath;
+
   
   theService->uploadDirectoryCall(tempDirectory, remoteHomeDirPath);         
 }  
@@ -365,6 +430,7 @@ SC_RemoteAppTool::submitButtonPressed() {
 void
 SC_RemoteAppTool::uploadDirReturn(bool result)
 {
+  qDebug() << "UPLOAD DIR RETURN";
   disconnect(theService, SIGNAL(uploadDirectoryReturn(bool)), this, SLOT(uploadDirReturn(bool)));
     
 
@@ -386,50 +452,60 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     // file in the json job object to invoke app with
     //
     
-    int nodeCount = numCPU_LineEdit->text().toInt();
-    int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
     QString shortDirName = QCoreApplication::applicationName() + ": ";
     
     job["appId"]=tapisAppName;
     job["appVersion"]=tapisAppVersion;         
     job["name"]=shortDirName + nameLineEdit->text();
-    job["nodeCount"]=nodeCount;
-    job["coresPerNode"]=numProcessorsPerNode;
-    job["maxMinutes"]=runtimeLineEdit->text().toInt();
-    
     int ramPerNodeMB = 128000;    
     job["memoryMB"]= ramPerNodeMB;
 
-    //
-    // figure out queue
-    //
-    
-    QString queue; // queuu to send job to
-    QString firstQueue = queus.first();
-    if (firstQueue == "gpu-a100" ||
-	firstQueue == "gpu-a100-dev" ||
-	firstQueue == "gpu-h100" ||
-	firstQueue == "rtx" ||
-	firstQueue == "rtx-dev" ||
-	firstQueue == "gpu-a100-small") {
+
+    if (theMachine == 0) {
+
+      int nodeCount = numCPU_LineEdit->text().QString::toInt();
+      int numProcessorsPerNode = numProcessorsLineEdit->text().QString::toInt();
       
-      queue = firstQueue;
+      job["nodeCount"]=nodeCount;
+      job["coresPerNode"]=numProcessorsPerNode;
+      job["maxMinutes"]=runtimeLineEdit->text().QString::toInt();
       
-    } else if (machine == "frontera") {
+      //
+      // figure out queue
+      //
       
-      queue = "small";
-      if (nodeCount > 2)
-	      queue = "normal";
-      if (nodeCount > 512)
-        queue = "large";
+      QString queue; // queuu to send job to
+      QString firstQueue = queus.first();
+      if (firstQueue == "gpu-a100" ||
+	  firstQueue == "gpu-a100-dev" ||
+	  firstQueue == "gpu-h100" ||
+	  firstQueue == "rtx" ||
+	  firstQueue == "rtx-dev" ||
+	  firstQueue == "gpu-a100-small") {
+	queue = firstQueue;
+	
+      } else if (machine == "frontera") {
       
-    } else if (machine == "stampede3") {
-      queue = "icx";
+	queue = "small";
+	if (nodeCount > 2)
+	  queue = "normal";
+	if (nodeCount > 512)
+	  queue = "large";
+	
+	job["execSystemLogicalQueue"]=queue;
+
+      } else if (machine == "stampede3") {
+	
+	queue = "icx";
+	
+      }
+
+    } else {
+      
+      theMachine->outputToJSON(job);
+
     }
     
-    
-    job["execSystemLogicalQueue"]=queue;  
-
 
     //
     // Job Parameters (envVariables & allocation)
@@ -443,9 +519,6 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     inputFileObj["key"]="inputFile";
     inputFileObj["value"]="scInput.json";
     envVariables.append(inputFileObj);
-    
-
-
 
     // any additional envVariables variables are app dependent
     QJsonObject extraParameters;
@@ -533,6 +606,16 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     parameterSet["envVariables"]=envVariables;
     job["parameterSet"]=parameterSet;
 
+
+    // PA
+    // job["archiveSystemId"] = "project-6281135954102775315-242ac117-0001-012"
+    // job["archiveSystemDir"]
+    if (systemID->text() != QString("Default"))
+	    job["archiveSystemId"] = systemID->text();
+      
+    if (systemDir->text() != QString("Default"))
+	    job["archiveSystemDir"] = systemDir->text();	  
+
     //
     // file inputs
     //
@@ -546,81 +629,14 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     inputs["targetPath"]="*";
     inputs["sourceUrl"] = "tapis://" + designsafeDirectory; //storage;
     fileInputs.append(inputs);
-    
-    // for (auto extraInput : extraInputs.keys()) {
-    //   QJsonObject data;
-    //   data["sourceUrl"]   = "tapis://" + QString("designsafe.storage.default/") + extraInputs[extraInput];
-    //   data["targetPath"]  = "*";
-    //   data["envKey"]      = extraInput;
-    //   fileInputs.append(data);
-    // }
-
-    // QJsonArray extraInputs;
-    // if (extraParameters.contains("fileInputs")) {
-    //   if (extraParameters["fileInputs"].isArray()) {
-    //     extraInputs = extraParameters["fileInputs"].toArray();
-    //     for (auto extraInput : extraInputs) {
-    //       if (extraInput.isObject()) {
-    //         if (extraInput.toObject().contains("envKey") && extraInput.toObject().contains("sourceUrl") && extraInput.toObject().contains("targetPath")) {
-    //           // QString envKey = extraInput.toObject()["envKey"].toString();
-    //           // QString sourceUrl = extraInput.toObject()["sourceUrl"].toString();
-    //           // QString targetPath = extraInput.toObject()["targetPath"].toString();
-    //           fileInputs.append(extraInput);
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
-
-    // Currently, extraInputs supports just one extra fileInputs object as it is a QMap<QString, QString>
-    // Can be vectorized, etc.,   if needed
-    // QJsonObject extraInput;
-    // if (extraInputs.contains("envKey")) {
-    //   extraInput["envKey"]=extraInputs["envKey"];
-    // }
-    // if (extraInputs.contains("targetPath")) {
-    //   extraInput["targetPath"]=extraInputs["targetPath"];
-    // }
-    // if (extraInputs.contains("sourceUrl")) {
-    //   extraInput["sourceUrl"]=extraInputs["sourceUrl"];
-    // }
-    // fileInputs.append(extraInput);
-
-    // // Refashion for use with qmap<qstring, qstring>     
-    // for (auto extraInput : extraInputs.keys()) {
-    //   QJsonObject data;
-    //   data["sourceUrl"]   = "tapis://" + QString("designsafe.storage.default/") + extraInputs[extraInput];
-    //   data["targetPath"]  = "*";
-    //   data["envKey"]      = extraInput;
-    //   fileInputs.append(data);
-    // }
-
-    // /* 
-    // Temporary hardcoding for the MPM app
-    QJsonObject data;
-    if (tapisAppName == "simcenter-claymore-lonestar6") {       
-      data["sourceUrl"]   = "tapis://" + QString("designsafe.storage.default/") + QString("bonusj/mpm-public-ls6");
-      data["targetPath"]  = "*";
-      data["envKey"]      = "dataDirectory";
-      fileInputs.append(data);
-    } else if (tapisAppName == "simcenter-claymore-frontera") {       
-      data["sourceUrl"]   = "tapis://" + QString("designsafe.storage.default/") + QString("bonusj/mpm-public-frontera");
-      data["targetPath"]  = "*";
-      data["envKey"]      = "dataDirectory";
-      fileInputs.append(data);
-    }
-    // */
-    
-    
     job["fileInputs"]=fileInputs;          
 
     //
     // now remove the tmp directory
     //
+    
     theDirectory.removeRecursively();
     
-    qDebug() << "SUBMIT.json:  " << job;
-
     connect(theService,SIGNAL(startJobReturn(QString)), this, SLOT(startJobReturn(QString)));      
     theService->startJobCall(job);
     
@@ -677,10 +693,10 @@ SC_RemoteAppTool::processResults(QString &dirName){
     }
   
     
-  SC_ResultsWidget *theResults=theApp->getResultsWidget();
+  SC_ResultsWidget *theResults = theApp->getResultsWidget();
   if (theResults == NULL) {
-    this->errorMessage("FATAL - SC_RemoteAppTool received NULL pointer theResults from theApp->getResultsWidget()... skipping theResults->processResults()");
-    return;
+    this->infoMessage("NOTE - SC_RemoteAppTool received NULL pointer theResults from theApp->getResultsWidget()... skipping theResults->processResults()");
+    return; 
   }
 
   QString blankFileName("scInput.json");
@@ -700,6 +716,11 @@ void SC_RemoteAppTool::setExtraParameters(QMap<QString, QString> extraParameters
 
 bool SC_RemoteAppTool::outputCitation(QJsonObject &jsonObject) {
   return theApp->outputCitation(jsonObject);
+}
+
+void
+SC_RemoteAppTool::setFilesToDownload(QStringList filesToDownload, bool unzipZip) {
+  theJobManager->setFilesToDownload(filesToDownload, unzipZip);
 }
 
 	     

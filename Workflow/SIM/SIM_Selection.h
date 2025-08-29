@@ -53,6 +53,7 @@ public:
 
   SimCenterAppWidget *getClone();
   bool outputCitation(QJsonObject &jsonObject);
+  QString getCurrentSIM();
 
 private:
     bool includeCentroid;

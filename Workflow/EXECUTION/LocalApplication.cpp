@@ -209,9 +209,10 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
         exportPath += pythonPath;
         pathEnv = pythonPath + ';' + pathEnv;
     } else {
-        this->errorMessage("NO VALID PYTHON - Read the Manual & Check your Preferences");
-        emit runComplete();
-        return false;
+      emit sendErrorMessage(QString("NO VALID PYTHON found - Read the Manual & Update Preferences - currently set as: ") + python);
+      qDebug() << "INVALID PYTHON: " << python;      
+      emit runComplete();
+      return false;
     }
 
     /* ****************************************** removing python checks ********************
@@ -436,6 +437,9 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     // check for bashrc or bash profile
     QDir homeDir(QDir::homePath());
     QString sourceBash("");
+
+    QString tclLibrary = QCoreApplication::applicationDirPath().append("/../Resources/opensees");    
+    
     if (homeDir.exists(".bash_profile")) {
         sourceBash = QString("source $HOME/.bash_profile; ");
     } else if (homeDir.exists(".bashrc")) {
@@ -445,7 +449,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     } else if (homeDir.exists(".zshrc")) {
         sourceBash = QString("source $HOME/.zshrc; ");
     } else
-        this->errorMessage( "No .bash_profile, .bashrc, .zprofile or .zshrc file found. This may not find Dakota or OpenSees");
+        this->statusMessage( "No .bash_profile, .bashrc, .zprofile or .zshrc file found. Users env not being used");
 
     // note the above not working under linux because bash_profile not being called so no env variables!!
     QString command;

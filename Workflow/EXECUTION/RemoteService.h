@@ -65,6 +65,10 @@ public:
 
     virtual bool isLoggedIn() =0;
     QString getHomeDir(void);
+    virtual QString getAccessToken(void) =0;
+    virtual void getUuidProjectIdTitleLists(QStringList &uuids, QStringList &projectIds, QStringList &titles) =0;
+    virtual QString getArchiveSystemDir(const QString &jobUuid) =0;
+    virtual QString getProjectId(const QString &archiveSystemId) =0;
 
 public slots:
     // login
@@ -74,7 +78,7 @@ public slots:
     // file system
     virtual void mkdirCall(const QString &remoteName, const QString &remotePath) =0;
     virtual void uploadFileCall(const QString &local, const QString &remote) =0;
-    virtual void downloadFilesCall(const QStringList &remote, const QStringList &local, QObject* sender=nullptr) =0;
+    virtual void downloadFilesCall(const QStringList &remote, const QStringList &local, QObject* sender=nullptr, const QString &archiveSystemID = QString("designsafe.storage.default")) =0;
     virtual void uploadDirectoryCall(const QString &local, const QString &remote) =0;
     // void downloaDirectoryCall(const QString &remote, const QString &local) =0;
     virtual void removeDirectoryCall(const QString &remote) =0;
@@ -86,6 +90,7 @@ public slots:
     virtual void getJobDetailsCall(const QString &jobID) =0;
     virtual void getJobStatusCall(const QString &jobID) =0;
     virtual void deleteJobCall(const QString &jobID, const QStringList &dirToRemove) =0;
+    virtual void shareJobCall(const QString &jobID, const QString &username) =0;
     virtual void remoteLSCall(const QString &remotePath)=0;
 
 signals:
@@ -112,10 +117,12 @@ signals:
     void getJobDetailsReturn(QJsonObject) ;
     void getJobStatusReturn(QString) ;
     void deleteJobReturn(bool) ;
+    void shareJobReturn(bool) ;
     void remoteLSReturn(QJsonArray dirList);
 
 protected:
-     QString homeDir;
+    QString homeDir;
+    QString accessToken;
   
 private:
 

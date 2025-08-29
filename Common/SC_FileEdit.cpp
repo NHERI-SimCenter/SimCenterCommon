@@ -43,11 +43,13 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 #include <QGridLayout>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <SimCenterAppWidget.h>
 
-SC_FileEdit::SC_FileEdit(QString theKey)
+SC_FileEdit::SC_FileEdit(QString theKey, QStringList fileTypes)
   :QWidget()
 {
+
   key = theKey;
 
   QGridLayout *theLayout = new QGridLayout;
@@ -59,10 +61,18 @@ SC_FileEdit::SC_FileEdit(QString theKey)
   theLayout->addWidget(theFile,0,0);
   theLayout->addWidget(chooseFile, 0,1);
   this->setLayout(theLayout);
-    connect(chooseFile, &QPushButton::clicked, this,
+
+
+  QString fileTypeStr = QString("All files (*.*)");
+  if (fileTypes.count()>0){
+    fileTypeStr = QString("File (*." + fileTypes.join(" *.") + ")");
+  }
+
+  connect(chooseFile, &QPushButton::clicked, this,
             [=]() {
         //QString fileName=QFileDialog::getOpenFileName(this,tr("Open File"),"C://", "All files (*.*)");
-        QString fileName=QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"); // sy - to continue from the previously visited directory
+        //QString fileName=QFileDialog::getOpenFileName(this,tr("Open File"),"", "All files (*.*)"); // sy - to continue from the previously visited directory
+        QString fileName=QFileDialog::getOpenFileName(this,tr("Open File"),"", fileTypeStr); // sy - to continue from the previously visited directory
         theFile->setText(fileName);
         emit fileNameChanged(fileName);
      });
@@ -72,7 +82,7 @@ SC_FileEdit::SC_FileEdit(QString theKey)
 }
 
 
-SC_FileEdit::SC_FileEdit(QString theKey, QString toolTip)
+SC_FileEdit::SC_FileEdit(QString theKey, QString toolTip, QStringList fileTypes)
   :QWidget()
 {
 
@@ -132,6 +142,13 @@ SC_FileEdit::copyFile(QString &destDir) {
 QString
 SC_FileEdit::getFilename(void) {
   return theFile->text();
+}
+
+QString
+SC_FileEdit::getName(void) {
+  QFileInfo fileInfo(theFile->text());
+  
+  return fileInfo.fileName();
 }
 
 void

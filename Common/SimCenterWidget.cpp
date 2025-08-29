@@ -87,6 +87,13 @@ SimCenterWidget::errorMessage(const QString& message)
 }
 
 void
+SimCenterWidget::fatalMessage(const QString& message)
+{
+    GoogleAnalytics::Report("SimcenterWidgetFatalMessage", message);
+    progressDialog->fatalMessage(message);
+}
+
+void
 SimCenterWidget::infoMessage(const QString& message)
 {
     if(message.isEmpty())

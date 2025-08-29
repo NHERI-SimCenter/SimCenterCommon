@@ -1,3 +1,4 @@
+
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
 All rights reserved.
@@ -46,6 +47,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <ZipUtils/ZipUtils.h>
 #include <RemoteService.h>
 
+#include <QDesktopServices>
+#include <QInputDialog>
+#include <QMessageBox>
 #include <QJsonDocument>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -65,11 +69,16 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QMenu>
 #include <QDir>
 #include  <QDebug>
+#include <Utils/FileOperations.h>
 
 class RemoteService;
 
+// new function to be called before removeRecusivility
+
+
 RemoteJobManager::RemoteJobManager(RemoteService *theRemoteService, QWidget *parent)
-  : QWidget(parent), triggeredRow(-1), theService(theRemoteService), callProcessResultsOnApp(true)
+  : QWidget(parent), triggeredRow(-1), theService(theRemoteService),
+    callProcessResultsOnApp(true), unzipZip(true)
 {
     QVBoxLayout *layout = new QVBoxLayout();
 
@@ -79,8 +88,9 @@ RemoteJobManager::RemoteJobManager(RemoteService *theRemoteService, QWidget *par
     
     jobsTable = 0;
     htmlInputDirectory = QString("agave://designsafe.storage.default/");
-    headers << "Name" << "STATUS" << "ID" << "Date Created" << "Remote Started";
+    headers << "Name" << "STATUS" << "ID" << "Date Created" << "Remote Started" << "Archive System ID" << "Owner";
     jobsTable=new QTableWidget(this);
+    jobsTable->setSortingEnabled(true); // allows sorting by clicking on header of columns
     jobsTable->setColumnCount(headers.size());
     jobsTable->setHorizontalHeaderLabels(headers);
     jobsTable->setRowCount(0);
@@ -119,7 +129,8 @@ RemoteJobManager::clearTable(void){
 }
 
 void
-RemoteJobManager::setFilesToDownload(QStringList fileList){
+RemoteJobManager::setFilesToDownload(QStringList fileList, bool unzipZipFiles){
+  unzipZip = unzipZipFiles;
   filesToDownload = fileList;
 }
 
@@ -180,7 +191,9 @@ RemoteJobManager::jobsListReturn(QJsonObject theJobs){
 	      QString jobStatus = job["status"].toString();
 	      QString jobDate = job["created"].toString();
 	      QString remoteStarted = job["remoteStarted"].toString();
-	      //QString lastUpdated = job["lastUpdated"].toString();
+	      // QString lastUpdated = job["lastUpdated"].toString();
+        QString archiveSystemId = job["archiveSystemId"].toString();
+        QString owner = job["owner"].toString();
 	      
 	      
 	      jobsTable->setItem(count, 0, new QTableWidgetItem(jobName));
@@ -188,13 +201,17 @@ RemoteJobManager::jobsListReturn(QJsonObject theJobs){
 	      jobsTable->setItem(count, 2, new QTableWidgetItem(jobID));
 	      jobsTable->setItem(count, 3, new QTableWidgetItem(jobDate));
 	      
-	      //Added by Abiy
+	      // Added by Abiy
 	      jobsTable->setItem(count, 4, new QTableWidgetItem(remoteStarted));
 	      //            jobsTable->setItem(i, 4, new QTableWidgetItem(QString::number(processorsPerNode.toInt()*nodes.toInt())));
 	      //            jobsTable->setItem(i, 5, new QTableWidgetItem(maxHour));
-//            jobsTable->setItem(i, 6, new QTableWidgetItem(maxHour));
-	      
-//            getJobRunTime(remoteStarted, lastUpdated);
+        //            jobsTable->setItem(i, 6, new QTableWidgetItem(maxHour));
+
+        // Added by Justin
+        jobsTable->setItem(count, 5, new QTableWidgetItem(archiveSystemId));
+        jobsTable->setItem(count, 6, new QTableWidgetItem(owner));
+
+        //            getJobRunTime(remoteStarted, lastUpdated);
 
 	      count++;
 	    }
@@ -224,6 +241,11 @@ RemoteJobManager::bringUpJobActionMenu(int row, int col){
 
     jobMenu.addAction("Refresh Job", this, SLOT(updateJobStatus()));
     jobMenu.addAction("Retrieve Data", this, SLOT(getJobData()));
+    jobMenu.addSeparator();
+    jobMenu.addAction("Open Job Folder", this, SLOT(urlJob()));
+    jobMenu.addAction("View Job Metadata", this, SLOT(metadataJob()));
+    jobMenu.addSeparator();
+    jobMenu.addAction("Share Job", this, SLOT(shareJob()));
     jobMenu.addSeparator();
     jobMenu.addAction("Delete Job", this, SLOT(deleteJob()));
     //    jobMenu.addAction("Delete Job And Data", this, SLOT(deleteJobAndData()));
@@ -260,17 +282,27 @@ RemoteJobManager::jobStatusReturn(QString status) {
 void
 RemoteJobManager::deleteJob(void){
 
-    if (triggeredRow != -1) {
-        QStringList noDirToRemove;
-        QTableWidgetItem *itemID=jobsTable->item(triggeredRow,2);
-        QString jobID = itemID->text();
-//        bool result = theInterface->deleteJob(jobID);
-	// delete job
-	//connect(this,SIGNAL(deleteJob(QString,QStringList)),theService,SLOT(deleteJobCall(QString,QStringList)));
-	connect(theService,SIGNAL(deleteJobReturn(bool)), this,SLOT(deleteJobReturn(bool)));
-	theService->deleteJobCall(jobID, noDirToRemove);
-        //emit deleteJob(jobID, noDirToRemove);
+  if (triggeredRow != -1) {
+    QStringList noDirToRemove;
+    QTableWidgetItem *itemID=jobsTable->item(triggeredRow,2);
+    QString jobID = itemID->text();
+    // bool result = theInterface->deleteJob(jobID);
+    // delete job
+    // connect(this,SIGNAL(deleteJob(QString,QStringList)),theService,SLOT(deleteJobCall(QString,QStringList)));
+    
+    // Before continuing, ask the user to confirm deletion
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Delete Job", "Are you sure you want to delete this job? While it won't be fully erased, it will be hidden and difficult to retrieve.",
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::No) {
+        return; // User chose not to delete the job
     }
+
+    // Proceed with deletion
+    connect(theService,SIGNAL(deleteJobReturn(bool)), this,SLOT(deleteJobReturn(bool)));
+    theService->deleteJobCall(jobID, noDirToRemove);
+      //emit deleteJob(jobID, noDirToRemove);
+  }
 }
 
 void
@@ -279,6 +311,102 @@ RemoteJobManager::deleteJobReturn(bool result) {
   if (result == true)
     jobsTable->removeRow(triggeredRow);
   triggeredRow = -1;
+}
+
+void
+RemoteJobManager::shareJob(void)
+{
+    if (triggeredRow != -1) {
+        QTableWidgetItem *itemID = jobsTable->item(triggeredRow,2);
+        QString jobID = itemID->text();
+        bool ok;
+        QString username = QInputDialog::getText(this, "Share Job", "Enter username to share job with:", QLineEdit::Normal, "", &ok);
+        if (ok && !username.isEmpty()) {
+            // connect(this,SIGNAL(shareJob(QString,QString)), theService,SLOT(shareJobCall(QString,QString)));
+            connect(theService,SIGNAL(shareJobReturn(bool)), this,SLOT(shareJobReturn(bool)));
+            theService->shareJobCall(jobID, username);
+            // emit shareJob(jobID, username);
+        }
+    }
+}
+
+void
+RemoteJobManager::shareJobReturn(bool result) {
+    disconnect(theService,SIGNAL(shareJobReturn(bool)),this,SLOT(shareJobReturn(bool)));
+    if (result == true) {
+        QMessageBox::information(this, "Share Job", "Job shared successfully. NOTE: Archive System ID must NOT be 'designsafe.storage.default' for the shared user to access the job.");
+    } else {
+        QMessageBox::warning(this, "Share Job", "Failed to share job. Are you the job's Owner and is the Archive System ID not 'designsafe.storage.default'?");
+    }
+}
+
+void
+RemoteJobManager::metadataJob(void) {
+  // This function just takes the jobID / uuid and sends you to the designsafe job status metadata page for simplicity
+  // https://www.designsafe-ci.org/workspace/history/{jobID}
+  // Ideally this would be implemented in the RemoteService class for TapisV3, etc., but I wanted to avoid a bunch of function parameters that vary and it seems like AWS / other services are unlikely to happen - Justin
+  QString url = QString("https://www.designsafe-ci.org/workspace/history/");
+  if (triggeredRow != -1) {
+      QString jobID = jobsTable->item(triggeredRow,2)->text();
+      url = QString("https://www.designsafe-ci.org/workspace/history/%1").arg(jobID);
+      QDesktopServices::openUrl(QUrl(url));
+  }
+  triggeredRow = -1;
+  emit sendStatusMessage(QString("Job Metadata URL: %1").arg(url));
+  return;
+}
+
+
+void
+RemoteJobManager::urlJob(void) {
+    QString status;
+    QString jobID;
+    QString date;
+    QString archiveSystemId;
+    QString owner;
+    if (triggeredRow != -1) {
+        status = jobsTable->item(triggeredRow,1)->text();
+        if (status != "FAILED" && status != "FINISHED") {
+            QMessageBox::warning(this, "Job Status Error", "Job is not completed. Please wait for the job to finish before trying to access the URL.");
+            return;
+        }
+        jobID = jobsTable->item(triggeredRow,2)->text();
+        date = jobsTable->item(triggeredRow,3)->text();
+        archiveSystemId = jobsTable->item(triggeredRow,5)->text();
+        owner = jobsTable->item(triggeredRow,6)->text();
+        
+        // Only want part of the date before the letter 'T'. Append letter 'Z' to the date due to standard
+        date = date.left(date.indexOf("T"));
+        date.append("Z");
+    } else {
+        QMessageBox::warning(this, "Job ID Error", "No job selected. Please select a job from the table.");
+        return;
+    }
+
+    // TODO: Ideally, TapisV3 and other services would handle the entire url assembly. However, I wanted to avoid a bunch of function parameters that vary and it seems like AWS / other services are unlikely to happen - Justin 
+    // QString url = theService->getJobURL(jobID);
+    QString url;
+    if (archiveSystemId != "designsafe.storage.default") {
+      QString archiveSystemDir = theService->getArchiveSystemDir(jobID);
+      QString projectId = theService->getProjectId(archiveSystemId);
+      QString accessToken = theService->getAccessToken();
+      url = QString("https://www.designsafe-ci.org/data/browser/projects/%1/workdir/%2").arg(projectId, archiveSystemDir);
+    } else {
+      url = QString("https://www.designsafe-ci.org/data/browser/tapis/%1/%2/tapis-jobs-archive/%3/%4").arg(archiveSystemId, owner, date, jobID);
+    }
+    qDebug() << "RemoteJobManager:: Job URL: " << url;
+    if (!url.isEmpty() && jobID != "null" && jobID != "" && archiveSystemId != "" && owner != "" && date != "") {
+        QDesktopServices::openUrl(QUrl(url));
+    } else {
+        QMessageBox::warning(this, "URL Error", "Failed to retrieve URL for the job.");
+        qDebug() << "RemoteJobManager::urlJob - Error: jobID, archiveSystemId, owner, or date is empty." << " jobID: " << jobID
+                 << " archiveSystemId: " << archiveSystemId
+                 << " owner: " << owner
+                 << " date: " << date;
+    }
+    triggeredRow = -1;
+    emit sendStatusMessage(QString("Job URL: %1").arg(url));
+    return;
 }
 
 
@@ -356,6 +484,42 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
          //    note: the processing done after files have downloaded
          //
 
+
+         // check for a job FAILURE
+         QJsonValue theObj = job["condition"];
+	 if (theObj.toString() != "NORMAL_COMPLETION") {
+	   QString reason(theObj.toString()); reason += ":  ";
+	   if (job.contains("lastMessage")) {
+	     QString lastMessage = job["lastMessage"].toString();
+	     qDebug() << lastMessage;
+	     QString startMarker("ERROR:");
+	     QString endMarker("Please report");
+	     int startPos = lastMessage.indexOf(startMarker);
+	     if (startPos != -1) {
+	       startPos += startMarker.length();
+	       int endPos = lastMessage.indexOf(endMarker, startPos);
+	       if (endPos != -1) {	
+		 QString errorMsg = reason + lastMessage.mid(startPos+1, endPos - startPos-5);
+		 emit sendErrorMessage(errorMsg);
+		 return;
+	       } else { // no finish
+		 QString errorMsg = reason + lastMessage;
+		 emit sendErrorMessage(errorMsg);		 
+		 return;
+	       }
+	     } else { // no start
+	       QString errorMsg = reason + lastMessage;	       
+	       emit sendErrorMessage(errorMsg);
+	       return;
+	     }
+	   } 
+	   emit sendErrorMessage("Job Did Not Finish SUCESSFULLY");
+	   qDebug() << theObj;
+	   return;
+	 }
+
+
+      
          QString archiveDir;
          QString inputDir;
          QJsonValue archivePath = job["archiveSystemDir"];
@@ -378,14 +542,27 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 	 
         QString localDir = SimCenterPreferences::getInstance()->getRemoteWorkDir();
         QDir localWork(localDir);
-        localWork.removeRecursively();
-        if (!localWork.exists()) {
-            if (!localWork.mkpath(localDir)) {
-                emit sendErrorMessage(QString("Could not create Working Dir: ") + localDir + QString(" . Try using an existing directory or make sure you have permission to create the working directory."));
-                return;
-            }
-        }
 
+	// remove RemoteWorkDir
+	if (localWork.exists()) 
+	  if (SCUtils::isSafeToRemoveRecursivily(localDir))
+	    localWork.removeRecursively();
+	  else
+	    emit sendFatalMessage("App needs user to own RemoteWorkDir in Preferences, Change it and start again");
+	
+	if (!localWork.mkpath(localDir)) {
+	  emit sendFatalMessage(QString("Could not create Remote Working Dir: ") + localDir + QString(" . Try using an existing directory or make sure you have permission to create the working directory."));
+	  return;
+	}
+	
+	//
+	// place in tmp.SimCenter, similar to how sent
+	//
+
+	localDir = localDir + QDir::separator() + "tmp.SimCenter";	
+	localWork.mkpath(localDir);
+
+	
         QStringList localFiles;
         QStringList remoteFiles;
         QString appName = QCoreApplication::applicationName();
@@ -440,7 +617,7 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
             remoteFiles.append(rName3);
 
 	  }
-	  
+
 	} else {
 
 	  archiveDir = archiveDir + QString("/") + inputDir.remove(QRegularExpression(".*\\/")); // regex to remove up till last /
@@ -454,9 +631,15 @@ RemoteJobManager::getJobDetailsReturn(QJsonObject job)  {
 	  }
 	}
 	
+  QJsonValue archiveSystemIdValue = job["archiveSystemId"];
+  QString archiveSystemId = "designsafe.storage.default"; // default value
+  if (archiveSystemIdValue.isString()) {
+      archiveSystemId = archiveSystemIdValue.toString();
+  }
+
 	connect(theService,SIGNAL(downloadFilesReturn(bool, QObject*)),this,SLOT(downloadFilesReturn(bool, QObject*)));
-	theService->downloadFilesCall(remoteFiles, localFiles, this);    
-	
+	theService->downloadFilesCall(remoteFiles, localFiles, this, archiveSystemId);
+
     }
 }
 
@@ -474,6 +657,11 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
       disconnect(theService,SIGNAL(downloadFilesReturn(bool, QObject*)),this,SLOT(downloadFilesReturn(bool, QObject*)));
       
       QString localDir = SimCenterPreferences::getInstance()->getRemoteWorkDir();
+
+      // into tmp.SimCenter as for LocalWorkDir
+      
+      localDir = localDir + QDir::separator() + "tmp.SimCenter";	
+
       QDir localWork(localDir);
       
       if (!localWork.exists())
@@ -491,8 +679,11 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
 	    
 	    QString templateDir = name3 + QDir::separator() + QString("templatedir");
 	    QDir templateD(templateDir);
-	    if (templateD.exists())
-	      templateD.removeRecursively();
+
+	    if (templateD.exists())	    
+	      if (SCUtils::isSafeToRemoveRecursivily(templateDir))
+		templateD.removeRecursively();
+
 	    
 	    // unzip .. this places files in a new dir templatedir
 	    ZipUtils::UnzipFile(name1, QDir(name3));
@@ -502,14 +693,30 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
 	    
 	    // remove results dir if exists
 	    QString resultsDir = name3 + QDir::separator() + QString("Results");
-	    
+
 	    QDir resultsD(resultsDir);
-	    if (resultsD.exists())
-	      resultsD.removeRecursively();
+	    if (resultsD.exists()) {
+	      if (SCUtils::isSafeToRemoveRecursivily(resultsDir))	{      
+		      resultsD.removeRecursively();
+        }
+      }
 	    
 	    // unzip .. this places files in a new dir results
 	    ZipUtils::UnzipFile(name2, QDir(name3));
-	    emit processResults(resultsDir);		
+      
+      // check if results dir exists, if not replace Results with results and check again
+      // we are inconsistent with use of "results" and "Results" in the code and tapis apps
+      QFileInfo resultsDirInfo(resultsDir);
+      if (!resultsDirInfo.exists()) {
+        qDebug() << "Results directory " << resultsDir << " does not exist, replacing Results with results.";
+        resultsDir.replace("Results", "results");
+        resultsDirInfo.setFile(resultsDir);
+        if (!resultsDirInfo.exists()) {
+          qDebug() << "Results directory " << resultsDir << " still does not exist after replacement.";
+        }
+      }
+	    
+      emit processResults(resultsDir);		
 	    this->close();
 	    
 	  } else {
@@ -531,11 +738,10 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
 
 	  for (int i=0; i<filesToDownload.size(); i++) {
 	    QString name = filesToDownload.at(i);
-	    qDebug() << "name: " << name;
-	    if (name.contains(".zip")) {
+	    if (unzipZip == true && name.contains(".zip")) {
 	      QString filePath = localDir + QDir::separator() + name;	      
 	      ZipUtils::UnzipFile(filePath, localDir);
-	      qDebug() << "unzipiing " << filePath << " in: " << localDir;
+	      qDebug() << "unziping " << filePath << " in: " << localDir;
 	    }
 	  }
 	  emit processResults(localDir);

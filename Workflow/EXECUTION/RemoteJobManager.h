@@ -66,11 +66,12 @@ public:
     explicit RemoteJobManager(RemoteService *theService, QWidget *parent = nullptr);
     bool addJob(QString &jobID);
     void clearTable(void);
-    void setFilesToDownload(QStringList filesToDownload);
+    void setFilesToDownload(QStringList filesToDownload, bool unzipZip = true);
 
 signals:
     void sendStatusMessage(QString);
     void sendErrorMessage(QString);
+    void sendFatalMessage(QString);  
 
     void getJobsList(QString);
     void getJobStatus(QString);
@@ -88,6 +89,7 @@ public slots:
     void jobsListReturn(QJsonObject);
     void jobStatusReturn(QString);
     void deleteJobReturn(bool);
+    void shareJobReturn(bool);
     void getJobDetailsReturn(QJsonObject);
 
     // void deleteDirectoryReturn(bool);
@@ -98,6 +100,9 @@ public slots:
     void bringUpJobActionMenu(int row, int col);
     void updateJobStatus(void);
     void deleteJob(void);
+    void shareJob(void);
+    void urlJob(void);
+    void metadataJob(void);
     void deleteJobAndData(void);
     void getJobData(void);
 
@@ -135,6 +140,7 @@ private:
     RemoteService *theService;
     bool callProcessResultsOnApp;
     QStringList filesToDownload;
+    bool unzipZip;
 };
 
 #endif // REMOTEJOBMANAGER_H

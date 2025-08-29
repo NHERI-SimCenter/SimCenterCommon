@@ -89,6 +89,9 @@ UQ_EngineSelection::initialize()
 
     if (typeOption == ForwardOnly) {
         theMethodCombo->addItem("Forward Propagation");
+    } else if (typeOption == ForwardSurrogate) {
+        theMethodCombo->addItem("Forward Propagation");
+        theMethodCombo->addItem("Surrogate Modeling");
     } else if (typeOption == ForwardReliabilitySensitivity) {
         theMethodCombo->addItem("Forward Propagation");
         theMethodCombo->addItem("Reliability Analysis");

@@ -171,7 +171,7 @@ void ModularPython::run(QString pythonScriptPath, QStringList pythonArgs){
     const int listSize = pythonArgs.size();
     for (int i = 0; i < listSize; ++i) {
       QString arg = pythonArgs.at(i);
-      if (arg.contains("/")) // adding back space if dir path involved
+        if (arg.contains(QDir::separator()) || arg.contains("\\")) // adding back space if dir path involved
 	command += QString(" \"") + arg + QString("\"");
       else
 	command += QString(" ") + arg;	

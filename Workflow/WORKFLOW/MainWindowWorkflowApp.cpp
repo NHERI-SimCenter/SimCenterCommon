@@ -2,6 +2,7 @@
 // Written: fmckenna
 // Purpose: to test the INputWidgetSheetBM widget
 
+#include "WaveBackgroundWidget.h"
 #include "ExampleDownloader.h"
 #include "FooterWidget.h"
 #include "HeaderWidget.h"
@@ -12,10 +13,13 @@
 #include "Utils/RelativePathResolver.h"
 #include "Utils/SimCenterConfigFile.h"
 #include "Utils/dialogabout.h"
+#include "Utils/FileOperations.h"
 #include "WorkflowAppWidget.h"
 #include <ZipUtils.h>
 #include <RunPythonInThread.h>
 
+#include <QCoreApplication>
+#include <QStackedLayout>
 #include <QAction>
 #include <QApplication>
 #include <QDebug>
@@ -121,10 +125,44 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     //  to this widget we will add a header, selection, button and footer widgets
     //
 
-    QWidget *centralWidget = new QWidget();
-    QVBoxLayout *layout = new QVBoxLayout();
-    centralWidget->setLayout(layout);
-    centralWidget->setContentsMargins(0,0,0,0);
+    QVBoxLayout *layout;
+
+    // HydroUQ app has a toggle button for wave decals
+    QPushButton *toggleWaves = new QPushButton("Waves");
+    if (appName.contains("HydroUQ") || appName.contains("Hydro-UQ")) {
+        // --- central container with layers ---
+        QWidget* centralContainer = new QWidget(this);
+        auto* stacked = new QStackedLayout(centralContainer);
+        stacked->setStackingMode(QStackedLayout::StackAll);
+
+        // bottom layer: animated waves
+        WaveBackgroundWidget* bg = new WaveBackgroundWidget(centralContainer);
+        bg->setAttribute(Qt::WA_TransparentForMouseEvents, true); // don't block clicks
+        stacked->addWidget(bg);
+
+        // make a QPushButton to toggle the visibility of the waves
+        toggleWaves->setCheckable(true);
+        connect(toggleWaves, &QPushButton::toggled, bg, &WaveBackgroundWidget::setVisible);
+        bg->setVisible(true); // show waves by default
+        // set qss for when the button is unchecked to be a white background with cornflowerblue text
+        toggleWaves->setStyleSheet("QPushButton:unchecked { background-color: white; color: cornflowerblue; }");
+
+        // top layer: real content
+        content = new QWidget(centralContainer);
+        content->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        layout = new QVBoxLayout(content);
+        layout->setContentsMargins(0,0,0,0);
+        layout->setSpacing(0);
+        stacked->addWidget(content);
+        stacked->setCurrentWidget(content); // always on top of waves
+        this->setCentralWidget(centralContainer);
+    } else {
+        layout = new QVBoxLayout();
+        QWidget *centralWidget = new QWidget();
+        centralWidget->setLayout(layout);
+        centralWidget->setContentsMargins(0,0,0,0);
+        this->setCentralWidget(centralWidget);
+    }
 
     exampleMenu = nullptr;
 
@@ -170,14 +208,22 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
 
     QPushButton *citeButton = new QPushButton("Cite");
     connect(citeButton, &QPushButton::clicked, this, [this](){
+        GoogleAnalytics::Report("Citation", "Cite-Button");
         this->showCitations();
+
     });
+
+
 
 
     loginButton = new QPushButton("Login");
     layoutLogin->addWidget(name);
     
-    layoutLogin->addWidget(citeButton);    
+    // HydroUQ app has a toggle button for wave decals
+    if (appName.contains("HydroUQ") || appName.contains("Hydro-UQ")) {
+        layoutLogin->addWidget(toggleWaves); // add the toggle button for waves
+    }
+    layoutLogin->addWidget(citeButton);
     layoutLogin->addWidget(loginButton);
 
     layoutLogin->setAlignment(Qt::AlignLeft);
@@ -203,7 +249,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     QPushButton *runDesignSafeButton = new QPushButton();
     runDesignSafeButton->setText(tr("RUN at DesignSafe"));
     pushButtonLayout->addWidget(runDesignSafeButton);
-
+    
     QPushButton *getDesignSafeButton = new QPushButton();
     getDesignSafeButton->setText(tr("GET from DesignSafe"));
     pushButtonLayout->addWidget(getDesignSafeButton);
@@ -253,7 +299,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     //layout->addWidget(footer);
     layout->setSpacing(0);
 
-    this->setCentralWidget(centralWidget);
+    // this->setCentralWidget(centralWidget);
 
     //
     // Example Downloader
@@ -286,7 +332,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
       QJsonValue value = outputOptions["position"];
       if (value.isString()) {
 	QString placement = value.toString();
-	qDebug() << "POSITION " << placement;	
+	qDebug() << "Output Widget Position: " << placement;	
 	if (placement == "right")
 	  placementArea = Qt::RightDockWidgetArea;
 	else if (placement == "left")
@@ -301,7 +347,7 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     if (outputOptions.contains("numPixels")) {
       QJsonValue value = outputOptions["numPixels"];      
       numPixels = value.toInt();
-      qDebug() << " numPixels: " << numPixels;
+      qDebug() << " Output Window numPixels: " << numPixels;
     }
 
     // add dock widget & resize
@@ -453,12 +499,14 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     
     QFile appInitFile(appInitScript);
     if (appInitFile.exists()) {
+
       runButton->setEnabled(false);
       runDesignSafeButton->setEnabled(false);
       QStringList args;
       // runs appInit.py with 0 args using the applications own dir as working dir
       RunPythonInThread *thePythonProcess = new RunPythonInThread(appInitScript, args, QCoreApplication::applicationDirPath()); 
       connect(thePythonProcess, &RunPythonInThread::processFinished, this, [=](){
+
 	runButton->setEnabled(true);
 	runDesignSafeButton->setEnabled(true);
       });
@@ -477,57 +525,66 @@ MainWindowWorkflowApp::~MainWindowWorkflowApp()
     //
     
     QString dirToZip = thePreferences->getLocalWorkDir();
-    QDir theLocalDir(dirToZip);
-    if (theLocalDir.exists()) {
-
-      // zip it .. give zip file same name with .zip extension
-      QDir parentDir = theLocalDir;
-      parentDir.cdUp();      
-      QString dirName = theLocalDir.dirName();
-      QString zipFile=parentDir.absoluteFilePath(dirName+QString(".zip"));
-      ZipUtils::ZipFolder(theLocalDir, zipFile);
-
-      // now remove
-      theLocalDir.removeRecursively();
+    if (SCUtils::isSafeToRemoveRecursivily(dirToZip)) {
+      
+      QDir theLocalDir(dirToZip);
+      if (theLocalDir.exists()) {
+	
+	// zip it .. give zip file same name with .zip extension
+	QDir parentDir = theLocalDir;
+	parentDir.cdUp();      
+	QString dirName = theLocalDir.dirName();
+	QString zipFile=parentDir.absoluteFilePath(dirName+QString(".zip"));
+	ZipUtils::ZipFolder(theLocalDir, zipFile);
+	
+	// now remove
+	theLocalDir.removeRecursively();
+      }
     }
-
+    
     //
     // lastly remote dir
     //
-
+    
     dirToZip = thePreferences->getRemoteWorkDir();
-    QDir theRemoteDir(dirToZip);
-    if (theRemoteDir.exists()) {
-
-      // zip it .. give zip file same name with .zip extension
-      QDir parentDir = theRemoteDir;
-      parentDir.cdUp();      
-      QString dirName = theRemoteDir.dirName();
-      QString zipFile=parentDir.absoluteFilePath(dirName+QString(".zip"));
-      ZipUtils::ZipFolder(theRemoteDir, zipFile);
-
-      // now remove
-      theRemoteDir.removeRecursively();
-    }    
-    
-    dirToZip = thePreferences->getLocalWorkDir();      
+    if (SCUtils::isSafeToRemoveRecursivily(dirToZip)) {      
+      QDir theRemoteDir(dirToZip);
+      if (theRemoteDir.exists()) {
+	
+	// zip it .. give zip file same name with .zip extension
+	QDir parentDir = theRemoteDir;
+	parentDir.cdUp();      
+	QString dirName = theRemoteDir.dirName();
+	QString zipFile=parentDir.absoluteFilePath(dirName+QString(".zip"));
+	ZipUtils::ZipFolder(theRemoteDir, zipFile);
+	
+	// now remove
+	theRemoteDir.removeRecursively();
+      }    
+      
+      dirToZip = thePreferences->getLocalWorkDir();      
+    }
   }
-    
+  
   if (getConfigOptionString("handleWorkDirsOnExit") == "removeThem")  {
     
     QString dirToRemove = thePreferences->getLocalWorkDir();
-    QDir theLocalDir(dirToRemove);    
-    if (theLocalDir.exists()) {
-      theLocalDir.removeRecursively();
+    if (SCUtils::isSafeToRemoveRecursivily(dirToRemove)) {      
+      
+      QDir theLocalDir(dirToRemove);    
+      if (theLocalDir.exists()) {
+	theLocalDir.removeRecursively();
+      }
     }
-
-    dirToRemove = thePreferences->getRemoteWorkDir();
-    QDir theRemoteDir(dirToRemove);    
-    if (theRemoteDir.exists()) {
-      theRemoteDir.removeRecursively();
-    }    
     
-  }
+    dirToRemove = thePreferences->getRemoteWorkDir();
+      if (SCUtils::isSafeToRemoveRecursivily(dirToRemove)) {            
+	QDir theRemoteDir(dirToRemove);    
+	if (theRemoteDir.exists()) {
+	  theRemoteDir.removeRecursively();
+	}
+      }
+  } 
 }
 
 
@@ -721,8 +778,10 @@ void MainWindowWorkflowApp::updateExamplesMenu(bool placeBeforeHelp)
                 }
             }
         }
-    } else
-        qDebug() << "No Examples" << pathToExamplesJson;
+    } else {
+        qDebug() << "No Examples File Found" << pathToExamplesJson;
+        emit sendStatusMessage("No Examples FIle Found "+ pathToExamplesJson);
+    }
 
     if (_exampleDownloader) {
         theExampleDownloader->updateTree();
@@ -899,6 +958,7 @@ MainWindowWorkflowApp::onRunButtonClicked() {
 
 void
 MainWindowWorkflowApp::onRemoteRunButtonClicked(){
+  
     if (loggedIn == true) {
         theWorkflowAppWidget->onRemoteRunButtonClicked();
     } else {
@@ -1182,6 +1242,7 @@ MainWindowWorkflowApp::showCitations(void)
   layout->addWidget(json,1,1);
   connect(json, &QPushButton::clicked, this, [textEdit, json_string](){
     textEdit->setPlainText(json_string);
+    GoogleAnalytics::Report("Citation", "JSON");
   });
 
   
@@ -1189,6 +1250,7 @@ MainWindowWorkflowApp::showCitations(void)
   layout->addWidget(justCitations,1,2);
   connect(justCitations, &QPushButton::clicked, this, [textEdit, justText](){
     textEdit->setPlainText(justText);
+    GoogleAnalytics::Report("Citation", "Citations-Only");
   });
 
 

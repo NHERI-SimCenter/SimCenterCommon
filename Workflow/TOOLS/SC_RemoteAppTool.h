@@ -14,6 +14,7 @@ class WorkflowAppWidget;
 class QPushButton;
 class RemoteService;
 class QLineEdit;
+class TapisMachine;
 class RemoteJobManager;
 class QJsonObject;
 
@@ -29,12 +30,21 @@ public:
 		   RemoteService *theRemoteService,
 		   SimCenterAppWidget* theEnclosedApp,
 		   QDialog *enclosingDialog = nullptr);
+
+  SC_RemoteAppTool(QString tapisAppName,
+		   QString tapisAppVersion,
+		   TapisMachine *theMachine,
+		   RemoteService *theRemoteService,
+		   SimCenterAppWidget* theEnclosedApp,
+		   QDialog *enclosingDialog = nullptr);  
   
   ~SC_RemoteAppTool();
-  
+
+  void initialize(QDialog *enclosingDialog);
   void clear(void);
   bool outputCitation(QJsonObject &jsonObject) override;
-		    
+
+  void setFilesToDownload(QStringList, bool unzipZip = true);
   void setExtraInputs(QMap<QString, QString> extraInputs);
   void setExtraParameters(QMap<QString, QString> extraParameters);
 
@@ -46,15 +56,18 @@ public slots:
 
   void onGetRemoteButtonPressed();
   void processResults(QString &);
-    
+  void setAppNameReport(QString text);
+  
 private:
 
   SimCenterAppWidget *theApp;
   RemoteService *theService;  
   QString tapisAppName;
   QString tapisAppVersion;
+  QString appNameReport;  
   QString machine;  
-  QStringList queus; 
+  QStringList queus;
+
   
   QLineEdit *nameLineEdit;
   // QLineEdit *systemLineEdit;
@@ -63,8 +76,9 @@ private:
   QLineEdit *numProcessorsLineEdit;
   QLineEdit *runtimeLineEdit;  
   QLineEdit *allocation; 
+  QLineEdit *systemID;
+  QLineEdit *systemDir;    
   QPushButton *submitButton;
-
 
   QString tmpDirName;
   QString remoteDirectory;
@@ -79,7 +93,7 @@ private:
   QString remoteHomeDirPath;
   QJsonObject theJob;
 
-
+  TapisMachine *theMachine;
   RemoteJobManager *theJobManager;
 };
 

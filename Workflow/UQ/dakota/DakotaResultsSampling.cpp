@@ -196,6 +196,8 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
 
     QFileInfo fileTabInfo(filenameTab);
 
+
+
     QString errMsg("");
     this->extractErrorMsg( fileTabInfo.absolutePath(),"dakota.err", "Dakota", errMsg);
 
@@ -253,11 +255,6 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
 //        if (line.length()!= 0)
 //            errMsg = QString(QString("Error in Creating Workflow: ") + line);
 //    }
-    QFileInfo filenameTabInfo(filenameTab);
-    if (!filenameTabInfo.exists()) {
-        errorMessage("No dakotaTab.out file - dakota failed .. possibly no QoI");
-        return 0;
-    }
 
 //    // If surrogate model is used, display additional info.
 //    QDir tempFolder(filenameTabInfo.absolutePath());

@@ -130,6 +130,9 @@ public:
     ExampleDownloader* theExampleDownloader;
     ProgramOutputDialog* statusWidget;
 
+    QWidget *content; // the main content widget, used for styling
+    
+
     friend class R2DUnitTests;
 
 };

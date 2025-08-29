@@ -49,16 +49,20 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QCheckBox>
 #include <QJsonObject>
 #include <QMap>
+#include <QComboBox>
+#include <QStringList>
+#include <curl/curl.h>
 
 class RemoteService;
-
+class RemoteMachine;
 class QLineEdit;
+class TapisMachine;
 
 class RemoteApplication : public Application
 {
     Q_OBJECT
 public:  
-    RemoteApplication(QString name, RemoteService *theRemoteService, QWidget *parent = nullptr);
+    RemoteApplication(QString name, RemoteService *theRemoteService, TapisMachine *theMachine, QWidget *parent = nullptr);
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
     bool setupDoneRunApplication(QString &tmpDirectory, QString &inputFile);
@@ -99,6 +103,10 @@ private:
     QLineEdit *runtimeLineEdit;
     QLineEdit *buildingsPerTask;
     QLineEdit *allocation;
+    QStringList uuids, projectIds, titles;
+    // QLineEdit *systemID;
+    QComboBox *systemID;
+    QLineEdit *systemDir;  
     QCheckBox *saveResultsBox;
 
     //    QLineEdit *appLineEdit;
@@ -114,8 +122,11 @@ private:
     QString shortDirName;
     QMap<QString, QString> extraInputs;
     QMap<QString, QString> extraParameters;
-    QString designsafeDirectory; 
+    QString designsafeDirectory;
 
+    TapisMachine *theMachine;
+
+    QJsonObject inputObj;
 };
 
 #endif // REMOTE_APPLICATION_H

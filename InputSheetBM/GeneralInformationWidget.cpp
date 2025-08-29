@@ -44,10 +44,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QComboBox>
 #include <QDebug>
 #include <QList>
-
 #include <QLabel>
 #include <QLineEdit>
-
 #include <QMetaEnum>
 
 GeneralInformationWidget *
@@ -56,7 +54,7 @@ GeneralInformationWidget::getInstance() {
     theInstance = new GeneralInformationWidget();
 
   return theInstance;
- }
+}
 
 GeneralInformationWidget *GeneralInformationWidget::theInstance = 0;
 
@@ -75,25 +73,64 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent)
     yearBuilt = new QLineEdit();
     yearBuilt->setText("1990");
     
-    yearBuilt->setValidator(new QIntValidator);      
+    yearBuilt->setValidator(new QIntValidator); 
+
     structType = new QComboBox(this);
-    structType->addItem("RM1");
-    structType->addItem("RM2");
-    structType->addItem("URM");
-    structType->addItem("C1");
-    structType->addItem("C2");
-    structType->addItem("C3");
-    structType->addItem("S1");
-    structType->addItem("S2");
-    structType->addItem("S3");
-    structType->addItem("S4");
-    structType->addItem("S5");        
-    structType->addItem("W1");
-    structType->addItem("W2");
-    structType->addItem("PC1");
-    structType->addItem("PC2");
-    structType->addItem("MH");        
-    
+    structType->setToolTip(tr("The type of structural system used to resist lateral loads. The available structural systems below are defined as Building Types in the Hazus Earthquake Technical Manual."));
+    structType->addItem("W1",0);
+    structType->addItem("W2",1);
+    structType->addItem("S1",2);
+    structType->addItem("S2",3);
+    structType->addItem("S3",4);
+    structType->addItem("S4",5);
+    structType->addItem("S5",6);
+    structType->addItem("C1",7);
+    structType->addItem("C2",8);
+    structType->addItem("C3",9);
+    structType->addItem("PC1",10);
+    structType->addItem("PC2",11);
+    structType->addItem("RM1",12);
+    structType->addItem("RM2",13);
+    structType->addItem("URM",14);
+    structType->addItem("MH",15);
+    structType->addItem("N/A",16);
+
+    structType->setItemData( 0,"Wood, Light Frame, less than 5,000 sq. ft.", Qt::ToolTipRole);
+    structType->setItemData( 1,"Wood, Commercial & Industrial, larger than 5,000 sq. ft.", Qt::ToolTipRole);
+    structType->setItemData( 2,"Steel Moment Frame", Qt::ToolTipRole);
+    structType->setItemData( 3,"Steel Braced Frame", Qt::ToolTipRole);
+    structType->setItemData( 4,"Steel Light Frame", Qt::ToolTipRole);
+    structType->setItemData( 5,"Steel Frame with Cast-in-Place Concrete Shear Walls", Qt::ToolTipRole);
+    structType->setItemData( 6,"Steel Frame with Unreinforced Masonry Infill Walls", Qt::ToolTipRole);
+    structType->setItemData( 7,"Concrete Moment Frame", Qt::ToolTipRole);
+    structType->setItemData( 8,"Concrete Shear Walls", Qt::ToolTipRole);
+    structType->setItemData( 9,"Concrete Frame with Unreinforced Masonry Infill Walls", Qt::ToolTipRole);
+    structType->setItemData(10,"Precast Concrete Tilt-Up Walls", Qt::ToolTipRole);
+    structType->setItemData(11,"Precast Concrete Frames with Concrete Shear Walls", Qt::ToolTipRole);
+    structType->setItemData(12,"Reinforced Masonry Bearing Walls with Wood or Metal Deck Diaphragms", Qt::ToolTipRole);
+    structType->setItemData(13,"Reinforced Masonry Bearing Walls with Precast Concrete Diaphragms", Qt::ToolTipRole);
+    structType->setItemData(14,"Unreinforced Masonry Bearing Walls", Qt::ToolTipRole);
+    structType->setItemData(15,"Mobile Homes and Manufactured Housing", Qt::ToolTipRole);
+    structType->setItemData(16,"Undefined", Qt::ToolTipRole);
+
+    designLevel = new QComboBox(this);
+    designLevel->setToolTip(tr("Identifies the severity of demands considered during design. The available design levels are defined in the Hazus Earthquake Technical Manual."));
+    designLevel->addItem("PC",0);
+    designLevel->addItem("LC",1);
+    designLevel->addItem("MC",2);
+    designLevel->addItem("HC",3);
+    designLevel->addItem("VC",4);
+    designLevel->addItem("SC",5);
+    designLevel->addItem("N/A",6);
+
+    designLevel->setItemData(0, "Pre-Code\nApproximate Basis: UBC Seismic Zone 0, NEHRP Map Area 1.; Pre-1941 construction in all other UBC and NEHRP areas.\nPre-Code design represents older buildings that were not designed for earthquake load, regardless of where they are located in the United States.", Qt::ToolTipRole);
+    designLevel->setItemData(1, "Low-Code\nApproximate Basis: 1941-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5; Post-1941 construction in UBC Seismic Zone 2A, NEHRP Map Area 4; Post-1975 construction in UBC Seismic Zone 1, NEHRP Map Area 2/3", Qt::ToolTipRole);
+    designLevel->setItemData(2, "Moderate-Code\nApproximate Basis: Post-1941 construction in UBC Seismic Zone 3, NEHRP Map Area 6; Post-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5.", Qt::ToolTipRole);
+    designLevel->setItemData(3, "High-Code\nApproximate Basis: Post-1975 construction in UBC Seismic Zone 4, NEHRP Map Area 7.", Qt::ToolTipRole);
+    designLevel->setItemData(4, "Very High-Code\nApproximate Basis: Represents shaking and code strengths 1.5 times the High Code design level developed for the traditional Zone 4 hazard.", Qt::ToolTipRole);
+    designLevel->setItemData(5, "Severe-Code\nApproximate Basis: Represents shaking and code strengths 2.0 times the High Code design level developed for the traditional Zone 4 hazard.", Qt::ToolTipRole);
+    designLevel->setItemData(6,"Undefined", Qt::ToolTipRole);
+
     heightEdit->setValidator(new QDoubleValidator);  
     widthEdit->setValidator(new QDoubleValidator);  
     depthEdit->setValidator(new QDoubleValidator);  
@@ -149,7 +186,8 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent)
     QFormLayout *propertiesFormLayout = new QFormLayout(propertiesGroupBox);
    propertiesFormLayout->addRow(tr("Year Built"), yearBuilt);
    propertiesFormLayout->addRow(tr("# Stories"), storiesEdit);
-   propertiesFormLayout->addRow(tr("Struct. Type"), structType);       
+   propertiesFormLayout->addRow(tr("Struct. Type"), structType);
+   propertiesFormLayout->addRow(tr("Design Level"), designLevel);       
    propertiesFormLayout->addRow(tr("Height"), heightEdit);
    propertiesFormLayout->addRow(tr("Width"), widthEdit);
    propertiesFormLayout->addRow(tr("Depth"), depthEdit);
@@ -246,7 +284,12 @@ GeneralInformationWidget::outputToJSON(QJsonObject &jsonObj){
     jsonObj["NumberOfStories"] = storiesEdit->text().toInt();
     jsonObj["width"] = widthEdit->text().toDouble();
     jsonObj["depth"] = depthEdit->text().toDouble();
-    jsonObj["StructureType"] = structType->currentText();
+    if (structType->currentText() != "N/A") {
+        jsonObj["StructureType"] = structType->currentText();
+    }
+    if (designLevel->currentText() != "N/A") {
+        jsonObj["DesignLevel"] = designLevel->currentText();
+    }
     jsonObj["YearBuilt"] = yearBuilt->text().toInt();    
     
 
@@ -312,6 +355,17 @@ GeneralInformationWidget::inputFromJSON(QJsonObject &jsonObject){
     } else if (!jsonObject["NumberOfStories"].isUndefined()) {
         QJsonValue storiesValue = jsonObject["NumberOfStories"];
         storiesEdit->setText(QString::number(storiesValue.toInt()));
+    }
+
+    if (jsonObject.contains("StructureType")) {
+        structType->setCurrentText(jsonObject["StructureType"].toString());
+    } else {
+        structType->setCurrentText("N/A");
+    }
+    if (jsonObject.contains("DesignLevel")) {
+        designLevel->setCurrentText(jsonObject["DesignLevel"].toString());
+    } else {
+        designLevel->setCurrentText("N/A");
     }
 
     QJsonValue heightValue = jsonObject["height"];

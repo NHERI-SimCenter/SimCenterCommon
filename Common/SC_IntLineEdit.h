@@ -72,6 +72,7 @@ public slots:
 
 private:
   QString key;
+  int currentNumber;
 };
 
 #endif // SC_INT_LINEEDIT_H

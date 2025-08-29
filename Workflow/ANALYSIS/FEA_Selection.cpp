@@ -45,6 +45,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QCoreApplication>
 #include <SurrogateSimulation.h>
 #include <QCoreApplication>
+#include <CapacitySpectrumWidget.h>
 
 FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
   : SimCenterAppSelection(QString("FE Application"), QString("Simulation"), parent)
@@ -60,12 +61,28 @@ FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
   SimCenterAppWidget *custom_py_simulation= new CustomPySimulation();
   this->addComponent(QString("CustomPy-Simulation"), QString("CustomPy-Simulation"), custom_py_simulation);
 
+  //
+  // finally add app specific options
+  // 
+    
   QString appName = QCoreApplication::applicationName();
-  if (appName == "EE-UQ") {
-     SimCenterAppWidget *surrogate = new SurrogateSimulation();
-      this->addComponent(QString("None (only for surrogate)"), QString("SurrogateSimulation"), surrogate);
+  
+  // add capacity spectrum if PBE
+  if (appName =="PBE") {  
+    CapacitySpectrumWidget* capacitySpectrum = new CapacitySpectrumWidget(false, this);
+    this->addComponent(QString("Capacity Spectrum Method"), QString("CapacitySpectrumMethod2"), capacitySpectrum);
   }
 
+  
+  // add Surrogate 
+  if ((appName == "EE-UQ" || appName =="WE-UQ") || appName =="PBE") {
+    SimCenterAppWidget *surrogate = new SurrogateSimulation();
+    this->addComponent(QString("None (only for surrogate)"), QString("SurrogateSimulation"), surrogate);
+      
+  } else if ((appName == "Hydro-UQ" || appName =="HydroUQ") || appName =="Hydro") {
+    SimCenterAppWidget *surrogate = new SurrogateSimulation();
+    this->addComponent(QString("None (only for surrogate)"), QString("SurrogateSimulation"), surrogate);
+  }
 }
 
 FEA_Selection::~FEA_Selection()

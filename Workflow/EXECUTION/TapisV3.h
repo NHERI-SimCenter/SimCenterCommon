@@ -83,12 +83,16 @@ public:
     QJsonArray remoteLS(const QString &remotePath);
     bool mkdir(const QString &remoteName, const     QString &remotePath);
     bool uploadFile(const QString &local, const QString &remote);
-    bool downloadFile(const QString &remote, const QString &local);
+    bool downloadFile(const QString &remote, const QString &local, const QString &archiveSystemID = QString("designsafe.storage.default"));
     bool uploadDirectory(const QString &local, const QString &remote);
     //  bool downloaDirectory(const QString &remote, const QString &local);
     bool removeDirectory(const QString &remote);
 
     virtual QString getHomeDirPath(void);
+    QString getAccessToken(void);
+    void getUuidProjectIdTitleLists(QStringList &uuids, QStringList &projectIds, QStringList &titles);
+    QString getArchiveSystemDir(const QString &jobUuid);
+    QString getProjectId(const QString &archiveSystemId);
 
     // methods needed to start a job
     QString startJob(const QString &jobDescription);
@@ -99,6 +103,10 @@ public:
     QJsonObject getJobDetails(const QString &jobID);
     QString getJobStatus(const QString &jobID);
     bool deleteJob(const QString &jobID, const QStringList &dirToRemove);
+    bool shareJob(const QString &jobID, const QString &username);
+    
+    // method for getting files list
+    QJsonObject getFilesList(const QString &remotePath);
 
 signals:
 
@@ -112,7 +120,7 @@ public slots:
     // file system
     void mkdirCall(const QString &remoteName, const QString &remotePath);
     void uploadFileCall(const QString &local, const QString &remote);
-    void downloadFilesCall(const QStringList &remote, const QStringList &local, QObject* sender=nullptr);
+    void downloadFilesCall(const QStringList &remote, const QStringList &local, QObject* sender=nullptr, const QString &archiveSystemID = QString("designsafe.storage.default"));
     void uploadDirectoryCall(const QString &local, const QString &remote);
     // void downloaDirectoryCall(const QString &remote, const QString &local);
     void removeDirectoryCall(const QString &remote);
@@ -124,11 +132,12 @@ public slots:
     void getJobDetailsCall(const QString &jobID);
     void getJobStatusCall(const QString &jobID);
     void deleteJobCall(const QString &jobID, const QStringList &dirToRemove);
+    void shareJobCall(const QString &jobID, const QString &username);
     void remoteLSCall(const QString& remotePath);
 
 private:
     // private methods
-    bool invokeCurl(void);
+    bool invokeCurl(const int index = 0);
 
     // variable thet are Agave specific
     QString tenant;
@@ -137,6 +146,7 @@ private:
     // need two unique file names, use these for temp storage while running
     QString uniqueFileName1;
     QString uniqueFileName2;
+    QString uniqueFileName3;
 
     // variables for login & login widget
     bool loggedInFlag;

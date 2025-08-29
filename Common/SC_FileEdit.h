@@ -58,15 +58,16 @@ class SC_FileEdit : public QWidget
   Q_OBJECT
 public:
   
-  SC_FileEdit(QString key);
-  SC_FileEdit(QString key, QString toolTip);
+  SC_FileEdit(QString key,  QStringList fileType={});
+  SC_FileEdit(QString key, QString toolTip, QStringList fileType={});
   ~SC_FileEdit();
   
   bool outputToJSON(QJsonObject &jsonObject);
   bool inputFromJSON(QJsonObject &jsonObject);
   
-  QString getFilename(void);  
+  QString getFilename(void);  // full path including name of file
   void setFilename(QString &fileName);
+  QString getName(void);    // returns just the name of file, not path
   
   bool copyFile(QString &destDir);
   

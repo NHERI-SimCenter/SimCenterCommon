@@ -59,6 +59,7 @@ class LineEditRV : public QLineEdit
     Q_OBJECT
 public:
     explicit LineEditRV(RandomVariablesContainer *theRVC, QWidget *parent = 0);
+    explicit LineEditRV(QString key, RandomVariablesContainer *theRVC, QWidget *parent = 0);  
     ~LineEditRV();
     /** 
      *   @brief outputToJSON method to write all objects data neeed to reconstruct object to JsonObject
@@ -68,6 +69,7 @@ public:
      */  
 
     bool outputToJSON(QJsonObject &rvObject, QString key);
+    bool outputToJSON(QJsonObject &rvObject);  
     /** 
      *   @brief inputFromJSON method to instantiate itself from a JSON object
      *   @param rvObject the JSON object contaiing data to instantiate the object
@@ -75,6 +77,7 @@ public:
      *   @return bool - true for success, otherwise false
      */  
     bool inputFromJSON(QJsonObject &rvObject, QString key);
+    bool inputFromJSON(QJsonObject &rvObject);  
 
 signals:
 
@@ -85,6 +88,7 @@ private:
 
   RandomVariablesContainer *theRVC;
   QString oldText;
+  QString key;
 };
 
 #endif // LINEEDIT_RV_H

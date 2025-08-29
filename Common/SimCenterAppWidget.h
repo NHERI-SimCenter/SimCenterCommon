@@ -49,6 +49,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  * that are used in workflow applicaions.
  */
 
+#include <QJsonObject>
 #include <SimCenterWidget.h>
 #include <QMainWindow>
 
@@ -107,6 +108,14 @@ public:
 
     static bool copyPath(QString sourceDir, QString destinationDir, bool overWriteDirectory);
     static bool copyFile(QString filename, QString destinationDir);
+
+    /**
+     *  @brief areFilesIdentical method to compare two files and return true if they are identical.
+     *  @param path1 the first file path
+     *  @param path2 the second file path
+     *  @return bool - true if files are identical, otherwise false
+     */
+    static bool areFilesIdentical(const QString& path1, const QString& path2);
 
     /**
      *   @brief Return a postprocessor. Only called by the DLWidget in R2D.

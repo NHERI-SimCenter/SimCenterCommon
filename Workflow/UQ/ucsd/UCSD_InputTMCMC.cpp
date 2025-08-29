@@ -147,6 +147,22 @@ UCSD_InputTMCMC::UCSD_InputTMCMC(QWidget *parent)
     });
     layout->addWidget(chooseFile, row++, 3);
 
+    useApproximationCheckBox = new QCheckBox("Use Approximation", this);
+    useApproximationMessageLabel = new QLabel("Sampling from the updated parameter distribution using the TMCMC algorithm.\n"
+                                              "The computational model is directly used in the algorithm, and\n"
+                                              "if the model is expensive (e.g., > 1 minute per evaluation), this approach may be infeasible.",
+                                              this);
+
+    useApproximationCheckBox->setChecked(false);
+    useApproximationCheckBox->setToolTip("Toggle to choose between sampling approaches for the updated parameter distribution.\n"
+                                 "When enabled, an approximation is used to reduce computational cost.\n"
+                                 "When disabled, the computational model is used directly, which may\n"
+                                 "be infeasible for expensive models.");
+    layout->addWidget(useApproximationCheckBox, row++, 0);
+    layout->addWidget(useApproximationMessageLabel, row++, 1);
+    connect(useApproximationCheckBox, &QCheckBox::stateChanged, this, &UCSD_InputTMCMC::onUseApproximationCheckBoxSateChanged);
+
+
     readCovarianceDataCheckBox = new QCheckBox();
     readCovarianceDataCheckBox->setChecked(false);
 
@@ -228,6 +244,23 @@ void UCSD_InputTMCMC::advancedOptionsSlotFunction(bool tog)
     }
 }
 
+void UCSD_InputTMCMC::onUseApproximationCheckBoxSateChanged(int state)
+{
+    if (state == Qt::Checked) {
+        useApproximationMessageLabel->setText(
+            "Sampling from an approximation of the updated parameter distribution using the TMCMC algorithm.\n"
+            "The response of the computational model is approximated using Gaussian process regression,\n"
+            "and the approximation is iteratively refined using active learning.\n"
+        );
+    } else {
+        useApproximationMessageLabel->setText(
+            "Sampling from the updated parameter distribution using the TMCMC algorithm.\n"
+            "The computational model is directly used in the algorithm, and\n"
+            "if the model is expensive (e.g., > 1 minute per evaluation), this approach may be infeasible."
+        );
+    }
+}
+
 bool
 UCSD_InputTMCMC::outputToJSON(QJsonObject &jsonObj){
 
@@ -260,6 +293,8 @@ UCSD_InputTMCMC::outputToJSON(QJsonObject &jsonObj){
     jsonObj["readUserDefinedCovarianceData"]=readCovarianceDataCheckBox->isChecked();
 
     jsonObj["numExperiments"] = numExperiments;
+
+    jsonObj["useApproximation"]=useApproximationCheckBox->isChecked();
 
     return result;    
 }
@@ -309,6 +344,13 @@ UCSD_InputTMCMC::inputFromJSON(QJsonObject &jsonObject){
         numExperiments = getNumExp(calFileName);
     }
 
+    if (jsonObject.contains("useApproximation")) {
+        bool useApproximation = jsonObject["useApproximation"].toBool(); // Convert the JSON value to a bool
+        useApproximationCheckBox->setChecked(useApproximation); // Set the checkbox state
+    } 
+    else {
+        useApproximationCheckBox->setChecked(false); // Default to unchecked
+    }
 
   }
   else {

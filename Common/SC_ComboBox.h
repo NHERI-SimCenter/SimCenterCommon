@@ -55,6 +55,7 @@ class QJsonObject;
 
 class SC_ComboBox : public QComboBox
 {
+  Q_OBJECT
   
 public:
   

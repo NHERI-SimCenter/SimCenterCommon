@@ -42,14 +42,17 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "RemoteApplication.h"
 #include <RemoteService.h>
+#include <Utils/FileOperations.h>
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QComboBox>
 #include <QPushButton>
 #include <QJsonObject>
+#include <QJsonDocument>
 #include <QStandardPaths>
 #include <QCoreApplication>
 #include <QProcess>
@@ -64,16 +67,20 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <ZipUtils.h>
 #include <QCoreApplication>
 #include <QIntValidator>
+#include <QMessageBox>
 
+#include <TapisMachine.h>
 
 // Support multiple remote HPC systems, but default to Frontera - 
 
 static int maxProcPerNode = 56; // Frontera clx nodes: 56 cores, 56 threads, Frontera rtx nodes: 16 cores, 32 threads
 
-RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QWidget *parent)
-: Application(parent), theRemoteService(theService)
-{
+// new function to be called before removeRecusivility
 
+
+RemoteApplication::RemoteApplication(QString name, RemoteService *service, TapisMachine *machine, QWidget *parent)
+  : Application(parent), theRemoteService(service), theMachine(machine)
+{
 
     QString appName = QCoreApplication::applicationName();
     
@@ -81,9 +88,6 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
     workflowScriptName = name;
     shortDirName = appName + QString(": ");
 
-    if (appName == "R2D" || appName == "quoFEM") {
-      maxProcPerNode = 48;
-    }
     //    shortDirName = workflowScriptName;
     //shortDirName = name.chopped(3); // remove .py
     //shortDirName.chop(3);
@@ -99,104 +103,175 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *theService, QW
     nameLineEdit = new QLineEdit();
     nameLineEdit->setToolTip(tr("A meaningful name to provide for you to remember run later (days and weeks from now)"));
     layout->addWidget(nameLineEdit, numRow, 1);
-
     numRow++;
-    QLabel *numCPU_Label = new QLabel();
-    numCPU_Label->setText(QString("Num Nodes:"));
+        
+    if (theMachine == 0)  {
+      QLabel *numCPU_Label = new QLabel();
+      numCPU_Label->setText(QString("Num Nodes:"));
+      layout->addWidget(numCPU_Label,numRow,0);
+      
+      numCPU_LineEdit = new QLineEdit();
+      QIntValidator* theValidatorNumC = new QIntValidator(1, 512);
+      numCPU_LineEdit->setValidator(theValidatorNumC);
+      
+      numCPU_LineEdit->setText("1");
+      numCPU_LineEdit->setToolTip(tr("Total # of nodes to use (each node has many cores)"));
+      layout->addWidget(numCPU_LineEdit,numRow,1);
+      numRow++;
+      
+      QLabel *numProcessorsLabel = new QLabel();
+      numProcessorsLabel->setText(QString("# Cores Per Node:"));
+      
+      layout->addWidget(numProcessorsLabel,numRow,0);
+      
+      numProcessorsLineEdit = new QLineEdit();
+      numProcessorsLineEdit->setText(QString::number(maxProcPerNode));
+      numProcessorsLineEdit->setToolTip(tr("Total # of Processes to Start on each node"));
+      layout->addWidget(numProcessorsLineEdit,numRow,1);
+      numRow++;
 
-    layout->addWidget(numCPU_Label,numRow,0);
-
-    numCPU_LineEdit = new QLineEdit();
-    QIntValidator* theValidatorNumC = new QIntValidator(1, 512);
-    numCPU_LineEdit->setValidator(theValidatorNumC);
-    
-    numCPU_LineEdit->setText("1");
-    numCPU_LineEdit->setToolTip(tr("Total # of nodes to use (each node has many cores)"));
-    layout->addWidget(numCPU_LineEdit,numRow,1);
-
-    numRow++;
-    QLabel *numProcessorsLabel = new QLabel();
-    numProcessorsLabel->setText(QString("# Cores Per Node:"));
-
-    layout->addWidget(numProcessorsLabel,numRow,0);
-
-    numProcessorsLineEdit = new QLineEdit();
-    numProcessorsLineEdit->setText(QString::number(maxProcPerNode));
-    numProcessorsLineEdit->setToolTip(tr("Total # of Processes to Start on each node"));
-    layout->addWidget(numProcessorsLineEdit,numRow,1);
-
-    // hate the validator
-    //QIntValidator* theValidatorNumP = new QIntValidator(1, maxProcPerNode);
-    //numProcessorsLineEdit->setValidator(theValidatorNumP);
-    
-    connect(numProcessorsLineEdit, &QLineEdit::textChanged, this, [=](QString newText) {
+      connect(numProcessorsLineEdit, &QLineEdit::textChanged, this, [=](QString newText) {
         bool ok;
         int numP = newText.toInt(&ok);
         if (ok == false) 
-        {
-	        numP = 1;
-        }
+	  {
+	    numP = 1;
+	  }
         else if (ok && numP > maxProcPerNode) 
-        {
-	        ok = false;
-	        numP = maxProcPerNode;
-        } 
+	  {
+	    ok = false;
+	    numP = maxProcPerNode;
+	  } 
         else if (ok && numP < 1) 
-        {
-	        ok = false;
-	        numP = 1;
-        }
+	  {
+	    ok = false;
+	    numP = 1;
+	  }
         
         if (ok == false) 
-        {
-	        numProcessorsLineEdit->setText(QString::number(numP));
-        }
+	  {
+	    numProcessorsLineEdit->setText(QString::number(numP));
+	  }
         
-    });
+      });
 
-
-    if (appName == "R2D") {
-        numRow++;
+      if (appName == "R2D") {
         layout->addWidget(new QLabel("# Buildings Per Task:"), numRow, 0);
         buildingsPerTask=new QLineEdit("10");
         buildingsPerTask->setToolTip("Number of buildings per task when running in parallel");
         layout->addWidget(buildingsPerTask, numRow, 1);
-
         numRow++;
+	
         layout->addWidget(new QLabel("Save Inter. Results:"), numRow, 0);
         saveResultsBox=new QCheckBox(); saveResultsBox->setChecked(false);
         saveResultsBox->setToolTip("Save Intermediary results to compressed folder. You typically do not want this.");
         layout->addWidget(saveResultsBox, numRow, 1);
+	numRow++;	
+      }
+      
+      QLabel *runtimeLabel = new QLabel();
+      runtimeLabel->setText(QString("Max Run Time (minutes):"));
+      layout->addWidget(runtimeLabel,numRow,0);
+    
+      runtimeLineEdit = new QLineEdit();
+      runtimeLineEdit->setText("30");
+      runtimeLineEdit->setToolTip(tr("Run time Limit on running Job hours:Min. Job will be stopped if while running it exceeds this"));
+      int maxMinutes = 60*48; // WARNING: Some Stampede3 queues only allow 60*24 minute run-times
+      QIntValidator* theValidatorMinutes = new QIntValidator(1, maxMinutes);
+      runtimeLineEdit->setValidator(theValidatorMinutes);
+      runtimeLineEdit->setToolTip(tr("Run time Limit on running Job hours:Min. Job will be stopped if while running it exceeds this"));        
+      layout->addWidget(runtimeLineEdit,numRow,1);
+      numRow++;
+      
+    } else {
+      
+      layout->addWidget(theMachine, numRow, 0, 4, 2);
+      numRow+=4;
+      
     }
-
-    numRow++;
-    QLabel *runtimeLabel = new QLabel();
-    runtimeLabel->setText(QString("Max Run Time (minutes):"));
-    layout->addWidget(runtimeLabel,numRow,0);
-
-    runtimeLineEdit = new QLineEdit();
-    runtimeLineEdit->setText("30");
-    runtimeLineEdit->setToolTip(tr("Run time Limit on running Job hours:Min. Job will be stopped if while running it exceeds this"));
-    int maxMinutes = 60*48; // WARNING: Some Stampede3 queues only allow 60*24 minute run-times
-    QIntValidator* theValidatorMinutes = new QIntValidator(1, maxMinutes);
-    runtimeLineEdit->setValidator(theValidatorMinutes);
-    runtimeLineEdit->setToolTip(tr("Run time Limit on running Job hours:Min. Job will be stopped if while running it exceeds this"));        
-    layout->addWidget(runtimeLineEdit,numRow,1);
-
-    numRow++;
+    
     layout->addWidget(new QLabel("TACC Allocation"), numRow, 0);
     allocation = new QLineEdit();
+    allocation->setPlaceholderText("Submit a ticket to DesignSafe to obtain your allocation.");
     allocation->setText(SimCenterPreferences::getInstance()->getDefaultAllocation());
     layout->addWidget(allocation,numRow,1);
-
     numRow++;
+
+    // ------------------------------- Sharing Jobs through Archive Systems --------------------------------
+    
+    // job["archiveSystemId"] = "project-6281135954102775315-242ac117-0001-012"
+    // job["archiveSystemDir"] = "HydroUQ/sharedJobs/{input_your_user_name}/{input_your_job_name}"
+    layout->addWidget(new QLabel("Archive System ID"), numRow, 0);
+
+    // -----------------------------------------------------------------------------------------------------
+    // // Simple approach to archiveSystemId that requires manual user input of project uuid
+    // systemID = new QLineEdit();
+    // systemID->setText("Default");
+
+    // -----------------------------------------------------------------------------------------------------
+    // Complex curl approach to archiveSystemId that provides a list of projects users are a member of
+    systemID = new QComboBox();
+    systemID->setToolTip("Select the archive system ID. This is the parent project folder the completed job will save files to.");
+    systemID->addItem("designsafe.storage.default");
+
+
+    QPushButton *refreshButton = new QPushButton("Refresh Projects");
+    connect(refreshButton, &QPushButton::clicked, this, [this]() {
+        // Clear the current items in the combo box
+        systemID->clear();
+        uuids.clear();
+        projectIds.clear();
+        titles.clear();
+
+        systemID->addItem("designsafe.storage.default"); // Always add the default item first
+
+        // Call the function to populate the projects
+        // populateProjects();
+    
+        if (systemID->count() == 1) {
+            // QStringList uuids, projectIds, titles;
+            QStringList titlesWithProjectIds;
+    
+            theRemoteService->getUuidProjectIdTitleLists(uuids, projectIds, titles);
+    
+            titlesWithProjectIds = titles;
+            for (int i = 0; i < titles.size(); ++i) {
+                titlesWithProjectIds[i] = titles[i] + " (" + projectIds[i] + ")";
+            }
+            qDebug() << "RemoteApplication::titlesWithProjectIds: " << titlesWithProjectIds;
+    
+            systemID->addItems(titlesWithProjectIds);
+          }
+          
+        systemID->setCurrentIndex(0); // Default to the first item, which is "designsafe.storage.default"
+    });
+    layout->addWidget(refreshButton, numRow, 1);
+    numRow++;
+
+    layout->addWidget(systemID,numRow,1);
+    numRow++;
+
+    // -----------------------------------------------------------------------------------------------------
+    // Basic approach to archiveSystemDir that requires manual user input of the desired output directory
+
+    layout->addWidget(new QLabel("Archive System Dir"), numRow, 0);
+    systemDir = new QLineEdit();
+    systemDir->setText("Default");
+    layout->addWidget(systemDir,numRow,1);
+    numRow++;        
+
+    // -----------------------------------------------------------------------------------------------------
+
+      
+
+    
     pushButton = new QPushButton();
     pushButton->setText("Submit");
     pushButton->setToolTip(tr("Press Submit to launch your job on a remote computer system. This window will close once the job starts."));
     layout->addWidget(pushButton,numRow,1);
-
+    numRow++;
+    
     this->setLayout(layout);
-
     connect(pushButton,SIGNAL(clicked()), this, SLOT(onRunButtonPressed()));
 }
 
@@ -214,12 +289,22 @@ RemoteApplication::outputToJSON(QJsonObject &jsonObject)
 
     jsonObject["remoteAppDir"]=SimCenterPreferences::getInstance()->getRemoteAppDir();    
     jsonObject["runType"]=QString("runningRemote");
-    int nodeCount = numCPU_LineEdit->text().toInt();
-    int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
-    jsonObject["nodeCount"]=nodeCount;
-    jsonObject["numP"]=nodeCount*numProcessorsPerNode;    
-    jsonObject["coresPerNode"]=numProcessorsPerNode;    
 
+    if (theMachine == 0) {
+      int nodeCount = numCPU_LineEdit->text().toInt();
+      int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
+      jsonObject["nodeCount"]=nodeCount;
+      jsonObject["numP"]=nodeCount*numProcessorsPerNode;    
+      jsonObject["coresPerNode"]=numProcessorsPerNode;    
+    } else {
+      theMachine->outputToJSON(jsonObject);
+      if (appName == "HydroUQ" || appName == "Hydro-UQ") {
+        int nodeCount = jsonObject["nodeCount"].toInt();
+        int numProcessorsPerNode = jsonObject["coresPerNode"].toInt();
+        jsonObject["numP"]=nodeCount*numProcessorsPerNode; // not set in outputToJSON as thats called in uploadDirReturn as well for the remote app json, so can't add extra keys
+      }
+    }
+    
     return true;
 }
 
@@ -234,6 +319,25 @@ RemoteApplication::inputFromJSON(QJsonObject &dataObject) {
 void
 RemoteApplication::onRunButtonPressed(void)
 {
+
+  if ( allocation->text() == "") {
+
+      errorMessage(QString("No TACC Allocation has been provided"));      
+      switch( QMessageBox::warning( 
+            nullptr, 
+            tr("No TACC Allocation Provided"), 
+            tr("No TACC Allocation has been specified in your input form. Please enter your existing allocation in the in the TACC Allocation field. If you do not have one, submit a ticket to DesignSafe requesting access to HPC resources."),
+            QMessageBox::Close))
+	{
+	case QMessageBox::Close:
+	  return;
+	default:
+	  return;
+	}
+      
+      return;
+  }
+  
     QString workingDir = SimCenterPreferences::getInstance()->getRemoteWorkDir();
 
     QDir dirWork(workingDir);
@@ -266,19 +370,33 @@ RemoteApplication::onRunButtonPressed(void)
 
 bool
 RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile) {
+  
 
-  //Q_UNUSED(runType);
-  //    QString appDir = localAppDirName->text();
-  QString runType("runningRemote");
-  
-  QString appDir = SimCenterPreferences::getInstance()->getAppDir();
-  QString pySCRIPT;
-  
-  QString appName = QCoreApplication::applicationName();
-  
-  // R2D does not have a local setup run
-  
-  if (appName != "R2D"){
+    // Read the file contents
+    QFile file(inputFile);
+    if (file.open(QIODevice::ReadOnly)) {
+        QByteArray fileData = file.readAll();
+        QJsonDocument inputDoc = QJsonDocument::fromJson(fileData);
+        inputObj = inputDoc.object();
+        file.close();
+    } else {
+        errorMessage(QString("Failed to open input file: ") + inputFile);
+        pushButton->setEnabled(true);
+        return false;
+    }
+    
+    //Q_UNUSED(runType);
+    //    QString appDir = localAppDirName->text();
+    QString runType("runningRemote");
+    
+    QString appDir = SimCenterPreferences::getInstance()->getAppDir();
+    QString pySCRIPT;
+    
+    QString appName = QCoreApplication::applicationName();
+    
+    // R2D does not have a local setup run
+    
+    if (appName != "R2D"){
     
         QDir scriptDir(appDir);
         scriptDir.cd("applications");
@@ -323,12 +441,12 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
 
         QFileInfo pythonFile(python);
         if (!pythonFile.exists()) {
-            emit sendErrorMessage("NO VALID PYTHON - Read the Manual & Check your Preferences");
-            pushButton->setEnabled(true);
-            return false;
+	  emit sendErrorMessage(QString("NO VALID PYTHON found - Read the Manual & Update Preferences - currently set as: ") + python);	  
+	  pushButton->setEnabled(true);
+	  return false;
         }
 
-	    qDebug() << "RUNNING: " << python << " " << args;
+	      qDebug() << "RUNNING: " << python << " " << args;
 	
         proc->execute(python,args);
         proc->waitForStarted();
@@ -350,8 +468,8 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
 
         QFileInfo check_workflow(templateDir.absoluteFilePath("driver"));
         if (!check_workflow.exists() || !check_workflow.isFile()) {
-            emit sendErrorMessage(("Local Failure Setting up Dakota"));
-            qDebug() << "Local Failure Setting Up Dakota ";
+            emit sendErrorMessage(("No Driver file exists, local failure in setting up driver or problem not HPC ready"));
+            qDebug() << "Local Failure: No Driver file found, Either Problem will not run on HPC or Setup failure";
             pushButton->setEnabled(true);
             return false;
         }
@@ -365,18 +483,18 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
 	
         ZipUtils::ZipFolder(tmpDir, zipFile);
 
-	//
-	// remove input_data & templatedir directories before we send tmp directory across (they are now in zip file)
-	//
+        //
+        // remove input_data & templatedir directories before we send tmp directory across (they are now in zip file)
+        //
 	
         if (tmpDir.exists("input_data")) {
             QDir inputDataDir(tmpDir.absoluteFilePath("input_data"));
             inputDataDir.removeRecursively();
-	    } 
+	      } 
 
         QDir dirToRemove(templateDIR);
         templateDir.cd("templatedir");
-        templateDir.removeRecursively();
+	      templateDir.removeRecursively();
 	
     } else {
 
@@ -451,63 +569,73 @@ RemoteApplication::uploadDirReturn(bool result)
       pushButton->setDisabled(true);
       
       job["name"]=shortDirName + nameLineEdit->text();
-      int nodeCount = numCPU_LineEdit->text().toInt();
-      int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
-      int ramPerNodeMB = 1000; // 1 GB
-      job["nodeCount"]=nodeCount;
-      job["coresPerNode"]=numProcessorsPerNode;
-      job["memoryMB"]=ramPerNodeMB;
-      job["maxMinutes"]=runtimeLineEdit->text().toInt();
-
-
-
-      // --- CPU queues on Frontera, TODO: implement for frontera/stampede3/lonestar6 + GPU queues
-      QString queue = "small";
-      if (nodeCount > 2) {
-        queue = "normal";
-      } else if (nodeCount > 512 && nodeCount <= 2048) {
-        queue = "large";
-      } else {
-        // Only applicable to Texa-scale days
-      }
-      // ---
-
       QString appName = QCoreApplication::applicationName(); 
 
-      if ((appName == QString("R2D")) || (appName == QString("quoFEM")) || (appName == QString("quoFEM_TEST")) ) 
-      {
-        queue = "skx"; // Stampede3 Skylake node queue, upto 60*24 minutes run-time
-      }
-
+      if (theMachine == 0) {
     
-      if ((appName == QString("HydroUQ")) || (appName == QString("Hydro-UQ")) || (appName == QString("HydroUQ_TEST"))) 
-      {
-            // NVIDIA GPU queues currently HydroUQ's default, as they include CPUs as well
-            int numProcessorsPerNodeInGpuQueu = numProcessorsPerNode;
-            int nodeCountInGpuQueue = nodeCount;
-            const bool USE_FRONTERA_GPU = true;
-            const bool USE_LONESTAR6_GPU = false;
-            if constexpr (USE_FRONTERA_GPU) 
-            {
-                queue = "rtx"; // Frontera. 4 NVIDIA Quadro RTX 5000 GPU 16GB
-                numProcessorsPerNodeInGpuQueu = 16; // 2 Intel Xeon E5-2620 v4 (“Broadwell”), 2*8 cores, or 2*8*2 threads (may not be enabled on Frontera)
-                ramPerNodeMB = 128000; // 128 GB
-                nodeCountInGpuQueue = (nodeCount < 22) ? nodeCount : 22; // Frontera, 22 nodes per job on rtx queue
-            } 
-            else if constexpr (USE_LONESTAR6_GPU) 
-            {
-                queue = "gpu-a100"; // Lonestar6, 3 NVIDIA A100 GPU 80 GB
-                numProcessorsPerNodeInGpuQueu = 128; // 2x AMD EPYC 7763 64-Core Processor ("Milan"), 2*64 cores, or 2*64*1 threads
-                ramPerNodeMB = 256000; // 256 GB
-                nodeCountInGpuQueue = (nodeCount < 4) ? nodeCount : 4; // Lonestar6, 4 nodes per job on gpu-a100 queue
-            }
-            job["coresPerNode"] = numProcessorsPerNodeInGpuQueu;
-            job["nodeCount"] = nodeCountInGpuQueue;
+        int nodeCount = numCPU_LineEdit->text().toInt();
+        int numProcessorsPerNode = numProcessorsLineEdit->text().toInt();
+        int ramPerNodeMB = 1000; // 1 GB
+        
+        job["nodeCount"]=nodeCount;
+        job["coresPerNode"]=numProcessorsPerNode;
+        job["maxMinutes"]=runtimeLineEdit->text().toInt();
+
+        
+        // --- CPU queues on Frontera, TODO: implement for frontera/stampede3/lonestar6 + GPU queues
+        QString queue = "small";
+        if (nodeCount > 2) {
+          queue = "normal";
+        } else if (nodeCount > 512 && nodeCount <= 2048) {
+          queue = "large";
+        } else {
+          // Only applicable to Texa-scale days
+        }
+        
+        if ((appName == QString("R2D")) || (appName == QString("quoFEM")) || (appName == QString("quoFEM_TEST")) ) {
+            queue = "skx"; // Stampede3 Skylake node queue, upto 60*24 minutes run-time
+            
+          }
+        
+        
+        if ((appName == QString("HydroUQ")) || (appName == QString("Hydro-UQ")) || (appName == QString("HydroUQ_TEST")))  {
+          
+          // NVIDIA GPU queues currently HydroUQ's default, as they include CPUs as well
+          int numProcessorsPerNodeInGpuQueue = numProcessorsPerNode;
+          int nodeCountInGpuQueue = nodeCount;
+          const bool USE_FRONTERA_GPU = false;
+          const bool USE_LONESTAR6_GPU = false;
+          const bool USE_STAMPEDE3_GPU = true;
+          if constexpr (USE_FRONTERA_GPU) {
+                      queue = "rtx"; // Frontera. 4 NVIDIA Quadro RTX 5000 GPU 16GB
+                      numProcessorsPerNodeInGpuQueue = 8; // 2 Intel Xeon E5-2620 v4 (“Broadwell”), 2*8 cores, or 2*8*2 threads (may not be enabled on Frontera)
+                      ramPerNodeMB = 128000; // 128 GB
+                      nodeCountInGpuQueue = (nodeCount < 22) ? nodeCount : 22; // Frontera, 22 nodes per job on rtx queue
+          } else if constexpr (USE_LONESTAR6_GPU) {
+                      queue = "gpu-a100"; // Lonestar6, 3 NVIDIA A100 GPU 80 GB
+                      numProcessorsPerNodeInGpuQueue = 1; // 2x AMD EPYC 7763 64-Core Processor ("Milan"), 2*64 cores, or 2*64*1 threads
+                      ramPerNodeMB = 256000; // 256 GB
+                      nodeCountInGpuQueue = (nodeCount < 4) ? nodeCount : 4; // Lonestar6, 4 nodes per job on gpu-a100 queue
+          } else if constexpr (USE_STAMPEDE3_GPU) {
+                      queue = "h100"; // Stampede3, 4 NVIDIA H100 GPU 96GB
+                      numProcessorsPerNodeInGpuQueue = 1; // 2 Intel Xeon Platinum 8468 ("Sapphire Rapids"), 96 cores on two sockets (2 x 48 cores)
+                      ramPerNodeMB = 1000000; // 1 TB
+                      nodeCountInGpuQueue = (nodeCount < 4) ? nodeCount : 4; // Stampede3, 4 nodes per job on gpu queue
+          } else {
+            qDebug() << "ERROR: RemoteApplication::uploadDirReturn - No GPU queue selected for HydroUQ";
+          }
+          job["coresPerNode"] = numProcessorsPerNodeInGpuQueue;
+          job["nodeCount"] = nodeCountInGpuQueue;
+        }
+
+        job["memoryMB"]               = ramPerNodeMB;
+        job["execSystemLogicalQueue"] = queue;
+    
+      } else {
+	
+	      theMachine->outputToJSON(job);
+	
       }
-
-      job["memoryMB"]               = ramPerNodeMB;
-      job["execSystemLogicalQueue"] = queue;
-
 
       // Grab the tapis App information from the preferences dialog
       // To get the true Tapis App name, the version is appeneded to the app id, e.g. "simcenter-openfoam-frontera-1.0.0"
@@ -524,17 +652,13 @@ RemoteApplication::uploadDirReturn(bool result)
       QString tapisAppVersion = SimCenterPreferences::getInstance()->getRemoteAgaveAppVersion(); 
       job["appId"]            = tapisAppId;
       job["appVersion"]       = tapisAppVersion;      
-      
-
 
       QJsonObject parameterSet;
       QJsonArray envVariables;
 
-
       //
       // app specific env variables go here
       //
-      
       
       if (appName != "R2D") {
 
@@ -588,9 +712,36 @@ RemoteApplication::uploadDirReturn(bool result)
       
       schedulerOptions.append(schedulerOptionsObj);
       parameterSet["schedulerOptions"]=schedulerOptions;
-      parameterSet["envVariables"]=envVariables;
-      job["parameterSet"]=parameterSet;
-      
+
+      // FMK
+      // job["archiveSystemId"] = "project-6281135954102775315-242ac117-0001-012"
+      // job["archiveSystemDir"]
+      // check size of systemID combo box
+
+      if (systemID->currentText() != QString("designsafe.storage.default")) {
+        // match the text in the combo box to the titlesAndProjectIds 
+        // We want to end up with the uuid
+        QString selectedText = systemID->currentText();
+        QStringList parts = selectedText.split(" (");
+        if (parts.size() > 1) {
+          // Extract the project ID from the text
+          QString projectId = parts[1];
+          projectId.chop(1); // Remove the trailing ')'
+          QString uuid = uuids[projectIds.indexOf(projectId)];
+          qDebug() << "Selected UUID:" << uuid << "for project ID:" << projectId << "and text:" << selectedText;
+          QString projectUuid = QString("project-") + uuid;
+          job["archiveSystemId"] = projectUuid;
+        } else { 
+          job["archiveSystemId"] = systemID->currentText(); // in-case later someone adds a default item to the combo box similar to designsafe.storage.default
+        }
+      } else {
+        job["archiveSystemId"] = systemID->currentText(); // designsafe.storage.default
+      }
+
+      if (systemDir->text() != QString("Default")) {
+        job["archiveSystemDir"] = systemDir->text();
+      }
+
       QJsonArray fileInputs;
       QJsonObject inputs;
       inputs["envKey"]="inputDirectory";
@@ -602,7 +753,90 @@ RemoteApplication::uploadDirReturn(bool result)
 	    inputs[inputName] = extraInputs[inputName];
       }
       fileInputs.append(inputs);
-      job["fileInputs"]=fileInputs;
+    
+    
+      // add the drm files paths for the EE-UQ app
+      if (appName == "EE-UQ" || appName == "EE-UQ_TEST" || appName == "EEUQ") 
+      {
+        
+        // add the drm files paths for the EE-UQ app
+        QStringList drmFilePaths;
+        if (inputObj.contains("Events")) 
+        {
+          QJsonArray eventsArray = inputObj["Events"].toArray();
+          QJsonDocument eventsDoc(eventsArray);
+          
+              // Loop through each event to check for DRM with predefined DesignSafe
+              for (const auto& eventValue : eventsArray) 
+              {
+                QJsonObject eventObj = eventValue.toObject();
+                // Check if this event has type "DRM" and system "predefined-designsafe"
+                if (eventObj.contains("type") && eventObj.contains("system")) 
+                {
+                  QString eventType = eventObj["type"].toString();
+                  QString eventSystem = eventObj["system"].toString();
+                  if (eventType == "DRM" && eventSystem == "predefined-designsafe") {
+                    QJsonArray eventsArray2 = eventObj["Events"].toArray();
+                    // for each DRM event in the array
+                    for (const auto& drmEventValue : eventsArray2) {
+                      QJsonObject drmEventObj = drmEventValue.toObject();
+                      QString path = drmEventObj["filePath"].toString();
+                      if (!path.isEmpty()) {
+                        drmFilePaths.append(path);
+                        QJsonObject inputs;
+                        QString name = drmEventObj["name"].toString();
+                        inputs["envKey"] = name;
+                        inputs["targetPath"] = "*";
+                        inputs["sourceUrl"] = path;
+                        fileInputs.append(inputs);
+                      }
+                    }
+                  }
+                }
+              }
+            } else {
+              errorMessage(QString("No Events section found in input JSON"));
+            }  
+            
+            
+            // add some environment variables for EE-UQ
+            QJsonObject isEEUQ_var;
+            isEEUQ_var["key"] = "_eeuqIs";
+            isEEUQ_var["value"] = "true";
+            envVariables.append(isEEUQ_var);
+            
+            // Set _eeuqCoresPerModel with default value first, then override if specified
+            QJsonObject corePerModel_var;
+            corePerModel_var["key"] = "_eeuqCoresPerModel";
+            corePerModel_var["value"] = "1"; // Default value if not specified
+            if (inputObj.contains("Modeling") && inputObj["Modeling"].isObject()) {
+              QJsonObject modelingObj = inputObj["Modeling"].toObject();
+              if (modelingObj.contains("numCores")) {
+                corePerModel_var["value"] = QString::number(modelingObj["numCores"].toInt());
+              }
+            }
+            envVariables.append(corePerModel_var);
+            
+            QJsonObject samples_var;
+            samples_var["key"] = "_eeuqNumSamples";
+            if (inputObj.contains("UQ") && inputObj["UQ"].isObject()) {
+              QJsonObject uqObj = inputObj["UQ"].toObject();
+              if (uqObj.contains("samplingMethodData") && uqObj["samplingMethodData"].isObject()) {
+                QJsonObject samplingMethodData = uqObj["samplingMethodData"].toObject();
+                if (samplingMethodData.contains("samples")) {
+                  samples_var["value"] = QString::number(samplingMethodData["samples"].toInt());
+                  envVariables.append(samples_var);
+                }
+              }
+            }
+            
+            
+          } 
+          job["fileInputs"]=fileInputs;
+          parameterSet["envVariables"]=envVariables;
+          job["parameterSet"]=parameterSet;
+
+      qDebug() << job;
       
       // disable the button while the job is being uploaded and started
       pushButton->setEnabled(false);
@@ -617,8 +851,10 @@ RemoteApplication::uploadDirReturn(bool result)
       //QString dirName = theDirectory.dirName();
       //QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
       
-      theDirectory.removeRecursively();
-      
+      if (SCUtils::isSafeToRemoveRecursivily(tempDirectory)) {
+	      theDirectory.removeRecursively();
+      }
+
       //
       // start the remote job
       //
@@ -657,8 +893,12 @@ RemoteApplication::startJobReturn(QString result) {
 
 void
 RemoteApplication::setNumTasks(int numTasks) {
+  if (theMachine == 0) {
     if (numTasks < maxProcPerNode)
-        numProcessorsLineEdit->setText(QString::number(numTasks));
+      numProcessorsLineEdit->setText(QString::number(numTasks));
+  } else {
+    theMachine->setNumTasks(numTasks);
+  }
 }
 
 void RemoteApplication::setExtraInputs(QMap<QString, QString> extraInputs)

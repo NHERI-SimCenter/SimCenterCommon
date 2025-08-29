@@ -34,6 +34,8 @@ INCLUDEPATH += $$PWD/TOOLS
 SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/ANALYSIS/CustomPySimulation.cpp \
     $$PWD/ANALYSIS/SurrogateSimulation.cpp \
+    $$PWD/ANALYSIS/CapacitySpectrumWidget.cpp \
+    $$PWD/ANALYSIS/HAZUSDemandWidget.cpp \    
     $$PWD/SIM/CustomPy.cpp \
     $$PWD/SIM/SurrogateGP.cpp \
     $$PWD/UQ/UQ_Results.cpp \
@@ -96,6 +98,7 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/WORKFLOW/MainWindowWorkflowApp.cpp \
     $$PWD/WORKFLOW/WorkflowAppWidget.cpp \
     $$PWD/WORKFLOW/SimCenterComponentSelection.cpp \
+    $$PWD/WORKFLOW/WaveBackgroundWidget.cpp \
     $$PWD/WORKFLOW/CustomizedItemModel.cpp \
     $$PWD/WORKFLOW/JsonConfiguredWidget.cpp \
     $$PWD/WORKFLOW/SimCenterComboBox.cpp \
@@ -113,11 +116,18 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/WORKFLOW/ModelViewItems/TreeViewStyle.cpp \
     $$PWD/WORKFLOW/ModelViewItems/LayerTreeModel.cpp \
     $$PWD/WORKFLOW/ModelViewItems/LayerTreeItem.cpp \
-    $$PWD/TOOLS/SC_ToolDialog.cpp \ 
+    $$PWD/TOOLS/SC_ToolDialog.cpp \
+    $$PWD/TOOLS/TapisMachine.cpp \    
+    $$PWD/TOOLS/Stampede3Machine.cpp \
+    $$PWD/TOOLS/FronteraMachine.cpp \         
     $$PWD/TOOLS/SC_RemoteAppTool.cpp \
-    $$PWD/TOOLS/RemoteAppTest.cpp \    
+    $$PWD/TOOLS/RemoteOpenSeesApp.cpp \        
+    $$PWD/TOOLS/RemoteAppTest.cpp \ 
+    $$PWD/TOOLS/ShakerMaker.cpp \
+    $$PWD/TOOLS/DRM_Model.cpp \
     $$PWD/SIM/OpenSeesBuildingModel.cpp \
     $$PWD/SIM/MDOF_BuildingModel.cpp \
+    $$PWD/SIM/MultiFidelityBuildingModel.cpp \
     $$PWD/SIM/MDOF_LU.cpp \    
     $$PWD/SIM/SteelBuildingModel.cpp \
     $$PWD/SIM/ConcreteBuildingModel.cpp \
@@ -154,11 +164,14 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/EDP/StandardEDP.cpp \
     $$PWD/EDP/UserDefinedEDP.cpp \
     $$PWD/EDP/SurrogateEDP.cpp \
-    $$PWD/EDP/EDP.cpp
+    $$PWD/EDP/EDP.cpp \
+    $$PWD/SIM/Femora.cpp
 
 HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/ANALYSIS/CustomPySimulation.h \
     $$PWD/ANALYSIS/SurrogateSimulation.h \
+    $$PWD/ANALYSIS/CapacitySpectrumWidget.h \
+    $$PWD/ANALYSIS/HAZUSDemandWidget.h \    
     $$PWD/SIM/CustomPy.h \
     $$PWD/SIM/SurrogateGP.h \
     $$PWD/UQ/UQ_Results.h \
@@ -221,6 +234,8 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/WORKFLOW/MainWindowWorkflowApp.h \
     $$PWD/WORKFLOW/WorkflowAppWidget.h \
     $$PWD/WORKFLOW/SimCenterComponentSelection.h \
+    $$PWD/WORKFLOW/AnimatedStackedWidget.h \
+    $$PWD/WORKFLOW/WaveBackgroundWidget.h \
     $$PWD/WORKFLOW/CustomizedItemModel.h \
     $$PWD/WORKFLOW/JsonConfiguredWidget.h \
     $$PWD/WORKFLOW/SimCenterComboBox.h \
@@ -237,11 +252,18 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/WORKFLOW/ModelViewItems/TreeViewStyle.h \ 
     $$PWD/WORKFLOW/ModelViewItems/LayerTreeModel.h \
     $$PWD/WORKFLOW/ModelViewItems/LayerTreeItem.h \
+    $$PWD/TOOLS/TapisMachine.h \    
+    $$PWD/TOOLS/Stampede3Machine.h \
+    $$PWD/TOOLS/FronteraMachine.h \             
     $$PWD/TOOLS/SC_ToolDialog.h \
     $$PWD/TOOLS/SC_RemoteAppTool.h \
     $$PWD/TOOLS/RemoteAppTest.h \
+    $$PWD/TOOLS/RemoteOpenSeesApp.h \    
+    $$PWD/TOOLS/ShakerMaker.h \
+    $$PWD/TOOLS/DRM_Model.h \
     $$PWD/SIM/OpenSeesBuildingModel.h \
     $$PWD/SIM/MDOF_BuildingModel.h \
+    $$PWD/SIM/MultiFidelityBuildingModel.h \
     $$PWD/SIM/MDOF_LU.h \    
     $$PWD/SIM/ReadWriteRVJSON.h \
     $$PWD/SIM/SteelBuildingModel.h \
@@ -279,4 +301,5 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/EDP/EDP_Selection.h \
     $$PWD/EDP/StandardEDP.h \    
     $$PWD/EDP/SurrogateEDP.h \
-    $$PWD/EDP/EDP.h
+    $$PWD/EDP/EDP.h \
+    $$PWD/SIM/Femora.h

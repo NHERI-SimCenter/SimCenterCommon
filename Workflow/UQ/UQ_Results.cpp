@@ -47,6 +47,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QDir>
 #include <RandomVariablesContainer.h>
 #include <QFileInfo>
+#include <QCoreApplication>
 //#include <filesystem>
 
 UQ_Results::UQ_Results(QWidget *parent)
@@ -115,8 +116,26 @@ UQ_Results::inputFromJSON(QJsonObject &jsonObject)
 int 
 UQ_Results::processResults(QString &dirName) {
 
-    if (resultWidget != 0)
+    if (resultWidget != 0) {
+        // check if the directory exists
+        QFileInfo dirInfo(dirName);
+        if (!dirInfo.exists()) {
+            errorMessage(QString("Directory does not exist: ") + dirName);
+            // Replace Results with results, vice versa, and try again
+            if (dirName.contains("Results")) {
+                dirName.replace("Results", "results");
+            } else if (dirName.contains("results")) {
+                dirName.replace("results", "Results");
+            }
+            if (!dirInfo.exists()) {
+                errorMessage(QString("Directory does not exist: ") + dirName);
+                return 0;
+            }
+        }
+        qDebug() << "Processing results in directory: " << dirName;
+    
         return resultWidget->processResults(dirName);
+    }
     else {
       QString message = QString("ERROR: Processing results - No resultsWidget set, directory: " ) +  dirName;
       qDebug() << message;
@@ -133,12 +152,24 @@ UQ_Results::extractErrorMsg(QString workDir, QString errFileName, QString uqEngi
     //
     // 1. First check if "dakota.err" is created.
     //
+    QString appName = QCoreApplication::applicationName();
 
     QString filenameErrorString = workDir + QDir::separator() + errFileName;
     QFileInfo filenameErrorInfo(filenameErrorString);
     if (!filenameErrorInfo.exists()) {
-        errMsg = "No " + errFileName + " file - " + uqEngineName + " did not run - problem with the setup or the applications failed with inputs provided";
-        return;
+        // Replace Results with results and try again
+        if (workDir.contains("Results")) {
+            workDir.replace("Results", "results");
+        } else if (workDir.contains("results")) {
+            workDir.replace("results", "Results");
+        }
+        filenameErrorString = workDir + QDir::separator() + errFileName;
+        filenameErrorInfo.setFile(filenameErrorString);
+        if (!filenameErrorInfo.exists()) {
+        //        errMsg = "No " + errFileName + " file - " + uqEngineName + " did not run - problem with the setup or the applications failed with inputs provided";
+            errMsg = "No " + filenameErrorString + " file - " + uqEngineName + " did not run - problem with the setup or the applications failed with inputs provided";      
+            return;
+        }
     }
 
     //

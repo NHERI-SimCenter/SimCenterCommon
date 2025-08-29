@@ -56,7 +56,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QString>
 
 class QTreeView;
-class QStackedWidget;
+class AnimatedStackedWidget;
 class QItemSelection;
 class QStandardItemModel;
 class QStandardItem;
@@ -131,6 +131,11 @@ public:
      */
     QString selectedComponentText(void);
 
+    /**
+     *   @brief Function used to make many widgets transparent so we can see animated background decals (e.g., waves in HydroUQ)
+     */
+    void makeChildrenTransparent(void);
+
 signals:
 
 public slots:
@@ -140,12 +145,13 @@ public slots:
      *   @param QItemSelection new item selected
      */  
     void selectionChangedSlot(const QItemSelection &, const QItemSelection &);
+    void currentChangedSlot(const QModelIndex &current, const QModelIndex &previous);
 private:
 
     QTreeView *treeView;
     QStandardItemModel *standardModel;
     QStandardItem *rootNode;
-    QStackedWidget *theStackedWidget;
+    AnimatedStackedWidget *theStackedWidget;
     QModelIndex infoItemIdx;
     QList<QString> textIndices;
     QList<QModelIndex> modelIndices;

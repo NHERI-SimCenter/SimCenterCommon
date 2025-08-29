@@ -47,6 +47,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <MDOF_LU.h>
 #include <CustomPy.h>
 #include <SurrogateGP.h>
+#include <Femora.h>
 
 
 #include <QApplication>
@@ -72,7 +73,7 @@ SIM_Selection::SIM_Selection(bool includeC,
     this->addComponent(QString("Concrete Building Model"), QString("ConcreteBuildingModel"), concrete);
   }
 
-  if (appName == "EE-UQ") {
+  if ((appName == "EE-UQ" || appName =="WE-UQ") || (appName == "PBE"))  {
     SimCenterAppWidget *sur = new surrogateGP(theRVs);
     this->addComponent(QString("Surrogate (GP)"), QString("SurrogateGPBuildingModel"), sur);
   }
@@ -100,6 +101,11 @@ SIM_Selection::SIM_Selection(bool includeC,
   // KZ: adding CustomPy
   SimCenterAppWidget *custom_py = new CustomPy();
   this->addComponent(QString("CustomPy"), QString("CustomPyInput"), custom_py);
+
+  if (appName == "EE-UQ") {
+    SimCenterAppWidget *femora = new Femora();
+    this->addComponent(QString("Femora"), QString("FemoraInput"), femora);
+  }
 }
 
 SIM_Selection::~SIM_Selection()
@@ -115,6 +121,11 @@ SIM_Selection::getClone()
   return newSelection;
 }
 
+QString
+SIM_Selection::getCurrentSIM()
+{
+    return this->getCurrentSelectionName();
+}
 
 
 

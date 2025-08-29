@@ -43,6 +43,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QApplication>
+#include <QCoreApplication>
 
 #include <QFileDialog>
 #include <QTabWidget>
@@ -223,11 +224,6 @@ int DakotaResultsSensitivity::processResults(QString &filenameResults, QString &
 //        return 0;
 //    }
 
-    QFileInfo filenameTabInfo(filenameTab);
-    if (!filenameTabInfo.exists()) {
-        errorMessage("No dakotaTab.out file - dakota failed .. possibly no QoI");
-        return 0;
-    }
 
     // // If surrogate model is used, display additional info.
     // QDir tempFolder(fileTabInfo.absolutePath());
