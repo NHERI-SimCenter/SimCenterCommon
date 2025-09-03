@@ -39,7 +39,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written: fmckenna
 
-#include <SimCenterAppWidget.h>
+#include <SimCenterWidget.h>
 
 #include "RandomVariable.h"
 #include <QGroupBox>
@@ -59,7 +59,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class QDialog;
 enum  RV_Type {Normal, Constant, Uniform, ContinuousDesign};
 
-class RandomVariablesContainer : public SimCenterAppWidget
+class RandomVariablesContainer : public SimCenterWidget
 {
     Q_OBJECT
 
