@@ -374,6 +374,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     procEnv.insert("PATH", pathEnv);
     procEnv.insert("PYTHONPATH", pythonPathEnv);
 
+#ifdef _OpenSRA
     // other environment variables needed for OpenSRA
     QString openSRADir = preferences->getOpenSRA();
     procEnv.insert("OPENSRA_BACKEND_DIR", openSRADir);
@@ -381,6 +382,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     auto condaPrefix = pythonFile.absoluteDir().absolutePath();
     procEnv.insert("CONDA_PREFIX", condaPrefix);
     procEnv.insert("LOCALAPPDATA", QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
+#endif
     // Add some env var from system
     procEnv.insert("PROCESSOR_ARCHITECTURE", qgetenv("PROCESSOR_ARCHITECTURE"));
 

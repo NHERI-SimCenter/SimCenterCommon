@@ -58,7 +58,9 @@ public:
     static SimCenterPreferences *getInstance(QWidget *parent = 0);
     QString getPython(void); 
     QString getDakota(void);
+#ifdef _OpenSRA  
     QString getOpenSRA(void);
+#endif
     QString getOpenSees(void);   
     QString getAppDir(void);
     QString getRemoteAppDir(void);
@@ -75,13 +77,16 @@ public slots:
     void loadPreferences(void);
 
 private:
+
     QString getDefaultAgaveApp(void);
     QString getDefaultAgaveAppVersion(void);  
     QString getDefaultRemoteAppDir(void);  
     QString getDefaultOpenSees(void);
     QString getDefaultDakota(void);
     QString getDefaultPython(void);
+#ifdef _OpenSRA
     QString getDefaultOpenSRA(void);
+#endif
 
     QLineEdit *python;
     QLineEdit *opensees;

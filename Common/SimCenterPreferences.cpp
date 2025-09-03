@@ -241,6 +241,7 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     });
     // dakota
 
+#ifdef _OpenSRA
     QString appName = QCoreApplication::applicationName();
     if (appName == QString("R2D"))
     {
@@ -291,6 +292,9 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
                     if (checked == false) openSRA->setText(this->getDefaultOpenSRA());
                 });
     }
+    
+#endif
+    
     //
     // entry for localWorkDir location .. basically as before
     //
@@ -625,12 +629,13 @@ SimCenterPreferences::savePreferences(bool) {
     settingsApp.setValue("customRemoteAppDir", customRemoteAppDirCheckBox->isChecked());    
 
     QString appName = QCoreApplication::applicationName();
+#ifdef _OpenSRA
     if (appName == QString("R2D"))
     {
         settingsApp.setValue("customOpenSRA", customOpenSRACheckBox->isChecked());
         settingsApp.setValue("openSRAPath", openSRA->text());
     }
-
+#endif
     
     settingsApp.setValue("remoteBackendDir", remoteBackendDir->text().trimmed());
     settingsApp.setValue("remoteTapisApp", remoteTapisApp->text().trimmed());
@@ -706,6 +711,7 @@ SimCenterPreferences::resetPreferences(bool) {
     customTapisAppCheckBox->setChecked(false);
 
     QString appName = QCoreApplication::applicationName();
+#ifdef _OpenSRA
     if (appName == QString("R2D"))
     {
         QString openSRAPath=this->getDefaultOpenSRA();
@@ -713,7 +719,8 @@ SimCenterPreferences::resetPreferences(bool) {
         openSRA->setText(openSRAPath);
         customOpenSRACheckBox->setChecked(false);
     }
-
+#endif
+    
     customTapisAppVersionCheckBox->setChecked(false);
     customRemoteAppDirCheckBox->setChecked(false);
 
@@ -915,6 +922,7 @@ SimCenterPreferences::loadPreferences() {
         dakota->setText(dakotaApp);
     }
 
+#ifdef _OpenSRA
     // OpenSRA
     QString appName = QCoreApplication::applicationName();
     if (appName == QString("R2D"))
@@ -936,6 +944,7 @@ SimCenterPreferences::loadPreferences() {
             openSRA->setText(openSRAApp);
         }
     }
+#endif
 }
 
 QString
@@ -1020,6 +1029,7 @@ SimCenterPreferences::getDakota(void) {
 }
 
 
+#ifdef _OpenSRA
 QString
 SimCenterPreferences::getOpenSRA(void) {
 
@@ -1035,7 +1045,7 @@ SimCenterPreferences::getOpenSRA(void) {
 
     return theVariant.toString();
 }
-
+#endif
 
 QString
 SimCenterPreferences::getAppDir(void) {
@@ -1381,6 +1391,8 @@ SimCenterPreferences::getDefaultPython(void) {
     return pythonPath;
 }
 
+
+#ifdef _OpenSRA
 QString
 SimCenterPreferences::getDefaultOpenSRA(void) {
 
@@ -1392,4 +1404,4 @@ SimCenterPreferences::getDefaultOpenSRA(void) {
     return openSRADir;
 
 }
-
+#endif
