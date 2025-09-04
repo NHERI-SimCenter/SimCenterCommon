@@ -84,10 +84,14 @@ class SC_TimeSeriesResultChart : public QWidget
     Q_OBJECT
   
 public:
-    SC_TimeSeriesResultChart(QMap<QString, QMap<QString, QLineSeries *>> *allSeiries, QWidget *parent);
+    SC_TimeSeriesResultChart(QMap<QString, QMap<QString, QLineSeries *>> *allSeries, QWidget *parent);
     SC_TimeSeriesResultChart(QWidget *parent);
+    void seriesUpdated(void);
     void addMean(QString name=QString("Mean"), QColor color=Qt::red, Qt::PenStyle style=Qt::SolidLine, float width=1.5);
     void addPercentile(QString name, qreal percentile, QColor color=Qt::red, Qt::PenStyle style=Qt::CustomDashLine, float width=1.5);
+
+public slots:
+    void updateChart(const QString &metricName);
 
 private:
     SC_Chart *chart;
@@ -110,16 +114,12 @@ private:
     QColor percentile_color;
     Qt::PenStyle percentile_style;
     float percentile_width=1.5;
-    
 
     void drawChart(const QString &metricName);
     void populatemetricComboBox();
     QMap<QString, QLineSeries *> *curSeriesMap;
     qreal calculatePercentile(QVector<qreal> &values, qreal percentile);
     //QMap<QString, QMap<QString, QLineSeries *>> *seriesMap;
-
-public slots:
-    void updateChart(const QString &metricName);
 
 };
 
