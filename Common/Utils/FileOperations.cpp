@@ -1,6 +1,7 @@
 #include "FileOperations.h"
 #include <QJsonArray>
 #include <QFileInfo>
+#include <QFile>
 #include <QDir>
 #include <QApplication>
 #include <QStandardPaths>
@@ -12,6 +13,8 @@
 
 namespace SCUtils {
 
+  QString inputFileDir;
+  
   QString getAppWorkDir() {
 
     //
@@ -231,9 +234,29 @@ namespace SCUtils {
     
     return true;
   }
+
+
+  void setInputFileDir(const QString &path) {
+    inputFileDir = path;
+  }
   
+  QString getInputFileDir() {
+    return inputFileDir;
+  }
+  
+  QString getFilePath(const QString filename) {
+
+    if (inputFileDir.isEmpty())
+      return QString(); // nothing set yet!
+
+    QDir dir(inputFileDir);
+    QString fullPath = dir.filePath(filename);
+
+    QFileInfo fInfo(fullPath);
+    if (fInfo.exists() && fInfo.isFile()) {
+      return fInfo.absoluteFilePath();
+    }
+    
+    return QString(); // not found
+  }
 }
-  
-
-  
-

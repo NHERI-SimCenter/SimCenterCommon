@@ -46,6 +46,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QFileInfo>
 #include <SimCenterAppWidget.h>
 
+#include <Utils/FileOperations.h>
+
 SC_FileEdit::SC_FileEdit(QString theKey, QStringList fileTypes)
   :QWidget()
 {
@@ -108,30 +110,48 @@ SC_FileEdit::outputToJSON(QJsonObject &jsonObject)
 bool
 SC_FileEdit::inputFromJSON(QJsonObject &jsonObject)
 {
-        QString fileName;
-        QString filePath;
+  QString fileName;
+  QString filePath;
+  
+  if (jsonObject.contains(key)) {
+    QJsonValue theName = jsonObject[key];
+    fileName = theName.toString();
+  } else {
+    qDebug() << "ERROR: SC_FileEdit: no key: " << key << " in JSON object";
+    return false;
+  }
+  
+  QString keyPath = key + QString("Path");
+  if (jsonObject.contains(keyPath)) {
+    
+    QJsonValue theName = jsonObject[keyPath];
+    filePath = theName.toString();
 
-        if (jsonObject.contains(key)) {
-            QJsonValue theName = jsonObject[key];
-            fileName = theName.toString();
-        } else {
-	  qDebug() << "ERROR: SC_FileEdit: no key: " << key << " in JSON object";
-	  return false;
-	}
+    QString fullFilePath = QDir(filePath).filePath(fileName);
+    QFileInfo fileInfo(fullFilePath);
+    if (fileInfo.exists())
+      
+      theFile->setText(fullFilePath);
+    
+    else {
 
-	QString keyPath = key + QString("Path");
-        if (jsonObject.contains(keyPath)) {
-            QJsonValue theName = jsonObject[keyPath];
-            filePath = theName.toString();
-	    theFile->setText(QDir(filePath).filePath(fileName));  	    
-        } else {
-	    theFile->setText(fileName);
-	    qDebug() << "WARNING: SC_FileEdit: no key: " << keyPath << " in JSON object, just using " << key << " as full filename";
-            return false;
-	}
+      QString pathUsingInputFile = SCUtils::getFilePath(fileName);
+      
+      if (pathUsingInputFile.isEmpty()) {
+	theFile->setText(fullFilePath); // will leave as original & put something ion debug log
+	qDebug() << "SC_FileEdit: " <<  fullFilePath << " does not exist";
+      }
+      else
+	theFile->setText(pathUsingInputFile);	
+    }
 
-
-    return true;
+  } else {
+    theFile->setText(fileName);
+    qDebug() << "WARNING: SC_FileEdit: no key: " << keyPath << " in JSON object, just using " << key << " as full filename";
+    return false;
+  }
+  
+  return true;
 }
 
 bool
