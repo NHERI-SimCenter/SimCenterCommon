@@ -1173,14 +1173,25 @@ void ShakerMaker::Visualize() {
     if (file2.exists()) {
         // load the file in the web view
         // enable webgl for the web view
-	QWebEngineSettings::globalSettings()->setAttribute(QWebEngineSettings::LocalContentCanAccessFileUrls, true);
-        QWebEngineSettings::globalSettings()->setAttribute(QWebEngineSettings::JavascriptEnabled, true);
-	// QWebEngineSettings::globalSettings()->setAttribute(QWebEngineSettings::DeveloperExtrasEnabled, true);
+
+        //
+        // FMK - replacing following 2 lines with 4 lines below as not in qt6
+        //
+      
+        // FMK QWebEngineSettings::globalSettings()->setAttribute(QWebEngineSettings::LocalContentCanAccessFileUrls, true);
+        // FMK QWebEngineSettings::globalSettings()->setAttribute(QWebEngineSettings::JavascriptEnabled, true);
+
+        simulationWebView->settings()->setAttribute(QWebEngineSettings::LocalContentCanAccessFileUrls, true);
+	simulationWebView->settings()->setAttribute(QWebEngineSettings::JavascriptEnabled, true);
+        mapWebView->settings()->setAttribute(QWebEngineSettings::LocalContentCanAccessFileUrls, true);
+	mapWebView->settings()->setAttribute(QWebEngineSettings::JavascriptEnabled, true);
+
         simulationWebView->settings()->setAttribute(QWebEngineSettings::WebGLEnabled, true);
         simulationWebView->load(QUrl::fromLocalFile(destDir + QDir::separator() + "faults.html"));
         simulationWebView->show();
         mapWebView->load(QUrl::fromLocalFile(destDir + QDir::separator() + "faults_map.html"));
         mapWebView->show();
+	
     } else {
         errorMessage("Error: Faults_map.html file not found");
     }
