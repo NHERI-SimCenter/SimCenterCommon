@@ -323,7 +323,7 @@ RemoteJobManager::shareJob(void)
         QString username = QInputDialog::getText(this, "Share Job", "Enter username or usernames (comma-separated) to share job with:", QLineEdit::Normal, "", &ok);
         if (ok && !username.isEmpty()) {
             // Check if username is comma delimited, if so split it and loop over usernames
-            QStringList usernames = username.split(",", QString::SkipEmptyParts);
+            QStringList usernames = username.split(",", Qt::SkipEmptyParts);
             for (const QString &user : usernames) {
                 // Trim whitespace from each username
                 QString trimmedUser = user.trimmed();
