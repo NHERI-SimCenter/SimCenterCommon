@@ -96,8 +96,12 @@ RemoteJobManager::RemoteJobManager(RemoteService *theRemoteService, QWidget *par
     jobsTable->setRowCount(0);
 
     QHeaderView* header = jobsTable->horizontalHeader();
-    header->setSectionResizeMode(QHeaderView::Stretch);
-
+    // header->setSectionResizeMode(QHeaderView::Stretch);
+    header->setSectionResizeMode(QHeaderView::Interactive);  // user can drag
+    header->setStretchLastSection(false);                     // optional, avoids auto-stretching
+    header->setMinimumSectionSize(40);                        // optional usability tweak
+    header->setSectionsMovable(true);
+ 
     layout->addWidget(jobsTable, 1.0);
     //jobsTable->setSizePolicy(QSizePolicy::Ignored);
     this->setLayout(layout);
@@ -706,25 +710,25 @@ RemoteJobManager::downloadFilesReturn(bool result, QObject* sender)
 	    if (resultsD.exists()) {
 	      if (SCUtils::isSafeToRemoveRecursivily(resultsDir))	{      
 		      resultsD.removeRecursively();
-        }
-      }
+	      }
+	    }
 	    
 	    // unzip .. this places files in a new dir results
 	    ZipUtils::UnzipFile(name2, QDir(name3));
-      
-      // check if results dir exists, if not replace Results with results and check again
-      // we are inconsistent with use of "results" and "Results" in the code and tapis apps
-      QFileInfo resultsDirInfo(resultsDir);
-      if (!resultsDirInfo.exists()) {
-        qDebug() << "Results directory " << resultsDir << " does not exist, replacing Results with results.";
-        resultsDir.replace("Results", "results");
-        resultsDirInfo.setFile(resultsDir);
-        if (!resultsDirInfo.exists()) {
-          qDebug() << "Results directory " << resultsDir << " still does not exist after replacement.";
-        }
-      }
 	    
-      emit processResults(resultsDir);		
+	    // check if results dir exists, if not replace Results with results and check again
+	    // we are inconsistent with use of "results" and "Results" in the code and tapis apps
+	    QFileInfo resultsDirInfo(resultsDir);
+	    if (!resultsDirInfo.exists()) {
+	      qDebug() << "Results directory " << resultsDir << " does not exist, replacing Results with results.";
+	      resultsDir.replace("Results", "results");
+	      resultsDirInfo.setFile(resultsDir);
+	      if (!resultsDirInfo.exists()) {
+		qDebug() << "Results directory " << resultsDir << " still does not exist after replacement.";
+	      }
+	    }
+	    
+	    emit processResults(resultsDir);		
 	    this->close();
 	    
 	  } else {
@@ -829,6 +833,5 @@ QString RemoteJobManager::getJobRunTime(QString startedTime, QString currentTime
 
     return "yes";
 }
-
 
 
