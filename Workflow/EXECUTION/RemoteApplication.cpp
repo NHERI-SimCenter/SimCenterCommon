@@ -400,6 +400,8 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
         proc->execute(python,args);
         proc->waitForStarted();
 
+//        return false;
+
         // qDebug() << python;
         // qDebug() << args;
 
