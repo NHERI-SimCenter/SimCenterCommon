@@ -24,6 +24,10 @@ All rights reserved.
 #include <QJsonArray>
 #include <QAbstractItemView>
 #include <QSet>
+#include <QDir>
+#include <SimCenterAppWidget.h>
+#include <OpenSeesParser.h>
+#include <RandomVariablesContainer.h>
 
 SSI_Custom3DBuildingWidget::SSI_Custom3DBuildingWidget(QWidget* parent) : SSI_BuildingWidgetBase(parent) {
     auto topLayout = new QVBoxLayout();
@@ -64,6 +68,13 @@ void SSI_Custom3DBuildingWidget::setupFilesAndCoresGroup(QWidget* parentWidget) 
     grid->addWidget(chooseMesh, row, 2);
     row++;
 
+    // Response nodes (space/comma-separated list like OpenSeesBuildingModel)
+    grid->addWidget(new QLabel("Response Nodes"), row, 0);
+    responseNodesLineEdit = new QLineEdit();
+    responseNodesLineEdit->setPlaceholderText("e.g. 101 201 301 or 101,201,301");
+    grid->addWidget(responseNodesLineEdit, row, 1);
+    row++;
+
     grid->addWidget(new QLabel("Num partitions"), row, 0);
     numPartitionsSpin = new QSpinBox();
     numPartitionsSpin->setMinimum(1);
@@ -75,10 +86,13 @@ void SSI_Custom3DBuildingWidget::setupFilesAndCoresGroup(QWidget* parentWidget) 
     grid->setColumnStretch(1, 1);
 
     connect(chooseModel, &QPushButton::clicked, this, [this]() {
-        auto fileName = QFileDialog::getOpenFileName(this, tr("Open File"), QString(), tr("All files (*.*)"));
-        if (!fileName.isEmpty())
+        auto fileName = QFileDialog::getOpenFileName(this, tr("Open File"), QString(), tr("OpenSees tcl file (*.tcl);;All files (*.*)"));
+        if (!fileName.isEmpty()) {
             modelFileLineEdit->setText(fileName);
+            onModelFileChanged(fileName);
+        }
     });
+    connect(modelFileLineEdit, &QLineEdit::textChanged, this, [this](const QString& path){ onModelFileChanged(path); });
     connect(chooseMesh, &QPushButton::clicked, this, [this]() {
         auto fileName = QFileDialog::getOpenFileName(this, tr("Open File"), QString(), tr("All files (*.*)"));
         if (!fileName.isEmpty())
@@ -229,6 +243,44 @@ bool SSI_Custom3DBuildingWidget::outputToJSON(QJsonObject& structureInfo) const 
     structureInfo["y_max"] = yMaxSpin->value();
     structureInfo["z_max"] = zMaxSpin->value();
 
+    // response nodes: parse whitespace/comma separated
+    QJsonArray responseNodeTags;
+    {
+        const QString txt = responseNodesLineEdit ? responseNodesLineEdit->text() : QString();
+        QString cleaned = txt;
+        cleaned.replace(',', ' ');
+        QTextStream ts(&cleaned, QIODevice::ReadOnly);
+        while (!ts.atEnd()) {
+            QString token; ts >> token;
+            bool ok=false; int tag = token.toInt(&ok);
+            if (ok) responseNodeTags.append(tag);
+        }
+    }
+    structureInfo["responseNodes"] = responseNodeTags;
+
+    // Build NodeMapping from response nodes (cline="response", floor starting at 0)
+    {
+        QJsonArray mappingArray;
+        int floor = 0;
+        for (int i = 0; i < responseNodeTags.size(); ++i) {
+            const int tag = responseNodeTags.at(i).toInt();
+            QJsonObject nodeEntry;
+            nodeEntry["node"] = tag;
+            nodeEntry["cline"] = QString("response");
+            nodeEntry["floor"] = QString::number(floor++);
+            mappingArray.append(nodeEntry);
+        }
+        structureInfo["NodeMapping"] = mappingArray;
+    }
+    structureInfo["useDamping"] = false;
+    structureInfo["ndf"] = 6;
+    structureInfo["ndm"] = 3;
+    structureInfo["dampingRatio"] = 0;
+    structureInfo["centroidNodes"] = QJsonArray();
+
+
+    
+
     const QString modelPath = modelFileLineEdit->text();
     structureInfo["model_file"] = modelPath;
     const QString meshPath = meshFileLineEdit->text();
@@ -272,6 +324,18 @@ bool SSI_Custom3DBuildingWidget::inputFromJSON(const QJsonObject& structureInfo)
     else
         meshFileLineEdit->setText(meshVal.toString());
 
+    // response nodes
+    if (structureInfo.contains("responseNodes")) {
+        QString nodesStr;
+        QJsonArray nodeTags = structureInfo.value("responseNodes").toArray();
+        for (int i = 0; i < nodeTags.size(); ++i) {
+            if (i>0) nodesStr += " ";
+            nodesStr += QString::number(nodeTags.at(i).toInt());
+        }
+        if (responseNodesLineEdit)
+            responseNodesLineEdit->setText(nodesStr);
+    }
+
     // columns_base
     columnsTable->setRowCount(0);
     auto cols = structureInfo.value("columns_base").toArray();
@@ -284,9 +348,82 @@ bool SSI_Custom3DBuildingWidget::inputFromJSON(const QJsonObject& structureInfo)
         columnsTable->setItem(row, 2, new QTableWidgetItem(QString::number(obj.value("y").toDouble())));
         columnsTable->setItem(row, 3, new QTableWidgetItem(QString::number(obj.value("z").toDouble())));
     }
+
+
+    // collect the random variable names from the model file
+    OpenSeesParser parser;
+    // empty the list
+    psetVarNamesAndValues.clear();
+    psetVarNamesAndValues = parser.getVariables(modelFileLineEdit->text());
     return true;
 }
 
 void SSI_Custom3DBuildingWidget::plot() const {
     QMessageBox::information(nullptr, QString("Plot"), QString("Plotting not implemented yet."));
+}
+
+bool SSI_Custom3DBuildingWidget::copyFiles(QString &destDir) {
+    // Copy model directory and create a modified copy of the main TCL with RV handling (pset)
+    const QString modelPath = modelFileLineEdit ? modelFileLineEdit->text() : QString();
+    if (!modelPath.isEmpty()) {
+        QFileInfo fi(modelPath);
+        const QString modelDir = fi.path();
+        const QString modelFile = fi.fileName();
+
+        // Copy entire model directory to preserve relative includes
+        SimCenterAppWidget::copyPath(modelDir, destDir, false);
+
+        // Rewrite the main TCL in destination with RV-aware modifications
+        RandomVariablesContainer *rvc = RandomVariablesContainer::getInstance();
+        QStringList varNames = rvc->getRandomVariableNames();
+        OpenSeesParser parser;
+        const QString copiedFile = destDir + QDir::separator() + modelFile;
+        parser.writeFile(modelPath, copiedFile, varNames);
+    }
+
+    // Mesh file: ensure present if outside model directory
+    const QString meshPath = meshFileLineEdit ? meshFileLineEdit->text() : QString();
+    if (!meshPath.isEmpty()) {
+        SimCenterAppWidget::copyFile(meshPath, destDir);
+    }
+
+    return true;
+}
+
+SSI_Custom3DBuildingWidget::~SSI_Custom3DBuildingWidget() {
+    removeRegisteredPsets();
+}
+
+void SSI_Custom3DBuildingWidget::removeRegisteredPsets() {
+    if (psetVarNamesAndValues.isEmpty())
+        return;
+    QStringList names;
+    for (int i = 0; i < psetVarNamesAndValues.size() - 1; i += 2)
+        names.append(psetVarNamesAndValues.at(i));
+    RandomVariablesContainer::getInstance()->removeRandomVariables(names);
+    psetVarNamesAndValues.clear();
+}
+
+void SSI_Custom3DBuildingWidget::onModelFileChanged(const QString& filePath) {
+    // Clear previously registered psets
+    removeRegisteredPsets();
+
+    if (filePath.isEmpty() || !QFileInfo::exists(filePath))
+        return;
+
+    // Parse TCL for pset variables and register them as constants
+    OpenSeesParser parser;
+    psetVarNamesAndValues = parser.getVariables(filePath);
+    if (psetVarNamesAndValues.isEmpty())
+        return;
+
+    RandomVariablesContainer* rvc = RandomVariablesContainer::getInstance();
+    rvc->addConstantRVs(psetVarNamesAndValues);
+}
+
+QStringList SSI_Custom3DBuildingWidget::getRandomVariableNames() const {
+    QStringList names;
+    for (int i = 0; i < psetVarNamesAndValues.size() - 1; i += 2)
+        names.append(psetVarNamesAndValues.at(i));
+    return names;
 }

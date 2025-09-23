@@ -34,6 +34,9 @@ public:
     bool inputFromJSON(const QJsonObject& soilFoundationInfo) override;
     void plot() const override;
 
+    bool copyFiles(QString &destDir) override { Q_UNUSED(destDir); return true; }
+    QStringList getRandomVariableNames() const override { return QStringList(); }
+
 private:
     // Soil
     QDoubleSpinBox *xMinSoil {nullptr}, *xMaxSoil {nullptr};

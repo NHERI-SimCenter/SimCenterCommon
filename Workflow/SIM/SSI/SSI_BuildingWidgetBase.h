@@ -9,6 +9,7 @@ All rights reserved.
 #include <QWidget>
 #include <QJsonObject>
 #include <QStringList>
+class QString;
 
 class SSI_BuildingWidgetBase : public QWidget {
     Q_OBJECT
@@ -22,6 +23,12 @@ public:
     virtual bool outputToJSON(QJsonObject& structureInfo) const = 0;
     virtual bool inputFromJSON(const QJsonObject& structureInfo) = 0;
     virtual void plot() const = 0;
+
+    // Copy any external files required for this building configuration into destDir
+    virtual bool copyFiles(QString &destDir) = 0;
+
+    // Return the list of random variable names used by this building widget
+    virtual QStringList getRandomVariableNames() const = 0;
 };
 
 #endif // SSI_BUILDING_WIDGET_BASE_H

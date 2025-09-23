@@ -26,6 +26,7 @@ public:
     bool inputFromJSON(QJsonObject &jsonObj) override;
     bool outputAppDataToJSON(QJsonObject &jsonObj) override;
     bool inputAppDataFromJSON(QJsonObject &jsonObj) override;
+    bool copyFiles(QString &destDir) override;
     
 
 private slots:

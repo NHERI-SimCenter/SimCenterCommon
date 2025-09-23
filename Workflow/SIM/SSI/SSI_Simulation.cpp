@@ -21,6 +21,9 @@ All rights reserved.
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <RandomVariablesContainer.h>
+#include <QDir>
+#include <SimCenterAppWidget.h>
 
 SSI_Simulation::SSI_Simulation(QWidget* parent) : SimCenterAppWidget(parent) {
     auto mainLayout = new QVBoxLayout();
@@ -132,6 +135,31 @@ bool SSI_Simulation::outputToJSON(QJsonObject &jsonObj) {
             return false;
         }
     }
+    // Aggregate Random Variables reported by active widgets
+    {
+        QJsonArray rvArray;
+        QSet<QString> seen;
+
+        if (currentBuilding) {
+            const QStringList names = currentBuilding->getRandomVariableNames();
+            for (const QString &name : names) {
+                if (name.isEmpty() || seen.contains(name)) continue;
+                seen.insert(name);
+                QJsonObject rvObj; rvObj["name"] = name; rvObj["value"] = QString("RV.") + name; rvArray.append(rvObj);
+            }
+        }
+        if (currentSoil) {
+            const QStringList names = currentSoil->getRandomVariableNames();
+            for (const QString &name : names) {
+                if (name.isEmpty() || seen.contains(name)) continue;
+                seen.insert(name);
+                QJsonObject rvObj; rvObj["name"] = name; rvObj["value"] = QString("RV.") + name; rvArray.append(rvObj);
+            }
+        }
+
+        jsonObj["randomVar"] = rvArray;
+    }
+
     return true;
 }
 
@@ -194,6 +222,23 @@ bool SSI_Simulation::inputAppDataFromJSON(QJsonObject &jsonObj) {
     // Accept legacy or minimal Modeling entries gracefully
     Q_UNUSED(jsonObj);
     return true;
+}
+
+bool SSI_Simulation::copyFiles(QString &destDir) {
+    // Delegate to child widgets when possible; copy any referenced files needed to run
+    bool ok = true;
+
+    // Building: invoke widget's own copyFiles
+    if (currentBuilding) {
+        ok = currentBuilding->copyFiles(destDir) && ok;
+    }
+
+    // Soil/Foundation: invoke widget's own copyFiles
+    if (currentSoil) {
+        ok = currentSoil->copyFiles(destDir) && ok;
+    }
+
+    return ok;
 }
 
 bool SSI_Simulation::validate(QStringList &errors) {
