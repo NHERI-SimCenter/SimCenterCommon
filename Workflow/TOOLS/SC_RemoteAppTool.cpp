@@ -217,6 +217,26 @@ SC_RemoteAppTool::initialize(QDialog *enclosingDialog) {
 	    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
 	    QJsonObject jsonObj = doc.object();
 
+      // Often times people try to load in workflow input files for setting up the tools
+      // This fails as all pertinent data tends to be within an .Events[0] objects in the JSON
+      // For convenience, we will check if the input file has this structure and if so adjust
+      // WARNING: Assumes the tool is basically an Event, and the first one, when loading workflow files
+      if (jsonObj.contains("Events")) {
+        QJsonValue eventsVal = jsonObj.value("Events");
+        if (eventsVal.isArray()) {
+          QJsonArray eventsArray = eventsVal.toArray();
+          if (eventsArray.size() > 0) {
+            QJsonValue firstEventVal = eventsArray.at(0);
+            if (firstEventVal.isObject()) {
+              QJsonObject firstEventObj = firstEventVal.toObject();
+              // Now we will replace the entire jsonObj with this first event object
+              jsonObj = firstEventObj;
+              this->infoMessage("NOTE - SC_RemoteAppTool loaded JSON contained an Events array. Using the first object in this array for input.");
+            }
+          }
+        }
+      }
+
 	    // close file
 	    file.close();
 	    
@@ -695,13 +715,25 @@ SC_RemoteAppTool::processResults(QString &dirName){
     
   SC_ResultsWidget *theResults = theApp->getResultsWidget();
   if (theResults == NULL) {
-    this->infoMessage("NOTE - SC_RemoteAppTool received NULL pointer theResults from theApp->getResultsWidget()... skipping theResults->processResults()");
-    return; 
+    this->infoMessage("NOTE - SC_RemoteAppTool received NULL pointer theResults from theApp->getResultsWidget()... not an error, but skipping theResults->processResults(). You will need to manually navigate to and run the tools results visualizer, if it exists.");
+    QDir resultsDir(dirName);
+    QString resultsPath = resultsDir.absolutePath();
+    QString inputFileName = "scInput.json";
+    QString inputFilePath = resultsPath + QDir::separator() + inputFileName;
+    QFile jsonFile(inputFilePath);
+    if (!jsonFile.open(QFile::ReadOnly | QFile::Text))
+    {
+            qDebug() << "SC_RemoteAppTool::processResults - could not open file: " << inputFilePath;
+            return;
+    }
+    QString val = jsonFile.readAll();
+    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+    QJsonObject jsonObject = doc.object();
+    theApp->inputFromJSON(jsonObject);
+  } else {
+    QString inputFileName("scInput.json");
+    theResults->processResults(inputFileName, dirName); // Assumes there is some inputFromJSON() call in the theResults->processResults() for the tool
   }
-
-  QString blankFileName("scInput.json");
-  theResults->processResults(blankFileName,dirName);
-
 }
 
 void SC_RemoteAppTool::setExtraInputs(QMap<QString, QString> extraInputs)
