@@ -35,6 +35,7 @@ private slots:
 
 private:
     bool validate(QStringList &errors);
+    int getNumberOfCores() const;
 
     QTabWidget* tabWidget {nullptr};
     QWidget* buildingTabContainer {nullptr};

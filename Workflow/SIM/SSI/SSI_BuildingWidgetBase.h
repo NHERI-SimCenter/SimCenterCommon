@@ -23,6 +23,7 @@ public:
     virtual bool outputToJSON(QJsonObject& structureInfo) const = 0;
     virtual bool inputFromJSON(const QJsonObject& structureInfo) = 0;
     virtual void plot() const = 0;
+    virtual int  getNumberOfCores() const = 0;
 
     // Copy any external files required for this building configuration into destDir
     virtual bool copyFiles(QString &destDir) = 0;

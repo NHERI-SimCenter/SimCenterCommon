@@ -33,9 +33,10 @@ public:
     bool outputToJSON(QJsonObject& soilFoundationInfo) const override;
     bool inputFromJSON(const QJsonObject& soilFoundationInfo) override;
     void plot() const override;
+    int  getNumberOfCores() const override;
 
     bool copyFiles(QString &destDir) override { Q_UNUSED(destDir); return true; }
-    QStringList getRandomVariableNames() const override { return QStringList(); }
+    QStringList getRandomVariableNames() const override;
 
 private:
     // Soil
@@ -75,6 +76,8 @@ private:
     void setupPilesGroup(QWidget* parentWidget);
 
     static QList<double> parseCsvDoubles(const QString& text, bool* ok);
+    static QStringList parseCsvTokens(const QString& text, bool* ok);
+    void registerRVsFromCsv(const QString& text) const;
 };
 
 #endif // SSI_SOIL_FOUNDATION_TYPE1_WIDGET_H

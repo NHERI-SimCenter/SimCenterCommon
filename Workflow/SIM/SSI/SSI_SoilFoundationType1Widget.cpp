@@ -23,6 +23,8 @@ All rights reserved.
 #include <QTabWidget>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QSet>
+#include <RandomVariablesContainer.h>
 
 SSI_SoilFoundationType1Widget::SSI_SoilFoundationType1Widget(QWidget* parent)
     : SSI_SoilFoundationBaseWidget(parent)
@@ -172,6 +174,14 @@ void SSI_SoilFoundationType1Widget::setupSoilGroup(QWidget* parentWidget) {
         }
     });
     connect(clearBtn, &QPushButton::clicked, this, [this]() { soilProfileTable->setRowCount(0); });
+
+    // auto-register RVs when user edits mat_props
+    connect(soilProfileTable, &QTableWidget::itemChanged, this, [this](QTableWidgetItem* item){
+        if (!item) return;
+        if (item->column() == 4) {
+            registerRVsFromCsv(item->text());
+        }
+    });
 }
 
 void SSI_SoilFoundationType1Widget::setupFoundationGroup(QWidget* parentWidget) {
@@ -306,6 +316,14 @@ void SSI_SoilFoundationType1Widget::setupFoundationGroup(QWidget* parentWidget) 
         }
     });
     connect(clearBtn, &QPushButton::clicked, this, [this]() { foundationProfileTable->setRowCount(0); });
+
+    // auto-register RVs when user edits mat_props
+    connect(foundationProfileTable, &QTableWidget::itemChanged, this, [this](QTableWidgetItem* item){
+        if (!item) return;
+        if (item->column() == 7) {
+            registerRVsFromCsv(item->text());
+        }
+    });
 }
 
 void SSI_SoilFoundationType1Widget::setupPilesGroup(QWidget* parentWidget) {
@@ -396,6 +414,14 @@ void SSI_SoilFoundationType1Widget::setupPilesGroup(QWidget* parentWidget) {
         }
     });
     connect(clearBtn, &QPushButton::clicked, this, [this]() { pileProfileTable->setRowCount(0); });
+
+    // auto-register RVs when user edits mat_props
+    connect(pileProfileTable, &QTableWidget::itemChanged, this, [this](QTableWidgetItem* item){
+        if (!item) return;
+        if (item->column() == 8) {
+            registerRVsFromCsv(item->text());
+        }
+    });
 }
 
 QList<double> SSI_SoilFoundationType1Widget::parseCsvDoubles(const QString& text, bool* ok) {
@@ -409,6 +435,44 @@ QList<double> SSI_SoilFoundationType1Widget::parseCsvDoubles(const QString& text
         values.append(v);
     }
     return values;
+}
+
+static bool isNumberToken(const QString &s) {
+    bool ok=false; s.toDouble(&ok); return ok;
+}
+
+static bool isRvToken(const QString &s) {
+    return s.startsWith("RV.") && s.size() > 3;
+}
+
+QStringList SSI_SoilFoundationType1Widget::parseCsvTokens(const QString& text, bool* ok) {
+    QStringList tokens;
+    *ok = true;
+    const auto parts = text.split(',', Qt::SkipEmptyParts);
+    for (const auto &raw : parts) {
+        const QString p = raw.trimmed();
+        if (p.isEmpty()) { *ok = false; return {}; }
+        if (isNumberToken(p) || isRvToken(p)) {
+            tokens.append(p);
+        } else {
+            // accept bare word as RV.name
+            if (!p.contains(' ')) tokens.append(QString("RV.") + p);
+            else { *ok = false; return {}; }
+        }
+    }
+    return tokens;
+}
+
+void SSI_SoilFoundationType1Widget::registerRVsFromCsv(const QString& text) const {
+    bool ok=true; const QStringList tokens = parseCsvTokens(text, &ok);
+    if (!ok) return;
+    RandomVariablesContainer *rvc = RandomVariablesContainer::getInstance();
+    for (const QString &t : tokens) {
+        if (isRvToken(t)) {
+            QString name = t.mid(3);
+            rvc->addRandomVariable(name);
+        }
+    }
 }
 
 bool SSI_SoilFoundationType1Widget::validate(QStringList& errors, bool interactiveIfModelMissing) const {
@@ -433,10 +497,10 @@ bool SSI_SoilFoundationType1Widget::validate(QStringList& errors, bool interacti
         // material
         auto mat = qobject_cast<QComboBox*>(soilProfileTable->cellWidget(r,3));
         if (!mat || mat->currentText() != "Elastic") errors << QString("soil_profile row %1: material must be Elastic").arg(r+1);
-        // mat props: 3 numbers for Elastic
+        // mat props: 3 tokens (numbers or RV names)
         bool okcsv=false; const QString mp = soilProfileTable->item(r,4)?soilProfileTable->item(r,4)->text():QString();
-        auto mvals = parseCsvDoubles(mp, &okcsv);
-        if (!okcsv || mvals.size() != 3) errors << QString("soil_profile row %1: mat_props must have 3 values").arg(r+1);
+        auto mtoks = parseCsvTokens(mp, &okcsv);
+        if (!okcsv || mtoks.size() != 3) errors << QString("soil_profile row %1: mat_props must have 3 values (numbers or RV names)").arg(r+1);
         // damping: Frequency-Rayleigh with 3 props
         auto damp = qobject_cast<QComboBox*>(soilProfileTable->cellWidget(r,5));
         if (!damp || damp->currentText() != "Frequency-Rayleigh") errors << QString("soil_profile row %1: damping must be Frequency-Rayleigh").arg(r+1);
@@ -458,8 +522,8 @@ bool SSI_SoilFoundationType1Widget::validate(QStringList& errors, bool interacti
         bool ok = true; for (int c = 0; c < 6; ++c) { if (!foundationProfileTable->item(r,c) || foundationProfileTable->item(r,c)->text().isEmpty()) ok = false; }
         if (!ok) errors << QString("foundation_profile row %1: missing bounds or z values").arg(r+1);
         auto mat = qobject_cast<QComboBox*>(foundationProfileTable->cellWidget(r,6)); if (!mat || mat->currentText() != "Elastic") errors << QString("foundation_profile row %1: material must be Elastic").arg(r+1);
-        bool okcsv=false; auto mvals = parseCsvDoubles(foundationProfileTable->item(r,7)?foundationProfileTable->item(r,7)->text():QString(), &okcsv);
-        if (!okcsv || mvals.size() != 3) errors << QString("foundation_profile row %1: mat_props must have 3 values").arg(r+1);
+        bool okcsv=false; auto mtoksF = parseCsvTokens(foundationProfileTable->item(r,7)?foundationProfileTable->item(r,7)->text():QString(), &okcsv);
+        if (!okcsv || mtoksF.size() != 3) errors << QString("foundation_profile row %1: mat_props must have 3 values (numbers or RV names)").arg(r+1);
         auto damp = qobject_cast<QComboBox*>(foundationProfileTable->cellWidget(r,8)); if (!damp || damp->currentText() != "Frequency-Rayleigh") errors << QString("foundation_profile row %1: damping must be Frequency-Rayleigh").arg(r+1);
         auto dvals = parseCsvDoubles(foundationProfileTable->item(r,9)?foundationProfileTable->item(r,9)->text():QString(), &okcsv);
         if (!okcsv || dvals.size() != 3) errors << QString("foundation_profile row %1: damping_props must have 3 values").arg(r+1);
@@ -494,8 +558,8 @@ bool SSI_SoilFoundationType1Widget::validate(QStringList& errors, bool interacti
         auto section = qobject_cast<QComboBox*>(pileProfileTable->cellWidget(r,6)); if (!section || section->currentText() != "No-Section") errors << QString("pile_profile row %1: section must be No-Section").arg(r+1);
         // material elastic with 6 props
         auto mat = qobject_cast<QComboBox*>(pileProfileTable->cellWidget(r,7)); if (!mat || mat->currentText() != "Elastic") errors << QString("pile_profile row %1: material must be Elastic").arg(r+1);
-        bool okmp=false; auto mvals = parseCsvDoubles(pileProfileTable->item(r,8)?pileProfileTable->item(r,8)->text():QString(), &okmp);
-        if (!okmp || mvals.size() != 6) errors << QString("pile_profile row %1: mat_props must have 6 values (E,A,Iy,Iz,G,J)").arg(r+1);
+        bool okmp=false; auto mtoksP = parseCsvTokens(pileProfileTable->item(r,8)?pileProfileTable->item(r,8)->text():QString(), &okmp);
+        if (!okmp || mtoksP.size() != 6) errors << QString("pile_profile row %1: mat_props must have 6 values (numbers or RV names for E,A,Iy,Iz,G,J)").arg(r+1);
         // transformation combo + vector csv
         auto trans = qobject_cast<QComboBox*>(pileProfileTable->cellWidget(r,9)); if (!trans) errors << QString("pile_profile row %1: missing transformation").arg(r+1);
         okcsv = false; auto tvals = parseCsvDoubles(pileProfileTable->item(r,10)?pileProfileTable->item(r,10)->text():QString(), &okcsv);
@@ -530,8 +594,9 @@ bool SSI_SoilFoundationType1Widget::outputToJSON(QJsonObject& soilFoundationInfo
         if (soilProfileTable->item(r,1)) layer["z_top"] = soilProfileTable->item(r,1)->text().toDouble();
         if (soilProfileTable->item(r,2)) layer["nz"] = soilProfileTable->item(r,2)->text().toInt();
         auto mat = qobject_cast<QComboBox*>(soilProfileTable->cellWidget(r,3)); if (mat) layer["material"] = mat->currentText();
-        bool ok=false; auto mvals = parseCsvDoubles(soilProfileTable->item(r,4)?soilProfileTable->item(r,4)->text():QString(), &ok);
-        QJsonArray mp; for (double v : mvals) mp.append(v); layer["mat_props"] = mp;
+        bool ok=false; const QString mpTxt = soilProfileTable->item(r,4)?soilProfileTable->item(r,4)->text():QString();
+        auto mtoks = parseCsvTokens(mpTxt, &ok);
+        QJsonArray mp; for (const QString &t : mtoks) { if (t.startsWith("RV.")) mp.append(t); else { bool lk=false; double v=t.toDouble(&lk); mp.append(lk?QJsonValue(v):QJsonValue()); } } layer["mat_props"] = mp;
         auto damp = qobject_cast<QComboBox*>(soilProfileTable->cellWidget(r,5)); if (damp) layer["damping"] = damp->currentText();
         auto dvals = parseCsvDoubles(soilProfileTable->item(r,6)?soilProfileTable->item(r,6)->text():QString(), &ok); QJsonArray dp; for (double v : dvals) dp.append(v); layer["damping_props"] = dp;
         soilProfile.append(layer);
@@ -558,7 +623,7 @@ bool SSI_SoilFoundationType1Widget::outputToJSON(QJsonObject& soilFoundationInfo
         if (foundationProfileTable->item(r,4)) layer["z_top"] = foundationProfileTable->item(r,4)->text().toDouble();
         if (foundationProfileTable->item(r,5)) layer["z_bot"] = foundationProfileTable->item(r,5)->text().toDouble();
         auto mat = qobject_cast<QComboBox*>(foundationProfileTable->cellWidget(r,6)); if (mat) layer["material"] = mat->currentText();
-        bool ok=false; auto mvals = parseCsvDoubles(foundationProfileTable->item(r,7)?foundationProfileTable->item(r,7)->text():QString(), &ok); QJsonArray mp; for (double v : mvals) mp.append(v); layer["mat_props"] = mp;
+        bool ok=false; auto mtoks = parseCsvTokens(foundationProfileTable->item(r,7)?foundationProfileTable->item(r,7)->text():QString(), &ok); QJsonArray mp; for (const QString &t : mtoks) { if (t.startsWith("RV.")) mp.append(t); else { bool lk=false; double v=t.toDouble(&lk); mp.append(lk?QJsonValue(v):QJsonValue()); } } layer["mat_props"] = mp;
         auto damp = qobject_cast<QComboBox*>(foundationProfileTable->cellWidget(r,8)); if (damp) layer["damping"] = damp->currentText();
         auto dvals = parseCsvDoubles(foundationProfileTable->item(r,9)?foundationProfileTable->item(r,9)->text():QString(), &ok); QJsonArray dp; for (double v : dvals) dp.append(v); layer["damping_props"] = dp;
         foundationProfile.append(layer);
@@ -582,7 +647,7 @@ bool SSI_SoilFoundationType1Widget::outputToJSON(QJsonObject& soilFoundationInfo
         if (pileProfileTable->item(r,5)) item["r"] = pileProfileTable->item(r,5)->text().toDouble();
         auto section = qobject_cast<QComboBox*>(pileProfileTable->cellWidget(r,6)); if (section) item["section"] = section->currentText();
         auto mat = qobject_cast<QComboBox*>(pileProfileTable->cellWidget(r,7)); if (mat) item["material"] = mat->currentText();
-        auto mvals = parseCsvDoubles(pileProfileTable->item(r,8)?pileProfileTable->item(r,8)->text():QString(), &ok); QJsonArray mp; for (double v : mvals) mp.append(v); item["mat_props"] = mp;
+        auto mtoksP = parseCsvTokens(pileProfileTable->item(r,8)?pileProfileTable->item(r,8)->text():QString(), &ok); QJsonArray mp; for (const QString &t : mtoksP) { if (t.startsWith("RV.")) mp.append(t); else { bool lk=false; double v=t.toDouble(&lk); mp.append(lk?QJsonValue(v):QJsonValue()); } } item["mat_props"] = mp;
         auto trans = qobject_cast<QComboBox*>(pileProfileTable->cellWidget(r,9));
         if (trans) {
             bool okcsv=false; auto tvals = parseCsvDoubles(pileProfileTable->item(r,10)?pileProfileTable->item(r,10)->text():QString(), &okcsv);
@@ -603,6 +668,34 @@ bool SSI_SoilFoundationType1Widget::outputToJSON(QJsonObject& soilFoundationInfo
     soilFoundationInfo["soil_info"] = soilInfo;
     soilFoundationInfo["foundation_info"] = foundationInfo;
     soilFoundationInfo["pile_info"] = pileInfo;
+
+    // Add random variables found in soil & foundation mat_props only under soilFoundationInfo
+    {
+        QSet<QString> names;
+        // soil mat_props (col 4)
+        for (int r = 0; r < soilProfileTable->rowCount(); ++r) {
+            auto it = soilProfileTable->item(r,4);
+            if (!it) continue;
+            bool okTok=true; const QStringList toks = parseCsvTokens(it->text(), &okTok);
+            if (!okTok) continue;
+            for (const QString &t : toks) if (t.startsWith("RV.")) names.insert(t.mid(3));
+        }
+        // foundation mat_props (col 7)
+        for (int r = 0; r < foundationProfileTable->rowCount(); ++r) {
+            auto it = foundationProfileTable->item(r,7);
+            if (!it) continue;
+            bool okTok=true; const QStringList toks = parseCsvTokens(it->text(), &okTok);
+            if (!okTok) continue;
+            for (const QString &t : toks) if (t.startsWith("RV.")) names.insert(t.mid(3));
+        }
+        if (!names.isEmpty()) {
+            QJsonArray rvArray;
+            for (const QString &n : names) {
+                QJsonObject o; o["name"] = n; o["value"] = QString("RV.") + n; rvArray.append(o);
+            }
+            soilFoundationInfo["randomVar"] = rvArray;
+        }
+    }
     return true;
 }
 
@@ -639,7 +732,7 @@ bool SSI_SoilFoundationType1Widget::inputFromJSON(const QJsonObject& soilFoundat
         soilProfileTable->setItem(row, 1, new QTableWidgetItem(QString::number(obj.value("z_top").toDouble())));
         soilProfileTable->setItem(row, 2, new QTableWidgetItem(QString::number(obj.value("nz").toInt())));
         auto mat = new QComboBox(); mat->addItem("Elastic"); int mi = mat->findText(obj.value("material").toString("Elastic")); if (mi>=0) mat->setCurrentIndex(mi); soilProfileTable->setCellWidget(row, 3, mat);
-        QJsonArray mp = obj.value("mat_props").toArray(); QStringList mpStr; for (const auto& x : mp) mpStr << QString::number(x.toDouble()); soilProfileTable->setItem(row, 4, new QTableWidgetItem(mpStr.join(", ")));
+        QJsonArray mp = obj.value("mat_props").toArray(); QStringList mpStr; for (const auto& x : mp) mpStr << (x.isString()? x.toString() : QString::number(x.toDouble())); soilProfileTable->setItem(row, 4, new QTableWidgetItem(mpStr.join(", ")));
         auto damp = new QComboBox(); damp->addItem("Frequency-Rayleigh"); int di = damp->findText(obj.value("damping").toString("Frequency-Rayleigh")); if (di>=0) damp->setCurrentIndex(di); soilProfileTable->setCellWidget(row,5,damp);
         QJsonArray dp = obj.value("damping_props").toArray(); QStringList dpStr; for (const auto& x : dp) dpStr << QString::number(x.toDouble()); soilProfileTable->setItem(row, 6, new QTableWidgetItem(dpStr.join(", ")));
     }
@@ -673,7 +766,7 @@ bool SSI_SoilFoundationType1Widget::inputFromJSON(const QJsonObject& soilFoundat
         foundationProfileTable->setItem(row, 4, new QTableWidgetItem(QString::number(obj.value("z_top").toDouble())));
         foundationProfileTable->setItem(row, 5, new QTableWidgetItem(QString::number(obj.value("z_bot").toDouble())));
         auto mat = new QComboBox(); mat->addItem("Elastic"); foundationProfileTable->setCellWidget(row, 6, mat);
-        QJsonArray mp = obj.value("mat_props").toArray(); QStringList mpStr; for (const auto& x : mp) mpStr << QString::number(x.toDouble()); foundationProfileTable->setItem(row, 7, new QTableWidgetItem(mpStr.join(", ")));
+        QJsonArray mp = obj.value("mat_props").toArray(); QStringList mpStr; for (const auto& x : mp) mpStr << (x.isString()? x.toString() : QString::number(x.toDouble())); foundationProfileTable->setItem(row, 7, new QTableWidgetItem(mpStr.join(", ")));
         auto damp = new QComboBox(); damp->addItem("Frequency-Rayleigh"); int di = damp->findText(obj.value("damping").toString("Frequency-Rayleigh")); if (di>=0) damp->setCurrentIndex(di); foundationProfileTable->setCellWidget(row,8,damp);
         QJsonArray dp = obj.value("damping_props").toArray(); QStringList dpStr; for (const auto& x : dp) dpStr << QString::number(x.toDouble()); foundationProfileTable->setItem(row, 9, new QTableWidgetItem(dpStr.join(", ")));
     }
@@ -698,7 +791,7 @@ bool SSI_SoilFoundationType1Widget::inputFromJSON(const QJsonObject& soilFoundat
         pileProfileTable->setItem(row, 5, new QTableWidgetItem(QString::number(obj.value("r").toDouble())));
         auto section = new QComboBox(); section->addItem("No-Section"); pileProfileTable->setCellWidget(row, 6, section);
         auto mat = new QComboBox(); mat->addItem("Elastic"); pileProfileTable->setCellWidget(row, 7, mat);
-        QJsonArray mp = obj.value("mat_props").toArray(); QStringList mpStr; for (const auto& x : mp) mpStr << QString::number(x.toDouble()); pileProfileTable->setItem(row, 8, new QTableWidgetItem(mpStr.join(", ")));
+        QJsonArray mp = obj.value("mat_props").toArray(); QStringList mpStr; for (const auto& x : mp) mpStr << (x.isString()? x.toString() : QString::number(x.toDouble())); pileProfileTable->setItem(row, 8, new QTableWidgetItem(mpStr.join(", ")));
         QJsonArray tr = obj.value("transformation").toArray(); QString trName = tr.size() > 0 ? tr.at(0).toString("Linear") : "Linear"; auto trans = new QComboBox(); trans->addItem("Linear"); trans->addItem("PDelta"); int tri = trans->findText(trName); if (tri>=0) trans->setCurrentIndex(tri); pileProfileTable->setCellWidget(row, 9, trans);
         double tx = tr.size() > 1 ? tr.at(1).toDouble(0.0) : 0.0;
         double ty = tr.size() > 2 ? tr.at(2).toDouble(1.0) : 1.0;
@@ -715,6 +808,19 @@ bool SSI_SoilFoundationType1Widget::inputFromJSON(const QJsonObject& soilFoundat
 
 void SSI_SoilFoundationType1Widget::plot() const {
     // Placeholder: no plotting implemented yet
+}
+
+QStringList SSI_SoilFoundationType1Widget::getRandomVariableNames() const { return QStringList(); }
+
+
+int SSI_SoilFoundationType1Widget::getNumberOfCores() const {
+    int ncoresofsoil = int(numPartsSoil->value());
+    int ncoresoffoundation = int(numPartsFound->value());
+    // if using DRM, add its partitions
+    if (boundaryCombo->currentText() == "DRM") {
+        ncoresofsoil += int(drmNumPartitions->value());
+    }
+    return ncoresofsoil + ncoresoffoundation;
 }
 
 

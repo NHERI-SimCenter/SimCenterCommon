@@ -427,3 +427,8 @@ QStringList SSI_Custom3DBuildingWidget::getRandomVariableNames() const {
         names.append(psetVarNamesAndValues.at(i));
     return names;
 }
+
+int SSI_Custom3DBuildingWidget::getNumberOfCores() const {
+    int numCores = int(numPartitionsSpin->value());
+    return numCores;
+}

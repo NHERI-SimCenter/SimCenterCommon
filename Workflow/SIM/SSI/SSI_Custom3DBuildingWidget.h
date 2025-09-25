@@ -26,6 +26,7 @@ public:
     bool outputToJSON(QJsonObject& structureInfo) const override;
     bool inputFromJSON(const QJsonObject& structureInfo) override;
     void plot() const override;
+    int  getNumberOfCores() const override;
 
     bool copyFiles(QString &destDir) override;
     QStringList getRandomVariableNames() const override;

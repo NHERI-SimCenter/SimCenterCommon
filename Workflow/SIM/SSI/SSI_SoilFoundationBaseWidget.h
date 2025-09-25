@@ -35,6 +35,8 @@ public:
 
     // Return the list of random variable names used by this soil/foundation widget
     virtual QStringList getRandomVariableNames() const = 0;
+
+    virtual int  getNumberOfCores() const = 0;
 };
 
 #endif // SSI_SOIL_FOUNDATION_BASE_WIDGET_H

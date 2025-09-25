@@ -21,6 +21,7 @@ All rights reserved.
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QSet>
 #include <RandomVariablesContainer.h>
 #include <QDir>
 #include <SimCenterAppWidget.h>
@@ -159,6 +160,10 @@ bool SSI_Simulation::outputToJSON(QJsonObject &jsonObj) {
 
         jsonObj["randomVar"] = rvArray;
     }
+
+    // add numCores
+    int const totalCores = getNumberOfCores();
+    jsonObj["numCores"] = totalCores;
 
     return true;
 }
@@ -312,4 +317,16 @@ void SSI_Simulation::onPlotClicked() {
         if (currentSoil->outputToJSON(sfi))
             modeling["soil_foundation_info"] = sfi;
     }
+}
+
+
+int SSI_Simulation::getNumberOfCores() const {
+    int numCores = 0;
+    if (currentBuilding) {
+        numCores += currentBuilding->getNumberOfCores();
+    }
+    if (currentSoil) {
+        numCores += currentSoil->getNumberOfCores();
+    }
+    return numCores;
 }
