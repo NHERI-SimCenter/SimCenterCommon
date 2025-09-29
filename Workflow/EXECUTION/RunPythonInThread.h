@@ -22,6 +22,7 @@ public slots:
   void handleProcessTextOutput(void);
   void handleProcessErrorOutput(void);    
   void handleProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
+  void terminate();
   
 signals:
   void processFinished(int errorCode);
@@ -44,6 +45,7 @@ public:
   RunPythonInThread(const QString &script, const QStringList &args, const QString &);
   virtual ~RunPythonInThread();
   void runProcess(void);
+  void terminateProcess(void);
 			      			      
 
 public slots:
@@ -59,4 +61,5 @@ private:
   QString script;
   QStringList args;
   QString workDir;
+  RunPython *worker {nullptr};
 };
