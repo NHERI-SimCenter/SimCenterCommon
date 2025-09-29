@@ -37,14 +37,14 @@ SSI_Custom3DBuildingWidget::SSI_Custom3DBuildingWidget(QWidget* parent) : SSI_Bu
     topLayout->addWidget(filesCoresBox);
 
     auto columnsBox = new QGroupBox("Columns base");
-    setupColumnsBaseTable(columnsBox);
-    topLayout->addWidget(columnsBox);
-
     auto boundsBox = new QGroupBox("Bounds");
     setupBoundsGroup(boundsBox);
     topLayout->addWidget(boundsBox);
 
-    topLayout->addStretch(1);
+    setupColumnsBaseTable(columnsBox);
+    // Give the columns group stretch so the table expands vertically
+    topLayout->addWidget(columnsBox, 1);
+
     this->setLayout(topLayout);
 }
 
@@ -148,31 +148,34 @@ void SSI_Custom3DBuildingWidget::setupBoundsGroup(QWidget* parentWidget) {
     auto grid = new QGridLayout(parentWidget);
     int row = 0;
 
+    // First row: x_min, x_max
     grid->addWidget(new QLabel("x_min"), row, 0);
     xMinSpin = new QDoubleSpinBox(); xMinSpin->setDecimals(6); xMinSpin->setRange(-1e9, 1e9); xMinSpin->setValue(-13.716);
-    grid->addWidget(xMinSpin, row, 1); row++;
-
-    grid->addWidget(new QLabel("x_max"), row, 0);
+    grid->addWidget(xMinSpin, row, 1);
+    grid->addWidget(new QLabel("x_max"), row, 2);
     xMaxSpin = new QDoubleSpinBox(); xMaxSpin->setDecimals(6); xMaxSpin->setRange(-1e9, 1e9); xMaxSpin->setValue(13.716);
-    grid->addWidget(xMaxSpin, row, 1); row++;
+    grid->addWidget(xMaxSpin, row, 3);
+    row++;
 
+    // Second row: y_min, y_max
     grid->addWidget(new QLabel("y_min"), row, 0);
     yMinSpin = new QDoubleSpinBox(); yMinSpin->setDecimals(6); yMinSpin->setRange(-1e9, 1e9); yMinSpin->setValue(-13.716);
-    grid->addWidget(yMinSpin, row, 1); row++;
-
-    grid->addWidget(new QLabel("y_max"), row, 0);
+    grid->addWidget(yMinSpin, row, 1);
+    grid->addWidget(new QLabel("y_max"), row, 2);
     yMaxSpin = new QDoubleSpinBox(); yMaxSpin->setDecimals(6); yMaxSpin->setRange(-1e9, 1e9); yMaxSpin->setValue(13.716);
-    grid->addWidget(yMaxSpin, row, 1); row++;
+    grid->addWidget(yMaxSpin, row, 3);
+    row++;
 
+    // Third row: z_min, z_max
     grid->addWidget(new QLabel("z_min"), row, 0);
     zMinSpin = new QDoubleSpinBox(); zMinSpin->setDecimals(6); zMinSpin->setRange(-1e9, 1e9); zMinSpin->setValue(0.0);
-    grid->addWidget(zMinSpin, row, 1); row++;
-
-    grid->addWidget(new QLabel("z_max"), row, 0);
+    grid->addWidget(zMinSpin, row, 1);
+    grid->addWidget(new QLabel("z_max"), row, 2);
     zMaxSpin = new QDoubleSpinBox(); zMaxSpin->setDecimals(6); zMaxSpin->setRange(-1e9, 1e9); zMaxSpin->setValue(40.8432);
-    grid->addWidget(zMaxSpin, row, 1); row++;
+    grid->addWidget(zMaxSpin, row, 3);
 
     grid->setColumnStretch(1, 1);
+    grid->setColumnStretch(3, 1);
 }
 
 bool SSI_Custom3DBuildingWidget::getTableRow(int row, int& tag, double& x, double& y, double& z) const {
