@@ -22,9 +22,12 @@ All rights reserved.
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QSet>
+#include <QFont>
 #include <RandomVariablesContainer.h>
 #include <QDir>
 #include <SimCenterAppWidget.h>
+#include <SimCenterPreferences.h>
+#include <RunPythonInThread.h>
 
 SSI_Simulation::SSI_Simulation(QWidget* parent) : SimCenterAppWidget(parent) {
     auto mainLayout = new QVBoxLayout();
@@ -64,6 +67,26 @@ SSI_Simulation::SSI_Simulation(QWidget* parent) : SimCenterAppWidget(parent) {
     auto buttonsLayout = new QHBoxLayout();
     plotButton = new QPushButton("Plot");
     validateButton = new QPushButton("Validate");
+
+    // Make key action buttons larger and more prominent
+    {
+        const int minHeight = 44;
+        const int minWidth = 160;
+        plotButton->setMinimumHeight(minHeight);
+        validateButton->setMinimumHeight(minHeight);
+        plotButton->setMinimumWidth(minWidth);
+        validateButton->setMinimumWidth(minWidth);
+
+        QFont btnFont = plotButton->font();
+        if (btnFont.pointSize() > 0) {
+            btnFont.setPointSize(btnFont.pointSize() + 4);
+        } else {
+            btnFont.setPointSize(14);
+        }
+        btnFont.setBold(true);
+        plotButton->setFont(btnFont);
+        validateButton->setFont(btnFont);
+    }
     buttonsLayout->addStretch(1);
     buttonsLayout->addWidget(plotButton);
     buttonsLayout->addWidget(validateButton);
@@ -302,22 +325,95 @@ void SSI_Simulation::onValidateClicked() {
 }
 
 void SSI_Simulation::onPlotClicked() {
-    // Build a minimal Modeling JSON from current widgets and send to plotter
+    // Build a minimal Modeling JSON and save to file
     QJsonObject modeling;
     modeling["type"] = "SSISimulation";
+
     if (currentBuilding) {
         modeling["building_type"] = currentBuilding->typeId();
         QJsonObject structureInfo;
-        if (currentBuilding->outputToJSON(structureInfo))
+        if (currentBuilding->outputToJSON(structureInfo)) {
             modeling["structure_info"] = structureInfo;
+        }
     }
+
     if (currentSoil) {
         modeling["soil_type"] = currentSoil->typeId();
         QJsonObject sfi;
-        if (currentSoil->outputToJSON(sfi))
+        if (currentSoil->outputToJSON(sfi)) {
             modeling["soil_foundation_info"] = sfi;
+        }
     }
+
+    // Determine working directory for the plotter artifacts
+    QString workDir = SimCenterPreferences::getInstance()->getLocalWorkDir() + QDir::separator() + "SSI_Plotter";
+    QDir dirWork(workDir);
+    if (!dirWork.exists()) {
+        dirWork.mkpath(".");
+    }
+
+    // Write JSON file
+    const QString jsonPath = workDir + QDir::separator() + "ssi_modeling.json";
+    {
+        QJsonDocument doc(modeling);
+        QFile out(jsonPath);
+        if (out.open(QIODevice::WriteOnly)) {
+            out.write(doc.toJson(QJsonDocument::Indented));
+            out.close();
+        } else {
+            QMessageBox::critical(this, "Error", QString("Failed to write modeling JSON to %1").arg(jsonPath));
+            return;
+        }
+    }
+
+    // Create a small Python runner that loads the JSON and starts the viewer
+    const QString runnerPath = workDir + QDir::separator() + "ssi_plot_runner.py";
+    {
+        static const char runnerSrc[] =
+            "import sys, json\n"
+            "from femora.components.simcenter.eeuq.soil_foundation_type_one_plot import SoilFoundationPlotter\n"
+            "def main():\n"
+            "    if len(sys.argv) < 2:\n"
+            "        print('Usage: python ssi_plot_runner.py <modeling.json> [port]')\n"
+            "        sys.exit(2)\n"
+            "    json_path = sys.argv[1]\n"
+            "    port = int(sys.argv[2]) if len(sys.argv) > 2 else 0\n"
+            "    with open(json_path, 'r') as f:\n"
+            "        data = json.load(f)\n"
+            "    si = data.get('structure_info')\n"
+            "    sfi = data.get('soil_foundation_info', {})\n"
+            "    soi = sfi.get('soil_info')\n"
+            "    fi = sfi.get('foundation_info')\n"
+            "    pi = sfi.get('pile_info')\n"
+            "    plotter = SoilFoundationPlotter(structure_info=si, soil_info=soi, foundation_info=fi, pile_info=pi, port=port, title='SSI Soil/Foundation Plotter')\n"
+            "    plotter.start_server()\n"
+            "if __name__ == '__main__':\n"
+            "    main()\n";
+
+        QFile runner(runnerPath);
+        if (runner.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+            runner.write(runnerSrc);
+            runner.close();
+        } else {
+            QMessageBox::critical(this, "Error", QString("Failed to write Python runner to %1").arg(runnerPath));
+            return;
+        }
+    }
+
+    // Launch the Python runner using the preferred Python from preferences
+    QStringList args;
+    args << jsonPath; // optional port can be appended here
+    if (plotProcess != nullptr) {
+        // ensure previous process is stopped before starting a new one
+        plotProcess->terminateProcess();
+        plotProcess = nullptr;
+    }
+    plotProcess = new RunPythonInThread(runnerPath, args, workDir);
+    connect(plotProcess, &RunPythonInThread::processFinished, this, [this](int){ plotProcess = nullptr; });
+    plotProcess->runProcess();
 }
+
+
 
 
 int SSI_Simulation::getNumberOfCores() const {

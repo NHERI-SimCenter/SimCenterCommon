@@ -15,6 +15,7 @@ class QWidget;
 class QPushButton;
 class QStackedWidget;
 class QComboBox;
+class RunPythonInThread;
 
 class SSI_Simulation : public SimCenterAppWidget {
     Q_OBJECT
@@ -49,6 +50,8 @@ private:
 
     QPushButton* plotButton {nullptr};
     QPushButton* validateButton {nullptr};
+
+    RunPythonInThread* plotProcess {nullptr};
 };
 
 #endif // SSI_SIMULATION_H
