@@ -24,7 +24,7 @@ RunPythonInThread::RunPythonInThread(const QString &theScript, const QStringList
 void
 RunPythonInThread::runProcess(void) {
   
-  RunPython *worker = new RunPython(script, args, workDir);
+  worker = new RunPython(script, args, workDir);
   worker->moveToThread(&workerThread);
 
   //
@@ -82,6 +82,13 @@ RunPythonInThread::statusMessage(const QString &message) {
   
   progressDialog->appendText(message);
 
+}
+
+void
+RunPythonInThread::terminateProcess(void) {
+  if (worker != nullptr) {
+    QMetaObject::invokeMethod(worker, "terminate", Qt::QueuedConnection);
+  }
 }
 
 
@@ -232,5 +239,16 @@ void RunPython::handleProcessFinished(int exitCode, QProcess::ExitStatus exitSta
   QApplication::processEvents();
   qDebug() << "RunPython::emitting processFinished";
   emit processFinished(0);
+}
+
+void
+RunPython::terminate() {
+  if (process != nullptr) {
+    process->terminate();
+    if (!process->waitForFinished(2000)) {
+      process->kill();
+      process->waitForFinished(1000);
+    }
+  }
 }
 
