@@ -126,19 +126,20 @@ bool SSI_Simulation::outputToJSON(QJsonObject &jsonObj) {
         msgBox.move(parentCenterGlobal - QPoint(dialogSize.width() / 2, dialogSize.height() / 2));
         msgBox.exec();
         return false;
-    } else {
-        // continue
-        QMessageBox msgBox(QMessageBox::Information,
-                   tr("Validation"),
-                   tr("Validation passed."),
-                   QMessageBox::Ok,
-                   this);
-        msgBox.ensurePolished();
-        const QPoint parentCenterGlobal = this->mapToGlobal(this->rect().center());
-        const QSize dialogSize = msgBox.sizeHint();
-        msgBox.move(parentCenterGlobal - QPoint(dialogSize.width() / 2, dialogSize.height() / 2));
-        msgBox.exec();  
     }
+    // } else {
+    //     // continue
+    //     QMessageBox msgBox(QMessageBox::Information,
+    //                tr("Validation"),
+    //                tr("Validation passed."),
+    //                QMessageBox::Ok,
+    //                this);
+    //     msgBox.ensurePolished();
+    //     const QPoint parentCenterGlobal = this->mapToGlobal(this->rect().center());
+    //     const QSize dialogSize = msgBox.sizeHint();
+    //     msgBox.move(parentCenterGlobal - QPoint(dialogSize.width() / 2, dialogSize.height() / 2));
+    //     msgBox.exec();  
+    // }
 
     jsonObj["type"] = "SSISimulation";
     jsonObj["building_type"] = currentBuilding->typeId();
