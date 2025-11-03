@@ -134,7 +134,7 @@ RunPython::processScript() {
   QFileInfo pythonFile(python);
   
   if (!pythonFile.exists()) {
-    this->errorMessage(QString("NO VALID PYTHON found - Read the Manual & Update Preferences - currently set as: ") + python);
+    this->errorMessage(QString("NO VALID PYTHON found - Read the Manual & Update Preferences"));
     qDebug() << "INVALID PYTHON: " << python;
     emit processFinished(-1);
     return;

@@ -441,12 +441,13 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
 
         QFileInfo pythonFile(python);
         if (!pythonFile.exists()) {
-	  emit sendErrorMessage(QString("NO VALID PYTHON found - Read the Manual & Update Preferences - currently set as: ") + python);	  
+	  emit sendErrorMessage(QString("NO VALID PYTHON found - Read the Manual & Update Preferences"));
+	  qDebug() << "NO VALID PYTHON: " << python;      	  
 	  pushButton->setEnabled(true);
 	  return false;
         }
 
-	      qDebug() << "RUNNING: " << python << " " << args;
+	qDebug() << "RUNNING: " << python << " " << args;
 	
         proc->execute(python,args);
         proc->waitForStarted();
