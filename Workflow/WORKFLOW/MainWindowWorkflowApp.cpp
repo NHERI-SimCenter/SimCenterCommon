@@ -182,7 +182,8 @@ MainWindowWorkflowApp::MainWindowWorkflowApp(QString appName, WorkflowAppWidget 
     
     // if (width>1280) width=1280;
 
-    if (getConfigOptionString("screenSize") == "fullScreen")
+    QString screenSizeOption = getConfigOptionString("screenSize");
+    if (screenSizeOption == "fullScreen" || screenSizeOption == "Full")
       this->showMaximized();
     else
       this->resize(width, height);

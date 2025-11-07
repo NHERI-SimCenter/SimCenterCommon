@@ -8,6 +8,9 @@
 #include <QHostInfo>
 #include <QCoreApplication>
 #include <QSettings>
+#include <QMessageBox>
+#include <Utils/SimCenterConfigFile.h>
+#include <QRegularExpression>
 
 namespace GoogleAnalytics {
 
@@ -32,6 +35,31 @@ void ReportExample(QString exampleName) {
 
 void StartSession()
 {
+  QString configOptionAnalytics = getConfigOptionString("GoogleAnalytics");
+  
+  if (configOptionAnalytics == "") {
+    QString appName = QCoreApplication::applicationName();   
+    QString message(" uses Google Analytics to help improve application performance and enhance the user experience.\n\nNo personal or identifying information is collected.\n\nFor details on the data collected and instructions on how to disable analytics, please see the documentation.\n\n");
+
+    QString textMessage = appName + message;
+
+    /*
+    QMessageBox::information(nullptr,"Analytics Notice",textMessage);
+    */
+    
+    QMessageBox box;
+    box.setWindowTitle("Analytics Notice");
+    box.setText(textMessage);
+    box.setIcon(QMessageBox::NoIcon);
+    box.exec();  // Waits until user closes the dialog
+
+    qDebug() << "Dialog closed — continuing program.";
+ 
+    setConfigOptionString("GoogleAnalytics","Yes");
+    qDebug() << "Setting Analytics to Yes";
+    
+  }
+    
     _session_start_time = QDateTime::currentMSecsSinceEpoch();
     Report("Session", "Start");
 }
@@ -74,12 +102,47 @@ void CreateSessionId()
 
 void sendReport();
 
+
+
+QString sanitizeText(const QString &text)
+{
+
+  // purpose to remove paths to files from QSTring text
+    QString out = text;
+
+    // Match either Windows or macOS user folders and keep only the trailing file/dir
+    //  - macOS:  /Users/<username>/.../<filename>
+    //  - Windows: C:/Users/<username>/.../<filename>  or  C:\Users\<username>\...\<filename>
+
+    // macOS style
+    {
+        QRegularExpression re(R"(/Users/[^/]+/(?:.*/)?([^/\s]+))");
+        out.replace(re, "BLAH/\\1");
+    }
+
+    // Windows forward-slash style
+    {
+        QRegularExpression re(R"([A-Za-z]:/Users/[^/]+/(?:.*/)?([^/\s]+))");
+        out.replace(re, "BLAH/\\1");
+    }
+
+    // Windows backslash style
+    {
+        QRegularExpression re(R"([A-Za-z]:\\Users\\[^\\]+\\(?:.*\\)?([^\\\s]+))");
+        out.replace(re, "BLAH/\\1");
+    }
+
+    return out;
+}
+  
+  
 void Report(QString eventCategory, QString eventName)
 {
     // no tracking if no tracking ID set
     if (_measurementId.isEmpty() || _api_secret.isEmpty())
         return;
 
+    
     //build JSON payload
     //ex:
     /*
@@ -111,7 +174,12 @@ void Report(QString eventCategory, QString eventName)
     // Defining the Event Parameters
     // In order for user activity to display in standard reports like Realtime, engagement_time_msec and session_id must be supplied as part of the params for an event.
     QJsonObject eventParams = QJsonObject();
-    eventParams["type"] = eventName;
+    //eventParams["type"] = eventName;
+
+    QString sanitizedEventName = sanitizeText(eventName);
+    eventParams["type"] = sanitizedEventName;    
+
+    
     eventParams["engagement_time_msec"] = 100;
     eventParams["session_id"] = _sessionId.toString();
     eventParams["AppVersion"] = QString("Version ") + QCoreApplication::applicationVersion();
