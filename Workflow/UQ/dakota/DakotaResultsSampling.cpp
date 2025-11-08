@@ -196,40 +196,6 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
 
     QFileInfo fileTabInfo(filenameTab);
 
-    // For debugging a directory structure issue when downloading remote jobs in HydroUQ
-    QString appName = QCoreApplication::applicationName();
-    if ((appName == "HydroUQ") || (appName == "Hydro-UQ")) {
-        QFileInfo fileTabInfoOriginal(filenameTab);
-        QString resultsDir = fileTabInfoOriginal.absolutePath();
-
-        QFileInfo resultsDirInfo(resultsDir);
-        QString resultsDirLower = resultsDirInfo.absolutePath() + QDir::separator() + resultsDirInfo.fileName().toLower();
-        QFileInfo resultsDirInfoLower(resultsDirLower);
-
-        qDebug() << "filenameTab: " << filenameTab;
-        qDebug() << "ResultsDir: " << resultsDir;
-        qDebug() << "ResultsDirLower: " << resultsDirLower;
-
-        // fileTabInfo = QFileInfo(filenameTab);
-        if (resultsDirInfo.exists()) {
-            fileTabInfo = QFileInfo(filenameTab);
-        } else if (resultsDirInfoLower.exists()) {
-            fileTabInfo = QFileInfo(resultsDirLower + QDir::separator() + fileTabInfoOriginal.fileName());
-        } else {
-            errorMessage("No dakotaTab.out file - dakota failed .. possibly no QoI");
-            return 0;
-        }
-        if (!fileTabInfo.exists()) {
-            errorMessage("No dakotaTab.out file - dakota failed .. possibly no QoI");
-            return 0;
-        }
-
-        qDebug() << "fileTabInfo.fileName: " << fileTabInfo.fileName();
-        qDebug() << "filetabInfo.absolutePath: " << fileTabInfo.absolutePath();
-        qDebug() << "filetabInfo.absoluteFilePath: " << fileTabInfo.absoluteFilePath();
-        filenameTab = fileTabInfo.absoluteFilePath();
-        qDebug() << "filenameTab: " << filenameTab;
-    }
 
 
     QString errMsg("");
@@ -289,13 +255,6 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
 //        if (line.length()!= 0)
 //            errMsg = QString(QString("Error in Creating Workflow: ") + line);
 //    }
-    if ((appName != "HydroUQ") && (appName != "Hydro-UQ")) {
-        QFileInfo filenameTabInfo(filenameTab);
-        if (!filenameTabInfo.exists()) {
-            errorMessage("No dakotaTab.out file - dakota failed .. possibly no QoI");
-            return 0;
-        }
-    }
 
 //    // If surrogate model is used, display additional info.
 //    QDir tempFolder(filenameTabInfo.absolutePath());

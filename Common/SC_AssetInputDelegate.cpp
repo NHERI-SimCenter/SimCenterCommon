@@ -38,8 +38,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "SC_AssetInputDelegate.h"
 #include <QLineEdit>
-#include <QRegExp>
-#include <QRegExpValidator>
+#include <QRegularExpression>
+#include <QRegularExpressionValidator>
 
 #include <sstream>
 
@@ -49,8 +49,8 @@ SC_AssetInputDelegate::SC_AssetInputDelegate(QString keyToUse)
     this->setPlaceholderText("e.g., 1, 3, 5-10, 12");
 
     // Create a regExp validator to make sure only '-' & ',' & ' ' & numbers are input
-    QRegExp LERegExp ("((([0-9]*)|([0-9]+-[1-9][0-9]*))[ ]*,[ ]*)*([[0-9]+-[1-9][0-9]*|[0-9]*)");
-    QRegExpValidator* LEValidator = new QRegExpValidator(LERegExp);
+    QRegularExpression LERegExp ("((([0-9]*)|([0-9]+-[1-9][0-9]*))[ ]*,[ ]*)*([[0-9]+-[1-9][0-9]*|[0-9]*)");
+    QRegularExpressionValidator* LEValidator = new QRegularExpressionValidator(LERegExp);
     this->setValidator(LEValidator);
 }
 

@@ -79,6 +79,7 @@ private:
   QString key;
 };
 
+/* WHAT IS THIS CLASS FOR!!
 class TextFieldDoubleValidator : public QDoubleValidator {
 public:
     TextFieldDoubleValidator (QObject * parent = 0) : QDoubleValidator(parent) {}
@@ -108,5 +109,6 @@ public:
     }
 
 };
+**/
 
 #endif // SC_DOUBLE_LINEEDIT_H

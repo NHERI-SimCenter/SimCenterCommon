@@ -3,6 +3,8 @@
 #include <RandomVariablesContainer.h>
 #include <QJsonArray>
 #include <QPushButton>
+#include <QRegularExpression>
+
 
 Femora::Femora(QWidget *parent) : SimCenterAppWidget(parent) {
     layout = new QGridLayout();
@@ -143,7 +145,7 @@ bool Femora::outputToJSON(QJsonObject &jsonObject) {
     // Parse responseNodes as a list
     QJsonArray responseNodesArray;
     QString respNodesText = responseNodesLineEdit->text();
-    for (const QString &node : respNodesText.split(QRegExp("[ ,;]+"), Qt::SkipEmptyParts)) {
+    for (const QString &node : respNodesText.split(QRegularExpression("[ ,;]+"), Qt::SkipEmptyParts)) {
         responseNodesArray.append(node.toInt());
     }
     jsonObject["responseNodes"] = responseNodesArray;

@@ -63,7 +63,15 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QProcessEnvironment>
 #include <QCoreApplication>
 #include <SimCenterPreferences.h>
+#include <QtGlobal>
+
 #include "Utils/SimCenterConfigFile.h"
+
+#include <QSysInfo>
+
+
+
+
 
 LocalApplication::LocalApplication(QString workflowScriptName, QWidget *parent)
     : Application(parent)
@@ -72,6 +80,9 @@ LocalApplication::LocalApplication(QString workflowScriptName, QWidget *parent)
     connect(theMainProcessHandler.get(),&PythonProcessHandler::processFinished, this, &LocalApplication::handleProcessFinished);
 
     this->workflowScript = workflowScriptName;
+
+    qDebug() << "Build architecture:" << QSysInfo::buildCpuArchitecture();
+    qDebug() << "Current architecture:" << QSysInfo::currentCpuArchitecture();    
 }
 
 bool
@@ -195,7 +206,6 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     QString pathEnv = procEnv.value("PATH");
     QString pythonPathEnv = procEnv.value("PYTHONPATH");
 
-
     QString python = QString("python");
     QString exportPath("export PATH=");
     bool colonYes = false;
@@ -210,8 +220,8 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
         exportPath += pythonPath;
         pathEnv = pythonPath + ';' + pathEnv;
     } else {
-      emit sendErrorMessage(QString("NO VALID PYTHON found - Read the Manual & Update Preferences - currently set as: ") + python);
-      qDebug() << "INVALID PYTHON: " << python;      
+      emit sendErrorMessage(QString("NO VALID PYTHON found - Read the Manual & Update Preferences"));
+      qDebug() << "NO VALID PYTHON: " << python;      
       emit runComplete();
       return false;
     }
@@ -310,6 +320,7 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     }
 
     ******************************************************************************** */
+    
     QString openseesPath;
     QString openseesExe = preferences->getOpenSees();
     QFileInfo openseesFile(openseesExe);
@@ -374,6 +385,19 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
 
     procEnv.insert("PATH", pathEnv);
     procEnv.insert("PYTHONPATH", pythonPathEnv);
+
+#ifdef _OpenSRA
+    // other environment variables needed for OpenSRA
+    QString openSRADir = preferences->getOpenSRA();
+    procEnv.insert("OPENSRA_BACKEND_DIR", openSRADir);
+
+    auto condaPrefix = pythonFile.absoluteDir().absolutePath();
+    procEnv.insert("CONDA_PREFIX", condaPrefix);
+    procEnv.insert("LOCALAPPDATA", QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
+#endif
+    
+    // Add some env var from system
+    procEnv.insert("PROCESSOR_ARCHITECTURE", qgetenv("PROCESSOR_ARCHITECTURE"));
 
     theMainProcessHandler->setProcessEnv(procEnv);
 
@@ -445,6 +469,15 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
     // note the above not working under linux because bash_profile not being called so no env variables!!
     QString command;
 
+    QString armOption;
+    #ifdef Q_PROCESSOR_ARM
+       armOption = " /usr/bin/arch -arm64 ";
+       qDebug() << "Running on ARM architecture";
+    #else
+       qDebug() << "Running on x86 architecture";       
+    #endif
+    
+    
     if (appName == "R2D"){
 
         /*
@@ -452,14 +485,14 @@ LocalApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputF
                 + QString(" \"" ) + inputFile + QString("\"");
 
         */
-        command = sourceBash + exportPath + "; \"" + python + QString("\" \"" ) + pySCRIPT + QString("\" " )
+      command = sourceBash + exportPath + "; " + armOption + QString("\"") + python + QString("\" \"" ) + pySCRIPT + QString("\" " )
                 + QString(" \"" ) + inputFile + QString("\" ") +"--registry"
                 + QString(" \"") + registryFile + QString("\" ") + "--referenceDir" + QString(" \"")
                 + tmpDirectory + QString("/input_data\" ") + "-w" + QString(" \"") + tmpDirectory + QDir::separator() + "Results" + QString("\"");
 
     } else {
 
-        command = sourceBash + exportPath + "; \"" + python + QString("\" \"" ) +
+      command = sourceBash + exportPath + "; " + armOption + QString("\"") + python + QString("\" \"" ) +
                 pySCRIPT + QString("\" " ) + runType + QString(" \"" ) + inputFile + QString("\" \"") + registryFile + QString("\"");
 
     }

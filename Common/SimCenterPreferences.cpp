@@ -209,7 +209,6 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     externalApplicationsLayout->setAlignment(Qt::AlignLeft);
     externalApplicationsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     externalApplicationsLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
-
     // connect the pushbutton with code to open file selection and update dakota preferences with selected file
     connect(dakotaButton, &QPushButton::clicked, this, [this](){
       QSettings settings("SimCenter", QCoreApplication::applicationName()); 
@@ -242,7 +241,60 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     });
     // dakota
 
+#ifdef _OpenSRA
+    QString appName = QCoreApplication::applicationName();
+    if (appName == QString("R2D"))
+    {
+        openSRA = new QLineEdit();
+        QHBoxLayout *openSRALayout = new QHBoxLayout();
+        customOpenSRACheckBox = new QCheckBox("Path to OpenSRA backend");
+        openSRALayout->addWidget(customOpenSRACheckBox);
+        openSRALayout->addWidget(openSRA);
+        QPushButton *openSRAButton = new QPushButton();
+        openSRAButton->setText("Browse");
+        openSRAButton->setToolTip(tr("Select the path to OpenSRA"));
+        openSRALayout->addWidget(openSRAButton);
+        customOpenSRACheckBox->setChecked(false);
+        openSRA->setEnabled(false);
+        openSRAButton->setEnabled(false);
+        externalApplicationsLayout->addRow(tr("OpenSRA:"), openSRALayout);
+        externalApplicationsLayout->setAlignment(Qt::AlignLeft);
+        externalApplicationsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+        externalApplicationsLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
 
+        connect(openSRAButton, &QPushButton::clicked, this, [this](){
+            QSettings settings("SimCenter", QCoreApplication::applicationName());
+            QVariant  osraPathVariant = settings.value("openSRAPath");
+            QString existingDir = QCoreApplication::applicationDirPath();
+            if (osraPathVariant.isValid()) {
+                QString existingF = osraPathVariant.toString();
+                QFileInfo existingFile(existingF);
+                if (existingFile.exists())
+                    existingDir = existingFile.absolutePath();
+            }
+
+            QString selectedDir = QFileDialog::getExistingDirectory(this,
+                                                                    tr("Select Path to OpenSRA backend"),
+                                                                    existingDir,
+                                                                    QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+            if(!selectedDir.isEmpty()) {
+                openSRA->setText(selectedDir);
+            }
+        }
+                );
+
+        connect(customOpenSRACheckBox, &QCheckBox::toggled, this, [this, openSRAButton](bool checked)
+                {
+                    openSRA->setEnabled(checked);
+                    openSRAButton->setEnabled(checked);
+                    openSRAButton->setFlat(!checked);
+                    if (checked == false) openSRA->setText(this->getDefaultOpenSRA());
+                });
+    }
+    
+#endif
+    
     //
     // entry for localWorkDir location .. basically as before
     //
@@ -576,6 +628,14 @@ SimCenterPreferences::savePreferences(bool) {
     settingsApp.setValue("customTapisAppVersion", customTapisAppVersionCheckBox->isChecked());    
     settingsApp.setValue("customRemoteAppDir", customRemoteAppDirCheckBox->isChecked());    
 
+    QString appName = QCoreApplication::applicationName();
+#ifdef _OpenSRA
+    if (appName == QString("R2D"))
+    {
+        settingsApp.setValue("customOpenSRA", customOpenSRACheckBox->isChecked());
+        settingsApp.setValue("openSRAPath", openSRA->text());
+    }
+#endif
     
     settingsApp.setValue("remoteBackendDir", remoteBackendDir->text().trimmed());
     settingsApp.setValue("remoteTapisApp", remoteTapisApp->text().trimmed());
@@ -649,8 +709,20 @@ SimCenterPreferences::resetPreferences(bool) {
     customDakotaCheckBox->setChecked(false);
     customOpenSeesCheckBox->setChecked(false);
     customTapisAppCheckBox->setChecked(false);
-    customTapisAppVersionCheckBox->setChecked(false);    
-    customRemoteAppDirCheckBox->setChecked(false);    
+
+    QString appName = QCoreApplication::applicationName();
+#ifdef _OpenSRA
+    if (appName == QString("R2D"))
+    {
+        QString openSRAPath=this->getDefaultOpenSRA();
+        settingsApplication.setValue("openSRAPath", openSRAPath);
+        openSRA->setText(openSRAPath);
+        customOpenSRACheckBox->setChecked(false);
+    }
+#endif
+    
+    customTapisAppVersionCheckBox->setChecked(false);
+    customRemoteAppDirCheckBox->setChecked(false);
 
     // finally save them to make sure all saved
     //    this->savePreferences(true);
@@ -849,6 +921,30 @@ SimCenterPreferences::loadPreferences() {
         QString dakotaApp=this->getDefaultDakota();
         dakota->setText(dakotaApp);
     }
+
+#ifdef _OpenSRA
+    // OpenSRA
+    QString appName = QCoreApplication::applicationName();
+    if (appName == QString("R2D"))
+    {
+        auto customOpenSRA = settingsApplication.value("customOpenSRA", false);
+        if (customOpenSRA.isValid() && customOpenSRA.toBool() == true) {
+            QVariant  openSRAPathVariant = settingsApplication.value("openSRAPath");
+            if (!openSRAPathVariant.isValid()) {
+                customOpenSRACheckBox->setChecked(false);
+                QString openSRAPath=this->getDefaultOpenSRA();
+                settingsApplication.setValue("openSRAPath", openSRAPath);
+                openSRA->setText(openSRAPath);
+            } else {
+                customOpenSRACheckBox->setChecked(true);
+                openSRA->setText(openSRAPathVariant.toString());
+            }
+        } else {
+            QString openSRAApp=this->getDefaultOpenSRA();
+            openSRA->setText(openSRAApp);
+        }
+    }
+#endif
 }
 
 QString
@@ -933,6 +1029,23 @@ SimCenterPreferences::getDakota(void) {
 }
 
 
+#ifdef _OpenSRA
+QString
+SimCenterPreferences::getOpenSRA(void) {
+
+    QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
+    QString thePath;
+
+    QVariant  theVariant = settingsApplication.value("openSRAPath");
+    if (!theVariant.isValid()) {
+      thePath = this->getDefaultOpenSRA();
+      settingsApplication.setValue("openSRAPath", thePath);
+      return thePath;
+    }
+
+    return theVariant.toString();
+}
+#endif
 
 QString
 SimCenterPreferences::getAppDir(void) {
@@ -980,10 +1093,6 @@ SimCenterPreferences::getRemoteAppDir(void) {
 	// if not set, use default & set default as application directory
 	if (!remoteBackendDirVariant.isValid()) {
 	  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v25.05.16");
-
-	  QString appName = QCoreApplication::applicationName();
-	  if (appName == QString("WE-UQ") || appName == QString("HydroUQ"))
-	    remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v4.6.0");
 
 	  settingsApplication.setValue("remoteBackendDir", remoteBackendDirLocation);
 	  return remoteBackendDirLocation;
@@ -1115,9 +1224,9 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
     if (appName == QString("R2D")) {
       remoteApp = QString("simcenter-rWhale-stampede3");
     } else if (appName == QString("WE-UQ")) {
-      remoteApp = QString("simcenter-openfoam-frontera");
+      remoteApp = QString("simcenter-openfoam-stampede3");
     } else if (appName == QString("HydroUQ")) {
-      remoteApp = QString("simcenter-hydrouq-frontera");    
+      remoteApp = QString("simcenter-hydrouq-stampede3");    
     } else if (appName == QString("EE-UQ") || appName == QString("PBE"))
       remoteApp = QString("simcenter-uq-stampede3");      
 
@@ -1144,10 +1253,7 @@ SimCenterPreferences::getDefaultAgaveAppVersion(void) {
 QString
 SimCenterPreferences::getDefaultRemoteAppDir(void) {
 
-  QString appName = QCoreApplication::applicationName();  
   QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v25.05.16");
-  if (appName == QString("WE-UQ") || appName == QString("HydroUQ"))
-    remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v4.6.0");  
 
   return remoteBackendDirLocation;
 }
@@ -1277,3 +1383,18 @@ SimCenterPreferences::getDefaultPython(void) {
     
     return pythonPath;
 }
+
+
+#ifdef _OpenSRA
+QString
+SimCenterPreferences::getDefaultOpenSRA(void) {
+
+    QString currentAppDir = QCoreApplication::applicationDirPath();
+
+    QString openSRADir = currentAppDir + QDir::separator() + "OpenSRA";
+
+
+    return openSRADir;
+
+}
+#endif
