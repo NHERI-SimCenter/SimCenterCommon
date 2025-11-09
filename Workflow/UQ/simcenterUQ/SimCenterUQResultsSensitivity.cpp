@@ -360,15 +360,21 @@ int SimCenterUQResultsSensitivity::processResults(QString &filenameResults, QStr
     //
     // create spreadsheet,  a QTableWidget showing RV and results for each run
     //
+    bool isInputBinary = false;
 
     if (!usedData) {
             theDataTable = new ResultsDataChart(filenameTab,  theRVs->getNumRandomVariables());
-    } else {
-        QStringList QoIlist; // w
+    } else  {
+        isInputBinary = (inpPath.endsWith(".bin", Qt::CaseInsensitive)||outPath.endsWith(".bin", Qt::CaseInsensitive));
+
+        if (!isInputBinary)
+        {
+        QStringList QoIlist;
         for (int i=nAggQoI;i<(nAggQoI+nQoI); i++){
             QoIlist <<QoInames[i];
         }
         theDataTable = new ResultsDataChart(inpPath, outPath, ncomb, nQoI, nSamp, combs.toList(), QoIlist);
+        }
     }
     //theDataTable = new ResultsDataChart(filenameTab);
 
@@ -377,7 +383,10 @@ int SimCenterUQResultsSensitivity::processResults(QString &filenameResults, QStr
     //
 
     tabWidget->addTab(sa,tr("Summary"));
-    tabWidget->addTab(theDataTable, tr("Data Values"));
+    if (!isInputBinary) // when input is directly given and is binary we don't display
+    {
+        tabWidget->addTab(theDataTable, tr("Data Values"));
+    }
     tabWidget->adjustSize();
 
     return 0;
@@ -404,7 +413,7 @@ void SimCenterUQResultsSensitivity::gsaGraph(QScrollArea *&sa)
         }
     }
     else if (nQoIall<1000) {
-        QComboBox *qoiSelection = new QComboBox();
+        QComboBox *qoiSelection = new QComboBox(this);
         qoiSelection->setMinimumWidth(minimumSizeHint().width()*1.2);
         qoiSelection->setMaximumWidth(minimumSizeHint().width()*1.2);
         bool useAnimation = true;
@@ -433,7 +442,7 @@ void SimCenterUQResultsSensitivity::gsaGraph(QScrollArea *&sa)
         });
     } else {
         // Display only aggregated ones...
-        QComboBox *qoiSelection = new QComboBox();
+        QComboBox *qoiSelection = new QComboBox(this);
         qoiSelection->setMinimumWidth(minimumSizeHint().width()*1.2);
         qoiSelection->setMaximumWidth(minimumSizeHint().width()*1.2);
         bool useAnimation = true;
