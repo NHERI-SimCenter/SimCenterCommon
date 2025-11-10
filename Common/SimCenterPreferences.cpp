@@ -1241,7 +1241,7 @@ SimCenterPreferences::getDefaultAgaveAppVersion(void) {
     QString appName = QCoreApplication::applicationName();
     QString remoteApp = QString("simcenter-uq-stampede3");
 
-    QString remoteVersion = QString("1.0.0");    
+    QString remoteVersion = QString("1.1.0");    
     if (appName == QString("R2D")) {
       remoteVersion = QString("1.2.0");
     }
