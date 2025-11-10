@@ -62,7 +62,7 @@ HEADERS += $$PWD/HeaderWidget.h \
     $$PWD/FooterWidget.h \
     $$PWD/SimCenterWidget.h \
     $$PWD/SC_ComboBox.h \
-    $$PWD/SC_AssetINputDelegate.h \    
+    $$PWD/SC_AssetInputDelegate.h \    
     $$PWD/SC_CheckBox.h \
     $$PWD/SC_DoubleLineEdit.h \
     $$PWD/SC_StringLineEdit.h \
