@@ -33,10 +33,11 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 				   QList<QString> theQueus,
 				   RemoteService *theRemoteService,
 				   SimCenterAppWidget* theEnclosedApp,
-				   QDialog *enclosingDialog)
+				   QDialog *enclosingDialog,
+				   bool localRun)
   :SimCenterAppWidget(), theApp(theEnclosedApp), theService(theRemoteService),
    tapisAppName(appName), tapisAppVersion(appVersion), appNameReport(appName), machine(hpcMachine),
-   queus(theQueus), theMachine(0)
+  queus(theQueus), theMachine(0), includeLocalRun(localRun)
 {
 
   this->initialize(enclosingDialog);
@@ -48,9 +49,10 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 				   TapisMachine *machine, 
 				   RemoteService *theRemoteService,
 				   SimCenterAppWidget* theEnclosedApp,
-				   QDialog *enclosingDialog)
+				   QDialog *enclosingDialog,
+				   bool localRun)
   :SimCenterAppWidget(), theApp(theEnclosedApp), theService(theRemoteService),
-   tapisAppName(appName), tapisAppVersion(appVersion), theMachine(machine)
+   tapisAppName(appName), tapisAppVersion(appVersion), theMachine(machine), includeLocalRun(localRun)
 {
   this->initialize(enclosingDialog);
 }
@@ -73,10 +75,20 @@ SC_RemoteAppTool::initialize(QDialog *enclosingDialog) {
   QPushButton *runRemoteButton = new QPushButton("RUN at DesignSafe");
   QPushButton *getRemoteButton = new QPushButton("GET from DesignSafe");
 
-  theButtonLayout->addWidget(fileLoadButton,0,0);
-  theButtonLayout->addWidget(fileSaveButton,0,1);  
-  theButtonLayout->addWidget(runRemoteButton,0,2);
-  theButtonLayout->addWidget(getRemoteButton,0,3);
+  int numCol = 0;
+  theButtonLayout->addWidget(fileLoadButton, 0,numCol++);
+  theButtonLayout->addWidget(fileSaveButton, 0,numCol++);
+
+  if (includeLocalRun == true) {
+    // create local run button and connect the button clicked to the signal localPressed
+    QPushButton *runLocalButton = new QPushButton("RUN");
+    theButtonLayout->addWidget(runLocalButton,0,numCol++);    
+    connect(runLocalButton,&QPushButton::clicked,
+	    this, &SC_RemoteAppTool::runLocalPressed);
+  }
+  
+  theButtonLayout->addWidget(runRemoteButton,0,numCol++);
+  theButtonLayout->addWidget(getRemoteButton,0,numCol++);
   
   theMainLayout->addLayout(theButtonLayout);
   

@@ -29,14 +29,16 @@ public:
 		   QList<QString> queueNames,
 		   RemoteService *theRemoteService,
 		   SimCenterAppWidget* theEnclosedApp,
-		   QDialog *enclosingDialog = nullptr);
+		   QDialog *enclosingDialog = nullptr,
+		   bool includeLocalRun = false);
 
   SC_RemoteAppTool(QString tapisAppName,
 		   QString tapisAppVersion,
 		   TapisMachine *theMachine,
 		   RemoteService *theRemoteService,
 		   SimCenterAppWidget* theEnclosedApp,
-		   QDialog *enclosingDialog = nullptr);  
+		   QDialog *enclosingDialog = nullptr,
+		   bool includeLocalRun = false);  
   
   ~SC_RemoteAppTool();
 
@@ -57,6 +59,9 @@ public slots:
   void onGetRemoteButtonPressed();
   void processResults(QString &);
   void setAppNameReport(QString text);
+
+signals:
+  void runLocalPressed();
   
 private:
 
@@ -67,7 +72,6 @@ private:
   QString appNameReport;  
   QString machine;  
   QStringList queus;
-
   
   QLineEdit *nameLineEdit;
   // QLineEdit *systemLineEdit;
@@ -95,6 +99,8 @@ private:
 
   TapisMachine *theMachine;
   RemoteJobManager *theJobManager;
+
+  bool includeLocalRun;
 };
 
 #endif // SC_RemoteAppTool_H
