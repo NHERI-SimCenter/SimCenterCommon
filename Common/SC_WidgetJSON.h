@@ -1,5 +1,5 @@
-#ifndef SC_COMBOBOX_H
-#define SC_COMBOBOX_H
+#ifndef SC_WIDGET_JSON_H
+#define SC_WIDGET_JSON_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -44,36 +44,31 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  *
  *  @section DESCRIPTION
  *
- *  This is a combo box for SimCenter, implements input/output To JSON
  */
-
-#include <QComboBox>
-#include "SC_WidgetJSON.h"
-#include <QString>
-#include <QStringList>
 
 class QJsonObject;
 
-class SC_ComboBox : public QComboBox, public SC_WidgetJSON
-{
-  Q_OBJECT
-  
-public:
-  
-  SC_ComboBox(QString key, QStringList values);
-  ~SC_ComboBox();
-  bool outputToJSON(QJsonObject &jsonObject);
-  bool inputFromJSON(QJsonObject &jsonObject);
-  QString &getKey();
-  
-signals:
 
-public slots:
+class SC_WidgetJSON
+{
+public:
+    virtual ~SC_WidgetJSON() = default;
+    /** 
+     *   @brief outputToJSON method to write all objects data neeed to reconstruct object to JsonObject
+     *   @param rvObject the JSON object to be written to
+     *   @return bool - true for success, otherwise false
+     */  
+
+    virtual bool outputToJSON(QJsonObject &jsonObject) = 0;
+    /** 
+     *   @brief inputFromJSON method to instantiate itself from a JSON object
+     *   @param jsonObject the JSON object contaiing data to instantiate the object
+     *   @return bool - true for success, otherwise false
+     */  
+    virtual bool inputFromJSON(QJsonObject &jsonObject) = 0;
 
 private:
-  //   QComboBox *theBox;
-  QStringList values;
-  QString key;
+
 };
 
-#endif // SC_COMBOBOX_H
+#endif // SC__WIDGET_H

@@ -32,6 +32,7 @@ SOURCES += $$PWD/HeaderWidget.cpp \
     $$PWD/SC_IntLineEdit.cpp \
     $$PWD/SC_QRadioButton.cpp \
     $$PWD/SC_TableEdit.cpp \
+    $$PWD/SC_TableSC_Widgets.cpp \    
     $$PWD/SC_FileEdit.cpp \
     $$PWD/SC_DirEdit.cpp \    
     $$PWD/SC_ResultsWidget.cpp \
@@ -61,13 +62,15 @@ HEADERS += $$PWD/HeaderWidget.h \
     $$PWD/SectionTitle.h \
     $$PWD/FooterWidget.h \
     $$PWD/SimCenterWidget.h \
+    $$PWD/SC_WidgetJSON.h \    
     $$PWD/SC_ComboBox.h \
     $$PWD/SC_AssetInputDelegate.h \    
     $$PWD/SC_CheckBox.h \
     $$PWD/SC_DoubleLineEdit.h \
     $$PWD/SC_StringLineEdit.h \
+    $$PWD/SC_TableSC_Widgets.h \
     $$PWD/SC_IntLineEdit.h \
-	$$PWD/SC_QRadioButton.h \
+    $$PWD/SC_QRadioButton.h \
     $$PWD/SC_TableEdit.h \
     $$PWD/SC_FileEdit.h \
     $$PWD/SC_DirEdit.h \    

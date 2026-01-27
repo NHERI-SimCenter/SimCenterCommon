@@ -48,12 +48,13 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
 #include <QLineEdit>
+#include "SC_WidgetJSON.h"
 #include <QString>
 #include <QDoubleValidator>
 
 class QJsonObject;
 
-class SC_DoubleLineEdit : public QLineEdit
+class SC_DoubleLineEdit : public QLineEdit, public SC_WidgetJSON
 {
   
 public:
