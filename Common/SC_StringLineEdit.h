@@ -48,11 +48,13 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
 #include <QLineEdit>
+#include "SC_WidgetJSON.h"
 #include <QString>
 
 class QJsonObject;
 
-class SC_StringLineEdit : public QLineEdit
+
+class SC_StringLineEdit : public QLineEdit, public SC_WidgetJSON
 {
   
 public:

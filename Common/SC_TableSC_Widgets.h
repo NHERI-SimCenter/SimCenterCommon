@@ -1,5 +1,5 @@
-#ifndef SC_COMBOBOX_H
-#define SC_COMBOBOX_H
+#ifndef SC_TABLE_SC_WIDGETS_H
+#define SC_TABLE_SC_WIDGETS_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -44,36 +44,49 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  *
  *  @section DESCRIPTION
  *
- *  This is a combo box for SimCenter, implements input/output To JSON
+ *  This is an editable table for SimCenter, implements input/output To JSON
+ *    -entries are SC_Widgets instead of just doubles and strings
  */
 
-#include <QComboBox>
+#include <QWidget>
 #include "SC_WidgetJSON.h"
 #include <QString>
 #include <QStringList>
+#include <QStyledItemDelegate>
 
+class QTableWidget;
 class QJsonObject;
+class QLineEdit;
 
-class SC_ComboBox : public QComboBox, public SC_WidgetJSON
+
+class SC_TableSC_Widgets : public QWidget, public SC_WidgetJSON
 {
-  Q_OBJECT
-  
+
+  Q_OBJECT   
+
 public:
+
+  SC_TableSC_Widgets(QString key,
+		     QStringList colHeadings,
+		     bool addRemove=true);  
+
+  ~SC_TableSC_Widgets();
   
-  SC_ComboBox(QString key, QStringList values);
-  ~SC_ComboBox();
   bool outputToJSON(QJsonObject &jsonObject);
   bool inputFromJSON(QJsonObject &jsonObject);
-  QString &getKey();
-  
-signals:
 
-public slots:
+  bool addRowWidgets(QList<SC_WidgetJSON *>rowWidgets);
+
+signals:
+  void addRow(void);
 
 private:
-  //   QComboBox *theBox;
-  QStringList values;
   QString key;
+  QTableWidget *theTable;
+  QList<QList<SC_WidgetJSON*>> theWidgets;
+  int numCols;
 };
 
-#endif // SC_COMBOBOX_H
+
+
+#endif // #define SC_TABLE_SC_WIDGETS_H

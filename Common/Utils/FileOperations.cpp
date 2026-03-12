@@ -110,6 +110,21 @@ namespace SCUtils {
         return false;
     }
 
+    // make sure source directory is not one of main directories
+    QString homeDir = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+    QString documentsDir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    QString desktopDir = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+    QString downloadDir = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
+    QString appDir = QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation);    
+    if (sourcePath == homeDir ||
+	sourcePath == documentsDir ||
+	sourcePath == desktopDir ||
+	sourcePath == downloadDir ||
+	sourcePath == appDir) {
+        qWarning() << "FileApplications::recursiveCopy of a user main directory (HOME, Documents, Downloads, Desktop) is requested but NOT permitted";
+        return false;
+    }
+    
     QDir destDir(destPath);
 
     // if destination directory does not exist, create it
