@@ -80,11 +80,13 @@ signals:
 
 public slots:
     void methodSelectionChanged(const QString &arg1);
+    void surrogateMethodSelectionChanged(const QString &arg1);  
     void numModelsChanged(int newNum);
 
 private:
     QLabel *label ;
    QComboBox   *theMethodSelectionBox;
+   QComboBox   *theSurrogateMethodSelectionBox;  
    QStackedWidget *theStackedWidget;
 
    UQ_Engine *theCurrentEngine;
