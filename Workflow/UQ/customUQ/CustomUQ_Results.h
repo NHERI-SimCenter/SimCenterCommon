@@ -1,5 +1,5 @@
-#ifndef DAKOTA_RESULTS_SAMPLING_H
-#define DAKOTA_RESULTS_SAMPLING_H
+#ifndef CUSTOM_UQ_RESULTS_H
+#define CUSTOM_UQ_RESULTS_H
 
 /* *****************************************************************************
 Copyright (c) 2016-2017, The Regents of the University of California (Regents).
@@ -106,4 +106,4 @@ private:
    QWidget *createResultEDPWidget(QString &name, QVector<double> statistics);
 };
 
-#endif // DAKOTA_RESULTS_SAMPLING_H
+#endif // CUSTOM_UQ_RESULTS_H
