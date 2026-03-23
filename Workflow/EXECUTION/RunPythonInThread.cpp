@@ -142,7 +142,12 @@ RunPython::processScript() {
 
   QString pythonDir = pythonFile.path();  // using path as opposed to abs path in case puthon_env being used
   QDir thePythonDir(pythonDir);
-  thePythonDir.cdUp(); // base dir of python
+
+#ifdef Q_OS_WIN
+
+#else
+    thePythonDir.cdUp(); // base dir of python
+#endif 
   
   //
   // set up a QProcess in which to run our command
