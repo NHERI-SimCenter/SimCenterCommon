@@ -1,11 +1,8 @@
-#ifndef DAKOTA_RESULTS_RELIABILITY_H
-#define DAKOTA_RESULTS_RELIABILITY_H
-
 /* *****************************************************************************
-Copyright (c) 2016-2017, The Regents of the University of California (Regents).
+Copyright (c) 2016-2021, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -20,7 +17,7 @@ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -29,66 +26,50 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written by: Stevan Gavrilovic
 
-#include <UQ_Results.h>
-#include <QtCharts/QChart>
-#include <QMessageBox>
+#include "PopUpWidget.h"
+
 #include <QPushButton>
+#include <QTabWidget>
+#include <QVBoxLayout>
 
-
-using namespace QtCharts;
-
-class QTextEdit;
-class QTabWidget;
-class MyTableWidget;
-class MainWindow;
-class RandomVariablesContainer;
-
-//class QChart;
-
-class DakotaResultsReliability : public UQ_Results
+PopUpWidget::PopUpWidget(QWidget *parent) : QDialog(parent)
 {
-    Q_OBJECT
-public:
-  explicit DakotaResultsReliability(RandomVariablesContainer *, QWidget *parent = 0);
-    ~DakotaResultsReliability();
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
-    bool outputToJSON(QJsonObject &rvObject);
-    bool inputFromJSON(QJsonObject &rvObject);
+    this->setMinimumWidth(350);
+    this->setMinimumHeight(350);
 
-    int processResults(QString &filenameResults, QString &filenameTab);
+    theTabWidget = new QTabWidget(this);
+    theTabWidget->setDocumentMode(true);
 
-signals:
+    QPushButton *closeButton = new QPushButton(this);
+    closeButton->setText(tr("Close"));
+    closeButton->setMaximumWidth(150);
 
-public slots:
-   void clear(void);
-   void onSpreadsheetCellClicked(int, int);
-   void onSaveSpreadsheetClicked();
+    mainLayout->addWidget(theTabWidget);
+    mainLayout->addWidget(closeButton,Qt::AlignHCenter);
 
-   // modified by padhye 08/25/2018
+    connect(closeButton,SIGNAL(clicked()),this,SLOT(close()));
+}
 
-private:
-   RandomVariablesContainer *theRVs;
 
-   MyTableWidget *spreadsheet;  
-   QChart *chart;
-   int numSpreadsheetRows;
-   int numSpreadsheetCols;
+PopUpWidget::~PopUpWidget()
+{
 
-   int col1, col2;
-   bool mLeft;
-   QStringList theHeadings;
+}
 
-   //   QVector<QString>theHeadings;
-};
 
-#endif // DAKOTA_RESULTS_RELIABILITY_H
+void PopUpWidget::addTab(QWidget *tab, const QString& label)
+{
+    theTabWidget->addTab(tab,label);
+}

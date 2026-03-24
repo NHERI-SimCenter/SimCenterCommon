@@ -8,11 +8,11 @@
 #include <Qt3DCore/QTransform>
 #include <Qt3DCore/QEntity>
 
-typedef struct _vertexStruct
+typedef struct _vertexStructGV2D
 {
     float position[3];
     float color[3];
-} vertexStruct;
+} vertexStructGV2D;
 
 class GraphicView2D : public QWidget
 {
@@ -52,8 +52,8 @@ private:
     float *lineVertices;
     float *lineColors;
 
-    vertexStruct *thePointVertices;
-    vertexStruct *theLineVertices;
+    vertexStructGV2D *thePointVertices;
+    vertexStructGV2D *theLineVertices;
 
     double minX, maxX;
     double minY, maxY;

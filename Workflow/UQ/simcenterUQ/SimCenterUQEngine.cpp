@@ -89,6 +89,8 @@ SimCenterUQEngine::SimCenterUQEngine(UQ_EngineType type, QWidget *parent)
     label = new QLabel();
     label->setText(QString("SimCenterUQ Method Category"));
     theMethodSelectionBox = new QComboBox();
+    theSurrogateMethodSelectionBox = new QComboBox();
+    
     theMethodSelectionBox->addItem(tr("Forward Propagation"));
     
     if (doSensitivity == true)
@@ -97,15 +99,20 @@ SimCenterUQEngine::SimCenterUQEngine(UQ_EngineType type, QWidget *parent)
     if (doCalibration == true) {}
 
     theMethodSelectionBox->addItem(tr("Train GP Surrogate Model")); // SY - folloiwng PLoM
-    theMethodSelectionBox->addItem(tr("PLoM Model")); // PLoM, KZ
+    theMethodSelectionBox->addItem(tr("PLoM Model")); // PLoM, KZ 
+    theSurrogateMethodSelectionBox->addItem(tr("Train GP Surrogate Model")); // SY - folloiwng PLoM
+    theSurrogateMethodSelectionBox->addItem(tr("PLoM Model")); // PLoM, KZ
+    
     //     theMethodSelectionBox->setMinimumWidth(600);
     int width = theMethodSelectionBox->minimumSizeHint().width();
     theMethodSelectionBox->view()->setMinimumWidth(width);
+    theSurrogateMethodSelectionBox->view()->setMinimumWidth(width);    
     
     theSelectionLayout->addWidget(label);
-    theSelectionLayout->addWidget(theMethodSelectionBox,1);
+    theSelectionLayout->addWidget(theSurrogateMethodSelectionBox,1);
     theSelectionLayout->addStretch(2);
     layout->addLayout(theSelectionLayout);
+    
 
     //
     // create the stacked widget
@@ -131,13 +138,12 @@ SimCenterUQEngine::SimCenterUQEngine(UQ_EngineType type, QWidget *parent)
     layout->addWidget(theStackedWidget);
     this->setLayout(layout);
     theCurrentEngine = theSamplingEngine;
-//    this->setLayout(layout);
-//    theCurrentEngine = theSensitivityEngine;
 
     connect(theMethodSelectionBox, SIGNAL(currentTextChanged(QString)), this,
           SLOT(methodSelectionChanged(QString)));
 
-    //connect(theSamplingEngine, SIGNAL(onNumModelsChanged(int)), this, SLOT(numModelsChanged(int)));
+    connect(theSurrogateMethodSelectionBox, SIGNAL(currentTextChanged(QString)), this,
+          SLOT(surrogateMethodSelectionChanged(QString)));    
 
 }
 
@@ -181,6 +187,13 @@ void SimCenterUQEngine::methodSelectionChanged(const QString &arg1)
 
 }
 
+
+
+void SimCenterUQEngine::surrogateMethodSelectionChanged(const QString &arg1)
+{
+  methodSelectionChanged(arg1);  
+}
+
 int
 SimCenterUQEngine::getMaxNumParallelTasks(void) {
     return theCurrentEngine->getMaxNumParallelTasks();
@@ -199,7 +212,7 @@ SimCenterUQEngine::inputFromJSON(QJsonObject &jsonObject) {
 
     QString selection = jsonObject["uqType"].toString();
 
-    if ((selection==QString("Train GP Surrogate Model")) || (selection==QString("PLoM Model")))
+    if ((selection==QString("Train GP Surrogate Model")) || (selection==QString("PLoM Model"))) 
         emit onUQ_MethodUpdated(QString("Surrogate Modeling"));
     else
         emit onUQ_MethodUpdated(selection);
@@ -208,6 +221,12 @@ SimCenterUQEngine::inputFromJSON(QJsonObject &jsonObject) {
 
     int index = theMethodSelectionBox->findText(selection);
     theMethodSelectionBox->setCurrentIndex(index);
+
+    if ((selection==QString("Train GP Surrogate Model")) || (selection==QString("PLoM Model"))) {
+      int index = theSurrogateMethodSelectionBox->findText(selection);
+      theSurrogateMethodSelectionBox->setCurrentIndex(index);
+    }
+    
     this->methodSelectionChanged(selection);
     if (theCurrentEngine != 0)
         result = theCurrentEngine->inputFromJSON(jsonObject);
@@ -259,12 +278,12 @@ QString
 SimCenterUQEngine::getMethodName() {
     return theCurrentEngine->getMethodName();
 }
+
 bool
 SimCenterUQEngine::fixMethod(QString Methodname) {
 
-
-
     if (Methodname == "Surrogate Modeling") {
+      /*
         QStringList Methodnames = {QString("Train GP Surrogate Model"),QString("PLoM Model")};
         for (int idx=theMethodSelectionBox->count()-1; idx>-1; idx--) {
             if (!Methodnames.contains(theMethodSelectionBox->itemText(idx)))
@@ -272,24 +291,25 @@ SimCenterUQEngine::fixMethod(QString Methodname) {
             else
                 theMethodSelectionBox->setCurrentIndex(idx);
         }
-        theMethodSelectionBox->show();
-        label->show();
-        return true;
+      */
+      theSurrogateMethodSelectionBox->show();
+      label->show();
+      return true;
 
     } else {
-        for (int idx=0; idx<theMethodSelectionBox->count(); idx++) {
-            //theMethodSelectionBox->setItemData(idx, QSize(1,10), Qt::SizeHintRole);
-        }
+      for (int idx=0; idx<theMethodSelectionBox->count(); idx++) {
+	//theMethodSelectionBox->setItemData(idx, QSize(1,10), Qt::SizeHintRole);
+      }
 
-        int res = theMethodSelectionBox->findText(Methodname);
-        if (res == -1) {
-            return false;
-        } else {
-            theMethodSelectionBox->setCurrentIndex(res);
-            theMethodSelectionBox->hide();
-            label->hide();
-            return true;
-        }
+      int res = theMethodSelectionBox->findText(Methodname);
+      if (res == -1) {
+	return false;
+      } else {
+	theMethodSelectionBox->setCurrentIndex(res);
+	theSurrogateMethodSelectionBox->hide();
+	label->hide();
+	return true;
+      }
     }
 }
 

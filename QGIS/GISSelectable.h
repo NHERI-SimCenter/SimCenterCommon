@@ -1,11 +1,10 @@
-#ifndef DAKOTA_RESULTS_H
-#define DAKOTA_RESULTS_H
-
+#ifndef GISSelectable_H
+#define GISSelectable_H
 /* *****************************************************************************
-Copyright (c) 2016-2017, The Regents of the University of California (Regents).
+Copyright (c) 2016-2021, The Regents of the University of California (Regents).
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
@@ -29,41 +28,28 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 
-REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS 
-PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, 
+THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS
+PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written by: Stevan Gavrilovic
 
-#include <SimCenterWidget.h>
-class QVBoxLayout;
+#include <qgsfeature.h>
 
-class DakotaResults : public SimCenterWidget
+class GISSelectable
 {
-    Q_OBJECT
 
 public:
-    explicit DakotaResults(QWidget *parent = 0);
-    virtual ~DakotaResults();
+    explicit GISSelectable();
+    virtual ~GISSelectable();
 
-    virtual bool outputToJSON(QJsonObject &rvObject);
-    virtual bool inputFromJSON(QJsonObject &rvObject);
+    virtual void insertSelectedAssets(QgsFeatureIds& featureIds) = 0;
+    virtual void clearSelectedAssets(void) = 0;
 
-    virtual int processResults(QString &filenameResults, QString &filenameTab);
-
-    void setResultWidget(DakotaResults *result);
-
-signals:
-
-public slots:
-
-protected:
-    DakotaResults *resultWidget;
-    QVBoxLayout *layout;
 };
 
-#endif // DAKOTA_RESULTS_SAMPLING_H
+#endif // GISSelectable_H

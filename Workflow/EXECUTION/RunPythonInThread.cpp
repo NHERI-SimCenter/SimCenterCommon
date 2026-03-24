@@ -146,7 +146,9 @@ RunPython::processScript() {
 #ifdef Q_OS_WIN
 
 #else
-  thePythonDir.cdUp(); // base dir of python  
+  
+  thePythonDir.cdUp(); // base dir of python
+  
 #endif    
 
   

@@ -488,3 +488,5 @@ DakotaResultsSampling::createResultEDPWidget(QString &name, QVector<double> stat
 
     return edp;
 }
+
+// #include "moc_DakotaResultsSampling.cpp"
