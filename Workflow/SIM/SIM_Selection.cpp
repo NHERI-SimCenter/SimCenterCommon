@@ -73,7 +73,10 @@ SIM_Selection::SIM_Selection(bool includeC,
     this->addComponent(QString("Concrete Building Model"), QString("ConcreteBuildingModel"), concrete);
   }
 
-  if ((appName == "EE-UQ" || appName =="WE-UQ") || (appName == "PBE"))  {
+  // The Surrogate (GP) modeling option depends on the GPy Python package,
+  // which is not installed in PBE's runtime environment. Drop PBE from the
+  // list of apps that surface this widget.
+  if (appName == "EE-UQ" || appName == "WE-UQ")  {
     SimCenterAppWidget *sur = new surrogateGP(theRVs);
     this->addComponent(QString("Surrogate (GP)"), QString("SurrogateGPBuildingModel"), sur);
   }

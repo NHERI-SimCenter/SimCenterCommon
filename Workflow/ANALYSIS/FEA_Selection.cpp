@@ -74,11 +74,14 @@ FEA_Selection::FEA_Selection(bool inclMulti, QWidget *parent)
   }
 
   
-  // add Surrogate 
-  if ((appName == "EE-UQ" || appName =="WE-UQ") || appName =="PBE") {
+  // add Surrogate
+  // The Surrogate Simulation widget consumes a trained GP surrogate, which
+  // depends on the GPy Python package. GPy is not installed in PBE's runtime
+  // environment, so this option is dropped from PBE.
+  if (appName == "EE-UQ" || appName == "WE-UQ") {
     SimCenterAppWidget *surrogate = new SurrogateSimulation();
     this->addComponent(QString("None (only for surrogate)"), QString("SurrogateSimulation"), surrogate);
-      
+
   } else if ((appName == "Hydro-UQ" || appName =="HydroUQ") || appName =="Hydro") {
     SimCenterAppWidget *surrogate = new SurrogateSimulation();
     this->addComponent(QString("None (only for surrogate)"), QString("SurrogateSimulation"), surrogate);
