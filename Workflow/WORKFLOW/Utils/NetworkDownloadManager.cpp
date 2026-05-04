@@ -91,7 +91,16 @@ void NetworkDownloadManager::downloadSingleFile(const QUrl &url, const QString& 
     request.setHeader(QNetworkRequest::UserAgentHeader, "R2D-Tool/1.0");
     request.setRawHeader("Accept", "application/json");
     request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false);
+
+#if QT_VERSION_MAJOR >= 6
+    request.setAttribute(
+        QNetworkRequest::RedirectPolicyAttribute,
+        QNetworkRequest::NoLessSafeRedirectPolicy
+    );
+#else
     request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+#endif
+
 
 #if QT_CONFIG(ssl)
     QSslConfiguration sslConfig = QSslConfiguration::defaultConfiguration();
@@ -123,7 +132,14 @@ void  NetworkDownloadManager::downloadSingleFileInfo(const QUrl &url, const QStr
     request.setHeader(QNetworkRequest::UserAgentHeader, "R2D-Tool/1.0");
     request.setRawHeader("Accept", "application/json");
     request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false);
+#if QT_VERSION_MAJOR >= 6
+    request.setAttribute(
+        QNetworkRequest::RedirectPolicyAttribute,
+        QNetworkRequest::NoLessSafeRedirectPolicy
+    );
+#else
     request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+#endif    
 
 #if QT_CONFIG(ssl)
     QSslConfiguration sslConfig = QSslConfiguration::defaultConfiguration();
