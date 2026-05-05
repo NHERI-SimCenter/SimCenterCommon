@@ -1361,18 +1361,22 @@ SimCenterPreferences::getDefaultPython(void) {
         pythonPath = QStandardPaths::findExecutable("python.exe");
 #else
     
-    QString pythonPath; //  = QStandardPaths::findExecutable("python3");
-    QString pyAppPath = QCoreApplication::applicationDirPath() + QDir::separator() + QString("python3.9");
-    QFileInfo packagedPython39(pyAppPath);    
-    QFileInfo installedPython39("/Library/Frameworks/Python.framework/Versions/3.9/bin/python3");
-    QFileInfo installedPython310("/Library/Frameworks/Python.framework/Versions/3.10/bin/python3");
+    QString pythonPath; 
+    QString pyAppPath = QCoreApplication::applicationDirPath() + QDir::separator() + QString("python/bin/python3");
+    QFileInfo packagedPython(pyAppPath);
+    QFileInfo installedPython39("/Library/Frameworks/Python.framework/Versions/3.9/bin/python3");        
+    QFileInfo installedPython312("/Library/Frameworks/Python.framework/Versions/3.12/bin/python3");
+    QFileInfo installedPython313("/Library/Frameworks/Python.framework/Versions/3.12/bin/python3");    
 
-    if (packagedPython39.exists()) {
-      pythonPath = packagedPython39.filePath();
+
+    if (packagedPython.exists()) {
+      pythonPath = packagedPython.filePath();
+    } else if (installedPython312.exists()) {
+      pythonPath = installedPython312.filePath();
     } else if (installedPython39.exists()) {
       pythonPath = installedPython39.filePath();
-    } else if (installedPython310.exists()) {
-      pythonPath = installedPython310.filePath();	
+    } else if (installedPython313.exists()) {
+      pythonPath = installedPython313.filePath();	      
     } else {
       pythonPath = QStandardPaths::findExecutable("python3");
     }
