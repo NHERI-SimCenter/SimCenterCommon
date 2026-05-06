@@ -213,7 +213,7 @@ ShakerMaker::ShakerMaker(): SimCenterAppWidget()
     // Adding DRM Box
     StationStackedWidget->addWidget(createDRMBoxWidget());
 
-    connect(stationType,SIGNAL(currentIndexChanged(QString)),this,SLOT(stationTypeChanged(QString)));
+    connect(stationType,SIGNAL(currentTextChanged(QString)),this,SLOT(stationTypeChanged(QString)));
 
 
 
@@ -430,8 +430,9 @@ ShakerMaker::ShakerMaker(): SimCenterAppWidget()
 
     // check if the file exists
     if (!QFile::exists(faultdatabsefile)) {
-        QMessageBox::warning(this, "Error", "Could not download the database metadata file");
-        return;
+      errorMessage("ERROR: Could not download the database metadata file");
+      qDebug() << "ERROR: Could not download the database metadat file" << faultdatabsefile;
+      return;
     }
 
     // load the json file
