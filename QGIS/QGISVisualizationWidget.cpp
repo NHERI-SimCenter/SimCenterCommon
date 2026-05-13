@@ -389,6 +389,19 @@ void QGISVisualizationWidget::turnOnSelectionTool()
 void QGISVisualizationWidget::zoomToExtent(QgsRectangle zoomRectangle)
 {
     auto mapCanvas = qgis->mapCanvas();
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+
+    // QGIS 4 (Qt6) removed implicit CRS reprojection from setExtent() and layer->extent();
+    // coordinates must be explicitly transformed to the canvas CRS before use.
+    
+    auto canvasCrs = mapCanvas->mapSettings().destinationCrs();
+    QgsCoordinateReferenceSystem src("EPSG:4326");
+    if (src != canvasCrs) {
+        QgsCoordinateTransform transform(src, canvasCrs, QgsProject::instance());
+        zoomRectangle = transform.transformBoundingBox(zoomRectangle);
+    }
+#endif
     mapCanvas->setExtent(zoomRectangle);
     mapCanvas->refresh();
 }
@@ -409,6 +422,7 @@ void QGISVisualizationWidget::zoomToActiveLayer(void)
     QgsRectangle extent3857 = transform.transform(extent);
 
     mapCanvas->setExtent(extent3857);
+    
     mapCanvas->refresh();
 }
 
@@ -563,7 +577,6 @@ void QGISVisualizationWidget::handleBasemapSelection(int index)
 
         this->removeLayer(baseMapLayer);
     }
-
 
     QgsMapLayer* newBaseMapLayer = qgis->addRasterLayer(uri,baseName,key);
 
@@ -1438,6 +1451,12 @@ void QGISVisualizationWidget::removeLayer(QgsMapLayer* layer)
     if(layer == nullptr)
         return;
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    // QGIS 4 no longer checks the Removable flag in removeMapLayer(), so enforce it here
+    if(!(layer->flags() & QgsMapLayer::Removable))
+        return;
+#endif
+
     this->deregisterLayerForSelection(layer->id());
 
     /*
@@ -1550,12 +1569,24 @@ void QGISVisualizationWidget::setActiveLayer(QgsMapLayer* layer)
 
 void QGISVisualizationWidget::zoomToLayer(QgsMapLayer* layer)
 {
-  //    this->selectLayerInTree(layer);
-  //    qgis->zoomToLayerExtent();
-    
     if (layer) {
       this->selectLayerInTree(layer);
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+      
+      // QGIS 4 (Qt6) removed implicit CRS reprojection from setExtent() and layer->extent();
+      // coordinates must be explicitly transformed to the canvas CRS before use.
+      
+      QgsRectangle extent = layer->extent();
+      auto canvasCrs = qgis->mapCanvas()->mapSettings().destinationCrs();
+      if (layer->crs() != canvasCrs) {
+          QgsCoordinateTransform transform(layer->crs(), canvasCrs, QgsProject::instance());
+          extent = transform.transformBoundingBox(extent);
+      }
+      qgis->mapCanvas()->setExtent(extent);
+#else
       qgis->mapCanvas()->setExtent(layer->extent());
+#endif
       qgis->mapCanvas()->refresh();
     }
 
