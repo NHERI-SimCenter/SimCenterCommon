@@ -86,12 +86,15 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     
     python = new QLineEdit();
     QHBoxLayout *pythonLayout = new QHBoxLayout();
+    
 #ifdef USE_SIMCENTER_PYTHON
     customPythonCheckBox = new QCheckBox("Custom:");
     pythonLayout->addWidget(customPythonCheckBox);
 #else
 
 #endif
+
+    
     pythonLayout->addWidget(python);
     QPushButton *pythonButton = new QPushButton();
     pythonButton->setText("Browse");
@@ -105,7 +108,7 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
 
     // connect the pushbutton with code to open file selection and update python preferences with selected file
     connect(pythonButton, &QPushButton::clicked, this, [this](){
-        QSettings settings("SimCenter", "Common"); //These names will need to be constants to be shared
+        QSettings settings("SimCenter", QCoreApplication::applicationName()); 
         QVariant  pythonPathVariant = settings.value("pythonExePath");
         QString existingDir = QCoreApplication::applicationDirPath();
         if (pythonPathVariant.isValid()) {
@@ -603,15 +606,14 @@ SimCenterPreferences::savePreferences(bool) {
     QString currentVersion = QCoreApplication::applicationVersion();
 
     QSettings settingsCommon("SimCenter", "Common");
+    QSettings settingsApp("SimCenter", QCoreApplication::applicationName());
 
     settingsCommon.setValue("allocation", allocation->text().trimmed());
-
-    QSettings settingsApp("SimCenter", QCoreApplication::applicationName());
     
 #ifdef USE_SIMCENTER_PYTHON
     settingsApp.setValue("pythonExePath", python->text().trimmed());
 #else
-    settingsCommon.setValue("pythonExePath", python->text().trimmed());
+    settingsApp.setValue("pythonExePath", python->text().trimmed());
     qDebug() << "reset: pythonExePath: " << python->text().trimmed();
 #endif
 
@@ -665,7 +667,7 @@ SimCenterPreferences::resetPreferences(bool) {
 #ifdef USE_SIMCENTER_PYTHON    
     settingsApplication.setValue("pythonExePath", pythonPath);
 #else
-    settingsCommon.setValue("pythonExePath", pythonPath);
+    settingsApplication.setValue("pythonExePath", pythonPath);
 #endif
 
     QString currentVersion = QCoreApplication::applicationVersion();
@@ -758,7 +760,6 @@ SimCenterPreferences::loadPreferences() {
     // common setting first
     //
 
-    /*
 #ifdef USE_SIMCENTER_PYTHON    
     auto customPython = settingsApplication.value("customPython", false);
     if (customPython.isValid() && customPython.toBool() == true) {
@@ -780,22 +781,12 @@ SimCenterPreferences::loadPreferences() {
     QVariant  pythonPathVariant = settingsApplication.value("pythonExePath");    
     if (!pythonPathVariant.isValid()) {
         QString pythonPath=this->getPython();
-        settingsCommon.setValue("pythonExePath", pythonPath);
+        settingsApplication.setValue("pythonExePath", pythonPath);
         python->setText(pythonPath);
     } else {
         python->setText(pythonPathVariant.toString());
     }
 #endif
-    */
-    
-    QVariant  pythonPathVariant = settingsApplication.value("pythonExePath");    
-    if (!pythonPathVariant.isValid()) {
-        QString pythonPath=this->getPython();
-        settingsCommon.setValue("pythonExePath", pythonPath);
-        python->setText(pythonPath);
-    } else {
-        python->setText(pythonPathVariant.toString());
-    }    
 
     //allocation
     auto defaultAllocation = settingsCommon.value("allocation");
@@ -966,35 +957,31 @@ SimCenterPreferences::getPython(void) {
 
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     QString scPython = env.value("SIMCENTER_PYTHON","None");
-    qDebug() << "SimCenterPreferences::getPython - scPython: " << scPython;
+
     if (scPython != "None") {
+      qDebug() << "SimCenterPreferences::getPython - scPython: " << scPython;      
       return scPython;
     }
 
-    /*
 #ifdef USE_SIMCENTER_PYTHON
     QVariant  pythonPathVariant = settingsApplication.value("pythonExePath");
     if (!pythonPathVariant.isValid()) {
             pythonPath = this->getDefaultPython();
             settingsApplication.setValue("pythonExePath", pythonPath);
+	    qDebug() << "SimCenterPreferences::getPython - 1: " << pythonPath;      	    
             return pythonPath;
     }
 #else
-    QVariant  pythonPathVariant = settingsCommon.value("pythonExePath");
+    QVariant  pythonPathVariant = settingsApplication.value("pythonExePath");
     if (!pythonPathVariant.isValid()) {
             pythonPath = this->getDefaultPython();
-            settingsCommon.setValue("pythonExePath", pythonPath);
+            settingsApplication.setValue("pythonExePath", pythonPath);
+	    qDebug() << "SimCenterPreferences::getPython - 2: " << pythonPath;      	    
             return pythonPath;
     }
 #endif
-    */
     
-    QVariant  pythonPathVariant = settingsCommon.value("pythonExePath");
-    if (!pythonPathVariant.isValid()) {
-            pythonPath = this->getDefaultPython();
-            settingsCommon.setValue("pythonExePath", pythonPath);
-            return pythonPath;
-    }
+    qDebug() << "SimCenterPreferences::getPython: " << pythonPathVariant.toString();
     return pythonPathVariant.toString();
 }
 
