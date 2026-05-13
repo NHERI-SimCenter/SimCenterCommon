@@ -758,6 +758,7 @@ SimCenterPreferences::loadPreferences() {
     // common setting first
     //
 
+    /*
 #ifdef USE_SIMCENTER_PYTHON    
     auto customPython = settingsApplication.value("customPython", false);
     if (customPython.isValid() && customPython.toBool() == true) {
@@ -785,7 +786,16 @@ SimCenterPreferences::loadPreferences() {
         python->setText(pythonPathVariant.toString());
     }
 #endif
-
+    */
+    
+    QVariant  pythonPathVariant = settingsApplication.value("pythonExePath");    
+    if (!pythonPathVariant.isValid()) {
+        QString pythonPath=this->getPython();
+        settingsCommon.setValue("pythonExePath", pythonPath);
+        python->setText(pythonPath);
+    } else {
+        python->setText(pythonPathVariant.toString());
+    }    
 
     //allocation
     auto defaultAllocation = settingsCommon.value("allocation");
@@ -960,7 +970,8 @@ SimCenterPreferences::getPython(void) {
     if (scPython != "None") {
       return scPython;
     }
-    
+
+    /*
 #ifdef USE_SIMCENTER_PYTHON
     QVariant  pythonPathVariant = settingsApplication.value("pythonExePath");
     if (!pythonPathVariant.isValid()) {
@@ -975,9 +986,15 @@ SimCenterPreferences::getPython(void) {
             settingsCommon.setValue("pythonExePath", pythonPath);
             return pythonPath;
     }
-
 #endif
-
+    */
+    
+    QVariant  pythonPathVariant = settingsCommon.value("pythonExePath");
+    if (!pythonPathVariant.isValid()) {
+            pythonPath = this->getDefaultPython();
+            settingsCommon.setValue("pythonExePath", pythonPath);
+            return pythonPath;
+    }
     return pythonPathVariant.toString();
 }
 
@@ -1353,7 +1370,7 @@ SimCenterPreferences::getDefaultPython(void) {
     if (scPython != "None") {
       return scPython;
     }
-  
+
 #ifdef Q_OS_WIN
     QStringList paths{QCoreApplication::applicationDirPath().append("/applications/python")};
     QString pythonPath = QStandardPaths::findExecutable("python.exe", paths);
