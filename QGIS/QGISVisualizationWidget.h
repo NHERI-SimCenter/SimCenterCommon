@@ -114,9 +114,9 @@ public:
     SimCenterMapcanvasWidget* getMapViewWidget(const QString& name);
 
     void markDirty();
-
+  
+    void zoomToFullExtent(void);    
     void zoomToExtent(QgsRectangle zoomRectangle);
-
     void zoomToActiveLayer(void);
 
     void setActiveLayerFillNull(void);

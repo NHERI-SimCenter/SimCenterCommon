@@ -385,6 +385,12 @@ void QGISVisualizationWidget::turnOnSelectionTool()
   qgis->actionSelect()->trigger();
 }
 
+void QGISVisualizationWidget::zoomToFullExtent(void)
+{
+    auto mapCanvas = qgis->mapCanvas();
+    mapCanvas->zoomToFullExtent();    
+}
+
 
 void QGISVisualizationWidget::zoomToExtent(QgsRectangle zoomRectangle)
 {
