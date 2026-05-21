@@ -414,8 +414,18 @@ void QGISVisualizationWidget::zoomToExtent(QgsRectangle zoomRectangle)
 
 void QGISVisualizationWidget::zoomToActiveLayer(void)
 {
-    auto mapCanvas = qgis->mapCanvas();
+    QgsMapCanvas *mapCanvas = qgis->mapCanvas();
+    if (mapCanvas == nullptr) {
+      qDebug() << "QGisVisualztionWideget::zoomToActiveLayer - mapCanvas NULL";
+	return;
+    }
+    
     QgsMapLayer* activeLayer = mapCanvas->currentLayer();
+    if (activeLayer == nullptr) {
+      qDebug() << "QGisVisualztionWideget::zoomToActiveLayer - activeLayer NULL";
+      return;
+    }
+
     QgsRectangle extent = activeLayer->extent();
 
     QgsCoordinateReferenceSystem srcCrs("EPSG:4326");
