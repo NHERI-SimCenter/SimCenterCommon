@@ -1096,7 +1096,7 @@ SimCenterPreferences::getRemoteAppDir(void) {
 	
 	// if not set, use default & set default as application directory
 	if (!remoteBackendDirVariant.isValid()) {
-	  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v25.05.16");
+	  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v26.05.26");
 
 	  settingsApplication.setValue("remoteBackendDir", remoteBackendDirLocation);
 	  return remoteBackendDirLocation;
@@ -1230,9 +1230,8 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
     } else if (appName == QString("WE-UQ")) {
       remoteApp = QString("simcenter-openfoam-stampede3");
     } else if (appName == QString("HydroUQ")) {
-      remoteApp = QString("simcenter-hydrouq-stampede3");    
-    } else if (appName == QString("EE-UQ") || appName == QString("PBE"))
-      remoteApp = QString("simcenter-uq-stampede3");      
+      remoteApp = QString("simcenter-hydrouq-stampede3");
+    }
 
     return remoteApp;
 }
@@ -1243,11 +1242,10 @@ SimCenterPreferences::getDefaultAgaveAppVersion(void) {
 
     //Default appDir is the location of the application
     QString appName = QCoreApplication::applicationName();
-    QString remoteApp = QString("simcenter-uq-stampede3");
 
-    QString remoteVersion = QString("1.1.0");    
+    QString remoteVersion = QString("2.0.0");    
     if (appName == QString("R2D")) {
-      remoteVersion = QString("1.2.0");
+      remoteVersion = QString("2.0.0");
     }
         
     return remoteVersion;
@@ -1257,7 +1255,7 @@ SimCenterPreferences::getDefaultAgaveAppVersion(void) {
 QString
 SimCenterPreferences::getDefaultRemoteAppDir(void) {
 
-  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v25.05.16");
+  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v26.05.26");
 
   return remoteBackendDirLocation;
 }
