@@ -3,6 +3,7 @@
 
 #include <TapisMachine.h>
 class SC_IntLineEdit;
+class SC_StringLineEdit;
 
 class Stampede3Machine : public TapisMachine
 {
@@ -19,7 +20,8 @@ private:
   
   SC_IntLineEdit *numCPU;
   SC_IntLineEdit *numProcessors;
-  SC_IntLineEdit *runTime;  
+  SC_IntLineEdit *runTime;
+  SC_StringLineEdit *queue;    
 };
 
 #endif // STAMPEDE_3_MACHINE_H

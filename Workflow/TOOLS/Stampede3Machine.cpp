@@ -1,5 +1,6 @@
 #include "Stampede3Machine.h"
 #include <SC_IntLineEdit.h>
+#include <SC_StringLineEdit.h>
 
 #include <QGridLayout>
 #include <QLabel>
@@ -7,46 +8,53 @@
 #include <QDebug>
 #include <QCoreApplication>
 
+
+constexpr bool USE_GPU = true;
+
 Stampede3Machine::Stampede3Machine()
   :TapisMachine()
 {
+
+  QString appName = QCoreApplication::applicationName();
+  
   //
   // create widgets, setting min and max values
   //
-
+  
   numCPU = new SC_IntLineEdit(QString("nodeCount"), 1, 1, 64);
   numCPU->setText("1");
 
-  numProcessors = new SC_IntLineEdit(QString("coresPerNode"),1, 1, 48);
+  queue = new SC_StringLineEdit(QString("execSystemLogicalQueue"), "skx");
+
+  numProcessors = new SC_IntLineEdit(QString("coresPerNode"),1, 1, 112);
   numProcessors->setText("48");
 
   runTime = new SC_IntLineEdit(QString("maxMinutes"),20, 1, 2880);
   runTime->setText("20");
 
-  QString appName = QCoreApplication::applicationName();
   if ((appName == QString("HydroUQ")) || (appName == QString("Hydro-UQ")))  {
-    constexpr bool USE_GPU = true;
     {
       numCPU->setText("1");
       numProcessors->setText("1");
       runTime->setText("30");
+      queue->setText("h100"); // Stampede3. 4 NVIDIA H100 GPU        
     }
   }
 
-  //  runtimeLineEdit->setToolTip(tr("Run time limit on running Job (minutes). Job will be stopped if while running it exceeds this"));
-  
   //
   // add widgets to a QGrid Layout
   //
   
   QGridLayout *theLayout = new QGridLayout(this);
 
-  theLayout->addWidget(new QLabel("Num Node:"), 0,0);
-  theLayout->addWidget(numCPU, 0,1);          
-  theLayout->addWidget(new QLabel("Num Processors Per Node:"), 1,0);
-  theLayout->addWidget(numProcessors, 1,1);        
-  theLayout->addWidget(new QLabel("Max Run Time (minutes):"),2,0);
-  theLayout->addWidget(runTime,2,1);
+  theLayout->addWidget(new QLabel("Queue:"), 0,0);
+  theLayout->addWidget(queue, 0,1);            
+  theLayout->addWidget(new QLabel("Num Node:"), 1,0);
+  theLayout->addWidget(numCPU, 1,1);          
+  theLayout->addWidget(new QLabel("Num Processors Per Node:"), 2,0);
+  theLayout->addWidget(numProcessors, 2,1);        
+  theLayout->addWidget(new QLabel("Max Run Time (minutes):"),3,0);
+  theLayout->addWidget(runTime,3,1);
 
   this->setLayout(theLayout);
 }
@@ -59,37 +67,94 @@ Stampede3Machine::~Stampede3Machine()
 bool
 Stampede3Machine::outputToJSON(QJsonObject &job)
 {
-  
   int ramPerNodeMB = 128000;    
   job["memoryMB"]= ramPerNodeMB;
-  int nodeCount = numCPU->text().toInt();
 
-  // figure out queue
-  QString queue = "skx";
-  
   QString appName = QCoreApplication::applicationName(); 
   if ((appName == QString("HydroUQ")) || (appName == QString("Hydro-UQ")))  {
-    constexpr bool USE_GPU = true;
-    if constexpr (USE_GPU) 
-    {
-      queue = "h100"; // Stampede3. 4 NVIDIA H100 GPU
+    
+    if constexpr (USE_GPU) {
+      queue->setText("h100"); // Stampede3. 4 NVIDIA H100 GPU
+      int nodeCount = numCPU->text().toInt();
       int nodeCountInGpuQueue = 1;
       nodeCountInGpuQueue = (nodeCount < 4) ? nodeCount : 4; // Stampede3, 4 nodes per job on h100 queue
       numCPU->setText(QString::number(nodeCountInGpuQueue));
       int numProcessorsPerNodeInGpuQueue = 1; //Intel Xeon Platinum 8468 ("Sapphire Rapids"), 96 cores on two sockets (2 x 48 cores)
       numProcessors->setText(QString::number(numProcessorsPerNodeInGpuQueue));
-      job["nodeCount"] = nodeCountInGpuQueue;
-      job["coresPerNode"] = numProcessorsPerNodeInGpuQueue;
       // job["numP"] = nodeCountInGpuQueue*numProcessorsPerNodeInGpuQueue; // clutters the remote app json if called in uploaddirreturn of remoteapplication.cpp
       // ramPerNodeMB = 1000000; // 1 TB
-    } 
-  }
+    }
 
+  } else {
+
+    // validate queue names, num nodes, num processors and duration
+    
+    int numNode = numCPU->getInt();
+    int numP = numProcessors->getInt();    
+    QString queueName = queue->text();
+    int minutes = runTime->text().toInt();
+    
+    // check the limits
+
+    if (queueName != "icx" && queueName != "spr" &&  queueName != "skx"  &&  queueName != "skx-dev") {
+      statusMessage("Invalid Queue name, valid queue names are: skx, skx-dev, spr, icx - setting to default skx");
+      queueName = "skx";
+      queue->setText("skx");
+    }
+    
+    
+    if (queueName == "icx") {
+      if (numNode>32) {
+	numProcessors->setText("32");
+	statusMessage("icx partition, max nodes limit is 32");
+      }
+      if (numP>80) {
+	numCPU->setText("80");
+	statusMessage("icx partition, max processors limit is 80");	
+      }
+      
+    } else if (queueName == "spr") {
+      if (numNode>32) {
+	numProcessors->setText("32");
+	statusMessage("spr partition, max nodes limit is 32");	
+      }
+      if (numP>112) {
+	numCPU->setText("112");
+	statusMessage("spr partition, max processors limit is 112");		
+      }
+    
+    } else if (queueName == "skx") {
+      if (numNode>256) {
+	numProcessors->setText("256");
+	statusMessage("skx partition, max nodes limit is 256");	
+      }
+      if (numP>48) {
+	numCPU->setText("48");
+	statusMessage("skx partition, max processors limit is 48");
+      }
+
+    } else if (queueName == "skx-dev") {
+      
+      if (numNode>16) {
+	numProcessors->setText("16");
+	statusMessage("skx-dev partition, max nodes limit is 16");	
+      }
+      if (numP>48) {
+	numCPU->setText("48");
+	statusMessage("skx-dev partition, max processors limit is 48");	
+      }
+      if (minutes>120) {
+	runTime->setText("120");
+	statusMessage("skx-dev partition, max duration limit 120 minutes");		
+      }
+    }
+  }
+  
+  queue->outputToJSON(job);
   numCPU->outputToJSON(job);
   numProcessors->outputToJSON(job);
   runTime->outputToJSON(job);
-  job["execSystemId"]=QString("stampede3");    
-  job["execSystemLogicalQueue"]=queue;
+  //job["execSystemId"]=QString("stampede3 ");    
   return true;
 }
 
