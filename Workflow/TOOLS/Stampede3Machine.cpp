@@ -68,7 +68,6 @@ bool
 Stampede3Machine::outputToJSON(QJsonObject &job)
 {
   int ramPerNodeMB = 128000;    
-  job["memoryMB"]= ramPerNodeMB;
 
   QString appName = QCoreApplication::applicationName(); 
   if ((appName == QString("HydroUQ")) || (appName == QString("Hydro-UQ")))  {
@@ -104,6 +103,8 @@ Stampede3Machine::outputToJSON(QJsonObject &job)
     
     
     if (queueName == "icx") {
+
+      ramPerNodeMB = 200000;      
       if (numNode>32) {
 	numProcessors->setText("32");
 	statusMessage("icx partition, max nodes limit is 32");
@@ -114,6 +115,8 @@ Stampede3Machine::outputToJSON(QJsonObject &job)
       }
       
     } else if (queueName == "spr") {
+
+      ramPerNodeMB = 100000;
       if (numNode>32) {
 	numProcessors->setText("32");
 	statusMessage("spr partition, max nodes limit is 32");	
@@ -134,7 +137,7 @@ Stampede3Machine::outputToJSON(QJsonObject &job)
       }
 
     } else if (queueName == "skx-dev") {
-      
+
       if (numNode>16) {
 	numProcessors->setText("16");
 	statusMessage("skx-dev partition, max nodes limit is 16");	
@@ -147,8 +150,28 @@ Stampede3Machine::outputToJSON(QJsonObject &job)
 	runTime->setText("120");
 	statusMessage("skx-dev partition, max duration limit 120 minutes");		
       }
+
+    } else if (queueName == "simcenter") {
+      
+      if (numNode>16) {
+	numProcessors->setText("2");
+	statusMessage("simcenter partition, max nodes limit is 2");	
+      }
+      
+      if (numP>48) {
+	numCPU->setText("48");
+	statusMessage("simcenter partition, max processors limit is 48");	
+      }
+      
+      if (minutes>120) {
+	runTime->setText("720");
+	statusMessage("simcenter partition, max duration limit 720 minutes");		
+      }
     }
+    
   }
+
+  job["memoryMB"]= ramPerNodeMB;
   
   queue->outputToJSON(job);
   numCPU->outputToJSON(job);
