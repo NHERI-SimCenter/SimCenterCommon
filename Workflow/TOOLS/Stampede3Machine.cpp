@@ -177,7 +177,8 @@ Stampede3Machine::outputToJSON(QJsonObject &job)
   numCPU->outputToJSON(job);
   numProcessors->outputToJSON(job);
   runTime->outputToJSON(job);
-  theJob["execSystemId"]="stampede3-simcenter";
+  job["execSystemId"]="stampede3-simcenter";
+  
   
   //job["execSystemId"]=QString("stampede3 ");    
   return true;
