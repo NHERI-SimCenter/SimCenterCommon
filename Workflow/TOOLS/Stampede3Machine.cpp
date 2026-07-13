@@ -95,8 +95,8 @@ Stampede3Machine::outputToJSON(QJsonObject &job)
     
     // check the limits
 
-    if (queueName != "icx" && queueName != "spr" &&  queueName != "skx"  &&  queueName != "skx-dev") {
-      statusMessage("Invalid Queue name, valid queue names are: skx, skx-dev, spr, icx - setting to default skx");
+    if (queueName != "icx" && queueName != "spr" &&  queueName != "skx"  &&  queueName != "skx-dev" && queueName != "simcenter") {
+      statusMessage("Invalid Queue name, valid queue names are: skx, skx-dev, spr, icx, simcenter - setting to default skx");
       queueName = "skx";
       queue->setText("skx");
     }
@@ -177,6 +177,8 @@ Stampede3Machine::outputToJSON(QJsonObject &job)
   numCPU->outputToJSON(job);
   numProcessors->outputToJSON(job);
   runTime->outputToJSON(job);
+  theJob["execSystemId"]="stampede3-simcenter";
+  
   //job["execSystemId"]=QString("stampede3 ");    
   return true;
 }

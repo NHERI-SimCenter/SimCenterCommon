@@ -1034,6 +1034,9 @@ TapisV3::startJob(const QJsonObject &theJob)
 
     QString result = "FAILURE";
 
+    //    theJob["execSystemId"]="stampede3-simcenter";
+    //    QString systemID = theJob["execSystemId"].toString();
+    
     slist1 = NULL;
     slist1 = curl_slist_append(slist1, "Content-Type: application/json");
     slist1 = curl_slist_append(slist1, bearer.toStdString().c_str());
@@ -1092,6 +1095,8 @@ TapisV3::startJob(const QJsonObject &theJob)
 	      qDebug() << "TapisV3 ERROR Message: " << message;
 
 	      if (message.contains("SYSTEMS_MISSING_CREDENTIALS")) {
+		
+		/*
 		if (message.contains("stampede3")) {
 		  QDesktopServices::openUrl(QUrl(QString("https://www.designsafe-ci.org/rw/workspace/stampede3-credential"), QUrl::TolerantMode));
 		  message = QString("ERROR: You need TACC machine credentials on Stampede3, log-in to DesignSafe & click on green 'Submit Job' button on webpage");
@@ -1107,6 +1112,63 @@ TapisV3::startJob(const QJsonObject &theJob)
 		} else {
 		  message = QString("ERROR: Credentials have not been set, go to tool home page for instruction");
 		}
+		*/
+		
+		//
+		// Attempt to create/refresh TMS credentials
+		// 
+		// curl -X POST -H "content-type: application/json" -H "X-Tapis-Token: $JWT" https://designsafe.tapis.io/v3/systems/credential/$SYSTEM_ID/user/$USERNAME?createTmsKeys=true
+		
+		QString systemID = theJob["execSystemId"].toString();
+		curl_slist_free_all(slist1);
+		slist1 = NULL;
+		slist1 = curl_slist_append(slist1, "content-type: application/json");
+		QString credToken = QString("X-Tapis-Token: %1").arg(accessToken);
+		slist1 = curl_slist_append(slist1, credToken.toStdString().c_str());
+		curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, slist1);
+		curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, "{}");
+		QString createCredUrl = tenantURL + QString("v3/systems/credential/%1/user/%2?createTmsKeys=true").arg(systemID, username);
+		curl_easy_setopt(hnd, CURLOPT_URL, createCredUrl.toStdString().c_str());
+		curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "POST");
+		this->invokeCurl();
+
+		//
+		// Check credentials are now valid
+		//
+		// curl -X POST -H "content-type: application/json" -H "X-Tapis-Token: $jwt" "https://designsafe.tapis.io/v3/systems/credential/$SYSTEM_ID/user/$USERNAME/check" -d '{}'
+		//
+		
+		curl_slist_free_all(slist1);
+		slist1 = NULL;
+		slist1 = curl_slist_append(slist1, "content-type: application/json");
+		slist1 = curl_slist_append(slist1, credToken.toStdString().c_str());
+		curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, slist1);
+		curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, "{}");
+		QString checkCredUrl = tenantURL + QString("v3/systems/credential/%1/user/%2/check").arg(systemID, username);
+		curl_easy_setopt(hnd, CURLOPT_URL, checkCredUrl.toStdString().c_str());
+		curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "POST");
+		this->invokeCurl();
+
+		//
+		// Parse check result; if OK retry job submission
+		//
+		
+		QFile credFile(uniqueFileName1);
+		if (credFile.open(QFile::ReadOnly | QFile::Text)) {
+		    QString credVal = credFile.readAll();
+		    credFile.close();
+		    QJsonDocument credDoc = QJsonDocument::fromJson(credVal.toUtf8());
+		    QJsonObject credObj = credDoc.object();
+		    if (credObj["status"].toString() == "success" &&
+			credObj["message"].toString().contains("SYSAPI_CRED_OK")) {
+			return this->startJob(theJob);
+		    }
+		    message = QString("ERROR: Credentials could not be set for system: %1").arg(systemID);
+		} else {
+		    message = QString("ERROR: Could not verify credentials for system: %1").arg(systemID);
+		}
+
+		
 	      } else if (message.contains("No more authentication methods available")) {
 
 		message = QString("ERROR: TACC System unavailable at this time, see https://tacc.utexas.edu/test/system-status/ ");
@@ -1119,6 +1181,7 @@ TapisV3::startJob(const QJsonObject &theJob)
 	    
             emit errorMessage(message);
             return result;
+	    
         } else if (status == "success") {
             if (theObj.contains("result")) {
                 QJsonObject resObj = theObj["result"].toObject();
