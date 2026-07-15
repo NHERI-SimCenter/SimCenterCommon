@@ -48,6 +48,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <CustomPy.h>
 #include <SurrogateGP.h>
 #include <Femora.h>
+#include <SSI_Simulation.h>
 
 
 #include <QApplication>
@@ -106,6 +107,10 @@ SIM_Selection::SIM_Selection(bool includeC,
   this->addComponent(QString("CustomPy"), QString("CustomPyInput"), custom_py);
 
   if (appName == "EE-UQ") {
+
+    SimCenterAppWidget *ssi_simulation = new SSI_Simulation();
+    this->addComponent(QString("SSI"), QString("SSISimulation"), ssi_simulation);
+
     SimCenterAppWidget *femora = new Femora();
     this->addComponent(QString("Femora"), QString("FemoraInput"), femora);
   }
