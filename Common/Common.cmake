@@ -1,3 +1,4 @@
+
 # Common.cmake
 # Usage:
 #   include(path/to/Common.cmake)
@@ -41,6 +42,7 @@ function(simcenter_add_common target)
     "${dir}/SC_ResultsWidget.cpp"
     "${dir}/SC_MultipleLineChart.cpp"
     "${dir}/SC_Chart.cpp"
+    "${dir}/SC_TableSC_Widgets.cpp"    
     "${dir}/SC_TimeSeriesResultChart.cpp"
     "${dir}/SimCenterAppWidget.cpp"
     "${dir}/NoArgSimCenterApp.cpp"
@@ -80,6 +82,7 @@ function(simcenter_add_common target)
     "${dir}/SC_ResultsWidget.h"
     "${dir}/SC_MultipleLineChart.h"
     "${dir}/SC_Chart.h"
+    "${dir}/SC_TableSC_Widgets.h"    
     "${dir}/SC_TimeSeriesResultChart.h"
     "${dir}/NoArgSimCenterApp.h"
     "${dir}/SimCenterAppSelection.h"
