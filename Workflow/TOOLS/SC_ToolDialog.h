@@ -23,6 +23,7 @@ public:
 		    
 public slots:
   void showTool(QString name);
+  void hideTool();  
 
 private:
 
