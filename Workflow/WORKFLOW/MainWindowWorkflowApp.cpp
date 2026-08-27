@@ -631,7 +631,11 @@ void MainWindowWorkflowApp::open()
     if (!fileName.isEmpty())
     {
         emit sendStatusMessage("Loading file "+fileName);
-        loadFile(fileName);
+	if ( loadFile(fileName) == 0) {
+	  // update currentFile
+	  currentFile = fileName;
+	  emit sendStatusMessage("Setting Current File "+fileName);	  
+	}
     }
 }
 
@@ -708,9 +712,9 @@ bool MainWindowWorkflowApp::saveFile(const QString &fileName)
 }
 
 
-void MainWindowWorkflowApp::loadFile(QString &fileName)
+int MainWindowWorkflowApp::loadFile(QString &fileName)
 {
-    theWorkflowAppWidget->loadFile(fileName);
+    return theWorkflowAppWidget->loadFile(fileName);
 }
 
 
