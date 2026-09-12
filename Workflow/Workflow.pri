@@ -18,6 +18,7 @@ INCLUDEPATH += $$PWD/WORKFLOW
 INCLUDEPATH += $$PWD/WORKFLOW/Utils
 INCLUDEPATH += $$PWD/WORKFLOW/ModelViewItems
 INCLUDEPATH += $$PWD/SIM
+INCLUDEPATH += $$PWD/SIM/SSI
 INCLUDEPATH += $$PWD/EXECUTION
 INCLUDEPATH += $$PWD/EVENTS
 INCLUDEPATH += $$PWD/EVENTS/earthquake
@@ -134,6 +135,10 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/SIM/SIM_Selection.cpp \
     $$PWD/SIM/InputWidgetBIM.cpp \
     $$PWD/SIM/OpenSeesParser.cpp \
+    $$PWD/SIM/SSI/SSI_Simulation.cpp \
+    $$PWD/SIM/SSI/SSI_Custom3DBuildingWidget.cpp \
+    $$PWD/SIM/SSI/SSI_SoilFoundationType1Widget.cpp \
+    $$PWD/SIM/Femora.cpp \ 
     $$PWD/ANALYSIS/FEA_Selection.cpp \
     $$PWD/ANALYSIS/InputWidgetOpenSeesAnalysis.cpp \
     $$PWD/EXECUTION/RunLocalWidget.cpp \
@@ -164,8 +169,7 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/EDP/StandardEDP.cpp \
     $$PWD/EDP/UserDefinedEDP.cpp \
     $$PWD/EDP/SurrogateEDP.cpp \
-    $$PWD/EDP/EDP.cpp \
-    $$PWD/SIM/Femora.cpp
+    $$PWD/EDP/EDP.cpp 
 
 HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/ANALYSIS/CustomPySimulation.h \
@@ -271,6 +275,12 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/SIM/SIM_Selection.h \
     $$PWD/SIM/InputWidgetBIM.h \
     $$PWD/SIM/OpenSeesParser.h \
+    $$PWD/SIM/SSI/SSI_Simulation.h \
+    $$PWD/SIM/SSI/SSI_BuildingWidgetBase.h \
+    $$PWD/SIM/SSI/SSI_Custom3DBuildingWidget.h \
+    $$PWD/SIM/SSI/SSI_SoilFoundationBaseWidget.h \
+    $$PWD/SIM/SSI/SSI_SoilFoundationType1Widget.h \
+    $$PWD/SIM/Femora.h \
     $$PWD/ANALYSIS/FEA_Selection.h \
     $$PWD/ANALYSIS/InputWidgetOpenSeesAnalysis.h \
     $$PWD/EXECUTION/RunLocalWidget.h \
@@ -301,5 +311,5 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/EDP/EDP_Selection.h \
     $$PWD/EDP/StandardEDP.h \    
     $$PWD/EDP/SurrogateEDP.h \
-    $$PWD/EDP/EDP.h \
-    $$PWD/SIM/Femora.h
+    $$PWD/EDP/EDP.h 
+    
