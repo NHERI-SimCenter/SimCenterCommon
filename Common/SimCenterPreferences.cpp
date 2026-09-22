@@ -599,6 +599,16 @@ SimCenterPreferences::~SimCenterPreferences()
 
 }
 
+void
+SimCenterPreferences::setDefaultAllocation(QString &userAllocation) {
+
+    QString currentVersion = QCoreApplication::applicationVersion();
+
+    QSettings settingsCommon("SimCenter", "Common");
+    QSettings settingsApp("SimCenter", QCoreApplication::applicationName());
+    allocation->setText(userAllocation);
+    settingsCommon.setValue("allocation", allocation->text().trimmed());
+}
 
 void
 SimCenterPreferences::savePreferences(bool) {

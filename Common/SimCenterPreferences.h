@@ -68,7 +68,8 @@ public:
     QString getRemoteAgaveAppVersion(void);  
     QString getLocalWorkDir(void);
     QString getRemoteWorkDir(void);
-    QString getDefaultAllocation(void);				  
+    QString getDefaultAllocation(void);
+    void    setDefaultAllocation(QString &);
 
 public slots:
     void savePreferences(bool);
@@ -77,13 +78,13 @@ public slots:
     void loadPreferences(void);
 
 private:
-
     QString getDefaultAgaveApp(void);
     QString getDefaultAgaveAppVersion(void);  
     QString getDefaultRemoteAppDir(void);  
     QString getDefaultOpenSees(void);
     QString getDefaultDakota(void);
     QString getDefaultPython(void);
+  
 #ifdef _OpenSRA
     QString getDefaultOpenSRA(void);
 #endif
