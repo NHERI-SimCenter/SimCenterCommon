@@ -76,5 +76,10 @@ UQ_Engine::setEventType(QString type) {
 }
 
 
+void
+UQ_Engine::methodSelectionChanged(const QString &arg1)
+{
+
+}
 
 

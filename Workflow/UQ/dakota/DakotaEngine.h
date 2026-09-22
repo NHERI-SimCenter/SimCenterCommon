@@ -66,13 +66,10 @@ public:
     QString getMethodName();
     bool copyFiles(QString &fileDir);
     bool fixMethod(QString Methodname);
-signals:
-    void onUQ_EngineChanged(QString);
-    void onUQ_MethodUpdated(QString);
-    void onNumModelsChanged(int newNum);
+    void methodSelectionChanged(const QString &arg1);
 
 public slots:
-    void engineSelectionChanged(const QString &arg1);
+
     void numModelsChanged(int newNum);
 
 private:

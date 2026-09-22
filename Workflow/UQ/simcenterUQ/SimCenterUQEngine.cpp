@@ -139,11 +139,11 @@ SimCenterUQEngine::SimCenterUQEngine(UQ_EngineType type, QWidget *parent)
     this->setLayout(layout);
     theCurrentEngine = theSamplingEngine;
 
-    connect(theMethodSelectionBox, SIGNAL(currentTextChanged(QString)), this,
-          SLOT(methodSelectionChanged(QString)));
+    connect(theMethodSelectionBox, SIGNAL(currentTextChanged(QString)),
+	    this, SLOT(methodSelectionChanged(QString)));
 
-    connect(theSurrogateMethodSelectionBox, SIGNAL(currentTextChanged(QString)), this,
-          SLOT(surrogateMethodSelectionChanged(QString)));    
+    connect(theSurrogateMethodSelectionBox, SIGNAL(currentTextChanged(QString)),
+	    this, SLOT(surrogateMethodSelectionChanged(QString)));    
 
 }
 
@@ -155,18 +155,15 @@ SimCenterUQEngine::~SimCenterUQEngine()
 
 void SimCenterUQEngine::methodSelectionChanged(const QString &arg1)
 {
-    // QString thePreviousName = theCurrentEngine->getMethodName();
-    // UQ_Engine *theOldEngine = theCurrentEngine;
-
-    // theEdpWidget->showAdvancedSensitivity(false);
-
     if (arg1 == QString("Forward Propagation")) {
         theStackedWidget->setCurrentIndex(0);
         theCurrentEngine = theSamplingEngine;
     } else if ((arg1 == QString("Sensitivity")) || (arg1 == QString("Sensitivity Analysis"))) {
        theStackedWidget->setCurrentIndex(1);
        theCurrentEngine = theSensitivityEngine;
-    } else if ((arg1 == QString("Surrogate")) || (arg1 == QString("Train GP Surrogate Model"))) {
+    } else if ((arg1 == QString("Surrogate")) ||
+	       (arg1 == QString("Surrogate Modeling")) ||	       
+	       (arg1 == QString("Train GP Surrogate Model"))) {
        theStackedWidget->setCurrentIndex(2);
        theCurrentEngine = theSurrogateEngine;
     } else if (arg1 == QString("PLoM Model")) {
@@ -176,15 +173,11 @@ void SimCenterUQEngine::methodSelectionChanged(const QString &arg1)
       qDebug() << "ERROR .. SimCenterUQEngine selection .. type unknown: " << arg1;
     }
 
-    // emit signal if engine changed
-    //if (theCurrentEngine != theOldEngine)
-
-
     if ((arg1==QString("Train GP Surrogate Model")) || (arg1==QString("PLoM Model")))
-        emit onUQ_MethodUpdated(QString("Surrogate Modeling"));
+      emit onUQ_MethodUpdated(QString("Surrogate Modeling"));
     else
-        emit onUQ_MethodUpdated(arg1);
-
+      emit onUQ_MethodUpdated(arg1);
+    
 }
 
 
@@ -208,6 +201,7 @@ SimCenterUQEngine::outputToJSON(QJsonObject &jsonObject) {
 
 bool
 SimCenterUQEngine::inputFromJSON(QJsonObject &jsonObject) {
+
     bool result = false;
 
     QString selection = jsonObject["uqType"].toString();
@@ -250,6 +244,8 @@ SimCenterUQEngine::outputAppDataToJSON(QJsonObject &jsonObject)
 bool
 SimCenterUQEngine::inputAppDataFromJSON(QJsonObject &jsonObject)
 {
+  qDebug() << " SimCenterUQEngine::inputAppDataFromJSON(QJsonObject &jsonObject)  ";
+  
     Q_UNUSED(jsonObject);
     return true;
 }

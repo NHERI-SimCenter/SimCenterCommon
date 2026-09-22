@@ -72,15 +72,17 @@ class UQ_EngineSelection : public  SimCenterAppSelection
  public slots:
 
   void engineSelectionChanged(QString eng);
-  void updateEngineComboDisp(const QString="Forward Propagation");
+  void methodSelectionChanged(QString method);
   void relayQueryEVT(void); // added KZ
   void setEventType(QString type); // added KZ
-  void methodSelectionChanged(QString type);
+  //  void methodSelectionChanged(QString type);
   
 private:
   void initialize();
   void createComboBox();
   QComboBox *theMethodCombo;
+  QComboBox *theEngineCombo;
+  
   UQ_Engine *theCurrentEngine;
   UQ_Engine *thePreviousEngine;  
   UQ_Engine *theDakotaEngine;
@@ -94,7 +96,9 @@ private:
   QString engineName;
   UQ_EngineType typeOption;
 
-  QComboBox *theEngineComboDisp;
+  bool methodChangedComingFromEngine;
+  bool inMethodSelectionChanged;
+
 };
 
 #endif 

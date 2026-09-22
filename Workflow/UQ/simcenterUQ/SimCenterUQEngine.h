@@ -71,20 +71,18 @@ public:
 
     // set event type
     void setEventType(QString type);
-
+    void methodSelectionChanged(const QString &arg1);
+  
 signals:
-    void onUQ_EngineChanged(QString);
-    void onUQ_MethodUpdated(QString);
-    void onNumModelsChanged(int newNum);
     void queryEVT(void);
 
 public slots:
-    void methodSelectionChanged(const QString &arg1);
+
     void surrogateMethodSelectionChanged(const QString &arg1);  
     void numModelsChanged(int newNum);
 
 private:
-    QLabel *label ;
+   QLabel *label ;
    QComboBox   *theMethodSelectionBox;
    QComboBox   *theSurrogateMethodSelectionBox;  
    QStackedWidget *theStackedWidget;
@@ -98,8 +96,7 @@ private:
    QString typeEVT; // used for PLoM to identify Event type
 
    RandomVariablesContainer *theRVs;
-
-   // SimCenterAppWidget interface
+  
 public:
    bool outputCitation(QJsonObject &jsonObject);
 };

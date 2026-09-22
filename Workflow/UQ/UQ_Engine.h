@@ -61,13 +61,15 @@ public:
     virtual QString getProcessingScript();
     virtual QString getMethodName();
     virtual bool fixMethod(QString);
-    // virtual void setMethod(QString &methodName);
     virtual void setEventType(QString type);
-
+    virtual void methodSelectionChanged(const QString &arg1);
+  
 signals:
+  
     void onNumModelsChanged(int numModels);
     void onUQ_MethodUpdated(QString);
     void onUQ_EngineChanged(QString);
+				    
 public slots:
 
 private:

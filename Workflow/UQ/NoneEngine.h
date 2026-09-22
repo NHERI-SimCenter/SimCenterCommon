@@ -59,10 +59,7 @@ public:
     UQ_Results *getResults(void);
 
   bool outputAppDataToJSON(QJsonObject &jsonObject) ;
-signals:
-    void onUQ_EngineChanged(QString);
-    void onUQ_MethodUpdated(QString);
-				   
+
 public slots:
 
 private:
