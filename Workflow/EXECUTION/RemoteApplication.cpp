@@ -106,6 +106,7 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *service, Tapis
     numRow++;
         
     if (theMachine == 0)  {
+      
       QLabel *numCPU_Label = new QLabel();
       numCPU_Label->setText(QString("Num Nodes:"));
       layout->addWidget(numCPU_Label,numRow,0);
@@ -193,10 +194,21 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *service, Tapis
     layout->addWidget(new QLabel("TACC Allocation"), numRow, 0);
     allocation = new QLineEdit();
     allocation->setPlaceholderText("Submit a ticket to DesignSafe to obtain your allocation.");
-    allocation->setText(SimCenterPreferences::getInstance()->getDefaultAllocation());
+    QString defaultAllocation = SimCenterPreferences::getInstance()->getDefaultAllocation();
+    if (!defaultAllocation.isEmpty())
+      allocation->setText(defaultApplication);
+    
     layout->addWidget(allocation,numRow,1);
     numRow++;
 
+    /* Thinking aabout updating Preferences Allocation!
+    // set preferences if different
+    connect(allocation, &QLineEdit::textChanged,
+        this, [this](const QString &newAllocation) {
+	  SimCenterPreferences::getInstance()->setDefaultAllocation(newAllocation));	  
+        });
+    */
+    
     // ------------------------------- Sharing Jobs through Archive Systems --------------------------------
     
     // job["archiveSystemId"] = "project-6281135954102775315-242ac117-0001-012"
@@ -541,7 +553,7 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
     if (remoteHomeDirPath.isEmpty()) {
       qDebug() << "RemoteApplication:: - remoteHomeDir is empty!!";      
       pushButton->setEnabled(true);
-      return false;
+      return -1;
     }
     QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
     designsafeDirectory = remoteDirectory;    
@@ -551,7 +563,7 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
     connect(theRemoteService, SIGNAL(uploadDirectoryReturn(bool)), this, SLOT(uploadDirReturn(bool)));
     theRemoteService->uploadDirectoryCall(tempDirectory, remoteHomeDirPath);        
 
-    return true;
+    return 0;
 }
 
 // this slot is invoked on return from uploadDirectory signal in pushButtonClicked slot
