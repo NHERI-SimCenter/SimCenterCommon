@@ -541,7 +541,7 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
     if (remoteHomeDirPath.isEmpty()) {
       qDebug() << "RemoteApplication:: - remoteHomeDir is empty!!";      
       pushButton->setEnabled(true);
-      return -1;
+      return false;
     }
     QString remoteDirectory = remoteHomeDirPath + QString("/") + dirName;
     designsafeDirectory = remoteDirectory;    
@@ -551,7 +551,7 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
     connect(theRemoteService, SIGNAL(uploadDirectoryReturn(bool)), this, SLOT(uploadDirReturn(bool)));
     theRemoteService->uploadDirectoryCall(tempDirectory, remoteHomeDirPath);        
 
-    return 0;
+    return true;
 }
 
 // this slot is invoked on return from uploadDirectory signal in pushButtonClicked slot

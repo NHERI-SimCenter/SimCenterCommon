@@ -26,7 +26,7 @@ SC_ToolDialog::SC_ToolDialog(WorkflowAppWidget* parent)
   this->resize(width, height);
   this->hide();
 
-  setWindowFlag(Qt::WindowStaysOnTopHint);
+  setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
 }
 
 
@@ -54,12 +54,17 @@ void SC_ToolDialog::showTool(QString text) {
   if (index != -1) {
     
     theStackedWidget->setCurrentIndex(index);
-    this->setWindowFlags(Qt::Window);
     this->show();
     this->activateWindow();
     this->raise();
   }
-}  
+}
+
+void SC_ToolDialog::hideTool() {
+  qDebug() << "SC_ToolDialog hide()";
+  this->hide();
+}
+
 
 	     
 
