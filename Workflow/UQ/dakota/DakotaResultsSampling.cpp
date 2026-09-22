@@ -203,7 +203,8 @@ int DakotaResultsSampling::processResults(QString &filenameResults, QString &fil
 
     if (errMsg.length() != 0) {
         errorMessage(errMsg);
-        return 0;
+        if (!errMsg.contains("Warning"))
+            return 0;
     }
     statusMessage(tr("Analysis done"));
 
