@@ -196,7 +196,7 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *service, Tapis
     allocation->setPlaceholderText("Submit a ticket to DesignSafe to obtain your allocation.");
     QString defaultAllocation = SimCenterPreferences::getInstance()->getDefaultAllocation();
     if (!defaultAllocation.isEmpty())
-      allocation->setText(defaultApplication);
+      allocation->setText(defaultAllocation);
     
     layout->addWidget(allocation,numRow,1);
     numRow++;
