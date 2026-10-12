@@ -44,6 +44,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QMessageBox>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QLabel>
+#include <QPointer>
 #include <QJsonObject>
 #include "ResultsDataChart.h"
 
@@ -61,7 +63,7 @@ class SimCenterUQResultsPLoM : public UQ_Results
 {
     Q_OBJECT
 public:
-  explicit SimCenterUQResultsPLoM(RandomVariablesContainer *, QWidget *parent = 0);
+  explicit SimCenterUQResultsPLoM(RandomVariablesContainer *, QWidget *parent = nullptr);
     ~SimCenterUQResultsPLoM();
 
     bool outputToJSON(QJsonObject &rvObject);
@@ -74,7 +76,7 @@ public:
 signals:
 
 public slots:
-   void clear(void);
+   void clear();
    void onSaveModelClicked(void);
    void onSaveInfoClicked(void);
    void onSaveXClicked(void);
@@ -83,29 +85,29 @@ public slots:
    // modified by padhye 08/25/2018
 
 private:
-   RandomVariablesContainer *theRVs;
-   QTabWidget *tabWidget;
+   RandomVariablesContainer *theRVs = nullptr;
+   QTabWidget *tabWidget = nullptr;
 
-   QPushButton* save_spreadheet; // save the data from spreadsheet
-   QLabel *label;
-   QLabel *best_fit_instructions;
+   QPointer<QPushButton> save_spreadheet; // save the data from spreadsheet
+   QPointer<QLabel> label;
+   QPointer<QLabel> best_fit_instructions;
 
    QStringList theHeadings;
    QString workingDir;
 
 
-   QPushButton *saveModelButton;
-   QPushButton *saveResultButton ;
-   QPushButton *saveXButton;
-   QPushButton *saveYButton;
-   ResultsDataChart * theDataTable;
+   QPointer<QPushButton> saveModelButton;
+   QPointer<QPushButton> saveResultButton ;
+   QPointer<QPushButton> saveXButton;
+   QPointer<QPushButton> saveYButton;
+   QPointer<ResultsDataChart> theDataTable;
 
    QJsonObject jsonObj;
    bool copyPath(QString sourceDir, QString destinationDir, bool overWriteDirectory);
-   void summarySurrogate(QScrollArea *&summaryLayout);
+   void summarySurrogate(QScrollArea *summaryArea);
 
    QString lastPath;
-   bool isSurrogate;
+   bool isSurrogate = false;
 
 };
 

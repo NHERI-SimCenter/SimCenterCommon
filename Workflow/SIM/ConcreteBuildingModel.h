@@ -54,6 +54,7 @@ class RandomVariablesContainer;
 class LineEditRV;
 class QButtonGroup;
 class QLineEdit;
+class LineEditRV;
 class QRadioButton;
 class QTableWidget;
 class QFile;
@@ -94,12 +95,14 @@ private:
     void removeRandomVariable(QString &text, int numReferences=1);
 
     LineEditRV *dampingRatio;
-    QLineEdit* extWidthLE = nullptr;
-    QLineEdit* extDepthLE = nullptr;
-    QLineEdit* intWidthLE = nullptr;
-    QLineEdit* intDepthLE = nullptr;
-    QLineEdit* beamWidthLE = nullptr;
-    QLineEdit* beamDepthLE = nullptr;
+  
+    LineEditRV* extWidthLE = nullptr;
+    LineEditRV* extDepthLE = nullptr;
+    LineEditRV* intWidthLE = nullptr;
+    LineEditRV* intDepthLE = nullptr;
+    LineEditRV* beamWidthLE = nullptr;
+    LineEditRV* beamDepthLE = nullptr;
+  
     QLineEdit* vecStoryLE = nullptr;
     QLineEdit* vecSpansLE = nullptr;
     QLineEdit* RLE = nullptr;

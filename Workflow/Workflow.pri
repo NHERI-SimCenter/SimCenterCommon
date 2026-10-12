@@ -98,6 +98,7 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/WORKFLOW/MainWindowWorkflowApp.cpp \
     $$PWD/WORKFLOW/WorkflowAppWidget.cpp \
     $$PWD/WORKFLOW/SimCenterComponentSelection.cpp \
+    $$PWD/WORKFLOW/WaveBackgroundWidget.cpp \
     $$PWD/WORKFLOW/CustomizedItemModel.cpp \
     $$PWD/WORKFLOW/JsonConfiguredWidget.cpp \
     $$PWD/WORKFLOW/SimCenterComboBox.cpp \
@@ -163,7 +164,8 @@ SOURCES += $$PWD/UQ/UQ_EngineSelection.cpp \
     $$PWD/EDP/StandardEDP.cpp \
     $$PWD/EDP/UserDefinedEDP.cpp \
     $$PWD/EDP/SurrogateEDP.cpp \
-    $$PWD/EDP/EDP.cpp
+    $$PWD/EDP/EDP.cpp \
+    $$PWD/SIM/Femora.cpp
 
 HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/ANALYSIS/CustomPySimulation.h \
@@ -232,6 +234,8 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/WORKFLOW/MainWindowWorkflowApp.h \
     $$PWD/WORKFLOW/WorkflowAppWidget.h \
     $$PWD/WORKFLOW/SimCenterComponentSelection.h \
+    $$PWD/WORKFLOW/AnimatedStackedWidget.h \
+    $$PWD/WORKFLOW/WaveBackgroundWidget.h \
     $$PWD/WORKFLOW/CustomizedItemModel.h \
     $$PWD/WORKFLOW/JsonConfiguredWidget.h \
     $$PWD/WORKFLOW/SimCenterComboBox.h \
@@ -297,4 +301,5 @@ HEADERS += $$PWD/UQ/UQ_EngineSelection.h \
     $$PWD/EDP/EDP_Selection.h \
     $$PWD/EDP/StandardEDP.h \    
     $$PWD/EDP/SurrogateEDP.h \
-    $$PWD/EDP/EDP.h
+    $$PWD/EDP/EDP.h \
+    $$PWD/SIM/Femora.h

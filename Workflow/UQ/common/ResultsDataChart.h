@@ -92,6 +92,7 @@ public slots:
 private:
 
     void readTableFromTab(QString filenameTab);
+    void reportNaNs(void);
     void readTableFromJson(QJsonObject jsonobj);
     void readTableFromTxt(QString fileName, int dim, QStringList listRVs, int startingCol=0);
     void makeChart(void);

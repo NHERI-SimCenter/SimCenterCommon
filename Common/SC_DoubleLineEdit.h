@@ -48,12 +48,13 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
 #include <QLineEdit>
+#include "SC_WidgetJSON.h"
 #include <QString>
 #include <QDoubleValidator>
 
 class QJsonObject;
 
-class SC_DoubleLineEdit : public QLineEdit
+class SC_DoubleLineEdit : public QLineEdit, public SC_WidgetJSON
 {
   
 public:
@@ -79,6 +80,7 @@ private:
   QString key;
 };
 
+/* WHAT IS THIS CLASS FOR!!
 class TextFieldDoubleValidator : public QDoubleValidator {
 public:
     TextFieldDoubleValidator (QObject * parent = 0) : QDoubleValidator(parent) {}
@@ -108,5 +110,6 @@ public:
     }
 
 };
+**/
 
 #endif // SC_DOUBLE_LINEEDIT_H

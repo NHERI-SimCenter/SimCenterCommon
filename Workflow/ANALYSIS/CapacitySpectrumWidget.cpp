@@ -62,17 +62,7 @@ CapacitySpectrumWidget::CapacitySpectrumWidget(bool inRegional, QWidget *parent)
   : SimCenterAppWidget(parent), regional(inRegional)
 {
     QVBoxLayout* layout = new QVBoxLayout(this);
-//    QGroupBox* DemandGroupBox = new QGroupBox(this);
-//    DemandGroupBox->setTitle("Demand Spectrum Model");
 
-//    QGroupBox* CapacityGroupBox = new QGroupBox(this);
-//    CapacityGroupBox->setTitle("Capacity Curve Model");
-
-//    QGroupBox* DampingGroupBox = new QGroupBox(this);
-//    DampingGroupBox->setTitle("Damping Model");
-
-
-//    QGridLayout* gridLayout = new QGridLayout(DemandGroupBox);
     DemandSelection = new SimCenterAppSelection ("Demand Spectrum Model", "DemandModel", this);
     HAZUSDemandWidget* hazusDemand = new HAZUSDemandWidget(this);
     DemandSelection->addComponent(QString("HAZUS"), QString("HAZUS"), hazusDemand);
@@ -95,7 +85,7 @@ CapacitySpectrumWidget::CapacitySpectrumWidget(bool inRegional, QWidget *parent)
     layout->addWidget(CapacitySelection);
     layout->addWidget(DampingSelection);
 
-    layout->setStretch(3,1);
+    layout->addStretch();
 
     this->clear();
 

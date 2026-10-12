@@ -36,15 +36,35 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Written by: Stevan Gavrilovic
 
-#include "NetworkDownloadManager.h"
-#include "ZipUtils.h"
-#include "Utils/ProgramOutputDialog.h"
 
 #include <QJsonDocument>
 #include <QApplication>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QProgressBar>
+#include <QString>
+
+
+#include "NetworkDownloadManager.h"
+#include "ZipUtils.h"
+#include "Utils/ProgramOutputDialog.h"
+
+
+#if __has_include("config_zenodo.h")
+    #include "config_zenodo.h"
+#endif
+
+QString get_token() {
+
+    #ifdef ZENODO_TOKEN
+        return ZENODO_TOKEN;
+    #endif
+
+    return ""; // Return empty if nothing found
+}
+
+
+
 
 NetworkDownloadManager::NetworkDownloadManager(QWidget *parent) : SimCenterWidget(parent)
 {
@@ -62,12 +82,36 @@ NetworkDownloadManager::NetworkDownloadManager(QWidget *parent) : SimCenterWidge
 
 void NetworkDownloadManager::downloadSingleFile(const QUrl &url, const QString& fileName, const QString& fileHash)
 {
+    qDebug() << "NetworkDownloadManager::downloadSingleFile() " << url;
+  
     QNetworkRequest request(url);
+    QString token = get_token();
+    
+    request.setRawHeader("Authorization", QString("Bearer %1").arg(token).toUtf8());
+    request.setHeader(QNetworkRequest::UserAgentHeader, "R2D-Tool/1.0");
+    request.setRawHeader("Accept", "application/json");
+    request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false);
+
+#if QT_VERSION_MAJOR >= 6
+    request.setAttribute(
+        QNetworkRequest::RedirectPolicyAttribute,
+        QNetworkRequest::NoLessSafeRedirectPolicy
+    );
+#else
+    request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+#endif
+
+
+#if QT_CONFIG(ssl)
+    QSslConfiguration sslConfig = QSslConfiguration::defaultConfiguration();
+    sslConfig.setProtocol(QSsl::TlsV1_2); 
+    request.setSslConfiguration(sslConfig);
+#endif
+    
     QNetworkReply *reply = fileDownloadManager.get(request);
 
     reply->setProperty("FileName",fileName);
     reply->setProperty("FileHash",fileHash);
-
 
 #if QT_CONFIG(ssl)
     connect(reply, &QNetworkReply::sslErrors, this, &NetworkDownloadManager::sslErrors);
@@ -79,7 +123,36 @@ void NetworkDownloadManager::downloadSingleFile(const QUrl &url, const QString& 
 
 void  NetworkDownloadManager::downloadSingleFileInfo(const QUrl &url, const QString& fileName)
 {
+    qDebug() << "NetworkDownloadManager::downloadSingleFileInfo() " << url;
+  
     QNetworkRequest request(url);
+    QString token = get_token();
+    
+    request.setRawHeader("Authorization", QString("Bearer %1").arg(token).toUtf8());
+    request.setHeader(QNetworkRequest::UserAgentHeader, "R2D-Tool/1.0");
+    request.setRawHeader("Accept", "application/json");
+    request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false);
+#if QT_VERSION_MAJOR >= 6
+    request.setAttribute(
+        QNetworkRequest::RedirectPolicyAttribute,
+        QNetworkRequest::NoLessSafeRedirectPolicy
+    );
+#else
+    request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+#endif    
+
+#if QT_CONFIG(ssl)
+    QSslConfiguration sslConfig = QSslConfiguration::defaultConfiguration();
+    sslConfig.setProtocol(QSsl::TlsV1_2); 
+    request.setSslConfiguration(sslConfig);
+#endif
+
+    QNetworkReply *reply = infoDownloadManager.get(request);
+    reply->setProperty("FileName", fileName);
+    
+    currentInfoDownloads.append(reply);
+    
+    /*
     QNetworkReply *reply = infoDownloadManager.get(request);
 
     reply->setProperty("FileName",fileName);
@@ -89,6 +162,8 @@ void  NetworkDownloadManager::downloadSingleFileInfo(const QUrl &url, const QStr
 #endif
 
     currentInfoDownloads.append(reply);
+    */
+    
 }
 
 

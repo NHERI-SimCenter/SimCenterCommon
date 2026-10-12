@@ -48,13 +48,15 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
 #include <QComboBox>
+#include "SC_WidgetJSON.h"
 #include <QString>
 #include <QStringList>
 
 class QJsonObject;
 
-class SC_ComboBox : public QComboBox
+class SC_ComboBox : public QComboBox, public SC_WidgetJSON
 {
+  Q_OBJECT
   
 public:
   

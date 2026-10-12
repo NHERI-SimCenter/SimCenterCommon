@@ -53,6 +53,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QFileInfo>
 #include <QProcessEnvironment>
 #include <QGridLayout>
+#include <Utils/FileOperations.h>
 
 SimCenterPreferences *
 SimCenterPreferences::getInstance(QWidget *parent) {
@@ -85,12 +86,15 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     
     python = new QLineEdit();
     QHBoxLayout *pythonLayout = new QHBoxLayout();
+    
 #ifdef USE_SIMCENTER_PYTHON
     customPythonCheckBox = new QCheckBox("Custom:");
     pythonLayout->addWidget(customPythonCheckBox);
 #else
 
 #endif
+
+    
     pythonLayout->addWidget(python);
     QPushButton *pythonButton = new QPushButton();
     pythonButton->setText("Browse");
@@ -104,7 +108,7 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
 
     // connect the pushbutton with code to open file selection and update python preferences with selected file
     connect(pythonButton, &QPushButton::clicked, this, [this](){
-        QSettings settings("SimCenter", "Common"); //These names will need to be constants to be shared
+        QSettings settings("SimCenter", QCoreApplication::applicationName()); 
         QVariant  pythonPathVariant = settings.value("pythonExePath");
         QString existingDir = QCoreApplication::applicationDirPath();
         if (pythonPathVariant.isValid()) {
@@ -208,7 +212,6 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     externalApplicationsLayout->setAlignment(Qt::AlignLeft);
     externalApplicationsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     externalApplicationsLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
-
     // connect the pushbutton with code to open file selection and update dakota preferences with selected file
     connect(dakotaButton, &QPushButton::clicked, this, [this](){
       QSettings settings("SimCenter", QCoreApplication::applicationName()); 
@@ -241,7 +244,60 @@ SimCenterPreferences::SimCenterPreferences(QWidget *parent)
     });
     // dakota
 
+#ifdef _OpenSRA
+    QString appName = QCoreApplication::applicationName();
+    if (appName == QString("R2D"))
+    {
+        openSRA = new QLineEdit();
+        QHBoxLayout *openSRALayout = new QHBoxLayout();
+        customOpenSRACheckBox = new QCheckBox("Path to OpenSRA backend");
+        openSRALayout->addWidget(customOpenSRACheckBox);
+        openSRALayout->addWidget(openSRA);
+        QPushButton *openSRAButton = new QPushButton();
+        openSRAButton->setText("Browse");
+        openSRAButton->setToolTip(tr("Select the path to OpenSRA"));
+        openSRALayout->addWidget(openSRAButton);
+        customOpenSRACheckBox->setChecked(false);
+        openSRA->setEnabled(false);
+        openSRAButton->setEnabled(false);
+        externalApplicationsLayout->addRow(tr("OpenSRA:"), openSRALayout);
+        externalApplicationsLayout->setAlignment(Qt::AlignLeft);
+        externalApplicationsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+        externalApplicationsLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
 
+        connect(openSRAButton, &QPushButton::clicked, this, [this](){
+            QSettings settings("SimCenter", QCoreApplication::applicationName());
+            QVariant  osraPathVariant = settings.value("openSRAPath");
+            QString existingDir = QCoreApplication::applicationDirPath();
+            if (osraPathVariant.isValid()) {
+                QString existingF = osraPathVariant.toString();
+                QFileInfo existingFile(existingF);
+                if (existingFile.exists())
+                    existingDir = existingFile.absolutePath();
+            }
+
+            QString selectedDir = QFileDialog::getExistingDirectory(this,
+                                                                    tr("Select Path to OpenSRA backend"),
+                                                                    existingDir,
+                                                                    QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+            if(!selectedDir.isEmpty()) {
+                openSRA->setText(selectedDir);
+            }
+        }
+                );
+
+        connect(customOpenSRACheckBox, &QCheckBox::toggled, this, [this, openSRAButton](bool checked)
+                {
+                    openSRA->setEnabled(checked);
+                    openSRAButton->setEnabled(checked);
+                    openSRAButton->setFlat(!checked);
+                    if (checked == false) openSRA->setText(this->getDefaultOpenSRA());
+                });
+    }
+    
+#endif
+    
     //
     // entry for localWorkDir location .. basically as before
     //
@@ -543,6 +599,16 @@ SimCenterPreferences::~SimCenterPreferences()
 
 }
 
+void
+SimCenterPreferences::setDefaultAllocation(QString &userAllocation) {
+
+    QString currentVersion = QCoreApplication::applicationVersion();
+
+    QSettings settingsCommon("SimCenter", "Common");
+    QSettings settingsApp("SimCenter", QCoreApplication::applicationName());
+    allocation->setText(userAllocation);
+    settingsCommon.setValue("allocation", allocation->text().trimmed());
+}
 
 void
 SimCenterPreferences::savePreferences(bool) {
@@ -550,15 +616,14 @@ SimCenterPreferences::savePreferences(bool) {
     QString currentVersion = QCoreApplication::applicationVersion();
 
     QSettings settingsCommon("SimCenter", "Common");
+    QSettings settingsApp("SimCenter", QCoreApplication::applicationName());
 
     settingsCommon.setValue("allocation", allocation->text().trimmed());
-
-    QSettings settingsApp("SimCenter", QCoreApplication::applicationName());
     
 #ifdef USE_SIMCENTER_PYTHON
     settingsApp.setValue("pythonExePath", python->text().trimmed());
 #else
-    settingsCommon.setValue("pythonExePath", python->text().trimmed());
+    settingsApp.setValue("pythonExePath", python->text().trimmed());
     qDebug() << "reset: pythonExePath: " << python->text().trimmed();
 #endif
 
@@ -575,6 +640,14 @@ SimCenterPreferences::savePreferences(bool) {
     settingsApp.setValue("customTapisAppVersion", customTapisAppVersionCheckBox->isChecked());    
     settingsApp.setValue("customRemoteAppDir", customRemoteAppDirCheckBox->isChecked());    
 
+    QString appName = QCoreApplication::applicationName();
+#ifdef _OpenSRA
+    if (appName == QString("R2D"))
+    {
+        settingsApp.setValue("customOpenSRA", customOpenSRACheckBox->isChecked());
+        settingsApp.setValue("openSRAPath", openSRA->text());
+    }
+#endif
     
     settingsApp.setValue("remoteBackendDir", remoteBackendDir->text().trimmed());
     settingsApp.setValue("remoteTapisApp", remoteTapisApp->text().trimmed());
@@ -604,22 +677,19 @@ SimCenterPreferences::resetPreferences(bool) {
 #ifdef USE_SIMCENTER_PYTHON    
     settingsApplication.setValue("pythonExePath", pythonPath);
 #else
-    settingsCommon.setValue("pythonExePath", pythonPath);
+    settingsApplication.setValue("pythonExePath", pythonPath);
 #endif
 
     QString currentVersion = QCoreApplication::applicationVersion();
     settingsApplication.setValue("version", currentVersion);
 
-    QDir workingDir(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
-
-    if (!workingDir.exists())
-      workingDir.mkpath(".");   
+    QString workingDirPath = SCUtils::getAppWorkDir();
     
-    QString remoteWorkDirLocation = workingDir.filePath(QCoreApplication::applicationName() + "/RemoteWorkDir");
+    QString remoteWorkDirLocation = workingDirPath + QDir::separator() + "RemoteWorkDir";
     settingsApplication.setValue("remoteWorkDir", remoteWorkDirLocation);
     remoteWorkDir->setText(remoteWorkDirLocation);
 
-    QString localWorkDirLocation = workingDir.filePath(QCoreApplication::applicationName() + "/LocalWorkDir");
+    QString localWorkDirLocation = workingDirPath + QDir::separator() + "LocalWorkDir";
     settingsApplication.setValue("localWorkDir", localWorkDirLocation);
     localWorkDir->setText(localWorkDirLocation);
 
@@ -651,8 +721,20 @@ SimCenterPreferences::resetPreferences(bool) {
     customDakotaCheckBox->setChecked(false);
     customOpenSeesCheckBox->setChecked(false);
     customTapisAppCheckBox->setChecked(false);
-    customTapisAppVersionCheckBox->setChecked(false);    
-    customRemoteAppDirCheckBox->setChecked(false);    
+
+    QString appName = QCoreApplication::applicationName();
+#ifdef _OpenSRA
+    if (appName == QString("R2D"))
+    {
+        QString openSRAPath=this->getDefaultOpenSRA();
+        settingsApplication.setValue("openSRAPath", openSRAPath);
+        openSRA->setText(openSRAPath);
+        customOpenSRACheckBox->setChecked(false);
+    }
+#endif
+    
+    customTapisAppVersionCheckBox->setChecked(false);
+    customRemoteAppDirCheckBox->setChecked(false);
 
     // finally save them to make sure all saved
     //    this->savePreferences(true);
@@ -709,13 +791,12 @@ SimCenterPreferences::loadPreferences() {
     QVariant  pythonPathVariant = settingsApplication.value("pythonExePath");    
     if (!pythonPathVariant.isValid()) {
         QString pythonPath=this->getPython();
-        settingsCommon.setValue("pythonExePath", pythonPath);
+        settingsApplication.setValue("pythonExePath", pythonPath);
         python->setText(pythonPath);
     } else {
         python->setText(pythonPathVariant.toString());
     }
 #endif
-
 
     //allocation
     auto defaultAllocation = settingsCommon.value("allocation");
@@ -851,6 +932,30 @@ SimCenterPreferences::loadPreferences() {
         QString dakotaApp=this->getDefaultDakota();
         dakota->setText(dakotaApp);
     }
+
+#ifdef _OpenSRA
+    // OpenSRA
+    QString appName = QCoreApplication::applicationName();
+    if (appName == QString("R2D"))
+    {
+        auto customOpenSRA = settingsApplication.value("customOpenSRA", false);
+        if (customOpenSRA.isValid() && customOpenSRA.toBool() == true) {
+            QVariant  openSRAPathVariant = settingsApplication.value("openSRAPath");
+            if (!openSRAPathVariant.isValid()) {
+                customOpenSRACheckBox->setChecked(false);
+                QString openSRAPath=this->getDefaultOpenSRA();
+                settingsApplication.setValue("openSRAPath", openSRAPath);
+                openSRA->setText(openSRAPath);
+            } else {
+                customOpenSRACheckBox->setChecked(true);
+                openSRA->setText(openSRAPathVariant.toString());
+            }
+        } else {
+            QString openSRAApp=this->getDefaultOpenSRA();
+            openSRA->setText(openSRAApp);
+        }
+    }
+#endif
 }
 
 QString
@@ -862,28 +967,31 @@ SimCenterPreferences::getPython(void) {
 
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     QString scPython = env.value("SIMCENTER_PYTHON","None");
-    qDebug() << "SimCenterPreferences::getPython - scPython: " << scPython;
+
     if (scPython != "None") {
+      qDebug() << "SimCenterPreferences::getPython - scPython: " << scPython;      
       return scPython;
     }
-    
+
 #ifdef USE_SIMCENTER_PYTHON
     QVariant  pythonPathVariant = settingsApplication.value("pythonExePath");
     if (!pythonPathVariant.isValid()) {
             pythonPath = this->getDefaultPython();
             settingsApplication.setValue("pythonExePath", pythonPath);
+	    qDebug() << "SimCenterPreferences::getPython - 1: " << pythonPath;      	    
             return pythonPath;
     }
 #else
-    QVariant  pythonPathVariant = settingsCommon.value("pythonExePath");
+    QVariant  pythonPathVariant = settingsApplication.value("pythonExePath");
     if (!pythonPathVariant.isValid()) {
             pythonPath = this->getDefaultPython();
-            settingsCommon.setValue("pythonExePath", pythonPath);
+            settingsApplication.setValue("pythonExePath", pythonPath);
+	    qDebug() << "SimCenterPreferences::getPython - 2: " << pythonPath;      	    
             return pythonPath;
     }
-
 #endif
-
+    
+    qDebug() << "SimCenterPreferences::getPython: " << pythonPathVariant.toString();
     return pythonPathVariant.toString();
 }
 
@@ -935,6 +1043,23 @@ SimCenterPreferences::getDakota(void) {
 }
 
 
+#ifdef _OpenSRA
+QString
+SimCenterPreferences::getOpenSRA(void) {
+
+    QSettings settingsApplication("SimCenter", QCoreApplication::applicationName());
+    QString thePath;
+
+    QVariant  theVariant = settingsApplication.value("openSRAPath");
+    if (!theVariant.isValid()) {
+      thePath = this->getDefaultOpenSRA();
+      settingsApplication.setValue("openSRAPath", thePath);
+      return thePath;
+    }
+
+    return theVariant.toString();
+}
+#endif
 
 QString
 SimCenterPreferences::getAppDir(void) {
@@ -981,11 +1106,7 @@ SimCenterPreferences::getRemoteAppDir(void) {
 	
 	// if not set, use default & set default as application directory
 	if (!remoteBackendDirVariant.isValid()) {
-	  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v25.02.03");
-
-	  QString appName = QCoreApplication::applicationName();
-	  if (appName == QString("WE-UQ") || appName == QString("HydroUQ"))
-	    remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v4.6.0");
+	  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v26.05.26");
 
 	  settingsApplication.setValue("remoteBackendDir", remoteBackendDirLocation);
 	  return remoteBackendDirLocation;
@@ -1065,12 +1186,10 @@ SimCenterPreferences::getLocalWorkDir(void) {
 
     // if not set, use default & set default as application directory
     if (!localWorkDirVariant.isValid()) {
-      QDir workingDir(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
+      QString workingDirPath = SCUtils::getAppWorkDir();
 
-      if (!workingDir.exists())
-	workingDir.mkpath(".");
-      
-      QString localWorkDirLocation = workingDir.filePath(QCoreApplication::applicationName() + "/LocalWorkDir");
+      QString localWorkDirLocation = workingDirPath + QDir::separator() + "LocalWorkDir";
+    
       settingsApplication.setValue("localWorkDir", localWorkDirLocation);
       localWorkDir->setText(localWorkDirLocation);
       return localWorkDirLocation;
@@ -1098,12 +1217,9 @@ SimCenterPreferences::getRemoteWorkDir(void) {
 
     // if not set, use default & set default as application directory
     if (!remoteWorkDirVariant.isValid()) {
-      QDir workingDir(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
-      
-      if (!workingDir.exists())
-	workingDir.mkpath(".");
-      
-      QString remoteWorkDirLocation = workingDir.filePath(QCoreApplication::applicationName() + "/RemoteWorkDir");
+
+      QString workingDirPath = SCUtils::getAppWorkDir();      
+      QString remoteWorkDirLocation = workingDirPath + QDir::separator() + "RemoteWorkDir";
       settingsApplication.setValue("remoteWorkDir", remoteWorkDirLocation);
       remoteWorkDir->setText(remoteWorkDirLocation);
       return remoteWorkDirLocation;
@@ -1122,11 +1238,10 @@ SimCenterPreferences::getDefaultAgaveApp(void) {
     if (appName == QString("R2D")) {
       remoteApp = QString("simcenter-rWhale-stampede3");
     } else if (appName == QString("WE-UQ")) {
-      remoteApp = QString("simcenter-openfoam-frontera");
+      remoteApp = QString("simcenter-openfoam-stampede3");
     } else if (appName == QString("HydroUQ")) {
-      remoteApp = QString("simcenter-openfoam-frontera");    
-    } else if (appName == QString("EE-UQ") || appName == QString("PBE"))
-      remoteApp = QString("simcenter-uq-stampede3");      
+      remoteApp = QString("simcenter-hydrouq-stampede3");
+    }
 
     return remoteApp;
 }
@@ -1137,11 +1252,10 @@ SimCenterPreferences::getDefaultAgaveAppVersion(void) {
 
     //Default appDir is the location of the application
     QString appName = QCoreApplication::applicationName();
-    QString remoteApp = QString("simcenter-uq-stampede3");
 
-    QString remoteVersion = QString("1.0.0");    
+    QString remoteVersion = QString("2.0.0");    
     if (appName == QString("R2D")) {
-      remoteVersion = QString("1.1.0");
+      remoteVersion = QString("2.0.0");
     }
         
     return remoteVersion;
@@ -1151,10 +1265,7 @@ SimCenterPreferences::getDefaultAgaveAppVersion(void) {
 QString
 SimCenterPreferences::getDefaultRemoteAppDir(void) {
 
-  QString appName = QCoreApplication::applicationName();  
-  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v25.02.03");
-  if (appName == QString("WE-UQ") || appName == QString("HydroUQ"))
-    remoteBackendDirLocation = QString("/work2/00477/tg457427/frontera/SimCenterBackendApplications/v4.6.0");  
+  QString remoteBackendDirLocation = QString("/work2/00477/tg457427/stampede3/SimCenterBackendApplications/v26.05.26");
 
   return remoteBackendDirLocation;
 }
@@ -1254,7 +1365,7 @@ SimCenterPreferences::getDefaultPython(void) {
     if (scPython != "None") {
       return scPython;
     }
-  
+
 #ifdef Q_OS_WIN
     QStringList paths{QCoreApplication::applicationDirPath().append("/applications/python")};
     QString pythonPath = QStandardPaths::findExecutable("python.exe", paths);
@@ -1262,18 +1373,22 @@ SimCenterPreferences::getDefaultPython(void) {
         pythonPath = QStandardPaths::findExecutable("python.exe");
 #else
     
-    QString pythonPath; //  = QStandardPaths::findExecutable("python3");
-    QString pyAppPath = QCoreApplication::applicationDirPath() + QDir::separator() + QString("python3.9");
-    QFileInfo packagedPython39(pyAppPath);    
-    QFileInfo installedPython39("/Library/Frameworks/Python.framework/Versions/3.9/bin/python3");
-    QFileInfo installedPython310("/Library/Frameworks/Python.framework/Versions/3.10/bin/python3");
+    QString pythonPath; 
+    QString pyAppPath = QCoreApplication::applicationDirPath() + QDir::separator() + QString("python/bin/python3");
+    QFileInfo packagedPython(pyAppPath);
+    QFileInfo installedPython39("/Library/Frameworks/Python.framework/Versions/3.9/bin/python3");        
+    QFileInfo installedPython312("/Library/Frameworks/Python.framework/Versions/3.12/bin/python3");
+    QFileInfo installedPython313("/Library/Frameworks/Python.framework/Versions/3.12/bin/python3");    
 
-    if (packagedPython39.exists()) {
-      pythonPath = packagedPython39.filePath();
+
+    if (packagedPython.exists()) {
+      pythonPath = packagedPython.filePath();
+    } else if (installedPython312.exists()) {
+      pythonPath = installedPython312.filePath();
     } else if (installedPython39.exists()) {
       pythonPath = installedPython39.filePath();
-    } else if (installedPython310.exists()) {
-      pythonPath = installedPython310.filePath();	
+    } else if (installedPython313.exists()) {
+      pythonPath = installedPython313.filePath();	      
     } else {
       pythonPath = QStandardPaths::findExecutable("python3");
     }
@@ -1284,3 +1399,18 @@ SimCenterPreferences::getDefaultPython(void) {
     
     return pythonPath;
 }
+
+
+#ifdef _OpenSRA
+QString
+SimCenterPreferences::getDefaultOpenSRA(void) {
+
+    QString currentAppDir = QCoreApplication::applicationDirPath();
+
+    QString openSRADir = currentAppDir + QDir::separator() + "OpenSRA";
+
+
+    return openSRADir;
+
+}
+#endif

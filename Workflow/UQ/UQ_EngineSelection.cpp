@@ -61,7 +61,7 @@ UQ_EngineSelection::UQ_EngineSelection(bool includeNone,
 				       UQ_EngineType type,
 				       QWidget *parent)
   :SimCenterAppSelection(QString("UQ Application"), assetType, QString("UQ_Method"), QString(), parent),
-    theCurrentEngine(0), includeNoneOption(includeNone), typeOption(type)
+   theCurrentEngine(0), includeNoneOption(includeNone), typeOption(type), methodChangedComingFromEngine(false), inMethodSelectionChanged(false)
 {
   this->initialize();
 }
@@ -69,7 +69,7 @@ UQ_EngineSelection::UQ_EngineSelection(bool includeNone,
 UQ_EngineSelection::UQ_EngineSelection(UQ_EngineType type,
 				       QWidget *parent)
   :SimCenterAppSelection(QString("UQ Engine"), QString("UQ"), QString("UQ_Method"), QString(), parent),
-    theCurrentEngine(0), includeNoneOption(false), typeOption(type)
+    theCurrentEngine(0), includeNoneOption(false), typeOption(type), methodChangedComingFromEngine(false), inMethodSelectionChanged(false)
 {
   this->initialize();
 }
@@ -120,7 +120,10 @@ UQ_EngineSelection::initialize()
     
 
     theMethodCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
-    connect(theMethodCombo, SIGNAL(currentTextChanged(QString)), this, SLOT(updateEngineComboDisp(QString)));
+    connect(theMethodCombo, &QComboBox::currentTextChanged,
+	    this, [=](const QString currentMthod){
+	      this->methodSelectionChanged(currentMthod);
+	    });
 
     QHBoxLayout * theMethodLayout = new QHBoxLayout();
     theMethodLayout -> addWidget(selectionText);
@@ -130,33 +133,32 @@ UQ_EngineSelection::initialize()
     auto *myLayout = dynamic_cast<QVBoxLayout*> (this->layout());
     myLayout->insertLayout(0,theMethodLayout);
 
-
     //
     // Then we select the engine
     //
 
     QLabel * engineLabel = new QLabel(QString("  UQ Engine"));
-    theEngineComboDisp = new QComboBox();
+    theEngineCombo = new QComboBox();
     engineLabel->setMinimumWidth(200);
-    theEngineComboDisp->setMinimumWidth(500);
+    theEngineCombo->setMinimumWidth(500);
     QHBoxLayout * theEngineLayout = new QHBoxLayout();
     theEngineLayout -> addWidget(engineLabel);
-    theEngineLayout -> addWidget(theEngineComboDisp);
+    theEngineLayout -> addWidget(theEngineCombo);
     theEngineLayout -> addStretch();
     myLayout->insertLayout(1,theEngineLayout);
 
-    connect(theEngineComboDisp, &QComboBox::currentTextChanged, this, [=](QString engineName){
+    connect(theEngineCombo, &QComboBox::currentTextChanged,
+	    this, [=](QString engineName){
               this->selectComponent(engineName);
           });
     
-    //connect(theEngineComboDisp, SIGNAL(currentTextChanged(QString)), this, SLOT(selectComponent(QString)));
-    //connect(theEngineComboDisp, SIGNAL(currentTextChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
     connect(this, SIGNAL(selectionChangedSignal(QString)), this, SLOT(engineSelectionChanged(QString)));
+    
     //
     // This is the all the list of engines
     //
 
-    this ->hideHeader();
+    this->hideHeader();
 
     theDakotaEngine = new DakotaEngine(typeOption);
     theSimCenterUQEngine = new SimCenterUQEngine(typeOption);
@@ -184,45 +186,56 @@ UQ_EngineSelection::initialize()
 
     theCurrentEngine=theDakotaEngine;
 
-    connect(theDakotaEngine, SIGNAL(onUQ_MethodUpdated(QString)), this, SLOT(methodSelectionChanged(QString)));
-    connect(theSimCenterUQEngine, SIGNAL(onUQ_MethodUpdated(QString)), this, SLOT(methodSelectionChanged(QString)));
-    connect(theCustomEngine, SIGNAL(onUQ_MethodUpdated(QString)), this, SLOT(methodSelectionChanged(QString)));
-    connect(theUCSD_Engine, SIGNAL(onUQ_MethodUpdated(QString)), this, SLOT(methodSelectionChanged(QString)));
-    connect(theNoneEngine, SIGNAL(onUQ_MethodUpdated(QString)), this, SLOT(methodSelectionChanged(QString)));    
-
-    connect(theDakotaEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
-    connect(theSimCenterUQEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
-    connect(theCustomEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
-    connect(theUCSD_Engine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
-    connect(theNoneEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(engineSelectionChanged(QString)));    
+    connect(theDakotaEngine, &UQ_Engine::onUQ_MethodUpdated,
+	    this, [this](const QString &method) {
+	      methodChangedComingFromEngine = true;
+	      methodSelectionChanged(method);
+	      methodChangedComingFromEngine = false;
+	    });
     
+    connect(theSimCenterUQEngine, &UQ_Engine::onUQ_MethodUpdated,
+	    this, [this](QString method) {
+	      qDebug() << "SimCenterUQ calling Method Change";
+	      methodChangedComingFromEngine = true;
+	      methodSelectionChanged(method);
+	      methodChangedComingFromEngine = false;
+	    });
+    
+    connect(theCustomEngine, &UQ_Engine::onUQ_MethodUpdated,
+	    this, [this](const QString &method) {
+	      methodChangedComingFromEngine = true;
+	      methodSelectionChanged(method);
+	      methodChangedComingFromEngine = false;
+	    });    
 
-//    connect(theDakotaEngine, SIGNAL(onUQ_MethodUpdated(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
-//    connect(theSimCenterUQEngine, SIGNAL(onUQ_MethodUpdated(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
-//    connect(theCustomEngine, SIGNAL(onUQ_MethodUpdated(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
-//    connect(theUCSD_Engine, SIGNAL(onUQ_MethodUpdated(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
+    
+    connect(theUCSD_Engine, &UQ_Engine::onUQ_MethodUpdated,
+	    this, [this](const QString &method) {
+	      methodChangedComingFromEngine = true;
+	      methodSelectionChanged(method);
+	      methodChangedComingFromEngine = false;
+	    });
 
-//    connect(theDakotaEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(methodSelectionChanged(QString)));
-//    connect(theSimCenterUQEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(methodSelectionChanged(QString)));
-//    connect(theCustomEngine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(methodSelectionChanged(QString)));
-//    connect(theUCSD_Engine, SIGNAL(onUQ_EngineChanged(QString)), this, SLOT(methodSelectionChanged(QString)));
-
-
-
-//    connect(theCurrentEngine, SIGNAL(onUQ_MethodUpdated(QString)), theMethodCombo, SLOT(setCurrentText(QString)));
-//    connect(theCurrentEngine, SIGNAL(onUQ_EngineChanged(QString)), theEngineComboDisp, SLOT(setCurrentText(QString)));
+    connect(theNoneEngine, &UQ_Engine::onUQ_MethodUpdated,
+	    this, [this](const QString &method) {
+	      methodChangedComingFromEngine = true;
+	      methodSelectionChanged(method);
+	      methodChangedComingFromEngine = false;
+	    });        
 
     // connect queryEVT
     connect(theSimCenterUQEngine, SIGNAL(queryEVT()), this, SLOT(relayQueryEVT()));
-
-    this->updateEngineComboDisp();
+    
+    theCurrentEngine->setRV_Defaults();
+    this->methodSelectionChanged("Forward Propagation");
 }
 
+/*
 void UQ_EngineSelection::methodSelectionChanged(QString MethodName) {
     theMethodCombo->setCurrentText(MethodName);
     theCurrentEngine->setRV_Defaults();
-    //engineSelectionChanged(MethodName);
 }
+*/
 
 void UQ_EngineSelection::engineSelectionChanged(QString arg1)
 {
@@ -248,11 +261,11 @@ void UQ_EngineSelection::engineSelectionChanged(QString arg1)
     connect(theCurrentEngine,SIGNAL(onNumModelsChanged(int)), this, SLOT(numModelsChanged(int)));
 
     QString currentEngine = this->getCurrentComboName();
-    int idx = theEngineComboDisp->findText(currentEngine);
+    int idx = theEngineCombo->findText(currentEngine);
     if (idx!=-1) {
-        theEngineComboDisp->setCurrentIndex(idx);
+        theEngineCombo->setCurrentIndex(idx);
     } else {
-        theEngineComboDisp->setCurrentIndex(0);
+        theEngineCombo->setCurrentIndex(0);
     }
 
     /* FMK
@@ -268,19 +281,35 @@ void UQ_EngineSelection::engineSelectionChanged(QString arg1)
 }
 
 
-void UQ_EngineSelection::updateEngineComboDisp(const QString methodName)
+void UQ_EngineSelection::methodSelectionChanged(QString methodName)
 {
+   if (inMethodSelectionChanged == true) {
+     // An engine's fixMethod()/methodSelectionChanged() call below can synchronously
+     // change that engine's own internal combo box and re-emit onUQ_MethodUpdated(),
+     // re-entering this method while the rebuild loop further down is still running.
+     // The outer, already-running call will finish the rebuild correctly, so just
+     // ignore the re-entrant call to avoid appending duplicate entries to theEngineCombo.
+     return;
+   }
+   inMethodSelectionChanged = true;
 
-  //this->createComboBox();
-  //QString currentEngine = theEngineComboDisp->currentText();
-  theEngineComboDisp->clear();
+   qDebug() << "UQ_EngineSelection::methodSelectionChanged() NEW: " << methodName;
+   qDebug() << "UQ_EngineSelection::methodSelectionChanged() EXISTING: " << theMethodCombo->currentText();
+
+   if (methodChangedComingFromEngine == true && theMethodCombo->currentText() != methodName)  {
+     qDebug() << "UQ_EngineSelection::methodSelectionChanged() CHANGING " << theMethodCombo->currentText() << " " << methodName;
+     theMethodCombo->setCurrentText(methodName);
+   }
   
-  if (methodName == "None") {
-    theEngineComboDisp->addItem("None"); // Display it on the combobox
-    theEngineComboDisp->setCurrentIndex(0);
-    return;
-  }
+   theEngineCombo->clear();
   
+   if (methodName == "None") {
+     theEngineCombo->addItem("None"); // Display it on the combobox
+     theEngineCombo->setCurrentIndex(0);
+     inMethodSelectionChanged = false;
+     return;
+   }
+   
     QString currentEngine = this->getCurrentComboName();
     int numItems = this->count();
     for(int i=0; i<numItems;i++) {
@@ -288,19 +317,22 @@ void UQ_EngineSelection::updateEngineComboDisp(const QString methodName)
 	if (engineName!=QString("None")) {
             auto myWidget = dynamic_cast<UQ_Engine*> (this->getComponent(engineName));
             if (myWidget->fixMethod(methodName)){
-                theEngineComboDisp->addItem(engineName); // Display it on the combobox
+                theEngineCombo->addItem(engineName); // Display it on the combobox
+		if (methodChangedComingFromEngine == false)
+		  myWidget->methodSelectionChanged(methodName);
                // this->removeItem(engineName);
             }
 	}
     }
 
-    int idx = theEngineComboDisp->findText(currentEngine);
+    int idx = theEngineCombo->findText(currentEngine);
     if (idx!=-1) {
-        theEngineComboDisp->setCurrentIndex(idx);
+        theEngineCombo->setCurrentIndex(idx);
     } else {
-        theEngineComboDisp->setCurrentIndex(0);
+        theEngineCombo->setCurrentIndex(0);
     }
 
+    inMethodSelectionChanged = false;
 }
 
 void

@@ -56,3 +56,4 @@ SimFigure/SimPlotDemo/SimPlotDemo.pro.user.4.10-pre1
 #Remove .vscode
 .vscode
 
+config_zenodo.h

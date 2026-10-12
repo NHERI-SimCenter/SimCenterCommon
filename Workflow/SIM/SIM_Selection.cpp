@@ -47,6 +47,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <MDOF_LU.h>
 #include <CustomPy.h>
 #include <SurrogateGP.h>
+#include <Femora.h>
 
 
 #include <QApplication>
@@ -72,7 +73,10 @@ SIM_Selection::SIM_Selection(bool includeC,
     this->addComponent(QString("Concrete Building Model"), QString("ConcreteBuildingModel"), concrete);
   }
 
-  if ((appName == "EE-UQ" || appName =="WE-UQ") || (appName == "PBE"))  {
+  // The Surrogate (GP) modeling option depends on the GPy Python package,
+  // which is not installed in PBE's runtime environment. Drop PBE from the
+  // list of apps that surface this widget.
+  if (appName == "EE-UQ" || appName == "WE-UQ")  {
     SimCenterAppWidget *sur = new surrogateGP(theRVs);
     this->addComponent(QString("Surrogate (GP)"), QString("SurrogateGPBuildingModel"), sur);
   }
@@ -100,6 +104,11 @@ SIM_Selection::SIM_Selection(bool includeC,
   // KZ: adding CustomPy
   SimCenterAppWidget *custom_py = new CustomPy();
   this->addComponent(QString("CustomPy"), QString("CustomPyInput"), custom_py);
+
+  if (appName == "EE-UQ") {
+    SimCenterAppWidget *femora = new Femora();
+    this->addComponent(QString("Femora"), QString("FemoraInput"), femora);
+  }
 }
 
 SIM_Selection::~SIM_Selection()

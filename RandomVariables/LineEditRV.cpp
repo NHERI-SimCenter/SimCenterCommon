@@ -42,7 +42,14 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <RandomVariablesContainer.h>
 
 LineEditRV::LineEditRV(RandomVariablesContainer *theRandomVariableContainer, QWidget *parent)
-:QLineEdit(parent), theRVC(theRandomVariableContainer)
+  :QLineEdit(parent), theRVC(theRandomVariableContainer), key("")
+{
+    //connect(this,SIGNAL(editingFinished()),this,SLOT(on_editingFinished()));
+    connect(this,SIGNAL(textChanged(QString)),this,SLOT(on_editingFinished()));
+}
+
+LineEditRV::LineEditRV(QString theKey, RandomVariablesContainer *theRandomVariableContainer, QWidget *parent)
+  :QLineEdit(parent), theRVC(theRandomVariableContainer), key(theKey)
 {
     //connect(this,SIGNAL(editingFinished()),this,SLOT(on_editingFinished()));
     connect(this,SIGNAL(textChanged(QString)),this,SLOT(on_editingFinished()));
@@ -80,7 +87,51 @@ LineEditRV::outputToJSON(QJsonObject &jsonObject, QString key)
 }
 
 bool
+LineEditRV::outputToJSON(QJsonObject &jsonObject)
+{
+    QString valueText = this->text();
+    bool ok;
+
+    if (valueText.isEmpty()) {
+        qDebug() << "ERROR: LineRV: no key: " << key << " in JSON object";
+        return false;
+    }
+
+    double valueDouble = valueText.QString::toDouble(&ok);
+    if (ok == true)
+        jsonObject[key]=valueDouble;
+    else
+        jsonObject[key]= QString("RV.") + valueText;
+
+    return true;
+}
+
+
+
+bool
 LineEditRV::inputFromJSON(QJsonObject &jsonObject, QString key)
+{
+    if (jsonObject.contains(key)) {
+
+        QJsonValue theValue = jsonObject[key];
+        if (theValue.isString()) {
+            oldText = theValue.toString();
+            oldText.remove(0,3); // remove RV.
+            this->setText(oldText);
+        } else if (theValue.isDouble()) {
+            oldText = QString::number(theValue.toDouble());
+            this->setText(oldText);
+        }
+    } else {
+        qDebug() << "LineEditRV::iinputFRomJSON - key not found, key: " << key;
+        return false;
+    }
+
+    return true;
+}
+
+bool
+LineEditRV::inputFromJSON(QJsonObject &jsonObject)
 {
     if (jsonObject.contains(key)) {
 

@@ -134,6 +134,11 @@ SimCenterAppSelection::initializeWidget(QString label) {
 }
 
 
+QString SimCenterAppSelection::getJsonKeyword() const
+{
+    return jsonKeyword;
+}
+
 
 SimCenterAppSelection::~SimCenterAppSelection()
 {
@@ -533,6 +538,13 @@ bool
 SimCenterAppSelection::outputCitation(QJsonObject &citation)
 {
 
+  auto idx = theComponents.indexOf(theCurrentSelection);
+  
+  if(idx == -1) {
+    qDebug() << "SimCentertAppSelection " << jsonKeyword << " - no current selection";
+    return true;
+  }
+  
   QJsonObject appSpecificCitation;
   theCurrentSelection->outputCitation(appSpecificCitation);
   if (!appSpecificCitation.isEmpty()) {

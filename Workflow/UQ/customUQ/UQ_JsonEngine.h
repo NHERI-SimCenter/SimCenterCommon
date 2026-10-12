@@ -71,10 +71,6 @@ public:
   bool copyFiles(QString &fileDir) override;
   bool fixMethod(QString Methodname);
 
-signals:
-  void onUQ_EngineChanged(QString);
-  void onNumModelsChanged(int numModels);
-
 public slots:
 
 private:

@@ -49,8 +49,10 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QComboBox>
 #include <QPushButton>
 #include <QJsonObject>
+#include <QJsonDocument>
 #include <QStandardPaths>
 #include <QCoreApplication>
 #include <QProcess>
@@ -65,6 +67,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <ZipUtils.h>
 #include <QCoreApplication>
 #include <QIntValidator>
+#include <QMessageBox>
 
 #include <TapisMachine.h>
 
@@ -103,6 +106,7 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *service, Tapis
     numRow++;
         
     if (theMachine == 0)  {
+      
       QLabel *numCPU_Label = new QLabel();
       numCPU_Label->setText(QString("Num Nodes:"));
       layout->addWidget(numCPU_Label,numRow,0);
@@ -190,9 +194,88 @@ RemoteApplication::RemoteApplication(QString name, RemoteService *service, Tapis
     layout->addWidget(new QLabel("TACC Allocation"), numRow, 0);
     allocation = new QLineEdit();
     allocation->setPlaceholderText("Submit a ticket to DesignSafe to obtain your allocation.");
-    allocation->setText(SimCenterPreferences::getInstance()->getDefaultAllocation());
+    QString defaultAllocation = SimCenterPreferences::getInstance()->getDefaultAllocation();
+    if (!defaultAllocation.isEmpty())
+      allocation->setText(defaultAllocation);
+    
     layout->addWidget(allocation,numRow,1);
     numRow++;
+
+    /* Thinking aabout updating Preferences Allocation!
+    // set preferences if different
+    connect(allocation, &QLineEdit::textChanged,
+        this, [this](const QString &newAllocation) {
+	  SimCenterPreferences::getInstance()->setDefaultAllocation(newAllocation));	  
+        });
+    */
+    
+    // ------------------------------- Sharing Jobs through Archive Systems --------------------------------
+    
+    // job["archiveSystemId"] = "project-6281135954102775315-242ac117-0001-012"
+    // job["archiveSystemDir"] = "HydroUQ/sharedJobs/{input_your_user_name}/{input_your_job_name}"
+    layout->addWidget(new QLabel("Archive System ID"), numRow, 0);
+
+    // -----------------------------------------------------------------------------------------------------
+    // // Simple approach to archiveSystemId that requires manual user input of project uuid
+    // systemID = new QLineEdit();
+    // systemID->setText("Default");
+
+    // -----------------------------------------------------------------------------------------------------
+    // Complex curl approach to archiveSystemId that provides a list of projects users are a member of
+    systemID = new QComboBox();
+    systemID->setToolTip("Select the archive system ID. This is the parent project folder the completed job will save files to.");
+    systemID->addItem("designsafe.storage.default");
+
+
+    QPushButton *refreshButton = new QPushButton("Refresh Projects");
+    connect(refreshButton, &QPushButton::clicked, this, [this]() {
+        // Clear the current items in the combo box
+        systemID->clear();
+        uuids.clear();
+        projectIds.clear();
+        titles.clear();
+
+        systemID->addItem("designsafe.storage.default"); // Always add the default item first
+
+        // Call the function to populate the projects
+        // populateProjects();
+    
+        if (systemID->count() == 1) {
+            // QStringList uuids, projectIds, titles;
+            QStringList titlesWithProjectIds;
+    
+            theRemoteService->getUuidProjectIdTitleLists(uuids, projectIds, titles);
+    
+            titlesWithProjectIds = titles;
+            for (int i = 0; i < titles.size(); ++i) {
+                titlesWithProjectIds[i] = titles[i] + " (" + projectIds[i] + ")";
+            }
+            qDebug() << "RemoteApplication::titlesWithProjectIds: " << titlesWithProjectIds;
+    
+            systemID->addItems(titlesWithProjectIds);
+          }
+          
+        systemID->setCurrentIndex(0); // Default to the first item, which is "designsafe.storage.default"
+    });
+    layout->addWidget(refreshButton, numRow, 1);
+    numRow++;
+
+    layout->addWidget(systemID,numRow,1);
+    numRow++;
+
+    // -----------------------------------------------------------------------------------------------------
+    // Basic approach to archiveSystemDir that requires manual user input of the desired output directory
+
+    layout->addWidget(new QLabel("Archive System Dir"), numRow, 0);
+    systemDir = new QLineEdit();
+    systemDir->setText("Default");
+    layout->addWidget(systemDir,numRow,1);
+    numRow++;        
+
+    // -----------------------------------------------------------------------------------------------------
+
+      
+
     
     pushButton = new QPushButton();
     pushButton->setText("Submit");
@@ -248,6 +331,25 @@ RemoteApplication::inputFromJSON(QJsonObject &dataObject) {
 void
 RemoteApplication::onRunButtonPressed(void)
 {
+
+  if ( allocation->text() == "") {
+
+      errorMessage(QString("No TACC Allocation has been provided"));      
+      switch( QMessageBox::warning( 
+            nullptr, 
+            tr("No TACC Allocation Provided"), 
+            tr("No TACC Allocation has been specified in your input form. Please enter your existing allocation in the in the TACC Allocation field. If you do not have one, submit a ticket to DesignSafe requesting access to HPC resources."),
+            QMessageBox::Close))
+	{
+	case QMessageBox::Close:
+	  return;
+	default:
+	  return;
+	}
+      
+      return;
+  }
+  
     QString workingDir = SimCenterPreferences::getInstance()->getRemoteWorkDir();
 
     QDir dirWork(workingDir);
@@ -280,7 +382,21 @@ RemoteApplication::onRunButtonPressed(void)
 
 bool
 RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &inputFile) {
+  
 
+    // Read the file contents
+    QFile file(inputFile);
+    if (file.open(QIODevice::ReadOnly)) {
+        QByteArray fileData = file.readAll();
+        QJsonDocument inputDoc = QJsonDocument::fromJson(fileData);
+        inputObj = inputDoc.object();
+        file.close();
+    } else {
+        errorMessage(QString("Failed to open input file: ") + inputFile);
+        pushButton->setEnabled(true);
+        return false;
+    }
+    
     //Q_UNUSED(runType);
     //    QString appDir = localAppDirName->text();
     QString runType("runningRemote");
@@ -337,15 +453,18 @@ RemoteApplication::setupDoneRunApplication(QString &tmpDirectory, QString &input
 
         QFileInfo pythonFile(python);
         if (!pythonFile.exists()) {
-            emit sendErrorMessage("NO VALID PYTHON - Read the Manual & Check your Preferences");
-            pushButton->setEnabled(true);
-            return false;
+	  emit sendErrorMessage(QString("NO VALID PYTHON found - Read the Manual & Update Preferences"));
+	  qDebug() << "NO VALID PYTHON: " << python;      	  
+	  pushButton->setEnabled(true);
+	  return false;
         }
 
-	      qDebug() << "RUNNING: " << python << " " << args;
+	qDebug() << "RUNNING: " << python << " " << args;
 	
         proc->execute(python,args);
         proc->waitForStarted();
+
+//        return false;
 
         // qDebug() << python;
         // qDebug() << args;
@@ -497,22 +616,30 @@ RemoteApplication::uploadDirReturn(bool result)
         if ((appName == QString("HydroUQ")) || (appName == QString("Hydro-UQ")) || (appName == QString("HydroUQ_TEST")))  {
           
           // NVIDIA GPU queues currently HydroUQ's default, as they include CPUs as well
-          int numProcessorsPerNodeInGpuQueu = numProcessorsPerNode;
+          int numProcessorsPerNodeInGpuQueue = numProcessorsPerNode;
           int nodeCountInGpuQueue = nodeCount;
-          const bool USE_FRONTERA_GPU = true;
+          const bool USE_FRONTERA_GPU = false;
           const bool USE_LONESTAR6_GPU = false;
+          const bool USE_STAMPEDE3_GPU = true;
           if constexpr (USE_FRONTERA_GPU) {
                       queue = "rtx"; // Frontera. 4 NVIDIA Quadro RTX 5000 GPU 16GB
-                      numProcessorsPerNodeInGpuQueu = 8; // 2 Intel Xeon E5-2620 v4 (“Broadwell”), 2*8 cores, or 2*8*2 threads (may not be enabled on Frontera)
+                      numProcessorsPerNodeInGpuQueue = 8; // 2 Intel Xeon E5-2620 v4 (“Broadwell”), 2*8 cores, or 2*8*2 threads (may not be enabled on Frontera)
                       ramPerNodeMB = 128000; // 128 GB
                       nodeCountInGpuQueue = (nodeCount < 22) ? nodeCount : 22; // Frontera, 22 nodes per job on rtx queue
           } else if constexpr (USE_LONESTAR6_GPU) {
                       queue = "gpu-a100"; // Lonestar6, 3 NVIDIA A100 GPU 80 GB
-                      numProcessorsPerNodeInGpuQueu = 1; // 2x AMD EPYC 7763 64-Core Processor ("Milan"), 2*64 cores, or 2*64*1 threads
+                      numProcessorsPerNodeInGpuQueue = 1; // 2x AMD EPYC 7763 64-Core Processor ("Milan"), 2*64 cores, or 2*64*1 threads
                       ramPerNodeMB = 256000; // 256 GB
                       nodeCountInGpuQueue = (nodeCount < 4) ? nodeCount : 4; // Lonestar6, 4 nodes per job on gpu-a100 queue
+          } else if constexpr (USE_STAMPEDE3_GPU) {
+                      queue = "h100"; // Stampede3, 4 NVIDIA H100 GPU 96GB
+                      numProcessorsPerNodeInGpuQueue = 1; // 2 Intel Xeon Platinum 8468 ("Sapphire Rapids"), 96 cores on two sockets (2 x 48 cores)
+                      ramPerNodeMB = 1000000; // 1 TB
+                      nodeCountInGpuQueue = (nodeCount < 4) ? nodeCount : 4; // Stampede3, 4 nodes per job on gpu queue
+          } else {
+            qDebug() << "ERROR: RemoteApplication::uploadDirReturn - No GPU queue selected for HydroUQ";
           }
-          job["coresPerNode"] = numProcessorsPerNodeInGpuQueu;
+          job["coresPerNode"] = numProcessorsPerNodeInGpuQueue;
           job["nodeCount"] = nodeCountInGpuQueue;
         }
 
@@ -600,9 +727,36 @@ RemoteApplication::uploadDirReturn(bool result)
       
       schedulerOptions.append(schedulerOptionsObj);
       parameterSet["schedulerOptions"]=schedulerOptions;
-      parameterSet["envVariables"]=envVariables;
-      job["parameterSet"]=parameterSet;
-      
+
+      // FMK
+      // job["archiveSystemId"] = "project-6281135954102775315-242ac117-0001-012"
+      // job["archiveSystemDir"]
+      // check size of systemID combo box
+
+      if (systemID->currentText() != QString("designsafe.storage.default")) {
+        // match the text in the combo box to the titlesAndProjectIds 
+        // We want to end up with the uuid
+        QString selectedText = systemID->currentText();
+        QStringList parts = selectedText.split(" (");
+        if (parts.size() > 1) {
+          // Extract the project ID from the text
+          QString projectId = parts[1];
+          projectId.chop(1); // Remove the trailing ')'
+          QString uuid = uuids[projectIds.indexOf(projectId)];
+          qDebug() << "Selected UUID:" << uuid << "for project ID:" << projectId << "and text:" << selectedText;
+          QString projectUuid = QString("project-") + uuid;
+          job["archiveSystemId"] = projectUuid;
+        } else { 
+          job["archiveSystemId"] = systemID->currentText(); // in-case later someone adds a default item to the combo box similar to designsafe.storage.default
+        }
+      } else {
+        job["archiveSystemId"] = systemID->currentText(); // designsafe.storage.default
+      }
+
+      if (systemDir->text() != QString("Default")) {
+        job["archiveSystemDir"] = systemDir->text();
+      }
+
       QJsonArray fileInputs;
       QJsonObject inputs;
       inputs["envKey"]="inputDirectory";
@@ -614,7 +768,88 @@ RemoteApplication::uploadDirReturn(bool result)
 	    inputs[inputName] = extraInputs[inputName];
       }
       fileInputs.append(inputs);
-      job["fileInputs"]=fileInputs;
+    
+    
+      // add the drm files paths for the EE-UQ app
+      if (appName == "EE-UQ" || appName == "EE-UQ_TEST" || appName == "EEUQ") 
+      {
+        
+        // add the drm files paths for the EE-UQ app
+        QStringList drmFilePaths;
+        if (inputObj.contains("Events")) 
+        {
+          QJsonArray eventsArray = inputObj["Events"].toArray();
+          QJsonDocument eventsDoc(eventsArray);
+          
+              // Loop through each event to check for DRM with predefined DesignSafe
+              for (const auto& eventValue : eventsArray) 
+              {
+                QJsonObject eventObj = eventValue.toObject();
+                // Check if this event has type "DRM" and system "predefined-designsafe"
+                if (eventObj.contains("type") && eventObj.contains("system")) 
+                {
+                  QString eventType = eventObj["type"].toString();
+                  QString eventSystem = eventObj["system"].toString();
+                  if (eventType == "DRM" && eventSystem == "predefined-designsafe") {
+                    QJsonArray eventsArray2 = eventObj["Events"].toArray();
+                    // for each DRM event in the array
+                    for (const auto& drmEventValue : eventsArray2) {
+                      QJsonObject drmEventObj = drmEventValue.toObject();
+                      QString path = drmEventObj["filePath"].toString();
+                      if (!path.isEmpty()) {
+                        drmFilePaths.append(path);
+                        QJsonObject inputs;
+                        QString name = drmEventObj["name"].toString();
+                        inputs["envKey"] = name;
+                        inputs["targetPath"] = "*";
+                        inputs["sourceUrl"] = path;
+                        fileInputs.append(inputs);
+                      }
+                    }
+                  }
+                }
+              }
+            } else {
+              errorMessage(QString("No Events section found in input JSON"));
+            }  
+            
+            
+            // add some environment variables for EE-UQ
+            QJsonObject isEEUQ_var;
+            isEEUQ_var["key"] = "_eeuqIs";
+            isEEUQ_var["value"] = "true";
+            envVariables.append(isEEUQ_var);
+            
+            // Set _eeuqCoresPerModel with default value first, then override if specified
+            QJsonObject corePerModel_var;
+            corePerModel_var["key"] = "_eeuqCoresPerModel";
+            corePerModel_var["value"] = "1"; // Default value if not specified
+            if (inputObj.contains("Modeling") && inputObj["Modeling"].isObject()) {
+              QJsonObject modelingObj = inputObj["Modeling"].toObject();
+              if (modelingObj.contains("numCores")) {
+                corePerModel_var["value"] = QString::number(modelingObj["numCores"].toInt());
+              }
+            }
+            envVariables.append(corePerModel_var);
+            
+            QJsonObject samples_var;
+            samples_var["key"] = "_eeuqNumSamples";
+            if (inputObj.contains("UQ") && inputObj["UQ"].isObject()) {
+              QJsonObject uqObj = inputObj["UQ"].toObject();
+              if (uqObj.contains("samplingMethodData") && uqObj["samplingMethodData"].isObject()) {
+                QJsonObject samplingMethodData = uqObj["samplingMethodData"].toObject();
+                if (samplingMethodData.contains("samples")) {
+                  samples_var["value"] = QString::number(samplingMethodData["samples"].toInt());
+                  envVariables.append(samples_var);
+                }
+              }
+            }
+            
+            
+          } 
+          job["fileInputs"]=fileInputs;
+          parameterSet["envVariables"]=envVariables;
+          job["parameterSet"]=parameterSet;
 
       qDebug() << job;
       

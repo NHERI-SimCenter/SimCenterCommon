@@ -151,11 +151,14 @@ DakotaEngine::DakotaEngine(UQ_EngineType type, QWidget *parent)
     this->setLayout(layout);
     theCurrentEngine=theSamplingEngine;
 
-    connect(theEngineSelectionBox, SIGNAL(currentTextChanged(QString)), this, SLOT(engineSelectionChanged(QString)));
+    connect(theEngineSelectionBox, &QComboBox::currentTextChanged,
+	    this, [=](QString methodSelection){
+	    this->methodSelectionChanged(methodSelection);
+	    });
 
 
     //connect(theEngineSelectionBox, &QComboBox::currentTextChanged, this,
-    //      SLOT(engineSelectionChanged(QString&)));
+    //      SLOT(methodSelectionChanged(QString&)));
 
     // connect(theSamplingEngine, SIGNAL(onNumModelsChanged(int)), this, SLOT(numModelsChanged(int)));
 
@@ -168,10 +171,8 @@ DakotaEngine::~DakotaEngine()
 }
 
 
-void DakotaEngine::engineSelectionChanged(const QString &arg1)
+void DakotaEngine::methodSelectionChanged(const QString &arg1)
 {
-    // UQ_Engine *theOldEngine = theCurrentEngine;
-  
     if ((arg1 == QString("Sampling")) || (arg1 == QString("Forward Propagation"))) {
       
       theStackedWidget->setCurrentIndex(0);
@@ -206,8 +207,6 @@ void DakotaEngine::engineSelectionChanged(const QString &arg1)
       qDebug() << "ERROR .. DakotaEngine selection .. type unknown: " << arg1;
     }
 
-    // emit signal if engine changed
-    //if (theCurrentEngine != theOldEngine)
     emit onUQ_MethodUpdated(arg1);
 }
 
@@ -246,7 +245,7 @@ DakotaEngine::inputFromJSON(QJsonObject &jsonObject) {
     } 
 
     emit onUQ_MethodUpdated(uqMethod);
-    emit onUQ_EngineChanged("Dakota");
+    // emit onUQ_EngineChanged("Dakota");
 
     bool doParallel = true;
     if (jsonObject.contains("parallelExecution"))
@@ -259,7 +258,7 @@ DakotaEngine::inputFromJSON(QJsonObject &jsonObject) {
     
     theEngineSelectionBox->setCurrentIndex(index);
     
-    this->engineSelectionChanged(uqMethod);
+    this->methodSelectionChanged(uqMethod);
     if (theCurrentEngine != 0)
         result = theCurrentEngine->inputFromJSON(jsonObject);
     else 

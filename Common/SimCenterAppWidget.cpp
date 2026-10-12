@@ -127,10 +127,101 @@ SimCenterAppWidget::copyPath(QString sourceDir, QString destinationDir, bool ove
 }
 
 
+bool SimCenterAppWidget::areFilesIdentical(const QString& path1, const QString& path2) {
+    QFileInfo info1(path1);
+    QFileInfo info2(path2);
+
+    // Check if files exist and are actual files
+    if (!info1.exists() || !info1.isFile() || !info2.exists() || !info2.isFile()) {
+        qDebug() << "ERROR: SimCenterAppWidget: areFilesIdentical - one or both paths are not valid files.";
+        qDebug() << "Path 1:" << path1;
+        qDebug() << "Path 2:" << path2;
+        qDebug() << "File 1 exists:" << info1.exists() << ", is file:" << info1.isFile();
+        qDebug() << "File 2 exists:" << info2.exists() << ", is file:" << info2.isFile();
+        return false; // One or both paths are not valid files
+    }
+
+    // Compare sizes first for quick exit
+    if (info1.size() != info2.size()) {
+        qDebug() << "INFO: SimCenterAppWidget: areFilesIdentical - Files compared are different sizes, [" << info1.size() << "] and [" << info2.size() << ". Implies they are not identical.";
+        return false;
+    }
+
+    // Option 1: Byte-by-byte comparison (for smaller files or when hash is not desired)
+    QFile file1(path1);
+    QFile file2(path2);
+
+    if (!file1.open(QIODevice::ReadOnly) || !file2.open(QIODevice::ReadOnly)) {
+        qDebug() << "ERROR: SimCenterAppWidget: areFilesIdentical - Failed to open one or both files for reading.";
+        qDebug() << "Path 1:" << path1;
+        qDebug() << "Path 2:" << path2;
+        qDebug() << "File 1 open status:" << file1.isOpen();
+        qDebug() << "File 2 open status:" << file2.isOpen();
+        return false; // Failed to open one or both files
+    }
+
+    const int bufferSize = 4096; // Read in chunks
+    char buffer1[bufferSize];
+    char buffer2[bufferSize];
+
+    // chunk limit to avoid memory issues with large files
+    int chunkLimit = 1000000; // 1 million bytes (1 MB) allowed to be compared in total for time's sake
+    qint64 totalBytesRead1 = 0;
+    qint64 totalBytesRead2 = 0;
+    while (!file1.atEnd() && !file2.atEnd()) {
+        if (totalBytesRead1 >= chunkLimit || totalBytesRead2 >= chunkLimit) {
+            qDebug() << "WARN: SimCenterAppWidget: areFilesIdentical - Chunk limit reached, stopping comparison.";
+            file1.close();
+            file2.close();
+            return false; // Stop comparison if chunk limit is reached
+        }
+
+        // Read chunks from both files
+        totalBytesRead1 += file1.pos();
+        totalBytesRead2 += file2.pos();
+        qint64 bytesRead1 = file1.read(buffer1, bufferSize);
+        qint64 bytesRead2 = file2.read(buffer2, bufferSize);
+
+        if (bytesRead1 != bytesRead2 || memcmp(buffer1, buffer2, bytesRead1) != 0) {
+            qDebug() << "INFO: SimCenterAppWidget: areFilesIdentical - Files differ in content. Done via chunk analysis.";
+            file1.close();
+            file2.close();
+            return false;
+        }
+    }
+    qDebug() << "INFO: SimCenterAppWidget: areFilesIdentical - Files read are identical in content (atleast for the compared chunks, with byte limit of " << chunkLimit << " bytes).";
+    file1.close();
+    file2.close();
+    return true; // Files are identical based on content
+
+    /*
+    // Option 2: Hash comparison (more efficient for large files)
+    // Note: You would typically use one or the other, not both
+    QFile file1(path1);
+    QFile file2(path2);
+
+    if (!file1.open(QIODevice::ReadOnly) || !file2.open(QIODevice::ReadOnly)) {
+        return false; // Failed to open one or both files
+    }
+
+    QCryptographicHash hash1(QCryptographicHash::Sha256);
+    QCryptographicHash hash2(QCryptographicHash::Sha256);
+
+    // Add file content to hash
+    hash1.addData(&file1);
+    hash2.addData(&file2);
+
+    file1.close();
+    file2.close();
+
+    return hash1.result() == hash2.result();
+    */
+}
+
 bool
 SimCenterAppWidget::copyFile(QString filename, QString destinationDir)
 {
-    qDebug() << "SimCentAppWidget: " << filename << " " << destinationDir;
+    qDebug() << "SimCenterAppWidget: " << filename << " " << destinationDir;
     
     QFileInfo originalFileInfo(filename);
     
@@ -150,7 +241,7 @@ SimCenterAppWidget::copyFile(QString filename, QString destinationDir)
     QString thePath = originalFileInfo.path();
     QString pathNewFile = QString(destinationDir + QDir::separator() + theFile);
 
-    qDebug() << "SimCentAppWidget: " <<theFile << " " << thePath << " " << pathNewFile;
+    qDebug() << "SimCenterAppWidget: " <<theFile << " " << thePath << " " << pathNewFile;
     
     QFile originalFile(filename);    
     QFile newFile(pathNewFile);
@@ -168,12 +259,18 @@ SimCenterAppWidget::copyFile(QString filename, QString destinationDir)
     //
     
     if (newFileInfo.exists()) {
-      QString msg = QString("WARNING file with same name as: ") + filename + QString(" exists in ") + destinationDir + QString(" file not copied");
+      QString msg = QString("WARNING file with same name as: ") + filename + QString(" exists in ") + destinationDir + QString(" . Checking to see if files are identical before copying...");
       qDebug() << msg;
-      return true;
+      if (SimCenterAppWidget::areFilesIdentical(originalFileInfo.absoluteFilePath(), newFileInfo.absoluteFilePath())) {
+        qDebug() << "SimCenterAppWidget: " << theFile << " already exists in " << destinationDir << " and is identical, not copied";
+        return true;
+      }
+      // remove the file so we can copy the new one
+      qDebug() << "SimCenterAppWidget: " << theFile << " already exists in " << destinationDir << " and is not identical, removing old file";
+      newFile.remove();
     }
 
-    qDebug() << "SimCentAppWidget: " <<theFile << " " << thePath << " " << pathNewFile;;
+    qDebug() << "SimCenterAppWidget: " <<theFile << " " << thePath << " " << pathNewFile;;
     
     return originalFile.copy(pathNewFile);
 }

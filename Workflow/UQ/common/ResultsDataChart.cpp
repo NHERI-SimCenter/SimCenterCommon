@@ -38,6 +38,9 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // added: bsaakash, sangri
 #include <QApplication>
 #include <math.h>
+#include <cmath>
+#include <limits>
+#include <vector>
 
 #include <ResultsDataChart.h>
 #include <QLineEdit>
@@ -64,6 +67,8 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <QMimeData>
 #include <QClipboard>
 #include <QJsonDocument>
+#include <QSet>
+#include <QStringList>
 //using namespace QtCharts;
 
 
@@ -452,6 +457,12 @@ void ResultsDataChart::checkIfSurrogate(QString &filenameTab, bool &isSur, int &
     }
 }
 
+// true if the cell holds a NaN value (such points cannot be plotted)
+static bool isNaNCell(const QTableWidgetItem *item)
+{
+    return item != nullptr && std::isnan(item->text().toDouble());
+}
+
 QVector<QVector<double>>
 ResultsDataChart::getStatistics() {
     //
@@ -469,22 +480,38 @@ ResultsDataChart::getStatistics() {
 
     for (int col = 0; col<numCol; ++col) { // +1 for first col which is nit an RV
 
-        // compute the mean
-        double sum_value=0;
+        // gather the non-NaN values in this column; NaNs (e.g. failed runs) are excluded from the statistics
+        std::vector<double> values;
+        values.reserve(rowCount);
         for(int row=0;row<rowCount;++row) {
             QTableWidgetItem *item_index = spreadsheet->item(row,col);
             double value_item = item_index->text().toDouble();
-            sum_value=sum_value+value_item;
+            if (!std::isnan(value_item))
+                values.push_back(value_item);
         }
 
-        double mean_value=sum_value/rowCount;
+        QString variableName = theHeadings.at(col);
+
+        if (values.empty()) {
+            // nothing to compute statistics from
+            double nanValue = std::numeric_limits<double>::quiet_NaN();
+            statistics.push_back({nanValue, nanValue, nanValue, nanValue});
+            var_names.push_back(variableName);
+            continue;
+        }
+
+        // compute the mean
+        double sum_value=0;
+        for (double value_item : values)
+            sum_value=sum_value+value_item;
+
+        double n = values.size();
+        double mean_value=sum_value/n;
 
         double sd_value=0;
         double kurtosis_value=0;
         double skewness_value = 0;
-        for(int row=0; row<rowCount;++row) {
-            QTableWidgetItem *item_index = spreadsheet->item(row,col);
-            double value_item = item_index->text().toDouble();
+        for (double value_item : values) {
             double tmp = value_item - mean_value;
             double tmp2 = tmp*tmp;
             sd_value += tmp2;
@@ -492,10 +519,9 @@ ResultsDataChart::getStatistics() {
             kurtosis_value += tmp2*tmp2;
         }
 
-        double n = rowCount;
         double tmpV = sd_value/n;
 
-        if (rowCount > 1)
+        if (n > 1)
             sd_value = sd_value/(n-1);
         sd_value=sqrt(sd_value);
 
@@ -511,8 +537,6 @@ ResultsDataChart::getStatistics() {
         // unbiased skewness like Matlab
         if (n > 3)
             skewness_value *= sqrt(n*(n-1))/(n-2);
-
-        QString variableName = theHeadings.at(col);
 
           statistics.push_back({mean_value, sd_value, skewness_value, kurtosis_value});
           var_names.push_back(variableName);
@@ -530,15 +554,20 @@ ResultsDataChart::getMinMax() {
     QVector<QVector<double>> minMax;
 
     for (int col = 0; col<colCount; ++col) {
-        // compute the min and max
-        QTableWidgetItem *item_index = spreadsheet->item(0,col);
-        double min = item_index->text().toDouble();
-        double max = item_index->text().toDouble();
+        // compute the min and max, ignoring NaNs
+        double min = std::numeric_limits<double>::quiet_NaN();
+        double max = std::numeric_limits<double>::quiet_NaN();
 
         for(int row=0;row<rowCount;++row) {
             QTableWidgetItem *item_index = spreadsheet->item(row,col);
             double value_item = item_index->text().toDouble();
-            if (value_item > max) {
+            if (std::isnan(value_item))
+                continue;
+            if (std::isnan(min)) {
+                min = value_item;
+                max = value_item;
+            }
+            else if (value_item > max) {
                 max = value_item;
             }
             else if (value_item < min) {
@@ -550,6 +579,53 @@ ResultsDataChart::getMinMax() {
     return minMax;
 }
 
+
+void
+ResultsDataChart::reportNaNs() {
+    //
+    // tell the user which columns contain NaNs, how many and in which runs;
+    // NaNs are excluded when the summary statistics are computed
+    //
+
+    const int maxRunsListed = 10;
+    int numColsWithNaN = 0;
+    QSet<int> rowsWithNaN;
+    QStringList details;
+
+    for (int col = 1; col < colCount; ++col) { // col 0 is the run index
+        QStringList runs;
+        int numNaN = 0;
+        for (int row = 0; row < rowCount; ++row) {
+            QTableWidgetItem *item = spreadsheet->item(row, col);
+            if (item == nullptr)
+                continue;
+            bool isNumeric = false;
+            double value = item->text().toDouble(&isNumeric);
+            if (isNumeric && std::isnan(value)) {
+                numNaN++;
+                rowsWithNaN.insert(row);
+                if (runs.size() < maxRunsListed)
+                    runs.append(spreadsheet->item(row, 0)->text());
+            }
+        }
+        if (numNaN > 0) {
+            numColsWithNaN++;
+            QString runList = runs.join(", ");
+            if (numNaN > runs.size())
+                runList += ", ...";
+            details.append(QString("  %1: %2 NaN value(s), run(s) %3")
+                           .arg(theHeadings.at(col)).arg(numNaN).arg(runList));
+        }
+    }
+
+    if (numColsWithNaN > 0) {
+        errorMessage(QString("WARNING: results contain NaN values in %1 of %2 column(s), affecting %3 of %4 run(s). "
+                             "NaN values are excluded when computing the summary statistics of each column.\n%5")
+                     .arg(numColsWithNaN).arg(colCount - 1)
+                     .arg(rowsWithNaN.size()).arg(rowCount)
+                     .arg(details.join("\n")));
+    }
+}
 
 void
 ResultsDataChart::readTableFromTab(QString filenameTab) {
@@ -640,6 +716,8 @@ ResultsDataChart::readTableFromTab(QString filenameTab) {
         rowCount++;
     }
     tabResults.close();
+
+    reportNaNs();
 
     if (isSurrogate) {
         nqoi = (colCount-nrv-1)/(1+nmetaSurrogate);
@@ -1236,7 +1314,7 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
             itemX->setData(Qt::BackgroundRole, QColor(Qt::lightGray));
             itemY->setData(Qt::BackgroundRole, QColor(Qt::lightGray));
 
-            if((spreadsheet->item(i,col1)->text()=="-")|| (spreadsheet->item(i,col2)->text()=="-"))  {
+            if((spreadsheet->item(i,col1)->text()=="-")|| (spreadsheet->item(i,col2)->text()=="-") || isNaNCell(itemX) || isNaNCell(itemY))  {
                 continue;
             }
 
@@ -1261,7 +1339,9 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
         double corr = ((double)n_eff * sum_XY - sum_X * sum_Y)/ sqrt(((double)n_eff * squareSum_X - sum_X * sum_X) * ((double)n_eff * squareSum_Y - sum_Y * sum_Y));
 
 
-        series_selected->append(spreadsheet->item(row,col1)->text().toDouble(), spreadsheet->item(row,col2)->text().toDouble());
+        // the selected run may contain NaNs, in which case there is no point to highlight
+        if (!isNaNCell(spreadsheet->item(row,col1)) && !isNaNCell(spreadsheet->item(row,col2)))
+            series_selected->append(spreadsheet->item(row,col1)->text().toDouble(), spreadsheet->item(row,col2)->text().toDouble());
 
         chart->addSeries(series);
         series->setName("Samples");
@@ -1287,8 +1367,9 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
 
 
 
-        double minX, maxX;
-        double minY, maxY;
+        double minX=0, maxX=0;
+        double minY=0, maxY=0;
+        bool firstValid = true;
         for (int i=0; i<rowCount; i++) {
 
             if((spreadsheet->item(i,col1)->text()=="-")|| (spreadsheet->item(i,col2)->text()=="-"))  {
@@ -1298,11 +1379,15 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
             QTableWidgetItem *itemX = spreadsheet->item(i,col1);
             QTableWidgetItem *itemY = spreadsheet->item(i,col2);
 
+            if (isNaNCell(itemX) || isNaNCell(itemY))
+                continue;
+
             double value1 = itemX->text().toDouble();
             double value2 = itemY->text().toDouble();
 
 
-            if (i == 0) {
+            if (firstValid) {
+                firstValid = false;
                 minX=value1;
                 maxX=value1;
                 minY=value2;
@@ -1388,15 +1473,15 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
                 itemOld->setData(Qt::BackgroundRole, QColor(Qt::white));
                 itemX->setData(Qt::BackgroundRole, QColor(Qt::lightGray));
 
-            if((spreadsheet->item(i,col1)->text()=="-"))  {
+            if((spreadsheet->item(i,col1)->text()=="-") || isNaNCell(itemX))  {
                 continue;
             }
 
 
             double value = itemX->text().toDouble();
-            dataValues[i] =  value;
+            dataValues[n_eff] =  value; // only valid (non "-", non NaN) values are stored, n_eff of them
 
-            if (i == 0) {
+            if (n_eff == 0) {
                 min = value;
                 max = value;
             } else if (value < min) {
@@ -1421,11 +1506,8 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
             double range = max-min;
             double dRange = range/NUM_DIVISIONS_FOR_DIVISION;
 
-            for (int i=0; i<rowCount; i++) {
+            for (int i=0; i<n_eff; i++) {
 
-                if((spreadsheet->item(i,col1)->text()=="-"))  {
-                    continue;
-                }
                 // compute block belongs to, watch under and overflow due to numerics
                 int block = floor((dataValues[i]-min)/dRange);
                 if (block < 0) block = 0;
@@ -1435,7 +1517,8 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
 
             double maxPercent = 0;
             for (int i=0; i<NUM_DIVISIONS; i++) {
-                histogram[i] = histogram[i]/n_eff;
+                if (n_eff > 0)
+                    histogram[i] = histogram[i]/n_eff;
                 if (histogram[i] > maxPercent)
                     maxPercent = histogram[i];
             }
@@ -1609,7 +1692,7 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
         ************************************ */
         } else {
             // cumulative distribution
-            mergesort(dataValues, rowCount);
+            mergesort(dataValues, n_eff);
 
             double xAxisMin = min-(max-min)*0.1;
             double xAxisMax =max+(max-min)*0.1;
@@ -1622,11 +1705,7 @@ void ResultsDataChart::onSpreadsheetCellClicked(int row, int col)
             }
 
             series->append(xAxisMin,0);
-            for (int i=0; i<rowCount; i++) {
-
-                if((spreadsheet->item(i,col1)->text()=="-"))  {
-                    continue;
-                }
+            for (int i=0; i<n_eff; i++) {
 
                 series->append(dataValues[i], 1.0*i/n_eff);
                 series->append(dataValues[i], 1.0*(i+1)/n_eff);
@@ -1857,11 +1936,21 @@ void ResultsDataChart::overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxi
         series->setColor(QColor(180, 180, 180, alpha));// grey
         series->setBorderColor(QColor(180, 180, 180, alpha));// grey
 
+        // a run is not plotted if any of the values needed to draw it is NaN
+        auto rowHasNaN = [&](int i) {
+            return isNaNCell(spreadsheet->item(i,col1))     || isNaNCell(spreadsheet->item(i,col2))
+                || isNaNCell(spreadsheet->item(i,col1_mean)) || isNaNCell(spreadsheet->item(i,col2_mean))
+                || isNaNCell(spreadsheet->item(i,col1_lb))   || isNaNCell(spreadsheet->item(i,col2_lb))
+                || isNaNCell(spreadsheet->item(i,col1_ub))   || isNaNCell(spreadsheet->item(i,col2_ub))
+                || isNaNCell(spreadsheet->item(i,col1_lbm))  || isNaNCell(spreadsheet->item(i,col2_lbm))
+                || isNaNCell(spreadsheet->item(i,col1_ubm))  || isNaNCell(spreadsheet->item(i,col2_ubm));
+        };
+
         // find min/max
-        double minX, maxX, minY, maxY;
+        double minX=0, maxX=0, minY=0, maxY=0;
         int n_eff = 0;
         for (int i=0; i<rowCount; i++) {
-            if ((spreadsheet->item(i,col1)->text()=="-")&&(spreadsheet->item(i,col2)->text()=="-"))
+            if (((spreadsheet->item(i,col1)->text()=="-")&&(spreadsheet->item(i,col2)->text()=="-")) || rowHasNaN(i))
             {
                 continue;
             }
@@ -1873,7 +1962,7 @@ void ResultsDataChart::overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxi
             double valueYs = spreadsheet->item(i,col2)->text().toDouble();
 
 
-            if (i == 0) {
+            if (n_eff == 0) {
                 minX=valueXl;
                 maxX=valueXu;
                 minY=valueYl;
@@ -1905,7 +1994,7 @@ void ResultsDataChart::overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxi
         pen_m.setWidth(markerSize/5);
         for (int i=0; i<rowCount; i++) {
 
-            if ((spreadsheet->item(i,col1)->text()=="-")&&(spreadsheet->item(i,col2)->text()=="-"))
+            if (((spreadsheet->item(i,col1)->text()=="-")&&(spreadsheet->item(i,col2)->text()=="-")) || rowHasNaN(i))
             {
                 continue;
             }
@@ -1932,7 +2021,7 @@ void ResultsDataChart::overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxi
         for (int i=0; i<rowCount; i++) {
 
 
-            if ((spreadsheet->item(i,col1)->text()=="-")&&(spreadsheet->item(i,col2)->text()=="-"))
+            if (((spreadsheet->item(i,col1)->text()=="-")&&(spreadsheet->item(i,col2)->text()=="-")) || rowHasNaN(i))
             {
                 continue;
             }
@@ -1956,7 +2045,7 @@ void ResultsDataChart::overlappingPlots(bool isCol1Qoi, bool isCol2Qoi,QValueAxi
 
         for (int i=0; i<rowCount; i++) {
 
-            if ((spreadsheet->item(i,col1)->text()=="-")&&(spreadsheet->item(i,col2)->text()=="-"))
+            if (((spreadsheet->item(i,col1)->text()=="-")&&(spreadsheet->item(i,col2)->text()=="-")) || rowHasNaN(i))
             {
                 continue;
             }

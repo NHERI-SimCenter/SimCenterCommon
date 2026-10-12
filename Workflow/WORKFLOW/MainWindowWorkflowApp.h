@@ -84,7 +84,7 @@ public:
  private:
     void setCurrentFile(const QString &fileName);
     bool saveFile(const QString &fileName);
-    void loadFile(QString &fileName);
+    int loadFile(QString &fileName);
 
     void createActions();
 
@@ -129,6 +129,9 @@ public:
     SimCenterPreferences *thePreferences;
     ExampleDownloader* theExampleDownloader;
     ProgramOutputDialog* statusWidget;
+
+    QWidget *content; // the main content widget, used for styling
+    
 
     friend class R2DUnitTests;
 

@@ -60,8 +60,8 @@ GraphicView2D::GraphicView2D(QWidget *parent) : QWidget(parent), rootEntity(NULL
     lineVertices = new float[maxNumLine*2*3];
     lineColors = new float[maxNumLine*2*3];
 
-    thePointVertices = new vertexStruct[maxNumPoint];
-    theLineVertices = new vertexStruct[maxNumLine*2]; 
+    thePointVertices = new vertexStructGV2D[maxNumPoint];
+    theLineVertices = new vertexStructGV2D[maxNumLine*2]; 
 
 }
 

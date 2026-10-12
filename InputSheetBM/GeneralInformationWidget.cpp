@@ -115,12 +115,12 @@ GeneralInformationWidget::GeneralInformationWidget(QWidget *parent)
 
     designLevel = new QComboBox(this);
     designLevel->setToolTip(tr("Identifies the severity of demands considered during design. The available design levels are defined in the Hazus Earthquake Technical Manual."));
-    designLevel->addItem("PC",0);
-    designLevel->addItem("LC",1);
-    designLevel->addItem("MC",2);
-    designLevel->addItem("HC",3);
-    designLevel->addItem("VC",4);
-    designLevel->addItem("SC",5);
+    designLevel->addItem("Pre-Code",0);
+    designLevel->addItem("Low-Code",1);
+    designLevel->addItem("Moderate-Code",2);
+    designLevel->addItem("High-Code",3);
+    designLevel->addItem("Very High-Code",4);
+    designLevel->addItem("Severe-Code",5);
     designLevel->addItem("N/A",6);
 
     designLevel->setItemData(0, "Pre-Code\nApproximate Basis: UBC Seismic Zone 0, NEHRP Map Area 1.; Pre-1941 construction in all other UBC and NEHRP areas.\nPre-Code design represents older buildings that were not designed for earthquake load, regardless of where they are located in the United States.", Qt::ToolTipRole);

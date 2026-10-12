@@ -41,10 +41,6 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <SimCenterAppWidget.h>
 
-//#include <TapisV3.h>
-//#include <QComboBox>
-//#include <QWebEngineView>
-//#include <QTimeEdit>
 class TapisV3;
 class QLineEdit;
 class QComboBox;

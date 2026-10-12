@@ -33,10 +33,11 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 				   QList<QString> theQueus,
 				   RemoteService *theRemoteService,
 				   SimCenterAppWidget* theEnclosedApp,
-				   QDialog *enclosingDialog)
+				   QDialog *enclosingDialog,
+				   bool localRun)
   :SimCenterAppWidget(), theApp(theEnclosedApp), theService(theRemoteService),
    tapisAppName(appName), tapisAppVersion(appVersion), appNameReport(appName), machine(hpcMachine),
-   queus(theQueus), theMachine(0)
+  queus(theQueus), theMachine(0), includeLocalRun(localRun)
 {
 
   this->initialize(enclosingDialog);
@@ -48,9 +49,10 @@ SC_RemoteAppTool::SC_RemoteAppTool(QString appName,
 				   TapisMachine *machine, 
 				   RemoteService *theRemoteService,
 				   SimCenterAppWidget* theEnclosedApp,
-				   QDialog *enclosingDialog)
+				   QDialog *enclosingDialog,
+				   bool localRun)
   :SimCenterAppWidget(), theApp(theEnclosedApp), theService(theRemoteService),
-   tapisAppName(appName), tapisAppVersion(appVersion), theMachine(machine)
+   tapisAppName(appName), tapisAppVersion(appVersion), theMachine(machine), includeLocalRun(localRun)
 {
   this->initialize(enclosingDialog);
 }
@@ -73,10 +75,20 @@ SC_RemoteAppTool::initialize(QDialog *enclosingDialog) {
   QPushButton *runRemoteButton = new QPushButton("RUN at DesignSafe");
   QPushButton *getRemoteButton = new QPushButton("GET from DesignSafe");
 
-  theButtonLayout->addWidget(fileLoadButton,0,0);
-  theButtonLayout->addWidget(fileSaveButton,0,1);  
-  theButtonLayout->addWidget(runRemoteButton,0,2);
-  theButtonLayout->addWidget(getRemoteButton,0,3);
+  int numCol = 0;
+  theButtonLayout->addWidget(fileLoadButton, 0,numCol++);
+  theButtonLayout->addWidget(fileSaveButton, 0,numCol++);
+
+  if (includeLocalRun == true) {
+    // create local run button and connect the button clicked to the signal localPressed
+    QPushButton *runLocalButton = new QPushButton("RUN");
+    theButtonLayout->addWidget(runLocalButton,0,numCol++);    
+    connect(runLocalButton,&QPushButton::clicked,
+	    this, &SC_RemoteAppTool::runLocalPressed);
+  }
+  
+  theButtonLayout->addWidget(runRemoteButton,0,numCol++);
+  theButtonLayout->addWidget(getRemoteButton,0,numCol++);
   
   theMainLayout->addLayout(theButtonLayout);
   
@@ -158,8 +170,11 @@ SC_RemoteAppTool::initialize(QDialog *enclosingDialog) {
   } else {
 
     numRow++;
-    remoteLayout->addWidget(theMachine,numRow,0, 2, 3);
-    numRow += 2;
+    //remoteLayout->addWidget(theMachine,numRow,0, 2, 3);
+    //numRow += 2;    
+
+    remoteLayout->addWidget(theMachine,numRow,0, 4, 2);
+    numRow += 4;    
   }
 
   numRow++;
@@ -168,12 +183,29 @@ SC_RemoteAppTool::initialize(QDialog *enclosingDialog) {
   allocation->setText(SimCenterPreferences::getInstance()->getDefaultAllocation());
   allocation->setToolTip(tr("Specify which of your TACC allocations to use when running the job."));
   remoteLayout->addWidget(allocation,numRow,1);
-
   numRow++;
+
+  // job["archiveSystemId"] = "project-6281135954102775315-242ac117-0001-012"
+  // job["archiveSystemDir"]
+  remoteLayout->addWidget(new QLabel("Archive System ID"), numRow, 0);
+  systemID = new QLineEdit();
+  systemID->setText("Default");
+  remoteLayout->addWidget(systemID,numRow,1);
+  numRow++;
+
+  remoteLayout->addWidget(new QLabel("Archive System Dir"), numRow, 0);
+  systemDir = new QLineEdit();
+  systemDir->setText("Default");
+  remoteLayout->addWidget(systemDir,numRow,1);
+  numRow++;        
+
+  //numRow++;
   submitButton = new QPushButton();
   submitButton->setText("Submit");
   submitButton->setToolTip(tr("Press to launch job on remote machine. After pressing, window closes when Job Starts"));
   remoteLayout->addWidget(submitButton,numRow,1);
+  numRow++;
+
   
   theRemoteDialog->setLayout(remoteLayout);
   theRemoteDialog->hide();
@@ -196,6 +228,26 @@ SC_RemoteAppTool::initialize(QDialog *enclosingDialog) {
 	    val=file.readAll();
 	    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
 	    QJsonObject jsonObj = doc.object();
+
+      // Often times people try to load in workflow input files for setting up the tools
+      // This fails as all pertinent data tends to be within an .Events[0] objects in the JSON
+      // For convenience, we will check if the input file has this structure and if so adjust
+      // WARNING: Assumes the tool is basically an Event, and the first one, when loading workflow files
+      if (jsonObj.contains("Events")) {
+        QJsonValue eventsVal = jsonObj.value("Events");
+        if (eventsVal.isArray()) {
+          QJsonArray eventsArray = eventsVal.toArray();
+          if (eventsArray.size() > 0) {
+            QJsonValue firstEventVal = eventsArray.at(0);
+            if (firstEventVal.isObject()) {
+              QJsonObject firstEventObj = firstEventVal.toObject();
+              // Now we will replace the entire jsonObj with this first event object
+              jsonObj = firstEventObj;
+              this->infoMessage("NOTE - SC_RemoteAppTool loaded JSON contained an Events array. Using the first object in this array for input.");
+            }
+          }
+        }
+      }
 
 	    // close file
 	    file.close();
@@ -586,6 +638,16 @@ SC_RemoteAppTool::uploadDirReturn(bool result)
     parameterSet["envVariables"]=envVariables;
     job["parameterSet"]=parameterSet;
 
+
+    // PA
+    // job["archiveSystemId"] = "project-6281135954102775315-242ac117-0001-012"
+    // job["archiveSystemDir"]
+    if (systemID->text() != QString("Default"))
+	    job["archiveSystemId"] = systemID->text();
+      
+    if (systemDir->text() != QString("Default"))
+	    job["archiveSystemDir"] = systemDir->text();	  
+
     //
     // file inputs
     //
@@ -665,13 +727,25 @@ SC_RemoteAppTool::processResults(QString &dirName){
     
   SC_ResultsWidget *theResults = theApp->getResultsWidget();
   if (theResults == NULL) {
-    this->errorMessage("FATAL - SC_RemoteAppTool received NULL pointer theResults from theApp->getResultsWidget()... skipping theResults->processResults()");
-    return;
+    this->infoMessage("NOTE - SC_RemoteAppTool received NULL pointer theResults from theApp->getResultsWidget()... not an error, but skipping theResults->processResults(). You will need to manually navigate to and run the tools results visualizer, if it exists.");
+    QDir resultsDir(dirName);
+    QString resultsPath = resultsDir.absolutePath();
+    QString inputFileName = "scInput.json";
+    QString inputFilePath = resultsPath + QDir::separator() + inputFileName;
+    QFile jsonFile(inputFilePath);
+    if (!jsonFile.open(QFile::ReadOnly | QFile::Text))
+    {
+            qDebug() << "SC_RemoteAppTool::processResults - could not open file: " << inputFilePath;
+            return;
+    }
+    QString val = jsonFile.readAll();
+    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+    QJsonObject jsonObject = doc.object();
+    theApp->inputFromJSON(jsonObject);
+  } else {
+    QString inputFileName("scInput.json");
+    theResults->processResults(inputFileName, dirName); // Assumes there is some inputFromJSON() call in the theResults->processResults() for the tool
   }
-
-  QString blankFileName("scInput.json");
-  theResults->processResults(blankFileName,dirName);
-
 }
 
 void SC_RemoteAppTool::setExtraInputs(QMap<QString, QString> extraInputs)

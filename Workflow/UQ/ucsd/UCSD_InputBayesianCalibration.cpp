@@ -260,8 +260,13 @@ bool UCSD_InputBayesianCalibration::outputCitation(QJsonObject &jsonObject)
         paper2.insert("citation",QString("Minson, S. E., Simons, M., & Beck, J. L. (2013). Bayesian Inversion for Finite Fault Earthquake Source Models I-Theory and Algorithm. Geophysical Journal International, 194(3), 1701-1726."));
         paper2.insert("description",QString("In this paper a parallel version of the TMCMC algorithm was described. The implementation of the TMCMC algorithm in quoFEM is based on ideas proposed in this paper."));
 
+        QJsonObject paper3;
+        paper3.insert("citation", QString("Taflanidis, A. A., Aakash, B. S., Yi, S.-R., & Conte, J. P. (2025). Surrogate-aided Bayesian calibration with adaptive learning strategies. Mechanical Systems and Signal Processing, 237, 113014. https://doi.org/10.1016/j.ymssp.2025.113014."));
+        paper3.insert("description", QString("This paper presents the surrogate-aided Bayesian calibration algorithm which is run when the 'Use Approximation' option is selected. The implementation of the TMCMC algorithm in quoFEM follows the description in this paper."));
+
         citations.append(paper1);
         citations.append(paper2);
+        citations.append(paper3);
 
         jsonObject.insert("citations", citations);
 
@@ -269,8 +274,8 @@ bool UCSD_InputBayesianCalibration::outputCitation(QJsonObject &jsonObject)
         QJsonArray citations;
 
         QJsonObject paper1;
-        paper1.insert("citation",QString("Kurumbhati, M. M., Ramancha, M. K., Aakash, B. S., Conte, J. P., Lotfizadeh, K. H. (Year). Hierarchical Bayesian Modeling for Calibration and Uncertainty Quantification of Constitutive Material Models: Application to a Uniaxial Steel Material Model. Engineering Structures."));
-        paper1.insert("description",QString("The implementation of the sampling algorithm for Bayesian calibration of hierarchial models follows the description in this paper."));
+        paper1.insert("citation",QString("Kurumbhati, M. M., Ramancha, M. K., Aakash, B. S., Conte, J. P., Lotfizadeh, K. H. (2024). Hierarchical Bayesian Modeling for Calibration and Uncertainty Quantification of Constitutive Material Models: Application to a Uniaxial Steel Material Model. Engineering Structures."));
+        paper1.insert("description",QString("The implementation of the sampling algorithm for Bayesian calibration of hierarchical models follows the description in this paper."));
 
         QJsonObject paper2;
         paper2.insert("citation",QString("Engineering Risk Analysis Group, Technische Universität München. (2023). ERADist Toolbox (Version 05/2023). Retrieved from https://www.bgu.tum.de/era/software/eradist/ (Python code and documentation)."));

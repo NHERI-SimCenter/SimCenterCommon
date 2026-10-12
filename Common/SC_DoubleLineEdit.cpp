@@ -73,8 +73,8 @@ SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey)
 SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey, double initValue, double min, double max, int decimal)
   :QLineEdit()
 {
-  //QDoubleValidator* theValidator = new QDoubleValidator(min, max, decimal);
-  this->setValidator(new TextFieldDoubleValidator(min, max, decimal));
+  QDoubleValidator* theValidator = new QDoubleValidator(min, max, decimal);
+  //this->setValidator(new TextFieldDoubleValidator(min, max, decimal));
   
   key = theKey;
   this->setText(QString::number(initValue));  
@@ -85,8 +85,8 @@ SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey, double initValue, double mi
 SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey, double initValue, QString toolTip, double min, double max, int decimal)
   :QLineEdit()
 {
-  //QDoubleValidator* theValidator = new QDoubleValidator();
-  this->setValidator(new TextFieldDoubleValidator(min, max, decimal));
+  QDoubleValidator* theValidator = new QDoubleValidator();
+  //this->setValidator(new TextFieldDoubleValidator(min, max, decimal));
   
   key = theKey;
   this->setText(QString::number(initValue));
@@ -95,7 +95,7 @@ SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey, double initValue, QString t
 SC_DoubleLineEdit::SC_DoubleLineEdit(QString theKey, double min, double max, int decimal)
   :QLineEdit()
 {
-  this->setValidator(new TextFieldDoubleValidator(min, max, decimal));
+  //this->setValidator(new TextFieldDoubleValidator(min, max, decimal));
   key = theKey;
 }
 

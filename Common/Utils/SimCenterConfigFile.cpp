@@ -4,6 +4,7 @@
 #include <QDir>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QByteArray>
 
 // functions to return a config option if set
 // if file "config.json" exists function opens it, looks for option and returns value
@@ -39,6 +40,8 @@ int parseInputOptions(void) {
     jsonObj = exDoc.object();
   }
 
+  jsonFile.close();
+  
   //
   // add command line jsonObj if provided, override ones in config.json if duplicate
   //  parse -key value
@@ -96,31 +99,41 @@ int parseInputOptions(void) {
   // C:\projects\SimCenter\SimCenterCommon\Common\Utils\SimCenterConfigFile.cpp(94) : error C4716: 'parseInputOptions': must return a value
 }
 
+bool setConfigOptionString(QString option, QString value) {
+
+  if (parsedInputOptions == false)
+    parseInputOptions();
+  
+  inputOptions->insert(option, value);
+    
+  QString appPath = QCoreApplication::applicationDirPath();
+  QString configFile = appPath + QDir::separator() + QString("config.json");
+  QFile jsonFile(configFile);
+
+  if (!jsonFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    qWarning() << "Could not open config file for writing:" << jsonFile.errorString();
+    return false;
+  }
+  
+  QJsonDocument doc(*inputOptions);
+  QByteArray jsonData = doc.toJson(QJsonDocument::Indented);
+  qDebug() << "JSON DATA"  << jsonData;
+
+  
+  jsonFile.write(jsonData);
+  
+  jsonFile.close();
+  qDebug() << "setOption: " << configFile << "\n\t" << *inputOptions;
+  return true;
+}
 
 QString getConfigOptionString(QString option) {
 
   if (parsedInputOptions == false)
     parseInputOptions();
-  
+
   QString res = "";
-
-  /*
-  QString appPath = QCoreApplication::applicationDirPath();
-  QString configFile = appPath + QDir::separator() + QString("config.json");
-  QFile jsonFile(configFile);
-
-  qDebug() << "getConfigOptionString: option=" << option;  
-  qDebug() << "configFile: " << configFile;
-
   
-  if (jsonFile.exists() && jsonFile.open(QFile::ReadOnly)) {
-
-    QJsonDocument exDoc = QJsonDocument::fromJson(jsonFile.readAll());
-    QJsonObject options = exDoc.object();
-    qDebug() << "configFile JSON: " << options;
-
-  */
-
   qDebug() << "getConfigString: " << option << *inputOptions;
   
   if (inputOptions->contains(option)) {
@@ -128,7 +141,7 @@ QString getConfigOptionString(QString option) {
     if (value.isString())
       return value.toString();
   }
-
+  
   return res;
 }
 
