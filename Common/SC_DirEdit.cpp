@@ -34,7 +34,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written: fmckenna
+// Written: fmckenna, Sina Naeimi
 
 #include <SC_DirEdit.h>
 
@@ -64,9 +64,11 @@ SC_DirEdit::SC_DirEdit(QString theKey, bool copyFiles)
     connect(chooseFile, &QPushButton::clicked, this,
             [=]() {
         QString fileName=QFileDialog::getExistingDirectory(this,tr("Select Directory"),"", QFileDialog::ShowDirsOnly);
-	
-        theDirectory->setText(fileName);
-        emit dirNameChanged(fileName);
+
+        if (fileName.isEmpty() == false){
+          theDirectory->setText(fileName);
+          emit dirNameChanged(fileName);
+        }
      });
 }
 
